@@ -1,0 +1,22 @@
+# Fichiers de configuration locaux
+.terraform/
+
+# Fichier tfstate qui peut contenir des données sensibles
+*.tfstate
+*.tfstate.* 
+
+# Fichiers de sauvegardes créés lors de la planification ou l'application d'une erreur
+*.tfplan
+*.backup
+
+# Les fichiers temporaires de bloc-notes
+*.log
+
+# Les fichiers qui pourraient apparaître sur le système du développeur si ce dernier utilise MacOS
+.DS_Store
+
+# Les fichiers qui pourraient apparaître sur le système du développeur si ce dernier utilise Windows
+Thumbs.db
+Desktop.ini
+
+*.zip

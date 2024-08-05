@@ -1,0 +1,27 @@
+{
+    "id": "aAHV08dTWuhGD8mSIqw66bIiYxEmOgC9",
+    "createdTime": "8/5/2024, 11:51:43 AM",
+    "name": "New chat",
+    "conversations": [
+        {
+            "id": "aAHV08dTWuhGD8mSIqw66bIiYxEmOgC9",
+            "createdTime": "8/5/2024, 11:51:43 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "aAHV08dTWuhGD8mSIqw66bIiYxEmOgC9",
+                "role": "user",
+                "text": "{\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"BLOCKING_FUNCTION_ERROR_RESPONSE : Response is not in valid JSON format.\",\n    \"errors\": [\n      {\n        \"message\": \"BLOCKING_FUNCTION_ERROR_RESPONSE : Response is not in valid JSON format.\",\n        \"domain\": \"global\",\n        \"reason\": \"invalid\"\n      }\n    ]\n  }\n}\n"
+            },
+            "response": {
+                "id": "YNaVCzb0M79rnhVlIBhv8YgPqQHa7iS8",
+                "role": "assistant",
+                "text": "It appears that you're encountering an error with your JSON response format in a function. The error code `400` is typically indicative of a \"Bad Request\". Specifically, the message `BLOCKING_FUNCTION_ERROR_RESPONSE : Response is not in valid JSON format.` is indicating that your function's output isn't valid JSON.\n\nJSON responses must adhere to specific syntax rules such as:\n\n- Data must be in name/value pairs\n- Data names must be enclosed in double quotes\n- Data values must be of a valid JSON data type (Number, String, Object, Array, Boolean or Null)\n- Curly braces hold the objects\n- Square brackets hold arrays.\n\nHere's how a simple, typical JSON object looks:\n\n```json\n{\n  \"name\": \"John Doe\",\n  \"age\": 30,\n  \"isAlive\": true,\n  \"children\": [\"Ann\", \"Billy\"],\n  \"spouse\": {\n    \"name\": \"Jane Doe\",\n    \"age\": 28\n  }\n}\n```\n\nPlease check if your function is returning a response in this manner.\n\nIf you could provide the function that is causing this error, I can provide a more detailed solution for this issue."
+            }
+        }
+    ]
+}

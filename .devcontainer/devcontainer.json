@@ -1,0 +1,55 @@
+{
+  "name": "Go Dev Container",
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
+  "remoteEnv": {
+    "REACT_APP_GOOGLE_MAPS_API_KEY": "${env:UTRADE_GOOGLE_MAPS_API_KEY}",
+    "GOOGLE_CLOUD_CREDENTIALS": "${env:UTRADE_GOOGLE_CLOUD_CREDENTIALS}",
+    "TF_VAR_google_cloud_idp_google_web_auth_secret": "${env:UTRADE_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET}"
+  },
+  "service": "dev",
+  "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.fontLigatures": false,
+        "editor.formatOnSave": true,
+        "editor.inlineSuggest.enabled": true,
+        "explorer.confirmDelete": false,
+        "genieai.enableConversationHistory": true,
+        "genieai.openai.model": "gpt-4",
+        "genieai.promptPrefix.addComments-enabled": false,
+        "git.enabled": true,
+        "go.toolsManagement.autoUpdate": true,
+        "search.showLineNumbers": true,
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-debian",
+            "color": "terminal.ansiRed"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "window.commandCenter": false,
+        "workbench.colorTheme": "Solarized Light",
+        "workbench.layoutControl.enabled": false,
+        "zenMode.centerLayout": false,
+        "zenMode.hideLineNumbers": false
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "diemasmichiels.emulate",
+        "genieai.chatgpt-vscode",
+        "golang.go",
+        "hashicorp.hcl",
+        "hashicorp.terraform",
+        "mauve.terraform",
+        "ms-azuretools.vscode-docker",
+        "msjsdiag.vscode-react-native",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

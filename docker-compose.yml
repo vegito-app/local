@@ -1,0 +1,14 @@
+services:
+  dev:
+    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:latest-buider}
+    build:  
+      context: .
+      dockerfile: ./builder.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ${PWD}:${PWD}:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: ${PWD}
+    command: /bin/sh -c "while sleep 1000; do :; done"
+ 
