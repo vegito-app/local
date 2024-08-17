@@ -1,0 +1,47 @@
+{
+    "id": "FqtAOfrUlLzXrTqRTDNYefpLkuncy3uk",
+    "createdTime": "6/25/2024, 1:39:29 PM",
+    "name": "Docker origins",
+    "conversations": [
+        {
+            "id": "FqtAOfrUlLzXrTqRTDNYefpLkuncy3uk",
+            "createdTime": "6/25/2024, 1:39:29 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 1092,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "FqtAOfrUlLzXrTqRTDNYefpLkuncy3uk",
+                "role": "user",
+                "text": "comment a évolué docker depuis sa création ?"
+            },
+            "response": {
+                "id": "Q2QBbYxmx5tc8GNL5mqulCVG83Jy9Dph",
+                "role": "assistant",
+                "text": "Docker a considérablement évolué depuis sa création en 2013. Voici quelques points clés qui soulignent son parcours:\n\n1. **2013 - Lancement de Docker:**\nLorsque Docker a été lancé par Solomon Hykes lors de la conférence PyCon en 2013, il a révolutionné le concept de déploiement d'applications. Docker a introduit le concept de conteneurs pour empaqueter et distribuer des applications.\n\n2. **2014 - Docker 1.0 Lancé:**\nLa première version stable de Docker a été lancée en 2014 avec la garantie de pouvoir être utilisée en production.\n\n3. **2015 - Introduction de Docker Compose:**\nEn 2015, Docker a ajouté une nouvelle fonctionnalité appelée Docker Compose, qui permet aux développeurs de définir et de gérer des applications multi-conteneurs comme un seul service.\n\n4. **2015 - Docker Swarm:**\nDocker Swarm est introduit comme un outil natif de mise en cluster et d'orchestration pour Docker. Il transforme un pool de machines Docker en un seul hôte virtuel.\n\n5. **2016 - Intégration avec Microsoft:**\nGrâce à un partenariat stratégique avec Microsoft, Docker devient disponible sur Windows 10 et Server 2016.\n\n6. **2017 - Moby Project:**\nLe projet Moby est lancé pour aider l'écosystème Docker à adopter les conteneurs en tant que norme.\n\n7. **2019 - Acquisition de Docker Enterprise:**\nMirantis acquiert Docker Enterprise, y compris les produits Docker Engine Enterprise, Docker Trusted Registry, Docker Unified Control Plane et Docker CLI.\n\n8. **2020 - Docker se concentre sur les développeurs:**\nDocker se repositionne en tant que plate-forme de développement, avec un accent particulier sur la simplification du processus pour les développeurs.\n\nAu fil des ans, Docker a fait d'énormes progrès et continue de croître, offrant de nouvelles fonctionnalités et capacités tout en rendant le développement d'applications plus facile et plus efficace. C'est maintenant un outil essentiel pour les développeurs dans de nombreuses entreprises à travers le monde."
+            }
+        },
+        {
+            "id": "FqtAOfrUlLzXrTqRTDNYefpLkuncy3uk",
+            "createdTime": "6/25/2024, 1:41:42 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 1092,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "X8tOD2ktPkiKu2NHMhOK6cAusTRVjkdr",
+                "role": "user",
+                "text": "comment fonctionnent les contextes docker ?$"
+            },
+            "response": {
+                "id": "lds79Mce8UVf1o0Waas4SWg5D3pWXoAh",
+                "role": "assistant",
+                "text": "Les contextes Docker fournissent un moyen pour vous de commuter entre différents environnements Docker. Un contexte Docker est simplement un ensemble de paramètres de configuration qui pointent vers un environnement Docker spécifique.\n\nPar exemple, vous pouvez avoir différents contextes pour les environnements de développement, de test et de production, ou pour des démonstrations sur différentes machines hôtes.\n\nChaque contexte contient les informations suivantes:\n\n- Nom du contexte\n- URL du démon Docker Engine (local ou distant)\n- Certificats TLS (optionnel)\n- Fichier de configuration AWS (si le contexte est destiné à des services basés sur AWS)\n\nUn contexte par défaut est créé lorsque vous installez Docker pour la première fois. Vous pouvez créer d'autres contextes en utilisant la commande `docker context create`.\n\nVoici comment le faire en pratique:\n\n```bash\n# Créez un nouveau contexte\ndocker context create my-context --description \"My new context\" --docker \"host=tcp://myserver:2375\"\n```\n\nPour utiliser un contexte particulier, utilisez la commande `docker context use`:\n\n```bash\n# Utiliser un contexte spécifique\ndocker context use my-context\n```\n\nIl est également possible de lister tous les contextes disponibles avec la commande `docker context ls`:\n\n```bash\n# Listez tous les contextes disponibles\ndocker context ls\n```\n\nEt pour supprimer un contexte, vous pouvez utiliser la commande `docker context rm`:\n\n```bash\n# Supprimez un contexte spécifique\ndocker context rm my-context\n```\n\nL'utilisation des contextes Docker améliore l'efficacité du travail avec plusieurs environnements Docker, en évitant l'interruption du flux de travail pour changer les variables d'environnement ou modifier les fichiers de configuration."
+            }
+        }
+    ]
+}

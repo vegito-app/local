@@ -1,7 +1,7 @@
 {
     "id": "Q35RGsH3zSZBhFzM0ooktHb2qxibTNbq",
     "createdTime": "8/5/2024, 5:38:29 AM",
-    "name": "New chat",
+    "name": "Docker registry GCP",
     "conversations": [
         {
             "id": "Q35RGsH3zSZBhFzM0ooktHb2qxibTNbq",
@@ -81,66 +81,6 @@
                 "id": "ZIzMyb4KYRMQCpb4gINJx5yLyRNxFV8X",
                 "role": "assistant",
                 "text": "Oui, vous pouvez lister les tags pour une image spécifique dans Google Container Registry en utilisant la commande `gcloud` suivante :\n\n```bash\ngcloud container images list-tags [HOSTNAME]/[PROJECT-ID]/[IMAGE]\n```\n\nRemplacez `[HOSTNAME]`, `[PROJECT-ID]` et `[IMAGE]` par vos informations :\n- `[HOSTNAME]` : Il peut s'agir de `gcr.io`, `us.gcr.io`, `eu.gcr.io`, `asia.gcr.io`.\n- `[PROJECT-ID]` : L'ID de votre projet GCP.\n- `[IMAGE]` : Le nom de l'image de conteneur.\n\nPar exemple :\n```bash\ngcloud container images list-tags gcr.io/myproject/myimage\n```\n\nCette commande affichera tous les tags pour l'image 'myimage' stockée dans le registre du projet 'myproject'."
-            }
-        },
-        {
-            "id": "Q35RGsH3zSZBhFzM0ooktHb2qxibTNbq",
-            "createdTime": "8/5/2024, 6:02:08 AM",
-            "completionParams": {
-                "model": "gpt-4",
-                "max_tokens": 2048,
-                "temperature": 0.9,
-                "top_p": 1
-            },
-            "prompt": {
-                "id": "F3k6gxsMlcun7HfsTzAjeLBX5paGv6vL",
-                "role": "user",
-                "text": "peut on supprimer tous les tags ?"
-            },
-            "response": {
-                "id": "tr6xgeMxqbBx9cNUEwmEzCYeJ5aypR4P",
-                "role": "assistant",
-                "text": "Oui, vous pouvez supprimer tous les tags pour une image spécifique dans Google Container Registry en utilisant la commande `gcloud` suivante :\n\n```bash\ngcloud container images list-tags [HOSTNAME]/[PROJECT-ID]/[IMAGE] --format='get(digest)' | xargs -I {} gcloud container images untag [HOSTNAME]/[PROJECT-ID]/[IMAGE]@{}\n```\n\nRemplacez `[HOSTNAME]`, `[PROJECT-ID]` et `[IMAGE]` par vos informations :\n- `[HOSTNAME]` : Il peut s'agir de `gcr.io`, `us.gcr.io`, `eu.gcr.io`, `asia.gcr.io`.\n- `[PROJECT-ID]` : L'ID de votre projet GCP.\n- `[IMAGE]` : Le nom de l'image de conteneur.\n\nPar exemple :\n```bash\ngcloud container images list-tags gcr.io/myproject/myimage --format='get(digest)' | xargs -I {} gcloud container images untag gcr.io/myproject/myimage@{}\n```\n\nCette commande énumérera tous les tags pour l'image 'myimage' stockée dans le registre du projet 'myproject' puis supprimera chacun d'eux. ATTENTION : cette opération est irréversible, assurez-vous donc de vraiment vouloir supprimer tous les tags avant de l'exécuter."
-            }
-        },
-        {
-            "id": "Q35RGsH3zSZBhFzM0ooktHb2qxibTNbq",
-            "createdTime": "8/5/2024, 6:10:00 AM",
-            "completionParams": {
-                "model": "gpt-4",
-                "max_tokens": 2048,
-                "temperature": 0.9,
-                "top_p": 1
-            },
-            "prompt": {
-                "id": "Rse1PFLSNKRMkdJazyVagDoxPMQ7nBH5",
-                "role": "user",
-                "text": "hello"
-            },
-            "response": {
-                "id": "LkgFiqASmX8wKy8ckG6DdLuBz2p41dlZ",
-                "role": "assistant",
-                "text": "Hello! How can I assist you with your coding today?"
-            }
-        },
-        {
-            "id": "Q35RGsH3zSZBhFzM0ooktHb2qxibTNbq",
-            "createdTime": "8/5/2024, 6:24:24 AM",
-            "completionParams": {
-                "model": "gpt-4",
-                "max_tokens": 2048,
-                "temperature": 0.9,
-                "top_p": 1
-            },
-            "prompt": {
-                "id": "8kvu59NsgoU1LThMcdaMSsET8gjvUanE",
-                "role": "user",
-                "text": "\n"
-            },
-            "response": {
-                "id": "BNasi693duYmI23DaqMrS8mlrnMbd0ut",
-                "role": "assistant",
-                "text": "I'm sorry but your message is blank. Could you please provide more details?"
             }
         }
     ]

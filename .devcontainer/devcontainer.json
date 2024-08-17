@@ -3,14 +3,13 @@
   "dockerComposeFile": [
     "../docker-compose.yml"
   ],
-  "remoteEnv": {
-    "REACT_APP_GOOGLE_MAPS_API_KEY": "${env:UTRADE_GOOGLE_MAPS_API_KEY}",
-    "GOOGLE_CLOUD_CREDENTIALS": "${env:UTRADE_GOOGLE_CLOUD_CREDENTIALS}",
-    "TF_VAR_google_cloud_idp_google_web_auth_secret": "${env:UTRADE_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET}"
-  },
   "service": "dev",
+  "runServices": [
+    "dev"
+  ],
+  "initializeCommand": "make local-builder-image local-docker-compose-firebase-emulators-build-no-pull",
   "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
-  "workspaceFolder": "${localWorkspaceFolder}",
+  "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {
     "vscode": {
       "settings": {
@@ -33,22 +32,90 @@
         },
         "terminal.integrated.defaultProfile.linux": "bash",
         "window.commandCenter": false,
-        "workbench.colorTheme": "Solarized Light",
+        "workbench.colorTheme": "Kimbie Dark",
+        "workbench.iconTheme": "material-icon-theme",
         "workbench.layoutControl.enabled": false,
         "zenMode.centerLayout": false,
-        "zenMode.hideLineNumbers": false
+        "zenMode.hideLineNumbers": false,
+        "diffEditor.ignoreTrimWhitespace": false,
+        "[jsonc]": {
+          "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "files.hotExit": "onExitAndWindowClose",
+        "remote.portsAttributes": {
+          "3000": {
+            "label": "Application UI - Debug",
+            "protocol": "http",
+            "onAutoForward": "silent"
+          },
+          "8080": {
+            "label": "Application Backend - Debug",
+            "protocol": "http",
+            "onAutoForward": "silent"
+          },
+          "4000": {
+            "label": "Firebase Emulator UI",
+            "protocol": "http",
+            "onAutoForward": "silent"
+          },
+          "4400": {
+            "label": "Firebase Emulator Hub",
+            "onAutoForward": "silent"
+          },
+          "4500": {
+            "label": "Firebase reserved 0",
+            "onAutoForward": "silent"
+          },
+          "5001": {
+            "label": "Firebase Functions",
+            "onAutoForward": "silent"
+          },
+          "8090": {
+            "label": "Firebase Firestore",
+            "onAutoForward": "silent"
+          },
+          "9000": {
+            "label": "Firebase Database",
+            "onAutoForward": "silent"
+          },
+          "9099": {
+            "label": "Firebase Authentication",
+            "onAutoForward": "silent"
+          },
+          "9150": {
+            "label": "Firebase Reserved 1",
+            "onAutoForward": "silent"
+          },
+          "9199": {
+            "label": "Firebase Storage",
+            "onAutoForward": "silent"
+          },
+          "9299": {
+            "label": "Firebase (triggers)",
+            "onAutoForward": "silent"
+          }
+        }
       },
       "extensions": [
+        "ChFlick.firecode",
         "dbaeumer.vscode-eslint",
         "diemasmichiels.emulate",
+        "esbenp.prettier-vscode",
         "genieai.chatgpt-vscode",
         "golang.go",
+        "hasanakg.firebase-snippets",
         "hashicorp.hcl",
-        "hashicorp.terraform",
+        "huang-an-sheng.firebase-web-app-snippets",
+        "jsayol.firebase-explorer",
         "mauve.terraform",
         "ms-azuretools.vscode-docker",
         "msjsdiag.vscode-react-native",
-        "esbenp.prettier-vscode"
+        "pjmiravalle.terraform-advanced-syntax-highlighting",
+        "pkief.material-icon-theme",
+        "redhat.vscode-yaml",
+        "standard.vscode-standard",
+        "toba.vsfire",
+        "hashicorp.terraform"
       ]
     }
   }

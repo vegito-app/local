@@ -1,0 +1,27 @@
+{
+    "id": "HEJ5ZyED2YaoXKsLuuBzGhlaPAU5MK9g",
+    "createdTime": "8/22/2024, 5:35:52 PM",
+    "name": "New chat",
+    "conversations": [
+        {
+            "id": "HEJ5ZyED2YaoXKsLuuBzGhlaPAU5MK9g",
+            "createdTime": "8/22/2024, 5:35:52 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "HEJ5ZyED2YaoXKsLuuBzGhlaPAU5MK9g",
+                "role": "user",
+                "text": "a la fin du demarage de l'eulateur firebase  certains ports (4500 et 9150) sont réservés en plus  `┌─────────────────────────────────────────────────────────────┐\n│ ✔  All emulators ready! It is now safe to connect your app. │\n│ i  View Emulator UI at http://127.0.0.1:4000/               │\n└─────────────────────────────────────────────────────────────┘\n\n┌────────────────┬──────────────┬─────────────────────────────────┐\n│ Emulator       │ Host:Port    │ View in Emulator UI             │\n├────────────────┼──────────────┼─────────────────────────────────┤\n│ Authentication │ 0.0.0.0:9099 │ http://127.0.0.1:4000/auth      │\n├────────────────┼──────────────┼─────────────────────────────────┤\n│ Functions      │ 0.0.0.0:5001 │ http://127.0.0.1:4000/functions │\n├────────────────┼──────────────┼─────────────────────────────────┤\n│ Firestore      │ 0.0.0.0:8090 │ http://127.0.0.1:4000/firestore │\n└────────────────┴──────────────┴─────────────────────────────────┘\n  Emulator Hub running at 127.0.0.1:4400\n  Other reserved ports: 4500, 9150`. Cela correspond à quoi ?"
+            },
+            "response": {
+                "id": "5MPtWQOODVe0iruJTAYvlmJf5fPXZ0as",
+                "role": "assistant",
+                "text": "L'émulateur Firebase est un ensemble d'outils qui vous permettent de tester vos applications en local, sans avoir à se connecter à des services Firebase réels. Chaque service émulé utilise un port spécifique pour écouter les requêtes HTTP. Dans votre cas, voici ce que signifient ces ports :\n\n- **9099** : C'est le port sur lequel l'émulateur d'authentication est à l'écoute.\n- **5001** : C'est le port sur lequel l'émulateur de fonctions Firebase est à l'écoute.\n- **8090** : C'est le port sur lequel l'émulateur Firestore est à l'écoute.\n- **4000** : C'est le port sur lequel tourne l'Emulator UI, une interface web fournie par.Firebase pour visualiser et interagir avec les données de votre application en local.\n- **4400** : C'est le port sur lequel tourne l'emulateur Hub.\n  \nLes deux autres ports mentionnés, **4500** et **9150**, sont des ports supplémentaires réservés par Firebase. Ils peuvent être utilisés par d'autres services émulés par Firebase, tels que le Realtime Database ou Firebase Hosting."
+            }
+        }
+    ]
+}

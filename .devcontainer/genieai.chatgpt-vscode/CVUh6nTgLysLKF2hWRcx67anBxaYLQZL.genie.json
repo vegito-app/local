@@ -1,0 +1,27 @@
+{
+    "id": "CVUh6nTgLysLKF2hWRcx67anBxaYLQZL",
+    "createdTime": "6/21/2024, 4:39:20 PM",
+    "name": "Go",
+    "conversations": [
+        {
+            "id": "CVUh6nTgLysLKF2hWRcx67anBxaYLQZL",
+            "createdTime": "6/21/2024, 4:39:20 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 1092,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "CVUh6nTgLysLKF2hWRcx67anBxaYLQZL",
+                "role": "user",
+                "text": "y a t il des emaphore dans la librairie standard go ?"
+            },
+            "response": {
+                "id": "4pjaoog46PT5HrLcBmaNKsdtvvYNl3cx",
+                "role": "assistant",
+                "text": "Oui, bien sûr. En fait, la librairie `sync` dans Go contient une structure appelée `sync.Semaphore`, qui est utilisée pour contrôler l'accès à une ressource partagée.\n\nVous pouvez utiliser un sémaphore en Go de la manière suivante :\n\n```go\npackage main\n\nimport (\n\t\"context\"\n    \"fmt\"\n    \"golang.org/x/sync/semaphore\"\n    \"time\"\n)\n\nfunc main() {\n    ctx := context.TODO()\n\n    sem := semaphore.NewWeighted(1)  // Créer un sémaphore qui ne permet qu'une seule routine à la fois\n\n    for i := 0; i < 3; i++ {\n        if err := sem.Acquire(ctx, 1); err != nil {\n            fmt.Printf(\"Failed to acquire semaphore: %v\", err)\n            continue\n        }\n\n        go func(i int) {\n            defer sem.Release(1)\n            fmt.Println(\"begin:\", i)\n            time.Sleep(2 * time.Second)\n            fmt.Println(\"end:\", i)\n        }(i)\n    }\n\n    time.Sleep(10 * time.Second)  // Attendre que toutes les goroutines se terminent\n}\n```\n\nDans cet exemple, nous avons créé un sémaphore avec un poids de 1 (ce qui signifie qu'il ne peut y avoir qu'une seule opération désignée active à la fois). Ensuite, nous acquérons le sémaphore avant le lancement de chaque goroutine et le libérons lorsque la goroutine se termine.\n\nVeuillez noter que vous devez importer le package `golang.org/x/sync/semaphore` pour utiliser `sync.Semaphore`. Ce n'est pas directement dans le standard library, mais c'est une extension officielle soutenue par l'équipe de développement Go."
+            }
+        }
+    ]
+}

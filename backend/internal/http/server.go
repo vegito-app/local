@@ -8,6 +8,7 @@ import (
 	"github.com/7d4b9/utrade/backend/internal/firebase"
 	apiv1 "github.com/7d4b9/utrade/backend/internal/http/internal/api/v1"
 	"github.com/7d4b9/utrade/backend/internal/http/internal/ui"
+	uiconfig "github.com/7d4b9/utrade/backend/internal/http/internal/ui/config"
 	"github.com/spf13/viper"
 )
 
@@ -26,25 +27,23 @@ func init() {
 
 // StartAPI creates a new instance of apiv1.Service.
 func StartAPI(firebaseClient *firebase.Client) error {
-
 	frontendDir := config.GetString(uiBuildDirConfig)
 	port := config.GetString(portConfig)
 	mux := http.NewServeMux()
-
 	serviceV1 := apiv1.NewService()
 	mux.HandleFunc("POST /run", serviceV1.Run)
-
-	ui, err := ui.NewUI(frontendDir)
+	uiServe, err := ui.NewUI(frontendDir)
 	if err != nil {
 		return fmt.Errorf("http start api, server side ui render: %w", err)
 	}
-	mux.Handle("GET /ui", ui)
-	mux.Handle("GET /ui/", http.StripPrefix("/ui", http.FileServer(http.Dir(frontendDir))))
+	mux.Handle("GET /ui/config/firebase", http.HandlerFunc(uiconfig.Firebase))
+	mux.Handle("GET /ui/config/googlemaps", http.HandlerFunc(uiconfig.GoogleMaps))
+	mux.Handle("GET /ui/public", http.StripPrefix("/ui", http.FileServer(http.Dir(frontendDir))))
+	mux.Handle("GET /ui", uiServe)
 	mux.Handle("GET /info", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))
 	mux.Handle("GET /", http.FileServer(http.Dir(frontendDir)))
-
 	if err := backendhttp.ListenAndServe(":"+port, mux); err != nil {
 		return fmt.Errorf("HTTP listenAndServe: %w", err)
 	}

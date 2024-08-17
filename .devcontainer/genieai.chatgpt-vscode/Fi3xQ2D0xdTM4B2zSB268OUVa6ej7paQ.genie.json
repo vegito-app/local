@@ -1,0 +1,67 @@
+{
+    "id": "Fi3xQ2D0xdTM4B2zSB268OUVa6ej7paQ",
+    "createdTime": "6/13/2024, 2:09:27 PM",
+    "name": "react server",
+    "conversations": [
+        {
+            "id": "Fi3xQ2D0xdTM4B2zSB268OUVa6ej7paQ",
+            "createdTime": "6/13/2024, 2:09:27 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "Fi3xQ2D0xdTM4B2zSB268OUVa6ej7paQ",
+                "role": "user",
+                "text": "quel avantage y a t il a utiliser Server React DOM API ?"
+            },
+            "response": {
+                "id": "QCWO8Y26qWYRxhb2jdluV3XX5Bcln61H",
+                "role": "assistant",
+                "text": "Le Server React DOM API offre plusieurs avantages notables pour le développement web. Ces avantages incluent :\n\n- **Rendu côté serveur (SSR)** : Le premier avantage principal est que cette API permet le rendu côté serveur, ce qui signifie que votre application React peut être rendue directement sur le serveur avant d'être envoyé au navigateur client. Cela peut améliorer la performance initiale de la page, puisque l'utilisateur peut voir la page complète plus rapidement sans attendre que tout le JavaScript soit téléchargé et exécuté.\n\n```javascript\nimport { renderToString } from 'react-dom/server'\nconst html = renderToString(<MyComponent />)\n```\n\n- **SEO Amélioré** : Les applications rendues côté serveur sont également plus facilement accessibles par les robots des moteurs de recherche, ce qui peut améliorer le référencement SEO de votre site. En revanche, certains robots peuvent avoir du mal à lire correctement le contenu généré côté client.\n\n- **Experience Utilisateur Améliorée** : Parce qu'il envoie une page entièrement rendue à partir du serveur, il contribue également à une meilleure expérience utilisateur, particulièrement pour les utilisateurs avec une connection Internet lente.\n\nCependant, même si SSR a ses avantages, il est important de noter qu'il peut rendre votre serveur plus occupé car il doit maintenant rendre le HTML pour chaque demande. Ainsi, c'est une bonne idée d'implémenter quelque chose comme une mise en cache pour aider à soulager une partie de la charge du serveur. \n\nIl est aussi à noter que React DOM Server ne supporte pas certains événements spécifiques du navigateur, dont il faut prendre en compte lors du développement d'une application React SSR."
+            }
+        },
+        {
+            "id": "Fi3xQ2D0xdTM4B2zSB268OUVa6ej7paQ",
+            "createdTime": "6/13/2024, 2:11:09 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "FK6j2eUtaKO88LyQtU6ANyzRjjHVAMvz",
+                "role": "user",
+                "text": "quels en sont les limitations ?"
+            },
+            "response": {
+                "id": "XkRiyMJXTc61nvfabx2b1XANghlc4P6x",
+                "role": "assistant",
+                "text": "Server React DOM API, bien qu'il offre des avantages notables, a également certaines limitations qui sont importantes à comprendre :\n\n**1. Manque de support pour certains événements de navigateur** : Comme mentionné précédemment, le DOM côté serveur ne supporte pas tous les événements spécifiques au navigateur. Par exemple, il n'est pas possible de manipuler directement le DOM ou d'utiliser certaines méthodes du cycle de vie spécifiques à React, comme `componentDidMount` et `componentDidUpdate`.\n\n```javascript\ncomponentDidMount () { \n    // Cette méthode ne sera pas exécutée lors du rendu côté serveur\n} \n```\n\n**2. Complexité accrue** : Le développement pour SSR peut augmenter la complexité du code car vous devrez gérer deux environnements différents : le serveur et le client.\n\n**3. Performances du serveur** : Le rendu côté serveur peut mettre une pression supplémentaire sur votre serveur, car celui-ci doit maintenant générer le HTML pour chaque demande. Cela peut potentiellement ralentir votre application si elle n'est pas correctement optimisée.\n\n**4. Pas de manipulation DOM en temps réel** : Avec le rendu côté serveur, vous ne pouvez pas manipuler le DOM en temps réel. Toutes les modifications doivent passer par le serveur et être renvoyées au client.\n\n**5. Récupération de données asynchrone** : La récupération de données asynchrones peut être plus difficile à gérer avec le rendu côté serveur. Vous devrez probablement utiliser des bibliothèques spécifiques ou créer vos propres solutions pour gérer cela efficacement.\n\nIl est donc essentiel de peser ces limitations face aux avantages lors de la décision d'opter pour le rendu côté serveur dans votre application React."
+            }
+        },
+        {
+            "id": "ACFn1PSbiR66NvMg3m4gvJ01u7ue4yC3",
+            "createdTime": "6/13/2024, 2:23:30 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "iheGU8f6hfWf0Jezkxwy4cIhbDFZnxz4",
+                "role": "user",
+                "text": "quels fichier ne faut il pas commiter dans un projet react ?"
+            },
+            "response": {
+                "id": "yLrT1ili9UXL7gM51WPdyO5QpWu4iYhn",
+                "role": "assistant",
+                "text": "Lorsque vous travaillez sur un projet React, certains fichiers ou dossiers ne doivent pas être ajoutés au dépôt Git. C'est une bonne idée de créer un fichier `.gitignore` à la racine de votre projet pour ignorer automatiquement ces fichiers. Voici quelques exemples de ce que vous pourriez vouloir inclure dans ce fichier :\n\n```plaintext\n# Dépendances\n/node_modules\n\n# Fichiers de construction\n/dist\n/build\n\n# Fichiers de configuration d'environnement \n.env\n\n# Fichiers de logs\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n\n# Fichier de verrouillage du système d'exploitation\n.DS_Store\nThumbs.db\n\n# Fichiers de cache de l'éditeur\n.vscode\n.idea\n*.swp\n*.swo\n\n# Fichiers de test finaux\n/coverage\n\n```\n\nEn ignorant ces fichiers, vous évitez d'ajouter des fichiers inutiles ou potentiellement sensibles à votre dépôt. Par exemple, le dossier `node_modules` contient toutes les bibliothèques dont dépend votre projet, qui peuvent facilement être réinstallées à partir de votre fichier `package.json` et donc n'ont pas besoin d'être incluses dans votre dépôt. De même, les fichiers de configuration d'environnement (`dotenv`, `.env`) peuvent contenir des informations sensibles telles que les clés de l'API, et ne doivent donc jamais être ajoutées à votre dépôt."
+            }
+        }
+    ]
+}

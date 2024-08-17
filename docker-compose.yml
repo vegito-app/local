@@ -1,14 +1,91 @@
+networks:
+  dev:
+    driver: bridge
+volumes:
+  firebase-emulators-cache:
 services:
   dev:
-    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:latest-buider}
-    build:  
+    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:dev-builder}
+    build:
       context: .
       dockerfile: ./builder.Dockerfile
+      args:
+        - host_pwd=${PWD:-/workspaces/refactored-winner}
+    entrypoint: dev-entrypoint.sh
+    env_file:
+      - .env
+    environment:
+      HOST_PWD: ${PWD:-/workspaces/refactored-winner}
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT_ID}
+      TF_VAR_FIREBASE_API_KEY: ${FIREBASE_API_KEY}
+      TF_VAR_FIREBASE_AUTH_DOMAIN: ${FIREBASE_AUTH_DOMAIN}
+      TF_VAR_FIREBASE_DATABASE_URL: ${FIREBASE_DATABASE_URL}
+      TF_VAR_FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      TF_VAR_FIREBASE_STORAGE_BUCKET: ${FIREBASE_STORAGE_BUCKET}
+      TF_VAR_FIREBASE_MESSAGING_SENDER_ID: ${FIREBASE_MESSAGING_SENDER_ID}
+      TF_VAR_FIREBASE_APP_ID: ${FIREBASE_APP_ID}
+      TF_VAR_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      TF_VAR_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET: ${GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET}
+      FIREBASE_AUTH_EMULATOR_HOST: http://firebase-emulators:9099
+      FIREBASE_DATABASE_EMULATOR_HOST: http://firebase-emulators:9199
+      UI_CONFIG_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      UI_CONFIG_FIREBASE_CONFIG: ${UI_CONFIG_FIREBASE_CONFIG}
+    volumes:
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    command: |
+      bash -c '
+        make local-docker-compose-firebase-emulators-up
+        while true; do sleep 1000 ; done
+      '
+    # ports:
+    #   - 4000:4000
+    #   - 4400:4400
+    #   - 4501:4501
+    #   - 5001:5001
+    #   - 8090:8090
+    #   - 9099:9099
+    #   - 9150:9150
+    #   - 9199:9199
+    #   - 9299:9299
+    networks:
+      - dev
+    depends_on:
+      - firebase-emulators
+  firebase-emulators:
+    image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:dev-firebase-emulators}
+    # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
+    # build: NOT
     env_file:
       - .env
     volumes:
-      - ${PWD}:${PWD}:cached
-      - /var/run/docker.sock:/var/run/docker.sock
-    working_dir: ${PWD}
-    command: /bin/sh -c "while sleep 1000; do :; done"
- 
+      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
+      # - firebase-emulators-cache:/home/devuser/.cache/firebase/emulators
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    command: |
+      bash -c '
+      set -e
+      trap "echo Exited with code $?." EXIT
+
+      make local-firebase-emulators-install
+      make local-firebase-emulators-start &
+
+      # Need proxy to forward some required port that could not be 
+      # configured to listen on 0.0.0.0 from firebase.json file.
+      TARGET_PORT=4400 LISTEN_PORT=4401 proxy &
+      until nc -z localhost 4500; do
+        echo Waiting Firebase Emulator Reserved port at http://localhost:4500/ ;
+        sleep 1 ;
+      done
+      TARGET_PORT=4500 LISTEN_PORT=4501 proxy &
+      until nc -z localhost 9299; do
+        echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9299/ ;
+        sleep 1 ;
+      done
+      TARGET_PORT=9299 LISTEN_PORT=9399 proxy &
+
+      while true ; do sleep 1000 ; done
+      '
+    networks:
+      dev:

@@ -32,35 +32,38 @@ output "firebase_project_display_name" {
 # Provisions the default Realtime Database default instance.
 resource "google_firebase_database_instance" "utrade" {
   provider = google-beta
-  project  = var.project_id
+  project  = google_firebase_project.utrade.project
   # See available locations: https://firebase.google.com/docs/projects/locations#utrade-locations
   region = var.region
   # This value will become the first segment of the database's URL.
-  instance_id = "${var.project_id}-default-rtdb"
-  type        = "DEFAULT_DATABASE"
-
+  instance_id   = "${google_firebase_project.utrade.project}-default-rtdb"
+  type          = "DEFAULT_DATABASE"
+  desired_state = "ACTIVE"
   # Wait for Firebase to be enabled in the Google Cloud project before initializing Realtime Database.
   depends_on = [
     google_firebase_project.utrade,
   ]
 }
+
 output "firebase_database_id" {
   description = "an identifier for the resource with format projects/{{project}}/locations/{{region}}/instances/{{instance_id}}"
   value       = google_firebase_database_instance.utrade.id
 }
+
 output "firebase_database_name" {
   description = "The fully-qualified resource name of the Firebase Realtime Database, in the format: projects/PROJECT_NUMBER/locations/REGION_IDENTIFIER/instances/INSTANCE_ID PROJECT_NUMBER: The Firebase project's ProjectNumber Learn more about using project identifiers in Google's AIP 2510 standard."
   value       = google_firebase_database_instance.utrade.name
 }
+
 output "firebase_database_database_url" {
   description = "The database URL in the form of https://{instance-id}.firebaseio.com for us-central1 instances or https://{instance-id}.{region}.firebasedatabase.app in other regions."
   value       = google_firebase_database_instance.utrade.database_url
 }
+
 output "firebase_database_state" {
   description = "The current database state. Set desired_state to :DISABLED to disable the database and :ACTIVE to reenable the database"
   value       = google_firebase_database_instance.utrade.state
 }
-
 
 # Creates a Firebase Android App in the new project created above.
 # Learn more about the relationship between Firebase Apps and Firebase projects.
@@ -104,4 +107,48 @@ resource "google_firebase_web_app" "utrade" {
   depends_on = [
     google_firebase_project.utrade,
   ]
+}
+
+resource "google_service_account" "firebase_admin" {
+  # count        = var.create_secret ? 1 : 0
+  account_id   = "firebase-adminsdk-vxdj8"
+  display_name = "Firebase Admin SDK Service Account"
+  description  = "Ce compte de service est utilisé par Firebase Admin SDK pour interagir avec Firebase"
+}
+
+resource "google_project_iam_member" "firebase_admin_service_agent" {
+  # count   = var.create_secret ? 1 : 0
+  project = var.project_id
+  role    = "roles/firebase.sdkAdminServiceAgent"
+  member  = "serviceAccount:${google_service_account.firebase_admin.email}"
+}
+
+resource "google_project_iam_member" "firebase_token_creator" {
+  # count   = var.create_secret ? 1 : 0
+  project = var.project_id
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:${google_service_account.firebase_admin.email}"
+}
+
+resource "google_secret_manager_secret" "service_account_key" {
+  secret_id = "firebase-adminsdk-service-account-key"
+  project   = var.project_id
+
+  labels = {
+    environment = "production"
+  }
+
+  replication {
+    auto {
+
+    }
+  }
+}
+resource "google_service_account_key" "firebase_admin_key" {
+  service_account_id = google_service_account.firebase_admin.name
+}
+
+resource "google_secret_manager_secret_version" "firebase_admin_v1" {
+  secret      = google_secret_manager_secret.service_account_key.id
+  secret_data = google_service_account_key.firebase_admin_key.private_key
 }

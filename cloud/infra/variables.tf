@@ -22,3 +22,11 @@ variable "application_image" {
   description = "application Docker image"
   type        = string
 }
+variable "ui_firebase_secret_id" {
+  description = "Firebase - UI config - secret ID"
+  type        = string
+}
+variable "ui_googlemaps_secret_id" {
+  description = "GoogleMaps - UI API Key - secret ID"
+  type        = string
+}

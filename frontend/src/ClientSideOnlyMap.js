@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { MyMap } from './Map'
+import React, { useState, useEffect } from "react";
+import { MyMap } from "./Map";
 export function ClientSideOnlyMap() {
   const [isClient, setIsClient] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false); // Local signed-in state.
   useEffect(() => {
     setIsClient(true);
-    console.log("useEffect a été exécuté");
   }, []);
-  console.log('Le JavaScript côt client est bien chargé');
-
   if (!isClient) {
-    return null
+    return null;
   }
-  return <MyMap />;
+  return <MyMap isSignedIn={isSignedIn} setIsSignedIn={setIsSignedIn} />;
 }

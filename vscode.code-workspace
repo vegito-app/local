@@ -1,0 +1,33 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "cloud/infra/auth",
+      "name": "auth.infra.cloud"
+    },
+    {
+      "path": "cloud"
+    },
+    {
+      "path": "backend"
+    },
+    {
+      "path": "frontend"
+    },
+    {
+      "path": "local/firebase",
+      "name": "firebase.local"
+    },
+    {
+      "name": "infra.cloud",
+      "path": "cloud/infra"
+    },
+    {
+      "name": "infra.secrets",
+      "path": "cloud/secrets"
+    }
+  ],
+  "settings": {}
+}

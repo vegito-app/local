@@ -2,56 +2,79 @@ package firebase
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
-	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
+	_ "github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
 	"google.golang.org/api/option"
 )
 
 var config = viper.New()
 
-const appCreationTimeoutConfig = "new_application_timeout"
-
-const (
-	databaseURLConfig      = "database_url"
-	projectIDConfig        = "project_id"
-	serviceAccountIDConfig = "service_account_id"
-	storageBucketConfig    = "storage_bucket"
-)
+const adminSDKserviceAccountIDConfig = "adminsdk_serviceaccount_id"
+const authEmulatorHostConfig = "auth_emulator_host"
+const databaseEmulatorHostConfig = "database_emulator_host"
 
 func init() {
 	config.AutomaticEnv()
-	config.SetEnvPrefix("utrade_firebase")
-
-	config.SetDefault(appCreationTimeoutConfig, 1*time.Minute)
+	config.SetEnvPrefix("firebase")
 }
 
 type App struct {
 	*firebase.App
 }
 
-func NewApp(opts ...option.ClientOption) (*App, error) {
+func NewApp(ctx context.Context) (a *App, err error) {
 
-	databaseURL := config.GetString(databaseURLConfig)
-	projectID := config.GetString(projectIDConfig)
-	serviceAccountID := config.GetString(serviceAccountIDConfig)
-	storageBucket := config.GetString(storageBucketConfig)
+	var opts []option.ClientOption
 
-	timeout := config.GetDuration(appCreationTimeoutConfig)
+	authEmulatorHost := config.GetString(authEmulatorHostConfig)
+	databaseEmulatorHost := config.GetString(databaseEmulatorHostConfig)
 
-	appCreationCtx, cancelAppCreation := context.WithTimeout(context.Background(), timeout)
-	defer cancelAppCreation()
+	if databaseEmulatorHost != "" || authEmulatorHost != "" {
+		app, err := firebase.NewApp(ctx, nil, opts...)
+		if err != nil {
+			return nil, fmt.Errorf("firebase new app: %w", err)
+		}
+		return &App{
+			App: app,
+		}, nil
+	}
 
-	app, err := firebase.NewApp(appCreationCtx, &firebase.Config{
-		AuthOverride:     &map[string]interface{}{},
-		DatabaseURL:      databaseURL,
-		ProjectID:        projectID,
-		ServiceAccountID: serviceAccountID,
-		StorageBucket:    storageBucket,
-	}, opts...)
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = client.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("close firebase secretmanager client")
+		}
+	}()
+	adminSDKserviceAccountSecretID := config.GetString(adminSDKserviceAccountIDConfig)
+	if adminSDKserviceAccountSecretID != "" {
+		firebaseAdminSDKserviceAccountSecretID := &secretmanagerpb.AccessSecretVersionRequest{
+			Name: adminSDKserviceAccountSecretID,
+		}
+		firebaseAdminSDKserviceAccount, err := client.AccessSecretVersion(ctx, firebaseAdminSDKserviceAccountSecretID)
+		if err != nil {
+			return nil, err
+		}
+		jsonCredentials, err := base64.RawStdEncoding.DecodeString(string(firebaseAdminSDKserviceAccount.Payload.Data))
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, option.WithCredentialsJSON(jsonCredentials))
+	}
+
+	app, err := firebase.NewApp(ctx, nil, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("firebase new app: %w", err)
 	}
@@ -61,23 +84,17 @@ func NewApp(opts ...option.ClientOption) (*App, error) {
 }
 
 type AuthClient struct {
-	authClient *auth.Client
-	authToken  *auth.Token
+	*auth.Client
 }
 
 // NewAuthClient verify the given client Firebase ID_TOKEN.
 // The authenticated client is returned and can be used to retrieve specific client information.
-func (f *App) NewAuthClient(ctx context.Context, idToken string) (*AuthClient, error) {
-	client, err := f.App.Auth(context.Background())
+func (f *App) NewAuthClient(ctx context.Context) (*AuthClient, error) {
+	client, err := f.App.Auth(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("firebase getting Auth client: %w", err)
 	}
-	token, err := client.VerifyIDToken(ctx, idToken)
-	if err != nil {
-		return nil, fmt.Errorf("firebase verifying ID token: %w", err)
-	}
 	return &AuthClient{
-		authClient: client,
-		authToken:  token,
+		Client: client,
 	}, nil
 }

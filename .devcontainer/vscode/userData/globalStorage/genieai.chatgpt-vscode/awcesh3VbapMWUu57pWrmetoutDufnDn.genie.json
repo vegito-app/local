@@ -1,0 +1,47 @@
+{
+    "id": "awcesh3VbapMWUu57pWrmetoutDufnDn",
+    "createdTime": "8/25/2024, 6:07:49 PM",
+    "name": "Bash (signals)",
+    "conversations": [
+        {
+            "id": "awcesh3VbapMWUu57pWrmetoutDufnDn",
+            "createdTime": "8/25/2024, 6:07:49 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "awcesh3VbapMWUu57pWrmetoutDufnDn",
+                "role": "user",
+                "text": "un proces peut il recevoir un signal si le shell qui contient son parent se ferme ?"
+            },
+            "response": {
+                "id": "3nRKmAY1luN5wOeCttdBY1YIbswtx5vq",
+                "role": "assistant",
+                "text": "Oui, un processus peut recevoir un signal si le shell qui contient son parent se ferme. \n\nEn général, lorsqu'un shell est fermé (par exemple, en fermant le terminal dans lequel il fonctionne), tous les processus fils qu'il a démarrés reçoivent un signal SIGHUP (Hang UP). \n\nC'est le comportement par défaut, qui peut être modifié. Si vous voulez que votre processus ignore ce signal et continue à s'exécuter même après la fermeture du shell, vous pouvez utiliser le signal `SIG_IGN` pour ignorer le signal SIGHUP.\n\nVoici un exemple de code qui montre comment cela peut être fait :\n\n```c\n#include <signal.h>\n\n// ...\n\n// Ignore SIGHUP\nsignal(SIGHUP, SIG_IGN);\n```\n\nCe code va attacher l'action `SIG_IGN` (ignorer) au signal `SIGHUP`. Ainsi, lorsque le processus recevra ce signal, il ne fera rien et continuera son exécution.\n\nIl est important de noter que cette manière d'ignorer les signaux peut ne pas fonctionner dans tous les cas, surtout si le processus en question est un leader de session. Dans ce cas, il peut être nécessaire de détacher totalement le processus de son terminal parent, en utilisant des appels système comme `setsid()` ou `daemon()`."
+            }
+        },
+        {
+            "id": "awcesh3VbapMWUu57pWrmetoutDufnDn",
+            "createdTime": "8/25/2024, 6:09:49 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "VIchzZ8JlggItOi9F5KBt0xbA4jzwG8V",
+                "role": "user",
+                "text": "comment ignorer ce sugnal égaleent en bash ?"
+            },
+            "response": {
+                "id": "hwRy5OhZvVtfc4q8KXMQCJQlj63uHXpr",
+                "role": "assistant",
+                "text": "En bash, vous pouvez ignorer le signal SIGHUP en utilisant la commande `trap` avec l'option `' '` (qui indique une action vide) et `HUP`.\n\nVoici un exemple de snippet de code qui montre comment cela peut être fait :\n\n```bash\ntrap '' HUP\n```\n\nLorsque vous exécutez cette commande dans votre script bash, cela signifie que le signal SIGHUP sera ignoré et aucune action ne sera entreprise lorsque ce signal sera reçu.\n\nSi vous souhaitez qu'un certain processus continue à s'exécuter même après la fermeture du shell, vous pouvez utiliser la commande `nohup` ou mettre le process en arrière-plan et utiliser le commandement `disown`.\n\nExemple avec nohup:\n\n```bash\nnohup some_command &\n```\n  \nEt avec disown (qui retire les travaux spécifiés de la table des travaux, ce qui signifie que les signaux SIGHUP ne seront pas envoyés à ces travaux):\n\n```bash\nsome_command & disown\n```\n  \n*Notez bien:* Le caractère `&` est utilisé pour démarrer le commandement en arrière-plan."
+            }
+        }
+    ]
+}

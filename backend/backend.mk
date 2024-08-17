@@ -18,15 +18,15 @@ BACKEND_VENDOR = $(CURDIR)/backend/vendor
 $(BACKEND_VENDOR):
 	@$(MAKE) go-backend-mod-vendor
 
-BACKEND_INSTALL_BIN = $(shell go env GOPATH)/bin/backend
-
-backend-run: $(BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE) 
-	@backend
+backend-run: $(BACKEND_INSTALL_BIN)
+	@$(BACKEND_INSTALL_BIN)
 .PHONY: backend-run
 
 $(BACKEND_INSTALL_BIN): 
+	@echo Installing backend...
 	@$(MAKE) backend-install
+	@echo Installed backend.
 
-backend-install: $(BACKEND_VENDOR)
+backend-install:
 	@cd backend && go install -a -ldflags "-linkmode external -extldflags -static"
 .PHONY: backend-install

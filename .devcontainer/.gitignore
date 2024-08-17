@@ -1,6 +1,5 @@
-genieai.chatgpt-vscode
 gopath
-bash_history
+# bash_history
 gcloud
-vscode
 npm
+.env

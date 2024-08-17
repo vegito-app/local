@@ -4,25 +4,31 @@ FROM debian:bookworm
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
     bash-completion \
+    build-essential \
     ca-certificates \
     curl \
-    gcc \
+    dnsutils \
     g++ \
+    gcc \
     git \
     gnupg \
     htop \
+    iptables \
     jq \
+    libcairo2-dev \
+    libgif-dev \
+    libjpeg-dev \
+    libpango1.0-dev \
+    librsvg2-dev \
     lsb-release \
     make \
+    net-tools \
+    netcat-openbsd \
+    openjdk-17-jdk \
     procps \
+    socat \
     sudo \
     unzip \
-    build-essential \
-    libcairo2-dev \
-    libpango1.0-dev \
-    libjpeg-dev \
-    libgif-dev \
-    librsvg2-dev \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,7 +37,6 @@ ENV GO_VERSION=1.22.0
 RUN curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
     && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz
-ENV PATH=$PATH:/usr/local/go/bin
 ENV CGO_ENABLED=1
 
 # Install Docker
@@ -61,16 +66,27 @@ RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terra
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs && \
+    npm install -g firebase-tools
 
 # non-root user    
 RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo \
     && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser \
     && chmod 0440 /etc/sudoers.d/devuser
+
 USER devuser
 ENV HOME=/home/devuser
-ENV PATH=$PATH:${HOME}/go/bin
 WORKDIR ${HOME}/
+ENV PATH=$PATH:/usr/local/go/bin:${HOME}/go/bin
 
 # Check node and npm versions
 RUN node -v && npm -v
+
+# * uses different PWD value between the dev and other containers inside the same docker-compose.yml
+ARG host_pwd
+RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
+    sudo mkdir -p /workspaces && \
+    sudo ln -s ${host_pwd} /workspaces/refactored-winner ;\
+    fi
+
+COPY dev-entrypoint.sh /usr/local/bin/

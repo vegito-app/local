@@ -1,4 +1,4 @@
-REACT_APP_UTRADE_VERSION = $(VERSION)
+REACT_APP_VERSION                       ?= $(VERSION)
 
 FRONTEND_BUILD_DIR = $(CURDIR)/frontend/build
 

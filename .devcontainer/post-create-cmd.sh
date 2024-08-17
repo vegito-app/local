@@ -1,22 +1,86 @@
 #!/bin/bash
 
+set -eu
+
+trap "echo Exited with code $?." EXIT
+
+ln -sfn ${PWD}/.devcontainer/bash_history ~/.bash_history
+
 # Docker
 sudo chmod o+rw /var/run/docker.sock
 
-# Bash history
-ln -sfn ${PWD}/.devcontainer/bash_history ~/.bash_history
-cat <<'EOF' >> ~/.bashrc
-export HISTSIZE=50000
-export HISTFILESIZE=100000
+# Git
+git config --global --add safe.directory .
+
+# Vscode
+cat <<'EOF' > ${PWD}/vscode.code-workspace
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "cloud/infra/auth",
+      "name": "auth.infra.cloud"
+    },
+    {
+      "path": "cloud"
+    },
+    {
+      "path": "backend"
+    },
+    {
+      "path": "frontend"
+    },
+    {
+      "path": "local/firebase",
+      "name": "firebase.local"
+    },
+    {
+      "name": "infra.cloud",
+      "path": "cloud/infra"
+    },
+    {
+      "name": "infra.secrets",
+      "path": "cloud/secrets"
+    }
+  ],
+  "settings": {}
+}
 EOF
 
+mkdir -p ${PWD}/backend/.vscode/
+
+cat <<'EOF' > ${PWD}/backend/.vscode/launch.json
+{
+    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+    // Pointez pour afficher la description des attributs existants.
+    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "env": {
+                "GOOGLE_CLOUD_PROJECT": "utrade-taxi-run-0",
+                "FRONTEND_BUILD_DIR": "../frontend/build",
+                "FRONTEND_PUBLIC_DIR": "../frontend/public",
+                "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
+            }
+        }
+    ]
+}
+EOF
+# Vscode server/remote
 DIST_VSCODE=${HOME}/.vscode-server
 
 # Github Codespaces
-if [ ${CODESPACES} ] ; then
+if [ -v  CODESPACES ] ; then
     DIST_VSCODE=${HOME}/.vscode-remote
 fi
-
 # VSCODE User data
 VSCODE_USER_DATA=${DIST_VSCODE}/data/User
 rm -rf $VSCODE_USER_DATA
@@ -43,13 +107,3 @@ GCLOUD_CONFIG=${HOME}/.config/gcloud
 mkdir -p $GCLOUD_CONFIG ${PWD}/.devcontainer/gcloud
 rm -rf $GCLOUD_CONFIG
 ln -sf ${PWD}/.devcontainer/gcloud $GCLOUD_CONFIG
-
-cat <<'EOF' >> ~/.bashrc
-export REACT_APP_UTRADE_FIREBASE_API_KEY=${UTRADE_FIREBASE_API_KEY}
-export REACT_APP_UTRADE_FIREBASE_AUTH_DOMAIN=${UTRADE_FIREBASE_AUTH_DOMAIN}
-export REACT_APP_UTRADE_FIREBASE_DATABASE_URL=${UTRADE_FIREBASE_DATABASE_URL}
-export REACT_APP_UTRADE_FIREBASE_PROJECT_ID=${UTRADE_FIREBASE_PROJECT_ID}
-export REACT_APP_UTRADE_FIREBASE_STORAGE_BUCKET=${UTRADE_FIREBASE_STORAGE_BUCKET}
-export REACT_APP_UTRADE_FIREBASE_MESSAGING_SENDER_ID=${UTRADE_FIREBASE_MESSAGING_SENDER_ID}
-export REACT_APP_UTRADE_FIREBASE_APP_ID=${UTRADE_FIREBASE_APP_ID}
-EOF

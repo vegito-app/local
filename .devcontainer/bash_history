@@ -1,0 +1,533 @@
+git branch 
+make frontend-node-modules 
+make gcloud-auth-
+make gcloud-auth-login 
+VERSION=v0.0.1 make application-image terraform-plan 
+make docker-login 
+make terraform-init 
+VERSION=v0.0.1 make terraform-plan 
+gcloud config get-value project
+make go-mod-tidy
+make go-mod-vendor
+gcloud iam service-accounts list 
+make terraform-plan 
+VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
+make terraform-import 
+make terraform-refresh 
+VERSION=v0.0.1 make terraform-apply-auto-approve 
+VERSION=v0.0.1 make terraform-import 
+VERSION=v0.0.1 make terraform-plan
+make backend-run 
+make backend-install 
+make gcloud-auth-func-logs 
+gcloud functions logs read projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform-before-create
+gcloud functions logs read projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform-before-sign-in
+gcloud functions logs read projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform-before-signin
+VERSION=v0.0.1 make terraform-refresh 
+htop
+make go-mod tidy
+make go-mod-tidy 
+BUILDER_VRSION=v0.0.0 VERSION=v0.0.3 make application-image terraform-plan terraform-apply-auto-approve 
+make unlock-docker-sock 
+BUILDER_VERSION=v0.0.0 VERSION=v0.0.3 make application-image terraform-plan terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.3 make application-image terraform-plan terraform-apply-auto-approve 
+git tag -f s
+git reset HEAD~1
+git log
+env|grep -i utrade
+make local-image
+make local-image-run 
+gcloud functions list 
+gcloud functions logs utrade-us-central1-identity-platform-before-create
+gcloud functions logs read utrade-us-central1-identity-platform-before-create
+gcloud functions logs read utrade-us-central1-identity-platform-before-sign-in
+gcloud functions logs read utrade-us-central1-identity-platform-before-signin
+gcloud functions logs read --start-time=2024-08-09 utrade-us-central1-identity-platform-before-signin
+gcloud functions logs read --start-time=2024-08-09 utrade-us-central1-identity-platform-before-create
+gcloud iam service-accounts describe firebase-adminsdk-vxdj8@utrade-taxi-run-0.iam.gserviceaccount.com 
+gcloud functions logs read --execution-id=vbwic0ky3ehm utrade-us-central1-identity-platform-before-create
+gcloud functions logs read --execution-id=vbwic0ky3ehm --min-log-level=debug utrade-us-central1-identity-platform-before-create
+gcloud functions logs read --execution-id=vbwic0ky3ehm --min-log-level=infoutrade-us-central1-identity-platform-before-create
+gcloud functions logs read --execution-id=vbwic0ky3ehm  --verbosity=debug utrade-us-central1-identity-platform-before-create
+gcloud functions logs read --execution-id=vbwic0ky3ehm  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json
+gcloud functions logs read --execution-id=vbwic0ky3ehm  --verbosity=debug utrade-us-central1-identity-platform-before-create 
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create 
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin 
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --user-output-enabled 
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --help 
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format=
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format= --start-time="2024-08-10 06:15:01.128"
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format= --start-time="2024-08-10 06:10:01.128"
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format=json --start-time="2024-08-10 06:10:01.128"
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format=json --start-
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json --start-time="2024-08-10 06:10:01.128"
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json --start-time="2024-08-10"
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --desc
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --order=desc
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create
+gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --freshness 10m
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50 --format json --order desc --freshness 10m 
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc --freshness 10m 
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc --freshness 20m 
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50 --format json --order desc --freshness 20m 
+git,log
+pwd
+code ~/go/pkg/mod/firebase.google.com/go/v4\@v4.14.1/
+gcloud iam  service-accounts list 
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc 
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc |more
+BUILDER_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-plan terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-plan terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make application-image terraform-plan terraform-apply-auto-approve 
+ls
+make builder-image
+git reset s
+rm -rf cloud/infra/auth/firebase && cp -r firebase cloud/infra/auth/firebase
+rm -rf cloud/infra/auth/firebase && cp -r backend/firebase cloud/infra/auth/firebase
+make go-mod-tidy go-mod-vendor
+git add -f .devcontainer/vscode/userData/globalStorage/genieai.chatgpt-vscode/
+ls .devcontainer/vscode/userData/
+ls .devcontainer/vscode/userData/globalStorage/
+du -sh .devcontainer/*
+du -sh backend/vendor/
+du -sh cloud/infra/auth/*
+make go-mod-vendor-rm 
+echo $?
+git add .devcontainer/bash_history 
+git commit --amend --no-edit
+git branch
+git push origin codespace-verbose-spoon-97gvv6p7q7pf746:dev
+git branch -a
+git fetch -a
+git rebase -i origin/codespace-stunning-couscous-jjp66rxj4992jg6w 
+git rebase -i origin/codespace-verbose-spoon-97gvv6p7q7pf746 
+git fetch -p
+git push origin :codespace-stunning-couscous-jjp66rxj4992jg6w 
+git push origin :codespace-verbose-spoon-97gvv6p7q7pf746 
+git checkout dev
+git pull --rebase
+git rebase --continu
+git rebase origin/dev 
+git rebase --continue 
+git rebase --edit-todo 
+git push 
+git rebase origin/codespace-verbose-spoon-97gvv6p7q7pf746 
+git branch -d codespace-verbose-spoon-97gvv6p7q7pf746  
+code .devcontainer/gopath/pkg/mod/firebase.google.com/go/v4@v4.14.1/
+env |grep -i firebase
+env |grep -i utrade_firebase
+env |grep -i maps
+gcloud iam service-accounts list
+echo $GOOGLE_CLOUD_CREDENTIALS |jq
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make terraform-plan 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-apply-auto-approve 
+gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --freshness 2m --order desc |more
+Bas
+make frontend-start 
+git push --set-upstream origin dev 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-pl@
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-plan 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-import 
+cd ..
+make terraform-apply-auto-approve 
+make go-mod)tidy
+make go-od-vendor
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
+ake go-mod-tidy
+cd cloud/infra/auth/go/
+go mod tidy
+go mod vendor
+cd -
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make -C ../../..  builder-image  application-image terraform-apply-auto-approve 
+make unl
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make   builder-image  application-image terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
+make backend-run
+ls frontend/
+ls frontend/*
+ls -l frontend
+make local-image-run
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make application-image terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-apply-auto-approve a
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make application-image terraform-apply-auto-approve a
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make terraform-apply-auto-approve a
+mount
+env|grep -i database
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-apply-auto-approve
+git fetch 
+git origin -v
+git remote -v
+git  push origin master 
+git checkout -b dev
+git push --set-upstream origin dev v
+sudo rm -rf .devcontainer/gopath/pkg/mod/github.com/7d4b9/
+firebase --help
+firebase list
+firebase help
+firebase firestore
+gcloud firestore databases --list --tr
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-plan 
+gcloud firestore list
+gcloud firestore database list
+gcloud firestore databases list
+gcloud firestore databases list --help
+firebase project
+firebaseinfo
+firebase info
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-import 
+cd cloud/
+terraform import
+terraform import google_firebase_database_instance utrade
+terraform import google_firebase_database_instance.utrade
+terraform import google_firebase_database_instance.utrade utrade-taxi-run-0-default-rtdb
+terraform import module.infra.google_firebase_database_instance.utrade utrade-taxi-run-0-default-rtdb
+terraform import google_firebase_database_instance.utrade module.infra.utrade-taxi-run-0-default-rtdb
+gcloud firebase projects:list
+gcloud firebase projects list
+gcloud firebase 
+make terraform-state-rm 
+terraform state list
+terraform -chdir ./cloud state list
+terraform -chdir=./cloud state list
+make terraform-state-list 
+terraform state --help
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-state-show 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-state-show-all 
+make 
+BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make module.secrets.google_identity_platform_default_supported_idp_config.google[0]-show 
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make terraform-apply-auto-approve 
+git clone https://github.com/7d4b9/firebase-admin-go.git
+code firebase-admin-go/
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.2 make terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make application-image terraform-apply-auto-approve 
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make builder-image application-image terraform-apply-auto-approve 
+npm install
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
+npm start
+nodejs --version
+node --version
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make terraform-plan 
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make terraform-apply-auto-approve 
+cd cloud/infra/auth/
+sudo npm install -g npm-check-updates
+ncu -u
+rm -r node_modules/ package-lock.json 
+npm i
+npm i @google-cloud/firestore
+npm i @grpc/grpc-js
+npm update
+terraform init --upgrade
+BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make terraform-plan 
+code ..
+cd functions/
+cd ../cloud/infra/auth/
+ln ../../../functions/index.js .
+ln -h
+ln
+ln --help
+ln -f ../../../functions/index.js .
+commment faire pointer un front vers cett emulateur ?
+make local-firebase-emulators-init 
+make local-firebase-emulators-start 
+make local-firebase-emulators-start
+mv functions/ local/firebase/
+cd local/firebase/
+ln -s ../../../cloud/infra/auth functions/auth
+git add functions/auth
+git status 
+ls -a
+ln -s ../../../cloud/infra/auth auth
+ln `pwd`/__auth auth
+ln -s `pwd`/__auth auth
+cd infra/auth/
+cd local/firebase/functions/
+ls -alh ../../../cloud/infra/auth
+ls -alh ../../../cloud/infra/
+ls -la
+rm auth 
+ls auth 
+ls auth/*
+ls -lha ../../../cloud/infra/auth 
+ls -lha ../../../cloud/infra/
+firebase init emulators
+npm install -g firebase-tools
+cd /workspaces/refactored-winner/
+sudo npm install -g firebase-tools
+firebase login
+firebase emulators:start
+uname -a
+sudo apt-get install -y openjdk-11-jdk
+sudo apt-get update
+apt-get install -y software-properties-common
+sudo apt-get install -y software-properties-common
+sudp add-apt-repository ppa:openjdk-r/ppa
+sudo add-apt-repository ppa:openjdk-r/ppa
+sudo apt update
+sudo apt search openjdk
+apt-cache search openjdk
+sudo apt-get install -y openjdk-17-jdk
+make local-builder-image 
+firebase init
+ls -lh ..
+ls -lh ../..
+cd /var/lib/docker/codespacemount/workspace/refactored-winner/
+ls -lha
+ls -lh ../../..
+cd /workspaces/refactored-winner/r
+firebase init emulators --no-localhost
+make local-firebase-emulators
+firebase emulators init --help
+firebase init emulators --help
+firebase init functions
+make local-docker-compose-firebase-emulators-up 
+cd refactored-winner/
+docker compose rm   firebase-emulators 
+ls local/
+ls local/firebase/
+ls local/firebase/functions/
+ls -al local/firebase/functions/
+ln -s `pwd`/cloud/infra/auth  local/firebase/functions/
+docker system prune -f -a
+git rebase 97gvv6p7q7pf746
+git rebase origin/codespace-humble-meme-wrq66vwrr4wh5979 
+gi tlog
+cd local/firebase/functions
+ls  /workspaces/refactored-winner/cloud/infra/auth
+make local-docker-compose-firebase-emulators-rm
+make local-docker-compose-firebase-emulators
+make local-docker-compose-firebase-emulators-rm 
+make local-docker-firebase-emulators-
+make local-docker-firebase-emulators-up
+rm auth
+curl localhost:4000
+docker ps
+make local-docker-firebase-emulators-up 
+cat /etc/hosts
+sudo apt-get update && apt-get install -y socat
+sudo apt-get update && sudo apt-get install -y socat
+socat TCP-LISTEN:4000,fork TCP:firebase-emulators:4000
+curl firebase-emulators:4000
+socat TCP-LISTEN:4000,fork TCP:172.18.0.2/16:4000
+socat TCP-LISTEN:4000,fork TCP:172.18.0.2:4000
+make local-firebase-docker-emulators-logs 
+docker copose up --help
+nc -z firebase 4000  && echo ok
+socat TCP-LISTEN:4000,fork TCP:localhost:4000
+socat TCP-LISTEN:4000,fork TCP:firebase-emulators4001
+make local-docker-compose-firebase-emulators-up
+git branch -d
+git log --oneline 
+git push --set-upstream origin codespace-humble-meme-wrq66vwrr4wh5979:dev
+nc -z localhost 4000 && echo ok
+nc -z firebase 4001 && echo ok
+make go-local/proxy-mod-tidy 
+nc -z firebase 4000 && echo ok
+cd local/proxy/
+go mod init github.com/7d4b9/utrade/local/proxy
+who
+whoami 
+docker ps$
+docker compose stop firebase-emulator
+docker compose stop --help
+docker compose down --help
+docker compose rm --help
+make local-firebase-docker-emulators-logs
+docker compose logs --help
+docker compose logs --follow firebase-emulator
+docker compose logs  firebase-emulator
+make local-firebase-docker-emulators-rm
+make local-firebase-docker-emulators
+bg
+make local-firebase-docker-emulators-rm 
+make local-docker-compose-firebase-emulators-stop 
+docker ps -a
+docker rm -f 19c38
+sudo apt-get install netcat
+sudo apt-get install -y netcat
+sudo apt-get install -y netcat-openbsd
+nc -h
+nc -z firebase-emulators 4000
+nc -z 172.18.0.2 4000
+nc -z localhost 4000
+nc -z firebase-emulator 4000
+make local-docker-compose-firebase-emulators-logs 
+nc -z firebas 5001
+nc -z firebase 5001
+make  local-builder-image 
+nc -z 0.0.0.0 4000
+make local-builder-image
+ps aux
+make local-firebase-emulators-install 
+kill -INT 7
+make local-docker-compose-firebase-emulators-build-no-pull 
+ss -tulnp
+ls -lha local/
+ls -lha local/firebase/
+ls -lha local/firebase/data/
+make local-firebase-emulators-stop 
+firebase emulators:help
+firebase emulators --help
+make local-docker-compose-firebase-emulators-b
+make local-docker-compose-firebase-emulators-bash 
+chmod o+rwx local/firebase/data/
+netstat -tuln
+sudo apt-get install -y netstat
+sudo apt-get install net-tools
+sudo netstat -tulnp
+sudo apt install iproute2
+sudo ss -tulnp
+sudo su
+sudo -i
+lsof -i :4096
+sudo apt-get install lsof
+lsof -i :36305
+socat TCP-LISTEN:4000,fork,reuseaddr TCP:localhost:4000
+socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000
+docker images
+git push
+sudo apt-get install iptables -y
+sudo iptables -t nat -A PREROUTING -p tcp --dport 4000 -j DNAT --to-destination 'firebase-emulators':8000
+sudo iptables -t nat -A PREROUTING -p tcp --dport 4000 -j DNAT --to-destination 'firebase\-emulators':8000
+sudo iptables -t nat -A PREROUTING -p tcp --dport 4000 -j DNAT --to-destination dd5e3ea010ea:8000
+dig +short firebase-emulators
+sudo apt-get install dig -y
+ping
+sudo apt-get install dnsutils
+man dig
+dig --help
+test
+test --help
+ps aux|grep 4000
+sudo iptables -t nat -A PREROUTING -p tcp --dport 4000 -j DNAT --to-destination `dig +short firebase-emulators`:4000
+make local-docker-compose-firebase-emulators-bash
+make local-build
+make builder-image 
+make frontend-npm-ci 
+make frontend-build
+make frontend-bundle 
+cd frontend/
+npm install firebaseui
+npm install material-design-lite
+npm install material-ui/core
+rm /home/devuser/.ssh/known_hosts
+npm install @material-ui/core
+make frontend-build 
+npm install @material-ui/core --save
+npm install firebase
+npm install @firebase @firebase/Auth
+npm install @firebase @firebase/auth
+npm install firebase @firebase/auth
+npm install firebase @firebase/compat/auth
+npm install firebase @firebase/compat
+npm install firebase/compat
+ls -alh
+du -sh .*
+du -sh .vscode-server/*
+npm install material-design-lite --save
+cd
+code .
+echo $HISTSIZE
+. ~/.bashrc 
+cat ~/.bashrc 
+cd 
+cat .bashrc 
+make gcloud-auth-default-application-credentials 
+docker images -a
+docker run -v /:`pwd`/root --rm -it -w `pwd`/root 0bb51c6f07de bash
+docker run -v /:`pwd`/root --rm --entrypoint bash -it -w `pwd`/root 0bb51c6f07de 
+env|grep -i folder
+make local-docker-compose-firebase-emulators-rm  local-builder-image local-docker-compose-firebase-emulators-up 
+git rm dev-entrypoint.sh 
+git rm -f dev-entrypoint.sh 
+make local-docker-compose-firebase-emulators-rm local-docker-compose-firebase-emulators-up 
+git push -f
+git reset ad39
+git push git push 
+ps aux|grep socat
+make terraform-validate 
+make terraform-plan
+git rm -f .env
+git tag -l
+git reset origin/dev 
+unset GOOGLE_APPLICATION_CREDENTIALS
+USER=devuser@115528929ec4 make terraform-plan
+make terraform-init
+echo $GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
+echo $TF_VAR_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
+gcloud secrets list 
+gcloud secrets versions list 
+gcloud secrets versions list utrade-us-central1-googlemaps-api-key
+gcloud secrets versions access  utrade-us-central1-googlemaps-api-key 
+gcloud secrets versions access --secret utrade-us-central1-googlemaps-api-key 1
+gcloud secrets versions access --secret utrade-us-central1-firebase-config 1
+gcloud secrets versions access --secret utrade-us-central1-firebase-config 1|jq
+gcloud run list
+gcloud run services list
+gcloud logging logs list
+gcloud logging read 
+gcloud logging read --help
+gcloud functions list
+gcloud functions logs read utrade-us-central1-identity-platform-before-create --filter=jsonPayload
+gcloud run services list 
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade AND jsonPayload"
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade"
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade AND textPayload"
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade"|grep -i jsonpayload
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade"|more
+npm audit --fix
+npm audit fix
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade --freshness 1m
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade" --freshness 1m
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade" --freshness 1m >ll
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=utrade" --format  jsonpayload
+env
+git clone https://github.com/firebase/firebase-admin-go.git
+mkdir _workspace
+cd _workspace/
+env|grep -i firebase
+make local-run 
+firebase
+firebase project:list
+firebase projects:list
+code _workspace/firebase-admin-go/
+make frontend-build frontend-bundle 
+./
+de
+.devcontainer/post-create-cmd.sh 
+cd .vscode-server/
+cd data/
+lc -a
+du -sh ../*
+du -sh CachedProfilesData/__default__profile__/*
+cd ../..
+echo $GOOGLE_CLOUD_PROJECT 
+echo $GOOGLE_MAPS_API_KE
+make backend-install backend-run 
+git rm .vscode/launch.json 
+git rm -f .vscode/launch.json 
+make local-backend
+sudo netstat -ntlup
+ps aux|grep backend
+kill 23558
+kill -9 23558
+make backend-build
+docker run --rm -v /:$HOME/root -w $HOME/root -it cd2df bash
+gitpush
+make local-run
+ls -lh local/firebase/data/*
+ls -lh local/firebase/data/auth_export
+ls -lh local/firebase/data/firebase-export-metadata.jso
+make local-docker-compose-firebase-emulators-logs
+git reset ad39f604e038f7f1c225e5c3415c845795e260d0
+git reset 55805
+lsof -i :4000
+killall socat
+git reset fs
+.devcontainer/
+chmod +x local/firebase/docker-compose-up.sh 

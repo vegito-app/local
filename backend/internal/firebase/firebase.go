@@ -4,22 +4,40 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/7d4b9/utrade/backend/firebase"
+	"github.com/spf13/viper"
 	"google.golang.org/api/option"
 )
+
+var config = viper.New()
+
+const appCreationTimeoutConfig = "new_application_timeout"
+
+func init() {
+	config.AutomaticEnv()
+	config.SetEnvPrefix("utrade_firebase")
+
+	config.SetDefault(appCreationTimeoutConfig, 1*time.Minute)
+}
 
 type Client struct {
 	firestore *firestore.Client
 }
 
 func NewClient(opts ...option.ClientOption) (*Client, error) {
-	app, err := firebase.NewApp(opts...)
+
+	timeout := config.GetDuration(appCreationTimeoutConfig)
+	ctx, cancelAppCreation := context.WithTimeout(context.Background(), timeout)
+	defer cancelAppCreation()
+
+	app, err := firebase.NewApp(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("firebase new app: %w", err)
 	}
-	firestore, err := app.Firestore(context.Background())
+	firestore, err := app.Firestore(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("firebase failed to create client: %w", err)
 	}
