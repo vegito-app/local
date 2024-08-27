@@ -1,7 +1,10 @@
 # Build the React App
 ARG builder_image=utrade-repository/utrade:builder
 FROM --platform=${BUILDPLATFORM} ${builder_image}
+# USER root
+# RUN  npm uninstall firebase-tools &&  npm install -g firebase-tools@latest
 
+# USER devuser
 WORKDIR ${HOME}/src
 
 COPY local/proxy proxy

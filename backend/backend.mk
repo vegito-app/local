@@ -1,6 +1,5 @@
 # Activate cgo for using v8go server side html rendering
 UNAME_M := $(shell uname -m)
-
 ifeq ($(UNAME_M), x86_64)
   GOARCH ?= amd64
 endif
@@ -13,6 +12,7 @@ ifeq ($(UNAME_M), aarch64)
   GOARCH ?= arm64
 endif
 
+BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
 BACKEND_VENDOR = $(CURDIR)/backend/vendor
 
 $(BACKEND_VENDOR):

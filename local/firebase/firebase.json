@@ -17,30 +17,15 @@
       "host": "0.0.0.0",
       "port": 9099
     },
-    "singleProjectMode": true,
-    "storage": {
-      "host": "0.0.0.0",
-      "port": 9199
-    },
-    "database": {
-      "host": "0.0.0.0",
-      "port": 9000
-    }
+    "singleProjectMode": true
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ]
-    }
-  ],
-  "storage": {
-    "rules": "storage.rules"
+  "functions": {
+    "source": "functions",
+    "ignore": [
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "*.local"
+    ]
   }
 }

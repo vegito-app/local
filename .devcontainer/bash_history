@@ -531,3 +531,98 @@ killall socat
 git reset fs
 .devcontainer/
 chmod +x local/firebase/docker-compose-up.sh 
+ls -lha local/firebase/functions/auth
+npm run serve
+cp -r cloud/infra/auth/ local/firebase/functions/
+ls -lh cloud/infra/auth/ local/firebase/functions/
+ls -lh cloud/infra/auth local/firebase/functions
+ls -lh cloud/infra local/firebase/
+ls -lh cloud/infra local/firebase
+ls -lh cloud/infra local/firebase/functions/
+firebase version
+firebase --version
+npm uninstall -g firebase-tools
+sudo npm uninstall -g firebase-tools
+sudo install -g firebase-tools@13.14.2
+sudo npm install -g firebase-tools@13.14.2
+npm run start
+cp -r auth/ _auth
+//
+npm install @google-cloud/firestore@latest
+npm uninstall @google-cloud/firestore
+npm uninstall google-cloud/firestore
+git checkout local/firebase/data
+git checkout -b chit
+git push --set-upstream origin chit bad
+git push --set-upstream origin chit:bad
+git reset 2349
+git reset 5580
+git reset origin/bad 
+git checkout .
+killall firebase
+npm --help
+npm docs firebase-functions@v5.1.0
+npm docs firebase-function
+npm help docs
+npm uninstall firebase-admin
+npm install firebase-admin@v12.3.1
+node version
+make node-modules-ci -j
+make node-modules-ci 
+make -j node-modules-ci
+make -j node-modules-clean
+make node-modules-ci
+npm uninstall firebase-tools
+npm install firebase-tools@v13.15.0
+make cloud/infra/auth-ci
+make local-run r
+make node-modules-c
+rm -r frontend/node_modules/
+npm install -g webpack
+rm package-lock.json 
+npm install webpack-cli
+firbase --version
+make firebase login
+git reset origin/light 
+git reset good
+git add -f local/firebase/data
+du -sh local/firebase/data*
+du -sh local/firebase/data/*
+env|grep -i emulator
+env |grep -i emulator
+FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+FIRESTORE_EMULATOR_HOST=http://mocalhost:8090
+FIRESTORE_EMULATOR_HOST=localhost:8090
+killall java
+env |grep -i cred
+env |grep -i proj
+export GOOGLE_CLOUD_PROJECT_ID=utrade-taxi-run-0
+killall node
+npm install firebase-tools@v13.15.4
+make frontend-ci 
+ls cloud/infra/auth/
+npm install firebase-admin@v12.4.0
+npm build
+npm run build
+npm install firebase-admin@latest
+npm install firebase-tools@latest
+npm install firebase-functions@latest
+npm install -g npm-check-updates
+cd ../../local/firebase/functions/
+cd auth
+env|grep -i proj
+env|grep -i front
+env|grep -i google
+GOOGLE_CLOUD_CREDENTIALS=`pwd`/cloud/google-cloud-credentials make backend-run 
+echo $GOOGLE_CLOUD_PROJECT_ID
+export GOOGLE_CLOUD_PROJECT_ID=$GOOGLE_CLOUD_PROJECT 
+echo $UI_CONFIG_FIREBASE_CONFIG 
+echo $UI_CONFIG_GOOGLE_MAPS_API_KEY 
+exho grep -i proj
+echo grep -i proj
+env| grep -i proj
+unset FIREBASE_AUTH_EMULATOR_HOST
+killall backend
+node --trace-deprecation
+make local-firebase-emulators-functions-serve 
+ncu -v

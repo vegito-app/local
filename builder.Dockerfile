@@ -65,9 +65,24 @@ RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terra
     && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g firebase-tools
+# Install nvm with node and npm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 22.4.0
+
+RUN mkdir $NVM_DIR
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+RUN npm install -g \
+    firebase-tools@v13.15.4 \
+    npm-check-updates@v17.1.0
 
 # non-root user    
 RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo \
@@ -77,16 +92,33 @@ RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser s
 USER devuser
 ENV HOME=/home/devuser
 WORKDIR ${HOME}/
-ENV PATH=$PATH:/usr/local/go/bin:${HOME}/go/bin
+ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
 
 # Check node and npm versions
 RUN node -v && npm -v
 
-# * uses different PWD value between the dev and other containers inside the same docker-compose.yml
+# The workspace folder value '/workspaces/<project>' is enforced by Github Codespaces (see .devcontainer/devcontainer.json).
+# It must be a static value due to limitations in the Devcontainer as it doesn't support variables and treats any syntax as a hard value without expansion.
+# Luckily this restriction only applies to Github Codespaces. If another platform imposed the same restriction, we would face a complicated decision.
+# Refer to https://containers.dev for more about the containers.dev initiative.
+
+# To address this, we mimic the same workspace folder across different environments using a symlink hardcoded to '/workspaces/<project>'.
+# This approach is beneficial when your environment needs to mount the current workspace in third-party containers, such as running a development docker-compose.
+
+# Requiring alignment between the container mounted workspace folder path inside the container and outside,
+# enables transparent work on the project files inside and outside of the development container, which can be destroyed and recreated with minimal impact and restart time.
+
+# It further allows cache redirection inside the current folder located on docker daemon host physical disks (see .devcontainer/post-create-cmd.sh).
+# It is superior to volumes as generated files stay within the local checked-out project folder, eliminating docker volume management and enabling access to locally readable container cache outside docker.
+
+# When /var/run/docker.sock is mounted by docker daemon inside a running container (see docker-compose.yml) the host's docker is used.
+# If you run the command 'docker run -v`pwd`:`pwd` -w `pwd` sh' it will display the current folder inside the container at the same virtual position where it currently resides, an existing path on the daemon underlying file system.
+
+# Using this technique, you can safely mount files under your project path inside new containers like third party development containers with a local docker-compose.yml for local functional tests for instance.
 ARG host_pwd
 RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
     sudo mkdir -p /workspaces && \
-    sudo ln -s ${host_pwd} /workspaces/refactored-winner ;\
+    sudo ln -s ${host_pwd} /workspaces/refactored-winner ; \
     fi
 
 COPY dev-entrypoint.sh /usr/local/bin/

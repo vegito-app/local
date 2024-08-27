@@ -3,7 +3,9 @@ _workspace
 *backup*
 _frontend
 vendor
-
+_env
+_data
+_auth
 # Logs
 logs
 *.log
