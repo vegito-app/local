@@ -9,12 +9,12 @@ COPY .git .git
 RUN git config --global --add safe.directory ${HOME}/src
 
 COPY Makefile .
+COPY go.mk .
 
 # Backend
 COPY backend/backend.mk backend/
 COPY backend/go.* backend/
 RUN make go-backend-mod-download
-# COPY backend/vendor backend/vendor
 COPY backend/internal backend/internal
 COPY backend/http backend/http
 COPY backend/log backend/log
@@ -23,12 +23,16 @@ COPY backend/firebase backend/firebase
 COPY backend/main.go backend/
 RUN make backend-install
 
+COPY nodejs.mk .
+
 # Frontend
 RUN mkdir -p frontend/node_modules
 COPY frontend/package-lock.json frontend/
 COPY frontend/package.json frontend/
 COPY frontend/frontend.mk frontend/
-RUN sudo make frontend-node-modules frontend-npm-ci
+USER root
+RUN make frontend-node-modules # frontend-npm-ci
+USER devuser
 
 COPY frontend/README.md frontend/
 COPY frontend/public frontend/public

@@ -6,6 +6,7 @@ vendor
 _env
 _data
 _auth
+android-studio*
 # Logs
 logs
 *.log

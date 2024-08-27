@@ -4,8 +4,7 @@ LOCAL_FIREBASE = cd $(LOCAL_FIREBASE_DIR) && firebase
 # only specific emulators. This is a comma separated list of
 # emulator names. Valid options are:
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
-LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore,database,storage
-# LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore
+LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore,database
 
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators
@@ -43,8 +42,6 @@ local-docker-compose-firebase-emulators: local-firebase-emulators-prepare local-
 
 local-docker-compose-firebase-emulators-up: local-docker-compose-firebase-emulators-build-no-pull local-docker-compose-firebase-emulators-rm
 	@$(CURDIR)/local/firebase/docker-compose-up.sh &
-	# @unset GOOGLE_APPLICATION_CREDENTIALS && \
-	#   $(CURDIR)/local/firebase/docker-compose-up.sh &
 	@until nc -z firebase-emulators 4000 ; do \
 		sleep 1 ; \
 	done
