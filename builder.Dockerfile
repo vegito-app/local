@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     dnsutils \
+    file \
     g++ \
     gcc \
     git \
@@ -15,11 +16,16 @@ RUN apt-get update && apt-get install -y \
     htop \
     iptables \
     jq \
+    libbz2-1.0:amd64 \
+    libc6:amd64 \
     libcairo2-dev \
     libgif-dev \
+    libglu1-mesa \
     libjpeg-dev \
+    libncurses5:amd64\
     libpango1.0-dev \
     librsvg2-dev \
+    libstdc++6:amd64 \
     lsb-release \
     make \
     net-tools \
@@ -30,6 +36,8 @@ RUN apt-get update && apt-get install -y \
     sudo \
     unzip \
     vim \
+    xz-utils \
+    zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Installing Go
@@ -120,5 +128,10 @@ RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
     sudo mkdir -p /workspaces && \
     sudo ln -s ${host_pwd} /workspaces/refactored-winner ; \
     fi
+
+RUN  curl -OL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.1-stable.tar.xz && \
+    tar -xf flutter_linux_3.24.1-stable.tar.xz -C ${HOME}
+
+ENV PATH=${PATH}:${HOME}/flutter/bin
 
 COPY dev-entrypoint.sh /usr/local/bin/

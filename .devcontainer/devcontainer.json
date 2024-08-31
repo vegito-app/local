@@ -126,7 +126,9 @@
         "pkief.material-icon-theme",
         "redhat.vscode-yaml",
         "standard.vscode-standard",
-        "toba.vsfire"
+        "toba.vsfire",
+        "Dart-Code.flutter",
+        "alexisvt.flutter-snippets"
       ]
     }
   }
