@@ -626,3 +626,85 @@ killall backend
 node --trace-deprecation
 make local-firebase-emulators-functions-serve 
 ncu -v
+which bash file mkdir rm which
+sudo apt-get install -y file
+sudo apt-get update -y && sudo apt-get upgrade -y;
+sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
+sudo apt-get install     libc6:amd64 libstdc++6:amd64     libbz2-1.0:amd64 libncurses5:amd64
+docker pull thyrlian/android-studio
+docker login
+docker pull thyrlian/android-sdk:v3.5
+docker pull thyrlian/android-sdk
+VERSION=0.0.3 make builder-image application-image 
+VERSION=0.0.3 make application-image 
+VEESION=make application-image 
+git push origin robusto:main 
+echo $DISPLAY
+ls -lh /tmp/.X11-unix/
+sudo apt update && sudo apt upgrade -y
+sudo apt install wget
+wget https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.1.1.12/android-studio-2024.1.1.12-linux.tar.gz
+sudo mv android-studio /opt/
+tar -xvf refactored-winner/android-studio-2020.3.1.25-linux.tar.gz
+tar -xvf refactored-winner/android-studio-2024.1.1.12-linux.tar.gz android-studio/
+tar -xvf android-studio-2024.1.1.12-linux.tar.gz android-studio/
+cd /opt/android-studio/bin/
+./studio.sh 
+DISPLAY=:1 ./studio.sh 
+DISPLAY=:0 ./studio.sh 
+DISPLAY=:1 ./studio.sh -v
+ls /tmp/.X11-unix/
+/opt/android-studio/bin/studio.sh 
+ping materiel.net
+curl materiel.net
+mkdir .flutter
+tar xvf android-studio-2024.1.1.12-linux.tar.gz 
+ls /tmp/.X11-unix/X0 
+ls -lh /tmp/.X11-unix/X0 
+sudo apt-get install xorg
+ls -lh /tmp/
+ls -lh /tmp/.X11-unix
+ls -la /tmp/.X11-unix
+ls -la /tmp
+chmod 1777 /tmp/.X11-unix/
+xhost +
+sudo xhost +
+ps -e | grep X
+DISPLAY=host.docker.internal:0 ./studio.sh 
+DISPLAY=host.docker.internal:10 ./studio.sh 
+sudo apt-get install ssvnc
+make local-docker-compose-vnc-android-studio-sh 
+make local-docker-compose-vnc-android-studio-build-no-pull 
+DISPLAY=:10.0 /opt/android-studio/bin/studio.sh 
+DISPLAY=:0 /opt/android-studio/bin/studio.sh 
+code /opt/android-studio/
+sudo apt-get install xvfb
+Xvfb :10 -ac &
+DISPLAY=:10 /opt/android-studio/bin/studio.sh 
+docker compose up android-studio
+make local-docker-compose-vnc-android-studio-up 
+[A[A
+apt-get update && apt-get install -y     x11vnc     xvfb     wget     unzip
+sudo apt-get update && sudo apt-get install -y     x11vnc     xvfb     wget     unzip
+x11vnc -storepasswd 12456azert ./.vnc/passwd
+mkdir .vnc
+touch .vnc/passwd
+x11vnc -storepasswd 12456azert .vnc/passwd
+sudo apt-get update && sudo apt-get install -y     x11vnc     xvfb     wget     unzip xinit openbox xorg
+xvfb-run --server-args="-screen 0 1024x768x24" x11vnc -forever -usepw -create 
+x11vnc --help
+x11vnc --help|more
+x11vnc --help>hh
+x11vnc --version
+make local-docker-compose-vnc-android-studio-log
+make local-docker-compose-vnc-android-studio-logs 
+make local-docker-compose-vnc-android-studio-sh
+x11vnc -h > hh
+nc -z vnc-android-studio 5900
+socat TCP-LISTEN:5009,fork,reuseaddr TCP:vnc-android-studio:5009&
+socat TCP-LISTEN:5900,fork,reuseaddr TCP:vnc-android-studio:5900 &
+make local-docker-compose-vnc-android-studio-up
+nc localhost 5900
+nc -z localhost 5900
+nc host.docker.internal 5900
+nc -z host.docker.internal 5900

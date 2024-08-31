@@ -29,3 +29,4 @@ local-run: $(BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_F
 .PHONY: local-run
 
 include $(CURDIR)/local/firebase/firebase.mk
+include $(CURDIR)/local/android/android.mk

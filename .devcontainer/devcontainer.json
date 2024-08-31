@@ -76,6 +76,10 @@
             "label": "Firebase Functions",
             "onAutoForward": "silent"
           },
+          "5900": {
+            "label": "VNC - Androïd Studio",
+            "onAutoForward": "silent"
+          },
           "8090": {
             "label": "Firebase Firestore",
             "onAutoForward": "silent"

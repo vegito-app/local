@@ -72,7 +72,7 @@ FIREBASE_EMULATORS_IMAGE =  $(IMAGES_BASE):$(VERSION)-firebase-emulators
 
 local-docker-compose-firebase-emulators-build-no-pull:
 	@docker build --pull=false \
-	  -f $(CURDIR)/firebase-emulators.Dockerfile \
+	  -f $(CURDIR)/local/firebase/emulators.Dockerfile \
 	  --build-arg builder_image=$(BUILDER_IMAGE) \
 	  -t $(FIREBASE_EMULATORS_IMAGE) \
 	  .

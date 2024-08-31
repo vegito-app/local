@@ -21,6 +21,8 @@ socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-fi
 bg_pids+=("$!")
 socat TCP-LISTEN:5001,fork,reuseaddr TCP:firebase-emulators:5001 > /tmp/socat-firebase-emulators-5001.log 2>&1 &
 bg_pids+=("$!")
+socat TCP-LISTEN:5900,fork,reuseaddr TCP:vnc-android-studio:5900 > /tmp/socat-vnc-android-studio-5900.log 2>&1 &
+bg_pids+=("$!")
 socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
 bg_pids+=("$!")
 socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-firebase-emulators-9000.log 2>&1 &
@@ -38,4 +40,4 @@ bg_pids+=("$!")
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9299.log 2>&1 &
 bg_pids+=("$!")
 
-docker compose up --exit-code-from firebase-emulators firebase-emulators 2>&1
+docker compose up firebase-emulators vnc-android-studio 2>&1

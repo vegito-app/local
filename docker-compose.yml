@@ -5,6 +5,7 @@ volumes:
   firebase-emulators-cache:
 services:
   dev:
+    container_name: dev
     image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:dev-builder}
     build:
       context: .
@@ -53,6 +54,7 @@ services:
     depends_on:
       - firebase-emulators
   firebase-emulators:
+    container_name: firebase-emulators
     image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:dev-firebase-emulators}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
@@ -89,5 +91,16 @@ services:
 
       while true ; do sleep 1000 ; done
       '
+    networks:
+      dev:
+  vnc-android-studio:
+    container_name: vnc-android-studio
+    image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:vnc-android-studio}
+    build:
+      context: .
+      dockerfile: ./local/android/vnc-studio.Dockerfile
+    volumes:
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+    working_dir: ${PWD:-/workspaces/refactored-winner}
     networks:
       dev:
