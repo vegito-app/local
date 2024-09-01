@@ -1,5 +1,6 @@
 FROM debian:bookworm
 
+
 # Updating packages and installing dependencies
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
@@ -40,22 +41,23 @@ RUN apt-get update && apt-get install -y \
     zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Installing Go
-ENV GO_VERSION=1.22.0
-RUN curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
-    && rm go${GO_VERSION}.linux-amd64.tar.gz
-ENV CGO_ENABLED=1
+# non-root user    
+RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo \
+    && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser \
+    && chmod 0440 /etc/sudoers.d/devuser
 
+USER devuser
+ENV HOME=/home/devuser
+WORKDIR ${HOME}/
 # Install Docker
-RUN install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
-    && chmod a+r /etc/apt/keyrings/docker.asc \
+RUN sudo install -m 0755 -d /etc/apt/keyrings \
+    && sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+    && sudo chmod a+r /etc/apt/keyrings/docker.asc \
     # Add the repository to Apt sources:
     && echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" | \
-    tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update && apt-get install -y \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && sudo apt-get update && sudo apt-get install -y \
     # docker-ce \
     docker-ce-cli \
     # containerd.io \
@@ -63,20 +65,21 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     docker-compose-plugin
 
 # Installing GCP CLI
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
-    && apt-get update -y && apt-get install google-cloud-sdk -y
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+    sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+    && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
 
 # Installing Terraform
 ENV TERRAFORM_VERSION=1.7.4
 RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
+    && sudo unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
-# Install nvm with node and npm
-ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 22.4.0
 
+# Install nvm with node and npm
+ENV NVM_DIR ${HOME}/nvm
+ENV NODE_VERSION 22.4.0
 RUN mkdir $NVM_DIR
 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash \
@@ -92,18 +95,37 @@ RUN npm install -g \
     firebase-tools@v13.15.4 \
     npm-check-updates@v17.1.0
 
-# non-root user    
-RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo \
-    && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser \
-    && chmod 0440 /etc/sudoers.d/devuser
-
-USER devuser
-ENV HOME=/home/devuser
-WORKDIR ${HOME}/
+# Installing Go
+ENV GO_VERSION=1.22.0
+RUN curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
+    && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
+    && rm go${GO_VERSION}.linux-amd64.tar.gz
+ENV CGO_ENABLED=1
 ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
 
-# Check node and npm versions
-RUN node -v && npm -v
+# Android SDK
+RUN sudo apt-get update && sudo apt-get install -y curl unzip default-jdk
+ENV ANDROID_SDK=${HOME}/Android/Sdk
+ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
+RUN mkdir -p $ANDROID_SDK/cmdline-tools/ \
+    && cd $ANDROID_SDK/cmdline-tools/ \
+    && curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+    && unzip sdk.zip && rm sdk.zip \
+    && mv cmdline-tools latest \
+    && yes | sdkmanager --licenses
+RUN sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.1"
+
+# Flutter 
+RUN sudo apt-get update && sudo apt-get install -y \
+    clang cmake ninja-build libgtk-3-dev
+RUN curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.1-stable.tar.xz && \
+    tar -xf flutter.tar.xz -C ${HOME}/ && rm flutter.tar.xz
+ENV PATH=${PATH}:${HOME}/flutter/bin
+# Telemetry is not sent on the very first run. To disable reporting of telemetry,
+# run this terminal command:
+RUN flutter --disable-analytics
+# Accept All Androïd SDK package licenses
+RUN flutter doctor --android-licenses
 
 # The workspace folder value '/workspaces/<project>' is enforced by Github Codespaces (see .devcontainer/devcontainer.json).
 # It must be a static value due to limitations in the Devcontainer as it doesn't support variables and treats any syntax as a hard value without expansion.
@@ -128,10 +150,5 @@ RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
     sudo mkdir -p /workspaces && \
     sudo ln -s ${host_pwd} /workspaces/refactored-winner ; \
     fi
-
-RUN  curl -OL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.1-stable.tar.xz && \
-    tar -xf flutter_linux_3.24.1-stable.tar.xz -C ${HOME}
-
-ENV PATH=${PATH}:${HOME}/flutter/bin
 
 COPY dev-entrypoint.sh /usr/local/bin/

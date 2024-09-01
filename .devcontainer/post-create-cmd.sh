@@ -81,6 +81,7 @@ DIST_VSCODE=${HOME}/.vscode-server
 if [ -v  CODESPACES ] ; then
     DIST_VSCODE=${HOME}/.vscode-remote
 fi
+
 # VSCODE User data
 VSCODE_USER_DATA=${DIST_VSCODE}/data/User
 rm -rf $VSCODE_USER_DATA
