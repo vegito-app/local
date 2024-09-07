@@ -78,7 +78,11 @@
             "onAutoForward": "silent"
           },
           "5900": {
-            "label": "VNC - Androïd Studio",
+            "label": "VNC - dev X server",
+            "onAutoForward": "silent"
+          },
+          "5901": {
+            "label": "VNC - Androïd Studio X server",
             "onAutoForward": "silent"
           },
           "8090": {

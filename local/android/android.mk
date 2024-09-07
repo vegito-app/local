@@ -10,12 +10,12 @@ local-docker-compose-vnc-android-studio-build-no-pull:
 .PHONY: local-docker-compose-vnc-android-studio-build-no-pull
 
 local-docker-compose-vnc-android-studio-up: local-docker-compose-vnc-android-studio-build-no-pull local-docker-compose-vnc-android-studio-rm
-	# @$(CURDIR)/local/firebase/docker-compose-up.sh &
-	@docker compose up --exit-code-from vnc-android-studio vnc-android-studio 2>&1
-	@until nc -z vnc-android-studio 4000 ; do \
+	@$(CURDIR)/local/android/android-docker-start.sh &
+	@docker compose logs vnc-android-studio
+	@until nc -z vnc-android-studio 9100 ; do \
+		echo waiting vnc-android-studio container ; \
 		sleep 1 ; \
 	done
-	@docker compose logs vnc-android-studio
 	@echo
 	@echo Started Firebase Emulator: 
 	@echo View Emulator UI at http://127.0.0.1:4000/

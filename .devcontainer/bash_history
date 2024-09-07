@@ -530,7 +530,7 @@ lsof -i :4000
 killall socat
 git reset fs
 .devcontainer/
-chmod +x local/firebase/docker-compose-up.sh 
+chmod +x local/firebase/firebase-docker-start.sh 
 ls -lha local/firebase/functions/auth
 npm run serve
 cp -r cloud/infra/auth/ local/firebase/functions/
@@ -708,79 +708,70 @@ nc localhost 5900
 nc -z localhost 5900
 nc host.docker.internal 5900
 nc -z host.docker.internal 5900
-make local-run 
-htop
 make local-docker-compose-vnc-android-studio
-make local-docker-compose-vnc-android-studio-up
-make local-docker-compose-vnc-android-studio-up
-make local-docker-compose-vnc-android-studio-sh
-make local-docker-compose-vnc-android-studio-up
 code _workspace/codelabs/
 flutter --version
-make local-docker-compose-vnc-android-studio-sh
 cd firebase-get-to-know-flutter/step_02
-code .
 flutter doctor -v
 sudo chown -R $USER:$USER /opt/flutter
-flutter doctor -v
-cd
-ls -a
 ls -al
 ls -al .config/
 cd /opt/flutter/
-ls
-ls -a
 fing . | grep .dart_tool/package_config.json
 find . | grep .dart_tool/package_config.json
 ls -lha .dart_tool/package_config.json./packages/flutter_tools/.dart_tool/package_config.json
 sudo ls -lha .dart_tool/package_config.json./packages/flutter_tools/.dart_tool/package_config.json
 sudo ls -lha ./packages/flutter_tools/.dart_tool/package_config.json
 sudo chown -R $USER:$USER packages/
-sudo ls -lha ./packages/flutter_tools/.dart_tool/package_config.json
 ls -lha .
 sudo chown -R $USER:$USER packages/flutter_tools/.dart_tool/package_config.json 
-sudo ls -lha ./packages/flutter_tools/.dart_tool/package_config.json
 echo $USER
 sudo chown -R devuser:devuser  packages/
 sudo chown -R devuser:devuser  .
-cd -
-cd /workspaces/refactored-winner/
-flutter doctor -v
-cd
-ls -a
-ls -alh
-flutter doctor -v
 flutter doctor --android-licenses
 env|grep -i android
-flutter doctor --android-licenses
 echo $PATH
 which sdkmanager
-flutter doctor --android-licenses
 export ANDROID_HOME=/Users/<your_username>/Library/Android/sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/tools/bin
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-flutter doctor --android-licenses
 sudo flutter doctor --android-licenses
-echo $PATH
 ls -lha `which sdkmanager`
-flutter doctor --android-licenses
 sudo chown -R devuser:devuser /opt/android-sdk/
-flutter doctor --android-licenses
-ls -lha `which sdkmanager`
 echo $ANDROID_HOME 
 sdkmanager
-echo $ANDROID_HOME 
-ls -lha `which sdkmanager`
-echo $PATH
-flutter doctor --android-licenses
 sdkmanager --version
 cd /opt/
 cd android-sdk/
 mkdir latest
 mv cmdline-tools/ latest/
+code step_03/
+docker run --gpus all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi
+flutter devices
+flutter emulators
+flutter create tony
+cd tony/ 
+flutter run
+Xvfb ${DISPLAY} -nolisten tcp -cc 4 -screen 0, ${MacBookAirRes}x24 &
+bz
+socat TCP-LISTEN:9100,fork,reuseaddr TCP:vnc-android-studio:9100 > /tmp/socat-vnc-android-studio-9100.log 2>&1 &
+fg
+socat TCP-LISTEN:45483,fork,reuseaddr TCP:vnc-android-studio:45483 > /tmp/socat-vnc-android-studio-45483.log 2>&1 
+socat TCP-LISTEN:46483,fork,reuseaddr TCP:vnc-android-studio:46483 > /tmp/socat-vnc-android-studio-46483.log 2>&1 
+flutter upgrade
+make local-docker-compose-vnc-android-studio-up &
+make -C .. local-docker-compose-firebase-emulators-up 
+make -C .. local-docker-compose-vnc-android-studio-up 
+. .bash
+. .bashrc 
+local
+locale
+xserver-start.sh 
+cd _workspace/tony/
+DISPLAY=:1 flutter run
+ls -lha .cache/
+./.devcontainer/post-create-cmd.sh 
+du -sh .pub-cache/*
+du -sh .pub-cache/

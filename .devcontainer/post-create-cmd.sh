@@ -108,3 +108,9 @@ GCLOUD_CONFIG=${HOME}/.config/gcloud
 mkdir -p $GCLOUD_CONFIG ${PWD}/.devcontainer/gcloud
 rm -rf $GCLOUD_CONFIG
 ln -sf ${PWD}/.devcontainer/gcloud $GCLOUD_CONFIG
+
+# Dart Cache
+DART_CACHE=${HOME}/.pub-cache
+rm -rf $DART_CACHE
+mkdir -p ${PWD}/.devcontainer/dart/pub-cache
+ln -sf ${PWD}/.devcontainer/dart/pub-cache $DART_CACHE

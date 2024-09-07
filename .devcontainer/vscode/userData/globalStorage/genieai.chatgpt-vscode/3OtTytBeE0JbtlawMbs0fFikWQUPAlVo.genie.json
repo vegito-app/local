@@ -1,0 +1,27 @@
+{
+  "id": "3OtTytBeE0JbtlawMbs0fFikWQUPAlVo",
+  "createdTime": "9/5/2024, 6:51:07 AM",
+  "name": "Openbox",
+  "conversations": [
+    {
+      "id": "3OtTytBeE0JbtlawMbs0fFikWQUPAlVo",
+      "createdTime": "9/5/2024, 6:51:07 AM",
+      "completionParams": {
+        "model": "gpt-4",
+        "max_tokens": 2048,
+        "temperature": 0.9,
+        "top_p": 1
+      },
+      "prompt": {
+        "id": "3OtTytBeE0JbtlawMbs0fFikWQUPAlVo",
+        "role": "user",
+        "text": "comment afficher les fenetres reduites dans openbox ?"
+      },
+      "response": {
+        "id": "rMlgJRssFnDyqbtJY53lmjn2GAdnZ1PS",
+        "role": "assistant",
+        "text": "Pour afficher les fenêtres réduites dans Openbox, vous pouvez utiliser un \"dock\" ou une barre des tâches qui est compatible avec le gestionnaire de fenêtres Openbox. Bien que Openbox lui-même ne fournisse pas de barre des tâches, il y a plusieurs options que vous pouvez installer et utiliser. Par exemple, `tint2` est une option populaire.\n\nVoici comment vous pouvez l'installer et le configurer:\n\n**Étape 1: Installer tint2**\n\n```bash\nsudo apt-get install tint2\n```\n\n**Étape 2: Ajouter tint2 à votre configuration Openbox**\n\nOuvrez votre fichier `autostart` d'Openbox, qui se trouve souvent dans `~/.config/openbox/`. Vous devriez voir une ligne comme celle-ci :\n\n```bash\n# Run the system-wide support stuff\n. $GLOBALAUTOSTART\n```\n\nAjoutez la commande suivante en dessous pour démarrer `tint2` lors du démarrage:\n\n```bash\n(tint2) &\n```\nVotre fichier doit ressembler à ceci :\n\n```bash\n# Run the system-wide support stuff\n. $GLOBALAUTOSTART\n\n# Start tint2\n(tint2) &\n```\n\nEnregistrez et fermez le fichier.\n\n**Étape 3: Redémarrer Openbox**\n\nPour appliquer les modifications, vous devez redémarrer Openbox. Cela peut être fait en utilisant le menu Openbox ou en exécutant la commande suivante dans un terminal:\n\n```bash\nopenbox --restart\n```\n\nUne fois que vous avez terminé ces étapes, vous devriez maintenant avoir une barre des tâches (tint2) qui affiche vos fenêtres réduites. Vous pouvez personnaliser davantage `tint2` en modifiant son fichier de configuration, qui se trouve généralement dans `~/.config/tint2/`."
+      }
+    }
+  ]
+}

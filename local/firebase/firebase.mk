@@ -41,7 +41,7 @@ local-docker-compose-firebase-emulators: local-firebase-emulators-prepare local-
 .PHONY: local-docker-compose-firebase-emulators
 
 local-docker-compose-firebase-emulators-up: local-docker-compose-firebase-emulators-build-no-pull local-docker-compose-firebase-emulators-rm
-	@$(CURDIR)/local/firebase/docker-compose-up.sh &
+	@$(CURDIR)/local/firebase/firebase-docker-start.sh &
 	@until nc -z firebase-emulators 4000 ; do \
 		sleep 1 ; \
 	done

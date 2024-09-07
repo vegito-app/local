@@ -39,16 +39,6 @@ services:
         make local-docker-compose-firebase-emulators-up
         while true; do sleep 1000 ; done
       '
-    # ports:
-    #   - 4000:4000
-    #   - 4400:4400
-    #   - 4501:4501
-    #   - 5001:5001
-    #   - 8090:8090
-    #   - 9099:9099
-    #   - 9150:9150
-    #   - 9199:9199
-    #   - 9299:9299
     networks:
       - dev
     depends_on:
@@ -99,6 +89,14 @@ services:
     build:
       context: .
       dockerfile: ./local/android/vnc-studio.Dockerfile
+    command: bash -c "while true; do sleep 1000 ; done "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     working_dir: ${PWD:-/workspaces/refactored-winner}

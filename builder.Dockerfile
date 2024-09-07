@@ -109,16 +109,17 @@ ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
 RUN mkdir -p $ANDROID_SDK/cmdline-tools/ \
     && cd $ANDROID_SDK/cmdline-tools/ \
-    && curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+    && curl -o sdk.zip -L https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
     && unzip sdk.zip && rm sdk.zip \
     && mv cmdline-tools latest \
     && yes | sdkmanager --licenses
 RUN sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.1"
 
 # Flutter 
+ENV FLUTTER_VERSION=3.24.2
 RUN sudo apt-get update && sudo apt-get install -y \
     clang cmake ninja-build libgtk-3-dev
-RUN curl -o flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.1-stable.tar.xz && \
+RUN curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     tar -xf flutter.tar.xz -C ${HOME}/ && rm flutter.tar.xz
 ENV PATH=${PATH}:${HOME}/flutter/bin
 # Telemetry is not sent on the very first run. To disable reporting of telemetry,
@@ -126,6 +127,14 @@ ENV PATH=${PATH}:${HOME}/flutter/bin
 RUN flutter --disable-analytics
 # Accept All Androïd SDK package licenses
 RUN flutter doctor --android-licenses
+
+# Install necessary software packages for having an X
+RUN sudo apt-get update && sudo apt-get install -y \
+    x11vnc \
+    xvfb \
+    xinit openbox xorg
+
+COPY local/display-start.sh /usr/local/bin/
 
 # The workspace folder value '/workspaces/<project>' is enforced by Github Codespaces (see .devcontainer/devcontainer.json).
 # It must be a static value due to limitations in the Devcontainer as it doesn't support variables and treats any syntax as a hard value without expansion.
@@ -152,3 +161,4 @@ RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
     fi
 
 COPY dev-entrypoint.sh /usr/local/bin/
+
