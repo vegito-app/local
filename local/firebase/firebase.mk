@@ -9,7 +9,7 @@ LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore,database
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators
 
-local-firebase-emulators-install: cloud-infra-auth-npm-install
+local-firebase-emulators-install: gcloud-infra-auth-npm-install
 	@cd local/firebase/functions && npm install
 .PHONY: local-firebase-emulators-install
 
@@ -68,12 +68,14 @@ local-docker-compose-firebase-emulators-bash:
 	@docker compose exec -it firebase-emulators bash
 .PHONY: local-docker-compose-firebase-emulators-bash
 
-FIREBASE_EMULATORS_IMAGE =  $(IMAGES_BASE):$(VERSION)-firebase-emulators
+FIREBASE_EMULATORS_IMAGE        =  $(PUBLIC_IMAGES_BASE):$(VERSION)-firebase-emulators
+LATEST_FIREBASE_EMULATORS_IMAGE =  $(PUBLIC_IMAGES_BASE):latest-firebase-emulators
 
 local-docker-compose-firebase-emulators-build-no-pull:
 	@docker build --pull=false \
 	  -f $(CURDIR)/local/firebase/emulators.Dockerfile \
-	  --build-arg builder_image=$(BUILDER_IMAGE) \
+	  --build-arg builder_image=$(LATEST_BUILDER_IMAGE) \
 	  -t $(FIREBASE_EMULATORS_IMAGE) \
+	  -t $(LATEST_FIREBASE_EMULATORS_IMAGE) \
 	  .
 .PHONY: local-docker-compose-firebase-emulators-build-no-pull

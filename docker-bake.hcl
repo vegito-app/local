@@ -1,15 +1,27 @@
 variable "REPOSITORY" {
-  default = "utrade-repository"
+  default = "docker-repository"
+}
+
+variable "PUBLIC_REPOSITORY" {
+  default = "docker-repository-public"
+}
+
+variable "PUBLIC_IMAGES_BASE" {
+  default = "${PUBLIC_REPOSITORY}/main"
 }
 
 variable "BUILDER_IMAGE" {
-  default = "${IMAGE_BASE}:builder"
+  default = "${PUBLIC_IMAGES_BASE}:builder"
 }
 
-default_git_tag = "latest"
+variable "LATEST_BUILDER_IMAGE" {
+  default = "${PUBLIC_IMAGES_BASE}:latest-builder"
+}
 
-variable "GIT_TAG" {
-  default = default_git_tag
+variable "GIT_TAG" {}
+
+variable "VERSION" {
+  default = "dev"
 }
 
 group "dev" {
@@ -22,17 +34,31 @@ target "builder" {
   context    = "."
   dockerfile = "builder.Dockerfile"
   tags = [
-    BUILDER_IMAGE,
-    notequal("", GIT_TAG) ? "${IMAGE_BASE}:${GIT_TAG}-builder" : "",
-    "${IMAGE_BASE}:latest-builder",
+    LATEST_BUILDER_IMAGE,
+    notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:${VERSION}-builder" : "",
+    notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:${GIT_TAG}-builder" : "",
   ]
-  cache-from = ["${IMAGE_BASE}:latest-builder"]
+  cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
   platforms = [
     "linux/amd64",
     "linux/arm64"
   ]
-  push = true
+  push = false
+  args = {
+    host_pwd = PWD
+  }
+}
+
+target "localbuilder" {
+  context    = "."
+  dockerfile = "builder.Dockerfile"
+  tags = [
+    LATEST_BUILDER_IMAGE,
+    notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:${GIT_TAG}-builder" : "",
+  ]
+  cache-from = [LATEST_BUILDER_IMAGE]
+  cache-to   = ["type=inline"]
   args = {
     host_pwd = PWD
   }
@@ -59,7 +85,6 @@ variable "BACKEND_IMAGE" {
 variable "GOOGLE_MAPS_API_KEY_FILE" {
   default = "frontend/google_maps_api_key"
 }
-
 
 target "backend" {
   context    = "."

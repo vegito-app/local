@@ -1,5 +1,0 @@
-project_name    = "utrade"
-region          = "us-central1"
-project_id      = "utrade-taxi-run-0"
-billing_account = "012F35-4F9E4B-CB8479"
-repository_id   = "utrade-repository"

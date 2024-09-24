@@ -20,7 +20,7 @@ cat <<'EOF' > ${PWD}/vscode.code-workspace
       "path": "."
     },
     {
-      "path": "cloud/infra/auth",
+      "path": "gcloud/infra/auth",
       "name": "auth.infra.cloud"
     },
     {
@@ -38,11 +38,11 @@ cat <<'EOF' > ${PWD}/vscode.code-workspace
     },
     {
       "name": "infra.cloud",
-      "path": "cloud/infra"
+      "path": "gcloud/infra"
     },
     {
       "name": "infra.secrets",
-      "path": "cloud/secrets"
+      "path": "gcloud/secrets"
     }
   ],
   "settings": {}

@@ -4,7 +4,7 @@
       "path": "."
     },
     {
-      "path": "cloud/infra/auth",
+      "path": "gcloud/infra/auth",
       "name": "auth.infra.cloud"
     },
     {
@@ -22,11 +22,14 @@
     },
     {
       "name": "infra.cloud",
-      "path": "cloud/infra"
+      "path": "gcloud/infra"
     },
     {
       "name": "infra.secrets",
-      "path": "cloud/secrets"
+      "path": "gcloud/secrets"
+    },
+    {
+      "path": "application/car2go"
     }
   ],
   "settings": {}

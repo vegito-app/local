@@ -10,8 +10,8 @@ rm -rf $ANDROID_CACHE
 mkdir -p ${PWD}/local/android/studio/cache
 ln -sf ${PWD}/local/android/studio/cache $ANDROID_CACHE
 
-export DISPLAY=":1"
-
 display-start.sh
+
+studio.sh &
 
 exec "$@"

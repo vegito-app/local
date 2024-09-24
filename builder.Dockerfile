@@ -1,7 +1,5 @@
 FROM debian:bookworm
 
-
-# Updating packages and installing dependencies
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
     bash-completion \
@@ -17,17 +15,18 @@ RUN apt-get update && apt-get install -y \
     htop \
     iptables \
     jq \
-    libbz2-1.0:amd64 \
-    libc6:amd64 \
+    libbz2-1.0 \
+    libc6 \
     libcairo2-dev \
     libgif-dev \
     libglu1-mesa \
     libjpeg-dev \
-    libncurses5:amd64\
+    libncurses5\
     libpango1.0-dev \
     librsvg2-dev \
-    libstdc++6:amd64 \
+    libstdc++6 \
     lsb-release \
+    lsof \
     make \
     net-tools \
     netcat-openbsd \
@@ -49,7 +48,8 @@ RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser s
 USER devuser
 ENV HOME=/home/devuser
 WORKDIR ${HOME}/
-# Install Docker
+
+# Docker
 RUN sudo install -m 0755 -d /etc/apt/keyrings \
     && sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
     && sudo chmod a+r /etc/apt/keyrings/docker.asc \
@@ -64,20 +64,19 @@ RUN sudo install -m 0755 -d /etc/apt/keyrings \
     # docker-buildx-plugin \
     docker-compose-plugin
 
-# Installing GCP CLI
+# GCP CLI
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
     && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
 
-# Installing Terraform
+# Terraform
 ENV TERRAFORM_VERSION=1.7.4
 RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
     && sudo unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
-
-# Install nvm with node and npm
+# nvm with node and npm
 ENV NVM_DIR ${HOME}/nvm
 ENV NODE_VERSION 22.4.0
 RUN mkdir $NVM_DIR
@@ -95,7 +94,7 @@ RUN npm install -g \
     firebase-tools@v13.15.4 \
     npm-check-updates@v17.1.0
 
-# Installing Go
+# Go
 ENV GO_VERSION=1.22.0
 RUN curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
     && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
@@ -113,20 +112,28 @@ RUN mkdir -p $ANDROID_SDK/cmdline-tools/ \
     && unzip sdk.zip && rm sdk.zip \
     && mv cmdline-tools latest \
     && yes | sdkmanager --licenses
-RUN sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.1"
 
+# ENV ANDROID_HOME=$HOME/Library/Android/sdk
+ENV PATH=$PATH:$ANDROID_HOME/emulator
+ENV PATH=$PATH:$ANDROID_HOME/tools
+ENV PATH=$PATH:$ANDROID_HOME/tools/bin
+ENV PATH=$PATH:$ANDROID_HOME/platform-tools
 # Flutter 
-ENV FLUTTER_VERSION=3.24.2
+ENV FLUTTER_VERSION=3.24.3
 RUN sudo apt-get update && sudo apt-get install -y \
     clang cmake ninja-build libgtk-3-dev
 RUN curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     tar -xf flutter.tar.xz -C ${HOME}/ && rm flutter.tar.xz
 ENV PATH=${PATH}:${HOME}/flutter/bin
-# Telemetry is not sent on the very first run. To disable reporting of telemetry,
-# run this terminal command:
-RUN flutter --disable-analytics
-# Accept All Androïd SDK package licenses
-RUN flutter doctor --android-licenses
+
+RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
+    sdkmanager "build-tools;30.0.1" && \
+    # Telemetry is not sent on the very first run. To disable reporting of telemetry,
+    # run this terminal command:
+    flutter --disable-analytics && \
+    # Accept All Androïd SDK package licenses
+    flutter doctor --android-licenses ; \
+    fi
 
 # Install necessary software packages for having an X
 RUN sudo apt-get update && sudo apt-get install -y \
@@ -134,6 +141,19 @@ RUN sudo apt-get update && sudo apt-get install -y \
     xvfb \
     xinit openbox xorg
 
+# Installer Google Chrome
+RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
+    curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    sudo dpkg -i google-chrome-stable_current_amd64.deb ; \
+    sudo apt-get install -f -y ; \
+    else \
+    echo TARGETPLATFORM =  `dpkg --print-architecture && uname` ; sleep 10;\
+    echo "Chrome not supported on this platform "  ; \
+    echo "Installing chromium"; \
+    sudo apt-get install -y chromium; \
+    fi
+
+# X11
 COPY local/display-start.sh /usr/local/bin/
 
 # The workspace folder value '/workspaces/<project>' is enforced by Github Codespaces (see .devcontainer/devcontainer.json).
@@ -160,5 +180,8 @@ RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
     sudo ln -s ${host_pwd} /workspaces/refactored-winner ; \
     fi
 
-COPY dev-entrypoint.sh /usr/local/bin/
+RUN sudo ln -sf /usr/bin/bash /bin/sh
 
+ENV DISPLAY=":1"
+
+COPY dev-entrypoint.sh /usr/local/bin/

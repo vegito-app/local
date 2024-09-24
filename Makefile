@@ -1,8 +1,8 @@
 export 
 
 PROJECT_ID = utrade-taxi-run-0
-VERSION ?= dev
 GIT_TAG = $(shell git rev-parse --short HEAD)
+VERSION ?= dev
 
 GOOGLE_CLOUD_PROJECT = $(PROJECT_ID)
 GOOGLE_APPLICATION_CREDENTIALS = $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
@@ -10,18 +10,20 @@ GOOGLE_MAPS_API_KEY_FILE := $(CURDIR)/frontend/google_maps_api_key
 
 REGION ?= us-central1
 REGISTRY = $(REGION)-docker.pkg.dev
-REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/utrade-repository
 
-IMAGES_BASE ?= $(REPOSITORY)/utrade
+PUBLIC_REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/docker-repository-public
+PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/main
+BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):$(VERSION)-builder
+LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):latest-builder
 
-BUILDER_IMAGE_VERSION ?= $(VERSION)
-BUILDER_IMAGE ?= $(IMAGES_BASE):$(BUILDER_IMAGE_VERSION)-builder
-
+REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/docker-repository
+IMAGES_BASE ?= $(REPOSITORY)/main
 BACKEND_IMAGE ?= $(IMAGES_BASE):$(VERSION)-backend
+LATEST_BACKEND_IMAGE ?= $(IMAGES_BASE):latest-backend
 
 -include go.mk
 -include nodejs.mk
--include cloud/cloud.mk 
+-include gcloud/gcloud.mk 
 -include frontend/frontend.mk
 -include backend/backend.mk
 -include local/local.mk
@@ -37,6 +39,11 @@ builder-image: docker-buildx-setup
 	@docker buildx bake --push builder
 .PHONY: builder-image
 
+local-builder-image: docker-buildx-setup
+	@docker buildx bake --print localbuilder
+	@docker buildx bake --load localbuilder
+.PHONY: local-builder-image
+
 application-image: docker-buildx-setup $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS) $(BACKEND_VENDOR) 
 	@docker buildx bake --print application
 	@docker buildx bake --push application
@@ -47,9 +54,9 @@ docker-buildx-setup: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS) $(GOOGLE_MAPS_API_K
 .PHONY: docker-buildx-setup
 
 docker-login: gcloud-auth-docker
-	docker login $(REPOSITORY)
+	docker login $(REGISTRY)/$(PROJECT_ID)
 .PHONY: docker-login
 
-unlock-docker-sock:
+docker-sock:
 	sudo chmod o+rw /var/run/docker.sock
-.PHONY: unlock-docker-sock
+.PHONY: docker-sock

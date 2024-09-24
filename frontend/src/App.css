@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+#root {
+  background-image: url('https://monsite.com/chemin/vers/image.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* Ajouter d'autres propriétés de fond selon vos besoins */
+}

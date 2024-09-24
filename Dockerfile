@@ -1,5 +1,5 @@
 # Build the React App
-ARG builder_image=utrade-repository/utrade:builder
+ARG builder_image=docker-repository-public/main:builder
 
 FROM --platform=${BUILDPLATFORM} ${builder_image} AS build
 

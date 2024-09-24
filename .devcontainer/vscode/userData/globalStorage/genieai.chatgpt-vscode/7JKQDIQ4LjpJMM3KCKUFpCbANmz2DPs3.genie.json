@@ -1,0 +1,27 @@
+{
+    "id": "7JKQDIQ4LjpJMM3KCKUFpCbANmz2DPs3",
+    "createdTime": "9/14/2024, 1:15:16 PM",
+    "name": "No code",
+    "conversations": [
+        {
+            "id": "7JKQDIQ4LjpJMM3KCKUFpCbANmz2DPs3",
+            "createdTime": "9/14/2024, 1:15:16 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "7JKQDIQ4LjpJMM3KCKUFpCbANmz2DPs3",
+                "role": "user",
+                "text": "quels sont les outils utilisés pour le nocode ?"
+            },
+            "response": {
+                "id": "4LHHIIrYHOoEwfHPvfIFdMtVjTp5ZY2K",
+                "role": "assistant",
+                "text": "Dans le monde du développement, l'approche \"NoCode\" gagne en popularité. Voici quelques-uns des outils NoCode les plus populaires actuellement disponibles :\n\n1. **Bubble** : Bubble est une plateforme de développement web sans code qui permet aux non-programmeurs de créer des applications web.\n\n    ```sh\n    Site Web: https://bubble.io/\n    ```\n\n2. **Adalo** : Adalo est un autre outil puissant qui vous permet de créer vos propres applications sans avoir besoin de coder.\n\n    ```sh\n    Site Web: https://www.adalo.com/\n    ```\n\n3. **Webflow** : Webflow est un outil de conception de sites web en mode glisser-déposer qui ne nécessite aucune compétence en codage.\n\n    ```sh\n    Site Web: https://webflow.com/\n    ```\n\n4. **OutSystems**: OutSystems est une plateforme de développement d'applications à faible code qui permet de développer des applications mobiles et web rapidement.\n\n   ```sh\n   Site Web: https://www.outsystems.com/\n   ```\n\n5. **Zapier**: Zapier est un outil d'automatisation en ligne qui connecte vos applications préférées.\n\n   ```sh\n   Site Web: https://zapier.com/\n   ```\n\n6. **Appgyver**: AppGyver est une plateforme de développement d'applications à faible code pour la création d'applications pour toutes les plates-formes.\n\n   ```sh\n   Site Web: https://www.appgyver.com/\n   ```\nCes outils permettent aux utilisateurs sans expérience en codage de créer facilement des applications et des sites web."
+            }
+        }
+    ]
+}

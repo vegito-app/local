@@ -6,12 +6,7 @@ volumes:
 services:
   dev:
     container_name: dev
-    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:dev-builder}
-    build:
-      context: .
-      dockerfile: ./builder.Dockerfile
-      args:
-        - host_pwd=${PWD:-/workspaces/refactored-winner}
+    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-builder}
     entrypoint: dev-entrypoint.sh
     env_file:
       - .env
@@ -45,7 +40,7 @@ services:
       - firebase-emulators
   firebase-emulators:
     container_name: firebase-emulators
-    image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:dev-firebase-emulators}
+    image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-firebase-emulators}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
@@ -85,11 +80,14 @@ services:
       dev:
   vnc-android-studio:
     container_name: vnc-android-studio
-    image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/utrade-repository/utrade:vnc-android-studio}
+    image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:vnc-android-studio}
     build:
       context: .
       dockerfile: ./local/android/vnc-studio.Dockerfile
-    command: bash -c "while true; do sleep 1000 ; done "
+    environment:
+      DISPALY_RESOLUTION: "${DISPALY_RESOLUTION:-1440x900}"
+    command: |
+      bash -c 'while sleep 1000 ; do : ; done'
     deploy:
       resources:
         reservations:

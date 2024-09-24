@@ -155,7 +155,7 @@
             "prompt": {
                 "id": "yyORUJV1b0QuBfSFQJSWYdbKjBtFBB9N",
                 "role": "user",
-                "text": "mon projet contient le code terraform de base dans un dossier /cloud, pour ajouter ce projet lié au secrets devrais je créer un second dossier imbriqué dans le premier /cloud/secrets iu devrais je adopter un autre layout avec terraform ?"
+                "text": "mon projet contient le code terraform de base dans un dossier /cloud, pour ajouter ce projet lié au secrets devrais je créer un second dossier imbriqué dans le premier /gcloud/secrets iu devrais je adopter un autre layout avec terraform ?"
             },
             "response": {
                 "id": "WEh51ppALJkeI3PcUP9fGpJAlk1ZBoet",
@@ -340,7 +340,7 @@
             "response": {
                 "id": "z48WNxpnL1FPB2FtYLVyCbbuZbcBLBd0",
                 "role": "assistant",
-                "text": "Non, chaque module n'a pas besoin de redéfinir les providers. Vous pouvez définir vos providers une fois dans le module parent, puis les utiliser dans tous les modules enfants sans avoir à les redéfinir.\n\nVoici un exemple de comment vous pouvez le faire:\n\nDans votre module parent, définissez vos providers comme ceci:\n\n```hcl\nprovider \"google\" {\n  credentials = file(\"<FILE_PATH>\")\n  project     = var.project\n  region      = var.region\n}\n```\n\nEnsuite dans vos modules enfants, vous pouvez utiliser le même provider sans avoir à le redéfinir. Il suffit simplement d'utiliser les ressources fournies par le provider. Par exemple:\n\n```hcl\nresource \"google_compute_instance\" \"vm_instance\" {\n  name         = \"terraform-instance\"\n  machine_type = \"e2-medium\"\n\n  boot_disk {\n    initialize_params {\n      image = \"debian-cloud/debian-10\"\n    }\n  }\n\n  network_interface {\n    # A default network is created for all GCP projects\n    network       = \"default\"\n    access_config {\n    }\n  }\n}\n```\n\nDonc en résumé, non, chaque module n'a pas besoin de redéfinir les providers. Cela permet de maintenir votre code DRY (Don't Repeat Yourself) et facilite la maintenance de votre projet."
+                "text": "Non, chaque module n'a pas besoin de redéfinir les providers. Vous pouvez définir vos providers une fois dans le module parent, puis les utiliser dans tous les modules enfants sans avoir à les redéfinir.\n\nVoici un exemple de comment vous pouvez le faire:\n\nDans votre module parent, définissez vos providers comme ceci:\n\n```hcl\nprovider \"google\" {\n  credentials = file(\"<FILE_PATH>\")\n  project     = var.project\n  region      = var.region\n}\n```\n\nEnsuite dans vos modules enfants, vous pouvez utiliser le même provider sans avoir à le redéfinir. Il suffit simplement d'utiliser les ressources fournies par le provider. Par exemple:\n\n```hcl\nresource \"google_compute_instance\" \"vm_instance\" {\n  name         = \"terraform-instance\"\n  machine_type = \"e2-medium\"\n\n  boot_disk {\n    initialize_params {\n      image = \"debian-gcloud/debian-10\"\n    }\n  }\n\n  network_interface {\n    # A default network is created for all GCP projects\n    network       = \"default\"\n    access_config {\n    }\n  }\n}\n```\n\nDonc en résumé, non, chaque module n'a pas besoin de redéfinir les providers. Cela permet de maintenir votre code DRY (Don't Repeat Yourself) et facilite la maintenance de votre projet."
             }
         },
         {

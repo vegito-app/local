@@ -7,8 +7,7 @@
   "runServices": [
     "dev"
   ],
-  // "initializeCommand": "touch .env && make local-builder-image local-docker-compose-firebase-emulators-build-no-pull",
-  "initializeCommand": "touch .env",
+  "initializeCommand": "touch .env && make local-builder-image local-docker-compose-firebase-emulators-build-no-pull",
   "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
   "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {
@@ -18,11 +17,13 @@
         "editor.formatOnSave": true,
         "editor.inlineSuggest.enabled": true,
         "explorer.confirmDelete": false,
+        "files.hotExit": "onExitAndWindowClose",
         "genieai.enableConversationHistory": true,
         "genieai.openai.model": "gpt-4",
         "genieai.promptPrefix.addComments-enabled": false,
         "git.enabled": true,
         "go.toolsManagement.autoUpdate": true,
+        "remote.autoForwardPortsSource": "process",
         "search.showLineNumbers": true,
         "terminal.integrated.profiles.linux": {
           "bash": {
@@ -30,12 +31,6 @@
             "icon": "terminal-debian",
             "color": "terminal.ansiRed"
           }
-        },
-        "[javascript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[json]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
         },
         "terminal.integrated.defaultProfile.linux": "bash",
         "window.commandCenter": false,
@@ -45,10 +40,15 @@
         "zenMode.centerLayout": false,
         "zenMode.hideLineNumbers": false,
         "diffEditor.ignoreTrimWhitespace": false,
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
         "[jsonc]": {
           "editor.defaultFormatter": "vscode.json-language-features"
         },
-        "files.hotExit": "onExitAndWindowClose",
         "remote.portsAttributes": {
           "3000": {
             "label": "Application UI - Debug",
@@ -97,6 +97,10 @@
             "label": "Firebase Authentication",
             "onAutoForward": "silent"
           },
+          "9100": {
+            "label": "Flutter and Dart DevTools",
+            "onAutoForward": "silent"
+          },
           "9150": {
             "label": "Firebase Reserved 1",
             "onAutoForward": "silent"
@@ -109,7 +113,9 @@
             "label": "Firebase (triggers)",
             "onAutoForward": "silent"
           }
-        }
+        },
+        "vsicons.dontShowNewVersionMessage": true,
+        "files.autoSave": "onFocusChange"
       },
       "extensions": [
         "ChFlick.firecode",
@@ -133,7 +139,13 @@
         "standard.vscode-standard",
         "toba.vsfire",
         "Dart-Code.flutter",
-        "alexisvt.flutter-snippets"
+        "alexisvt.flutter-snippets",
+        "HCLTechnologies.hclappscancodesweep",
+        "Nash.awesome-flutter-snippets",
+        "marcelovelasquez.flutter-tree",
+        "circlecodesolution.ccs-flutter-color",
+        "gornivv.vscode-flutter-files",
+        "MarufHassan.flutter-snippets"
       ]
     }
   }

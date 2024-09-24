@@ -1,5 +1,5 @@
 NODE_MODULES := \
-	cloud/infra/auth \
+	gcloud/infra/auth \
 	frontend \
 	local/firebase/functions
 
