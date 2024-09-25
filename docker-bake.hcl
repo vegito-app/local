@@ -7,7 +7,7 @@ variable "PUBLIC_REPOSITORY" {
 }
 
 variable "PUBLIC_IMAGES_BASE" {
-  default = "${PUBLIC_REPOSITORY}/main"
+  default = "${PUBLIC_REPOSITORY}/utrade"
 }
 
 variable "BUILDER_IMAGE" {
@@ -32,7 +32,7 @@ variable "PWD" {}
 
 target "builder" {
   context    = "."
-  dockerfile = "builder.Dockerfile"
+  dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
     notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:${VERSION}-builder" : "",
@@ -52,9 +52,10 @@ target "builder" {
 
 target "localbuilder" {
   context    = "."
-  dockerfile = "builder.Dockerfile"
+  dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
+    notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:${VERSION}-builder" : "",
     notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:${GIT_TAG}-builder" : "",
   ]
   cache-from = [LATEST_BUILDER_IMAGE]

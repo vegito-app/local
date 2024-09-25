@@ -2,7 +2,7 @@ GO_VERSION = 1.22
 
 GO_MODULES := \
 	backend \
-	gcloud/infra/auth \
+	infra/gcloud/auth \
 	local/proxy
 
 go-mod-tidy: $(GO_MODULES:%=go-%-mod-tidy)

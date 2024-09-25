@@ -1,5 +1,6 @@
 export 
 
+PROJECT_NAME=utrade
 PROJECT_ID = utrade-taxi-run-0
 GIT_TAG = $(shell git rev-parse --short HEAD)
 VERSION ?= dev
@@ -12,18 +13,18 @@ REGION ?= us-central1
 REGISTRY = $(REGION)-docker.pkg.dev
 
 PUBLIC_REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/docker-repository-public
-PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/main
+PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(PROJECT_NAME)
 BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):$(VERSION)-builder
 LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):latest-builder
 
 REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/docker-repository
-IMAGES_BASE ?= $(REPOSITORY)/main
+IMAGES_BASE ?= $(REPOSITORY)/$(PROJECT_NAME)
 BACKEND_IMAGE ?= $(IMAGES_BASE):$(VERSION)-backend
 LATEST_BACKEND_IMAGE ?= $(IMAGES_BASE):latest-backend
 
 -include go.mk
 -include nodejs.mk
--include gcloud/gcloud.mk 
+-include infra/infra.mk 
 -include frontend/frontend.mk
 -include backend/backend.mk
 -include local/local.mk

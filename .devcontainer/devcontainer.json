@@ -1,13 +1,13 @@
 {
   "name": "Go Dev Container",
   "dockerComposeFile": [
-    "../docker-compose.yml"
+    "../local/docker-compose.yml"
   ],
   "service": "dev",
   "runServices": [
     "dev"
   ],
-  "initializeCommand": "touch .env && make local-builder-image local-docker-compose-firebase-emulators-build-no-pull",
+  // "initializeCommand": "make local-builder-image local-docker-compose-firebase-emulators-build-no-pull",
   "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
   "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {

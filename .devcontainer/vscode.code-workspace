@@ -1,20 +1,36 @@
 {
   "folders": [
-	{
-		"path": ".."
-	},
-	{
-		"path": "../gcloud/infra/auth"
-	},
-	{
-		"path": "../cloud"
-	},
-	{
-		"path": "../backend"
-	},
-	{
-		"path": "../frontend"
-	}
-],
+    {
+      "path": "..",
+      "name": "project-root"
+    },
+    {
+      "path": "../infra/gcloud/auth",
+      "name": "auth-func-infra"
+    },
+    {
+      "path": "../infra"
+    },
+    {
+      "name": "backend-go",
+      "path": "../backend"
+    },
+    {
+      "name": "frontend-react",
+      "path": "../frontend"
+    },
+    {
+      "path": "../local/firebase",
+      "name": "firebase-emulators"
+    },
+    {
+      "name": "secrets-infra",
+      "path": "../infra/gcloud/secrets"
+    },
+    {
+      "name": "car2go-application-flutter",
+      "path": "../application/car2go",
+    }
+  ],
   "settings": {}
 }

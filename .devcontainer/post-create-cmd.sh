@@ -20,7 +20,7 @@ cat <<'EOF' > ${PWD}/vscode.code-workspace
       "path": "."
     },
     {
-      "path": "gcloud/infra/auth",
+      "path": "infra/gcloud/auth",
       "name": "auth.infra.cloud"
     },
     {
@@ -38,7 +38,7 @@ cat <<'EOF' > ${PWD}/vscode.code-workspace
     },
     {
       "name": "infra.cloud",
-      "path": "gcloud/infra"
+      "path": "infra/gcloud"
     },
     {
       "name": "infra.secrets",
@@ -84,7 +84,7 @@ fi
 
 # VSCODE User data
 VSCODE_USER_DATA=${DIST_VSCODE}/data/User
-rm -rf $VSCODE_USER_DATA
+mv $VSCODE_USER_DATA ${VSCODE_USER_DATA}_back
 mkdir -p ${PWD}/.devcontainer/vscode/userData
 ln -sf ${PWD}/.devcontainer/vscode/userData $VSCODE_USER_DATA
 
@@ -99,7 +99,7 @@ EOF
 
 # NPM
 NPM_DIR=${HOME}/.npm
-rm -rf $NPM_DIR
+[ -d $NPM_DIR ] && mv $NPM_DIR ${NPM_DIR}_back
 mkdir -p ${PWD}/.devcontainer/npm
 ln -sf ${PWD}/.devcontainer/npm $NPM_DIR
  
@@ -114,3 +114,8 @@ DART_CACHE=${HOME}/.pub-cache
 rm -rf $DART_CACHE
 mkdir -p ${PWD}/.devcontainer/dart/pub-cache
 ln -sf ${PWD}/.devcontainer/dart/pub-cache $DART_CACHE
+
+# extension genieai.chatgpt-vscode chatGPT discussion history
+CHATGPT_HISTORY=${PWD}/.devcontainer/vscode/userData/globalStorage/genieai.chatgpt-vscode
+rm -rf $CHATGPT_HISTORY
+ln -s ${PWD}/.devcontainer/genieai.chatgpt-vscode $CHATGPT_HISTORY

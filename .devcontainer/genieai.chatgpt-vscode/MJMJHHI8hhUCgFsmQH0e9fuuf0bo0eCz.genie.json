@@ -1,0 +1,27 @@
+{
+    "id": "MJMJHHI8hhUCgFsmQH0e9fuuf0bo0eCz",
+    "createdTime": "9/28/2024, 2:37:34 AM",
+    "name": "Cloud Github Runner",
+    "conversations": [
+        {
+            "id": "MJMJHHI8hhUCgFsmQH0e9fuuf0bo0eCz",
+            "createdTime": "9/28/2024, 2:37:34 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "MJMJHHI8hhUCgFsmQH0e9fuuf0bo0eCz",
+                "role": "user",
+                "text": "serait il risqué de mettre un runner github dans googlerun ?"
+            },
+            "response": {
+                "id": "a32Y14gbWAn6LKScekHr5j1Ox4jLgXtE",
+                "role": "assistant",
+                "text": "Il n'est généralement pas recommandé d'installer un GitHub runner sur des services hautement contrôlés comme Google Cloud Run. \n\nIl y a principalement trois risques à cela :\n\n1. **Sécurité :** Le GitHub Runner dispose d'un accès complet en lecture/écriture à votre dépôt GitHub. Cela signifie qu'il pourrait potentiellement lire du code source sensible, modifier le contenu de votre dépôt ou même exécuter du code malveillant.\n\n2. **Coût :** Google Cloud Run facture en fonction du temps d'exécution. Si vous avez beaucoup d'actions GitHub, cela peut rapidement augmenter les coûts. Les runners de GitHub Actions sont gratuits pour les dépôts publics et payants pour les dépôts privés.\n\n3. **Contrôle et gestion des ressources :** Google Cloud Run est conçu pour être éphémère et sans état, ce qui peut entraver la durabilité et la persistance des jobs long termes des runners GitHub.\n\nVoici un exemple de mention des risques avec le code de blocage :\n\n```markdown\n## Risques potentiels\n\n1. **Sécurité**\n    > Le GitHub Runner dispose d'un **accès complet en lecture/écriture** à votre dépôt GitHub. Cela peut conduire à des compromissions de sécurité.\n   \n2. **Coût**\n    > Google Cloud Run facture en fonction de l'utilisation. Avec une utilisation intensive, les **coûts peuvent s'accumuler rapidement**.\n    \n3. **Contrôle et gestion des ressources**\n    > Google Cloud Run est conçu pour être éphémère et sans état. Cela peut poser des problèmes pour la **gestion des travaux à long terme** de GitHub runner.\n```\n\nLa meilleure pratique consiste à utiliser les runners hébergés par GitHub pour la plupart des tâches, ou à installer vos propres runners autos-hébergés sur une infrastructure que vous contrôlez."
+            }
+        }
+    ]
+}

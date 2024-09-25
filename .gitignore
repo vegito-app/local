@@ -1,12 +1,9 @@
 .flutter
 *credentials*
-_workspace
+_*
+._*
 *backup*
-_frontend
 vendor
-_env
-_data
-_auth
 android-studio*
 # Logs
 logs

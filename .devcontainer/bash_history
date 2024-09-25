@@ -83,15 +83,15 @@ BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make application-image terraform-pla
 ls
 make builder-image
 git reset s
-rm -rf gcloud/infra/auth/firebase && cp -r firebase gcloud/infra/auth/firebase
-rm -rf gcloud/infra/auth/firebase && cp -r backend/firebase gcloud/infra/auth/firebase
+rm -rf infra/gcloud/auth/firebase && cp -r firebase infra/gcloud/auth/firebase
+rm -rf infra/gcloud/auth/firebase && cp -r backend/firebase infra/gcloud/auth/firebase
 make go-mod-tidy go-mod-vendor
 git add -f .devcontainer/vscode/userData/globalStorage/genieai.chatgpt-vscode/
 ls .devcontainer/vscode/userData/
 ls .devcontainer/vscode/userData/globalStorage/
 du -sh .devcontainer/*
 du -sh backend/vendor/
-du -sh gcloud/infra/auth/*
+du -sh infra/gcloud/auth/*
 make go-mod-vendor-rm 
 echo $?
 git add .devcontainer/bash_history 
@@ -137,7 +137,7 @@ make go-od-vendor
 BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-apply-auto-approve 
 BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
 ake go-mod-tidy
-cd gcloud/infra/auth/go/
+cd infra/gcloud/auth/go/
 go mod tidy
 go mod vendor
 cd -
@@ -214,7 +214,7 @@ nodejs --version
 node --version
 BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make terraform-plan 
 BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make terraform-apply-auto-approve 
-cd gcloud/infra/auth/
+cd infra/gcloud/auth/
 sudo npm install -g npm-check-updates
 ncu -u
 rm -r node_modules/ package-lock.json 
@@ -226,7 +226,7 @@ terraform init --upgrade
 BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make terraform-plan 
 code ..
 cd functions/
-cd ../gcloud/infra/auth/
+cd ../infra/gcloud/auth/
 ln ../../../functions/index.js .
 ln -h
 ln
@@ -238,23 +238,23 @@ make local-firebase-emulators-start
 make local-firebase-emulators-start
 mv functions/ local/firebase/
 cd local/firebase/
-ln -s ../../../gcloud/infra/auth functions/auth
+ln -s ../../../infra/gcloud/auth functions/auth
 git add functions/auth
 git status 
 ls -a
-ln -s ../../../gcloud/infra/auth auth
+ln -s ../../../infra/gcloud/auth auth
 ln `pwd`/__auth auth
 ln -s `pwd`/__auth auth
 cd infra/auth/
 cd local/firebase/functions/
-ls -alh ../../../gcloud/infra/auth
-ls -alh ../../../gcloud/infra/
+ls -alh ../../../infra/gcloud/auth
+ls -alh ../../../infra/gcloud/
 ls -la
 rm auth 
 ls auth 
 ls auth/*
-ls -lha ../../../gcloud/infra/auth 
-ls -lha ../../../gcloud/infra/
+ls -lha ../../../infra/gcloud/auth 
+ls -lha ../../../infra/gcloud/
 firebase init emulators
 npm install -g firebase-tools
 cd /workspaces/refactored-winner/
@@ -292,13 +292,13 @@ ls local/
 ls local/firebase/
 ls local/firebase/functions/
 ls -al local/firebase/functions/
-ln -s `pwd`/gcloud/infra/auth  local/firebase/functions/
+ln -s `pwd`/infra/gcloud/auth  local/firebase/functions/
 docker system prune -f -a
 git rebase 97gvv6p7q7pf746
 git rebase origin/codespace-humble-meme-wrq66vwrr4wh5979 
 gi tlog
 cd local/firebase/functions
-ls  /workspaces/refactored-winner/gcloud/infra/auth
+ls  /workspaces/refactored-winner/infra/gcloud/auth
 make local-docker-compose-firebase-emulators-rm
 make local-docker-compose-firebase-emulators
 make local-docker-compose-firebase-emulators-rm 
@@ -533,12 +533,12 @@ git reset fs
 chmod +x local/firebase/firebase-docker-start.sh 
 ls -lha local/firebase/functions/auth
 npm run serve
-cp -r gcloud/infra/auth/ local/firebase/functions/
-ls -lh gcloud/infra/auth/ local/firebase/functions/
-ls -lh gcloud/infra/auth local/firebase/functions
-ls -lh gcloud/infra local/firebase/
-ls -lh gcloud/infra local/firebase
-ls -lh gcloud/infra local/firebase/functions/
+cp -r infra/gcloud/auth/ local/firebase/functions/
+ls -lh infra/gcloud/auth/ local/firebase/functions/
+ls -lh infra/gcloud/auth local/firebase/functions
+ls -lh infra/gcloud local/firebase/
+ls -lh infra/gcloud local/firebase
+ls -lh infra/gcloud local/firebase/functions/
 firebase version
 firebase --version
 npm uninstall -g firebase-tools
@@ -574,7 +574,7 @@ make -j node-modules-clean
 make node-modules-ci
 npm uninstall firebase-tools
 npm install firebase-tools@v13.15.0
-make gcloud/infra/auth-ci
+make infra/gcloud/auth-ci
 make local-run r
 make node-modules-c
 rm -r frontend/node_modules/
@@ -600,7 +600,7 @@ export GOOGLE_CLOUD_PROJECT_ID=utrade-taxi-run-0
 killall node
 npm install firebase-tools@v13.15.4
 make frontend-ci 
-ls gcloud/infra/auth/
+ls infra/gcloud/auth/
 npm install firebase-admin@v12.4.0
 npm build
 npm run build
@@ -673,8 +673,8 @@ ps -e | grep X
 DISPLAY=host.docker.internal:0 ./studio.sh 
 DISPLAY=host.docker.internal:10 ./studio.sh 
 sudo apt-get install ssvnc
-make local-docker-compose-vnc-android-studio-sh 
-make local-docker-compose-vnc-android-studio-build-no-pull 
+make local-docker-compose-android-studio-sh 
+make local-docker-compose-android-studio-build-no-pull 
 DISPLAY=:10.0 /opt/android-studio/bin/studio.sh 
 DISPLAY=:0 /opt/android-studio/bin/studio.sh 
 code /opt/android-studio/
@@ -682,7 +682,7 @@ sudo apt-get install xvfb
 Xvfb :10 -ac &
 DISPLAY=:10 /opt/android-studio/bin/studio.sh 
 docker compose up android-studio
-make local-docker-compose-vnc-android-studio-up 
+make local-docker-compose-android-studio-up 
 [A[A
 apt-get update && apt-get install -y     x11vnc     xvfb     wget     unzip
 sudo apt-get update && sudo apt-get install -y     x11vnc     xvfb     wget     unzip
@@ -696,19 +696,19 @@ x11vnc --help
 x11vnc --help|more
 x11vnc --help>hh
 x11vnc --version
-make local-docker-compose-vnc-android-studio-log
-make local-docker-compose-vnc-android-studio-logs 
-make local-docker-compose-vnc-android-studio-sh
+make local-docker-compose-android-studio-log
+make local-docker-compose-android-studio-logs 
+make local-docker-compose-android-studio-sh
 x11vnc -h > hh
-nc -z vnc-android-studio 5900
-socat TCP-LISTEN:5009,fork,reuseaddr TCP:vnc-android-studio:5009&
-socat TCP-LISTEN:5900,fork,reuseaddr TCP:vnc-android-studio:5900 &
-make local-docker-compose-vnc-android-studio-up
+nc -z android-studio 5900
+socat TCP-LISTEN:5009,fork,reuseaddr TCP:android-studio:5009&
+socat TCP-LISTEN:5900,fork,reuseaddr TCP:android-studio:5900 &
+make local-docker-compose-android-studio-up
 nc localhost 5900
 nc -z localhost 5900
 nc host.docker.internal 5900
 nc -z host.docker.internal 5900
-make local-docker-compose-vnc-android-studio
+make local-docker-compose-android-studio
 code _workspace/codelabs/
 flutter --version
 cd firebase-get-to-know-flutter/step_02
@@ -756,14 +756,14 @@ cd tony/
 flutter run
 Xvfb ${DISPLAY} -nolisten tcp -cc 4 -screen 0, ${MacBookAirRes}x24 &
 bz
-socat TCP-LISTEN:9100,fork,reuseaddr TCP:vnc-android-studio:9100 > /tmp/socat-vnc-android-studio-9100.log 2>&1 &
+socat TCP-LISTEN:9100,fork,reuseaddr TCP:android-studio:9100 > /tmp/socat-android-studio-9100.log 2>&1 &
 fg
-socat TCP-LISTEN:45483,fork,reuseaddr TCP:vnc-android-studio:45483 > /tmp/socat-vnc-android-studio-45483.log 2>&1 
-socat TCP-LISTEN:46483,fork,reuseaddr TCP:vnc-android-studio:46483 > /tmp/socat-vnc-android-studio-46483.log 2>&1 
+socat TCP-LISTEN:45483,fork,reuseaddr TCP:android-studio:45483 > /tmp/socat-android-studio-45483.log 2>&1 
+socat TCP-LISTEN:46483,fork,reuseaddr TCP:android-studio:46483 > /tmp/socat-android-studio-46483.log 2>&1 
 flutter upgrade
-make local-docker-compose-vnc-android-studio-up &
+make local-docker-compose-android-studio-up &
 make -C .. local-docker-compose-firebase-emulators-up 
-make -C .. local-docker-compose-vnc-android-studio-up 
+make -C .. local-docker-compose-android-studio-up 
 . .bash
 . .bashrc 
 local
@@ -828,8 +828,8 @@ killall x11vnc
 display-start.sh 
 x11vnc --display :1
 flutter run -d android
-DISPLAY_RESOLUTION=800x600 make local-docker-compose-vnc-android-studio-up 
-DISPLAY_RESOLUTION=1600x1200 make local-docker-compose-vnc-android-studio-up 
+DISPLAY_RESOLUTION=800x600 make local-docker-compose-android-studio-up 
+DISPLAY_RESOLUTION=1600x1200 make local-docker-compose-android-studio-up 
 code _workspace/tony/
 cd _workspace/codelabs/boring_to_beautiful/
 make terraform-upgrade 
@@ -838,3 +838,32 @@ make local-builder-image-pull
 make local-builder-image-pull-latest 
 which display-start.sh 
 code `which display-start.sh`
+ln -sh ../../../infra/gcloud/auth local/firebase/functions/auth 
+ln -sf ../../../infra/gcloud/auth local/firebase/functions/auth 
+git reset origin/main 
+git push -f 
+igt log
+git push -f origin robusto:main 
+git checkout main 
+git pull --rebase 
+git rm -rf firebase-export-172475*
+chmod +xlocal/firebase/firebase-docker-start.sh
+chmod +x local/firebase/firebase-docker-start.sh
+git rm -f .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/*
+git rm -f .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/schemas_cache/*
+git rm -f .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/
+git rm -rf .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/
+git rebase -i origin/main 
+git rebase --edit-todo
+mv .devcontainer/vscode/userData/globalStorage/dart-code.dart-code/package_cache.json .devcontainer/vscode/userData/globalStorage/dart-code.dart-code/package_cache_backup.json
+rm .devcontainer/vscode/userData/globalStorage/dart-code.dart-code/package_cache.json
+git reset origin/robusto 
+test -h
+man test
+git add .
+git show
+git add local/android/studio-entrypoint.sh 
+chmod +x local/android/android-docker-start.sh 
+make local-docker-compose-android-studio-rm
+chmod +x local/android/studio-entrypoint.sh 
+make github-runner

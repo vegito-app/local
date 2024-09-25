@@ -11,7 +11,7 @@ _firebase.json
 _firestore.rules
 # Firebase cache
 .firebase/
-
+firebase-export-*
 # Firebase config
 
 # Uncomment this if you'd like others to create their own Firebase project.

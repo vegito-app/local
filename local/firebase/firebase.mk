@@ -45,7 +45,7 @@ local-docker-compose-firebase-emulators-up: local-docker-compose-firebase-emulat
 	@until nc -z firebase-emulators 4000 ; do \
 		sleep 1 ; \
 	done
-	@docker compose logs firebase-emulators
+	$(LOCAL_DOCKER_COMPOSE) logs firebase-emulators
 	@echo
 	@echo Started Firebase Emulator: 
 	@echo View Emulator UI at http://127.0.0.1:4000/
@@ -53,19 +53,19 @@ local-docker-compose-firebase-emulators-up: local-docker-compose-firebase-emulat
 .PHONY: local-docker-compose-firebase-emulators
 
 local-docker-compose-firebase-emulators-stop:
-	@-docker compose stop firebase-emulators 2>/dev/null
+	@-$(LOCAL_DOCKER_COMPOSE) stop firebase-emulators 2>/dev/null
 .PHONY: local-docker-compose-firebase-emulators-stop
 
 local-docker-compose-firebase-emulators-rm: local-docker-compose-firebase-emulators-stop
-	@docker compose rm -f firebase-emulators
+	@$(LOCAL_DOCKER_COMPOSE) rm -f firebase-emulators
 .PHONY: local-docker-compose-firebase-emulators-rm
 
 local-docker-compose-firebase-emulators-logs:
-	@docker compose logs --follow firebase-emulators
+	@$(LOCAL_DOCKER_COMPOSE) logs --follow firebase-emulators
 .PHONY: local-docker-compose-firebase-emulators-logs
 
 local-docker-compose-firebase-emulators-bash:
-	@docker compose exec -it firebase-emulators bash
+	@$(LOCAL_DOCKER_COMPOSE) exec -it firebase-emulators bash
 .PHONY: local-docker-compose-firebase-emulators-bash
 
 FIREBASE_EMULATORS_IMAGE        =  $(PUBLIC_IMAGES_BASE):$(VERSION)-firebase-emulators
@@ -73,7 +73,7 @@ LATEST_FIREBASE_EMULATORS_IMAGE =  $(PUBLIC_IMAGES_BASE):latest-firebase-emulato
 
 local-docker-compose-firebase-emulators-build-no-pull:
 	@docker build --pull=false \
-	  -f $(CURDIR)/local/firebase/emulators.Dockerfile \
+	  -f $(CURDIR)/local/firebase/Dockerfile \
 	  --build-arg builder_image=$(LATEST_BUILDER_IMAGE) \
 	  -t $(FIREBASE_EMULATORS_IMAGE) \
 	  -t $(LATEST_FIREBASE_EMULATORS_IMAGE) \

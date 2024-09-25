@@ -1,0 +1,27 @@
+{
+    "id": "uwwPd2oUBJ8Ork2T9plksW4B5SmiJaxS",
+    "createdTime": "9/26/2024, 6:08:20 PM",
+    "name": "New chat",
+    "conversations": [
+        {
+            "id": "uwwPd2oUBJ8Ork2T9plksW4B5SmiJaxS",
+            "createdTime": "9/26/2024, 6:08:20 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "uwwPd2oUBJ8Ork2T9plksW4B5SmiJaxS",
+                "role": "user",
+                "text": "un token github actio de self hosted runner est il secret ?"
+            },
+            "response": {
+                "id": "GtphzGrN8cuN7FJfBTgD2PM7TEMZH4Kj",
+                "role": "assistant",
+                "text": "Oui, le token GitHub Actions pour un Self-Hosted Runner est considéré comme secret. Il agit comme une forme d'authentification et assure une connexion sécurisée entre votre hôte auto-hébergé et GitHub.\n\nGitHub recommande de traiter les tokens d'action avec le même niveau de protection que les mots de passe. Ne l'exposez pas publiquement et ne le partagez pas entre utilisateurs non autorisés.\n\n```markdown\n**Pourquoi un token est-il secret ?**\n\n1. Les tokens sont conçus pour donner accès à des ressources spécifiques. L'accès non autorisé pourrait compromettre la sécurité de ces ressources.\n2. Ils permettent l'authentification et l'autorisation sans révéler les détails de l'utilisateur ou du mot de passe.\n3. Les pirates informatiques peuvent utiliser des tokens exposés pour gagner un accès non autorisé, c'est pourquoi il est crucial de les garder secrets.\n```\n\nJe vous recommande donc de rester prudent quand vous manipulez ce genre d'information sensible."
+            }
+        }
+    ]
+}
