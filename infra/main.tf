@@ -26,7 +26,7 @@ module "infra" {
   FIREBASE_APP_ID              = var.FIREBASE_APP_ID
 
   GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET = var.GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
-  # create_secret                            = var.create_secret
+  create_secret                            = var.create_secret
 }
 
 # Creates a new Google Cloud project.

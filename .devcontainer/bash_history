@@ -867,3 +867,13 @@ chmod +x local/android/android-docker-start.sh
 make local-docker-compose-android-studio-rm
 chmod +x local/android/studio-entrypoint.sh 
 make github-runner
+code /workspaces/refactored-winner/
+git push origin HEAD:dev
+git push -f origin HEAD:dev
+git commit --amend --no-edit
+git push -f origin HEAD:dev
+ps aux
+make local-docker-compose-firebase-emulators-up 
+chmod +x local/*.sh
+chmod +x local/*/*.sh
+make local-docker-compose-firebase-emulators-up 

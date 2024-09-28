@@ -18,3 +18,8 @@ output "docker_repository_public" {
   description = "Project public docker container registry."
   value       = module.infra.docker_repository_public
 }
+
+output "github_actions_private_key" {
+  value     = module.infra.github_actions_private_key
+  sensitive = true
+}

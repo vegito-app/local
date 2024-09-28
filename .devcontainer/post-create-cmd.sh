@@ -17,32 +17,35 @@ cat <<'EOF' > ${PWD}/vscode.code-workspace
 {
   "folders": [
     {
-      "path": "."
+      "path": ".",
+      "name": "project-root"
     },
     {
       "path": "infra/gcloud/auth",
-      "name": "auth.infra.cloud"
+      "name": "auth-func-infra"
     },
     {
-      "path": "cloud"
+      "path": "infra"
     },
     {
+      "name": "backend-go",
       "path": "backend"
     },
     {
+      "name": "frontend-react",
       "path": "frontend"
     },
     {
       "path": "local/firebase",
-      "name": "firebase.local"
+      "name": "firebase-emulators"
     },
     {
-      "name": "infra.cloud",
-      "path": "infra/gcloud"
+      "name": "secrets-infra",
+      "path": "infra/gcloud/secrets"
     },
     {
-      "name": "infra.secrets",
-      "path": "gcloud/secrets"
+      "name": "car2go-application-flutter",
+      "path": "application/car2go",
     }
   ],
   "settings": {}
@@ -74,19 +77,27 @@ cat <<'EOF' > ${PWD}/backend/.vscode/launch.json
     ]
 }
 EOF
+
 # Vscode server/remote
-DIST_VSCODE=${HOME}/.vscode-server
+VSCODE_REMOTE=${HOME}/.vscode-server
 
 # Github Codespaces
 if [ -v  CODESPACES ] ; then
-    DIST_VSCODE=${HOME}/.vscode-remote
+    VSCODE_REMOTE=${HOME}/.vscode-remote
 fi
 
 # VSCODE User data
-VSCODE_USER_DATA=${DIST_VSCODE}/data/User
-mv $VSCODE_USER_DATA ${VSCODE_USER_DATA}_back
+VSCODE_USER_DATA=${VSCODE_REMOTE}/data/User
+[ -d $VSCODE_USER_DATA ] && mv $VSCODE_USER_DATA ${VSCODE_USER_DATA}_back
 mkdir -p ${PWD}/.devcontainer/vscode/userData
 ln -sf ${PWD}/.devcontainer/vscode/userData $VSCODE_USER_DATA
+# mkdir -p ${PWD}/.devcontainer/vscode/userData/globalStorage
+# 
+# genieai-chatgpt-vscode
+VSCODE_GLOBAL_STORAGE=${PWD}/.devcontainer/vscode/userData/globalStorage
+EXISTING=${VSCODE_GLOBAL_STORAGE}/genieai.chatgpt-vscode
+[ -d $EXISTING ] || echo $EXISTING && mv $EXISTING ${EXISTING}_back
+ln -sf ${PWD}/.devcontainer/genieai.chatgpt-vscode ${VSCODE_GLOBAL_STORAGE}
 
 # GO
 GOPATH=${HOME}/go
@@ -114,8 +125,3 @@ DART_CACHE=${HOME}/.pub-cache
 rm -rf $DART_CACHE
 mkdir -p ${PWD}/.devcontainer/dart/pub-cache
 ln -sf ${PWD}/.devcontainer/dart/pub-cache $DART_CACHE
-
-# extension genieai.chatgpt-vscode chatGPT discussion history
-CHATGPT_HISTORY=${PWD}/.devcontainer/vscode/userData/globalStorage/genieai.chatgpt-vscode
-rm -rf $CHATGPT_HISTORY
-ln -s ${PWD}/.devcontainer/genieai.chatgpt-vscode $CHATGPT_HISTORY

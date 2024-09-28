@@ -1,4 +1,5 @@
 -include infra/gcloud/gcloud.mk
+-include infra/github/github.mk
 
 TF_VAR_FIREBASE_API_KEY=$(UTRADE_FIREBASE_API_KEY)
 TF_VAR_FIREBASE_AUTH_DOMAIN=$(UTRADE_FIREBASE_AUTH_DOMAIN)
@@ -22,14 +23,14 @@ terraform-init: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 .PHONY: terraform-init
 
 terraform-import: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
-	# @$(TERRAFORM) import module.secrets.google_identity_platform_default_supported_idp_config.google[0] projects/$(PROJECT_ID)/defaultSupportedIdpConfigs/google.com
+	# $(TERRAFORM) import module.infra.module.secrets.google_identity_platform_default_supported_idp_config.google[0] projects/$(PROJECT_ID)/defaultSupportedIdpConfigs/google.com
 	# @$(TERRAFORM) import module.infra.google_identity_platform_config.utrade $(PROJECT_ID)
 	# @$(TERRAFORM) import module.infra.google_secret_manager_secret.firebase_adminsdk_service_account projects/402960374845/secrets/firebase-adminsdk-serviceaccount
 	# @$(TERRAFORM) import module.infra.google_firebase_database_instance.utrade $(PROJECT_ID)/$(REGION)/$(PROJECT_ID)-default-rtdb
 	# @$(TERRAFORM) import module.infra.google_firebase_database_instance.utrade projects/$(PROJECT_ID)/locations/$(REGION)/instances/$(PROJECT_ID)-default-rtdb
 	# @$(TERRAFORM) import google_service_account.firebase_admin projects/$(PROJECT_ID)/firebase-adminsdk-vxdj8@$(PROJECT_ID).iam.gserviceaccount.com
 	# @$(TERRAFORM) import module.infra.google_cloudfunctions_function.utrade_auth_before_sign_in projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform
-	# @$(TERRAFORM) import module.secrets.google_secret_manager_secret_version.google_idp_secret_version[0] projects/402960374845/secrets/idp_google_secret_id/versions/1
+	# @$(TERRAFORM) import module.infra.module.secrets.google_secret_manager_secret_version.google_idp_secret_version[0] projects/402960374845/secrets/idp_google_secret_id/versions/1
 .PHONY: terraform-import
 
 terraform-state-rm: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
@@ -132,6 +133,10 @@ terraform-refresh: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 terraform-apply-auto-approve: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) apply -auto-approve
 .PHONY: terraform-apply-auto-approve
+
+terraform-output: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
+	@$(TERRAFORM) output -json
+.PHONY: terraform-output
 
 terraform-destroy: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) destroy

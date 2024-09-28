@@ -4,7 +4,7 @@ LOCAL_FIREBASE = cd $(LOCAL_FIREBASE_DIR) && firebase
 # only specific emulators. This is a comma separated list of
 # emulator names. Valid options are:
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
-LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore,database
+LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore
 
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators
@@ -26,7 +26,7 @@ local-firebase-emulators-functions-serve:
 LOCAL_FIREBASE_EMULATORS_DATA := $(CURDIR)/local/firebase/data
 
 local-firebase-emulators-start: local-firebase-emulators-install
-	@unset GOOGLE_APPLICATION_CREDENTIALS && \
+	@unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
 	  $(LOCAL_FIREBASE) emulators:start \
 	    --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
 	    --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \

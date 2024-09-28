@@ -77,8 +77,8 @@ RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terra
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # nvm with node and npm
-ENV NVM_DIR ${HOME}/nvm
-ENV NODE_VERSION 22.4.0
+ENV NVM_DIR=${HOME}/nvm
+ENV NODE_VERSION=22.4.0
 RUN mkdir $NVM_DIR
 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash \
@@ -87,8 +87,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | b
     && nvm alias default $NODE_VERSION \
     && nvm use default
 
-ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+ENV NODE_PATH=$NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 RUN npm install -g \
     firebase-tools@v13.15.4 \
@@ -114,7 +114,7 @@ RUN mkdir -p $ANDROID_SDK/cmdline-tools/ \
     && yes | sdkmanager --licenses \
     && sdkmanager "platform-tools" "platforms;android-30"
 
-# ENV ANDROID_HOME=$HOME/Library/Android/sdk
+ENV ANDROID_HOME=$HOME/Library/Android/sdk
 ENV PATH=$PATH:$ANDROID_HOME/emulator
 ENV PATH=$PATH:$ANDROID_HOME/tools
 ENV PATH=$PATH:$ANDROID_HOME/tools/bin

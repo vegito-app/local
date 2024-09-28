@@ -34,6 +34,12 @@ variable "ui_googlemaps_secret_id" {
   description = "GoogleMaps - UI API Key - secret ID"
   type        = string
 }
+variable "create_secret" {
+  description = "Create secrets if true"
+  type        = bool
+  default     = false
+}
+
 # Googlemaps API key
 variable "GOOGLE_MAPS_API_KEY" {}
 # Firebase options

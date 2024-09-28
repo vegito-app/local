@@ -37,19 +37,19 @@ services:
     networks:
       - dev
     depends_on:
-      - firebase-emulators
+      - firebase-emulators # See command section.
   firebase-emulators:
     container_name: firebase-emulators
-    image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:latest-firebase-emulators}
+    image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-firebase-emulators}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
       - .env
     build:
-      context: .
-      dockerfile: ./firebase/Dockerfile
+      context: ..
+      dockerfile: local/firebase/Dockerfile
       args:
-        builder_image: ${LATEST_BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:latest-builder}
+        builder_image: ${LATEST_BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-builder}
     environment:
       FIREBASE_AUTH_EMULATOR_HOST: http://localhost:9099
       FIRESTORE_EMULATOR_HOST: http://localhost:8090
@@ -87,23 +87,23 @@ services:
     container_name: android-studio
     image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio}
     build:
-      context: .
-      dockerfile: ./android/Dockerfile
+      context: ..
+      dockerfile: local/android/Dockerfile
       args:
-        builder_image: ${LATEST_BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:latest-builder}
+        builder_image: ${LATEST_BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-builder}
     env_file:
       - .env
     environment:
       DISPALY_RESOLUTION: "${DISPALY_RESOLUTION:-1440x900}"
     command: |
       bash -c 'while sleep 1000 ; do : ; done'
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     working_dir: ${PWD:-/workspaces/refactored-winner}

@@ -1,27 +1,27 @@
 {
-    "id": "8868mdCUe768Pn5jSqEUsQloQbPe556G",
-    "createdTime": "8/23/2024, 2:58:50 PM",
-    "name": "New chat",
-    "conversations": [
-        {
-            "id": "8868mdCUe768Pn5jSqEUsQloQbPe556G",
-            "createdTime": "8/23/2024, 2:58:50 PM",
-            "completionParams": {
-                "model": "gpt-4",
-                "max_tokens": 2048,
-                "temperature": 0.9,
-                "top_p": 1
-            },
-            "prompt": {
-                "id": "8868mdCUe768Pn5jSqEUsQloQbPe556G",
-                "role": "user",
-                "text": "comment parser une réponse json d'un serveur avec nodejs apres un fetch ?"
-            },
-            "response": {
-                "id": "ullxVUsXfzDKbWON6CkAX3AVmfMPrLjy",
-                "role": "assistant",
-                "text": "Pour traiter (parser) une réponse JSON provenant d'un serveur après avoir effectué un fetch, vous pouvez utiliser la fonction `json()` de l'API Fetch. Cette fonction traite le contenu du corps de la réponse en tant que JSON. Voici comment vous pouvez le faire en Node.js :\n\n**Installation**\n\nTout d'abord, assurez-vous d'avoir installé `node-fetch` dans votre projet. Si ce n'est pas déjà fait, vous pouvez le faire via npm en utilisant la commande suivante dans votre terminal :\n\n```bash\nnpm install node-fetch\n```\n\n**Exemple de code**\n\nVoici un exemple de la manière dont vous pouvez parser une réponse JSON :\n\n```javascript\nconst fetch = require('node-fetch');\n\nfetch('https://api.maressource.com/endpoint')\n    .then(response => response.json())\n    .then(data => {\n        // Ici, \"data\" est maintenant une structure de données JavaScript,\n        // générée à partir de la chaîne JSON récupérée.\n        console.log(data);\n    })\n    .catch(error => console.error('Erreur:', error));\n```\n\nDans cet exemple, nous utilisons `fetch()` pour envoyer une requête HTTP à l'url spécifiée. Ensuite, nous prenons la réponse (`response`), et appelons `json()` dessus pour la convertir en une structure de données JavaScript.\n\nL'objet `data` contient maintenant les données qui ont été envoyées par le serveur sous forme de JSON. À partir de là, vous pouvez accéder aux différentes valeurs comme vous le feriez avec n'importe quel autre objet ou tableau JavaScript. \n\nLe bloc `catch` est là pour attraper toute erreur qui pourrait se produire lors de la tentative de fetch ou de traitement des données."
-            }
-        }
-    ]
+  "id": "8868mdCUe768Pn5jSqEUsQloQbPe556G",
+  "createdTime": "8/23/2024, 2:58:50 PM",
+  "name": "parser une réponse json d'un serveur avec nodejs",
+  "conversations": [
+    {
+      "id": "8868mdCUe768Pn5jSqEUsQloQbPe556G",
+      "createdTime": "8/23/2024, 2:58:50 PM",
+      "completionParams": {
+        "model": "gpt-4",
+        "max_tokens": 2048,
+        "temperature": 0.9,
+        "top_p": 1
+      },
+      "prompt": {
+        "id": "8868mdCUe768Pn5jSqEUsQloQbPe556G",
+        "role": "user",
+        "text": "comment parser une réponse json d'un serveur avec nodejs apres un fetch ?"
+      },
+      "response": {
+        "id": "ullxVUsXfzDKbWON6CkAX3AVmfMPrLjy",
+        "role": "assistant",
+        "text": "Pour traiter (parser) une réponse JSON provenant d'un serveur après avoir effectué un fetch, vous pouvez utiliser la fonction `json()` de l'API Fetch. Cette fonction traite le contenu du corps de la réponse en tant que JSON. Voici comment vous pouvez le faire en Node.js :\n\n**Installation**\n\nTout d'abord, assurez-vous d'avoir installé `node-fetch` dans votre projet. Si ce n'est pas déjà fait, vous pouvez le faire via npm en utilisant la commande suivante dans votre terminal :\n\n```bash\nnpm install node-fetch\n```\n\n**Exemple de code**\n\nVoici un exemple de la manière dont vous pouvez parser une réponse JSON :\n\n```javascript\nconst fetch = require('node-fetch');\n\nfetch('https://api.maressource.com/endpoint')\n    .then(response => response.json())\n    .then(data => {\n        // Ici, \"data\" est maintenant une structure de données JavaScript,\n        // générée à partir de la chaîne JSON récupérée.\n        console.log(data);\n    })\n    .catch(error => console.error('Erreur:', error));\n```\n\nDans cet exemple, nous utilisons `fetch()` pour envoyer une requête HTTP à l'url spécifiée. Ensuite, nous prenons la réponse (`response`), et appelons `json()` dessus pour la convertir en une structure de données JavaScript.\n\nL'objet `data` contient maintenant les données qui ont été envoyées par le serveur sous forme de JSON. À partir de là, vous pouvez accéder aux différentes valeurs comme vous le feriez avec n'importe quel autre objet ou tableau JavaScript. \n\nLe bloc `catch` est là pour attraper toute erreur qui pourrait se produire lors de la tentative de fetch ou de traitement des données."
+      }
+    }
+  ]
 }

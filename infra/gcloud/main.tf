@@ -26,7 +26,7 @@ module "secrets" {
   FIREBASE_APP_ID              = var.FIREBASE_APP_ID
 
   GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET = var.GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
-  # create_secret                            = var.create_secret
+  create_secret                            = var.create_secret
 }
 
 resource "google_project_service" "utrade" {
@@ -52,12 +52,37 @@ resource "google_project_service" "utrade" {
   disable_dependent_services = true
 }
 
+resource "google_service_account" "github_actions" {
+  account_id   = "github-actions-main"
+  display_name = "Github Actions"
+  project      = var.project_id
+}
+
+resource "google_service_account_key" "github_actions_key" {
+  service_account_id = google_service_account.github_actions.account_id
+  private_key_type   = "TYPE_GOOGLE_CREDENTIALS_FILE"
+}
+
+output "github_actions_private_key" {
+  value = google_service_account_key.github_actions_key.private_key
+  # sensitive = true
+}
+
 # Dépôt public (accessible en lecture seule pour tout le monde)
 resource "google_artifact_registry_repository" "public_repo" {
   location      = var.region
   repository_id = var.public_repository_id
   description   = "Public Docker repository"
   format        = "DOCKER"
+}
+
+resource "google_artifact_registry_repository_iam_member" "github_actions_public_repo_write_member" {
+  provider   = google
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.public_repo.name
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
 resource "google_artifact_registry_repository_iam_member" "public_read" {
@@ -99,6 +124,24 @@ resource "null_resource" "docker_auth_public" {
 output "docker_repository" {
   description = "Project docker container registry."
   value       = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}"
+}
+
+resource "google_artifact_registry_repository_iam_member" "github_actions_private_repo_write_member" {
+  provider   = google
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.utrade.id
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.github_actions.email}"
+}
+
+resource "google_artifact_registry_repository_iam_member" "github_actions_private_repo_read_member" {
+  provider   = google
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.utrade.name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
 resource "google_cloud_run_service" "utrade" {

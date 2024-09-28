@@ -32,5 +32,5 @@ resource "google_identity_platform_default_supported_idp_config" "google" {
   enabled       = true
   idp_id        = "google.com"
   client_id     = "402960374845-lu67bhh9fe2hsdfk2ci3r5j6js7acsvn.apps.googleusercontent.com"
-  client_secret = "google_secret_manager_secret_version.google_idp_secret_version[count.index].secret_data"
+  client_secret = google_secret_manager_secret_version.google_idp_secret_version[count.index].secret_data
 }
