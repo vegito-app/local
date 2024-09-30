@@ -11,4 +11,4 @@ services:
       replicas: 3
       update_config:
         parallelism: 3
-        delay: 10s
+        delay: 300s

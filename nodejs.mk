@@ -1,6 +1,6 @@
 NODE_MODULES := \
 	infra/gcloud/auth \
-	frontend \
+	application/frontend \
 	local/firebase/functions
 
 node-modules-npm-check-updates: 

@@ -24,18 +24,12 @@ jobs:
       - name: Set up Cloud SDK
         run: |
           gcloud config set project ${{ env.GCLOUD_PROJECT_ID }}
-
       - name: Configure Docker for GCR
         run: |
-          gcloud auth configure-docker
-
+          gcloud auth configure-docker us-central1-docker.pkg.dev
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # # Step 3: Log in to Docker Hub or GCR
-      # - name: Log in to Google Container Registry
-      #   run: echo "${{ secrets.GCLOUD_ACCESS_GITHUB_ACTIONS }}" | docker login -u _json_key --password-stdin https://gcr.io
-
-      - name: Build Docker image
+      - name: Build and push Builder image
         run: |
-          make builder-image
+          make builder-image-build-push

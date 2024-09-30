@@ -1,7 +1,7 @@
 GO_VERSION = 1.22
 
 GO_MODULES := \
-	backend \
+	application/backend \
 	infra/gcloud/auth \
 	local/proxy
 

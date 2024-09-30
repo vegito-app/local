@@ -877,3 +877,10 @@ make local-docker-compose-firebase-emulators-up
 chmod +x local/*.sh
 chmod +x local/*/*.sh
 make local-docker-compose-firebase-emulators-up 
+docker system prune -f -a
+docker images
+make github-runner-image
+make builder-image-local 
+make github-runner-image
+make builder-image-local 
+make github-runner-image

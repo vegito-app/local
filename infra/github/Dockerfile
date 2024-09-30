@@ -1,30 +1,21 @@
-# Build the React App
-ARG builder_image=docker-repository-public/utrade:builder
+ARG builder_image=docker-repository-public/utrade:builder-latest
 FROM ${builder_image}
 
-# Variables d'environnement pour le runner
 ENV RUNNER_VERSION=2.319.1
 ENV RUNNER_WORKDIR=/runner/_work
 
 WORKDIR /runner
+RUN sudo chown -R ${USER}:${USER} /runner
 
-# Télécharger et installer le GitHub Actions Runner
 RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERSION/actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && tar xzf ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && rm -f ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && sudo ./bin/installdependencies.sh
 
-# Configurer les permissions
-RUN mkdir -p /runner/_work && sudo chown -R $USER:$USER /runner
-
-# Exposer le dossier de travail
-# Copiez le script dans l'image
 COPY entrypoint.sh /entrypoint.sh
 
-# Rendez le script exécutable
 RUN sudo chmod +x /entrypoint.sh
 
-# Utiliser le script comme point d'entrée
 ENTRYPOINT ["/entrypoint.sh"]
 
 VOLUME ["/runner/_work"]

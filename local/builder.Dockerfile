@@ -45,8 +45,9 @@ RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser s
     && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser \
     && chmod 0440 /etc/sudoers.d/devuser
 
-USER devuser
-ENV HOME=/home/devuser
+ENV USER=devuser
+USER ${USER}
+ENV HOME=/home/${USER}
 WORKDIR ${HOME}/
 
 # Docker
