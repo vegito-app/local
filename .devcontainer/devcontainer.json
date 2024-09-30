@@ -7,7 +7,7 @@
   "runServices": [
     "dev"
   ],
-  // "initializeCommand": "make local-builder-image local-docker-compose-firebase-emulators-build-no-pull",
+  // "initializeCommand": "make builder-image docker-compose-firebase-emulators-build-no-pull-local",
   "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
   "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {

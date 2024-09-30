@@ -1,0 +1,14 @@
+services:
+  github-runner:
+    image: ${GITHUB_ACTION_RUNNER_IMAGE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - GITHUB_ACTION_RUNNER_URL=${GITHUB_ACTION_RUNNER_URL:-https://github.com/7d4b9/refactored-winner}
+      - GITHUB_ACTION_RUNNER_TOKEN=${GITHUB_ACTION_RUNNER_TOKEN}
+      - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-action-stack}
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 3
+        delay: 10s

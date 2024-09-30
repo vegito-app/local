@@ -1,3 +1,9 @@
+variable "GIT_TAG" {}
+
+variable "VERSION" {
+  default = "dev"
+}
+
 variable "REPOSITORY" {
   default = "docker-repository"
 }
@@ -10,18 +16,20 @@ variable "PUBLIC_IMAGES_BASE" {
   default = "${PUBLIC_REPOSITORY}/utrade"
 }
 
-variable "BUILDER_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:builder"
+variable "BUILDER_IMAGE_VERSION" {
+  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
+}
+
+variable "BUILDER_IMAGE_TAG" {
+  default = notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:builder-${GIT_TAG}" : ""
 }
 
 variable "LATEST_BUILDER_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:latest-builder"
+  default = "${PUBLIC_IMAGES_BASE}:builder-latest"
 }
 
-variable "GIT_TAG" {}
-
-variable "VERSION" {
-  default = "dev"
+variable "LATEST_GITHUB_RUNNER_IMAGE" {
+  default = "${PUBLIC_IMAGES_BASE}:github-runnner-latest"
 }
 
 group "dev" {
@@ -35,8 +43,8 @@ target "builder" {
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
-    notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:${VERSION}-builder" : "",
-    notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:${GIT_TAG}-builder" : "",
+    BUILDER_IMAGE_VERSION,
+    BUILDER_IMAGE_TAG,
   ]
   cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
@@ -44,19 +52,19 @@ target "builder" {
     "linux/amd64",
     "linux/arm64"
   ]
-  push = false
   args = {
     host_pwd = PWD
   }
 }
 
-target "localbuilder" {
+
+target "local-builder" {
   context    = "."
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
-    notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:${VERSION}-builder" : "",
-    notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:${GIT_TAG}-builder" : "",
+    BUILDER_IMAGE_VERSION,
+    BUILDER_IMAGE_TAG,
   ]
   cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
@@ -73,7 +81,7 @@ variable "IMAGE_BASE" {
   default = "${REPOSITORY}/utrade"
 }
 
-default_backend_version = "latest-backend"
+default_backend_version = "backend-latest"
 
 variable "VERSION" {
   default = default_backend_version
@@ -91,20 +99,19 @@ target "backend" {
   context    = "."
   dockerfile = "Dockerfile"
   args = {
-    builder_image = BUILDER_IMAGE
+    builder_image = BUILDER_IMAGE_VERSION
   }
   tags = [
     BACKEND_IMAGE,
     notequal("", GIT_TAG) ? "${IMAGE_BASE}:${GIT_TAG}-backend" : "",
-    "${IMAGE_BASE}:latest-backend",
+    "${IMAGE_BASE}:backend-latest",
   ]
   platforms = [
     "linux/amd64",
     "linux/arm64"
   ]
-  cache-from = ["${IMAGE_BASE}:latest-backend"]
+  cache-from = ["${IMAGE_BASE}:backend-latest"]
   cache-to   = ["type=inline"]
-  push       = true
   secret = [
     "type=file,id=google_maps_api_key,src=${GOOGLE_MAPS_API_KEY_FILE}"
   ]

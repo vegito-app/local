@@ -18,7 +18,13 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
 RUN mkdir -p /runner/_work && sudo chown -R $USER:$USER /runner
 
 # Exposer le dossier de travail
-VOLUME ["/runner/_work"]
+# Copiez le script dans l'image
+COPY entrypoint.sh /entrypoint.sh
 
-# Entrée du container - pour démarrer le runner
-CMD ["./config.sh"]
+# Rendez le script exécutable
+RUN sudo chmod +x /entrypoint.sh
+
+# Utiliser le script comme point d'entrée
+ENTRYPOINT ["/entrypoint.sh"]
+
+VOLUME ["/runner/_work"]

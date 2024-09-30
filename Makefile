@@ -35,20 +35,24 @@ google-maps-api-key-file: $(GOOGLE_MAPS_API_KEY_FILE)
 $(GOOGLE_MAPS_API_KEY_FILE): 
 	@echo -n $$GOOGLE_MAPS_API_KEY > $(GOOGLE_MAPS_API_KEY_FILE)
 
-builder-image: docker-buildx-setup
-	@docker buildx bake --print builder
-	@docker buildx bake --push builder
-.PHONY: builder-image
+DOCKER_BUILDX_BAKE = docker buildx bake \
+	-f docker-bake.hcl  \
+	-f infra/github/docker-bake.hcl
 
-local-builder-image: docker-buildx-setup
-	@docker buildx bake --print localbuilder
-	@docker buildx bake --load localbuilder
-.PHONY: local-builder-image
+builder-image-build-push: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder
+	@$(DOCKER_BUILDX_BAKE) --push builder
+.PHONY: builder-image-build-push
 
-application-image: docker-buildx-setup $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS) $(BACKEND_VENDOR) 
-	@docker buildx bake --print application
-	@docker buildx bake --push application
-.PHONY: application-image
+builder-image-local: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print local-builder
+	@$(DOCKER_BUILDX_BAKE) --load local-builder
+.PHONY: builder-image-local
+
+application-image-push: docker-buildx-setup $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS) $(BACKEND_VENDOR) 
+	@$(DOCKER_BUILDX_BAKE) --print application
+	@$(DOCKER_BUILDX_BAKE) --push application
+.PHONY: application-image-push
 
 docker-buildx-setup: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS) $(GOOGLE_MAPS_API_KEY_FILE)
 	@-docker buildx create --use --name $(PROJECT_ID)-builder 2>/dev/null 

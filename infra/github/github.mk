@@ -1,33 +1,38 @@
-GITHUB_ACTION_RUNNER_IMAGE ?= $(PUBLIC_IMAGES_BASE):$(VERSION)-github-runner
-GITHUB_ACTION_RUNNER_NAME ?= $(shell hostname)
-GITHUB_ACTION_RUNNER_URL=https://github.com/7d4b9/refactored-winner
-GITHUB_RUNNER_CONTAINER_NAME=$(PROJECT_NAME)-github-runner
+GITHUB_ACTION_RUNNER_IMAGE ?= $(PUBLIC_IMAGES_BASE):github-runner-latest
 
-github-runner-build:
-	@cd $(CURDIR)/infra/github \
-	&& docker build \
-	  --build-arg builder_image=$(LATEST_BUILDER_IMAGE) \
-	  -t $(GITHUB_ACTION_RUNNER_IMAGE) \
-	  .
-.PHONY: github-runner-build
+GITHUB_ACTION_RUNNER_TOKEN=AEOTDPFCTLVX5VG5KUTQRC3G7H5AW
 
-github-runner: github-runner-rm github-runner-build 
-	@docker run --rm -d \
-	  --name $(GITHUB_RUNNER_CONTAINER_NAME) \
-	  -v /var/run/docker.sock:/var/run/docker.sock \
-	  $(GITHUB_ACTION_RUNNER_IMAGE) \
-	  bash -c ' \
-	  ./config.sh \
-	  	--url $(GITHUB_ACTION_RUNNER_URL) \
-		--token $(GITHUB_ACTION_RUNNER_TOKEN) \
-		--unattended \
-		--name docker-`hostname` \
-	  && ./run.sh'
-	  @docker logs $(GITHUB_RUNNER_CONTAINER_NAME)
+GITHUB_ACTIONS_RUNNER_STACK_ID ?= $(shell echo $$RANDOM)
+GITHUB_ACTIONS_RUNNER_STACK ?= github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
+
+github-runner-stack:
+	@docker stack deploy \
+	  --resolve-image never \
+	  --compose-file $(CURDIR)/infra/github/docker-compose.yml \
+	  $(GITHUB_ACTIONS_RUNNER_STACK)
+.PHONY: github-runner-stack
+
+github-runner:
+	@docker compose -f $(CURDIR)/infra/github/docker-compose.yml \
+	  up -d  \
+	github-runner
 .PHONY: github-runner
 
-github-runner-rm: github-runner-build
-	@-docker exec $(GITHUB_RUNNER_CONTAINER_NAME) \
-	  ./config.sh remove --token $(GITHUB_ACTION_RUNNER_TOKEN) 2>/dev/null
-	@-docker rm -f $(GITHUB_RUNNER_CONTAINER_NAME) 2>/dev/null
+github-runner-rm:
+	@docker compose -f $(CURDIR)/infra/github/docker-compose.yml \
+	  rm -s -f
 .PHONY: github-runner-rm
+
+github-runner-stack-rm:
+	@-docker stack rm $(GITHUB_ACTIONS_RUNNER_STACK)
+.PHONY: github-runner-stack-rm
+
+github-runner-image: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print local-github-runner
+	@$(DOCKER_BUILDX_BAKE) --load local-github-runner
+.PHONY: github-runner-image
+
+github-runner-image-push: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print github-runner
+	@$(DOCKER_BUILDX_BAKE) --push github-runner
+.PHONY: github-runner-image-push
