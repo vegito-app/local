@@ -7,7 +7,7 @@ trap "echo Exited with code $?." EXIT
 ln -sfn ${PWD}/.devcontainer/bash_history ~/.bash_history
 
 # Docker
-sudo chmod o+rw /var/run/docker.sock
+make docker-sock
 
 # Git
 git config --global --add safe.directory .
@@ -18,34 +18,39 @@ cat <<'EOF' > ${PWD}/vscode.code-workspace
   "folders": [
     {
       "path": ".",
-      "name": "project-root"
+      "name": "project-repository"
     },
     {
-      "path": "infra/gcloud/auth",
-      "name": "auth-func-infra"
+      "name": "application-backend-go",
+      "path": "application/backend"
     },
     {
-      "path": "infra"
+      "name": "application-mobile-flutter",
+      "path": "application/mobile",
     },
     {
-      "name": "backend-go",
-      "path": "backend"
+      "name": "application-web-react",
+      "path": "application/frontend"
     },
     {
-      "name": "frontend-react",
-      "path": "frontend"
+      "name": "local-android-studio",
+      "path": "local/android",
     },
     {
+      "name": "local-firebase-emulators",
       "path": "local/firebase",
-      "name": "firebase-emulators"
     },
     {
-      "name": "secrets-infra",
-      "path": "infra/gcloud/secrets"
+      "name": "infra-terraform",
+      "path": "infra",
     },
     {
-      "name": "car2go-application-flutter",
-      "path": "application/car2go",
+      "name": "infra-firebase-auth-func-nodejs",
+      "path": "infra/gcloud/auth",
+    },
+    {
+      "name": "infra-secrets-terraform",
+      "path": "infra/gcloud/secrets",
     }
   ],
   "settings": {}
@@ -54,7 +59,7 @@ EOF
 
 mkdir -p ${PWD}/backend/.vscode/
 
-cat <<'EOF' > ${PWD}/backend/.vscode/launch.json
+cat <<'EOF' > ${PWD}/application/backend/.vscode/launch.json
 {
     // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
     // Pointez pour afficher la description des attributs existants.
@@ -96,7 +101,7 @@ ln -sf ${PWD}/.devcontainer/vscode/userData $VSCODE_USER_DATA
 # genieai-chatgpt-vscode
 VSCODE_GLOBAL_STORAGE=${PWD}/.devcontainer/vscode/userData/globalStorage
 EXISTING=${VSCODE_GLOBAL_STORAGE}/genieai.chatgpt-vscode
-[ -d $EXISTING ] || echo $EXISTING && mv $EXISTING ${EXISTING}_back
+[ -d $EXISTING ] && mv $EXISTING ${EXISTING}_back
 ln -sf ${PWD}/.devcontainer/genieai.chatgpt-vscode ${VSCODE_GLOBAL_STORAGE}
 
 # GO

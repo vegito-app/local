@@ -285,7 +285,7 @@ make local-firebase-emulators
 firebase emulators init --help
 firebase init emulators --help
 firebase init functions
-make local-docker-compose-firebase-emulators-up 
+make local-firebase-emulators-docker-compose-up 
 cd refactored-winner/
 docker compose rm   firebase-emulators 
 ls local/
@@ -299,9 +299,9 @@ git rebase origin/codespace-humble-meme-wrq66vwrr4wh5979
 gi tlog
 cd local/firebase/functions
 ls  /workspaces/refactored-winner/infra/gcloud/auth
-make local-docker-compose-firebase-emulators-rm
-make local-docker-compose-firebase-emulators
-make local-docker-compose-firebase-emulators-rm 
+make local-firebase-emulators-docker-compose-rm
+make local-firebase-emulators-docker-compose
+make local-firebase-emulators-docker-compose-rm 
 make local-docker-firebase-emulators-
 make local-docker-firebase-emulators-up
 rm auth
@@ -320,7 +320,7 @@ docker copose up --help
 nc -z firebase 4000  && echo ok
 socat TCP-LISTEN:4000,fork TCP:localhost:4000
 socat TCP-LISTEN:4000,fork TCP:firebase-emulators4001
-make local-docker-compose-firebase-emulators-up
+make local-firebase-emulators-docker-compose-up
 git branch -d
 git log --oneline 
 git push --set-upstream origin codespace-humble-meme-wrq66vwrr4wh5979:dev
@@ -345,7 +345,7 @@ make local-firebase-docker-emulators-rm
 make local-firebase-docker-emulators
 bg
 make local-firebase-docker-emulators-rm 
-make local-docker-compose-firebase-emulators-stop 
+make local-firebase-emulators-docker-compose-stop 
 docker ps -a
 docker rm -f 19c38
 sudo apt-get install netcat
@@ -356,7 +356,7 @@ nc -z firebase-emulators 4000
 nc -z 172.18.0.2 4000
 nc -z localhost 4000
 nc -z firebase-emulator 4000
-make local-docker-compose-firebase-emulators-logs 
+make local-firebase-emulators-docker-compose-logs 
 nc -z firebas 5001
 nc -z firebase 5001
 make  local-builder-image 
@@ -365,7 +365,7 @@ make local-builder-image
 ps aux
 make local-firebase-emulators-install 
 kill -INT 7
-make local-docker-compose-firebase-emulators-build-no-pull 
+make local-firebase-emulators-docker-compose-build-no-pull 
 ss -tulnp
 ls -lha local/
 ls -lha local/firebase/
@@ -373,8 +373,8 @@ ls -lha local/firebase/data/
 make local-firebase-emulators-stop 
 firebase emulators:help
 firebase emulators --help
-make local-docker-compose-firebase-emulators-b
-make local-docker-compose-firebase-emulators-bash 
+make local-firebase-emulators-docker-compose-b
+make local-firebase-emulators-docker-compose-bash 
 chmod o+rwx local/firebase/data/
 netstat -tuln
 sudo apt-get install -y netstat
@@ -405,10 +405,10 @@ test
 test --help
 ps aux|grep 4000
 sudo iptables -t nat -A PREROUTING -p tcp --dport 4000 -j DNAT --to-destination `dig +short firebase-emulators`:4000
-make local-docker-compose-firebase-emulators-bash
+make local-firebase-emulators-docker-compose-bash
 make local-build
 make builder-image 
-make frontend-npm-ci 
+make application-frontend-npm-ci 
 make frontend-build
 make frontend-bundle 
 cd frontend/
@@ -442,10 +442,10 @@ docker images -a
 docker run -v /:`pwd`/root --rm -it -w `pwd`/root 0bb51c6f07de bash
 docker run -v /:`pwd`/root --rm --entrypoint bash -it -w `pwd`/root 0bb51c6f07de 
 env|grep -i folder
-make local-docker-compose-firebase-emulators-rm  local-builder-image local-docker-compose-firebase-emulators-up 
+make local-firebase-emulators-docker-compose-rm  local-builder-image local-firebase-emulators-docker-compose-up 
 git rm dev-entrypoint.sh 
 git rm -f dev-entrypoint.sh 
-make local-docker-compose-firebase-emulators-rm local-docker-compose-firebase-emulators-up 
+make local-firebase-emulators-docker-compose-rm local-firebase-emulators-docker-compose-up 
 git push -f
 git reset ad39
 git push git push 
@@ -496,7 +496,7 @@ firebase
 firebase project:list
 firebase projects:list
 code _workspace/firebase-admin-go/
-make frontend-build frontend-bundle 
+make application-frontend-build application-frontend-bundle 
 ./
 de
 .devcontainer/post-create-cmd.sh 
@@ -523,14 +523,14 @@ make local-run
 ls -lh local/firebase/data/*
 ls -lh local/firebase/data/auth_export
 ls -lh local/firebase/data/firebase-export-metadata.jso
-make local-docker-compose-firebase-emulators-logs
+make local-firebase-emulators-docker-compose-logs
 git reset ad39f604e038f7f1c225e5c3415c845795e260d0
 git reset 55805
 lsof -i :4000
 killall socat
 git reset fs
 .devcontainer/
-chmod +x local/firebase/firebase-docker-start.sh 
+chmod +x local/firebase/firebase-start-docker.sh 
 ls -lha local/firebase/functions/auth
 npm run serve
 cp -r infra/gcloud/auth/ local/firebase/functions/
@@ -762,7 +762,7 @@ socat TCP-LISTEN:45483,fork,reuseaddr TCP:android-studio:45483 > /tmp/socat-andr
 socat TCP-LISTEN:46483,fork,reuseaddr TCP:android-studio:46483 > /tmp/socat-android-studio-46483.log 2>&1 
 flutter upgrade
 make local-docker-compose-android-studio-up &
-make -C .. local-docker-compose-firebase-emulators-up 
+make -C .. local-firebase-emulators-docker-compose-up 
 make -C .. local-docker-compose-android-studio-up 
 . .bash
 . .bashrc 
@@ -847,8 +847,8 @@ git push -f origin robusto:main
 git checkout main 
 git pull --rebase 
 git rm -rf firebase-export-172475*
-chmod +xlocal/firebase/firebase-docker-start.sh
-chmod +x local/firebase/firebase-docker-start.sh
+chmod +xlocal/firebase/firebase-start-docker.sh
+chmod +x local/firebase/firebase-start-docker.sh
 git rm -f .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/*
 git rm -f .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/schemas_cache/*
 git rm -f .devcontainer/vscode/userData/globalStorage/redhat.vscode-yaml/
@@ -863,24 +863,71 @@ man test
 git add .
 git show
 git add local/android/studio-entrypoint.sh 
-chmod +x local/android/android-docker-start.sh 
+chmod +x local/android/android-start-docker.sh 
 make local-docker-compose-android-studio-rm
 chmod +x local/android/studio-entrypoint.sh 
 make github-runner
 code /workspaces/refactored-winner/
 git push origin HEAD:dev
 git push -f origin HEAD:dev
-git commit --amend --no-edit
-git push -f origin HEAD:dev
-ps aux
-make local-docker-compose-firebase-emulators-up 
 chmod +x local/*.sh
 chmod +x local/*/*.sh
-make local-docker-compose-firebase-emulators-up 
-docker system prune -f -a
-docker images
 make github-runner-image
 make builder-image-local 
-make github-runner-image
-make builder-image-local 
-make github-runner-image
+netstat -ntlu
+make local-backend-image-run 
+ls /runner/_work/refactored-winner/refactored-winner/infra/gcloud-credentials
+make github-runner-rm 
+make github-runner-stack
+GITHUB_ACTIONS_RUNNER_STACK_ID=make github-runner-stack-rm 
+GITHUB_ACTIONS_RUNNER_STACK_ID=13568 make github-runner-stack-rm 
+GITHUB_ACTIONS_RUNNER_STACK_ID=13568 make github-runner-stack
+unset GITHUB_ACTION_RUNNER_TOKEN 
+make github-runner-image-push 
+make github-runner-rm
+make github-runner-image-@
+make local-firebase-emulators-image
+make local-firebase-emulators-image-push 
+make local-android-studio-image
+make local-android-studio-image-push 
+make backend-image-run 
+GITHUB_ACTIONS_RUNNER_STACK_ID=22288 make github-runner-stack-rm
+git push -f origin HEAD:main 
+git branch -d robusto 
+git branch -D robusto 
+git branch -D exp light chit
+ls -lh .devcontainer/
+ls -lh .
+ls -lh .github/
+ls -lh .github/workflows/
+ls -lh .devcontainer/.github/
+ls -lh .devcontainer/.github/workflow/
+git rm -rf .devcontainer/.github/workflow/
+git stash apply 
+make local-images 
+git rm -f vscode.code-workspace 
+make run
+
+make docker-login
+env|grep -i work
+env|grep -i run
+make android-studio 
+make firebase-emulators 
+code /workspaces/refactored-winner
+cd application/mobile/
+du -sh docker-builder-local-cache/.devcontainer/post-create-cmd.sh 
+docker rm --helpcd
+ls -lha 
+ls -lha go/
+ls -lha go/pkg/
+md go _go
+mv go _go
+ls -lha go/pkg/mod/
+ls -lha go/pkg/mod/gopkg.in/
+ls -lha go/pkg/mod/gopkg.in/yaml.v3@v3.0.1/
+go version
+which proxy
+cd localproxy/
+GOPATH=/tmp/go GOBIN=/home/devuser go install .
+which localproxy
+ls /usr/local/bin/

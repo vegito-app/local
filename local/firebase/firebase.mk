@@ -1,8 +1,8 @@
 
+LOCAL_FIREBASE_EMULATORS_IMAGE =  $(BUILDER_IMAGE)
 LOCAL_FIREBASE_DIR = $(CURDIR)/local/firebase
 LOCAL_FIREBASE = cd $(LOCAL_FIREBASE_DIR) && firebase
-# only specific emulators. This is a comma separated list of
-# emulator names. Valid options are:
+# This is a comma separated list of emulator names.# Valid options are:
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
 LOCAL_FIREBASE_EMULATORS_SERVICES = auth,functions,firestore
 
@@ -37,11 +37,11 @@ local-firebase-emulators-start: local-firebase-emulators-install
 local-firebase-emulators: local-firebase-emulators-prepare local-firebase-emulators-start
 .PHONY: local-firebase-emulators
 
-local-docker-compose-firebase-emulators: local-firebase-emulators-prepare local-docker-compose-firebase-emulators-up local-docker-compose-firebase-emulators-logs
-.PHONY: local-docker-compose-firebase-emulators
+local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-docker-compose-up local-firebase-emulators-docker-compose-logs
+.PHONY: local-firebase-emulators-docker-compose
 
-local-docker-compose-firebase-emulators-up: local-docker-compose-firebase-emulators-build-no-pull local-docker-compose-firebase-emulators-rm
-	@$(CURDIR)/local/firebase/firebase-docker-start.sh &
+local-firebase-emulators-docker-compose-up: local-firebase-emulators-docker-compose-rm
+	@$(CURDIR)/local/firebase/emulators-docker-start.sh &
 	@until nc -z firebase-emulators 4000 ; do \
 		sleep 1 ; \
 	done
@@ -50,32 +50,21 @@ local-docker-compose-firebase-emulators-up: local-docker-compose-firebase-emulat
 	@echo Started Firebase Emulator: 
 	@echo View Emulator UI at http://127.0.0.1:4000/
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-docker-compose-firebase-emulators
+.PHONY: local-firebase-emulators-docker-compose-up
 
-local-docker-compose-firebase-emulators-stop:
+local-firebase-emulators-docker-compose-stop:
 	@-$(LOCAL_DOCKER_COMPOSE) stop firebase-emulators 2>/dev/null
-.PHONY: local-docker-compose-firebase-emulators-stop
+.PHONY: local-firebase-emulators-docker-compose-stop
 
-local-docker-compose-firebase-emulators-rm: local-docker-compose-firebase-emulators-stop
+local-firebase-emulators-docker-compose-rm: local-firebase-emulators-docker-compose-stop
 	@$(LOCAL_DOCKER_COMPOSE) rm -f firebase-emulators
-.PHONY: local-docker-compose-firebase-emulators-rm
+.PHONY: local-firebase-emulators-docker-compose-rm
 
-local-docker-compose-firebase-emulators-logs:
+local-firebase-emulators-docker-compose-logs:
 	@$(LOCAL_DOCKER_COMPOSE) logs --follow firebase-emulators
-.PHONY: local-docker-compose-firebase-emulators-logs
+.PHONY: local-firebase-emulators-docker-compose-logs
 
-local-docker-compose-firebase-emulators-bash:
+local-firebase-emulators-docker-compose-bash:
 	@$(LOCAL_DOCKER_COMPOSE) exec -it firebase-emulators bash
-.PHONY: local-docker-compose-firebase-emulators-bash
+.PHONY: local-firebase-emulators-docker-compose-bash
 
-FIREBASE_EMULATORS_IMAGE        =  $(PUBLIC_IMAGES_BASE):$(VERSION)-firebase-emulators
-LATEST_FIREBASE_EMULATORS_IMAGE =  $(PUBLIC_IMAGES_BASE):latest-firebase-emulators
-
-local-docker-compose-firebase-emulators-build-no-pull:
-	@docker build --pull=false \
-	  -f $(CURDIR)/local/firebase/Dockerfile \
-	  --build-arg builder_image=$(LATEST_BUILDER_IMAGE) \
-	  -t $(FIREBASE_EMULATORS_IMAGE) \
-	  -t $(LATEST_FIREBASE_EMULATORS_IMAGE) \
-	  .
-.PHONY: local-docker-compose-firebase-emulators-build-no-pull

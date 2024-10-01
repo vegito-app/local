@@ -1,4 +1,4 @@
-GOOGLE_CLOUD_APPLICATION_CREDENTIALS := $(CURDIR)/infra/gcloud-credentials
+GOOGLE_CLOUD_APPLICATION_CREDENTIALS ?= $(PWD)/infra/gcloud-credentials
 
 google-application-credentials:
 	@bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)

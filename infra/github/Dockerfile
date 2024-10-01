@@ -18,4 +18,6 @@ RUN sudo chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
+RUN mkdir /runner/_work
+
 VOLUME ["/runner/_work"]

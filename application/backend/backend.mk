@@ -18,52 +18,73 @@ BACKEND_VENDOR = $(CURDIR)/backend/vendor
 $(BACKEND_VENDOR):
 	@$(MAKE) go-application/backend-mod-vendor
 
-backend-run: $(BACKEND_INSTALL_BIN)
+application-backend-run: $(BACKEND_INSTALL_BIN)
 	@$(BACKEND_INSTALL_BIN)
-.PHONY: backend-run
+.PHONY: application-backend-run
 
-$(BACKEND_INSTALL_BIN): 
+$(BACKEND_INSTALL_BIN): application-backend-install
+
+application-backend-install:
 	@echo Installing backend...
-	@$(MAKE) backend-install
+	@cd application/backend \
+	  && go install -a -ldflags "-linkmode external -extldflags -static"
 	@echo Installed backend.
+.PHONY: application-backend-install
 
-backend-install:
-	@cd application/backend && go install -a -ldflags "-linkmode external -extldflags -static"
-.PHONY: backend-install
-
-BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
 LATEST_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-latest
 
-google-maps-api-key-file: $(GOOGLE_MAPS_API_KEY_FILE)
-.PHONY: google-maps-api-key-file
+BACKEND_CONTAINER_NAME = $(PROJECT_NAME)_backend
 
-$(GOOGLE_MAPS_API_KEY_FILE): 
-	@echo -n $$GOOGLE_MAPS_API_KEY > $(GOOGLE_MAPS_API_KEY_FILE)
-	
-local-backend-image-run:
-	@docker run --rm \
-	  -p 8080:8080 \
-	  -v $(GOOGLE_APPLICATION_CREDENTIALS):$(GOOGLE_APPLICATION_CREDENTIALS) \
-	  -e GOOGLE_APPLICATION_CREDENTIALS \
-	  $(LATEST_BACKEND_IMAGE)
-.PHONY: local-backend-image-run
+BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
 
-backend-image: docker-buildx-setup $(GOOGLE_MAPS_API_KEY_FILE)
+application-backend-image: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend-local
 	@$(DOCKER_BUILDX_BAKE) --load backend-local
-.PHONY: backend-image
+.PHONY: application-backend-image
 
-backend-image-push: docker-buildx-setup $(GOOGLE_MAPS_API_KEY_FILE)
+application-backend-image-push: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend
 	@$(DOCKER_BUILDX_BAKE) --push backend
+.PHONY: application-backend-image-push
 
-backend-up:
-	@docker compose -f $(CURDIR)/infra/gùithub/docker-compose.yml \
-	  up -d  \
-	backend
-.PHONY: backend-up 
+application-backend-docker-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
+	@docker run \
+	  -p 8080:8080 \
+	  --name $(BACKEND_CONTAINER_NAME) \
+	  -v $(GOOGLE_APPLICATION_CREDENTIALS):$(GOOGLE_APPLICATION_CREDENTIALS) \
+	  -e GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
+	  $(BACKEND_IMAGE)
+.PHONY: application-backend-docker-run
 
-backend-rm:
-	@docker compose -f $(CURDIR)/infra/github/docker-compose.yml \
-	  rm -s -f
-.PHONY: backend-rm
+application-backend-docker-rm:
+	@-docker stop -t 30 $(BACKEND_CONTAINER_NAME)  #2>/dev/null
+	@-docker rm -f $(BACKEND_CONTAINER_NAME) # 2>/dev/null
+.PHONY: application-backend-docker-rm
+
+
+application-backend-docker-compose: local-backend-prepare application-backend-docker-compose-up application-backend-docker-compose-logs
+.PHONY: application-backend-docker-compose
+
+application-backend-docker-compose-up: application-backend-docker-compose-rm
+	@$(CURDIR)/application/backend/docker-start.sh &
+	@until nc -z backend 8080 ; do \
+		sleep 1 ; \
+	done
+	$(LOCAL_DOCKER_COMPOSE) logs backend
+	@echo
+	@echo Started Firebase Emulator: 
+	@echo View Emulator UI at http://127.0.0.1:4000/
+	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
+.PHONY: application-backend-docker-compose-up
+
+application-backend-docker-compose-stop:
+	@-$(LOCAL_DOCKER_COMPOSE) stop backend 2>/dev/null
+.PHONY: application-backend-docker-compose-stop
+
+application-backend-docker-compose-rm: application-backend-docker-compose-stop
+	@$(LOCAL_DOCKER_COMPOSE) rm -f backend
+.PHONY: application-backend-docker-compose-rm
+
+application-backend-docker-compose-logs:
+	@$(LOCAL_DOCKER_COMPOSE) logs --follow backend
+.PHONY: application-backend-docker-compose-logs

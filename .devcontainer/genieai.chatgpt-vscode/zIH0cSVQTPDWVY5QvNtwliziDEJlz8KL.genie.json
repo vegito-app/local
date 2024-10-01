@@ -1,0 +1,27 @@
+{
+    "id": "zIH0cSVQTPDWVY5QvNtwliziDEJlz8KL",
+    "createdTime": "10/4/2024, 5:36:01 AM",
+    "name": "Docker Bake Dependant Targets",
+    "conversations": [
+        {
+            "id": "zIH0cSVQTPDWVY5QvNtwliziDEJlz8KL",
+            "createdTime": "10/4/2024, 5:36:01 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "zIH0cSVQTPDWVY5QvNtwliziDEJlz8KL",
+                "role": "user",
+                "text": "si une target de docker bake hcl utilise un depend_on sur une autre target, docker va ti attendrree la fin de la construction d'une pour lancer l'autre ?"
+            },
+            "response": {
+                "id": "8w1SEkekKkNgqXQchSQ1EGftpaDd0ML9",
+                "role": "assistant",
+                "text": "Oui, c'est exactement comment cela fonctionne. \n\nSi vous avez un `target` qui a `depend_on` un autre dans votre fichier HCL pour Docker Bake, Docker s'assurera que le `target` sur lequel il dépend soit entièrement construit avant de commencer à construire le `target` dependant.\n\nVoici un exemple de ce à quoi cela pourrait ressembler:\n\n```hcl\ntarget \"dependant_target\" {\n  dockerfile = \"Dockerfile\"\n  context = \".\"\n  args = [\"VERSION=7.4\"]\n}\n\ntarget \"main_target\" {\n  dockerfile = \"Dockerfile\"\n  context = \".\"\n  args = [\"VERSION=7.4\"]\n  depend_on = [\n    \"dependant_target\"\n  ]\n}\n```\n\nDans cet exemple, `main_target` ne commencera à se construire qu'une fois que `dependant_target` aura terminé sa construction."
+            }
+        }
+    ]
+}

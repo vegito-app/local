@@ -1,0 +1,27 @@
+{
+    "id": "jcTi4Bwe2Uk0RCKQjzPke29J2npqt5u3",
+    "createdTime": "10/1/2024, 5:50:15 AM",
+    "name": "bash tests",
+    "conversations": [
+        {
+            "id": "jcTi4Bwe2Uk0RCKQjzPke29J2npqt5u3",
+            "createdTime": "10/1/2024, 5:50:15 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "jcTi4Bwe2Uk0RCKQjzPke29J2npqt5u3",
+                "role": "user",
+                "text": "comment vérifier si une variable d'environemenrt existe en bash ?"
+            },
+            "response": {
+                "id": "InvYdnUxLQbnxTdXWBkk5lKhietmFdu5",
+                "role": "assistant",
+                "text": "Pour vérifier si une variable d'environnement existe en Bash, vous pouvez utiliser une commande `if` avec l'option `-v`. Voici un exemple de script :\n\n```bash\nif [ -v VARIABLE_NAME ]; then\n    echo \"VARIABLE_NAME exists\"\nelse \n    echo \"VARIABLE_NAME does not exist\"\nfi\n```\n\nDans ce code, remplacez `VARIABLE_NAME` par le nom de la variable d'environnement que vous souhaitez vérifier. Le script affichera \"VARIABLE_NAME exists\" si la variable existe et \"VARIABLE_NAME does not exist\" dans le cas contraire.\n\n**Note**: L'option `-v` n'est disponible que pour des versions Bash supérieures à 4.2. Pour les versions inférieures, vous pouvez utiliser cette alternative :\n\n```bash\nif [ -n \"$VARIABLE_NAME\" ]; then\n    echo \"VARIABLE_NAME exists\"\nelse \n    echo \"VARIABLE_NAME does not exist\"\nfi\n```\nIci, `-n` renvoie vrai (0) si la longueur de chaîne est non nulle. Autrement dit, si la variable d'environnement existe et a une valeur."
+            }
+        }
+    ]
+}

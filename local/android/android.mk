@@ -1,20 +1,20 @@
 
-ANDROID_STUDIO_IMAGE =  $(PUBLIC_IMAGES_BASE):$(VERSION)-android-studio
+ANDROID_STUDIO_IMAGE =  $(PUBLIC_IMAGES_BASE):android-studio-$(VERSION)
 
-local-docker-compose-android-studio-build-no-pull:
-	@docker build --pull=false \
-	  -f $(CURDIR)/local/android/Dockerfile \
-	  --build-arg builder_image=$(LATEST_BUILDER_IMAGE) \
-	  -t $(ANDROID_STUDIO_IMAGE) \
-	  .
-.PHONY: local-docker-compose-android-studio-build-no-pull
+local-android-studio-image: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print android-studio-local
+	@$(DOCKER_BUILDX_BAKE) --load android-studio-local
+.PHONY: local-android-studio-image
 
-LOCAL_DOCKER_COMPOSE = docker compose -f $(CURDIR)/local/docker-compose.yml
+local-android-studio-image-push: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print android-studio
+	@$(DOCKER_BUILDX_BAKE) --push android-studio
+.PHONY: local-android-studio-image-push
 
-local-docker-compose-android-studio-up: local-docker-compose-android-studio-build-no-pull local-docker-compose-android-studio-rm
-	$(CURDIR)/local/android/android-docker-start.sh &
-	$(LOCAL_DOCKER_COMPOSE) logs android-studio
-	echo
+local-docker-compose-android-studio-up: local-docker-compose-android-studio-rm
+	@$(CURDIR)/local/android/studio-docker-start.sh &
+	@$(LOCAL_DOCKER_COMPOSE) logs android-studio
+	@echo
 	@echo Started Androïd studio display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: local-docker-compose-android-studio
@@ -34,7 +34,3 @@ local-docker-compose-android-studio-logs:
 local-docker-compose-android-studio-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec -it android-studio bash
 .PHONY: local-docker-compose-android-studio-sh
-
-local-docker-compose-android-studio-bash:
-	@$(LOCAL_DOCKER_COMPOSE) exec -it android-studio bash
-.PHONY: local-docker-compose-android-studio-bash

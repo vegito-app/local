@@ -6,7 +6,8 @@ volumes:
 services:
   dev:
     container_name: dev
-    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:latest-builder}
+    restart: unless-stopped
+    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
     entrypoint: dev-entrypoint.sh
     env_file:
       - .env
@@ -31,25 +32,33 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
-        make local-docker-compose-firebase-emulators-up
+        make local-firebase-emulators-docker-compose-up 
+        make application-backend-docker-compose-up
         while true; do sleep 1000 ; done
       '
     networks:
       - dev
-    depends_on:
-      - firebase-emulators # See command section.
+
+  backend:
+    image: ${BACKEND_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:backend-latest}
+    restart: unless-stopped
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      UI_CONFIG_GOOGLE_MAPS_API_KEY: ${UTRADE_GOOGLE_MAPS_API_KEY}
+      UI_CONFIG_FIREBASE_CONFIG: ${UTRADE_UI_CONFIG_FIREBASE_CONFIG}
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}
+    networks:
+      - dev
+
   firebase-emulators:
     container_name: firebase-emulators
-    image: ${FIREBASE_EMULATORS_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-firebase-emulators}
+    restart: unless-stopped
+    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
       - .env
-    build:
-      context: ..
-      dockerfile: local/firebase/Dockerfile
-      args:
-        builder_image: ${LATEST_BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-builder}
     environment:
       FIREBASE_AUTH_EMULATOR_HOST: http://localhost:9099
       FIRESTORE_EMULATOR_HOST: http://localhost:8090
@@ -65,19 +74,19 @@ services:
       make local-firebase-emulators-install
       make local-firebase-emulators-start &
 
-      # Need proxy to forward some required port that could not be 
+      # Need localproxy to forward some required port that could not be 
       # configured to listen on 0.0.0.0 from firebase.json file.
-      TARGET_PORT=4400 LISTEN_PORT=4401 proxy &
+      TARGET_PORT=4400 LISTEN_PORT=4401 localproxy &
       until nc -z localhost 4500; do
         echo Waiting Firebase Emulator Reserved port at http://localhost:4500/ ;
         sleep 1 ;
       done
-      TARGET_PORT=4500 LISTEN_PORT=4501 proxy &
+      TARGET_PORT=4500 LISTEN_PORT=4501 localproxy &
       until nc -z localhost 9299; do
         echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9299/ ;
         sleep 1 ;
       done
-      TARGET_PORT=9299 LISTEN_PORT=9399 proxy &
+      TARGET_PORT=9299 LISTEN_PORT=9399 localproxy &
 
       while true ; do sleep 1000 ; done
       '
@@ -85,12 +94,8 @@ services:
       dev:
   android-studio:
     container_name: android-studio
-    image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio}
-    build:
-      context: ..
-      dockerfile: local/android/Dockerfile
-      args:
-        builder_image: ${LATEST_BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/main:latest-builder}
+    image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio-latest}
+    restart: unless-stopped
     env_file:
       - .env
     environment:

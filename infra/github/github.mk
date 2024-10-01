@@ -1,47 +1,39 @@
-GITHUB_ACTION_RUNNER_IMAGE ?= $(PUBLIC_IMAGES_BASE):github-runner-$(GIT_TAG)
-
+GITHUB_REPOSITORY_NAME ?= refactored-winner
+GITHUB_ACTIONS_RUNNER_IMAGE ?= $(PUBLIC_IMAGES_BASE):github-runner-latest
 GITHUB_ACTIONS_RUNNER_STACK_ID ?= $(shell echo $$RANDOM)
 GITHUB_ACTIONS_RUNNER_STACK ?= github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
 
 # Build image for local run. This target will not push an image to the distant registry.
-github-runner-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print local-github-runner
-	@$(DOCKER_BUILDX_BAKE) --load local-github-runner
-.PHONY: github-runner-image
+local-github-runner-image: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print github-runner-local
+	@$(DOCKER_BUILDX_BAKE) --load github-runner-local
+.PHONY: local-github-runner-image
 
 # Build multi architecture image. This target will build and push 
 # an image to the distant registry but not load it locally.
-github-runner-image-push: docker-buildx-setup
+local-github-runner-image-push: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print github-runner
 	@$(DOCKER_BUILDX_BAKE) --push github-runner
-.PHONY: github-runner-image-push
+.PHONY: local-github-runner-image-push
 
-# launch local github-runner stack with docker compose.
-# Set GITHUB_ACTION_RUNNER_TOKEN before running this target.
-github-runner:
-	@docker compose -f $(CURDIR)/infra/gùithub/docker-compose.yml \
-	  up -d  \
-	github-runner
-.PHONY: github-runner
+GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(PROJECT_NAME)-github-actions \
+  docker compose -f $(CURDIR)/infra/github/docker-compose.yml
 
-# remove local docker-compose github-runner container stack
-github-runner-rm:
-	@docker compose -f $(CURDIR)/infra/github/docker-compose.yml \
-	  rm -s -f
-.PHONY: github-runner-rm
+local-github-runner-token-exist:
+	@if [ ! -v GITHUB_ACTIONS_RUNNER_TOKEN ] ; then \
+		echo missing GITHUB_ACTIONS_RUNNER_TOKEN environment variable. \
+		Set values from https://github.com/7d4b9/${GITHUB_REPOSITORY_NAME}/settings/actions/runners/new page. ; \
+		exit -1 ; \
+	fi
+.PHONY: local-github-runner-token-exist
 
-# Docker Swarm stack: will use the latest image from repository by design. 
-# Use 'make github-runner' instead to use a locally builded image with Docker Compose instead.
-# Set GITHUB_ACTION_RUNNER_TOKEN before running this target.
-github-runner-stack:
-	@docker stack deploy \
-	  --compose-file $(CURDIR)/infra/github/docker-compose.yml \
-	  $(GITHUB_ACTIONS_RUNNER_STACK)
-.PHONY: github-runner-stack
+local-github-runner-docker-compose-up: github-runner-docker-compose-rm github-runner-token-exist
+	@$(GITHUB_DOCKER_COMPOSE) up -d github-runner
+.PHONY: local-github-runner-docker-compose-up
 
-# Remove local github-runner Docker Swarm stack
-# Set GITHUB_ACTIONS_RUNNER_STACK or GITHUB_ACTIONS_RUNNER_STACK_ID according to 
-# a current running stack value to target a specific Swarm stack removal.
-github-runner-stack-rm:
-	@-docker stack rm $(GITHUB_ACTIONS_RUNNER_STACK)
-.PHONY: github-runner-stack-rm
+# This avoids github dangling offline containers on github.com side.
+# It uses './config.sh remove' from github-runner containers entrypoint
+# before exit (see ./entrypoint.sh)
+local-github-runner-docker-compose-rm:
+	@-$(GITHUB_DOCKER_COMPOSE) rm -s -f github-runner
+.PHONY: local-github-runner-docker-compose-rm

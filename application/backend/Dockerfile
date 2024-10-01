@@ -1,4 +1,3 @@
-# Build the React App
 ARG builder_image=docker-repository-public/utrade:builder
 FROM --platform=${BUILDPLATFORM} ${builder_image} AS build
 
@@ -22,7 +21,7 @@ COPY application/backend/log application/backend/log
 COPY application/backend/track application/backend/track
 COPY application/backend/firebase application/backend/firebase
 COPY application/backend/main.go application/backend/
-RUN make backend-install
+RUN make application-backend-install
 
 # Frontend
 RUN mkdir application/frontend
@@ -30,17 +29,18 @@ COPY application/frontend/package-lock.json application/frontend/
 COPY application/frontend/package.json application/frontend/
 COPY application/frontend/frontend.mk application/frontend/
 COPY nodejs.mk .
-RUN make application/frontend-node-modules # frontend-npm-ci
+
+RUN sudo chmod o+rw application/frontend/package-lock.json \
+    && make application/frontend-node-modules application-frontend-npm-ci
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public
 COPY application/frontend/src application/frontend/src
 COPY application/frontend/webpack.server.js application/frontend/
 
-COPY application/frontend/docker-build.sh application/frontend/
-RUN --mount=type=secret,id=google_maps_api_key ./application/frontend/docker-build.sh
+RUN make application-frontend-build application-frontend-bundle
 
-# final container
+# application container
 FROM scratch
 COPY --from=build /home/devuser/src/application/frontend/build/ /frontend/build
 COPY --from=build /home/devuser/src/application/frontend/public/ /frontend/public

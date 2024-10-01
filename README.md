@@ -10,32 +10,26 @@ Start application locally:
 make run
 ```
 
-- Application is [available](http://localhost:8080) on `PORT` environement variable (default is 8080).
-
-Puch CTRL+C or send os `SIGINT` signal to **graceful shutdown**.
+- Application is [available](http://localhost:8080).
 
 ### Build local image
 
-Build local service image.
+Build local project service images.
 
 ```
-    make image-build
+    make local-images
 ```
 
-### Run local image
-
-Run local service image.
+### Run local backend service image.
 
 ```
-    make image-run
+    make application-backend-docker-run
 ```
 
-### Push local image
-
-Push local service image to the distant docker registry.
+### Build and push multi-architecture project images.
 
 ```
-    make image-push
+    make images
 ```
 
 This operation may require to login to the project distant docker registry.

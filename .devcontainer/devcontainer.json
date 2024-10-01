@@ -1,7 +1,8 @@
 {
   "name": "Go Dev Container",
   "dockerComposeFile": [
-    "../local/docker-compose.yml"
+    "../local/docker-compose.yml",
+    "./docker-compose.yml"
   ],
   "service": "dev",
   "runServices": [
@@ -115,7 +116,17 @@
           }
         },
         "vsicons.dontShowNewVersionMessage": true,
-        "files.autoSave": "onFocusChange"
+        "files.autoSave": "onFocusChange",
+        "[dart]": {
+          "editor.formatOnSave": true,
+          "editor.formatOnType": true,
+          "editor.rulers": [
+            80
+          ],
+          "editor.selectionHighlight": false,
+          "editor.tabCompletion": "onlySnippets",
+          "editor.wordBasedSuggestions": "off"
+        }
       },
       "extensions": [
         "ChFlick.firecode",
@@ -145,7 +156,8 @@
         "marcelovelasquez.flutter-tree",
         "circlecodesolution.ccs-flutter-color",
         "gornivv.vscode-flutter-files",
-        "MarufHassan.flutter-snippets"
+        "MarufHassan.flutter-snippets",
+        "shd101wyy.markdown-preview-enhanced"
       ]
     }
   }

@@ -38,6 +38,15 @@ RUN apt-get update && apt-get install -y \
     vim \
     xz-utils \
     zip \
+    # X
+    x11vnc \
+    xvfb \
+    xinit openbox xorg \
+    #Flutter
+    clang \
+    cmake \
+    ninja-build \
+    libgtk-3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # non-root user    
@@ -96,17 +105,32 @@ RUN npm install -g \
     npm-check-updates@v17.1.0
 
 # Go
-ENV GO_VERSION=1.22.0
-RUN curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
-    && sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
-    && rm go${GO_VERSION}.linux-amd64.tar.gz
+ENV GO_VERSION=1.23.2
+ARG TARGETPLATFORM
+
+RUN case "$TARGETPLATFORM" in \
+    "linux/amd64") \
+    curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz ;; \
+    "linux/arm64") \
+    curl -OL https://golang.org/dl/go${GO_VERSION}.linux-arm64.tar.gz ;; \
+    esac \
+    && sudo tar -C /usr/local -xzf go${GO_VERSION}.*.tar.gz \
+    && rm go${GO_VERSION}.*.tar.gz
+
 ENV CGO_ENABLED=1
 ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
 
+COPY local/proxy ${HOME}/localproxy
+RUN cd ${HOME}/localproxy \
+    && GOPATH=/tmp/go \
+    go install -v \
+    && sudo cp /tmp/go/bin/proxy /usr/local/bin/localproxy 
+
 # Android SDK
-RUN sudo apt-get update && sudo apt-get install -y curl unzip default-jdk
 ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
+ENV PATH=$PATH:$ANDROID_SDK/emulator:$ANDROID_SDK/tools:$ANDROID_SDK/tools/bin:$ANDROID_SDK/platform-tools
+
 RUN mkdir -p $ANDROID_SDK/cmdline-tools/ \
     && cd $ANDROID_SDK/cmdline-tools/ \
     && curl -o sdk.zip -L https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
@@ -115,33 +139,31 @@ RUN mkdir -p $ANDROID_SDK/cmdline-tools/ \
     && yes | sdkmanager --licenses \
     && sdkmanager "platform-tools" "platforms;android-30"
 
-ENV ANDROID_HOME=$HOME/Library/Android/sdk
-ENV PATH=$PATH:$ANDROID_HOME/emulator
-ENV PATH=$PATH:$ANDROID_HOME/tools
-ENV PATH=$PATH:$ANDROID_HOME/tools/bin
-ENV PATH=$PATH:$ANDROID_HOME/platform-tools
+# Set environment variables for Android Studio
+ENV STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.1.1.12/android-studio-2024.1.1.12-linux.tar.gz
+ENV STUDIO_PATH=${HOME}/android-studio
+ENV PATH=${STUDIO_PATH}/bin:${PATH}
+
+# Download and unarchive Android Studio
+RUN curl -o /tmp/android-studio.tar.gz -L ${STUDIO_URL} && \
+    tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
+    mv /tmp/android-studio ${STUDIO_PATH} && \
+    rm /tmp/android-studio.tar.gz
+
 # Flutter 
 ENV FLUTTER_VERSION=3.24.3
-RUN sudo apt-get update && sudo apt-get install -y \
-    clang cmake ninja-build libgtk-3-dev
 RUN curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     tar -xf flutter.tar.xz -C ${HOME}/ && rm flutter.tar.xz
 ENV PATH=${PATH}:${HOME}/flutter/bin
 
 RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
-    sdkmanager "build-tools;30.0.1" && \
+    sdkmanager "build-tools;30.0.1" "build-tools;35.0.0" && \
     # Telemetry is not sent on the very first run. To disable reporting of telemetry,
     # run this terminal command:
     flutter --disable-analytics && \
     # Accept All Androïd SDK package licenses
     flutter doctor --android-licenses ; \
     fi
-
-# Install necessary software packages for having an X
-RUN sudo apt-get update && sudo apt-get install -y \
-    x11vnc \
-    xvfb \
-    xinit openbox xorg
 
 # Installer Google Chrome
 RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
@@ -157,30 +179,6 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
 
 # X11
 COPY local/display-start.sh /usr/local/bin/
-
-# The workspace folder value '/workspaces/<project>' is enforced by Github Codespaces (see .devcontainer/devcontainer.json).
-# It must be a static value due to limitations in the Devcontainer as it doesn't support variables and treats any syntax as a hard value without expansion.
-# Luckily this restriction only applies to Github Codespaces. If another platform imposed the same restriction, we would face a complicated decision.
-# Refer to https://containers.dev for more about the containers.dev initiative.
-
-# To address this, we mimic the same workspace folder across different environments using a symlink hardcoded to '/workspaces/<project>'.
-# This approach is beneficial when your environment needs to mount the current workspace in third-party containers, such as running a development docker-compose.
-
-# Requiring alignment between the container mounted workspace folder path inside the container and outside,
-# enables transparent work on the project files inside and outside of the development container, which can be destroyed and recreated with minimal impact and restart time.
-
-# It further allows cache redirection inside the current folder located on docker daemon host physical disks (see .devcontainer/post-create-cmd.sh).
-# It is superior to volumes as generated files stay within the local checked-out project folder, eliminating docker volume management and enabling access to locally readable container cache outside docker.
-
-# When /var/run/docker.sock is mounted by docker daemon inside a running container (see docker-compose.yml) the host's docker is used.
-# If you run the command 'docker run -v`pwd`:`pwd` -w `pwd` sh' it will display the current folder inside the container at the same virtual position where it currently resides, an existing path on the daemon underlying file system.
-
-# Using this technique, you can safely mount files under your project path inside new containers like third party development containers with a local docker-compose.yml for local functional tests for instance.
-ARG host_pwd
-RUN if [ "${host_pwd}" != "/workspaces/refactored-winner" ]; then \
-    sudo mkdir -p /workspaces && \
-    sudo ln -s ${host_pwd} /workspaces/refactored-winner ; \
-    fi
 
 RUN sudo ln -sf /usr/bin/bash /bin/sh
 

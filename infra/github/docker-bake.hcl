@@ -3,14 +3,22 @@ variable "GITHUB_RUNNER_IMAGE_VERSION" {
 }
 
 variable "GITHUB_RUNNER_IMAGE_TAG" {
-  default = notequal("", GIT_TAG) ? "${PUBLIC_IMAGES_BASE}:github-runner-${GIT_TAG}" : ""
+  default = notequal("", VERSION) ? "${PUBLIC_IMAGES_BASE}:github-runner-${VERSION}" : ""
 }
 
 variable "LATEST_GITHUB_RUNNER_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:github-runner-latest"
 }
 
-target "github-runner" {
+group "service" {
+  targets = ["github-runner"]
+}
+
+group "local-service" {
+  targets = ["github-runner-local"]
+}
+
+target "github-runner-ci" {
   args = {
     builder_image = LATEST_BUILDER_IMAGE
   }
@@ -32,11 +40,11 @@ target "github-runner" {
   ]
 }
 
-target "local-github-runner" {
+target "github-runner" {
   args = {
     builder_image = LATEST_BUILDER_IMAGE
   }
-  depends_on = [local-builder]
+  depends_on = [builder-local]
   context    = "infra/github"
   tags = [
     LATEST_GITHUB_RUNNER_IMAGE,

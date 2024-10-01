@@ -1,0 +1,44 @@
+REGISTRY = $(REGION)-docker.pkg.dev
+
+PUBLIC_REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/docker-repository-public
+PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(PROJECT_NAME)
+BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-$(VERSION)
+LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
+
+REPOSITORY = $(REGISTRY)/$(PROJECT_ID)/docker-repository
+IMAGES_BASE ?= $(REPOSITORY)/$(PROJECT_NAME)
+
+DOCKER_BUILDX_BAKE = docker buildx bake \
+	-f docker/docker-bake.hcl \
+	-f application/backend/docker-bake.hcl  \
+	-f local/docker-bake.hcl \
+	-f local/android/docker-bake.hcl \
+	-f infra/github/docker-bake.hcl 
+
+DOCKER_BUILDX_TARGETS := \
+	backend \
+	android-studio \
+	github-runner
+
+docker-multi-arch-images: docker-buildx-setup local-multi-arch-builder-image
+	$(DOCKER_BUILDX_BAKE) --print services-push-multi-arch
+	@$(DOCKER_BUILDX_BAKE) --push services-push-multi-arch
+.PHONY: docker-multi-arch-images
+
+docker-local-arch-images: local-builder-image
+	@$(DOCKER_BUILDX_BAKE) --print services-load-local-arch
+	@$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
+.PHONY: docker-services-images
+
+docker-buildx-setup: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
+	@-docker buildx create --name $(PROJECT_ID)-builder 2>/dev/null 
+	@-docker buildx use $(PROJECT_ID)-builder 2>/dev/null 
+.PHONY: docker-buildx-setup
+
+docker-login: gcloud-auth-docker
+	@docker login $(REGISTRY)/$(PROJECT_ID)
+.PHONY: docker-login
+
+docker-sock:
+	sudo chmod o+rw /var/run/docker.sock
+.PHONY: docker-sock
