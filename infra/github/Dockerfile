@@ -12,6 +12,8 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
     && rm -f ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && sudo ./bin/installdependencies.sh
 
+RUN npm install -g standard-version
+
 COPY entrypoint.sh /entrypoint.sh
 
 RUN sudo chmod +x /entrypoint.sh

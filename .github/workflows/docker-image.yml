@@ -6,6 +6,9 @@ on:
       - main
       - dev 
 
+permissions:
+  contents: write  # Allow to write in repo (git push)
+
 jobs:
   build-and-push-images:
     runs-on: self-hosted
@@ -25,7 +28,6 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
-
       - name: Set up Cloud SDK
         run: |
           gcloud config set project ${{ env.GCLOUD_PROJECT_ID }}
@@ -36,7 +38,16 @@ jobs:
         # uses: docker/setup-buildx-action@v3
         run: |
           make docker-buildx-setup
-
+      - name: Bump version and push tags
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+          # Bump the version based on commit messages (default patch bump)
+          standard-version
+          # Push the new commit and the new tag
+          git push --follow-tags origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push up to date project images
         run: |
           make images-ci

@@ -5,15 +5,15 @@ GITHUB_ACTIONS_RUNNER_STACK ?= github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
 
 # Build image for local run. This target will not push an image to the distant registry.
 local-github-runner-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print github-runner-local
-	@$(DOCKER_BUILDX_BAKE) --load github-runner-local
+	@$(DOCKER_BUILDX_BAKE) --print github-runner
+	@$(DOCKER_BUILDX_BAKE) --load github-runner
 .PHONY: local-github-runner-image
 
 # Build multi architecture image. This target will build and push 
 # an image to the distant registry but not load it locally.
 local-github-runner-image-push: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print github-runner
-	@$(DOCKER_BUILDX_BAKE) --push github-runner
+	@$(DOCKER_BUILDX_BAKE) --print github-runner-ci
+	@$(DOCKER_BUILDX_BAKE) --push github-runner-ci
 .PHONY: local-github-runner-image-push
 
 GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(PROJECT_NAME)-github-actions \
@@ -27,7 +27,7 @@ local-github-runner-token-exist:
 	fi
 .PHONY: local-github-runner-token-exist
 
-local-github-runner-docker-compose-up: github-runner-docker-compose-rm github-runner-token-exist
+local-github-runner-docker-compose-up: local-github-runner-docker-compose-rm local-github-runner-token-exist
 	@$(GITHUB_DOCKER_COMPOSE) up -d github-runner
 .PHONY: local-github-runner-docker-compose-up
 

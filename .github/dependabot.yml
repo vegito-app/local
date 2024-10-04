@@ -1,0 +1,47 @@
+version: 2
+updates:
+  # Dépendances Go (backend)
+  - package-ecosystem: "gomod"
+    directory: "/application/backend"
+    schedule:
+      interval: "weekly"
+      
+  - package-ecosystem: "npm"
+    directory: "/application/frontend"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "lodash"  # Ignorer les mises à jour de "lodash"
+    open-pull-requests-limit: 5     # Limiter à 5 PR ouvertes
+    assignees:
+      - "7d4b9"
+  - package-ecosystem: "npm"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "lodash"  # Ignorer les mises à jour de "lodash"
+    open-pull-requests-limit: 5     # Limiter à 5 PR ouvertes
+    assignees:
+      - "7d4b9"
+  # Dépendances Firebase functions (Node.js)
+  - package-ecosystem: "npm"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "lodash"  # Ignorer les mises à jour de "lodash"
+    open-pull-requests-limit: 5     # Limiter à 5 PR ouvertes
+    assignees:
+      - "7d4b9"
+    directory: "/infra/gcloud/auth"
+    
+  # Dépendances Flutter (mobile)
+  - package-ecosystem: "pub"
+    directory: "/application/mobile"
+    schedule:
+      interval: "weekly"
+
+  # Terraform (infra)
+  - package-ecosystem: "terraform"
+    directory: "/infra"
+    schedule:
+      interval: "weekly"
