@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build and Load Local Docker Images
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  build-and-push-images:
+  build-and-load-images:
     runs-on: self-hosted
     env:
       GCLOUD_PROJECT_ID: utrade-taxi-run-0
