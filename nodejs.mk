@@ -26,7 +26,7 @@ $(NODE_MODULES:%=%-clean):
 	@-rm -rf $(@:%-clean=%/node_modules) $(@:%-clean=%/package-lock.json) 2>/dev/null
 .PHONY: $(NODE_MODULES:%=%-clean)
 
-node-modules: $(NODE_MODULES:%=%/node-modules)
+node-modules: $(NODE_MODULES:%=%/node_modules)
 .PHONY: node-modules
 
 $(NODE_MODULES:%=%-node-modules):

@@ -70,10 +70,10 @@ application-backend-docker-compose-up: application-backend-docker-compose-rm
 	@until nc -z backend 8080 ; do \
 		sleep 1 ; \
 	done
-	$(LOCAL_DOCKER_COMPOSE) logs backend
+	@$(LOCAL_DOCKER_COMPOSE) logs backend
 	@echo
-	@echo Started Firebase Emulator: 
-	@echo View Emulator UI at http://127.0.0.1:4000/
+	@echo Started Application Backend: 
+	@echo View UI at http://127.0.0.1:8080/ui
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: application-backend-docker-compose-up
 

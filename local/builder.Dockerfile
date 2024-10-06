@@ -102,7 +102,8 @@ ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 RUN npm install -g \
     firebase-tools@v13.15.4 \
-    npm-check-updates@v17.1.0
+    npm-check-updates@v17.1.0 \
+    && rm -rf ${HOME}/.npm
 
 # Go
 ENV GO_VERSION=1.23.2

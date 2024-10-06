@@ -107,4 +107,12 @@ gcloud-infra-auth-npm-install:
 	@cd infra/gcloud/auth && npm install
 .PHONY: gcloud-infra-auth-npm-install
 
+# Use this target to configure the Docker pluggin of Vscode if credential-helper cannot help.
+gcloud-docker-registry-temporary-token:
+	@echo Getting gcloud docker registry temporary access token:
+	@echo  registry: $(REGISTRY)
+	@echo  username: oauth2accesstoken
+	@echo  password: `gcloud auth print-access-token`
+.PHONY: gcloud-docker-registry-temporary-token
+
 -include gcloud/terraform.mk

@@ -6,9 +6,6 @@ trap "echo Exited with code $?." EXIT
 
 ln -sfn ${PWD}/.devcontainer/bash_history ~/.bash_history
 
-# Docker
-make docker-sock
-
 # Git
 git config --global --add safe.directory .
 

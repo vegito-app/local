@@ -930,4 +930,42 @@ which proxy
 cd localproxy/
 GOPATH=/tmp/go GOBIN=/home/devuser go install .
 which localproxy
-ls /usr/local/bin/
+ls /usr/local/bin/flutter pub get
+make application-mobile-flutter-pub-get 
+make -C ../.. application-mobile-flutter-pub-get 
+make images-ci 
+git rebase -i origin/main~4
+git stash 
+make docker-multi-arch-images
+make local-multi-arch-builder-image 
+make images
+git commit --amend
+git reset origin/main~1 
+make local-github-runner-image
+make local-github-runner-docker-compose-rm 
+make local-github-runner-docker-compose-up
+qgit log
+tree --help
+sudo apt-get install tree
+tree -l 4
+tree -l 4 .
+tree -l 2 .
+tree -l 1 .
+tree -L 1 .
+tree -L 2 .
+tree -L 3 .
+tree -L 3 . > TL
+git checkout dev 
+git rebase --con
+git rebase --abort
+git merge origin/main 
+git merge --continue 
+env |grep -i android
+studio.sh 
+code application/mobile/
+code --add-docker-token $(gcloud auth print-access-token)
+make node-modules
+make application-frontend-bundle 
+make application-frontend-build
+make application-backend-docker-compose-up 
+.devcontainer/post-start-cmd.sh 

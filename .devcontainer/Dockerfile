@@ -22,5 +22,5 @@ ARG host_pwd
 ARG github_project_name
 RUN if [ "${host_pwd}" != "/workspaces/${github_project_name}}" ]; then \
     sudo mkdir -p /workspaces && \
-    sudo ln -s ${host_pwd} /workspaces/${github_project_name}} ; \
+    sudo ln -sf ${host_pwd} /workspaces/${github_project_name}} ; \
     fi

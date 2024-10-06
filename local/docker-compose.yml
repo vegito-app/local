@@ -5,8 +5,8 @@ volumes:
   firebase-emulators-cache:
 services:
   dev:
-    container_name: dev
     restart: unless-stopped
+    container_name: dev
     image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
     entrypoint: dev-entrypoint.sh
     env_file:
@@ -32,9 +32,18 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
-        make local-firebase-emulators-docker-compose-up 
-        make application-backend-docker-compose-up
-        while true; do sleep 1000 ; done
+      # Ensure docker socket permissions
+      make docker-sock
+
+      # Start Firebase emulators with port forwarded 
+      # to the local devcontainer
+      make local-firebase-emulators-docker-compose-up
+
+      # Start service Backend with port forwarded 
+      # to the local devcontainer
+      make application-backend-docker-compose-up
+
+      while true; do sleep 1000 ; done
       '
     networks:
       - dev
@@ -52,8 +61,8 @@ services:
       - dev
 
   firebase-emulators:
-    container_name: firebase-emulators
     restart: unless-stopped
+    container_name: firebase-emulators
     image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
@@ -93,9 +102,9 @@ services:
     networks:
       dev:
   android-studio:
+    restart: unless-stopped
     container_name: android-studio
     image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio-latest}
-    restart: unless-stopped
     env_file:
       - .env
     environment:
