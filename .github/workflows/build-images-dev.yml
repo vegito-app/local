@@ -1,4 +1,4 @@
-name: Build and Load Local Docker Images
+name: Build and Push Git Commit Tagged Docker Images 
 
 on:
   push:
@@ -16,8 +16,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
-      - name: Define VERSION 
-        run: | 
+      - name: Define VERSION
+        run: |
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
@@ -35,7 +35,7 @@ jobs:
         # uses: docker/setup-buildx-action@v3
         run: |
           make docker-buildx-setup
-          
+
       - name: Build and load local project images
         run: |
-          make images
+          make images-ci
