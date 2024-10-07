@@ -23,15 +23,40 @@ terraform-init: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 .PHONY: terraform-init
 
 terraform-import: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
-	# $(TERRAFORM) import module.infra.module.secrets.google_identity_platform_default_supported_idp_config.google[0] projects/$(PROJECT_ID)/defaultSupportedIdpConfigs/google.com
-	# @$(TERRAFORM) import module.infra.google_identity_platform_config.utrade $(PROJECT_ID)
-	# @$(TERRAFORM) import module.infra.google_secret_manager_secret.firebase_adminsdk_service_account projects/402960374845/secrets/firebase-adminsdk-serviceaccount
-	# @$(TERRAFORM) import module.infra.google_firebase_database_instance.utrade $(PROJECT_ID)/$(REGION)/$(PROJECT_ID)-default-rtdb
-	# @$(TERRAFORM) import module.infra.google_firebase_database_instance.utrade projects/$(PROJECT_ID)/locations/$(REGION)/instances/$(PROJECT_ID)-default-rtdb
-	# @$(TERRAFORM) import google_service_account.firebase_admin projects/$(PROJECT_ID)/firebase-adminsdk-vxdj8@$(PROJECT_ID).iam.gserviceaccount.com
-	# @$(TERRAFORM) import module.infra.google_cloudfunctions_function.utrade_auth_before_sign_in projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform
-	# @$(TERRAFORM) import module.infra.module.secrets.google_secret_manager_secret_version.google_idp_secret_version[0] projects/402960374845/secrets/idp_google_secret_id/versions/1
+	@ #$(TERRAFORM) import module.infra.module.secrets.google_identity_platform_default_supported_idp_config.google[0] projects/$(PROJECT_ID)/defaultSupportedIdpConfigs/google.com
+	@ #$(TERRAFORM) import module.infra.google_identity_platform_config.utrade $(PROJECT_ID)
+	@ #$(TERRAFORM) import module.infra.google_secret_manager_secret.firebase_adminsdk_service_account projects/402960374845/secrets/firebase-adminsdk-serviceaccount
+	@ #$(TERRAFORM) import module.infra.google_firebase_database_instance.utrade $(PROJECT_ID)/$(REGION)/$(PROJECT_ID)-default-rtdb
+	@ #$(TERRAFORM) import module.infra.google_firebase_database_instance.utrade projects/$(PROJECT_ID)/locations/$(REGION)/instances/$(PROJECT_ID)-default-rtdb
+	@ #$(TERRAFORM) import google_service_account.firebase_admin projects/$(PROJECT_ID)/firebase-adminsdk-vxdj8@$(PROJECT_ID).iam.gserviceaccount.com
+	@ #$(TERRAFORM) import module.infra.google_cloudfunctions_function.utrade_auth_before_sign_in projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform
+	@ #$(TERRAFORM) import module.infra.module.secrets.google_secret_manager_secret_version.google_idp_secret_version[0] projects/402960374845/secrets/idp_google_secret_id/versions/1
+	@ #$(TERRAFORM) import module.infra.module.secrets.google_apikeys_key.web_google_maps_api_key[0] projects/402960374845/locations/global/keys/web-google-maps-api-key
+	@ #$(TERRAFORM) import module.infra.module.secrets.google_apikeys_key.google_maps_android_api_key projects/402960374845/locations/global/keys/mobile-google-maps-api-key-android
+	@ #$(TERRAFORM) import module.infra.module.secrets.google_apikeys_key.google_maps_ios_api_key projects/402960374845/locations/global/keys/mobile-google-maps-api-key-ios
 .PHONY: terraform-import
+
+FIREBASE_IOS_CONFIG_PLIST = $(CURDIR)/infra/GoogleService-Info.plist
+
+$(FIREBASE_IOS_CONFIG_PLIST): 
+	@$(MAKE) firebase-ios-config-plist
+
+firebase-ios-config-plist:
+	@echo Creating file "'$(FIREBASE_IOS_CONFIG_PLIST)'"
+	@$(TERRAFORM) output firebase_ios_config_plist | \
+		sed -e '1d' -e '$$d' -e '/^$$/d' > $(FIREBASE_IOS_CONFIG_PLIST)
+.PHONY: firebase-ios-config-plist
+
+FIREBASE_ANDROID_CONFIG_JSON = $(CURDIR)/infra/google-services.json
+
+$(FIREBASE_ANDROID_CONFIG_JSON):
+	@$(MAKE) firebase-android-config-json
+
+firebase-android-config-json:
+	@echo Creating file "'$(FIREBASE_ANDROID_CONFIG_JSON)'"
+	@$(TERRAFORM) output firebase_android_config_json | \
+		sed -e '1d' -e '$$d' -e '/^$$/d' > $(FIREBASE_ANDROID_CONFIG_JSON)
+.PHONY: firebase-android-config-json
 
 terraform-state-rm: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) state rm module.infra.google_firebase_database_instance.utrade
@@ -111,7 +136,7 @@ terraform-upgrade: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 .PHONY: terraform-upgrade
 
 terraform-plan: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
-	@$(TERRAFORM) plan
+	@$(TERRAFORM) plan -out=$(CURDIR)/infra/.planed_terraform
 .PHONY: terraform-plan
 
 terraform-unlock: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
@@ -131,7 +156,7 @@ terraform-refresh: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 .PHONY: terraform-refresh
 
 terraform-apply-auto-approve: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
-	@$(TERRAFORM) apply -auto-approve
+	@$(TERRAFORM) apply -auto-approve $(CURDIR)/infra/.planed_terraform
 .PHONY: terraform-apply-auto-approve
 
 terraform-output: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)

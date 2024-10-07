@@ -22,5 +22,5 @@ images: docker-local-arch-images
 images-ci: docker-multi-arch-images
 .PHONY: images-ci
 
-android-studio: local-docker-compose-android-studio-up
+android-studio: local-android-studio-docker-compose-up
 .PHONY: images images-ci android-studio

@@ -673,8 +673,8 @@ ps -e | grep X
 DISPLAY=host.docker.internal:0 ./studio.sh 
 DISPLAY=host.docker.internal:10 ./studio.sh 
 sudo apt-get install ssvnc
-make local-docker-compose-android-studio-sh 
-make local-docker-compose-android-studio-build-no-pull 
+make local-android-studio-docker-compose-sh 
+make local-android-studio-docker-compose-build-no-pull 
 DISPLAY=:10.0 /opt/android-studio/bin/studio.sh 
 DISPLAY=:0 /opt/android-studio/bin/studio.sh 
 code /opt/android-studio/
@@ -682,7 +682,7 @@ sudo apt-get install xvfb
 Xvfb :10 -ac &
 DISPLAY=:10 /opt/android-studio/bin/studio.sh 
 docker compose up android-studio
-make local-docker-compose-android-studio-up 
+make local-android-studio-docker-compose-up 
 [A[A
 apt-get update && apt-get install -y     x11vnc     xvfb     wget     unzip
 sudo apt-get update && sudo apt-get install -y     x11vnc     xvfb     wget     unzip
@@ -696,19 +696,19 @@ x11vnc --help
 x11vnc --help|more
 x11vnc --help>hh
 x11vnc --version
-make local-docker-compose-android-studio-log
-make local-docker-compose-android-studio-logs 
-make local-docker-compose-android-studio-sh
+make local-android-studio-docker-compose-log
+make local-android-studio-docker-compose-logs 
+make local-android-studio-docker-compose-sh
 x11vnc -h > hh
 nc -z android-studio 5900
 socat TCP-LISTEN:5009,fork,reuseaddr TCP:android-studio:5009&
 socat TCP-LISTEN:5900,fork,reuseaddr TCP:android-studio:5900 &
-make local-docker-compose-android-studio-up
+make local-android-studio-docker-compose-up
 nc localhost 5900
 nc -z localhost 5900
 nc host.docker.internal 5900
 nc -z host.docker.internal 5900
-make local-docker-compose-android-studio
+make local-android-studio-docker-compose
 code _workspace/codelabs/
 flutter --version
 cd firebase-get-to-know-flutter/step_02
@@ -761,9 +761,9 @@ fg
 socat TCP-LISTEN:45483,fork,reuseaddr TCP:android-studio:45483 > /tmp/socat-android-studio-45483.log 2>&1 
 socat TCP-LISTEN:46483,fork,reuseaddr TCP:android-studio:46483 > /tmp/socat-android-studio-46483.log 2>&1 
 flutter upgrade
-make local-docker-compose-android-studio-up &
+make local-android-studio-docker-compose-up &
 make -C .. local-firebase-emulators-docker-compose-up 
-make -C .. local-docker-compose-android-studio-up 
+make -C .. local-android-studio-docker-compose-up 
 . .bash
 . .bashrc 
 local
@@ -828,8 +828,8 @@ killall x11vnc
 display-start.sh 
 x11vnc --display :1
 flutter run -d android
-DISPLAY_RESOLUTION=800x600 make local-docker-compose-android-studio-up 
-DISPLAY_RESOLUTION=1600x1200 make local-docker-compose-android-studio-up 
+DISPLAY_RESOLUTION=800x600 make local-android-studio-docker-compose-up 
+DISPLAY_RESOLUTION=1600x1200 make local-android-studio-docker-compose-up 
 code _workspace/tony/
 cd _workspace/codelabs/boring_to_beautiful/
 make terraform-upgrade 
@@ -864,7 +864,7 @@ git add .
 git show
 git add local/android/studio-entrypoint.sh 
 chmod +x local/android/android-start-docker.sh 
-make local-docker-compose-android-studio-rm
+make local-android-studio-docker-compose-rm
 chmod +x local/android/studio-entrypoint.sh 
 make github-runner
 code /workspaces/refactored-winner/
@@ -968,4 +968,28 @@ make node-modules
 make application-frontend-bundle 
 make application-frontend-build
 make application-backend-docker-compose-up 
-.devcontainer/post-start-cmd.sh 
+.devcontainer/post-start-cmd.sh make local-android-studio-docker-compose-up 
+cd /usr/local/
+cd bin/
+chmod +x local/android/caches-refresh.sh 
+ls .local/share/Google/AndroidStudio2024.1/
+flutter pub get
+flutter pub get .
+flutter pub --help
+make gcloud-apikeys-list 
+code firebase-auth-flutterfire-ui/
+mv local/.env local/_.env 
+git rm -f local/.env 
+mv local/_.env local/.env 
+git commit --amend --no-edit git log
+git reset savmake application-ios-config-plist 
+make firebase-ios-config-plist 
+make application-ios-config-plist 
+make firebase-android-config-json 
+make application-android-config-js
+make application-android-config-json 
+make terraform-output 
+make terraform-state-show-all >all
+gcloud alpha services api-keys list
+gcloud alpha services api-keys  describe projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617
+gcloud alpha services api-keys delete projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617

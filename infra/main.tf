@@ -15,8 +15,6 @@ module "infra" {
   ui_firebase_secret_id   = var.ui_firebase_secret_id
   ui_googlemaps_secret_id = var.ui_googlemaps_secret_id
 
-  GOOGLE_MAPS_API_KEY = var.GOOGLE_MAPS_API_KEY
-
   FIREBASE_API_KEY             = var.FIREBASE_API_KEY
   FIREBASE_AUTH_DOMAIN         = var.FIREBASE_AUTH_DOMAIN
   FIREBASE_DATABASE_URL        = var.FIREBASE_DATABASE_URL

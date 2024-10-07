@@ -1,20 +1,3 @@
-resource "google_secret_manager_secret" "googlemaps_api_key" {
-  secret_id = "${var.project_name}-${var.region}-googlemaps-api-key"
-
-  replication {
-    auto {
-
-    }
-  }
-}
-
-resource "google_secret_manager_secret_version" "googlemaps_api_key_version" {
-  secret = google_secret_manager_secret.googlemaps_api_key.id
-  secret_data = jsonencode({
-    apiKey = var.GOOGLE_MAPS_API_KEY
-  })
-}
-
 resource "google_secret_manager_secret" "firebase_config" {
   secret_id = "${var.project_name}-${var.region}-firebase-config"
 

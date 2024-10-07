@@ -1,7 +1,3 @@
-# Enables Firebase services for the new project created above.
-# This action essentially "creates a Firebase project" and allows the project to use
-# Firebase services (like Firebase Authentication) and
-# Firebase tooling (like the Firebase console).
 # Learn more about the relationship between Firebase projects and Google Cloud: https://firebase.google.com/docs/projects/learn-more?authuser=0&hl=fr#firebase-cloud-relationship.
 resource "google_firebase_project" "utrade" {
   # Use the provider that performs quota checks from now on
@@ -11,7 +7,7 @@ resource "google_firebase_project" "utrade" {
 
   # Waits for the required APIs to be enabled.
   depends_on = [
-    google_project_service.utrade
+    google_project_service.google_services_firebase
   ]
 }
 
@@ -27,6 +23,25 @@ output "firebase_project_project_number" {
 output "firebase_project_display_name" {
   description = "The GCP project display name"
   value       = google_firebase_project.utrade.display_name
+}
+
+# Enables Firebase services for the new project created above.
+# This action essentially "creates a Firebase project" and allows the project to use
+# Firebase services (like Firebase Authentication) and
+# Firebase tooling (like the Firebase console).
+resource "google_project_service" "google_services_firebase" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  for_each = toset([
+    "firebase.googleapis.com",
+    "firebasedatabase.googleapis.com",
+    "firestore.googleapis.com",
+  ])
+  service = each.key
+
+  # Don't disable the service if the resource block is removed by accident.
+  disable_on_destroy         = false
+  disable_dependent_services = true
 }
 
 # Provisions the default Realtime Database default instance.
@@ -67,12 +82,12 @@ output "firebase_database_state" {
 
 # Creates a Firebase Android App in the new project created above.
 # Learn more about the relationship between Firebase Apps and Firebase projects.
-resource "google_firebase_android_app" "utrade" {
+resource "google_firebase_android_app" "android_app" {
   provider = google-beta
 
   project      = var.project_id
   display_name = "Utrade Android app" # learn more about an app's display name
-  package_name = "android.app.utrade" # learn more about an app's package name
+  package_name = "mobile.app.android" # learn more about an app's package name
 
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
@@ -80,17 +95,39 @@ resource "google_firebase_android_app" "utrade" {
   ]
 }
 
+# Récupérer la configuration client Firebase pour iOS
+data "google_firebase_android_app_config" "android_config" {
+  provider = google-beta
+  app_id   = google_firebase_android_app.android_app.app_id
+}
+
+data "google_firebase_android_app" "android_sha" {
+  provider = google-beta
+  app_id   = google_firebase_android_app.android_app.app_id
+}
+
+output "android_sha1" {
+  value       = data.google_firebase_android_app.android_sha.sha1_hashes
+  description = "Empreinte SHA-1 de l'application Android"
+}
+
 # Creates a Firebase Apple-platforms App in the new project created above.
-resource "google_firebase_apple_app" "utrade" {
+resource "google_firebase_apple_app" "ios_app" {
   provider     = google-beta
   project      = var.project_id
   display_name = "Utrade Apple app"
-  bundle_id    = "apple.app.utrade"
+  bundle_id    = "mobile.app.apple"
 
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
     google_firebase_project.utrade,
   ]
+}
+
+# Récupérer la configuration client Firebase pour iOS
+data "google_firebase_apple_app_config" "ios_config" {
+  provider = google-beta
+  app_id   = google_firebase_apple_app.ios_app.app_id
 }
 
 # Creates a Firebase Web App in the new project created above.

@@ -38,13 +38,13 @@ BACKEND_CONTAINER_NAME = $(PROJECT_NAME)_backend
 BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
 
 application-backend-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print backend-local
-	@$(DOCKER_BUILDX_BAKE) --load backend-local
+	@$(DOCKER_BUILDX_BAKE) --print backend
+	@$(DOCKER_BUILDX_BAKE) --load backend
 .PHONY: application-backend-image
 
 application-backend-image-push: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) --push backend
+	@$(DOCKER_BUILDX_BAKE) --print backend-ci
+	@$(DOCKER_BUILDX_BAKE) --push backend-ci
 .PHONY: application-backend-image-push
 
 application-backend-docker-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)

@@ -37,7 +37,10 @@ services:
 
       # Start Firebase emulators with port forwarded 
       # to the local devcontainer
-      make local-firebase-emulators-docker-compose-up
+      make -j \
+       local-firebase-emulators-docker-compose-up \
+       local-android-studio-docker-compose-up \
+       application-backend-image
 
       # Start service Backend with port forwarded 
       # to the local devcontainer
@@ -49,8 +52,16 @@ services:
       - dev
 
   backend:
-    image: ${BACKEND_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:backend-latest}
     restart: unless-stopped
+    image: ${BACKEND_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest}
+    build:
+      context: ..
+      dockerfile: application/backend/Dockerfile
+      args:
+        builder_image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
+
+    env_file:
+      - .env
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
       UI_CONFIG_GOOGLE_MAPS_API_KEY: ${UTRADE_GOOGLE_MAPS_API_KEY}

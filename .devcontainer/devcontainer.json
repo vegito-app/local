@@ -8,7 +8,7 @@
   "runServices": [
     "dev"
   ],
-  // "initializeCommand": "make builder-image docker-compose-firebase-emulators-build-no-pull-local",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
   "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {
@@ -144,7 +144,6 @@
         "ms-azuretools.vscode-docker",
         "msjsdiag.vscode-react-native",
         "pjmiravalle.terraform-advanced-syntax-highlighting",
-        "pjmiravalle.terraform-advanced-syntax-highlighting",
         "pkief.material-icon-theme",
         "redhat.vscode-yaml",
         "standard.vscode-standard",
@@ -157,7 +156,9 @@
         "circlecodesolution.ccs-flutter-color",
         "gornivv.vscode-flutter-files",
         "MarufHassan.flutter-snippets",
-        "shd101wyy.markdown-preview-enhanced"
+        "shd101wyy.markdown-preview-enhanced",
+        "github.vscode-github-actions",
+        "me-dutour-mathieu.vscode-github-actions"
       ]
     }
   }

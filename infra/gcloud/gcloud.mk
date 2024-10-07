@@ -1,4 +1,4 @@
-GOOGLE_CLOUD_APPLICATION_CREDENTIALS ?= $(PWD)/infra/gcloud-credentials
+GOOGLE_CLOUD_APPLICATION_CREDENTIALS ?= $(CURDIR)/infra/gcloud-credentials
 
 google-application-credentials:
 	@bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
@@ -106,6 +106,10 @@ gcloud-storage-admins: $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin)
 gcloud-infra-auth-npm-install:
 	@cd infra/gcloud/auth && npm install
 .PHONY: gcloud-infra-auth-npm-install
+
+gcloud-apikeys-list:
+	@gcloud alpha services api-keys list
+.PHONY: gcloud-apikeys-list
 
 # Use this target to configure the Docker pluggin of Vscode if credential-helper cannot help.
 gcloud-docker-registry-temporary-token:

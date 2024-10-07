@@ -45,9 +45,6 @@ variable "firebase_adminsdk_credentials" {
   description = "Firebase Admin SDK credentials"
   type        = string
 }
-variable "GOOGLE_MAPS_API_KEY" {
-  description = "GoogleMaps API Key"
-}
 
 variable "GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET" {
   description = "google.com IDP oauth secret for web application"

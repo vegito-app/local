@@ -40,8 +40,6 @@ variable "create_secret" {
   default     = false
 }
 
-# Googlemaps API key
-variable "GOOGLE_MAPS_API_KEY" {}
 # Firebase options
 variable "FIREBASE_API_KEY" {}
 variable "FIREBASE_AUTH_DOMAIN" {}

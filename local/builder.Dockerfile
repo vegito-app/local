@@ -151,6 +151,8 @@ RUN curl -o /tmp/android-studio.tar.gz -L ${STUDIO_URL} && \
     mv /tmp/android-studio ${STUDIO_PATH} && \
     rm /tmp/android-studio.tar.gz
 
+COPY local/android/caches-refresh.sh /usr/local/bin/local-android-caches-refresh.sh
+
 # Flutter 
 ENV FLUTTER_VERSION=3.24.3
 RUN curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \

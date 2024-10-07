@@ -15,8 +15,6 @@ variable "region" {
   description = "GCP used region"
   type        = string
 }
-# Googlemaps API key
-variable "GOOGLE_MAPS_API_KEY" {}
 # Firebase options
 variable "FIREBASE_API_KEY" {}
 variable "FIREBASE_AUTH_DOMAIN" {}
@@ -32,5 +30,21 @@ variable "ui_firebase_secret_id" {
 }
 variable "ui_googlemaps_secret_id" {
   description = "GoogleMaps - UI API Key - secret ID"
+  type        = string
+}
+variable "web_backend_server_url" {
+  description = "Web Backend Server"
+  type        = string
+}
+variable "google_firebase_apple_ios_app_bundle_id" {
+  description = "Firebase application iOS BundleID Backend Server"
+  type        = string
+}
+variable "google_firebase_android_app_sha1_fingerprint" {
+  description = "Firebase application Android SHA1 fingerprint"
+  type        = string
+}
+variable "google_firebase_android_app_package_name" {
+  description = "Firebase application Android package name"
   type        = string
 }
