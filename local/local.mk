@@ -1,7 +1,7 @@
 
 LOCAL_DOCKER_COMPOSE = docker compose -f $(CURDIR)/local/docker-compose.yml
 
-local-install: frontend-build frontend-bundle backend-install 
+local-install: application-frontend-build application-frontend-bundle backend-install 
 .PHONY: local-install
 
 local-run: $(BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)

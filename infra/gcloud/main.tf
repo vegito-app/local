@@ -2,34 +2,14 @@
 module "cdn" {
   source = "./cdn"
 
-  project_name = var.project_name
-  region       = var.region
+  project_id = var.project_id
+  region     = var.region
 }
 
 module "secrets" {
-  source       = "./secrets"
-  project_id   = var.project_id
-  project_name = var.project_name
-  region       = var.region
-
-  ui_firebase_secret_id   = var.ui_firebase_secret_id
-  ui_googlemaps_secret_id = var.ui_googlemaps_secret_id
-
-  google_firebase_apple_ios_app_bundle_id      = google_firebase_apple_app.ios_app.bundle_id
-  google_firebase_android_app_sha1_fingerprint = one(data.google_firebase_android_app.android_sha.sha1_hashes)
-  google_firebase_android_app_package_name     = google_firebase_android_app.android_app.package_name
-  web_backend_server_url                       = one(google_cloud_run_service.utrade.status).url
+  source = "./secrets"
 
   GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET = var.GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
-
-  FIREBASE_API_KEY             = var.FIREBASE_API_KEY
-  FIREBASE_AUTH_DOMAIN         = var.FIREBASE_AUTH_DOMAIN
-  FIREBASE_DATABASE_URL        = var.FIREBASE_DATABASE_URL
-  FIREBASE_PROJECT_ID          = var.FIREBASE_PROJECT_ID
-  FIREBASE_STORAGE_BUCKET      = var.FIREBASE_STORAGE_BUCKET
-  FIREBASE_MESSAGING_SENDER_ID = var.FIREBASE_MESSAGING_SENDER_ID
-  FIREBASE_APP_ID              = var.FIREBASE_APP_ID
-
 
   create_secret = var.create_secret
 }
@@ -97,7 +77,7 @@ output "github_actions_private_key" {
 
 
 resource "google_storage_bucket" "bucket_gcf_source" {
-  name                        = "${var.project_name}-${var.region}-gcf-source" # Every bucket name must be globally unique
+  name                        = "${var.project_id}-${var.region}-gcf-source" # Every bucket name must be globally unique
   location                    = "US"
   uniform_bucket_level_access = true
 }

@@ -1,5 +1,5 @@
 resource "google_storage_bucket" "public_images" {
-  name     = "${var.project_name}-${var.region}-public-images-web" # Every bucket name must be globally unique
+  name     = "${var.project_id}-${var.region}-public-images-web" # Every bucket name must be globally unique
   location = "US"
 }
 
@@ -25,13 +25,13 @@ resource "google_storage_bucket_iam_binding" "web_public_image" {
 }
 
 resource "google_compute_backend_bucket" "public_cdn" {
-  name        = "${var.project_name}-${var.region}-public-cdn" # Every bucket name must be globally unique
+  name        = "${var.project_id}-${var.region}-public-cdn" # Every bucket name must be globally unique
   bucket_name = google_storage_bucket.public_images.name
   enable_cdn  = true
 }
 
 resource "google_compute_url_map" "url_map" {
-  name            = "${var.project_name}-${var.region}-public-cdn-url-map"
+  name            = "${var.project_id}-${var.region}-public-cdn-url-map"
   description     = "a description"
   default_service = google_compute_backend_bucket.public_cdn.self_link
 
@@ -47,7 +47,7 @@ resource "google_compute_url_map" "url_map" {
 }
 
 resource "google_compute_target_http_proxy" "public_cdn" {
-  name    = "${var.project_name}-${var.region}-public-cdn-http-proxy"
+  name    = "${var.project_id}-${var.region}-public-cdn-http-proxy"
   url_map = google_compute_url_map.url_map.self_link
 }
 
@@ -57,7 +57,7 @@ resource "google_compute_global_address" "public_cdn" {
 }
 
 resource "google_compute_global_forwarding_rule" "public_cdn" {
-  name       = "${var.project_name}-${var.region}-public-cdn-forwarding-rule"
+  name       = "${var.project_id}-${var.region}-public-cdn-forwarding-rule"
   target     = google_compute_target_http_proxy.public_cdn.self_link
   ip_address = google_compute_global_address.public_cdn.address
   port_range = "80"

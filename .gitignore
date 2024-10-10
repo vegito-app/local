@@ -57,6 +57,6 @@ node_modules/
 .dataconnect
 
 vscode.code-workspace
-
+.vscode
 google-services.json
 GoogleService-Info.plist

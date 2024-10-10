@@ -19,6 +19,9 @@ import (
 var config = viper.New()
 
 const adminSDKserviceAccountIDConfig = "adminsdk_serviceaccount_id"
+
+const projectIDconfig = "project_id"
+
 const authEmulatorHostConfig = "auth_emulator_host"
 const databaseEmulatorHostConfig = "database_emulator_host"
 
@@ -31,15 +34,19 @@ type App struct {
 	*firebase.App
 }
 
-func NewApp(ctx context.Context) (a *App, err error) {
+func NewApp(ctx context.Context) (*App, error) {
 
 	var opts []option.ClientOption
 
 	authEmulatorHost := config.GetString(authEmulatorHostConfig)
 	databaseEmulatorHost := config.GetString(databaseEmulatorHostConfig)
 
+	projectID := config.GetString(projectIDconfig)
+	firebasseConfig := &firebase.Config{
+		ProjectID: projectID,
+	}
 	if databaseEmulatorHost != "" || authEmulatorHost != "" {
-		app, err := firebase.NewApp(ctx, nil, opts...)
+		app, err := firebase.NewApp(ctx, firebasseConfig, opts...)
 		if err != nil {
 			return nil, fmt.Errorf("firebase new app: %w", err)
 		}
@@ -53,7 +60,7 @@ func NewApp(ctx context.Context) (a *App, err error) {
 		return nil, err
 	}
 	defer func() {
-		err = client.Close()
+		err := client.Close()
 		if err != nil {
 			log.Error().Err(err).Msg("close firebase secretmanager client")
 		}
@@ -71,10 +78,10 @@ func NewApp(ctx context.Context) (a *App, err error) {
 		if err != nil {
 			return nil, err
 		}
+
 		opts = append(opts, option.WithCredentialsJSON(jsonCredentials))
 	}
-
-	app, err := firebase.NewApp(ctx, nil, opts...)
+	app, err := firebase.NewApp(ctx, firebasseConfig, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("firebase new app: %w", err)
 	}

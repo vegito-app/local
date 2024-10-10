@@ -506,7 +506,7 @@ lc -a
 du -sh ../*
 du -sh CachedProfilesData/__default__profile__/*
 cd ../..
-echo $GOOGLE_CLOUD_PROJECT 
+echo $PROJECT_NAME 
 echo $GOOGLE_MAPS_API_KE
 make backend-install backend-run 
 git rm .vscode/launch.json 
@@ -615,7 +615,7 @@ env|grep -i front
 env|grep -i google
 GOOGLE_CLOUD_CREDENTIALS=`pwd`/gcloud/google-cloud-credentials make backend-run 
 echo $GOOGLE_CLOUD_PROJECT_ID
-export GOOGLE_CLOUD_PROJECT_ID=$GOOGLE_CLOUD_PROJECT 
+export GOOGLE_CLOUD_PROJECT_ID=$PROJECT_NAME 
 echo $UI_CONFIG_FIREBASE_CONFIG 
 echo $UI_CONFIG_GOOGLE_MAPS_API_KEY 
 exho grep -i proj
@@ -992,4 +992,42 @@ make terraform-output
 make terraform-state-show-all >all
 gcloud alpha services api-keys list
 gcloud alpha services api-keys  describe projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617
-gcloud alpha services api-keys delete projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617
+gcloud alpha services api-keys delete projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617gcloud secrets list 
+gcloud secrets  describe utrade-us-central1-googlemaps-api-key
+make application-backend-run 
+make application-backend-docker-compose-rm 
+make terraform-plan terraform-apply-auto-approve 
+gcloud alpha services api-keys describe projects/402960374845/locations/global/keys/web-google-maps-api-key
+gcloud alpha services api-keys undelete projects/402960374845/locations/global/keys/web-google-maps-api-key
+make terraform-taint-backend 
+make application-backend-image
+make application-backend-docker-compose-rm
+make application-backend-docker-compose-up
+docker pull us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade@sha256:3d711bf7f281e1a21c2bc210c356c5505012381e2fe31766e25f761435c4ea70
+docker pull c3db6e7e8dd7
+docker image info c3db6e7e8dd7
+docker image inspect c3db6e7e8dd7
+docker image inspect us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest
+docker pull us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest
+docker pull us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-v0.0.4-1-gd48918d
+git pull us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade@sha256:3d711bf7f281e1a21c2bc210c356c5505012381e2fe31766e25f761435c4ea70
+docker images|gred 526
+docker images|grep 526
+git describe --tags --abbrev=7 --match "v*"
+update-ca-certificates 
+sudo update-ca-certificates 
+make application-backend-image terraform-taint-backend terraform-plan terraform-apply-auto-approve 
+make application-backend-docker-compose
+ap
+PORT=8899 make local-run make docker-login 
+gcloud secrets versions describe projects/402960374845/secrets/utrade-us-central1-firebase-config/versions/1
+gcloud secrets versions access projects/402960374845/secrets/utrade-us-central1-firebase-config/versions/1
+gcloud secrets versions access projects/402960374845/secrets/firebase-adminsdk-service-account-key/versions/1
+gcloud secrets versions access projects/402960374845/secrets/utrade-us-central1-googlemaps-api-key/versions/1
+gcloud alpha services api-keys lookup projects/402960374845/locations/global/keys/web-google-maps-api-key
+make docker-lo
+git log 
+env|grep -i cred
+echo $GOOGLE_CLOUD_CREDENTIALS 
+echo 
+code infra/

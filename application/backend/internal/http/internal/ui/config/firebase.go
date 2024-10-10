@@ -10,14 +10,14 @@ import (
 
 func Firebase(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	firebaseConfig := config.GetString(firebaseConfig)
-	if firebaseConfig != "" {
-		_, err := w.Write([]byte(firebaseConfig))
-		if err != nil {
-			log.Error().Err(err).Msg("write googlemaps local secrets response")
-		}
-		return
-	}
+	// firebaseConfig := config.GetString(firebaseConfig)
+	// if firebaseConfig == "" {
+	// 	_, err := w.Write([]byte(firebaseConfig))
+	// 	if err != nil {
+	// 		log.Error().Err(err).Msg("write googlemaps local secrets response")
+	// 	}
+	// 	return
+	// }
 	client, err := secretmanager.NewClient(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("new firebase config secretmanager client")

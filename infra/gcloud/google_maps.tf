@@ -1,7 +1,5 @@
-
 resource "google_secret_manager_secret" "web_google_maps_api_key" {
-  count     = var.create_secret ? 1 : 0
-  secret_id = "${var.project_name}-${var.region}-googlemaps-api-key"
+  secret_id = "${var.project_id}-${var.region}-googlemaps-api-key"
 
   replication {
     auto {
@@ -10,37 +8,50 @@ resource "google_secret_manager_secret" "web_google_maps_api_key" {
   }
 }
 
+locals {
+  allowed_referrers = [
+    "localhost",
+    "${var.project_id}.firebaseapp.com",
+    "${var.project_id}.web.app",
+    "${var.project_id}-application-backend-${var.region}-g6w6iwoyua-uc.a.run.app"
+    # trimprefix(one(google_cloud_run_service.application_backend.status[*].url), "https://")
+  ]
+}
+
 # Créer la clé API Google Maps pour le web
 resource "google_apikeys_key" "web_google_maps_api_key" {
-  count        = var.create_secret ? 1 : 0
   name         = "web-google-maps-api-key"
   display_name = "Web Maps API Key"
   restrictions {
     # Limiter l'usage de cette clé API aux requêtes provenant du domaine Cloud Run
     browser_key_restrictions {
-      allowed_referrers = [
-        "${var.web_backend_server_url}/*", # Domaine public de Cloud Run
-      ]
+      allowed_referrers = local.allowed_referrers
     }
 
     # Restreindre aux API Google Maps spécifiques
     api_targets {
-      service = "maps.googleapis.com" # API Google Maps JavaScript
+      service = "maps-backend.googleapis.com"
     }
   }
 }
 
 resource "google_secret_manager_secret_version" "web_google_maps_api_key_version" {
-  count  = var.create_secret ? 1 : 0
-  secret = google_secret_manager_secret.web_google_maps_api_key[count.index].id
+  secret = google_secret_manager_secret.web_google_maps_api_key.id
   secret_data = jsonencode({
-    apiKey = google_apikeys_key.web_google_maps_api_key[count.index].key_string
+    apiKey = google_apikeys_key.web_google_maps_api_key.key_string
   })
 }
 
 output "google_maps_api_key_web" {
-  value       = length(google_secret_manager_secret_version.web_google_maps_api_key_version) > 0 ? google_secret_manager_secret_version.web_google_maps_api_key_version[0].secret : null
+  value       = google_secret_manager_secret_version.web_google_maps_api_key_version.secret
   description = "Web Google Maps API key usable on Cloud Run backend service domain"
+}
+
+resource "google_secret_manager_secret_iam_member" "application_backend_web_google_maps_api_key" {
+  secret_id = google_secret_manager_secret.web_google_maps_api_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+
+  member = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
 }
 
 # Clé API pour Android
@@ -69,7 +80,7 @@ resource "google_apikeys_key" "google_maps_ios_api_key" {
   restrictions {
     ios_key_restrictions {
       allowed_bundle_ids = [
-        var.google_firebase_apple_ios_app_bundle_id
+        google_firebase_apple_app.ios_app.bundle_id
       ]
     }
     api_targets {

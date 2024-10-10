@@ -1,5 +1,5 @@
-variable "project_name" {
-  description = "Name of the GCP project"
+variable "project_id" {
+  description = "ID of the GCP project"
   type        = string
 }
 variable "region" {

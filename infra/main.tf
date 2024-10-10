@@ -5,23 +5,14 @@ output "project" {
 module "infra" {
   source = "./gcloud"
 
-  application_image       = var.application_image
-  billing_account         = var.billing_account
-  project_id              = var.project_id
-  project_name            = var.project_name
-  region                  = var.region
-  repository_id           = var.repository_id
-  public_repository_id    = var.public_repository_id
-  ui_firebase_secret_id   = var.ui_firebase_secret_id
-  ui_googlemaps_secret_id = var.ui_googlemaps_secret_id
-
-  FIREBASE_API_KEY             = var.FIREBASE_API_KEY
-  FIREBASE_AUTH_DOMAIN         = var.FIREBASE_AUTH_DOMAIN
-  FIREBASE_DATABASE_URL        = var.FIREBASE_DATABASE_URL
-  FIREBASE_PROJECT_ID          = var.FIREBASE_PROJECT_ID
-  FIREBASE_STORAGE_BUCKET      = var.FIREBASE_STORAGE_BUCKET
-  FIREBASE_MESSAGING_SENDER_ID = var.FIREBASE_MESSAGING_SENDER_ID
-  FIREBASE_APP_ID              = var.FIREBASE_APP_ID
+  application_backend_image = var.application_backend_image
+  billing_account           = var.billing_account
+  project_id                = var.project_id
+  region                    = var.region
+  repository_id             = var.repository_id
+  public_repository_id      = var.public_repository_id
+  ui_firebase_secret_id     = var.ui_firebase_secret_id
+  ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
 
   GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET = var.GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
   create_secret                            = var.create_secret
@@ -46,6 +37,23 @@ resource "google_project" "utrade" {
 resource "google_storage_bucket" "bucket_tf_state" {
 
   name     = "${var.project_name}-${var.region}-tf-state-prod"
+  location = var.region
+
+  storage_class = "STANDARD"
+
+  force_destroy = false # Do not remove bucket if remaining tf_state
+
+  uniform_bucket_level_access = true # Needed to use with tf tf_lock
+
+  versioning {
+    enabled = true
+  }
+}
+
+
+resource "google_storage_bucket" "bucket_tf_state_eu" {
+
+  name     = "${var.project_name}-europe-west1-tf-state"
   location = var.region
 
   storage_class = "STANDARD"

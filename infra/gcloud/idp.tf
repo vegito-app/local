@@ -66,16 +66,11 @@ resource "google_identity_platform_config" "utrade" {
   }
 
   # Configures authorized domains.
-  authorized_domains = [
-    "localhost",
-    "${var.project_id}.firebaseapp.com",
-    "${var.project_id}.web.app",
-    trimprefix(one(google_cloud_run_service.utrade.status[*].url), "https://")
-  ]
+  authorized_domains = local.allowed_referrers
 
   # Wait for identitytoolkit.googleapis.com to be enabled before initializing Authentication.
   depends_on = [
-    google_cloud_run_service.utrade,
+    # google_cloud_run_service.utrade,
     google_project_service.google_services_default,
   ]
 }
@@ -87,24 +82,24 @@ data "archive_file" "utrade_auth_func_src" {
 }
 
 resource "google_storage_bucket_object" "utrade_auth" {
-  name   = "${var.project_name}-${var.region}-${var.application_image}-identity-platform-auth-function-source.zip"
+  name   = "${var.project_id}-${var.region}-${var.application_backend_image}-identity-platform-auth-function-source.zip"
   bucket = google_storage_bucket.bucket_gcf_source.name
   source = data.archive_file.utrade_auth_func_src.output_path # Add path to the zipped function source code
 }
 
 resource "google_cloudfunctions_function" "utrade_auth_before_sign_in" {
-  name                  = "${var.project_name}-${var.region}-identity-platform-before-signin"
+  name                  = "${var.project_id}-${var.region}-identity-platform-before-signin"
   description           = "OIDC callback before sign in"
   project               = google_firebase_project.utrade.project
   runtime               = "go122"
   entry_point           = "IDPbeforeSignIn" # Set the entry point
   source_archive_bucket = google_storage_bucket.bucket_gcf_source.name
   source_archive_object = google_storage_bucket_object.utrade_auth.name
-  service_account_email = google_service_account.firebase_admin.email
+  service_account_email = google_service_account.firebase_admin_service_account.email
   trigger_http          = true
 
   environment_variables = {
-    FIREBASE_ADMINSDK_SERVICEACCOUNT_ID = google_service_account.firebase_admin.id
+    FIREBASE_ADMINSDK_SERVICEACCOUNT_ID = google_service_account.firebase_admin_service_account.id
   }
 }
 
@@ -113,7 +108,7 @@ output "auth_func_utrade_before_sign_in_id" {
 }
 
 resource "google_cloudfunctions_function" "utrade_auth_before_create" {
-  name        = "${var.project_name}-${var.region}-identity-platform-before-create"
+  name        = "${var.project_id}-${var.region}-identity-platform-before-create"
   description = "OIDC callback create user"
   # project               = google_firebase_project.utrade.id
   runtime     = "nodejs22"     // Change the runtime to Node.js
@@ -129,7 +124,7 @@ resource "google_cloudfunctions_function" "utrade_auth_before_create" {
 
   environment_variables = {
     GCLOUD_PROJECT  = var.project_id
-    FIREBASE_CONFIG = base64decode(google_secret_manager_secret_version.firebase_admin_v1.secret_data)
+    FIREBASE_CONFIG = base64decode(google_secret_manager_secret_version.firebase_admin_secret_version.secret_data)
   }
 }
 

@@ -1,10 +1,11 @@
-PROJECT_NAME=utrade
-PROJECT_ID = utrade-taxi-run-0
-GIT_HEAD = $(shell git rev-parse --short HEAD)
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*")
+
 VERSION ?= $(GIT_HEAD_VERSION)
 
-GOOGLE_CLOUD_PROJECT = $(PROJECT_ID)
+PROJECT_NAME ?= utrade
+
+GOOGLE_CLOUD_PROJECT_ID = utrade-taxi-run-0
+
 REGION ?= us-central1
 
 export 

@@ -4,13 +4,16 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-# 
+# Create default local .env file with minimum required values to start.
 localDotenvFile=${PWD}/local/.env
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 COMPOSE_PROJECT_NAME=utrade
 BUILDER_IMAGE=us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest
-ANDROID_STUDIO_IMAGE=us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio-latest
-UTRADE_GOOGLE_CLOUD_PROJECT_ID=utrade-taxi-run-0
+GOOGLE_CLOUD_PROJECT_ID=utrade-taxi-run-0
+FIREBASE_PROJECT_ID=utrade-taxi-run-0
+UI_CONFIG_FIREBASE_SECRET_ID=projects/402960374845/secrets/utrade-taxi-run-0-us-central1-firebase-config/versions/1
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/402960374845/secrets/utrade-taxi-run-0-us-central1-googlemaps-api-key/versions/1
+FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/402960374845/secrets/firebase-adminsdk-service-account-key/versions/
 EOF
 
 # Vscode
@@ -76,11 +79,12 @@ cat <<'EOF' > $backendLaunchDebug
             "mode": "auto",
             "program": "${workspaceFolder}",
             "env": {
-                "GOOGLE_CLOUD_PROJECT": "utrade-taxi-run-0",
+                "PORT": "8888",
                 "FRONTEND_BUILD_DIR": "../frontend/build",
                 "FRONTEND_PUBLIC_DIR": "../frontend/public",
                 "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
-            }
+            },
+            "envFile": "${workspaceFolder}/../../local/.env",
         }
     ]
 }

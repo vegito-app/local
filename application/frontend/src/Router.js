@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import MarkdownDisplay from "./MarkdownDisplay"; // Ajustez le chemin en fonction de l'emplacement de votre fichier
 
 export default function App() {
   return (
@@ -6,16 +7,30 @@ export default function App() {
       <div>
         <nav>
           <ul>
-            <li><Link to="/">Accueil</Link></li>
-            <li><Link to="/about">À propos</Link></li>
-            <li><Link to="/users">Utilisateurs</Link></li>
+            <li>
+              <Link to="/">Accueil</Link>
+            </li>
+            <li>
+              <Link to="/about">À propos</Link>
+            </li>
+            <li>
+              <Link to="/users">Utilisateurs</Link>
+            </li>
           </ul>
         </nav>
-
         <Switch>
-          <Route path="/about"><About /></Route>
-          <Route path="/users"><Users /></Route>
-          <Route path="/"><Home /></Route>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/users">
+            <Users />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+          <Route path="/blog">
+            <MarkdownDisplay />{" "}
+          </Route>
         </Switch>
       </div>
     </Router>

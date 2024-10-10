@@ -9,12 +9,12 @@ $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS):
 
 gcloud-auth-login:
 	@gcloud auth login
-	@gcloud config set project $(PROJECT_ID)
+	@gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-login
 
 gcloud-auth-default-application-credentials:
 	@gcloud auth application-default login
-	@gcloud config set project $(PROJECT_ID)
+	@gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-default-application-credentials
 
 gcloud-auth-docker:
@@ -77,26 +77,26 @@ FIREBASE_ADMINSDK_SERVICEACCOUNT = \
   firebase-adminsdk-vxdj8@utrade-taxi-run-0.iam.gserviceaccount.com
 
 gcloud-firebase-adminsdk-serviceaccount-roles-list:
-	@gcloud projects get-iam-policy $(PROJECT_ID) \
+	@gcloud projects get-iam-policy $(GOOGLE_CLOUD_PROJECT_ID) \
 	  --flatten="bindings[].members" \
 	  --format='table(bindings.role)' \
 	  --filter="bindings.members:$(FIREBASE_ADMINSDK_SERVICEACCOUNT)"
 .PHONY: gcloud-firebase-adminsdk-serviceaccount-roles-list
 
 $(GOOGLE_SERVICES_API:%=gcloud-services-enable-%-api):
-	@gcloud services enable $(@:gcloud-services-enable-%-api=%).googleapis.com --project=$(PROJECT_ID)
+	@gcloud services enable $(@:gcloud-services-enable-%-api=%).googleapis.com --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: $(GOOGLE_SERVICES_API:%=gcloud-services-enable-%-api)
 
 $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api):
-	@gcloud services disable $(@:gcloud-services-disable-%-api=%).googleapis.com --project=$(PROJECT_ID)
+	@gcloud services disable $(@:gcloud-services-disable-%-api=%).googleapis.com --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api)
 
 ADMIN_DEVELOPPER_MEMBERS := \
   admin-developper-utrade
 
 $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin):
-	@gcloud projects add-iam-policy-binding $(PROJECT_ID) \
-	  --member serviceAccount:$(@:gcloud-%-storage-admin=%)@$(PROJECT_ID).iam.gserviceaccount.com \
+	@gcloud projects add-iam-policy-binding $(GOOGLE_CLOUD_PROJECT_ID) \
+	  --member serviceAccount:$(@:gcloud-%-storage-admin=%)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
 	  --role roles/storage.admin
 .PHONY: $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin)
 

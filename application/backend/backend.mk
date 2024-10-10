@@ -43,27 +43,23 @@ application-backend-image: docker-buildx-setup
 .PHONY: application-backend-image
 
 application-backend-image-push: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print backend-ci
-	@$(DOCKER_BUILDX_BAKE) --push backend-ci
+	@$(DOCKER_BUILDX_BAKE) --print backend
+	@$(DOCKER_BUILDX_BAKE) --load --push backend
 .PHONY: application-backend-image-push
 
-application-backend-docker-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
+application-backend-image-push-ci: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print backend-ci
+	@$(DOCKER_BUILDX_BAKE) --push backend-ci
+.PHONY: application-backend-image-push-ci
+
+application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
 	@docker run \
 	  -p 8080:8080 \
 	  --name $(BACKEND_CONTAINER_NAME) \
 	  -v $(GOOGLE_APPLICATION_CREDENTIALS):$(GOOGLE_APPLICATION_CREDENTIALS) \
 	  -e GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
 	  $(BACKEND_IMAGE)
-.PHONY: application-backend-docker-run
-
-application-backend-docker-rm:
-	@-docker stop -t 30 $(BACKEND_CONTAINER_NAME)  #2>/dev/null
-	@-docker rm -f $(BACKEND_CONTAINER_NAME) # 2>/dev/null
-.PHONY: application-backend-docker-rm
-
-
-application-backend-docker-compose: local-backend-prepare application-backend-docker-compose-up application-backend-docker-compose-logs
-.PHONY: application-backend-docker-compose
+.PHONY: application-backend-docker-compose-run
 
 application-backend-docker-compose-up: application-backend-docker-compose-rm
 	@$(CURDIR)/application/backend/docker-start.sh &
@@ -82,7 +78,7 @@ application-backend-docker-compose-stop:
 .PHONY: application-backend-docker-compose-stop
 
 application-backend-docker-compose-rm: application-backend-docker-compose-stop
-	@$(LOCAL_DOCKER_COMPOSE) rm -f backend
+	@$(LOCAL_DOCKER_COMPOSE) rm -f -s backend
 .PHONY: application-backend-docker-compose-rm
 
 application-backend-docker-compose-logs:

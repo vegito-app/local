@@ -4,7 +4,7 @@ FRONTEND_BUILD_DIR = $(CURDIR)/application/frontend/build
 
 application-frontend-build: application/frontend/node_modules
 	@cd $(CURDIR)/application/frontend && npm run build
-.PHONY: frontend-build
+.PHONY: application-frontend-build
 
 $(FRONTEND_BUILD_DIR): application-frontend-build
 

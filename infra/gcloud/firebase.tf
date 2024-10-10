@@ -98,11 +98,13 @@ resource "google_firebase_android_app" "android_app" {
 # Récupérer la configuration client Firebase pour iOS
 data "google_firebase_android_app_config" "android_config" {
   provider = google-beta
+  project  = var.project_id
   app_id   = google_firebase_android_app.android_app.app_id
 }
 
 data "google_firebase_android_app" "android_sha" {
   provider = google-beta
+  project  = var.project_id
   app_id   = google_firebase_android_app.android_app.app_id
 }
 
@@ -127,11 +129,12 @@ resource "google_firebase_apple_app" "ios_app" {
 # Récupérer la configuration client Firebase pour iOS
 data "google_firebase_apple_app_config" "ios_config" {
   provider = google-beta
+  project  = var.project_id
   app_id   = google_firebase_apple_app.ios_app.app_id
 }
 
 # Creates a Firebase Web App in the new project created above.
-resource "google_firebase_web_app" "utrade" {
+resource "google_firebase_web_app" "web_app" {
   provider     = google-beta
   project      = var.project_id
   display_name = "Utrade Web app"
@@ -146,28 +149,31 @@ resource "google_firebase_web_app" "utrade" {
   ]
 }
 
-resource "google_service_account" "firebase_admin" {
-  # count        = var.create_secret ? 1 : 0
+data "google_firebase_web_app_config" "web_app_config" {
+  provider   = google-beta
+  project    = var.project_id
+  web_app_id = google_firebase_web_app.web_app.app_id
+}
+
+resource "google_service_account" "firebase_admin_service_account" {
   account_id   = "firebase-adminsdk-vxdj8"
   display_name = "Firebase Admin SDK Service Account"
   description  = "Ce compte de service est utilisé par Firebase Admin SDK pour interagir avec Firebase"
 }
 
 resource "google_project_iam_member" "firebase_admin_service_agent" {
-  # count   = var.create_secret ? 1 : 0
   project = var.project_id
   role    = "roles/firebase.sdkAdminServiceAgent"
-  member  = "serviceAccount:${google_service_account.firebase_admin.email}"
+  member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
 }
 
 resource "google_project_iam_member" "firebase_token_creator" {
-  # count   = var.create_secret ? 1 : 0
   project = var.project_id
   role    = "roles/iam.serviceAccountTokenCreator"
-  member  = "serviceAccount:${google_service_account.firebase_admin.email}"
+  member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
 }
 
-resource "google_secret_manager_secret" "service_account_key" {
+resource "google_secret_manager_secret" "firebase_admin_service_account_secret" {
   secret_id = "firebase-adminsdk-service-account-key"
   project   = var.project_id
 
@@ -181,11 +187,49 @@ resource "google_secret_manager_secret" "service_account_key" {
     }
   }
 }
-resource "google_service_account_key" "firebase_admin_key" {
-  service_account_id = google_service_account.firebase_admin.name
+
+resource "google_service_account_key" "firebase_admin_service_account_key" {
+  service_account_id = google_service_account.firebase_admin_service_account.name
 }
 
-resource "google_secret_manager_secret_version" "firebase_admin_v1" {
-  secret      = google_secret_manager_secret.service_account_key.id
-  secret_data = google_service_account_key.firebase_admin_key.private_key
+resource "google_secret_manager_secret_version" "firebase_admin_secret_version" {
+  secret      = google_secret_manager_secret.firebase_admin_service_account_secret.id
+  secret_data = google_service_account_key.firebase_admin_service_account_key.private_key
+}
+
+resource "google_secret_manager_secret_iam_member" "firebase_admin_service_account_secret_member" {
+  secret_id = google_secret_manager_secret.firebase_admin_service_account_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+
+  member = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+}
+
+resource "google_secret_manager_secret" "firebase_config" {
+  secret_id = "${var.project_id}-${var.region}-firebase-config"
+
+  replication {
+    auto {
+
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "firebase_config_version" {
+  secret = google_secret_manager_secret.firebase_config.id
+  secret_data = jsonencode({
+    apiKey            = data.google_firebase_web_app_config.web_app_config.api_key
+    authDomain        = data.google_firebase_web_app_config.web_app_config.auth_domain
+    databaseURL       = data.google_firebase_web_app_config.web_app_config.database_url
+    projectId         = data.google_firebase_web_app_config.web_app_config.project
+    storageBucket     = data.google_firebase_web_app_config.web_app_config.storage_bucket
+    messagingSenderId = data.google_firebase_web_app_config.web_app_config.messaging_sender_id
+    appId             = google_firebase_web_app.web_app.app_id
+  })
+}
+
+resource "google_secret_manager_secret_iam_member" "application_backend_firebase_config" {
+  secret_id = google_secret_manager_secret.firebase_config.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+
+  member = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
 }
