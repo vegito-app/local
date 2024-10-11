@@ -1,13 +1,29 @@
-
-
 resource "google_service_account" "application_backend_cloud_run_sa" {
-  account_id   = "application-backend-cloud-run"
+  account_id   = "production-application-backend"
   display_name = "Application Backend Cloud Run"
   project      = var.project_id
 }
 
+locals {
+  google_cloud_run_service = format("%s-%s-%s-application-backend", var.environment, var.project_id, var.region)
+}
+
+# Enables required APIs.
+resource "google_project_service" "application_backend_services" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  for_each = toset([
+    "run.googleapis.com",
+  ])
+  service = each.key
+
+  # Don't disable the service if the resource block is removed by accident.
+  disable_on_destroy         = false
+  disable_dependent_services = true
+}
+
 resource "google_cloud_run_service" "application_backend" {
-  name     = "${var.project_id}-application-backend-${var.region}"
+  name     = local.google_cloud_run_service
   location = var.region
   template {
     spec {
@@ -15,7 +31,7 @@ resource "google_cloud_run_service" "application_backend" {
         image = var.application_backend_image
         env {
           name  = "FIREBASE_PROJECT_ID"
-          value = google_firebase_project.utrade.id
+          value = google_firebase_project.moov.id
         }
         env {
           name  = "FIREBASE_ADMINSDK_SERVICEACCOUNT_ID"
@@ -38,9 +54,10 @@ resource "google_cloud_run_service" "application_backend" {
     percent         = 100
     latest_revision = true
   }
+  depends_on = [google_project_service.application_backend_services]
 }
 
-output "backend" {
+output "backend_url" {
   value = length(google_cloud_run_service.application_backend.status) > 0 ? one(google_cloud_run_service.application_backend.status[*].url) : ""
 }
 

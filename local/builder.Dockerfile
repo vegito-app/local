@@ -81,17 +81,19 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
 
 # Terraform
-ENV TERRAFORM_VERSION=1.7.4
+ENV TERRAFORM_VERSION=1.9.7
 RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
     && sudo unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # nvm with node and npm
 ENV NVM_DIR=${HOME}/nvm
-ENV NODE_VERSION=22.4.0
+ENV NVM_VERSION=v0.40.1
+ENV NPM_VERSION=10.9.0
+ENV NODE_VERSION=22.9.0
 RUN mkdir $NVM_DIR
 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash \
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
@@ -103,6 +105,7 @@ ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN npm install -g \
     firebase-tools@v13.15.4 \
     npm-check-updates@v17.1.0 \
+    npm@10.9.0  \
     && rm -rf ${HOME}/.npm
 
 # Go

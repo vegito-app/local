@@ -3,7 +3,7 @@ REACT_APP_VERSION ?= $(VERSION)
 FRONTEND_BUILD_DIR = $(CURDIR)/application/frontend/build
 
 application-frontend-build: application/frontend/node_modules
-	@cd $(CURDIR)/application/frontend && npm run build
+	@cd $(CURDIR)/application/frontend && npm --loglevel=verbose run build
 .PHONY: application-frontend-build
 
 $(FRONTEND_BUILD_DIR): application-frontend-build
@@ -21,5 +21,5 @@ application-frontend-start:
 .PHONY: application-frontend-start
 
 application-frontend-npm-ci:
-	@cd $(CURDIR)/application/frontend && npm ci --silent
+	@cd $(CURDIR)/application/frontend && npm ci
 .PHONY: application-frontend-npm-ci

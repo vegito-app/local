@@ -33,13 +33,13 @@ application-backend-install:
 
 LATEST_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-latest
 
-BACKEND_CONTAINER_NAME = $(PROJECT_NAME)_backend
+BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
 
 BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
 
 application-backend-image: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) --load backend
+	$(DOCKER_BUILDX_BAKE) --no-cache backend
 .PHONY: application-backend-image
 
 application-backend-image-push: docker-buildx-setup

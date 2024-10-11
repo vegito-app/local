@@ -1,12 +1,12 @@
-GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*")
+GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
 VERSION ?= $(GIT_HEAD_VERSION)
 
-PROJECT_NAME ?= utrade
+GOOGLE_CLOUD_PROJECT_ID = moov-438615
 
-GOOGLE_CLOUD_PROJECT_ID = utrade-taxi-run-0
+REGION ?= europe-west1
 
-REGION ?= us-central1
+ENV ?= prod
 
 export 
 
@@ -17,10 +17,10 @@ export
 -include local/local.mk
 -include application/application.mk
 
-images: docker-local-arch-images
+images: docker-images-local-arch
 .PHONY: images
 
-images-ci: docker-multi-arch-images
+images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
 
 android-studio: local-android-studio-docker-compose-up

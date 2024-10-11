@@ -1,4 +1,4 @@
-ARG builder_image=docker-repository-public/utrade:builder
+ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder
 FROM --platform=${BUILDPLATFORM} ${builder_image} AS build
 
 RUN mkdir ${HOME}/src
@@ -10,23 +10,35 @@ COPY go.mk .
 RUN mkdir application
 COPY application/application.mk application/
 
-
 # Frontend
-RUN mkdir application/frontend
-COPY application/frontend/package-lock.json application/frontend/
+RUN mkdir -p application/frontend 
+RUN sudo chown -R devuser:devuser ./application
+RUN sudo chmod -R 777 ./application
+# COPY application/frontend/package-lock.json application/frontend/
 COPY application/frontend/package.json application/frontend/
 COPY application/frontend/frontend.mk application/frontend/
 COPY nodejs.mk .
 
-RUN sudo chmod o+rw application/frontend/package-lock.json \
-    && make application/frontend-node-modules application-frontend-npm-ci
+COPY .git .git
+RUN  git config --global --add safe.directory /home/devuser/src
+# RUN make application/frontend-node-modules 
+COPY application/frontend/node_modules application/frontend/
+# RUN make application-frontend-npm-ci
 
 COPY application/frontend/README.md application/frontend/
-COPY application/frontend/public application/frontend/public
+# COPY application/frontend/public application/frontend/public
 COPY application/frontend/src application/frontend/src
 COPY application/frontend/webpack.server.js application/frontend/
 
-RUN make application-frontend-build application-frontend-bundle
+RUN mkdir application/frontend/build
+RUN mkdir application/frontend/node_modules 
+RUN cd application/frontend && npm install && npm run build
+RUN make application-frontend-build
+USER devuser
+
+RUN mkdir application/frontend/public
+RUN make application-frontend-bundle
+
 
 # Backend
 RUN mkdir application/backend

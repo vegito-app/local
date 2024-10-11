@@ -7,8 +7,9 @@ services:
       args:
         github_project_name: ${GITHUB_REPOSITORY_NAME:-refactored-winner}
         host_pwd: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
-        builder_image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
+        builder_image: ${BUILDER_IMAGE}
     env_file:
       - .env
     environment:
       HOST_PWD: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
+      GOOGLE_CLOUD_CREDENTIALS: ${GOOGLE_CLOUD_CREDENTIALS}

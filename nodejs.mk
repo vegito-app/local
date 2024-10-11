@@ -35,3 +35,17 @@ $(NODE_MODULES:%=%-node-modules):
 
 $(NODE_MODULES:%=%/node_modules):
 	@$(MAKE) $(@:%/node_modules=%-node-modules)
+
+node-available-from-nvm-ls-remote:
+	@bash -c ' \
+	  source $(NVM_DIR)/nvm.sh ; \
+	  nvm ls-remote \
+	'
+.PHONY: node-available-from-nvm-ls-remote
+
+node-list-npm-versions:
+	@bash -c " \
+	  source $(NVM_DIR)/nvm.sh ; \
+      npm view npm versions --json | jq -r '.[] | select(startswith(\"10.\"))' \
+	"
+.PHONY: node-list-npm-versions

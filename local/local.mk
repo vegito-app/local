@@ -11,12 +11,17 @@ local-run: $(BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_F
 -include $(CURDIR)/local/firebase/firebase.mk
 -include $(CURDIR)/local/android/android.mk
 
-local-multi-arch-builder-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print builder
-	@$(DOCKER_BUILDX_BAKE) --push builder
-.PHONY: local-multi-arch-builder-image
-
 local-builder-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print builder-local
-	@$(DOCKER_BUILDX_BAKE) --load builder-local
+	@$(DOCKER_BUILDX_BAKE) --print builder
+	@$(DOCKER_BUILDX_BAKE) --load builder
 .PHONY: local-builder-image
+
+local-builder-image-push: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder
+	@$(DOCKER_BUILDX_BAKE) --load --push builder
+.PHONY: local-builder-image-push
+
+local-builder-image-ci: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder-ci
+	@$(DOCKER_BUILDX_BAKE) --load builder-ci
+.PHONY: local-builder-image-ci

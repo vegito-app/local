@@ -46,7 +46,7 @@ More local Makefile targets are available to work on the project locally, see [l
     local-android-studio-docker-compose           local-builder-image                           local-firebase-emulators-functions-serve      local-github-runner-image-push
     local-android-studio-docker-compose-logs      local-firebase-emulators                      local-firebase-emulators-init                 local-github-runner-token-exist
     local-android-studio-docker-compose-rm        local-firebase-emulators-docker-compose       local-firebase-emulators-install              local-install
-    local-android-studio-docker-compose-sh        local-firebase-emulators-docker-compose-bash  local-firebase-emulators-prepare              local-multi-arch-builder-image
+    local-android-studio-docker-compose-sh        local-firebase-emulators-docker-compose-bash  local-firebase-emulators-prepare              local-builder-image-ci
     local-android-studio-docker-compose-stop      local-firebase-emulators-docker-compose-logs  local-firebase-emulators-start                local-run
     local-android-studio-docker-compose-up        local-firebase-emulators-docker-compose-rm    local-github-runner-docker-compose-rm         
     local-android-studio-image                    local-firebase-emulators-docker-compose-stop  local-github-runner-docker-compose-up         

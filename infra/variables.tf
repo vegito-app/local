@@ -1,26 +1,32 @@
 variable "billing_account" {
   description = "ACCOUNT_ID of used billing account"
   type        = string
+  default     = "012F35-4F9E4B-CB8479"
 }
 variable "project_name" {
   description = "Name of the GCP project"
   type        = string
+  default     = "utrade"
 }
 variable "project_id" {
   description = "GCP project ID"
   type        = string
+  default     = "utrade-taxi-run-0"
 }
 variable "region" {
   description = "GCP used region"
   type        = string
+  default     = "europe-west1"
 }
 variable "repository_id" {
   description = "docker repository image name: container-registry/<repository_id>:image-tag"
   type        = string
+  default     = "docker-repository"
 }
 variable "public_repository_id" {
   description = "docker repository image name: container-registry/<repository_id>:public-<image-tag>"
   type        = string
+  default     = "prod-docker-repository-public"
 }
 variable "application_backend_image" {
   description = "application Docker image"

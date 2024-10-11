@@ -32,6 +32,11 @@ target "backend-ci" {
   ]
 }
 
+variable "backend_local_build_cache" {
+  description = "local cache for backend image build"
+  default     = "~/.docker_buildx/backend"
+}
+
 target "backend" {
   dockerfile = "application/backend/Dockerfile"
   args = {
@@ -41,9 +46,13 @@ target "backend" {
     BACKEND_IMAGE_VERSION,
     LATEST_BACKEND_IMAGE,
   ]
-  cache-from = [
-    LATEST_BUILDER_IMAGE,
-    LATEST_BACKEND_IMAGE
-  ]
-  cache-to = ["type=inline"]
+  # cache-from = [
+  #   "type=local,src=${backend_local_build_cache}",
+  #   LATEST_BUILDER_IMAGE,
+  #   LATEST_BACKEND_IMAGE
+  # ]
+  # cache-to = [
+  #   "type=inline",
+  #   "type=local,dest=${backend_local_build_cache}",
+  # ]
 }

@@ -7,7 +7,7 @@ variable "REPOSITORY" {
 }
 
 variable "PUBLIC_REPOSITORY" {
-  default = "docker-repository-public"
+  default = "prod-docker-repository-public"
 }
 
 variable "PUBLIC_IMAGES_BASE" {

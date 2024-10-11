@@ -7,7 +7,7 @@ services:
   dev:
     restart: unless-stopped
     container_name: dev
-    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
+    image: ${BUILDER_IMAGE}
     entrypoint: dev-entrypoint.sh
     env_file:
       - .env
@@ -16,7 +16,7 @@ services:
       GOOGLE_CLOUD_PROJECT_ID: ${GOOGLE_CLOUD_PROJECT_ID}
       GOOGLE_CLOUD_CREDENTIALS: ${UTRADE_GOOGLE_CLOUD_CREDENTIALS}
       TF_VAR_GOOGLE_MAPS_API_KEY: ${UTRADE_GOOGLE_MAPS_API_KEY}
-      TF_VAR_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET: ${UTRADE_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET}
+      TF_VAR_IDP_GOOGLE_OAUTH_SECRET: ${IDP_GOOGLE_OAUTH_SECRET}
       # Firebase client SDK
       FIREBASE_FUNCTIONS_EMULATOR_HOST: http://firebase-emulators:5001
       FIREBASE_DATABASE_EMULATOR_HOST: http://firebase-emulators:9199
@@ -51,12 +51,12 @@ services:
 
   backend:
     restart: unless-stopped
-    image: ${BACKEND_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest}
+    image: ${BACKEND_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest}
     build:
       context: ..
       dockerfile: application/backend/Dockerfile
       args:
-        builder_image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
+        builder_image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/prod-docker-repository-public/moov-438615:builder-latest}
 
     env_file:
       - .env
@@ -72,7 +72,7 @@ services:
   firebase-emulators:
     restart: unless-stopped
     container_name: firebase-emulators
-    image: ${BUILDER_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest}
+    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/prod-docker-repository-public/moov-438615:builder-latest}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
@@ -113,7 +113,7 @@ services:
   android-studio:
     restart: unless-stopped
     container_name: android-studio
-    image: ${ANDROID_STUDIO_IMAGE:-us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio-latest}
+    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio-latest}
     env_file:
       - .env
     environment:

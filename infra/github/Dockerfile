@@ -1,4 +1,4 @@
-ARG builder_image=docker-repository-public/utrade:builder-latest
+ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest
 FROM ${builder_image}
 
 ENV RUNNER_VERSION=2.319.1

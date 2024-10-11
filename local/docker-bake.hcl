@@ -6,7 +6,7 @@ variable "LATEST_BUILDER_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:builder-latest"
 }
 
-target "builder" {
+target "builder-ci" {
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
@@ -20,7 +20,7 @@ target "builder" {
   ]
 }
 
-target "builder-local" {
+target "builder" {
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,

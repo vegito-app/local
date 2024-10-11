@@ -1,7 +1,7 @@
-GOOGLE_CLOUD_APPLICATION_CREDENTIALS ?= $(CURDIR)/infra/gcloud-credentials
+GOOGLE_CLOUD_APPLICATION_CREDENTIALS ?= $(CURDIR)/infra/environments/prod/gcloud-credentials.json
 
 google-application-credentials:
-	@bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
+	bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 .PHONY: google-application-credentials
 
 $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS): 
@@ -74,7 +74,7 @@ gcloud-services-apis-disable: $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-
 .PHONY: gcloud-services-apis-disable
 
 FIREBASE_ADMINSDK_SERVICEACCOUNT = \
-  firebase-adminsdk-vxdj8@utrade-taxi-run-0.iam.gserviceaccount.com
+  $(ENV)-firebase-adminsdk@utrade-taxi-run-0.iam.gserviceaccount.com
 
 gcloud-firebase-adminsdk-serviceaccount-roles-list:
 	@gcloud projects get-iam-policy $(GOOGLE_CLOUD_PROJECT_ID) \
@@ -92,7 +92,8 @@ $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api):
 .PHONY: $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api)
 
 ADMIN_DEVELOPPER_MEMBERS := \
-  admin-developper-utrade
+  admin-developper-$(GOOGLE_CLOUD_PROJECT_ID) \
+  root-admin
 
 $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin):
 	@gcloud projects add-iam-policy-binding $(GOOGLE_CLOUD_PROJECT_ID) \
@@ -118,5 +119,20 @@ gcloud-docker-registry-temporary-token:
 	@echo  username: oauth2accesstoken
 	@echo  password: `gcloud auth print-access-token`
 .PHONY: gcloud-docker-registry-temporary-token
+
+PROJECT_SERVICE_ACCOUNTS = \
+	prod-firebase-admin-sa \
+	production-application-backend \
+	github-actions-main
+
+$(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles):
+	@echo Print bindings members roles for $(@:gcloud-%-service-account-bindings-roles=%)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com:
+	@gcloud projects get-iam-policy $(GOOGLE_CLOUD_PROJECT_ID) \
+	  --flatten="bindings[].members" --format='table(bindings.role)' \
+	  --filter="bindings.members:serviceAccount:$(@:gcloud-%-service-account-bindings-roles=%)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com"
+.PHONY: $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles)
+
+gcloud-service-accounts-bindings-roles: $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles)
+.PHONY: gcloud-service-accounts-bindings-roles
 
 -include gcloud/terraform.mk

@@ -7,13 +7,14 @@ trap "echo Exited with code $?." EXIT
 # Create default local .env file with minimum required values to start.
 localDotenvFile=${PWD}/local/.env
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
-COMPOSE_PROJECT_NAME=utrade
-BUILDER_IMAGE=us-central1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:builder-latest
-GOOGLE_CLOUD_PROJECT_ID=utrade-taxi-run-0
-FIREBASE_PROJECT_ID=utrade-taxi-run-0
-UI_CONFIG_FIREBASE_SECRET_ID=projects/402960374845/secrets/utrade-taxi-run-0-us-central1-firebase-config/versions/1
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/402960374845/secrets/utrade-taxi-run-0-us-central1-googlemaps-api-key/versions/1
-FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/402960374845/secrets/firebase-adminsdk-service-account-key/versions/
+COMPOSE_PROJECT_NAME=moov
+builder_image=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest
+GOOGLE_CLOUD_PROJECT_ID=moov-438615
+GOOGLE_CLOUD_PROJECT_NUMBER=378762893981
+FIREBASE_PROJECT_ID=moov-438615
+UI_CONFIG_FIREBASE_SECRET_ID=projects/402960374845/secrets/moov-438615-europe-west1-firebase-config/versions/1
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/402960374845/secrets/moov-438615-europe-west1-googlemaps-api-key/versions/1
+FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/402960374845/secrets/firebase-adminsdk-service-account-key/versions/1
 EOF
 
 # Vscode

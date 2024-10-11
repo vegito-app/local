@@ -459,7 +459,7 @@ unset GOOGLE_APPLICATION_CREDENTIALS
 USER=devuser@115528929ec4 make terraform-plan
 make terraform-init
 echo $GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
-echo $TF_VAR_GOOGLE_CLOUD_WEB_IDP_GOOGLE_OAUTH_SECRET
+echo $TF_VAR_IDP_GOOGLE_OAUTH_SECRET
 gcloud secrets list 
 gcloud secrets versions list 
 gcloud secrets versions list utrade-us-central1-googlemaps-api-key
@@ -1030,4 +1030,142 @@ git log
 env|grep -i cred
 echo $GOOGLE_CLOUD_CREDENTIALS 
 echo 
+code infra/mv infra/gcloud/secrets/ infra/secrets
 code infra/
+make -C .. terraform-state-rm 
+make terraform-state-list |grep -i idp
+make terraform-state-list >li
+make terraform-secrets-init 
+make terraform-secrets-import 
+gcloud secrets describe idp_google_secret_id
+make terraform-secrets-refresh 
+make terraform-secrets-plan 
+terraform 
+terraform vers
+make terraform-secrets-apply-auto-approve 
+make terraform-secrets-state-list 
+make terraform-secrets-state-show-all 
+make terraform-secrets-output 
+make terraform-destroy 
+make terraform-state-list |grep state
+make google_storage_bucket.bucket_tf_state-show 
+make google_storage_bucket.bucket_tf_state_eu-rm 
+make terraform-state-list |grep -i statemake terraform-plan 
+LOCK_ID=1728675515465973 make terraform-unlock 
+make terraform-state-list > li
+make google_storage_bucket.bucket_tf_state-show
+make terraform-PL
+make terraform-iniT
+make google_project.utrade-rm 
+make terraform-state-show
+make terraform-state-show-all 
+make gclo
+make terraform-state-show-all
+gcloud auth list 
+cd infra/
+tar cf gcloud.tar gcloud
+ENV_TERRAFORM_ROOT_MODULE=$(pwd)/infra make google_
+ENV_TERRAFORM_ROOT_MODULE=$(pwd)/infra make  module.infra.google_firebase_android_app.android_app-show 
+ENV_TERRAFORM_ROOT_MODULE=$(pwd)/infra make  module.infra.google_firebase_apple_app.ios_app--show 
+ENV_TERRAFORM_ROOT_MODULE=$(pwd)/infra make  module.infra.google_firebase_apple_app.ios_app-show 
+git commit --amend --no-edit 
+GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/application_default_credentials.json make terraform-refresh 
+make terraform-apply-auto-approve >abcd
+make terraform-plan 2>&1 >abcd
+make terraform-apply-auto-approve 2>&1 >abcdz
+make terraform-apply-auto-approve >abcdz 2>&1
+make gcloud-root-admin-storage-admin make application/frontend-node-modules application-frontend-npm-ci
+git pull
+make application-backend-image-pushcode ../../../todo 
+make google-application-credentials 
+git reset wip
+git reset wip --
+git reset origin/wip --
+git reset origin/feature/signin-in-mobile 
+git reset origin/dev
+make terraform-apply-auto-approve |more
+make terraform-plan >/dev/null |more
+make terraform-apply-auto-approve >/dev/null 2> todo
+code infra/environments/prod/
+gcloud artifacts repositories list
+firebase android
+firebase android_app
+firebase android:app
+make  terraform-import 
+firebase projects list
+firebase firebase:list
+firebase database:list
+firebase databases:list
+firebase database:get
+firebase database:get *
+firebase database:get --help
+gcloud artifacts repositories describe prod-docker-repository-public
+gcloud artifacts repository describe prod-docker-repository-public
+make terraform-plan |more
+make terraform-apply-auto-approve \more
+make terraform-apply-auto-approve 2> bordel
+make gcloud-apikeys-list |grep name
+make  terraform-refresh 
+gcloud functions describe moov-438615-europe-west1-identity-platform-before-signin
+gcloud functions describe moov-438615-europe-west1-identity-platform-before-create
+gcloud run services get-iam-policy moov-438615-europe-west1-identity-platform-before-signin
+`gcloud config set run/region europe-west1`
+gcloud run services get-iam-policy moov-438615-europe-west1-identity-platform-before-signin 
+`gcloud config set run/region eus-central1`
+gcloud run services get-iam-policy moov-438615-us-central1-identity-platform-before-signin 
+gcloud run services get-iam-policy locations/europe-west1/namespaces/moov-438615/services/prod-moov-438615-europe-west1-application-backend
+gcloud run services get-iam-policy locations/europe-west1/namespaces/moov-438615/services/prod-moov-438615-europe-west1-application-backendk
+`gcloud config set run/region us-central1`
+gcloud run services get-iam-policy prod-moov-438615-europe-west1-application-backend --location=europe-west1 --platform=managed
+gcloud run services get-iam-policy prod-moov-438615-europe-west1-application-backend  --platform=managed
+make application-backend-image-push
+make  -C .. terraform-import 
+make  -C .. terraform-plan 
+firebase application:android
+firebase -h
+firebase apphosting:backends:list
+firebase --project moov-438615 apphosting:backends:list
+firebase --project moov-438615  remoteconfig:versions:list
+make  -C .. terraform-apply-auto-approve 
+gcloud iam service-accounts describe serviceAccount:prod-firebase-admin-sa@moov-438615.iam.gserviceaccount.com
+gcloud iam service-accounts describe prod-firebase-admin-sa@moov-438615.iam.gserviceaccount.com
+gcloud storage buckets list 
+gcloud storage buckets describe moov-438615-europe-west1-public-images-web
+gcloud storage buckets describe gs://moov-438615-europe-west1-public-images-web/
+gcloud iam policies list
+gcloud iam policies --kind serviceAccount list
+gcloud iam policies list --kind serviceAccount
+gcloud iam policies list --kind=serviceAccount
+gcloud iam policies list --kind=permission
+gcloud iam policies list --kind=permissions
+gcloud iam policies list --kind=
+make  -C .. terraform-refresh 
+gcloud iam roles describe projects/moov-438615/roles/iam.serviceAccounts.actAs
+gcloud iam roles describe roles/iam.serviceAccounts.actAs
+gcloud iam roles describe iam.serviceAccounts.actAs
+gcloud projects get-iam-policy moov-438615 --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:serviceAccount:prod-firebase-admin-sa@moov-438615.iam.gserviceaccount.com"
+make  -C .. gcloud-service-accounts-bindings-roles 
+make  -C .. docker-login 
+make  -C .. application-backend-image-push
+make application-backend-image-pushgit fetch -p
+cd  application/frontend/
+make -C ../.. node-modules-clean 
+make -C ../.. node-modules-npm-check-updates 
+make -C ../.. node-modules-ci 
+make -C ../.. application/frontend-node-modules application-frontend-npm-ci
+npm uninstall react
+npm uninstall @material-ui/core
+npm update @material-ui/core
+npm install react@17 react-dom@17
+npm uninstall react react-dom @testing-library/react
+make -C ../.. node-modules
+npm install react@latest
+make -C ../../ application-backend-image
+make -C ../../ application-frontend-npm-ci 
+make -C ../../ application/frontend-node-modules 
+npm ci
+npm uninstall typescript
+npm install typescript@4.9.5 --save-dev
+make -C ../../ application-frontend-bundle 
+make -C ../../ node-modules
+make -C ../../ node-modules-ci 

@@ -1,0 +1,27 @@
+{
+  "id": "UlkNheHetniN0ZRIAlP71pdsD6Nm7z3B",
+  "createdTime": "10/11/2024, 3:47:24 AM",
+  "name": "jq",
+  "conversations": [
+    {
+      "id": "UlkNheHetniN0ZRIAlP71pdsD6Nm7z3B",
+      "createdTime": "10/11/2024, 3:47:24 AM",
+      "completionParams": {
+        "model": "gpt-4",
+        "max_tokens": 2048,
+        "temperature": 0.9,
+        "top_p": 1
+      },
+      "prompt": {
+        "id": "UlkNheHetniN0ZRIAlP71pdsD6Nm7z3B",
+        "role": "user",
+        "text": "comment selectionner une valeur dans un champ json avec jq"
+      },
+      "response": {
+        "id": "JbOcFH49b09NV7D3AQ88Edcb82j4kVbj",
+        "role": "assistant",
+        "text": "Pour sélectionner une valeur dans un champ JSON avec `jq`, vous pouvez utiliser la syntaxe suivante :\n\n```bash\njq '.champ'\n```\n\nNous supposons que vous ayez le fichier JSON suivant nommé `data.json` :\n\n```json\n{\n    \"nom\": \"John\",\n    \"prenom\": \"Doe\",\n    \"age\": 30,\n    \"adresse\": {\n        \"ville\": \"Paris\",\n        \"pays\": \"France\"\n    }\n}\n```\n\nSi vous voulez sélectionner le \"nom\", vous pouvez faire comme suit :\n\n```bash\njq '.nom' data.json\n```\n\nCela renverra \"John\".\n\nEt si vous voulez sélectionner \"ville\" qui est un sous-champ de l'objet \"adresse\", vous pouvez le faire comme ceci :\n\n```bash\njq '.adresse.ville' data.json\n```\n\nCela renverra \"Paris\". \n\n**Remarque** : n'oubliez pas d'utiliser des guillemets simples autour de votre sélecteur, sinon bash pourrait interpréter certains caractères spéciaux."
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 # Learn more about the relationship between Firebase projects and Google Cloud: https://firebase.google.com/docs/projects/learn-more?authuser=0&hl=fr#firebase-cloud-relationship.
-resource "google_firebase_project" "utrade" {
+resource "google_firebase_project" "moov" {
   # Use the provider that performs quota checks from now on
   provider = google-beta
 
@@ -13,16 +13,16 @@ resource "google_firebase_project" "utrade" {
 
 output "firebase_project_id" {
   description = "an identifier for the resource with format projects/{{project}}"
-  value       = google_firebase_project.utrade.id
+  value       = google_firebase_project.moov.id
 }
 
 output "firebase_project_project_number" {
   description = "The number of the google project that firebase is enabled on."
-  value       = google_firebase_project.utrade.project_number
+  value       = google_firebase_project.moov.project_number
 }
 output "firebase_project_display_name" {
   description = "The GCP project display name"
-  value       = google_firebase_project.utrade.display_name
+  value       = google_firebase_project.moov.display_name
 }
 
 # Enables Firebase services for the new project created above.
@@ -45,39 +45,38 @@ resource "google_project_service" "google_services_firebase" {
 }
 
 # Provisions the default Realtime Database default instance.
-resource "google_firebase_database_instance" "utrade" {
+resource "google_firebase_database_instance" "moov" {
   provider = google-beta
-  project  = google_firebase_project.utrade.project
-  # See available locations: https://firebase.google.com/docs/projects/locations#utrade-locations
-  region = var.region
-  # This value will become the first segment of the database's URL.
-  instance_id   = "${google_firebase_project.utrade.project}-default-rtdb"
-  type          = "DEFAULT_DATABASE"
+  project  = google_firebase_project.moov.project
+  region   = var.region
+
+  instance_id   = "${var.environment}-${google_firebase_project.moov.project}-rtdb"
+  type          = "USER_DATABASE"
   desired_state = "ACTIVE"
-  # Wait for Firebase to be enabled in the Google Cloud project before initializing Realtime Database.
+
   depends_on = [
-    google_firebase_project.utrade,
+    google_firebase_project.moov,
   ]
 }
 
 output "firebase_database_id" {
   description = "an identifier for the resource with format projects/{{project}}/locations/{{region}}/instances/{{instance_id}}"
-  value       = google_firebase_database_instance.utrade.id
+  value       = google_firebase_database_instance.moov.id
 }
 
 output "firebase_database_name" {
   description = "The fully-qualified resource name of the Firebase Realtime Database, in the format: projects/PROJECT_NUMBER/locations/REGION_IDENTIFIER/instances/INSTANCE_ID PROJECT_NUMBER: The Firebase project's ProjectNumber Learn more about using project identifiers in Google's AIP 2510 standard."
-  value       = google_firebase_database_instance.utrade.name
+  value       = google_firebase_database_instance.moov.name
 }
 
 output "firebase_database_database_url" {
-  description = "The database URL in the form of https://{instance-id}.firebaseio.com for us-central1 instances or https://{instance-id}.{region}.firebasedatabase.app in other regions."
-  value       = google_firebase_database_instance.utrade.database_url
+  description = "The database URL in the form of https://{instance-id}.firebaseio.com for europe-west1 instances or https://{instance-id}.{region}.firebasedatabase.app in other regions."
+  value       = google_firebase_database_instance.moov.database_url
 }
 
 output "firebase_database_state" {
   description = "The current database state. Set desired_state to :DISABLED to disable the database and :ACTIVE to reenable the database"
-  value       = google_firebase_database_instance.utrade.state
+  value       = google_firebase_database_instance.moov.state
 }
 
 # Creates a Firebase Android App in the new project created above.
@@ -86,12 +85,12 @@ resource "google_firebase_android_app" "android_app" {
   provider = google-beta
 
   project      = var.project_id
-  display_name = "Utrade Android app" # learn more about an app's display name
-  package_name = "mobile.app.android" # learn more about an app's package name
+  display_name = "Utrade Android app (${var.environment})" # learn more about an app's display name
+  package_name = "${var.environment}.mobile.app.android"   # learn more about an app's package name
 
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
-    google_firebase_project.utrade,
+    google_firebase_project.moov,
   ]
 }
 
@@ -117,12 +116,12 @@ output "android_sha1" {
 resource "google_firebase_apple_app" "ios_app" {
   provider     = google-beta
   project      = var.project_id
-  display_name = "Utrade Apple app"
-  bundle_id    = "mobile.app.apple"
+  display_name = "Utrade Apple app (${var.environment})"
+  bundle_id    = "${var.environment}.mobile.app.apple"
 
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
-    google_firebase_project.utrade,
+    google_firebase_project.moov,
   ]
 }
 
@@ -137,7 +136,7 @@ data "google_firebase_apple_app_config" "ios_config" {
 resource "google_firebase_web_app" "web_app" {
   provider     = google-beta
   project      = var.project_id
-  display_name = "Utrade Web app"
+  display_name = "Utrade Web app (${var.environment})"
 
   # The other App types (Android and Apple) use "DELETE" by default.
   # Web apps don't use "DELETE" by default due to backward-compatibility.
@@ -145,7 +144,7 @@ resource "google_firebase_web_app" "web_app" {
 
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
-    google_firebase_project.utrade,
+    google_firebase_project.moov
   ]
 }
 
@@ -156,7 +155,7 @@ data "google_firebase_web_app_config" "web_app_config" {
 }
 
 resource "google_service_account" "firebase_admin_service_account" {
-  account_id   = "firebase-adminsdk-vxdj8"
+  account_id   = "${var.environment}-firebase-admin-sa"
   display_name = "Firebase Admin SDK Service Account"
   description  = "Ce compte de service est utilisé par Firebase Admin SDK pour interagir avec Firebase"
 }
@@ -174,7 +173,7 @@ resource "google_project_iam_member" "firebase_token_creator" {
 }
 
 resource "google_secret_manager_secret" "firebase_admin_service_account_secret" {
-  secret_id = "firebase-adminsdk-service-account-key"
+  secret_id = "${var.environment}-firebase-adminsdk-service-account-key"
   project   = var.project_id
 
   labels = {
@@ -205,7 +204,7 @@ resource "google_secret_manager_secret_iam_member" "firebase_admin_service_accou
 }
 
 resource "google_secret_manager_secret" "firebase_config" {
-  secret_id = "${var.project_id}-${var.region}-firebase-config"
+  secret_id = "${var.environment}-firebase-config-secret"
 
   replication {
     auto {
@@ -225,11 +224,4 @@ resource "google_secret_manager_secret_version" "firebase_config_version" {
     messagingSenderId = data.google_firebase_web_app_config.web_app_config.messaging_sender_id
     appId             = google_firebase_web_app.web_app.app_id
   })
-}
-
-resource "google_secret_manager_secret_iam_member" "application_backend_firebase_config" {
-  secret_id = google_secret_manager_secret.firebase_config.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-
-  member = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
 }

@@ -1,3 +1,18 @@
+
+# Enables required APIs.
+resource "google_project_service" "google_maps_services" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  for_each = toset([
+    "apikeys.googleapis.com",
+  ])
+  service = each.key
+
+  # Don't disable the service if the resource block is removed by accident.
+  disable_on_destroy         = false
+  disable_dependent_services = true
+}
+
 resource "google_secret_manager_secret" "web_google_maps_api_key" {
   secret_id = "${var.project_id}-${var.region}-googlemaps-api-key"
 
@@ -6,6 +21,7 @@ resource "google_secret_manager_secret" "web_google_maps_api_key" {
 
     }
   }
+  depends_on = [google_project_service.google_maps_services]
 }
 
 locals {
@@ -13,8 +29,7 @@ locals {
     "localhost",
     "${var.project_id}.firebaseapp.com",
     "${var.project_id}.web.app",
-    "${var.project_id}-application-backend-${var.region}-g6w6iwoyua-uc.a.run.app"
-    # trimprefix(one(google_cloud_run_service.application_backend.status[*].url), "https://")
+    # trimprefix(one(google_cloud_run_service.utrade.status[*].url), "https://")
   ]
 }
 
@@ -45,13 +60,6 @@ resource "google_secret_manager_secret_version" "web_google_maps_api_key_version
 output "google_maps_api_key_web" {
   value       = google_secret_manager_secret_version.web_google_maps_api_key_version.secret
   description = "Web Google Maps API key usable on Cloud Run backend service domain"
-}
-
-resource "google_secret_manager_secret_iam_member" "application_backend_web_google_maps_api_key" {
-  secret_id = google_secret_manager_secret.web_google_maps_api_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-
-  member = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
 }
 
 # Clé API pour Android
