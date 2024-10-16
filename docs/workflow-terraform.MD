@@ -2,10 +2,10 @@
 
 ```Makefile
 
-BACKEND_TF = module.infra.google_cloud_run_service.application_backend
+APPLICATION_BACKEND_TF = module.infra.google_cloud_run_service.application_backend
 
 TF_STATE_ITEMS = \
-	$(BACKEND_TF) \
+	$(APPLICATION_BACKEND_TF) \
 	google_project.utrade \
 	google_storage_bucket.bucket_tf_state \
 	module.infra.data.archive_file.auth_func_src \

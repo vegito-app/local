@@ -40,6 +40,14 @@ target "github-runner-ci" {
   ]
 }
 
+variable "GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  description = "local write cache for github-actions-runner image build"
+}
+
+variable "GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for github-actions-runner image build (cannot be used before first write)"
+}
+
 target "github-runner" {
   args = {
     builder_image = LATEST_BUILDER_IMAGE
@@ -52,8 +60,10 @@ target "github-runner" {
     GITHUB_RUNNER_IMAGE_TAG,
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
-    LATEST_GITHUB_RUNNER_IMAGE
+    GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to = ["type=inline"]
+  cache-to = [
+    GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+  ]
 }

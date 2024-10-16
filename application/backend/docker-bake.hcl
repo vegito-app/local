@@ -1,13 +1,13 @@
-variable "BACKEND_IMAGES_BASE" {
+variable "APPLICATION_BACKEND_IMAGES_BASE" {
   default = "${REPOSITORY}/utrade:backend"
 }
 
-variable "BACKEND_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${BACKEND_IMAGES_BASE}-${VERSION}" : ""
+variable "APPLICATION_BACKEND_IMAGE_VERSION" {
+  default = notequal("dev", VERSION) ? "${APPLICATION_BACKEND_IMAGES_BASE}-${VERSION}" : ""
 }
 
-variable "LATEST_BACKEND_IMAGE" {
-  default = "${BACKEND_IMAGES_BASE}-latest"
+variable "LATEST_APPLICATION_BACKEND_IMAGE" {
+  default = "${APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
 target "backend-ci" {
@@ -16,8 +16,8 @@ target "backend-ci" {
     builder_image = LATEST_BUILDER_IMAGE
   }
   tags = [
-    BACKEND_IMAGE_VERSION,
-    LATEST_BACKEND_IMAGE,
+    APPLICATION_BACKEND_IMAGE_VERSION,
+    LATEST_APPLICATION_BACKEND_IMAGE,
   ]
   platforms = [
     "linux/amd64",
@@ -25,16 +25,19 @@ target "backend-ci" {
   ]
   cache-from = [
     LATEST_BUILDER_IMAGE,
-    LATEST_BACKEND_IMAGE,
+    LATEST_APPLICATION_BACKEND_IMAGE,
   ]
   cache-to = [
     "type=inline",
   ]
 }
 
-variable "backend_local_build_cache" {
-  description = "local cache for backend image build"
-  default     = "~/.docker_buildx/backend"
+variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  description = "local write cache for backend image build"
+}
+
+variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for backend image build (cannot be used before first write)"
 }
 
 target "backend" {
@@ -43,16 +46,14 @@ target "backend" {
     builder_image = LATEST_BUILDER_IMAGE
   }
   tags = [
-    BACKEND_IMAGE_VERSION,
-    LATEST_BACKEND_IMAGE,
+    APPLICATION_BACKEND_IMAGE_VERSION,
+    LATEST_APPLICATION_BACKEND_IMAGE,
   ]
-  # cache-from = [
-  #   "type=local,src=${backend_local_build_cache}",
-  #   LATEST_BUILDER_IMAGE,
-  #   LATEST_BACKEND_IMAGE
-  # ]
-  # cache-to = [
-  #   "type=inline",
-  #   "type=local,dest=${backend_local_build_cache}",
-  # ]
+  cache-from = [
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to = [
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+  ]
 }

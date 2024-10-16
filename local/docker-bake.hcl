@@ -20,12 +20,24 @@ target "builder-ci" {
   ]
 }
 
+variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  description = "local write cache for builder image build"
+}
+
+variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for builder image build (cannot be used before first write)"
+}
+
 target "builder" {
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
     BUILDER_IMAGE_VERSION,
   ]
-  cache-from = [LATEST_BUILDER_IMAGE]
-  cache-to   = ["type=inline"]
+  cache-from = [
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to = [
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+  ]
 }

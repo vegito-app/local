@@ -44,7 +44,7 @@ gcloud-images-builder-untag-all-public:
 .PHONY: gcloud-images-builder-untag-all-public
 
 gcloud-backend-image-delete:
-	@gcloud container images delete --force-delete-tags $(BACKEND_IMAGE)
+	@gcloud container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
 .PHONY: gcloud-backend-image-delete
 
 gcloud-builder-image-delete:

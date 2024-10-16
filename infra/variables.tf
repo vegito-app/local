@@ -6,12 +6,12 @@ variable "billing_account" {
 variable "project_name" {
   description = "Name of the GCP project"
   type        = string
-  default     = "utrade"
+  default     = "moov"
 }
 variable "project_id" {
   description = "GCP project ID"
   type        = string
-  default     = "utrade-taxi-run-0"
+  default     = "moov"
 }
 variable "region" {
   description = "GCP used region"

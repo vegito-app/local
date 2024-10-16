@@ -1168,4 +1168,5 @@ npm uninstall typescript
 npm install typescript@4.9.5 --save-dev
 make -C ../../ application-frontend-bundle 
 make -C ../../ node-modules
-make -C ../../ node-modules-ci 
+make -C ../../ node-modules-ci git branch git fetch -p
+git checkout d48918d96cab628f8af6c8bf2a20a3e0300fa597 local/android/docker-bake.hcl

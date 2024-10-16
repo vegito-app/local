@@ -51,7 +51,7 @@ services:
 
   backend:
     restart: unless-stopped
-    image: ${BACKEND_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest}
+    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest}
     build:
       context: ..
       dockerfile: application/backend/Dockerfile

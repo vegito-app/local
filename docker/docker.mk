@@ -13,6 +13,7 @@ DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f docker/docker-bake.hcl \
 	-f application/backend/docker-bake.hcl  \
 	-f local/docker-bake.hcl \
+	-f local/android/docker-bake.hcl \
 	-f infra/github/docker-bake.hcl 
 
 DOCKER_BUILDX_TARGETS := \

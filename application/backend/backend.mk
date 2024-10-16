@@ -12,17 +12,17 @@ ifeq ($(UNAME_M), aarch64)
   GOARCH ?= arm64
 endif
 
-BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
-BACKEND_VENDOR = $(CURDIR)/backend/vendor
+APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
+APPLICATION_BACKEND_VENDOR = $(CURDIR)/backend/vendor
 
-$(BACKEND_VENDOR):
+$(APPLICATION_BACKEND_VENDOR):
 	@$(MAKE) go-application/backend-mod-vendor
 
-application-backend-run: $(BACKEND_INSTALL_BIN)
-	@$(BACKEND_INSTALL_BIN)
+application-backend-run: $(APPLICATION_BACKEND_INSTALL_BIN)
+	@$(APPLICATION_BACKEND_INSTALL_BIN)
 .PHONY: application-backend-run
 
-$(BACKEND_INSTALL_BIN): application-backend-install
+$(APPLICATION_BACKEND_INSTALL_BIN): application-backend-install
 
 application-backend-install:
 	@echo Installing backend...
@@ -31,15 +31,22 @@ application-backend-install:
 	@echo Installed backend.
 .PHONY: application-backend-install
 
-LATEST_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-latest
+LATEST_APPLICATION_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-latest
 
-BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
+APPLICATION_BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
 
-BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
+# Handle buildx cache in local folder
+APPLICATION_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
+APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/application/backend/.docker-buildx-cache/
+$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
+APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+endif
+APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-application-backend-image: docker-buildx-setup
+application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend
-	$(DOCKER_BUILDX_BAKE) --no-cache backend
+	@$(DOCKER_BUILDX_BAKE) --load backend
 .PHONY: application-backend-image
 
 application-backend-image-push: docker-buildx-setup
@@ -55,10 +62,10 @@ application-backend-image-push-ci: docker-buildx-setup
 application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
 	@docker run \
 	  -p 8080:8080 \
-	  --name $(BACKEND_CONTAINER_NAME) \
+	  --name $(APPLICATION_BACKEND_CONTAINER_NAME) \
 	  -v $(GOOGLE_APPLICATION_CREDENTIALS):$(GOOGLE_APPLICATION_CREDENTIALS) \
 	  -e GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
-	  $(BACKEND_IMAGE)
+	  $(APPLICATION_BACKEND_IMAGE)
 .PHONY: application-backend-docker-compose-run
 
 application-backend-docker-compose-up: application-backend-docker-compose-rm
