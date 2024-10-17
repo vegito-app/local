@@ -49,15 +49,19 @@ RUN apt-get update && apt-get install -y \
     libgtk-3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# non-root user    
-RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo \
-    && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser \
-    && chmod 0440 /etc/sudoers.d/devuser
+ARG devuser=devuser
 
-ENV USER=devuser
-USER ${USER}
-ENV HOME=/home/${USER}
-WORKDIR ${HOME}/
+# non-root user
+RUN useradd -m ${devuser} && echo "${devuser}:${devuser}" | chpasswd \
+    && adduser ${devuser} sudo \
+    && echo '${devuser} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/${devuser} \
+    && chmod 0440 /etc/sudoers.d/${devuser}
+
+ENV USER=${devuser}
+
+ENV HOME=/home/${devuser}/
+
+WORKDIR ${HOME}
 
 # Docker
 RUN sudo install -m 0755 -d /etc/apt/keyrings \

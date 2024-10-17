@@ -10,10 +10,10 @@ terraform {
       version = "~> 6.7.0"
     }
   }
-  # backend "gcs" {
-  #   bucket = "utrade-europe-west1-tf-state"
-  #   prefix = "terraform/state/prod"
-  # }
+  backend "gcs" {
+    bucket = "utrade-europe-west1-tf-state"
+    prefix = "terraform/state/prod"
+  }
 }
 
 provider "google" {

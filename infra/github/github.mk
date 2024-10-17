@@ -15,12 +15,17 @@ local-github-runner-image: $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CAC
 	@$(DOCKER_BUILDX_BAKE) --load github-runner
 .PHONY: local-github-runner-image
 
-# Build multi architecture image. This target will build and push 
-# an image to the distant registry but not load it locally.
-local-github-runner-image-push: docker-buildx-setup
+# Build image for local run and push it.
+local-github-runner-image-push: $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print github-runner
+	@$(DOCKER_BUILDX_BAKE) --push github-runner
+.PHONY: local-github-runner-image-push
+
+# This target will build and push a multi architecture image.
+local-github-runner-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print github-runner-ci
 	@$(DOCKER_BUILDX_BAKE) --push github-runner-ci
-.PHONY: local-github-runner-image-push
+.PHONY: local-github-runner-image-ci
 
 GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(GOOGLE_CLOUD_PROJECT_ID)-github-actions \
   docker compose -f $(CURDIR)/infra/github/docker-compose.yml
