@@ -6,8 +6,6 @@ GOOGLE_CLOUD_PROJECT_ID = moov-438615
 
 REGION ?= europe-west1
 
-ENV ?= prod
-
 export 
 
 -include go.mk

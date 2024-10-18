@@ -15,8 +15,8 @@ terraform-init: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 
 terraform-import: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 # @$(TERRAFORM) import module.infra.google_identity_platform_config.utrade $(GOOGLE_CLOUD_PROJECT_ID)
-# @$(TERRAFORM) import module.gcloud.google_service_account.firebase_admin_service_account firebase-adminsdk-vxdj8@utrade-taxi-run-0.iam.gserviceaccount.com
-# @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/instances/$(ENV)-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb
+# @$(TERRAFORM) import module.gcloud.google_service_account.firebase_admin_service_account firebase-adminsdk-vxdj8@moov-438615.iam.gserviceaccount.com
+# @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/instances/$(INFRA_ENV)-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.utrade projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/instances/$(GOOGLE_CLOUD_PROJECT_ID)-default-rtdb
 # @$(TERRAFORM) import module.gcloud.google_firebase_android_app.android_app projects/utrade-taxi-run-0/androidApps/1:$(GOOGLE_CLOUD_PROJECT_NUMBER):android:0af3c208c26031f319de54
 # @$(TERRAFORM) import module.gcloud.google_firebase_apple_app.ios_app projects/utrade-taxi-run-0/iosApps/1:$(GOOGLE_CLOUD_PROJECT_NUMBER):ios:62943a0db6f9c9ff19de54
@@ -36,12 +36,12 @@ terraform-import: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov prod-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb-805c8
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov prod-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb-f82fe
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov prod-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb-964f7
-# @$(TERRAFORM) import module.gcloud.google_artifact_registry_repository.private_docker_repository projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(ENV)-docker-repository
-# @$(TERRAFORM) import module.gcloud.google_artifact_registry_repository.public_docker_repository projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(ENV)-docker-repository-public
+# @$(TERRAFORM) import module.gcloud.google_artifact_registry_repository.private_docker_repository projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(INFRA_ENV)-docker-repository
+# @$(TERRAFORM) import module.gcloud.google_artifact_registry_repository.public_docker_repository projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(INFRA_ENV)-docker-repository-public
 # @$(TERRAFORM) import module.gcloud.google_artifact_registry_repository_iam_member.github_actions_private_repo_read_member \
-# 	"projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(ENV)-docker-repository roles/artifactregistry.reader serviceAccount:github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com"
+# 	"projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(INFRA_ENV)-docker-repository roles/artifactregistry.reader serviceAccount:github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com"
 # @$(TERRAFORM) import module.gcloud.google_artifact_registry_repository_iam_member.github_actions_private_repo_write_member \
-# 	"projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(ENV)-docker-repository roles/artifactregistry.writer serviceAccount:github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com"
+# 	"projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(REGION)/repositories/$(INFRA_ENV)-docker-repository roles/artifactregistry.writer serviceAccount:github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com"
 # @$(TERRAFORM) import module.gcloud.google_apikeys_key.google_maps_android_api_key projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/global/keys/mobile-google-maps-api-key-android
 # @$(TERRAFORM) import module.gcloud.google_apikeys_key.google_maps_ios_api_key projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/global/keys/mobile-google-maps-api-key-ios
 # @$(TERRAFORM) import module.gcloud.google_apikeys_key.web_google_maps_api_key projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/global/keys/web-google-maps-api-key
@@ -89,7 +89,7 @@ TF_STATE_ITEMS = \
 	module.infra.google_artifact_registry_repository_iam_member.github_actions_private_repo_write_member \
 	module.infra.google_artifact_registry_repository_iam_member.github_actions_public_repo_write_member \
 	module.infra.google_artifact_registry_repository_iam_member.public_read \
-	module.infra.google_cloud_run_service.application_backend \
+	module.gcloud.google_cloud_run_service.application_backend \
 	module.infra.google_cloud_run_service_iam_member.allow_unauthenticated \
 	module.infra.google_cloudfunctions_function.auth_before_create \
 	module.infra.google_cloudfunctions_function.auth_before_sign_in \
@@ -158,7 +158,7 @@ $(TF_STATE_ITEMS:%=%-taint): $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) taint $(@:%-taint=%)
 .PHONY: $(TF_STATE_ITEMS:%=%-taint)
 
-terraform-taint-backend: module.infra.google_cloud_run_service.application_backend-taint
+terraform-taint-backend: module.gcloud.google_cloud_run_service.application_backend-taint
 .PHONY: terraform-taint-backend
 
 terraform-state-show-all : $(TF_STATE_ITEMS:%=%-show)

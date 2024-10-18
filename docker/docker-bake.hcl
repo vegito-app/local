@@ -1,17 +1,27 @@
 variable "VERSION" {
-  default = "dev"
+  description = "current git tag or commit version"
+  default     = "dev"
+}
+
+variable "INFRA_ENV" {
+  description = "production, staging or dev"
+  default     = "dev"
 }
 
 variable "REPOSITORY" {
-  default = "docker-repository"
+  default = "${INFRA_ENV}-docker-repository"
 }
 
 variable "PUBLIC_REPOSITORY" {
-  default = "prod-docker-repository-public"
+  default = "${INFRA_ENV}-docker-repository-public"
+}
+
+variable "GOOGLE_CLOUD_PROJECT_ID" {
+  default = "default"
 }
 
 variable "PUBLIC_IMAGES_BASE" {
-  default = "${PUBLIC_REPOSITORY}/utrade"
+  default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 
 group "services-load-local-arch" {

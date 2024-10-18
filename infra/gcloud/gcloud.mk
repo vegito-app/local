@@ -74,7 +74,7 @@ gcloud-services-apis-disable: $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-
 .PHONY: gcloud-services-apis-disable
 
 FIREBASE_ADMINSDK_SERVICEACCOUNT = \
-  $(ENV)-firebase-adminsdk@utrade-taxi-run-0.iam.gserviceaccount.com
+  $(INFRA_ENV)-firebase-adminsdk@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
 gcloud-firebase-adminsdk-serviceaccount-roles-list:
 	@gcloud projects get-iam-policy $(GOOGLE_CLOUD_PROJECT_ID) \

@@ -2,7 +2,7 @@
 
 ```Makefile
 
-APPLICATION_BACKEND_TF = module.infra.google_cloud_run_service.application_backend
+APPLICATION_BACKEND_TF = module.gcloud.google_cloud_run_service.application_backend
 
 TF_STATE_ITEMS = \
 	$(APPLICATION_BACKEND_TF) \

@@ -44,12 +44,12 @@ APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPL
 endif
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
+application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) application/frontend-node-modules docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend
 	@$(DOCKER_BUILDX_BAKE) --load backend
 .PHONY: application-backend-image
 
-application-backend-image-push: docker-buildx-setup
+application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) application/frontend-node-modules docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend
 	@$(DOCKER_BUILDX_BAKE) --load --push backend
 .PHONY: application-backend-image-push

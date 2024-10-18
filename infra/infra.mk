@@ -16,7 +16,7 @@ $(FIREBASE_ANDROID_CONFIG_JSON): firebase-android-config-json
 .PHONY: firebase-android-config-json
 firebase-android-config-json:
 	@echo Creating iOS configuration for "'$(INFRA_ENV)'": "'$(FIREBASE_ANDROID_CONFIG_JSON)'"
-	@$(MAKE) terraform-output-firebase-android-config-json > $(FIREBASE_ANDROID_CONFIG_JSON)
+	@$(MAKE) terraform-output-firebase-android-config-json | base64 --decode > $(FIREBASE_ANDROID_CONFIG_JSON)
 
 
 

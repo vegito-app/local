@@ -1,12 +1,12 @@
 REGISTRY = $(REGION)-docker.pkg.dev
 
-PUBLIC_REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/$(ENV)-docker-repository-public
+PUBLIC_REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/$(INFRA_ENV)-docker-repository-public
 PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
 BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-$(VERSION)
 LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
-REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/$(ENV)-docker-repository
+REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/$(INFRA_ENV)-docker-repository
 IMAGES_BASE ?= $(REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
 DOCKER_BUILDX_BAKE = docker buildx bake \
@@ -22,14 +22,14 @@ DOCKER_BUILDX_TARGETS := \
 	github-runner
 
 docker-images-ci-multi-arch: docker-buildx-setup local-builder-image-ci
-	$(DOCKER_BUILDX_BAKE) --print services-push-multi-arch
+	@$(DOCKER_BUILDX_BAKE) --print services-push-multi-arch
 	@$(DOCKER_BUILDX_BAKE) --push services-push-multi-arch
 .PHONY: docker-images-ci-multi-arch
 
 docker-images-local-arch: local-builder-image
 	@$(DOCKER_BUILDX_BAKE) --print services-load-local-arch
 	@$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
-.PHONY: docker-services-images
+.PHONY: docker-images-local-arch
 
 docker-buildx-setup: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
 	@-docker buildx create --name $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 

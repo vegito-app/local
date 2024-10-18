@@ -21,17 +21,20 @@ COPY nodejs.mk .
 
 COPY .git .git
 RUN  git config --global --add safe.directory /home/devuser/src
-RUN make application/frontend-node-modules 
-RUN make application-frontend-npm-ci
+COPY application/frontend/node_modules application/frontend/node_modules
+COPY application/frontend/package-lock.json application/frontend/package-lock.json
+# sudo here because node is wonderful. If node remain normal remove sudo
+RUN sudo bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-npm-ci'
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public
 COPY application/frontend/src application/frontend/src
 COPY application/frontend/webpack.server.js application/frontend/
 
-RUN make application-frontend-build
+# sudo here because node is wonderful. If node remain normal remove sudo
+RUN sudo bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-build'
 
-RUN make application-frontend-bundle
+RUN sudo bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-bundle'
 
 # Backend
 RUN mkdir application/backend

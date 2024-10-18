@@ -1,4 +1,4 @@
-ARG builder_image=docker-repository-public/utrade:builder
+ARG builder_image=docker-repository-public/default:builder
 FROM ${builder_image} AS build
 # The workspace folder value '/workspaces/<project>' is enforced by Github Codespaces (see .devcontainer/devcontainer.json).
 # It must be a static value due to limitations in the Devcontainer as it doesn't support variables and treats any syntax as a hard value without expansion.
