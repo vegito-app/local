@@ -49,14 +49,15 @@ RUN apt-get update && apt-get install -y \
     libgtk-3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# non-root user    
-RUN useradd -m devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo \
-    && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser \
-    && chmod 0440 /etc/sudoers.d/devuser
+ARG non_root_user=devuser
 
-ENV USER=devuser
-USER ${USER}
-ENV HOME=/home/${USER}
+# Add non-root user    
+RUN useradd -m ${non_root_user} && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}/
 
 # Docker
