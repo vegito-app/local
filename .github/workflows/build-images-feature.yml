@@ -10,7 +10,7 @@ jobs:
   build-and-load-images:
     runs-on: self-hosted
     env:
-      GCLOUD_PROJECT_ID: utrade-taxi-run-0
+      GCLOUD_PROJECT_ID: moov-438615
 
     steps:
       - name: Checkout repository

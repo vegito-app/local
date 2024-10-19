@@ -1,4 +1,4 @@
-GO_VERSION = 1.22
+GO_VERSION = 1.23
 
 GO_MODULES := \
 	application/backend \
