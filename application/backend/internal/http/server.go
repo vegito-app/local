@@ -40,6 +40,12 @@ func StartAPI(firebaseClient *firebase.Client) error {
 	mux.Handle("GET /ui/config/googlemaps", http.HandlerFunc(uiconfig.GoogleMaps))
 	mux.Handle("GET /ui/public", http.StripPrefix("/ui", http.FileServer(http.Dir(frontendDir))))
 	mux.Handle("GET /ui", uiServe)
+	mux.Handle("GET /cgv", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
+	}))
+	mux.Handle("GET /confidentiality", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
+	}))
 	mux.Handle("GET /info", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))

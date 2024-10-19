@@ -1,4 +1,4 @@
-name: Build and Push Git Commit Tagged Docker Images 
+name: Build and Push Git Commit Tagged Docker Images
 
 on:
   push:
@@ -38,4 +38,4 @@ jobs:
 
       - name: Build and load local project images
         run: |
-          make images-ci
+          make images-ci -j

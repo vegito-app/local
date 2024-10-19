@@ -73,11 +73,6 @@ func NewApp(ctx context.Context) (*App, error) {
 		if err != nil {
 			return nil, err
 		}
-		// jsonCredentials, err := base64.RawStdEncoding.DecodeString(string(firebaseAdminSDKserviceAccount.Payload.Data))
-		// if err != nil {
-		// 	return nil, err
-		// }
-
 		opts = append(opts, option.WithCredentialsJSON(firebaseAdminSDKserviceAccount.Payload.Data))
 	}
 	app, err := firebase.NewApp(ctx, firebasseConfig, opts...)

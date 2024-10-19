@@ -37,15 +37,3 @@ resource "google_project_service" "google_services_default" {
   disable_on_destroy         = false
   disable_dependent_services = true
 }
-
-data "google_project" "project" {
-  project_id = var.project_id
-}
-
-output "project_number" {
-  value = data.google_project.project.number
-}
-
-output "project_name" {
-  value = data.google_project.project.name
-}

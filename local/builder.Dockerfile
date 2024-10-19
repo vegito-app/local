@@ -180,6 +180,9 @@ ENV DISPLAY=":1"
 
 RUN chown -R ${non_root_user}:${non_root_user} ${HOME}
 
+# Use Bash
+RUN ln -sf /usr/bin/bash /bin/sh
+
 USER ${non_root_user}
 
 # Flutter 
@@ -196,8 +199,5 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
     # Accept All Androïd SDK package licenses
     flutter doctor --android-licenses ; \
     fi
-
-# Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
 
 COPY local/dev-entrypoint.sh /usr/local/bin/

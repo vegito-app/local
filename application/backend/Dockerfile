@@ -21,10 +21,12 @@ COPY nodejs.mk .
 
 COPY .git .git
 RUN  git config --global --add safe.directory /home/devuser/src
-COPY application/frontend/node_modules application/frontend/node_modules
 COPY application/frontend/package-lock.json application/frontend/package-lock.json
-# sudo here because node is wonderful. If node remain normal remove sudo
-RUN bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-npm-ci'
+
+COPY application/frontend/node_modules application/frontend/node_modules
+
+# RUN bash -c '. /home/devuser/nvm/nvm.sh && make application/frontend-node-modules'
+# RUN bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-npm-ci'
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public

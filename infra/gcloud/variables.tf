@@ -34,13 +34,3 @@ variable "ui_googlemaps_secret_id" {
   description = "GoogleMaps - UI API Key - secret ID"
   type        = string
 }
-variable "create_secret" {
-  description = "Create secrets if true"
-  type        = bool
-  default     = false
-}
-
-variable "GOOGLE_IDP_OAUTH_SECRET" {
-  description = "google.com IDP oauth secret for web application"
-  type        = string
-}

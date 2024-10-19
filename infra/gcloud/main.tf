@@ -10,15 +10,6 @@ module "cdn" {
   region     = var.region
 }
 
-module "secrets" {
-  source      = "./secrets"
-  environment = var.environment
-
-  GOOGLE_IDP_OAUTH_SECRET = var.GOOGLE_IDP_OAUTH_SECRET
-
-  create_secret = var.create_secret
-}
-
 variable "env" {
   type    = string
   default = "dev" # "staging" ou "prod"
@@ -42,11 +33,11 @@ resource "google_project_service" "google_services_maps" {
   provider = google-beta.no_user_project_override
   project  = var.project_id
   for_each = toset([
+    "directions-backend.googleapis.com",
     "geocoding-backend.googleapis.com",
     # "maps-android-backend.googleapis.com ",
     "maps-backend.googleapis.com",
     "maps-ios-backend.googleapis.com",
-    "directions-backend.googleapis.com"
   ])
   service = each.key
 
@@ -71,8 +62,8 @@ output "github_actions_private_key" {
   sensitive = true
 }
 
-resource "google_storage_bucket" "bucket_tf_state_eu" {
-  name     = "utrade-${var.region}-tf-state"
+resource "google_storage_bucket" "bucket_tf_state_eu_global" {
+  name     = "global-${var.region}-tf-state"
   location = var.region
 
   storage_class = "STANDARD"
@@ -89,5 +80,5 @@ resource "google_storage_bucket" "bucket_tf_state_eu" {
 
 output "tf_state_bucket_url" {
   description = "Terraform state GCS bucket URL."
-  value       = google_storage_bucket.bucket_tf_state_eu.url
+  value       = google_storage_bucket.bucket_tf_state_eu_global.url
 }

@@ -12,7 +12,7 @@ $(NODE_MODULES:%=%-npm-check-updates):
 .PHONY: $(NODE_MODULES:%=%-npm-check-updates)
 
 node-modules-ci: 
-	@$(MAKE) -j $(NODE_MODULES:%=%-ci)
+	@$(MAKE) $(NODE_MODULES:%=%-ci)
 .PHONY: node-modules-ci
 
 $(NODE_MODULES:%=%-ci): 

@@ -44,11 +44,13 @@ resource "google_identity_platform_config" "moov" {
   sms_region_config {
     allowlist_only {
       allowed_regions = [
+        "EU",
         "US",
-        "CA",
+        "CA"
       ]
     }
   }
+
 
   blocking_functions {
     triggers {
@@ -80,7 +82,6 @@ resource "google_identity_platform_config" "moov" {
 
   # Wait for identitytoolkit.googleapis.com to be enabled before initializing Authentication.
   depends_on = [
-    # google_cloud_run_service.moov,
     google_project_service.google_idp_services,
   ]
 }
@@ -130,7 +131,7 @@ resource "google_cloudfunctions_function" "auth_before_create" {
 
   # environment_variables = {
   # GCLOUD_PROJECT  = var.project_id
-  # FIREBASE_CONFIG = base64decode(google_secret_manager_secret_version.firebase_admin_secret_version.secret_data)
+  # FIREBASE_CONFIG = base64decode(google_secret_manager_secret_version.firebase_adminsdk_secret_version.secret_data)
   # }
 }
 

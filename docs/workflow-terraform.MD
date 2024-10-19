@@ -52,13 +52,13 @@ TF_STATE_ITEMS = \
 	module.infra.google_project_service.google_services_maps["maps-backend.googleapis.com"] \
 	module.infra.google_project_service.google_services_maps["maps-ios-backend.googleapis.com"] \
 	module.infra.google_secret_manager_secret.firebase_admin_service_account_secret \
-	module.infra.google_secret_manager_secret.firebase_config \
+	module.infra.google_secret_manager_secret.firebase_config_web \
 	module.infra.google_secret_manager_secret.web_google_maps_api_key \
 	module.infra.google_secret_manager_secret_iam_member.application_backend_firebase_config \
 	module.infra.google_secret_manager_secret_iam_member.application_backend_web_google_maps_api_key \
 	module.infra.google_secret_manager_secret_iam_member.firebase_admin_service_account_secret_member \
-	module.infra.google_secret_manager_secret_version.firebase_admin_secret_version \
-	module.infra.google_secret_manager_secret_version.firebase_config_version \
+	module.infra.google_secret_manager_secret_version.firebase_adminsdk_secret_version \
+	module.infra.google_secret_manager_secret_version.firebase_config_web_version \
 	module.infra.google_secret_manager_secret_version.web_google_maps_api_key_version \
 	module.infra.google_service_account.application_backend_cloud_run_sa \
 	module.infra.google_service_account.firebase_admin_service_account \
@@ -97,7 +97,7 @@ Ces ressources doivent être répliquées dans chaque environnement, car elles s
 	•	Google API Keys (Android, iOS, Web) :
 	•	Les API Keys comme google_maps_android_api_key, google_maps_ios_api_key, web_google_maps_api_key doivent être générées pour chaque environnement avec des restrictions spécifiques (URLs, SHA1, etc.).
 	•	Google Secret Manager :
-	•	Les secrets pour chaque environnement (par exemple firebase_admin_service_account_secret, firebase_config, web_google_maps_api_key) doivent être séparés pour éviter d’exposer les secrets de production dans un autre environnement.
+	•	Les secrets pour chaque environnement (par exemple firebase_admin_service_account_secret, firebase_config_web, web_google_maps_api_key) doivent être séparés pour éviter d’exposer les secrets de production dans un autre environnement.
 	•	Google IAM Roles et Permissions : Les rôles IAM et les membres IAM (e.g., firebase_admin_service_agent, firebase_token_creator) doivent être définis pour chaque environnement, surtout si vous avez différents services ou permissions pour chaque environnement.
 	•	Google Service Accounts : Les comptes de service (application_backend_cloud_run_sa, firebase_admin_service_account) et les clés de ces comptes (firebase_admin_service_account_key, github_actions_key) devraient être spécifiques à chaque environnement.
 	•	Google Cloud Run / Cloud Functions IAM policies : Les politiques d’accès non authentifié ou autres permissions doivent être définies spécifiquement par environnement.

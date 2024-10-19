@@ -26,7 +26,7 @@ func NewApp(ctx context.Context) (*App, error) {
 	adminSDKserviceAccountID := config.GetString(adminSDKserviceAccountIDConfig)
 	app, err := firebase.NewApp(ctx, &firebase.Config{
 		ServiceAccountID: adminSDKserviceAccountID,
-		DatabaseURL:      "https://utrade-taxi-run-0-default-rtdb.firebaseio.com",
+		DatabaseURL:      "https://moov-438615-rtdb.firebaseio.com",
 	})
 	if err != nil {
 		return nil, fmt.Errorf("firebase new app: %w", err)

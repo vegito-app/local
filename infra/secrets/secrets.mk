@@ -3,16 +3,23 @@ TERRAFORM_SECRETS_ROOT_MODULE ?= $(CURDIR)/infra/secrets
 SECRETS_TERRAFORM = \
 	TF_VAR_GOOGLE_IDP_OAUTH_SECRET=$(GOOGLE_IDP_OAUTH_SECRET) \
 	TF_VAR_google_credentials_file=$(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE) \
+	TF_VAR_google_idp_oauth_key_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_KEY) \
+	TF_VAR_google_idp_oauth_client_id_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_CLIENT_ID) \
 	terraform -chdir=$(TERRAFORM_SECRETS_ROOT_MODULE)
 
 terraform-secrets-init: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 	@$(SECRETS_TERRAFORM) init --upgrade
 .PHONY: terraform-secrets-init
 
+terraform-secrets-migrate-state: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
+	@$(SECRETS_TERRAFORM) init --migrate-state
+.PHONY: terraform-secrets-migrate-state
+
 terraform-secrets-import: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
-	@$(SECRETS_TERRAFORM) import google_secret_manager_secret.google_idp_secret projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/idp_google_secret_id
-	@$(SECRETS_TERRAFORM) import google_identity_platform_default_supported_idp_config.google projects/$(projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/idp_google_secret_idPROJECT_ID)/defaultSupportedIdpConfigs/google.com
-	@$(SECRETS_TERRAFORM) import google_secret_manager_secret_version.google_idp_secret_version projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/idp_google_secret_id/versions/1
+# @$(SECRETS_TERRAFORM) import google_secret_manager_secret_version.google_idp_oauth_client_id_version projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/prod-google-idp-oauth-client-id/versions/1
+# @$(SECRETS_TERRAFORM) import google_secret_manager_secret_version.google_idp_oauth_key_version projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/prod-google-idp-oauth-key/versions/1
+# @$(SECRETS_TERRAFORM) import google_secret_manager_secret.google_idp_oauth_client_id projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/prod-google-idp-oauth-client-id
+# @$(SECRETS_TERRAFORM) import google_secret_manager_secret.google_idp_oauth_key projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/secrets/prod-google-idp-oauth-key
 .PHONY: terraform-secrets-import
 
 terraform-secrets-state-rm: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)

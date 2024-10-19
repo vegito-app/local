@@ -3,7 +3,6 @@ module "infra" {
   environment = "staging"
 
   application_backend_image = var.application_backend_image
-  billing_account           = var.billing_account
   project_id                = var.project_id
   region                    = var.region
   repository_id             = var.repository_id

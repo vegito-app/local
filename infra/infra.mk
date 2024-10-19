@@ -1,5 +1,9 @@
 -include infra/gcloud/gcloud.mk
 -include infra/github/github.mk
+
+INFRA_GOOGLE_IDP_OAUTH_KEY=$(INFRA_ENV)-google-idp-oauth-key
+INFRA_GOOGLE_IDP_OAUTH_CLIENT_ID=$(INFRA_ENV)-google-idp-oauth-client-id
+
 -include infra/secrets/secrets.mk
 -include infra/environments/terraform.mk
 

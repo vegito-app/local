@@ -462,9 +462,9 @@ echo $GOOGLE_IDP_OAUTH_SECRET
 echo $TF_VAR_GOOGLE_IDP_OAUTH_SECRET
 gcloud secrets list 
 gcloud secrets versions list 
-gcloud secrets versions list utrade-us-central1-googlemaps-api-key
-gcloud secrets versions access  utrade-us-central1-googlemaps-api-key 
-gcloud secrets versions access --secret utrade-us-central1-googlemaps-api-key 1
+gcloud secrets versions list utrade-us-central1-prod-google-maps-api-key
+gcloud secrets versions access  utrade-us-central1-prod-google-maps-api-key 
+gcloud secrets versions access --secret utrade-us-central1-prod-google-maps-api-key 1
 gcloud secrets versions access --secret utrade-us-central1-firebase-config 1
 gcloud secrets versions access --secret utrade-us-central1-firebase-config 1|jq
 gcloud run list
@@ -993,7 +993,7 @@ make terraform-state-show-all >all
 gcloud alpha services api-keys list
 gcloud alpha services api-keys  describe projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617
 gcloud alpha services api-keys delete projects/402960374845/locations/global/keys/6fa64c54-f5b3-45c4-b6a8-8c2ee2a84617gcloud secrets list 
-gcloud secrets  describe utrade-us-central1-googlemaps-api-key
+gcloud secrets  describe utrade-us-central1-prod-google-maps-api-key
 make application-backend-run 
 make application-backend-docker-compose-rm 
 make terraform-plan terraform-apply-auto-approve 
@@ -1023,7 +1023,7 @@ PORT=8899 make local-run make docker-login
 gcloud secrets versions describe projects/402960374845/secrets/utrade-us-central1-firebase-config/versions/1
 gcloud secrets versions access projects/402960374845/secrets/utrade-us-central1-firebase-config/versions/1
 gcloud secrets versions access projects/402960374845/secrets/firebase-adminsdk-service-account-key/versions/1
-gcloud secrets versions access projects/402960374845/secrets/utrade-us-central1-googlemaps-api-key/versions/1
+gcloud secrets versions access projects/402960374845/secrets/utrade-us-central1-prod-google-maps-api-key/versions/1
 gcloud alpha services api-keys lookup projects/402960374845/locations/global/keys/web-google-maps-api-key
 make docker-lo
 git log 
@@ -1037,7 +1037,7 @@ make terraform-state-list |grep -i idp
 make terraform-state-list >li
 make terraform-secrets-init 
 make terraform-secrets-import 
-gcloud secrets describe idp_google_secret_id
+gcloud secrets describe prod-google-idp-oauth-key
 make terraform-secrets-refresh 
 make terraform-secrets-plan 
 terraform 
@@ -1208,3 +1208,12 @@ mv infra/secrets/ ../secrets
 mv ../secrets infra/
 make terraform-refresh
 gcloud secrets 
+until [ 0 -ne $(git fetch -p | wc -l) ] ; do sleep 1; done
+until [ 0 -ne $(git fetch -p | wc -l) ] ; do echo waiting updates...; sleep 1; done
+time
+date
+until [ 0 -ne $(git fetch -p | wc -l) ] ; do echo waiting updates...; sleep 1; done ; date
+git merge --continu
+git rebase origin/tony 
+git rebase -i origin/dev 
+make terrafor-plan 

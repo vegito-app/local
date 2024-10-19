@@ -1,17 +1,7 @@
-variable "billing_account" {
-  description = "ACCOUNT_ID of used billing account"
-  type        = string
-  default     = "012F35-4F9E4B-CB8479"
-}
-variable "project_name" {
-  description = "Name of the GCP project"
-  type        = string
-  default     = "moov"
-}
 variable "project_id" {
   description = "GCP project ID"
   type        = string
-  default     = "moov"
+  default     = "moov-438615"
 }
 variable "region" {
   description = "GCP used region"

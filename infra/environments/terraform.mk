@@ -19,10 +19,10 @@ terraform-import: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 # @$(TERRAFORM) import module.gcloud.google_service_account.firebase_admin_service_account firebase-adminsdk-vxdj8@moov-438615.iam.gserviceaccount.com
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(GOOGLE_CLOUD_REGION)/instances/$(INFRA_ENV)-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.utrade projects/$(GOOGLE_CLOUD_PROJECT_ID)/locations/$(GOOGLE_CLOUD_REGION)/instances/$(GOOGLE_CLOUD_PROJECT_ID)-default-rtdb
-# @$(TERRAFORM) import module.gcloud.google_firebase_android_app.android_app projects/utrade-taxi-run-0/androidApps/1:$(GOOGLE_CLOUD_PROJECT_NUMBER):android:0af3c208c26031f319de54
-# @$(TERRAFORM) import module.gcloud.google_firebase_apple_app.ios_app projects/utrade-taxi-run-0/iosApps/1:$(GOOGLE_CLOUD_PROJECT_NUMBER):ios:62943a0db6f9c9ff19de54
+# @$(TERRAFORM) import module.gcloud.google_firebase_android_app.android_app projects/moov-438615/androidApps/1:$(GOOGLE_CLOUD_PROJECT_NUMBER):android:0af3c208c26031f319de54
+# @$(TERRAFORM) import module.gcloud.google_firebase_apple_app.ios_app projects/moov-438615/iosApps/1:$(GOOGLE_CLOUD_PROJECT_NUMBER):ios:62943a0db6f9c9ff19de54
 # @$(TERRAFORM) import google_service_account.firebase_admin projects/$(GOOGLE_CLOUD_PROJECT_ID)/firebase-adminsdk-vxdj8@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
-# @$(TERRAFORM) import module.infra.google_cloudfunctions_function.auth_before_sign_in projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform
+# @$(TERRAFORM) import module.infra.google_cloudfunctions_function.auth_before_sign_in projects/moov-438615/locations/us-central1/functions/utrade-us-central1-identity-platform
 # @$(TERRAFORM) import module.infra.google_apikeys_key.web_google_maps_api_key projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/locations/global/keys/web-google-maps-api-key
 # @$(TERRAFORM) import module.infra.google_apikeys_key.google_maps_android_api_key projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/locations/global/keys/mobile-google-maps-api-key-android
 # @$(TERRAFORM) import module.infra.google_apikeys_key.google_maps_ios_api_key projects/$(GOOGLE_CLOUD_PROJECT_NUMBER)/locations/global/keys/mobile-google-maps-api-key-ios
@@ -30,10 +30,10 @@ terraform-import: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 # @$(TERRAFORM) import module.gcloud.google_service_account.application_backend_cloud_run_sa projects/$(GOOGLE_CLOUD_PROJECT_ID)/serviceAccounts/production-application-backend@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 # @$(TERRAFORM) import module.gcloud.google_service_account.firebase_admin_service_account projects/$(GOOGLE_CLOUD_PROJECT_ID)/serviceAccounts/prod-firebase-admin-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 # @$(TERRAFORM) import module.gcloud.google_secret_manager_secret.firebase_admin_service_account_secret projects/378762893981/secrets/prod-firebase-adminsdk-service-account-key
-# @$(TERRAFORM) import module.gcloud.google_secret_manager_secret.firebase_config projects/378762893981/secrets/prod-firebase-config-secret
+# @$(TERRAFORM) import module.gcloud.google_secret_manager_secret.firebase_config_web projects/378762893981/secrets/prod-firebase-web-config
 # @$(TERRAFORM) import module.gcloud.google_service_account.github_actions projects/$(GOOGLE_CLOUD_PROJECT_ID)/serviceAccounts/github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 # @$(TERRAFORM) import module.gcloud.module.cdn.google_compute_global_address.public_cdn  projects/$(GOOGLE_CLOUD_PROJECT_ID)/global/addresses/global-app-address
-# @$(TERRAFORM) import module.gcloud.google_secret_manager_secret.web_google_maps_api_key projects/378762893981/secrets/$(GOOGLE_CLOUD_PROJECT_ID)-$(GOOGLE_CLOUD_REGION)-googlemaps-api-key
+# @$(TERRAFORM) import module.gcloud.google_secret_manager_secret.web_google_maps_api_key projects/378762893981/secrets/$(GOOGLE_CLOUD_PROJECT_ID)-$(GOOGLE_CLOUD_REGION)-prod-google-maps-api-key
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov prod-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb-805c8
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov prod-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb-f82fe
 # @$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov prod-$(GOOGLE_CLOUD_PROJECT_ID)-rtdb-964f7
@@ -63,8 +63,10 @@ terraform-import: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 # $(TERRAFORM) import module.gcloud.google_cloudfunctions_function.auth_before_create $(GOOGLE_CLOUD_PROJECT_ID)/$(GOOGLE_CLOUD_REGION)/$(GOOGLE_CLOUD_PROJECT_ID)-$(GOOGLE_CLOUD_REGION)-identity-platform-before-create
 # $(TERRAFORM) import module.gcloud.module.cdn.google_compute_backend_bucket.public_cdn projects/$(GOOGLE_CLOUD_PROJECT_ID)/global/backendBuckets/$(GOOGLE_CLOUD_PROJECT_ID)-$(GOOGLE_CLOUD_REGION)-public-cdn
 # $(TERRAFORM) import module.gcloud.google_project_iam_custom_role.limited_service_user projects/moov-438615/roles/iam.serviceAccounts.actAs
-# $(TERRAFORM) import module.gcloud.google_secret_manager_secret_version.web_google_maps_api_key_version projects/378762893981/secrets/$(GOOGLE_CLOUD_PROJECT_ID)-$(GOOGLE_CLOUD_REGION)-googlemaps-api-key/versions/2
+# $(TERRAFORM) import module.gcloud.google_secret_manager_secret_version.web_google_maps_api_key_version projects/378762893981/secrets/$(GOOGLE_CLOUD_PROJECT_ID)-$(GOOGLE_CLOUD_REGION)-prod-google-maps-api-key/versions/2
 # $(TERRAFORM) import module.gcloud.google_identity_platform_config.moov projects/$(GOOGLE_CLOUD_PROJECT_ID)/config
+# $(TERRAFORM) import module.gcloud.google_secret_manager_secret.firebase_config_web projects/378762893981/secrets/prod-firebase-web-config
+# $(TERRAFORM) import module.gcloud.google_identity_platform_default_supported_idp_config.google projects/${var.GOOGLE_CLOUD_PROJECT_ID}/defaultSupportedIdpConfigs/google
 .PHONY: terraform-import
 
 # Use this target to help updating the bellow TF_STATE_ITEMS list manually.
@@ -75,7 +77,7 @@ terraform-state-list: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 # This list is used to provide generic terraform targets 
 TF_STATE_ITEMS = \
 	google_project.utrade \
-	google_storage_bucket.bucket_tf_state \
+	module.gcloud.google_storage_bucket.bucket_tf_state_eu_global \
 	module.infra.data.archive_file.auth_func_src \
 	module.infra.data.google_firebase_android_app.android_sha \
 	module.infra.data.google_firebase_android_app_config.android_config \
@@ -121,13 +123,13 @@ TF_STATE_ITEMS = \
 	module.infra.google_project_service.google_services_maps["maps-backend.googleapis.com"] \
 	module.infra.google_project_service.google_services_maps["maps-ios-backend.googleapis.com"] \
 	module.infra.google_secret_manager_secret.firebase_admin_service_account_secret \
-	module.infra.google_secret_manager_secret.firebase_config \
+	module.infra.google_secret_manager_secret.firebase_config_web \
 	module.infra.google_secret_manager_secret.web_google_maps_api_key \
 	module.infra.google_secret_manager_secret_iam_member.application_backend_firebase_config \
 	module.infra.google_secret_manager_secret_iam_member.application_backend_web_google_maps_api_key \
 	module.infra.google_secret_manager_secret_iam_member.firebase_admin_service_account_secret_member \
-	module.infra.google_secret_manager_secret_version.firebase_admin_secret_version \
-	module.infra.google_secret_manager_secret_version.firebase_config_version \
+	module.infra.google_secret_manager_secret_version.firebase_adminsdk_secret_version \
+	module.infra.google_secret_manager_secret_version.firebase_config_web_version \
 	module.infra.google_secret_manager_secret_version.web_google_maps_api_key_version \
 	module.infra.google_service_account.application_backend_cloud_run_sa \
 	module.infra.google_service_account.firebase_admin_service_account \
@@ -193,8 +195,12 @@ terraform-refresh: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 	@$(TERRAFORM) refresh
 .PHONY: terraform-refresh
 
+terraform-migrate-state: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
+	@$(TERRAFORM) init --migrate-state
+.PHONY: terraform-migrate-state
+
 terraform-apply-auto-approve: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
-	@$(TERRAFORM) apply -auto-approve $(TERRAFORM_ROOT_MODULE)/.planed_terraform
+	$(TERRAFORM) apply -auto-approve $(TERRAFORM_ROOT_MODULE)/.planed_terraform
 .PHONY: terraform-apply-auto-approve
 
 terraform-output-json: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
