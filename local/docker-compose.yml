@@ -51,12 +51,12 @@ services:
 
   backend:
     restart: unless-stopped
-    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/docker-repository/utrade:backend-latest}
+    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:backend-latest}
     build:
       context: ..
       dockerfile: application/backend/Dockerfile
       args:
-        builder_image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/prod-docker-repository-public/moov-438615:builder-latest}
+        builder_image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest}
 
     env_file:
       - .env
@@ -72,7 +72,7 @@ services:
   firebase-emulators:
     restart: unless-stopped
     container_name: firebase-emulators
-    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/prod-docker-repository-public/moov-438615:builder-latest}
+    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
@@ -113,7 +113,7 @@ services:
   android-studio:
     restart: unless-stopped
     container_name: android-studio
-    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/utrade-taxi-run-0/docker-repository-public/utrade:android-studio-latest}
+    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/utrade:android-studio-latest}
     env_file:
       - .env
     environment:

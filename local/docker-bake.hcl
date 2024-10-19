@@ -10,7 +10,7 @@ target "builder-ci" {
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
-    BUILDER_IMAGE_VERSION,
+    notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
@@ -29,7 +29,7 @@ target "builder" {
   dockerfile = "local/builder.Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
-    BUILDER_IMAGE_VERSION,
+    notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
     BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,

@@ -16,7 +16,7 @@ target "backend-ci" {
     builder_image = LATEST_BUILDER_IMAGE
   }
   tags = [
-    APPLICATION_BACKEND_IMAGE_VERSION,
+    notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
     LATEST_APPLICATION_BACKEND_IMAGE,
   ]
   platforms = platforms
@@ -43,7 +43,7 @@ target "backend" {
     builder_image = LATEST_BUILDER_IMAGE
   }
   tags = [
-    APPLICATION_BACKEND_IMAGE_VERSION,
+    notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
     LATEST_APPLICATION_BACKEND_IMAGE,
   ]
   cache-from = [

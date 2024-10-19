@@ -159,8 +159,10 @@ RUN curl -o /tmp/android-studio.tar.gz -L ${STUDIO_URL} && \
     rm /tmp/android-studio.tar.gz
 
 COPY local/android/caches-refresh.sh /usr/local/bin/local-android-caches-refresh.sh
+
 USER root
-# Installer Google Chrome
+
+# Install Google Chrome
 RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
     curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     dpkg -i google-chrome-stable_current_amd64.deb ; \
@@ -174,12 +176,7 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
 
 # X11
 COPY local/display-start.sh /usr/local/bin/
-
-RUN ln -sf /usr/bin/bash /bin/sh
-
 ENV DISPLAY=":1"
-
-COPY local/dev-entrypoint.sh /usr/local/bin/
 
 RUN chown -R ${non_root_user}:${non_root_user} ${HOME}
 
@@ -199,3 +196,8 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
     # Accept All Androïd SDK package licenses
     flutter doctor --android-licenses ; \
     fi
+
+# Use Bash
+RUN ln -sf /usr/bin/bash /bin/sh
+
+COPY local/dev-entrypoint.sh /usr/local/bin/

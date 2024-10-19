@@ -2,10 +2,6 @@ variable "GITHUB_RUNNER_IMAGE_VERSION" {
   default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:github-runner-${VERSION}" : ""
 }
 
-variable "GITHUB_RUNNER_IMAGE_TAG" {
-  default = notequal("", VERSION) ? "${PUBLIC_IMAGES_BASE}:github-runner-${VERSION}" : ""
-}
-
 variable "LATEST_GITHUB_RUNNER_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:github-runner-latest"
 }
@@ -26,8 +22,7 @@ target "github-runner-ci" {
   context    = "infra/github"
   tags = [
     LATEST_GITHUB_RUNNER_IMAGE,
-    GITHUB_RUNNER_IMAGE_VERSION,
-    GITHUB_RUNNER_IMAGE_TAG,
+    notequal("", VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_BUILDER_IMAGE,
@@ -53,8 +48,7 @@ target "github-runner" {
   context    = "infra/github"
   tags = [
     LATEST_GITHUB_RUNNER_IMAGE,
-    GITHUB_RUNNER_IMAGE_VERSION,
-    GITHUB_RUNNER_IMAGE_TAG,
+    notequal("", VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
   ]
   cache-from = [
     GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
