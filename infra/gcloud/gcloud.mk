@@ -1,5 +1,5 @@
 GOOGLE_CLOUD_PROJECT_ID ?= moov-438615
-GOOGLE_CLOUD_PROJECT_NUM ?= 378762893981
+GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
 GOOGLE_CLOUD_REGION ?= europe-west1
 
 GOOGLE_CLOUD_CREDENTIALS_JSON_FILE ?= $(CURDIR)/infra/gcloud-credentials.json
@@ -146,13 +146,19 @@ $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles):
 gcloud-service-accounts-bindings-roles: $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles)
 .PHONY: gcloud-service-accounts-bindings-roles
 
-gcloud-secret-read-firebase-ui-config:
-gcloud-secret-read-firebase-ui-config:
+# Upadte this list with 'gcloud secrets list' values
+GCLOUD_SECRETS := \
+  prod-google-idp-oauth-key \
+  prod-google-maps-api-key \
+  prod-firebase-adminsdk-service-account-key \
+  prod-firebase-web-config
 
-FIREBASE_UI_CONFIG_SECRET := projects/${GOOGLE_CLOUD_PROJECT_NUM}/secrets/prod-firebase-config-secret/versions/2
+FIREBASE_UI_CONFIG_SECRET := prod-firebase-web-config
 
-gcloud-secret-read-firebase-ui-config:
-	gcloud secrets versions access latest --secret="$(FIREBASE_UI_CONFIG_SECRET)"
-.PHONY: gcloud-secret-read-firebase-ui-config
+$(GCLOUD_SECRETS:%=gcloud-%-secret-show):
+	@a=$$(gcloud secrets versions access latest --secret=$(@:gcloud-%-secret-show=%)) \
+	&& echo $$a | jq 2>/dev/null \
+	|| echo $$a
+.PHONY: $(GCLOUD_SECRETS:%=gcloud-%-secret-show)
 
 -include gcloud/terraform.mk

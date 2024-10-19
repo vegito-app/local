@@ -28,13 +28,13 @@ resource "google_artifact_registry_repository_iam_member" "public_read" {
   member     = "allUsers"
 }
 
-# resource "null_resource" "docker_auth" {
-#   depends_on = [google_artifact_registry_repository.moov]
+resource "null_resource" "docker_auth" {
+  depends_on = [google_artifact_registry_repository.public_docker_repository]
 
-#   provisioner "local-exec" {
-#     command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${var.project_id}/${var.public_repository_id}"
-#   }
-# }
+  provisioner "local-exec" {
+    command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${var.project_id}/${var.public_repository_id}"
+  }
+}
 
 resource "google_artifact_registry_repository" "private_docker_repository" {
   provider      = google
@@ -44,13 +44,13 @@ resource "google_artifact_registry_repository" "private_docker_repository" {
   format        = "DOCKER"
 }
 
-# resource "null_resource" "docker_auth_public" {
-#   depends_on = [google_artifact_registry_repository.private_docker_repository]
+resource "null_resource" "docker_auth_public" {
+  depends_on = [google_artifact_registry_repository.private_docker_repository]
 
-#   provisioner "local-exec" {
-#     command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}"
-#   }
-# }
+  provisioner "local-exec" {
+    command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}"
+  }
+}
 
 output "docker_repository" {
   description = "Project docker container registry."
@@ -58,7 +58,6 @@ output "docker_repository" {
 }
 
 resource "google_artifact_registry_repository_iam_member" "github_actions_private_repo_write_member" {
-  provider   = google
   project    = var.project_id
   location   = var.region
   repository = google_artifact_registry_repository.private_docker_repository.id
@@ -67,7 +66,6 @@ resource "google_artifact_registry_repository_iam_member" "github_actions_privat
 }
 
 resource "google_artifact_registry_repository_iam_member" "github_actions_private_repo_read_member" {
-  provider   = google
   project    = var.project_id
   location   = var.region
   repository = google_artifact_registry_repository.private_docker_repository.name

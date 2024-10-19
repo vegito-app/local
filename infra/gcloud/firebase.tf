@@ -134,8 +134,9 @@ data "google_firebase_apple_app_config" "ios_config" {
 
 # Creates a Firebase Web App in the new project created above.
 resource "google_firebase_web_app" "web_app" {
-  provider     = google-beta
-  project      = var.project_id
+  provider = google-beta
+  project  = var.project_id
+  # display_name is used as unique ID for this resource
   display_name = "Utrade Web app (${var.environment})"
 
   # The other App types (Android and Apple) use "DELETE" by default.
@@ -152,6 +153,11 @@ data "google_firebase_web_app_config" "web_app_config" {
   provider   = google-beta
   project    = var.project_id
   web_app_id = google_firebase_web_app.web_app.app_id
+}
+
+output "oauth_redirect_uri" {
+  description = "Web OAUTH redirect URI (must authorized set on google console 'ID clients OAuth 2.0' credentials)"
+  value       = "https://${google_firebase_project.moov.id}.firebaseapp.com/__/auth/handler"
 }
 
 resource "google_service_account" "firebase_admin_service_account" {
@@ -191,19 +197,18 @@ resource "google_service_account_key" "firebase_admin_service_account_key" {
   service_account_id = google_service_account.firebase_admin_service_account.name
 }
 
-resource "google_secret_manager_secret_version" "firebase_admin_secret_version" {
+resource "google_secret_manager_secret_version" "firebase_adminsdk_secret_version" {
   secret      = google_secret_manager_secret.firebase_admin_service_account_secret.id
-  secret_data = google_service_account_key.firebase_admin_service_account_key.private_key
+  secret_data = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
 }
 
 resource "google_secret_manager_secret_iam_member" "firebase_admin_service_account_secret_member" {
   secret_id = google_secret_manager_secret.firebase_admin_service_account_secret.secret_id
   role      = "roles/secretmanager.secretAccessor"
-
-  member = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+  member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
 }
 
-resource "google_secret_manager_secret" "firebase_config" {
+resource "google_secret_manager_secret" "firebase_config_web" {
   secret_id = "${var.environment}-firebase-config-secret"
 
   replication {
@@ -213,8 +218,8 @@ resource "google_secret_manager_secret" "firebase_config" {
   }
 }
 
-resource "google_secret_manager_secret_version" "firebase_config_version" {
-  secret = google_secret_manager_secret.firebase_config.id
+resource "google_secret_manager_secret_version" "firebase_config_web_version" {
+  secret = google_secret_manager_secret.firebase_config_web.id
   secret_data = jsonencode({
     apiKey            = data.google_firebase_web_app_config.web_app_config.api_key
     authDomain        = data.google_firebase_web_app_config.web_app_config.auth_domain

@@ -35,11 +35,11 @@ resource "google_cloud_run_service" "application_backend" {
         }
         env {
           name  = "FIREBASE_ADMINSDK_SERVICEACCOUNT_ID"
-          value = google_secret_manager_secret_version.firebase_admin_secret_version.id
+          value = google_secret_manager_secret_version.firebase_adminsdk_secret_version.id
         }
         env {
           name  = "UI_CONFIG_FIREBASE_SECRET_ID"
-          value = google_secret_manager_secret_version.firebase_config_version.id
+          value = google_secret_manager_secret_version.firebase_config_web_version.id
         }
         env {
           name  = "UI_CONFIG_GOOGLEMAPS_SECRET_ID"
@@ -54,7 +54,13 @@ resource "google_cloud_run_service" "application_backend" {
     percent         = 100
     latest_revision = true
   }
-  depends_on = [google_project_service.application_backend_services]
+  depends_on = [
+    google_project_service.application_backend_services,
+    google_artifact_registry_repository_iam_member.application_backend_repo_read_member,
+    google_secret_manager_secret_iam_member.application_backend_wep_googlemaps_api_key_secret_read,
+    google_secret_manager_secret_iam_member.application_backend_firebase_web_uiconfig_secret_read,
+    google_secret_manager_secret_iam_member.application_backend_firebase_adminsdk_secret_read
+  ]
 }
 
 output "backend_url" {
@@ -67,4 +73,29 @@ resource "google_cloud_run_service_iam_member" "allow_unauthenticated" {
   location = google_cloud_run_service.application_backend.location
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+resource "google_artifact_registry_repository_iam_member" "application_backend_repo_read_member" {
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.private_docker_repository.name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+}
+
+resource "google_secret_manager_secret_iam_member" "application_backend_wep_googlemaps_api_key_secret_read" {
+  secret_id = google_secret_manager_secret_version.web_google_maps_api_key_version.id
+  member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+  role      = "roles/secretmanager.secretAccessor"
+}
+
+resource "google_secret_manager_secret_iam_member" "application_backend_firebase_web_uiconfig_secret_read" {
+  secret_id = google_secret_manager_secret_version.firebase_config_web_version.id
+  member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+  role      = "roles/secretmanager.secretAccessor"
+}
+resource "google_secret_manager_secret_iam_member" "application_backend_firebase_adminsdk_secret_read" {
+  secret_id = google_secret_manager_secret_version.firebase_adminsdk_secret_version.id
+  member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+  role      = "roles/secretmanager.secretAccessor"
 }

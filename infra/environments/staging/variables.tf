@@ -2,18 +2,10 @@ variable "google_credentials_file" {
   description = "Google Service Account JSON file"
   type        = string
 }
-variable "billing_account" {
-  description = "ACCOUNT_ID of used billing account"
-  type        = string
-}
-variable "project_name" {
-  description = "Name of the GCP project"
-  type        = string
-  default     = "utrade"
-}
 variable "project_id" {
   description = "GCP project ID"
   type        = string
+  default     = "moov-staging-440506"
 }
 variable "region" {
   description = "GCP used region"

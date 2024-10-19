@@ -32,3 +32,8 @@ output "firebase_android_config_json" {
 output "backend_url" {
   value = module.gcloud.backend_url
 }
+
+output "oauth_redirect_uri" {
+  description = "Web OAUTH redirect URI (must authorized set on google console 'ID clients OAuth 2.0' credentials)"
+  value       = module.gcloud.oauth_redirect_uri
+}

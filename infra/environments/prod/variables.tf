@@ -1,8 +1,3 @@
-variable "root_admin_service_account_email" {
-  description = "GCP used region"
-  type        = string
-  default     = "root-admin@moov-438615.iam.gserviceaccount.com"
-}
 variable "google_credentials_file" {
   description = "Google Service Account JSON file"
   type        = string
@@ -36,19 +31,22 @@ variable "application_backend_image" {
   description = "application Docker image"
   type        = string
 }
-variable "GOOGLE_IDP_OAUTH_SECRET" {
-  description = "google.com IDP oauth secret for web application"
-  type        = string
-}
-
 variable "ui_firebase_secret_id" {
   description = "Firebase - UI config - secret ID"
   type        = string
   default     = "ui_firebase_config"
 }
-
 variable "ui_googlemaps_secret_id" {
   description = "GoogleMaps - UI API Key - secret ID"
   type        = string
   default     = "ui_googlemaps_secret"
 }
+variable "google_idp_oauth_key_secret_id" {
+  description = "google.com IDP oauth key cloud secret"
+  type        = string
+}
+variable "google_idp_oauth_client_id_secret_id" {
+  description = "google.com IDP oauth client ID cloud secret"
+  type        = string
+}
+
