@@ -33,11 +33,8 @@ target "android-studio-ci" {
     LATEST_BUILDER_IMAGE,
     LATEST_ANDROID_STUDIO_IMAGE
   ]
-  cache-to = ["type=inline"]
-  platforms = [
-    "linux/amd64",
-    "linux/arm64"
-  ]
+  cache-to  = ["type=inline"]
+  platforms = platforms
 }
 
 target "android-studio" {

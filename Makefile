@@ -2,10 +2,6 @@ GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/n
 
 VERSION ?= $(GIT_HEAD_VERSION)
 
-GOOGLE_CLOUD_PROJECT_ID = moov-438615
-
-REGION ?= europe-west1
-
 export 
 
 -include go.mk

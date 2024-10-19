@@ -11,6 +11,6 @@ module "infra" {
   ui_firebase_secret_id     = var.ui_firebase_secret_id
   ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
 
-  IDP_GOOGLE_OAUTH_SECRET = var.IDP_GOOGLE_OAUTH_SECRET
+  GOOGLE_IDP_OAUTH_SECRET = var.GOOGLE_IDP_OAUTH_SECRET
   create_secret           = var.create_secret
 }

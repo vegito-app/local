@@ -16,7 +16,7 @@ resource "google_secret_manager_secret" "google_idp_secret" {
   }
 }
 
-variable "IDP_GOOGLE_OAUTH_SECRET" {
+variable "GOOGLE_IDP_OAUTH_SECRET" {
   description = "google.com IDP oauth secret for web application"
   type        = string
 }
@@ -24,7 +24,7 @@ variable "IDP_GOOGLE_OAUTH_SECRET" {
 resource "google_secret_manager_secret_version" "google_idp_secret_version" {
   count       = var.create_secret ? 1 : 0
   secret      = google_secret_manager_secret.google_idp_secret[count.index].id
-  secret_data = var.IDP_GOOGLE_OAUTH_SECRET
+  secret_data = var.GOOGLE_IDP_OAUTH_SECRET
 }
 
 resource "google_identity_platform_default_supported_idp_config" "google" {

@@ -49,26 +49,15 @@ RUN apt-get update && apt-get install -y \
     libgtk-3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-ARG non_root_user=devuser
-
-# Add non-root user    
-RUN useradd -m ${non_root_user} && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
-
-USER ${non_root_user}
-ENV HOME=/home/${non_root_user}
-WORKDIR ${HOME}/
-
 # Docker
-RUN sudo install -m 0755 -d /etc/apt/keyrings \
-    && sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
-    && sudo chmod a+r /etc/apt/keyrings/docker.asc \
+RUN install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+    && chmod a+r /etc/apt/keyrings/docker.asc \
     # Add the repository to Apt sources:
     && echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && sudo apt-get update && sudo apt-get install -y \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
+    > /etc/apt/sources.list.d/docker.list \
+    && apt-get update && apt-get install -y \
     # docker-ce \
     docker-ce-cli \
     # containerd.io \
@@ -77,15 +66,26 @@ RUN sudo install -m 0755 -d /etc/apt/keyrings \
 
 # GCP CLI
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
-    sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
-    && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
+    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+    && apt-get update -y && apt-get install google-cloud-sdk -y
 
 # Terraform
 ENV TERRAFORM_VERSION=1.9.7
 RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && sudo unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
+    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
+ARG non_root_user=devuser
+
+# Add non-root user    
+RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+ENV HOME=/home/${non_root_user}
+WORKDIR ${HOME}/
 
 # nvm with node and npm
 ENV NVM_DIR=${HOME}/nvm
@@ -113,13 +113,14 @@ RUN npm install -g \
 ENV GO_VERSION=1.23.2
 ARG TARGETPLATFORM
 
+USER root
 RUN case "$TARGETPLATFORM" in \
     "linux/amd64") \
     curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz ;; \
     "linux/arm64") \
     curl -OL https://golang.org/dl/go${GO_VERSION}.linux-arm64.tar.gz ;; \
     esac \
-    && sudo tar -C /usr/local -xzf go${GO_VERSION}.*.tar.gz \
+    && tar -C /usr/local -xzf go${GO_VERSION}.*.tar.gz \
     && rm go${GO_VERSION}.*.tar.gz
 
 ENV CGO_ENABLED=1
@@ -129,7 +130,9 @@ COPY local/proxy ${HOME}/localproxy
 RUN cd ${HOME}/localproxy \
     && GOPATH=/tmp/go \
     go install -v \
-    && sudo cp /tmp/go/bin/proxy /usr/local/bin/localproxy 
+    && cp /tmp/go/bin/proxy /usr/local/bin/localproxy 
+
+USER ${non_root_user}
 
 # Android SDK
 ENV ANDROID_SDK=${HOME}/Android/Sdk
@@ -156,6 +159,31 @@ RUN curl -o /tmp/android-studio.tar.gz -L ${STUDIO_URL} && \
     rm /tmp/android-studio.tar.gz
 
 COPY local/android/caches-refresh.sh /usr/local/bin/local-android-caches-refresh.sh
+USER root
+# Installer Google Chrome
+RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
+    curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    dpkg -i google-chrome-stable_current_amd64.deb ; \
+    apt-get install -f -y ; \
+    else \
+    echo TARGETPLATFORM =  `dpkg --print-architecture && uname` ; sleep 10;\
+    echo "Chrome not supported on this platform "  ; \
+    echo "Installing chromium"; \
+    apt-get install -y chromium; \
+    fi
+
+# X11
+COPY local/display-start.sh /usr/local/bin/
+
+RUN ln -sf /usr/bin/bash /bin/sh
+
+ENV DISPLAY=":1"
+
+COPY local/dev-entrypoint.sh /usr/local/bin/
+
+RUN chown -R ${non_root_user}:${non_root_user} ${HOME}
+
+USER ${non_root_user}
 
 # Flutter 
 ENV FLUTTER_VERSION=3.24.3
@@ -171,24 +199,3 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
     # Accept All Androïd SDK package licenses
     flutter doctor --android-licenses ; \
     fi
-
-# Installer Google Chrome
-RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
-    curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    sudo dpkg -i google-chrome-stable_current_amd64.deb ; \
-    sudo apt-get install -f -y ; \
-    else \
-    echo TARGETPLATFORM =  `dpkg --print-architecture && uname` ; sleep 10;\
-    echo "Chrome not supported on this platform "  ; \
-    echo "Installing chromium"; \
-    sudo apt-get install -y chromium; \
-    fi
-
-# X11
-COPY local/display-start.sh /usr/local/bin/
-
-RUN sudo ln -sf /usr/bin/bash /bin/sh
-
-ENV DISPLAY=":1"
-
-COPY local/dev-entrypoint.sh /usr/local/bin/

@@ -19,10 +19,7 @@ target "backend-ci" {
     APPLICATION_BACKEND_IMAGE_VERSION,
     LATEST_APPLICATION_BACKEND_IMAGE,
   ]
-  platforms = [
-    "linux/amd64",
-    "linux/arm64"
-  ]
+  platforms = platforms
   cache-from = [
     LATEST_BUILDER_IMAGE,
     LATEST_APPLICATION_BACKEND_IMAGE,

@@ -1,10 +1,21 @@
-GOOGLE_CLOUD_APPLICATION_CREDENTIALS ?= $(CURDIR)/infra/environments/prod/gcloud-credentials.json
+GOOGLE_CLOUD_PROJECT_ID ?= moov-438615
+GOOGLE_CLOUD_PROJECT_NUM ?= 378762893981
+GOOGLE_CLOUD_REGION ?= europe-west1
 
-google-application-credentials:
-	bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
+GOOGLE_CLOUD_CREDENTIALS_JSON_FILE ?= $(CURDIR)/infra/gcloud-credentials.json
+
+google-application-credentials: google-application-credentials-token-exist
+	bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 .PHONY: google-application-credentials
 
-$(GOOGLE_CLOUD_APPLICATION_CREDENTIALS): 
+google-application-credentials-token-exist:
+	@if [ ! -v GOOGLE_CLOUD_CREDENTIALS ] ; then \
+		echo missing GOOGLE_CLOUD_CREDENTIALS environment variable. \
+		exit -1 ; \
+	fi
+.PHONY: google-application-credentials-token-exist
+
+$(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE): 
 	@$(MAKE) google-application-credentials
 
 gcloud-auth-login:
@@ -58,7 +69,7 @@ gcloud-auth-func-logs:
 gcloud-auth-func-deploy:
 	@gcloud functions deploy my-pubsub-function \
 	  --gen2 \
-	  --region=$(REGION) \
+	  --region=$(GOOGLE_CLOUD_REGION) \
 	  --runtime=go122 \
 	  --source=$(CURDIR)/infra/gcloud/auth \
 	  --entry-point=idp.go \
@@ -134,5 +145,14 @@ $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles):
 
 gcloud-service-accounts-bindings-roles: $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-service-account-bindings-roles)
 .PHONY: gcloud-service-accounts-bindings-roles
+
+gcloud-secret-read-firebase-ui-config:
+gcloud-secret-read-firebase-ui-config:
+
+FIREBASE_UI_CONFIG_SECRET := projects/${GOOGLE_CLOUD_PROJECT_NUM}/secrets/prod-firebase-config-secret/versions/2
+
+gcloud-secret-read-firebase-ui-config:
+	gcloud secrets versions access latest --secret="$(FIREBASE_UI_CONFIG_SECRET)"
+.PHONY: gcloud-secret-read-firebase-ui-config
 
 -include gcloud/terraform.mk

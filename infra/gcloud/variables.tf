@@ -2,18 +2,10 @@ variable "environment" {
   description = "Environment name (dev, staging, prod)"
   type        = string
 }
-# variable "billing_account" {
-#   description = "ACCOUNT_ID of used billing account"
-#   type        = string
-# }
 variable "project_id" {
   description = "GCP project ID"
   type        = string
 }
-# variable "project_name" {
-#   description = "GCP project Name"
-#   type        = string
-# }
 variable "region" {
   description = "GCP used region"
   type        = string
@@ -48,7 +40,7 @@ variable "create_secret" {
   default     = false
 }
 
-variable "IDP_GOOGLE_OAUTH_SECRET" {
+variable "GOOGLE_IDP_OAUTH_SECRET" {
   description = "google.com IDP oauth secret for web application"
   type        = string
 }

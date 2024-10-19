@@ -14,10 +14,7 @@ target "builder-ci" {
   ]
   cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
-  platforms = [
-    "linux/amd64",
-    # "linux/arm64"
-  ]
+  platforms  = platforms
 }
 
 variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {

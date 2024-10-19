@@ -33,11 +33,8 @@ target "github-runner-ci" {
     LATEST_BUILDER_IMAGE,
     LATEST_GITHUB_RUNNER_IMAGE
   ]
-  cache-to = ["type=inline"]
-  platforms = [
-    "linux/amd64",
-    "linux/arm64"
-  ]
+  cache-to  = ["type=inline"]
+  platforms = platforms
 }
 
 variable "GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {

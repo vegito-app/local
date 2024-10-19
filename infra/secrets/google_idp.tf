@@ -14,14 +14,14 @@ resource "google_secret_manager_secret" "google_idp_secret" {
   }
 }
 
-variable "IDP_GOOGLE_OAUTH_SECRET" {
+variable "GOOGLE_IDP_OAUTH_SECRET" {
   description = "google.com IDP oauth secret"
   type        = string
 }
 
 resource "google_secret_manager_secret_version" "google_idp_secret_version" {
   secret      = google_secret_manager_secret.google_idp_secret.id
-  secret_data = var.IDP_GOOGLE_OAUTH_SECRET
+  secret_data = var.GOOGLE_IDP_OAUTH_SECRET
 }
 
 resource "google_identity_platform_default_supported_idp_config" "google" {

@@ -36,7 +36,7 @@ variable "application_backend_image" {
   description = "application Docker image"
   type        = string
 }
-variable "IDP_GOOGLE_OAUTH_SECRET" {
+variable "GOOGLE_IDP_OAUTH_SECRET" {
   description = "google.com IDP oauth secret for web application"
   type        = string
 }

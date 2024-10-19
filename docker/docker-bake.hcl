@@ -24,6 +24,13 @@ variable "PUBLIC_IMAGES_BASE" {
   default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 
+variable "platforms" {
+  default = [
+    "linux/amd64",
+    "linux/arm64"
+  ]
+}
+
 group "services-load-local-arch" {
   targets = [
     "backend",

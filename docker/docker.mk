@@ -1,4 +1,4 @@
-REGISTRY = $(REGION)-docker.pkg.dev
+REGISTRY = $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 
 PUBLIC_REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/$(INFRA_ENV)-docker-repository-public
 PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
@@ -31,7 +31,7 @@ docker-images-local-arch: local-builder-image
 	@$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
 .PHONY: docker-images-local-arch
 
-docker-buildx-setup: $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
+docker-buildx-setup: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 	@-docker buildx create --name $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 
 	@-docker buildx use $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 
 .PHONY: docker-buildx-setup

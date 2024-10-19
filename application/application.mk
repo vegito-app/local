@@ -1,4 +1,4 @@
-GOOGLE_APPLICATION_CREDENTIALS = $(GOOGLE_CLOUD_APPLICATION_CREDENTIALS)
+GOOGLE_APPLICATION_CREDENTIALS = $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 
 -include application/frontend/frontend.mk
 -include application/backend/backend.mk

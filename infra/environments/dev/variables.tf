@@ -42,7 +42,7 @@ variable "create_secret" {
   default     = false
 }
 
-variable "IDP_GOOGLE_OAUTH_SECRET" {
+variable "GOOGLE_IDP_OAUTH_SECRET" {
   description = "google.com IDP oauth secret for web application"
   type        = string
 }
