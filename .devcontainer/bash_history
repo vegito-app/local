@@ -1227,3 +1227,8 @@ git rebase -i 69cf31c78d144d13901127bbfb52d129b4b20be7
 git tag -f f
 git reset f
 ifconfig
+make terrafor-plan sudo apt-get install iftop
+sudo iftop
+ssh-add -L
+make gcloud-
+make google-application-credentials

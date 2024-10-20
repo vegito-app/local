@@ -5,7 +5,7 @@ GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_CREDENTIALS_JSON_FILE ?= $(CURDIR)/infra/gcloud-credentials.json
 
 google-application-credentials: google-application-credentials-token-exist
-	bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
+	@bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
 .PHONY: google-application-credentials
 
 google-application-credentials-token-exist:
