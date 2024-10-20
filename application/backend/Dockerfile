@@ -23,10 +23,9 @@ COPY .git .git
 RUN  git config --global --add safe.directory /home/devuser/src
 COPY application/frontend/package-lock.json application/frontend/package-lock.json
 
-COPY application/frontend/node_modules application/frontend/node_modules
 
-# RUN bash -c '. /home/devuser/nvm/nvm.sh && make application/frontend-node-modules'
-# RUN bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-npm-ci'
+RUN bash -c '. /home/devuser/nvm/nvm.sh && make application/frontend-node-modules'
+RUN bash -c '. /home/devuser/nvm/nvm.sh && make application-frontend-npm-ci'
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public

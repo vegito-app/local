@@ -1216,4 +1216,14 @@ until [ 0 -ne $(git fetch -p | wc -l) ] ; do echo waiting updates...; sleep 1; d
 git merge --continu
 git rebase origin/tony 
 git rebase -i origin/dev 
-make terrafor-plan 
+make terrafor-plan make terraform-plan 
+make terraform-state-backup 
+gcloud storage buckets list |grep -i name
+make terraform-secrets-state-backup 
+make terraform-migrate-state 
+make module.gcloud.google_storage_bucket.bucket_tf_state_eu-rm 
+make module.gcloud.google_storage_bucket.bucket_tf_state_eu_global-show 
+git rebase -i 69cf31c78d144d13901127bbfb52d129b4b20be7
+git tag -f f
+git reset f
+ifconfig

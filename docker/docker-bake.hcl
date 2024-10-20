@@ -24,6 +24,10 @@ variable "PUBLIC_IMAGES_BASE" {
   default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 
+variable "PRIVATE_IMAGES_BASE" {
+  default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+}
+
 variable "platforms" {
   default = [
     "linux/amd64",

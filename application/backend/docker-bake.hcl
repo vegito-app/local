@@ -1,9 +1,9 @@
 variable "APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${REPOSITORY}/utrade:backend"
+  default = "${PRIVATE_IMAGES_BASE}:backend"
 }
 
 variable "APPLICATION_BACKEND_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${APPLICATION_BACKEND_IMAGES_BASE}-${VERSION}" : ""
+  default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:backend--${VERSION}" : ""
 }
 
 variable "LATEST_APPLICATION_BACKEND_IMAGE" {
