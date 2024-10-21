@@ -1,0 +1,47 @@
+{
+  "id": "qMImTbYmitdjWKQcQov8yB10ThIx9XCD",
+  "createdTime": "10/21/2024, 10:10:55 AM",
+  "name": "Tar Unzip stdin",
+  "conversations": [
+    {
+      "id": "qMImTbYmitdjWKQcQov8yB10ThIx9XCD",
+      "createdTime": "10/21/2024, 10:10:55 AM",
+      "completionParams": {
+        "model": "gpt-4",
+        "max_tokens": 2048,
+        "temperature": 0.9,
+        "top_p": 1
+      },
+      "prompt": {
+        "id": "qMImTbYmitdjWKQcQov8yB10ThIx9XCD",
+        "role": "user",
+        "text": "peut on extrair avec tar depuis l'entrée standard ?"
+      },
+      "response": {
+        "id": "s0CHguId6df1PsL4H4yEYnsdGLnsEjuE",
+        "role": "assistant",
+        "text": "Oui, il est absolument possible d'extraire un fichier tar à partir de l'entrée standard. Vous pouvez utiliser le symbole `-` pour signifier à `tar` qu'il doit lire depuis l'entrée standard (stdin) ou écrire sur la sortie standard (stdout).\n\nVoici comment cela peut être fait :\n\n```bash\ncat yourfile.tar | tar -x\n```\nou\n\n```bash\ntar -xf -\n```\n\nNotez que vous aurez besoin d'utiliser le flag `-f` qui indique le nom du fichier d'archive à manipuler.\n\nQuand `-` est utilisé comme nom de fichier pour l'option `-f`, `tar` lit l'archive depuis l'entrée standard ou envoie l'archive vers la sortie standard.\n\nDans ces exemples, nous utilisons le mode extraction `-x`. Les fichiers sont extraits de l'archive avec tous les noms et les liens symboliques; si le fichier figure déjà dans le système de fichiers, sa version précédente est écrasée. \n\nLes points de montage actuels sont ignorés, ce qui implique que toutes les informations de périphérique spécifiées dans l'archive sont ignorées lors de l'extraction des fichiers périphériques.\n\nIl est important de noter que les systèmes Linux modernes reconnaissent automatiquement une archive tar passée via l'entrée standard, donc vous pouvez effectuer simplement `cat yourfile.tar | tar x`, mais c'est une bonne pratique d'inclure explicitement le `-f -` pour garantir la compatibilité."
+      }
+    },
+    {
+      "id": "qMImTbYmitdjWKQcQov8yB10ThIx9XCD",
+      "createdTime": "10/21/2024, 10:56:03 AM",
+      "completionParams": {
+        "model": "gpt-4",
+        "max_tokens": 2048,
+        "temperature": 0.9,
+        "top_p": 1
+      },
+      "prompt": {
+        "id": "IMWuDZyDtZRqYFnIEczQG0FsvwcZ6p31",
+        "role": "user",
+        "text": "peut on faire la meme chose avec unzip ?"
+      },
+      "response": {
+        "id": "kL1r5jaD83sUHq5Y76zfTFVKAtMogvsv",
+        "role": "assistant",
+        "text": "Non, malheureusement, la commande `unzip` ne supporte pas l'entrée standard (stdin) ou la sortie standard (stdout). \n\nLa commande `unzip` attend un fichier nommé comme argument et n'a pas de provision pour lire les données directement à partir de l'entrée standard.\n\nIl existe cependant des alternatives qui permettent de décompresser un fichier zip à partir de l'entrée standard. Un exemple étant `funzip`.\n\n### Funzip\n\n`funzip` est conçu pour être utilisé dans des pipelines et extrait le premier fichier rencontré dans le flux zip vers la sortie standard.\n\nVoici comment vous pouvez l'utiliser:\n\n```bash\ncat yourfile.zip | funzip\n```\n\nVeuillez noter que `funzip` convient mieux dans des situations où il n'y a qu'un seul membre dans l'archive à extraire. Si vous voulez extraire plusieurs fichiers d'une archive zip à partir de l'entrée standard, peut-être vos autres options seraient d'écrire sur le disque d'abord, puis utilisez `unzip`, ou utiliser une autre librairie/app pour prendre en charge cela."
+      }
+    }
+  ]
+}
