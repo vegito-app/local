@@ -11,16 +11,14 @@ COPY nodejs.mk .
 # frontend
 RUN mkdir -p application/frontend 
 COPY application/frontend/package.json application/frontend/
+COPY application/frontend/package-lock.json application/frontend/
 COPY application/frontend/frontend.mk application/frontend/
 COPY application/application.mk application/
 
 COPY .git .git
-RUN bash -c ' \
-    . /home/devuser/nvm/nvm.sh \
-    && make application/frontend-node-modules  \
-    && git config --global --add safe.directory /home/devuser/src \
-    && make application-frontend-npm-ci  \
-    '
+RUN sudo chmod 777 -R application/frontend \
+    && make application-frontend-npm-ci \
+    && git config --global --add safe.directory /home/devuser/src
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public
