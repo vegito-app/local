@@ -122,7 +122,6 @@ RUN npm install -g \
 ENV GO_VERSION=1.23.2
 ARG TARGETPLATFORM
 
-USER root
 RUN case "$TARGETPLATFORM" in \
     "linux/amd64") \
     LATEST_GOLANG=$(curl -s https://go.dev/dl/ | grep -oP '(go.*?.linux-amd64.tar.gz)' | head -1) ; \
@@ -131,7 +130,7 @@ RUN case "$TARGETPLATFORM" in \
     LATEST_GOLANG=$(curl -s https://go.dev/dl/ | grep -oP '(go.*?.linux-arm64.tar.gz)' | head -1) ; \
     ;; \
     esac \
-    && curl -o- https://dl.google.com/go/${LATEST_GOLANG} | tar xz -C /usr/local --
+    && curl -o- https://dl.google.com/go/${LATEST_GOLANG} | sudo tar xz -C /usr/local --
 
 ENV CGO_ENABLED=1
 ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
@@ -140,63 +139,56 @@ COPY local/proxy ${HOME}/localproxy
 RUN cd ${HOME}/localproxy \
     && GOPATH=/tmp/go \
     go install -v \
-    && cp /tmp/go/bin/proxy /usr/local/bin/localproxy 
-
-USER ${non_root_user}
+    && sudo cp /tmp/go/bin/proxy /usr/local/bin/localproxy 
 
 # Android SDK
 ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
 ENV PATH=$PATH:$ANDROID_SDK/emulator:$ANDROID_SDK/tools:$ANDROID_SDK/tools/bin:$ANDROID_SDK/platform-tools
 
-RUN LATEST_ANDROID_COMMANDLINETOOLS_URL=$(curl -s https://developer.android.com/studio | grep -oP '(https://dl.google.com/android/repository/commandlinetools-linux-.*?_latest.zip)' | head -1); \
+# RUN ANDROID_COMMANDLINETOOLS_URL=$(curl -s https://developer.android.com/studio \
+#     | grep -oP '(https://dl.google.com/android/repository/commandlinetools-linux-.*?_latest.zip)' | head -1); \
+RUN ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip; \
     mkdir -p $ANDROID_SDK/cmdline-tools/ && \
     cd $ANDROID_SDK/cmdline-tools/ && \
-    curl -o sdk.zip -L $LATEST_ANDROID_COMMANDLINETOOLS_URL && \
+    curl -o sdk.zip -L $ANDROID_COMMANDLINETOOLS_URL && \
     unzip sdk.zip && \
     rm sdk.zip && \
     mv cmdline-tools latest && \
     yes | sdkmanager --licenses && \
     sdkmanager "platform-tools" "platforms;android-30"
 
-# Set environment variables for Android Studio
-ENV STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.1.1.12/android-studio-2024.1.1.12-linux.tar.gz
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 
-# Download and unarchive latest Android Studio
-RUN LATEST_STUDIO_URL=$(curl -s https://developer.android.com/studio | grep -oP '(https://redirector.gvt1.com/edgedl/android/studio/ide-zips/.*?linux.tar.gz)' | head -1); \
-    curl -o /tmp/android-studio.tar.gz -L ${LATEST_STUDIO_URL}  && \
+# RUN ANDROID_STUDIO_URL=$(curl -s https://developer.android.com/studio \
+# | grep -oP '(https://redirector.gvt1.com/edgedl/android/studio/ide-zips/.*?linux.tar.gz)' | head -1); \
+RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.1.2.12/android-studio-2024.1.2.12-linux.tar.gz ; \
+    curl -o /tmp/android-studio.tar.gz -L ${ANDROID_STUDIO_URL}  && \
     tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
     mv /tmp/android-studio ${STUDIO_PATH} && \
     rm /tmp/android-studio.tar.gz
 
 COPY local/android/caches-refresh.sh /usr/local/bin/local-android-caches-refresh.sh
 
-USER root
-
 # Install Google Chrome
 RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
     curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg -i google-chrome-stable_current_amd64.deb && \
-    apt-get install -f -y ; \
+    sudo dpkg -i google-chrome-stable_current_amd64.deb && \
+    sudo apt-get install -f -y ; \
     else \
     echo TARGETPLATFORM =  `dpkg --print-architecture && uname` ; sleep 10;\
     echo "Chrome not supported on this platform "  ; \
     echo "Installing chromium"; \
-    apt-get install -y chromium; \
+    sudo apt-get install -y chromium; \
     fi
 
 # X11
 COPY local/display-start.sh /usr/local/bin/
 ENV DISPLAY=":1"
 
-RUN chown -R ${non_root_user}:${non_root_user} ${HOME}
-
 # Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
-
-USER ${non_root_user}
+RUN sudo ln -sf /usr/bin/bash /bin/sh
 
 # Flutter 
 ENV FLUTTER_VERSION=3.24.3

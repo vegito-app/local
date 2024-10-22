@@ -1,6 +1,6 @@
 services:
   github-runner:
-    # restart: unless-stopped
+    restart: unless-stopped
     image: ${GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

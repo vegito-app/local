@@ -21,3 +21,9 @@ images-ci: node-modules-ci docker-images-ci-multi-arch
 
 android-studio: local-android-studio-docker-compose-up
 .PHONY: images images-ci android-studio
+
+dev-local: \
+local-firebase-emulators-docker-compose-up \
+local-android-studio-docker-compose-up \
+application-backend-docker-compose-up
+.PHONY: dev-local

@@ -15,21 +15,15 @@ COPY application/frontend/package-lock.json application/frontend/
 COPY application/frontend/frontend.mk application/frontend/
 COPY application/application.mk application/
 
-COPY .git .git
-RUN sudo chmod 777 -R application/frontend \
-    && make application-frontend-npm-ci \
-    && git config --global --add safe.directory /home/devuser/src
+RUN make application-frontend-npm-ci
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public
 COPY application/frontend/src application/frontend/src
 COPY application/frontend/webpack.server.js application/frontend/
 
-RUN bash -c ' \
-    . /home/devuser/nvm/nvm.sh \
-    && make application-frontend-build \
-    && make application-frontend-bundle \
-    '
+RUN make -j application-frontend-build application-frontend-bundle
+
 # backend
 RUN mkdir -p application/backend
 
@@ -46,15 +40,17 @@ COPY application/backend/track application/backend/track
 COPY application/backend/firebase application/backend/firebase
 COPY application/backend/main.go application/backend/
 
-RUN make application-backend-install
+COPY .git .git
+RUN git config --global --add safe.directory ${HOME}/src \
+    && make application-backend-install
 
 # artefact
 FROM scratch
-
+ARG builder_home=/home/devuser
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /home/devuser/src/application/frontend/build/ /frontend/build
-COPY --from=build /home/devuser/src/application/frontend/public/ /frontend/public
-COPY --from=build /home/devuser/go/bin/backend /
+COPY --from=build ${builder_home}/src/application/frontend/build/ /frontend/build
+COPY --from=build ${builder_home}/src/application/frontend/public/ /frontend/public
+COPY --from=build ${builder_home}/go/bin/backend /
 ENV FRONTEND_BUILD_DIR=/frontend/build \
     FRONTEND_PUBLIC_DIR=/frontend/public \
     UI_JAVASCRIPT_SOURCE_FILE=/frontend/build/bundle.js

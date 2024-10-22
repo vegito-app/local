@@ -38,6 +38,7 @@ variable "platforms" {
 group "services-load-local-arch" {
   targets = [
     "backend",
+    "android-studio",
     "github-runner",
   ]
 }
@@ -45,6 +46,7 @@ group "services-load-local-arch" {
 group "services-push-multi-arch" {
   targets = [
     "backend-ci",
+    "android-studio-ci",
     "github-runner-ci",
   ]
 }

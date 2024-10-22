@@ -32,18 +32,7 @@ services:
       bash -c '
       # Ensure docker socket permissions
       make docker-sock
-
-      # Start Firebase emulators with port forwarded 
-      # to the local devcontainer
-      make -j \
-       local-firebase-emulators-docker-compose-up \
-       local-android-studio-docker-compose-up \
-       application-backend-image
-
-      # Start service Backend with port forwarded 
-      # to the local devcontainer
-      make application-backend-docker-compose-up
-
+      make dev-local
       while true; do sleep 1000 ; done
       '
     networks:
@@ -61,9 +50,11 @@ services:
     env_file:
       - .env
     environment:
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_ADMINSDK_SERVICEACCOUNT_ID: ${FIREBASE_ADMINSDK_SERVICEACCOUNT_ID}
+      UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID}
+      UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
-      UI_CONFIG_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
-      UI_CONFIG_FIREBASE_CONFIG: ${UI_CONFIG_FIREBASE_CONFIG}
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}
     networks:

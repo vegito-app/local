@@ -3,28 +3,25 @@ FROM ${builder_image}
 
 RUN npm install -g standard-version
 
-ENV RUNNER_VERSION=2.319.1
-ENV RUNNER_WORKDIR=/runner/_work
+ARG non_root_user=devuser
+RUN sudo mkdir /runner \
+    && sudo chown -R ${non_root_user}:${non_root_user} /runner
 
 WORKDIR /runner
-USER root
+
+ENV RUNNER_VERSION=2.319.1
 
 RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERSION/actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && tar xzf ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && rm -f ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
-    && ./bin/installdependencies.sh
-
+    && sudo ./bin/installdependencies.sh
 
 COPY entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
-
 ENTRYPOINT ["/entrypoint.sh"]
 
-RUN mkdir /runner/_work
+ENV RUNNER_WORKDIR=/runner/_work
 
-VOLUME ["/runner/_work"]
+RUN mkdir ${RUNNER_WORKDIR}
 
-ARG non_root_user=devuser
-RUN chown -R ${non_root_user}:${non_root_user} /runner
-USER ${non_root_user}
+VOLUME ["${RUNNER_WORKDIR}"]
