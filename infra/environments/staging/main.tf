@@ -9,7 +9,5 @@ module "infra" {
   public_repository_id      = var.public_repository_id
   ui_firebase_secret_id     = var.ui_firebase_secret_id
   ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
-
-  GOOGLE_IDP_OAUTH_SECRET = var.GOOGLE_IDP_OAUTH_SECRET
-  create_secret           = var.create_secret
+  cloud_storage_location    = "EU"
 }

@@ -1,8 +1,3 @@
-output "web_background_image_cdn_url" {
-  value       = module.cdn.web_background_image_cdn_url
-  description = "CDN URL of the web background image"
-}
-
 output "firebase_ios_config_plist" {
   value       = base64decode(data.google_firebase_apple_app_config.ios_config.config_file_contents)
   description = "Configuration client Firebase iOS (GoogleService-Info.plist)"

@@ -16,7 +16,7 @@ variable "repository_id" {
 variable "public_repository_id" {
   description = "docker repository image name: container-registry/<repository_id>:public-<image-tag>"
   type        = string
-  default     = "prod-docker-repository-public"
+  default     = "docker-repository-public"
 }
 variable "application_backend_image" {
   description = "application Docker image"

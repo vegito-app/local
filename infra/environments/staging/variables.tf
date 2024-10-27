@@ -20,7 +20,11 @@ variable "repository_id" {
 variable "public_repository_id" {
   description = "docker repository image name: container-registry/<repository_id>:public-<image-tag>"
   type        = string
-  default     = "prod-docker-repository-public"
+  default     = "docker-repository-public"
+}
+variable "private_docker_repository_id" {
+  type        = string
+  description = "Private Docker repository name"
 }
 variable "application_backend_image" {
   description = "application Docker image"
@@ -31,19 +35,11 @@ variable "create_secret" {
   type        = bool
   default     = false
 }
-
-variable "GOOGLE_IDP_OAUTH_SECRET" {
-  description = "google.com IDP oauth secret for web application"
-  type        = string
-}
-
-
 variable "ui_firebase_secret_id" {
   description = "Firebase - UI config - secret ID"
   type        = string
   default     = "ui_firebase_config"
 }
-
 variable "ui_googlemaps_secret_id" {
   description = "GoogleMaps - UI API Key - secret ID"
   type        = string

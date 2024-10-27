@@ -1,8 +1,3 @@
-output "web_background_image_cdn_url" {
-  value       = module.gcloud.web_background_image_cdn_url
-  description = "CDN URL of the web background image"
-}
-
 output "docker_repository" {
   description = "Project docker container registry."
   value       = module.gcloud.docker_repository
@@ -13,10 +8,10 @@ output "public_docker_repository" {
   value       = module.gcloud.public_docker_repository
 }
 
-output "github_actions_private_key" {
-  value     = module.gcloud.github_actions_private_key
-  sensitive = true
-}
+# output "github_actions_private_key" {
+#   value     = module.gcloud.github_actions_private_key
+#   sensitive = true
+# }
 
 output "firebase_ios_config_plist" {
   value       = module.gcloud.firebase_ios_config_plist
@@ -37,3 +32,9 @@ output "oauth_redirect_uri" {
   description = "Web OAUTH redirect URI (must authorized set on google console 'ID clients OAuth 2.0' credentials)"
   value       = module.gcloud.oauth_redirect_uri
 }
+
+output "web_background_image_cdn_url" {
+  value       = module.cdn.web_background_image_cdn_url
+  description = "CDN URL of the web background image"
+}
+
