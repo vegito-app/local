@@ -19,7 +19,6 @@ target "backend-ci" {
     notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
     LATEST_APPLICATION_BACKEND_IMAGE,
   ]
-  platforms = platforms
   cache-from = [
     LATEST_BUILDER_IMAGE,
     LATEST_APPLICATION_BACKEND_IMAGE,
@@ -27,6 +26,10 @@ target "backend-ci" {
   cache-to = [
     "type=inline",
   ]
+  platforms = [
+    "linux/amd64",
+  ]
+  push = true
 }
 
 variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
@@ -53,4 +56,5 @@ target "backend" {
   cache-to = [
     APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
+  load = true
 }

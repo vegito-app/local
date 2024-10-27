@@ -30,6 +30,7 @@ target "github-runner-ci" {
   ]
   cache-to  = ["type=inline"]
   platforms = platforms
+  push      = true
 }
 
 variable "GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
@@ -57,4 +58,5 @@ target "github-runner" {
   cache-to = [
     GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
+  load = true
 }

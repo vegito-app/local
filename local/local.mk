@@ -21,15 +21,15 @@ BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(BUILDER_IMAGE_D
 
 local-builder-image: $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print builder
-	@$(DOCKER_BUILDX_BAKE) --load builder
+	@$(DOCKER_BUILDX_BAKE) builder
 .PHONY: local-builder-image
 
 local-builder-image-push: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print builder
-	@$(DOCKER_BUILDX_BAKE) --load --push builder
+	@$(DOCKER_BUILDX_BAKE) --push builder
 .PHONY: local-builder-image-push
 
 local-builder-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print builder-ci
-	@$(DOCKER_BUILDX_BAKE) --push builder-ci
+	@$(DOCKER_BUILDX_BAKE) builder-ci
 .PHONY: local-builder-image-ci

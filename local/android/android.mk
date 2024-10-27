@@ -11,13 +11,18 @@ ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(ANDROID_
 
 local-android-studio-image: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print android-studio
-	@$(DOCKER_BUILDX_BAKE) --load android-studio
+	@$(DOCKER_BUILDX_BAKE) android-studio
 .PHONY: local-android-studio-image
 
 local-android-studio-image-push: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print android-studio-ci
 	@$(DOCKER_BUILDX_BAKE) --push android-studio-ci
 .PHONY: local-android-studio-image-push
+
+local-android-studio-image-ci: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print android-studio
+	@$(DOCKER_BUILDX_BAKE) android-studio-ci
+.PHONY: local-android-studio-image
 
 local-android-studio-docker-compose-up: local-android-studio-docker-compose-rm
 	@$(CURDIR)/local/android/studio-docker-start.sh &

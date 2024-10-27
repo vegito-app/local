@@ -15,6 +15,7 @@ target "builder-ci" {
   cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
   platforms  = platforms
+  push       = true
 }
 
 variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
@@ -37,4 +38,5 @@ target "builder" {
   cache-to = [
     BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
+  load = true
 }

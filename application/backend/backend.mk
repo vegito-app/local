@@ -27,8 +27,8 @@ $(APPLICATION_BACKEND_INSTALL_BIN): application-backend-install
 application-backend-install:
 	@echo Installing backend...
 	@cd application/backend \
-	  && go install -a -ldflags "-linkmode external"
-	#   && go install -a -ldflags "-linkmode external -extldflags -static"
+	  && go install -a -ldflags "-linkmode external -extldflags -static"
+	#   && go install -a -ldflags "-linkmode external"
 	@echo Installed backend.
 .PHONY: application-backend-install
 
@@ -47,17 +47,17 @@ APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APP
 
 application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) --load backend
+	@$(DOCKER_BUILDX_BAKE) backend
 .PHONY: application-backend-image
 
 application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) --load --push backend
+	@$(DOCKER_BUILDX_BAKE) --push backend
 .PHONY: application-backend-image-push
 
 application-backend-image-push-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend-ci
-	@$(DOCKER_BUILDX_BAKE) --push backend-ci
+	@$(DOCKER_BUILDX_BAKE) backend-ci
 .PHONY: application-backend-image-push-ci
 
 application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
