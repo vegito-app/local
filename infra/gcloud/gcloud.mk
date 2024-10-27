@@ -1,32 +1,20 @@
 GOOGLE_CLOUD_PROJECT_ID ?= moov-438615
-GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
 GOOGLE_CLOUD_REGION ?= europe-west1
 
-GOOGLE_CLOUD_CREDENTIALS_JSON_FILE ?= $(CURDIR)/infra/gcloud-credentials.json
+APPLICATION_DEFAULT_CREDENTIALS ?= $(CURDIR)/infra/gcloud-credentials.json
 
-google-application-credentials: google-application-credentials-token-exist
-	@bash -c 'echo -n $$GOOGLE_CLOUD_CREDENTIALS' | jq > $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
-.PHONY: google-application-credentials
+gcloud-auth-default-application-credentials: $(APPLICATION_DEFAULT_CREDENTIALS)
+.PHONY: gcloud-auth-default-application-credentials
 
-google-application-credentials-token-exist:
-	@if [ ! -v GOOGLE_CLOUD_CREDENTIALS ] ; then \
-		echo missing GOOGLE_CLOUD_CREDENTIALS environment variable. \
-		exit -1 ; \
-	fi
-.PHONY: google-application-credentials-token-exist
-
-$(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE): 
-	@$(MAKE) google-application-credentials
+$(APPLICATION_DEFAULT_CREDENTIALS):
+	@gcloud auth application-default login
+	@gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
+	@ln ~/.config/gcloud/application_default_credentials.json $@
 
 gcloud-auth-login:
 	@gcloud auth login
 	@gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-login
-
-gcloud-auth-default-application-credentials:
-	@gcloud auth application-default login
-	@gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: gcloud-auth-default-application-credentials
 
 gcloud-auth-docker:
 	@gcloud auth configure-docker $(REGISTRY)
@@ -148,17 +136,16 @@ gcloud-service-accounts-bindings-roles: $(PROJECT_SERVICE_ACCOUNTS:%=gcloud-%-se
 
 # Upadte this list with 'gcloud secrets list' values
 GCLOUD_SECRETS := \
-  prod-google-idp-oauth-key \
-  prod-google-maps-api-key \
   prod-firebase-adminsdk-service-account-key \
-  prod-firebase-web-config
+  prod-firebase-config-web \
+  prod-google-idp-oauth-client-id \
+  prod-google-idp-oauth-key \
+  prod-google-maps-api-key
 
-FIREBASE_UI_CONFIG_SECRET := prod-firebase-web-config
-
-$(GCLOUD_SECRETS:%=gcloud-%-secret-show):
-	@a=$$(gcloud secrets versions access latest --secret=$(@:gcloud-%-secret-show=%)) \
+$(GCLOUD_SECRETS:%=gcloud-secret-%-show):
+	@a=$$(gcloud secrets versions access latest --secret=$(@:gcloud-secret-%-show=%)) \
 	&& echo $$a | jq 2>/dev/null \
 	|| echo $$a
-.PHONY: $(GCLOUD_SECRETS:%=gcloud-%-secret-show)
+.PHONY: $(GCLOUD_SECRETS:%=gcloud-secret-%-show)
 
--include gcloud/terraform.mk
+-include intra/gcloud/terraform.mk

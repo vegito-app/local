@@ -26,7 +26,7 @@ func Firebase(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		err = client.Close()
 		if err != nil {
-			log.Error().Err(err).Msg("close firebase secretmanager client")
+			log.Error().Err(err).Msg("new firebase secretmanager client")
 			return
 		}
 	}()
@@ -36,7 +36,7 @@ func Firebase(w http.ResponseWriter, r *http.Request) {
 	}
 	firebaseConfigSecretVersion, err := client.AccessSecretVersion(ctx, firebaseConfigSecretVersionRequest)
 	if err != nil {
-		log.Error().Err(err).Msg("close firebase secretmanager client")
+		log.Error().Err(err).Msg("firebase secret version access")
 		return
 	}
 	firebaseConfigSecret := firebaseConfigSecretVersion.GetPayload()
@@ -47,7 +47,7 @@ func Firebase(w http.ResponseWriter, r *http.Request) {
 	firebaseConfigJSON := firebaseConfigSecret.Data
 	_, err = w.Write(firebaseConfigJSON)
 	if err != nil {
-		log.Error().Err(err).Msg("close firebase secretmanager client")
+		log.Error().Err(err).Msg("write firebase decoded secret JSON returned payload")
 		return
 	}
 }

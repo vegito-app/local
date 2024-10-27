@@ -27,7 +27,8 @@ $(APPLICATION_BACKEND_INSTALL_BIN): application-backend-install
 application-backend-install:
 	@echo Installing backend...
 	@cd application/backend \
-	  && go install -a -ldflags "-linkmode external -extldflags -static"
+	  && go install -a -ldflags "-linkmode external"
+	#   && go install -a -ldflags "-linkmode external -extldflags -static"
 	@echo Installed backend.
 .PHONY: application-backend-install
 

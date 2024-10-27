@@ -61,7 +61,7 @@ func NewApp(ctx context.Context) (*App, error) {
 	defer func() {
 		err := client.Close()
 		if err != nil {
-			log.Error().Err(err).Msg("close firebase secretmanager client")
+			log.Error().Err(err).Msg("new adminsdk firebase secretmanager client")
 		}
 	}()
 	adminSDKserviceAccountSecretID := config.GetString(adminSDKserviceAccountIDConfig)
