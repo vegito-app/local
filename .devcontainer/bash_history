@@ -1291,62 +1291,76 @@ unset GOOGLE_APPLICATION_CREDENTIALS
 df -hcd ..
 gcloud iam service-accounts describe root-admin@moov-438615.iam.gserviceaccount.com
 env|grep -E "=$"gcloud secrets list 
-make terraform-plan 
-make terraform-refresh 
-make terraform-plan 
-make terraform-refresh 
-make terraform-plan 
-make terraform-refresh 
-make terraform-plan 
 make module.gcloud.module.cdn.google_storage_bucket_object.public_web_background_image-rm
 make module.gcloud.module.cdn.google_storage_bucket_iam_binding.web_public_image-rm module.gcloud.module.cdn.google_storage_bucket.public_images-rm module.gcloud.module.cdn.google_storage_bucket.public_images-rm module.gcloud.module.cdn.google_compute_url_map.url_map-rm module.gcloud.module.cdn.google_compute_target_http_proxy.public_cdn-rm module.gcloud.module.cdn.google_compute_global_forwarding_rule.public_cdn-rm  module.gcloud.module.cdn.google_compute_global_address.public_cdn-rm  module.gcloud.google_storage_bucket.bucket_tf_state_eu_global-rm 
-make terraform-plan 
 make module.gcloud.module.cdn.google_compute_backend_bucket.public_cdn-rm 
-make terraform-plan 
-git log
 git reset 2a094a8
-git log
 git rset s
-git reset s
 git tag -f bkp
-git log
-git rebase -i origin/main 
-git log
 git reset 3ca79badc5df185ba6248a0ff3e50916d1216a5c
-git log
 git rebase --abort 
-git rebase -i origin/main 
-git log
-git reset HEAD~1
 qit reset 90f20a6b567d9e2ab1169041ba6cf9b2ee54bf95
 git reset 90f20a6b567d9e2ab1169041ba6cf9b2ee54bf95
 git commit --amend 
-git rebase --continue 
-git log
-make terraform-plan 
-make application-backend-image-push
-make local-builder-image-push 
-make application-backend-image-push
-make docker-login 
-make application-backend-image-push
-make terraform-apply-auto-approve 
-make application-backend-image-push
 make gcloud-images-list
-make application-backend-image-push
-make terraform-plan 
-make terraform-refresh 
-make terraform-apply-auto-approve 
-make terraform-plan 
-make terraform-apply-auto-approve 
-make terraform-state-list 
 make module.gcloud.google_artifact_registry_repository.public_docker_repository-show 
-make application-backend-image-push
 make module.gcloud.google_artifact_registry_repository.private_docker_repository-show 
-make module.gcloud.google_artifact_registry_repository.public_docker_repository-show 
-make application-backend-image-push
-make terraform-plan 
-make terraform-apply-auto-approve 
-make terraform-plan 
-make terraform-apply-auto-approve 
-make terraform-state-list 
 make terraform-state-list > stlist
+echo $CGO_ENABLED 
+echo $CC
+ulimite -a
+ulimit -a
+ulimit -h
+ulimit --help
+ulimit -v 30000
+ulimit -v unlimited
+ulimit -v 0
+sudo ulimit -v 30000
+sudo ulimit -v unlimited
+sudo ulimit -v 
+sudo ulimit
+sudo ulimit -a
+df -h
+ulimit -l 30000
+sudo ulimit -l 30000
+cd application/backend/
+GOARCH=arm64 go install
+CC=clang CXX=clang++ GOARCH=arm64 go install
+CC=clang CXX=clang++ GOARCH=arm64 GOOS=darwin go install
+CC=clang CXX=clang++ GOARCH=aarch64 GOOS=darwin go install
+CC=clang CXX=clang++ GOARCH=arm64/v7 GOOS=darwin go install
+CC=clang CXX=clang++ GOARCH=arm64 GOOS=linux go install
+CC=clang CXX=clang++ GOARCH=arm/v7 GOOS=linux go install
+CC=clang CXX=clang++ GOARCH=arm64 GOOS=linux go install -a -ldflags "-linkmode external"
+CC=g++ CXX=g++ GOARCH=arm64 GOOS=linux go install
+CC=g++ CXX=g++ GOARCH=arm64 GOOS=linux go install -ldflags "-linkmode external"
+CC=gcc CXX=gcc GOARCH=arm64 GOOS=linux go install -ldflags "-linkmode external"
+CC=gcc CXX=g++ GOARCH=arm64 GOOS=linux go install -ldflags "-linkmode external"
+CC=clang CXX=clang++ GOARCH=arm64 GOOS=linux go install -ldflags "-linkmode external"
+sudo apt install gcc-aarch64-linux-gnu
+CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ GOARCH=arm64 GOOS=linux go install -ldflags "-linkmode external"
+sudo apt install gcc-aarch64-linux-gnu-gcc
+sudo apt install g++-aarch64-linux-gnu
+cd /usr/aarch64-linux-gnu/
+ls bin/
+aarch64-linux-gnu-gcc --version
+aarch64-linux-gnu-g++ --version
+s /usr/
+ls /usr/
+git reset  28ede65
+git reset  bb50
+git reset 28ede65
+q
+git tag -f good
+vmstat 
+sudo vmstat 
+watch sudo vmstat 
+git reset  9dec15b 
+git reset good 
+INFRA_ENV=dev make terraform-init 
+INFRA_ENV=dev make terraform-plan make terraform-plan 
+echo $BUILDER_IMAGE ip a
+sudo iftop eth0
+clear
+sudo iftop -i eth0
+docker logs -f 5fb349f88c53

@@ -14,7 +14,7 @@ resource "google_project_service" "google_maps_services" {
 }
 
 resource "google_secret_manager_secret" "web_google_maps_api_key" {
-  secret_id = "prod-google-maps-api-key"
+  secret_id = "google-maps-api-key"
 
   replication {
     auto {
@@ -29,7 +29,7 @@ locals {
     "localhost",
     "${data.google_project.project.project_id}.firebaseapp.com",
     "${data.google_project.project.project_id}.web.app",
-    "prod-moov-438615-europe-west1-application-backend-v4bqtohg4a-ew.a.run.app",
+    "${var.environment}-moov-438615-europe-west1-application-backend-v4bqtohg4a-ew.a.run.app",
     # trimprefix(one(google_cloud_run_service.application_backend.status[*].url), "https://")
   ]
 }

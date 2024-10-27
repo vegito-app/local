@@ -50,7 +50,7 @@ resource "google_firebase_database_instance" "moov" {
   project  = google_firebase_project.moov.project
   region   = var.region
 
-  instance_id   = "${var.environment}-${google_firebase_project.moov.project}-rtdb"
+  instance_id   = "${google_firebase_project.moov.project}-rtdb"
   type          = "USER_DATABASE"
   desired_state = "ACTIVE"
 
@@ -161,7 +161,7 @@ output "oauth_redirect_uri" {
 }
 
 resource "google_service_account" "firebase_admin_service_account" {
-  account_id   = "${var.environment}-firebase-admin-sa"
+  account_id   = "firebase-admin-sa"
   display_name = "Firebase Admin SDK Service Account"
   description  = "Ce compte de service est utilisé par Firebase Admin SDK pour interagir avec Firebase"
 }
@@ -179,7 +179,7 @@ resource "google_project_iam_member" "firebase_token_creator" {
 }
 
 resource "google_secret_manager_secret" "firebase_admin_service_account_secret" {
-  secret_id = "${var.environment}-firebase-adminsdk-service-account-key"
+  secret_id = "firebase-adminsdk-service-account-key"
   project   = data.google_project.project.project_id
 
   labels = {
@@ -209,7 +209,7 @@ resource "google_secret_manager_secret_iam_member" "firebase_admin_service_accou
 }
 
 resource "google_secret_manager_secret" "firebase_config_web" {
-  secret_id = "${var.environment}-firebase-config-web"
+  secret_id = "firebase-config-web"
 
   replication {
     auto {
