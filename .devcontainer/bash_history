@@ -1290,4 +1290,63 @@ export APPLICATION_DEFAULT_CREDENTIALS=`pwd`/minute.json
 unset GOOGLE_APPLICATION_CREDENTIALS 
 df -hcd ..
 gcloud iam service-accounts describe root-admin@moov-438615.iam.gserviceaccount.com
-env|grep -E "=$"
+env|grep -E "=$"gcloud secrets list 
+make terraform-plan 
+make terraform-refresh 
+make terraform-plan 
+make terraform-refresh 
+make terraform-plan 
+make terraform-refresh 
+make terraform-plan 
+make module.gcloud.module.cdn.google_storage_bucket_object.public_web_background_image-rm
+make module.gcloud.module.cdn.google_storage_bucket_iam_binding.web_public_image-rm module.gcloud.module.cdn.google_storage_bucket.public_images-rm module.gcloud.module.cdn.google_storage_bucket.public_images-rm module.gcloud.module.cdn.google_compute_url_map.url_map-rm module.gcloud.module.cdn.google_compute_target_http_proxy.public_cdn-rm module.gcloud.module.cdn.google_compute_global_forwarding_rule.public_cdn-rm  module.gcloud.module.cdn.google_compute_global_address.public_cdn-rm  module.gcloud.google_storage_bucket.bucket_tf_state_eu_global-rm 
+make terraform-plan 
+make module.gcloud.module.cdn.google_compute_backend_bucket.public_cdn-rm 
+make terraform-plan 
+git log
+git reset 2a094a8
+git log
+git rset s
+git reset s
+git tag -f bkp
+git log
+git rebase -i origin/main 
+git log
+git reset 3ca79badc5df185ba6248a0ff3e50916d1216a5c
+git log
+git rebase --abort 
+git rebase -i origin/main 
+git log
+git reset HEAD~1
+qit reset 90f20a6b567d9e2ab1169041ba6cf9b2ee54bf95
+git reset 90f20a6b567d9e2ab1169041ba6cf9b2ee54bf95
+git commit --amend 
+git rebase --continue 
+git log
+make terraform-plan 
+make application-backend-image-push
+make local-builder-image-push 
+make application-backend-image-push
+make docker-login 
+make application-backend-image-push
+make terraform-apply-auto-approve 
+make application-backend-image-push
+make gcloud-images-list
+make application-backend-image-push
+make terraform-plan 
+make terraform-refresh 
+make terraform-apply-auto-approve 
+make terraform-plan 
+make terraform-apply-auto-approve 
+make terraform-state-list 
+make module.gcloud.google_artifact_registry_repository.public_docker_repository-show 
+make application-backend-image-push
+make module.gcloud.google_artifact_registry_repository.private_docker_repository-show 
+make module.gcloud.google_artifact_registry_repository.public_docker_repository-show 
+make application-backend-image-push
+make terraform-plan 
+make terraform-apply-auto-approve 
+make terraform-plan 
+make terraform-apply-auto-approve 
+make terraform-state-list 
+make terraform-state-list > stlist
