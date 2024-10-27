@@ -3,7 +3,7 @@ variable "APPLICATION_BACKEND_IMAGES_BASE" {
 }
 
 variable "APPLICATION_BACKEND_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:backend--${VERSION}" : ""
+  default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:backend-${VERSION}" : ""
 }
 
 variable "LATEST_APPLICATION_BACKEND_IMAGE" {

@@ -12,4 +12,4 @@ services:
       - .env
     environment:
       HOST_PWD: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
-      GOOGLE_CLOUD_CREDENTIALS: ${GOOGLE_CLOUD_CREDENTIALS}
+      

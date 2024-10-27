@@ -3,7 +3,7 @@ resource "google_firebase_project" "moov" {
   # Use the provider that performs quota checks from now on
   provider = google-beta
 
-  project = var.project_id
+  project = data.google_project.project.project_id
 
   # Waits for the required APIs to be enabled.
   depends_on = [
@@ -31,7 +31,7 @@ output "firebase_project_display_name" {
 # Firebase tooling (like the Firebase console).
 resource "google_project_service" "google_services_firebase" {
   provider = google-beta.no_user_project_override
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   for_each = toset([
     "firebase.googleapis.com",
     "firebasedatabase.googleapis.com",
@@ -84,7 +84,7 @@ output "firebase_database_state" {
 resource "google_firebase_android_app" "android_app" {
   provider = google-beta
 
-  project      = var.project_id
+  project      = data.google_project.project.project_id
   display_name = "Utrade Android app (${var.environment})" # learn more about an app's display name
   package_name = "${var.environment}.mobile.app.android"   # learn more about an app's package name
 
@@ -97,13 +97,13 @@ resource "google_firebase_android_app" "android_app" {
 # Récupérer la configuration client Firebase pour iOS
 data "google_firebase_android_app_config" "android_config" {
   provider = google-beta
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   app_id   = google_firebase_android_app.android_app.app_id
 }
 
 data "google_firebase_android_app" "android_sha" {
   provider = google-beta
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   app_id   = google_firebase_android_app.android_app.app_id
 }
 
@@ -115,7 +115,7 @@ output "android_sha1" {
 # Creates a Firebase Apple-platforms App in the new project created above.
 resource "google_firebase_apple_app" "ios_app" {
   provider     = google-beta
-  project      = var.project_id
+  project      = data.google_project.project.project_id
   display_name = "Utrade Apple app (${var.environment})"
   bundle_id    = "${var.environment}.mobile.app.apple"
 
@@ -128,14 +128,14 @@ resource "google_firebase_apple_app" "ios_app" {
 # Récupérer la configuration client Firebase pour iOS
 data "google_firebase_apple_app_config" "ios_config" {
   provider = google-beta
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   app_id   = google_firebase_apple_app.ios_app.app_id
 }
 
 # Creates a Firebase Web App in the new project created above.
 resource "google_firebase_web_app" "web_app" {
   provider = google-beta
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   # display_name is used as unique ID for this resource
   display_name = "Utrade Web app (${var.environment})"
 
@@ -151,7 +151,7 @@ resource "google_firebase_web_app" "web_app" {
 
 data "google_firebase_web_app_config" "web_app_config" {
   provider   = google-beta
-  project    = var.project_id
+  project    = data.google_project.project.project_id
   web_app_id = google_firebase_web_app.web_app.app_id
 }
 
@@ -167,20 +167,20 @@ resource "google_service_account" "firebase_admin_service_account" {
 }
 
 resource "google_project_iam_member" "firebase_admin_service_agent" {
-  project = var.project_id
+  project = data.google_project.project.project_id
   role    = "roles/firebase.sdkAdminServiceAgent"
   member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
 }
 
 resource "google_project_iam_member" "firebase_token_creator" {
-  project = var.project_id
+  project = data.google_project.project.project_id
   role    = "roles/iam.serviceAccountTokenCreator"
   member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
 }
 
 resource "google_secret_manager_secret" "firebase_admin_service_account_secret" {
   secret_id = "${var.environment}-firebase-adminsdk-service-account-key"
-  project   = var.project_id
+  project   = data.google_project.project.project_id
 
   labels = {
     environment = "production"
@@ -209,7 +209,7 @@ resource "google_secret_manager_secret_iam_member" "firebase_admin_service_accou
 }
 
 resource "google_secret_manager_secret" "firebase_config_web" {
-  secret_id = "${var.environment}-firebase-config-secret"
+  secret_id = "${var.environment}-firebase-config-web-web"
 
   replication {
     auto {
@@ -229,4 +229,13 @@ resource "google_secret_manager_secret_version" "firebase_config_web_version" {
     messagingSenderId = data.google_firebase_web_app_config.web_app_config.messaging_sender_id
     appId             = google_firebase_web_app.web_app.app_id
   })
+}
+
+resource "google_firestore_database" "production" {
+  name                              = "(default)"
+  location_id                       = var.region
+  type                              = "FIRESTORE_NATIVE"
+  deletion_policy                   = "ABANDON"
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
 }

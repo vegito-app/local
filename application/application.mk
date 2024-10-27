@@ -1,5 +1,3 @@
-GOOGLE_APPLICATION_CREDENTIALS = $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
-
 -include application/frontend/frontend.mk
 -include application/backend/backend.mk
 -include application/mobile/flutter.mk

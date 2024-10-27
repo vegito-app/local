@@ -57,8 +57,12 @@
             "onAutoForward": "silent"
           },
           "8080": {
-            "label": "Application Backend - Debug",
+            "label": "Application Backend - Container",
             "protocol": "http",
+            "onAutoForward": "silent"
+          },
+          "8888": {
+            "label": "Application Backend - Debug",
             "onAutoForward": "silent"
           },
           "4000": {

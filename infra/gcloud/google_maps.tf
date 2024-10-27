@@ -2,7 +2,7 @@
 # Enables required APIs.
 resource "google_project_service" "google_maps_services" {
   provider = google-beta.no_user_project_override
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   for_each = toset([
     "apikeys.googleapis.com",
   ])
@@ -27,8 +27,8 @@ resource "google_secret_manager_secret" "web_google_maps_api_key" {
 locals {
   allowed_referrers = [
     "localhost",
-    "${var.project_id}.firebaseapp.com",
-    "${var.project_id}.web.app",
+    "${data.google_project.project.project_id}.firebaseapp.com",
+    "${data.google_project.project.project_id}.web.app",
     "prod-moov-438615-europe-west1-application-backend-v4bqtohg4a-ew.a.run.app",
     # trimprefix(one(google_cloud_run_service.application_backend.status[*].url), "https://")
   ]

@@ -11,11 +11,14 @@ localDotenvFile=${PWD}/local/.env
 COMPOSE_PROJECT_NAME=moov
 BUILDER_IMAGE=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest
 GOOGLE_CLOUD_PROJECT_ID=moov-438615
-GOOGLE_CLOUD_PROJECT_NUMBER=378762893981
 FIREBASE_PROJECT_ID=moov-438615
-UI_CONFIG_FIREBASE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-firebase-web-config/versions/1
+UI_CONFIG_FIREBASE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-firebase-config-web/versions/1
 UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-google-maps-api-key/versions/1
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-firebase-adminsdk-service-account-key/versions/1
+FIREBASE_FUNCTIONS_EMULATOR_HOST=http://firebase-emulators:5001
+FIREBASE_DATABASE_EMULATOR_HOST=http://firebase-emulators:9199
+FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
+FIRESTORE_EMULATOR_HOST=firebase-emulators:8090
 EOF
 
 # Vscode

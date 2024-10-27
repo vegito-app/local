@@ -14,14 +14,6 @@ variable "cloud_storage_location" {
   description = "The Google Cloud Storage location"
   type        = string
 }
-variable "repository_id" {
-  description = "docker repository image name: container-registry/<repository_id>:<image-tag>"
-  type        = string
-}
-variable "public_repository_id" {
-  description = "docker repository image name: container-registry/<repository_id>:public-<image-tag>"
-  type        = string
-}
 variable "application_backend_image" {
   description = "application Docker image"
   type        = string

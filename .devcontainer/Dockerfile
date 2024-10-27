@@ -20,7 +20,7 @@ FROM ${builder_image} AS build
 # Using this technique, you can safely mount files under your project path inside new containers like third party development containers with a local docker-compose.yml for local functional tests for instance.
 ARG host_pwd
 ARG github_project_name
-RUN if [ "${host_pwd}" != "/workspaces/${github_project_name}}" ]; then \
+RUN if [ "${host_pwd}" != "/workspaces/${github_project_name}" ]; then \
     sudo mkdir -p /workspaces && \
-    sudo ln -sf ${host_pwd} /workspaces/${github_project_name}} ; \
+    sudo ln -sf ${host_pwd} /workspaces/${github_project_name} ; \
     fi

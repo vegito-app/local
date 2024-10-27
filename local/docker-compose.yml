@@ -5,25 +5,16 @@ volumes:
   firebase-emulators-cache:
 services:
   dev:
-    restart: unless-stopped
+    # restart: unless-stopped
     container_name: dev
     image: ${BUILDER_IMAGE}
     entrypoint: dev-entrypoint.sh
     env_file:
       - .env
     environment:
-      HOST_PWD: ${PWD:-/workspaces/refactored-winner}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/infra/gcloud-credentials.json}
       GOOGLE_CLOUD_PROJECT_ID: ${GOOGLE_CLOUD_PROJECT_ID}
-      GOOGLE_CLOUD_CREDENTIALS: ${GOOGLE_CLOUD_CREDENTIALS}
-      TF_VAR_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
-      TF_VAR_GOOGLE_IDP_OAUTH_SECRET: ${GOOGLE_IDP_OAUTH_SECRET}
-      # Firebase client SDK
-      FIREBASE_FUNCTIONS_EMULATOR_HOST: http://firebase-emulators:5001
-      FIREBASE_DATABASE_EMULATOR_HOST: http://firebase-emulators:9199
-      FIREBASE_AUTH_EMULATOR_HOST: firebase-emulators:9099
-      FIRESTORE_EMULATOR_HOST: firebase-emulators:8090
-      UI_CONFIG_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
-      UI_CONFIG_FIREBASE_CONFIG: ${UI_CONFIG_FIREBASE_CONFIG}
+      HOST_PWD: ${PWD:-/workspaces/refactored-winner}
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -50,13 +41,13 @@ services:
     env_file:
       - .env
     environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/infra/gcloud-credentials.json}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FIREBASE_ADMINSDK_SERVICEACCOUNT_ID: ${FIREBASE_ADMINSDK_SERVICEACCOUNT_ID}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID}
       UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID}
-      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
     volumes:
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     networks:
       - dev
 

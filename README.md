@@ -4,6 +4,9 @@ CAR2GO est fait pour proposer un service de déplacement par véhicule.
 
 ### Build project images
 
+The project is making use of your existing GOOGLE_APPLICATION_CREDENTIALS for authentication.
+The values used by defauls can be configured if required.
+
 #### Locally
 
 Build project service images for the local machine architecture only.

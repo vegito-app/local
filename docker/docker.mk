@@ -31,7 +31,7 @@ docker-images-local-arch: local-builder-image
 	@$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
 .PHONY: docker-images-local-arch
 
-docker-buildx-setup: $(GOOGLE_CLOUD_CREDENTIALS_JSON_FILE)
+docker-buildx-setup: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@-docker buildx create --name $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 
 	@-docker buildx use $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 
 .PHONY: docker-buildx-setup

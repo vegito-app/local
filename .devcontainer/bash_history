@@ -458,7 +458,6 @@ git reset origin/dev
 unset GOOGLE_APPLICATION_CREDENTIALS
 USER=devuser@115528929ec4 make terraform-plan
 make terraform-init
-echo $GOOGLE_IDP_OAUTH_SECRET
 echo $TF_VAR_GOOGLE_IDP_OAUTH_SECRET
 gcloud secrets list 
 gcloud secrets versions list 
@@ -617,7 +616,6 @@ GOOGLE_CLOUD_CREDENTIALS=`pwd`/gcloud/google-cloud-credentials make backend-run
 echo $GOOGLE_CLOUD_PROJECT_ID
 export GOOGLE_CLOUD_PROJECT_ID=$PROJECT_NAME 
 echo $UI_CONFIG_FIREBASE_CONFIG 
-echo $UI_CONFIG_GOOGLE_MAPS_API_KEY 
 exho grep -i proj
 echo grep -i proj
 env| grep -i proj
@@ -1194,9 +1192,9 @@ gcloud secrets describe prod-firebase-web-config
 gcloud secrets versions list projects/378762893981/secrets/prod-firebase-web-config
 make gcloud-secret-read-firebase-ui-config
 VERSION=latest make terraform-
-make gcloud-prod-firebase-config-secret-secret-show 
+make gcloud-prod-firebase-config-web-secret-show 
 make gcloud-prod-firebase-adminsdk-service-account-key-secret-show 
-make gcloud-prod-firebase-web-config-secret-show 
+make gcloud-prod-firebase-web-config-web-show 
 make gcloud-prod-firebase-admin-sa-service-account-bindings-roles 
 make gcloud-prod-google-idp-oauth-key-secret-show 
 make gcloud-prod-google-maps-api-key-secret-show 
@@ -1231,4 +1229,65 @@ make terrafor-plan sudo apt-get install iftop
 sudo iftop
 ssh-add -L
 make gcloud-
-make google-application-credentials
+make google-application-credentialsmake local-android-studio-docker-compose-up 
+du -sh .
+make local-builder-image-ci 
+watch df -h
+echo $GOOGLE_APPLICATION_CREDENTIALSdu -sh `which backend`
+ldd `which backend`make make application-backend-install
+make application-backend-install
+which backend
+rm -rf application/backend/.docker-buildx-cache/
+make application-backend-image-push-ci 
+make application-backend-image-push```
+`
+rm `which backend`
+make application-backend-install 
+su - make application-backend-install 
+su -
+which backcend
+ldd `which backend`
+ls -lha /lib/x86_64-linux-gnu/libstdc++.so.6
+ls -lha /lib/x86_64-linux-gnu/libm.so.6
+ls -lha /lib/x86_64-linux-gnu/libgcc_s.so.1
+ls -lha /lib/x86_64-linux-gnu/libc.so.6
+ls -lh /lib64/ld-linux-x86-64.so.2
+ls -lh /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+make -C ../.. application-backend-image
+make -C ../.. application-backend-image-push-ci 
+make -C ../.. terraform-plan 
+make -C ../.. terraform-apply-auto-approve 
+make -C ../.. application-backend-image-pushmake images
+make terraform-state-list >tony
+make module.gcloud.google_identity_platform_config.moov-show 
+make google_identity_platform_default_supported_idp_config.google-show git reset HEAD~1
+make -C ../.. application-frontend-build 
+make -C ../.. application-frontend-bundle 
+make -C ../.. application-backend-docker-compose-rm 
+make -C ../.. application-backend-docker-compose-up 
+make -C ../.. docker-login 
+make -C ../.. gcloud-prod-firebase-web-config-web-show 
+make -C ../.. gcloud-prod-firebase-adminsdk-service-account-key-secret-show 
+gcloud secrets version prod-firebase-config-secretlist 
+gcloud secrets version list prod-firebase-config-web
+gcloud secrets versions list prod-firebase-config-web
+gcloud secrets describe prod-firebase-config-web
+make -C ../.. module.gcloud.google_secret_manager_secret.firebase_config_web-show 
+make -C ../.. gcloud-prod-google-idp-oauth-key-secret-shownev
+socat TCP-LISTEN:5901,fork,reuseaddr TCP:android-studio:5900 > /tmp/socat-android-studio-5900.log 2>&1 &env
+git tag -f t
+maake y
+make terraform-state-list |grep -i root
+make terraform-state-list |grep -i admin
+gcloud --project utrade-taxi-run-0 secrets list 
+code minute
+mv minute minute.json
+APPLICATION_DEFAULT_CREDENTIALS=`pwd`/minute.json make terraform-plan 
+APPLICATION_DEFAULT_CREDENTIALS=`pwd`/minute.json make terraform-init 
+APPLICATION_DEFAULT_CREDENTIALS=`pwd`/minute.json make terraform-refresh 
+cat minute.json 
+export APPLICATION_DEFAULT_CREDENTIALS=`pwd`/minute.json 
+unset GOOGLE_APPLICATION_CREDENTIALS 
+df -hcd ..
+gcloud iam service-accounts describe root-admin@moov-438615.iam.gserviceaccount.com
+env|grep -E "=$"

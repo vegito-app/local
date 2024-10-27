@@ -16,7 +16,7 @@ export
 images: docker-images-local-arch
 .PHONY: images
 
-images-ci: node-modules-ci docker-images-ci-multi-arch
+images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
 
 android-studio: local-android-studio-docker-compose-up

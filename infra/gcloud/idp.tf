@@ -1,7 +1,7 @@
 # Enables required APIs.
 resource "google_project_service" "google_idp_services" {
   provider = google-beta.no_user_project_override
-  project  = var.project_id
+  project  = data.google_project.project.project_id
   for_each = toset([
     "identitytoolkit.googleapis.com",
   ])
@@ -93,20 +93,20 @@ data "archive_file" "auth_func_src" {
 }
 
 resource "google_storage_bucket_object" "auth" {
-  name   = "${var.project_id}-${var.region}-identity-platform-auth-function-source.zip"
+  name   = "${data.google_project.project.project_id}-${var.region}-identity-platform-auth-function-source.zip"
   bucket = google_storage_bucket.bucket_gcf_source.name
   source = data.archive_file.auth_func_src.output_path # Add path to the zipped function source code
 }
 
 resource "google_cloudfunctions_function" "auth_before_sign_in" {
-  name                  = "${var.project_id}-${var.region}-identity-platform-before-signin"
+  name                  = "${data.google_project.project.project_id}-${var.region}-identity-platform-before-signin"
   description           = "OIDC callback before sign in"
   runtime               = "go122"
   entry_point           = "IDPbeforeSignIn" # Set the entry point
   source_archive_bucket = google_storage_bucket.bucket_gcf_source.name
   source_archive_object = google_storage_bucket_object.auth.name
-  # service_account_email = google_service_account.firebase_admin_service_account.email
-  trigger_http = true
+  service_account_email = google_service_account.firebase_admin_service_account.email
+  trigger_http          = true
 
   # environment_variables = {
   # FIREBASE_ADMINSDK_SERVICEACCOUNT_ID = google_service_account.firebase_admin_service_account.id
@@ -118,7 +118,7 @@ output "auth_func_utrade_before_sign_in_id" {
 }
 
 resource "google_cloudfunctions_function" "auth_before_create" {
-  name        = "${var.project_id}-${var.region}-identity-platform-before-create"
+  name        = "${data.google_project.project.project_id}-${var.region}-identity-platform-before-create"
   description = "OIDC callback create user"
   runtime     = "nodejs22"     // Change the runtime to Node.js
   entry_point = "beforeCreate" // Set the entry point to your function in Node.js
@@ -127,10 +127,11 @@ resource "google_cloudfunctions_function" "auth_before_create" {
   # entry_point           = "IDPbeforeCreate" # Set the entry point
   source_archive_bucket = google_storage_bucket.bucket_gcf_source.name
   source_archive_object = google_storage_bucket_object.auth.name
+  service_account_email = google_service_account.firebase_admin_service_account.email
   trigger_http          = true
 
   # environment_variables = {
-  # GCLOUD_PROJECT  = var.project_id
+  # GCLOUD_PROJECT  = data.google_project.project.project_id
   # FIREBASE_CONFIG = base64decode(google_secret_manager_secret_version.firebase_adminsdk_secret_version.secret_data)
   # }
 }
