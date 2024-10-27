@@ -1,0 +1,27 @@
+{
+    "id": "FluNkKGgy27fv73O6MzkEdnngfe36342",
+    "createdTime": "10/23/2024, 8:52:54 AM",
+    "name": "GOCACHE",
+    "conversations": [
+        {
+            "id": "FluNkKGgy27fv73O6MzkEdnngfe36342",
+            "createdTime": "10/23/2024, 8:52:54 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "FluNkKGgy27fv73O6MzkEdnngfe36342",
+                "role": "user",
+                "text": "peut on rediriger le go cache avec une variable d'environement ?"
+            },
+            "response": {
+                "id": "3Zlo3mK3h9nYun3o46oSgIlT058p0T74",
+                "role": "assistant",
+                "text": "Oui, vous pouvez en fait rediriger le cache de Go en utilisant une variable d'environnement spécifique appelée `GOCACHE`. \n\nLa documentation officielle de Go explique que `GOCACHE` pointe vers le répertoire dans lequel Go stocke ses fichiers cache. Par défaut, il s'agit généralement de `$HOME/.cache/go-build` sur les systèmes Unix et `C:\\Users\\<username>\\AppData\\Local\\go-build` sur Windows.\n\nVoici comment vous pouvez le faire:\n\n```bash\nexport GOCACHE=\"/chemin/vers/votre/dossier/cache\"\n```\n\nLorsque vous définissez `GOCACHE`, assurez-vous que le chemin que vous indiquez existe et est accessible en écriture. Sinon, Go ne sera pas en mesure de stocker ses fichiers cache et pourrait rencontrer des problèmes lors de la compilation.\n\nNotez également que cette modification n'est valable que pour la session actuelle du terminal. Si vous voulez rendre la modification permanente, vous devez ajouter la ligne `export` à votre fichier de profil shell (`~/.bashrc`, `~/.zshrc`, etc.). Voici comment vous pouvez le faire:\n\n```bash\necho 'export GOCACHE=\"/chemin/vers/votre/dossier/cache\"' >> ~/.bashrc\n```\n\nPuis rechargez votre profil shell avec la commande suivante :\n\n```bash\nsource ~/.bashrc\n```\n\nCeci est un exemple pour bash, pour d'autres shells, remplacez `.bashrc` par le nom correct du fichier de profil de votre shell (par exemple, `.zshrc` pour zsh)."
+            }
+        }
+    ]
+}
