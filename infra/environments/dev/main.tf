@@ -1,15 +1,17 @@
-module "infra" {
+module "gcloud" {
   source                 = "../../gcloud"
   environment            = "dev"
   cloud_storage_location = "EU"
 
-  application_backend_image    = var.application_backend_image
-  project_id                   = var.project_id
-  region                       = var.region
-  private_docker_repository_id = "prod-docker-repository-private"
-  public_docker_repository_id  = "prod-docker-repository-public"
-  ui_firebase_secret_id        = var.ui_firebase_secret_id
-  ui_googlemaps_secret_id      = var.ui_googlemaps_secret_id
+  application_backend_image = var.application_backend_image
+  project_id                = var.project_id
+  region                    = var.region
+  ui_firebase_secret_id     = var.ui_firebase_secret_id
+  ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
+}
+
+data "google_project" "project" {
+  project_id = var.project_id
 }
 
 # Enables required APIs.
@@ -31,10 +33,6 @@ resource "google_project_service" "google_services_default" {
   # Don't disable the service if the resource block is removed by accident.
   disable_on_destroy         = false
   disable_dependent_services = true
-}
-
-data "google_project" "project" {
-  project_id = var.project_id
 }
 
 output "project_number" {

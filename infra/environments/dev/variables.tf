@@ -1,3 +1,7 @@
+variable "cloud_storage_location" {
+  description = "The Google Cloud Storage location"
+  type        = string
+}
 variable "google_credentials_file" {
   description = "Google Service Account JSON file"
   type        = string
@@ -44,4 +48,3 @@ variable "google_idp_oauth_client_id_secret_id" {
   description = "google.com IDP oauth client ID cloud secret"
   type        = string
 }
-

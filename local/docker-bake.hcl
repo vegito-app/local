@@ -38,5 +38,4 @@ target "builder" {
   cache-to = [
     BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
-  load = true
 }

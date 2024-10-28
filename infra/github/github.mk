@@ -12,7 +12,7 @@ GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(G
 # Build image for local run. This target will not push an image to the distant registry.
 local-github-runner-image: $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print github-runner
-	@$(DOCKER_BUILDX_BAKE)  github-runner
+	@$(DOCKER_BUILDX_BAKE) --load github-runner
 .PHONY: local-github-runner-image
 
 # Build image for local run and push it.

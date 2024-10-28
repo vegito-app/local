@@ -56,5 +56,4 @@ target "android-studio" {
   cache-to = [
     ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
-  load = true
 }

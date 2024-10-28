@@ -15,9 +15,6 @@ module "gcloud" {
 
   cloud_storage_location = var.cloud_storage_location
 
-  public_docker_repository_id  = "docker-repository-public"
-  private_docker_repository_id = "docker-repository-private"
-
   application_backend_image = var.application_backend_image
 
   ui_firebase_secret_id   = var.ui_firebase_secret_id

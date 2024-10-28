@@ -47,7 +47,7 @@ APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APP
 
 application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) backend
+	@$(DOCKER_BUILDX_BAKE) --load backend
 .PHONY: application-backend-image
 
 application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)

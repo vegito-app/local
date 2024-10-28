@@ -1,5 +1,3 @@
-INFRA_ENV ?= prod
-
 TERRAFORM_ROOT_MODULE ?= $(CURDIR)/infra/environments/$(INFRA_ENV)
 
 TERRAFORM = \

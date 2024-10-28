@@ -21,7 +21,7 @@ BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(BUILDER_IMAGE_D
 
 local-builder-image: $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print builder
-	@$(DOCKER_BUILDX_BAKE) builder
+	@$(DOCKER_BUILDX_BAKE) --load builder
 .PHONY: local-builder-image
 
 local-builder-image-push: docker-buildx-setup

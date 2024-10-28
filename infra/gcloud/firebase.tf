@@ -209,7 +209,7 @@ resource "google_secret_manager_secret_iam_member" "firebase_admin_service_accou
 }
 
 resource "google_secret_manager_secret" "firebase_config_web" {
-  secret_id = "${var.environment}-firebase-config-web-web"
+  secret_id = "${var.environment}-firebase-config-web"
 
   replication {
     auto {
