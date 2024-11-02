@@ -85,7 +85,7 @@ There is also a nested `infra/gcloud` specific folder with specific target to us
     gcloud-backend-image-delete                            gcloud-services-disable-cloudbilling-api
     gcloud-builder-image-delete                            gcloud-services-disable-serviceusage-api
     gcloud-docker-registry-temporary-token                 gcloud-services-enable-cloudbilling-api
-    gcloud-firebase-adminsdk-serviceaccount-roles-list     gcloud-services-enable-serviceusage-api
+    gcloud-firebase-adminsdk-service-account-roles-list     gcloud-services-enable-serviceusage-api
     gcloud-images-builder-untag-all                        gcloud-storage-admin
 
 More details about thos targets: [infra/gcloud/gcloud.mk](infra/gcloud/gcloud.mk)

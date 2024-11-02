@@ -1,16 +1,14 @@
 name: Build and Push Git Commit Tagged Docker Images
-
 on:
   push:
     branches:
       - dev
-
 jobs:
   build-and-load-images:
     runs-on: self-hosted
     env:
-      GCLOUD_PROJECT_ID: moov-438615
-
+      GCLOUD_PROJECT_ID: moov-dev-439608
+      INFRA_ENV: dev
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -24,7 +22,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY_DEV }}
       - name: Set up Cloud SDK
         run: |
           gcloud config set project ${{ env.GCLOUD_PROJECT_ID }}
@@ -32,10 +30,8 @@ jobs:
         run: |
           gcloud auth configure-docker europe-west1-docker.pkg.dev
       - name: Set up Docker Buildx
-        # uses: docker/setup-buildx-action@v3
         run: |
           make docker-buildx-setup
-
       - name: Build and load local project images
         run: |
           make images-ci -j

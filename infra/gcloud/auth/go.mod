@@ -1,8 +1,8 @@
 module github.com/7d4b9/utrade/infra/gcloud/auth
 
-go 1.22
+go 1.23
 
-toolchain go1.22.0
+toolchain go1.23.2
 
 // replace github.com/7d4b9/utrade/backend/firebase => ./firebase
 

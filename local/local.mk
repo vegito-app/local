@@ -1,4 +1,3 @@
-
 LOCAL_DOCKER_COMPOSE = docker compose -f $(CURDIR)/local/docker-compose.yml
 
 local-install: application-frontend-build application-frontend-bundle backend-install 
@@ -31,5 +30,5 @@ local-builder-image-push: docker-buildx-setup
 
 local-builder-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print builder-ci
-	@$(DOCKER_BUILDX_BAKE) builder-ci
+	@$(DOCKER_BUILDX_BAKE) --push builder-ci
 .PHONY: local-builder-image-ci

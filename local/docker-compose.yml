@@ -12,8 +12,6 @@ services:
     env_file:
       - .env
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/infra/gcloud-credentials.json}
-      GOOGLE_CLOUD_PROJECT_ID: ${GOOGLE_CLOUD_PROJECT_ID}
       HOST_PWD: ${PWD:-/workspaces/refactored-winner}
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
@@ -41,7 +39,7 @@ services:
     env_file:
       - .env
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/infra/gcloud-credentials.json}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/.devcontainer/gcloud/infra/application_default_credentials.json}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FIREBASE_ADMINSDK_SERVICEACCOUNT_ID: ${FIREBASE_ADMINSDK_SERVICEACCOUNT_ID}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID}

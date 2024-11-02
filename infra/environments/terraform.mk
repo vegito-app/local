@@ -1,8 +1,9 @@
 TERRAFORM_ROOT_MODULE ?= $(CURDIR)/infra/environments/$(INFRA_ENV)
 
+# TF_VAR_google_credentials_file=$(GOOGLE_APPLICATION_CREDENTIALS) \
+  
 TERRAFORM = \
 	TF_VAR_application_backend_image=$(APPLICATION_BACKEND_IMAGE) \
-	TF_VAR_google_credentials_file=$(GOOGLE_APPLICATION_CREDENTIALS) \
 	TF_VAR_google_idp_oauth_key_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_KEY) \
 	TF_VAR_google_idp_oauth_client_id_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_CLIENT_ID) \
 		terraform -chdir=$(TERRAFORM_ROOT_MODULE)

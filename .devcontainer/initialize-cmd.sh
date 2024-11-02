@@ -9,7 +9,7 @@ localDotenvFile=${PWD}/local/.env
 # [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 COMPOSE_PROJECT_NAME=moov
-BUILDER_IMAGE=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest
+BUILDER_IMAGE=europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest
 GOOGLE_CLOUD_PROJECT_ID=moov-438615
 FIREBASE_PROJECT_ID=moov-438615
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-firebase-config-web/versions/1
@@ -28,7 +28,7 @@ workspaceFile=${PWD}/vscode.code-workspace
   "folders": [
     {
       "path": ".",
-      "name": "project-repository"
+      "name": "project"
     },
     {
       "name": "application-backend-go",
@@ -36,27 +36,47 @@ workspaceFile=${PWD}/vscode.code-workspace
     },
     {
       "name": "application-mobile-flutter",
-      "path": "application/mobile",
+      "path": "application/mobile"
     },
     {
       "name": "application-web-react",
       "path": "application/frontend"
     },
     {
-      "name": "local-android-studio",
-      "path": "local/android",
+      "name": "android-studio-local",
+      "path": "local/android"
     },
     {
-      "name": "local-firebase-emulators",
-      "path": "local/firebase",
+      "name": "firebase-emulators-local",
+      "path": "local/firebase"
+    },
+    {
+      "name": "dev-local",
+      "path": "local"
     },
     {
       "name": "infra-terraform",
-      "path": "infra",
+      "path": "infra"
     },
     {
-      "name": "infra-firebase-auth-func-nodejs",
-      "path": "infra/gcloud/auth",
+      "name": "auth-func-firebase-infra-nodejs",
+      "path": "infra/gcloud/auth"
+    },
+    {
+      "name": "devcontainer",
+      "path": ".devcontainer"
+    },
+    {
+      "name": "production-environment-infra-terraform",
+      "path": "infra/environments/prod"
+    },
+    {
+      "name": "staging-environment-infra-terraform",
+      "path": "infra/environments/staging"
+    },
+    {
+      "name": "dev-environment-infra-terraform",
+      "path": "infra/environments/dev"
     }
   ],
   "settings": {}
@@ -89,5 +109,6 @@ cat <<'EOF' > $backendLaunchDebug
         }
     ]
 }
+
 EOF
 fi

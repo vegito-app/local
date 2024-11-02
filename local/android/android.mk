@@ -15,8 +15,8 @@ local-android-studio-image: docker-buildx-setup
 .PHONY: local-android-studio-image
 
 local-android-studio-image-push: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print android-studio-ci
-	@$(DOCKER_BUILDX_BAKE) --push android-studio-ci
+	@$(DOCKER_BUILDX_BAKE) --print android-studio
+	@$(DOCKER_BUILDX_BAKE) --push android-studio
 .PHONY: local-android-studio-image-push
 
 local-android-studio-image-ci: docker-buildx-setup
