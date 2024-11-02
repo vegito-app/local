@@ -172,6 +172,7 @@ resource "google_project_service" "google_services_default" {
   project  = data.google_project.project.id
   for_each = toset([
     "cloudbilling.googleapis.com",
+    "identitytoolkit.googleapis.com",
     "cloudbuild.googleapis.com",
     "cloudfunctions.googleapis.com",
     "cloudresourcemanager.googleapis.com",

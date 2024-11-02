@@ -11,7 +11,7 @@ IMAGES_BASE ?= $(REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
 DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f docker/docker-bake.hcl \
-	-f application/backend/docker-bake.hcl  \
+	-f application/backend/docker-bake.hcl \
 	-f local/docker-bake.hcl \
 	-f local/android/docker-bake.hcl \
 	-f infra/github/docker-bake.hcl 
@@ -31,7 +31,7 @@ docker-images-local-arch: local-builder-image
 	@$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
 .PHONY: docker-images-local-arch
 
-docker-buildx-setup: $(GOOGLE_APPLICATION_CREDENTIALS)
+docker-buildx-setup: 
 	@-docker buildx create --name $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 
 	@-docker buildx use $(GOOGLE_CLOUD_PROJECT_ID)-builder 2>/dev/null 
 .PHONY: docker-buildx-setup

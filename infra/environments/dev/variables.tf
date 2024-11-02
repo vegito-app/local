@@ -2,10 +2,6 @@ variable "cloud_storage_location" {
   description = "The Google Cloud Storage location"
   type        = string
 }
-variable "google_credentials_file" {
-  description = "Google Service Account JSON file"
-  type        = string
-}
 variable "project_id" {
   description = "GCP project ID"
   type        = string

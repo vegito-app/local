@@ -1,7 +1,6 @@
 # Enables required APIs.
 resource "google_project_service" "google_idp_services" {
-  provider = google-beta.no_user_project_override
-  project  = data.google_project.project.project_id
+  project = data.google_project.project.project_id
   for_each = toset([
     "identitytoolkit.googleapis.com",
   ])

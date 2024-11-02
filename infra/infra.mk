@@ -1,7 +1,7 @@
+INFRA_ENV ?= dev
+
 -include infra/gcloud/gcloud.mk
 -include infra/github/github.mk
-
-INFRA_ENV ?= dev
 
 INFRA_GOOGLE_IDP_OAUTH_KEY=$(INFRA_ENV)-google-idp-oauth-key
 INFRA_GOOGLE_IDP_OAUTH_CLIENT_ID=$(INFRA_ENV)-google-idp-oauth-client-id

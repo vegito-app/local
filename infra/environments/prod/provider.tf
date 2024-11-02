@@ -17,15 +17,8 @@ terraform {
 }
 
 provider "google" {
-  credentials = file(var.google_credentials_file)
-  project     = var.project_id
-  region      = var.region
-
-}
-
-output "gcp_creds_client_email" {
-  description = "client email from Google JSON credentials"
-  value       = jsondecode(file(var.google_credentials_file))["client_email"]
+  project = var.project_id
+  region  = var.region
 }
 
 # Configures the provider to use the resource block's specified project for quota checks.

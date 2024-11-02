@@ -84,18 +84,18 @@ resource "google_artifact_registry_repository_iam_member" "application_backend_r
 }
 
 resource "google_secret_manager_secret_iam_member" "application_backend_wep_googlemaps_api_key_secret_read" {
-  secret_id = google_secret_manager_secret_version.web_google_maps_api_key_version.id
+  secret_id = google_secret_manager_secret_version.web_google_maps_api_key_version.secret
   member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
   role      = "roles/secretmanager.secretAccessor"
 }
 
 resource "google_secret_manager_secret_iam_member" "application_backend_firebase_web_uiconfig_secret_read" {
-  secret_id = google_secret_manager_secret_version.firebase_config_web_version.id
+  secret_id = google_secret_manager_secret_version.firebase_config_web_version.secret
   member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
   role      = "roles/secretmanager.secretAccessor"
 }
 resource "google_secret_manager_secret_iam_member" "application_backend_firebase_adminsdk_secret_read" {
-  secret_id = google_secret_manager_secret_version.firebase_adminsdk_secret_version.id
+  secret_id = google_secret_manager_secret_version.firebase_adminsdk_secret_version.secret
   member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
   role      = "roles/secretmanager.secretAccessor"
 }
