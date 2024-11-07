@@ -1097,8 +1097,8 @@ firebase databases:list
 firebase database:get
 firebase database:get *
 firebase database:get --help
-gcloud artifacts repositories describe prod-docker-repository-public
-gcloud artifacts repository describe prod-docker-repository-public
+gcloud artifacts repositories describe docker-repository-public
+gcloud artifacts repository describe docker-repository-public
 make terraform-plan |more
 make terraform-apply-auto-approve \more
 make terraform-apply-auto-approve 2> bordel
@@ -1170,8 +1170,8 @@ make -C ../../ node-modules-ci git branch git fetch -p
 git checkout d48918d96cab628f8af6c8bf2a20a3e0300fa597 local/android/docker-bake.hclmake terraform-init 
 make terraform-taint-backend a
 make terraform-reconfigure 
-docker pull europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest
-docker tag europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest builder-lates
+docker pull europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest
+docker tag europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest builder-lates
 gcloud run services 
 gcloud run services li@
 make terraform-state-list |grep -i rungit loggit fetch 
@@ -1363,4 +1363,52 @@ echo $BUILDER_IMAGE ip a
 sudo iftop eth0
 clear
 sudo iftop -i eth0
-docker logs -f 5fb349f88c53
+docker logs -f 5fb349f88c53sudo iftop
+``
+export INFRA-ENV=staging
+export INFRA_ENV=staging
+echo $INFRA_ENV 
+echo $env
+unset INFRA_ENV 
+GOOGLE_APPLICATION_CREDENTIALS=/workspaces/refactored-winner/infra/environments/prod/gcloud-credentials.json make e terraform-reconfigure 
+GOOGLE_APPLICATION_CREDENTIALS=/workspaces/refactored-winner/infra/environments/prod/gcloud-credentials.json make terraform-reconfigure 
+INFRA_ENV=dev make terraform-plan 
+INFRA_ENV=prod make terraform-plan 
+INFRE_ENV=prod make local-android-studio-docker-compose-up 
+INFRA_ENV=prod make local-android-studio-docker-compose-up 
+VERSION=latest INFRA_ENV=prod make local-android-studio-docker-compose-up 
+INFRA_ENV=prod make local-android-studio-image-push 
+INFRA_ENV=prod make local-builder-image-push 
+docker pull europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:android-studio-latest
+make gcloud-serviceaccounts-list 
+INFRA_ENV=prod make terraform-apply-auto-approve 
+make gcloud-serviceaccount-roles 
+INFRA_ENV=dev make gcloud-serviceaccount-roles 
+INFRA_ENV=dev make terraform-apply-auto-approve 
+ip a
+git push origin wtf:dev
+git branch -d wtf 
+git push origin :wtf
+make -C .. images-ci 
+make -C .. images
+ma
+make gcloud-secret-prod-firebase-adminsdk-service-account-key-show 
+make terraform-output-json make -C ../.. go-mod-upgrade 
+INFRA_ENV=dev gcloud secrets list 
+gcloud config get project
+gcloud projects list
+gcloud config set project moov-dev-439608
+gcloud secrets describe firebase-adminsdk-service-account-key
+gcloud secrets describe google-maps-api-key
+gcloud secrets describe firebase-config-web
+gcloud secrets versions list  firebase-config-web
+gcloud secrets versions list  google-maps-api-key
+INFRA_ENV=dev make local-android-studio-docker-compose-up 
+INFRA_ENV=prod make terraform-upgrade 
+INFRA_ENV=staging make terraform-upgrade 
+INFRA_ENV=staging make terraform-plan 
+make terraform-apply-auto-approve
+gcloud functions describe moov-europe-west1-idp-before-create
+gcloud functions describe moov-europe-west1-idp-before-signin
+make terraform-upgrade-all
+make application-backend-docker-compose-logs 

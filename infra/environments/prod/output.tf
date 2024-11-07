@@ -8,10 +8,10 @@ output "public_docker_repository" {
   value       = module.gcloud.public_docker_repository
 }
 
-# output "github_actions_private_key" {
-#   value     = module.gcloud.github_actions_private_key
-#   sensitive = true
-# }
+output "github_actions_private_key" {
+  value     = module.gcloud.github_actions_private_key
+  sensitive = true
+}
 
 output "firebase_ios_config_plist" {
   value       = module.gcloud.firebase_ios_config_plist

@@ -1,4 +1,4 @@
-ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder
+ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder
 FROM ${builder_image} AS build
 
 RUN mkdir ${HOME}/src

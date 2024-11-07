@@ -1,4 +1,4 @@
-INFRA_ENV ?= dev
+INFRA_ENV ?= prod
 
 -include infra/gcloud/gcloud.mk
 -include infra/github/github.mk

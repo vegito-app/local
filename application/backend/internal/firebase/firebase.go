@@ -19,7 +19,6 @@ const appCreationTimeoutConfig = "new_application_timeout"
 func init() {
 	config.AutomaticEnv()
 	config.SetEnvPrefix("utrade_firebase")
-
 	config.SetDefault(appCreationTimeoutConfig, 1*time.Minute)
 }
 

@@ -34,16 +34,15 @@ services:
       context: ..
       dockerfile: application/backend/Dockerfile
       args:
-        builder_image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest}
+        builder_image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest}
 
     env_file:
       - .env
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/.devcontainer/gcloud/infra/application_default_credentials.json}
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
-      FIREBASE_ADMINSDK_SERVICEACCOUNT_ID: ${FIREBASE_ADMINSDK_SERVICEACCOUNT_ID}
-      UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID}
-      UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-moov}
+      UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/moov-dev-439608/secrets/firebase-config-web/versions/2}
+      UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID:-projects/moov-dev-439608/secrets/google-maps-api-key/versions/1}
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     networks:
@@ -52,7 +51,7 @@ services:
   firebase-emulators:
     restart: unless-stopped
     container_name: firebase-emulators
-    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest}
+    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
@@ -93,7 +92,9 @@ services:
   android-studio:
     restart: unless-stopped
     container_name: android-studio
-    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/utrade:android-studio-latest}
+    cap_add:
+      - SYS_ADMIN
+    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:android-studio-latest}
     env_file:
       - .env
     environment:

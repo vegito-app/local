@@ -1,17 +1,16 @@
 resource "google_service_account" "application_backend_cloud_run_sa" {
   account_id   = "production-application-backend"
   display_name = "Application Backend Cloud Run"
-  project      = data.google_project.project.project_id
 }
 
 locals {
-  google_cloud_run_service = format("%s-%s-%s-application-backend", var.environment, data.google_project.project.project_id, var.region)
+  google_cloud_run_service = format("%s-%s-%s-application-backend", var.environment, var.project_name, var.region)
 }
 
 # Enables required APIs.
 resource "google_project_service" "application_backend_services" {
   provider = google-beta.no_user_project_override
-  project  = data.google_project.project.project_id
+  project  = var.project_id
   for_each = toset([
     "run.googleapis.com",
   ])
@@ -31,7 +30,7 @@ resource "google_cloud_run_service" "application_backend" {
         image = var.application_backend_image
         env {
           name  = "FIREBASE_PROJECT_ID"
-          value = google_firebase_project.moov.id
+          value = google_firebase_project.default.id
         }
         env {
           name  = "FIREBASE_ADMINSDK_SERVICEACCOUNT_ID"
@@ -69,6 +68,7 @@ output "backend_url" {
 
 # Make Cloud Run service publicly accessible
 resource "google_cloud_run_service_iam_member" "allow_unauthenticated" {
+  project  = var.project_id
   service  = google_cloud_run_service.application_backend.name
   location = google_cloud_run_service.application_backend.location
   role     = "roles/run.invoker"
@@ -76,7 +76,7 @@ resource "google_cloud_run_service_iam_member" "allow_unauthenticated" {
 }
 
 resource "google_artifact_registry_repository_iam_member" "application_backend_repo_read_member" {
-  project    = data.google_project.project.project_id
+  project    = var.project_id
   location   = var.region
   repository = google_artifact_registry_repository.private_docker_repository.name
   role       = "roles/artifactregistry.reader"

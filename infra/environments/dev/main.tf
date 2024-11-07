@@ -1,10 +1,11 @@
 module "gcloud" {
-  source                 = "../../gcloud"
-  environment            = "dev"
-  cloud_storage_location = "EU"
+  source       = "../../gcloud"
+  environment  = "dev"
+  project_name = data.google_project.project.name
+  project_id   = var.project_id
 
+  cloud_storage_location    = var.cloud_storage_location
   application_backend_image = var.application_backend_image
-  project_id                = var.project_id
   region                    = var.region
   ui_firebase_secret_id     = var.ui_firebase_secret_id
   ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
@@ -12,6 +13,14 @@ module "gcloud" {
 
 data "google_project" "project" {
   project_id = var.project_id
+}
+
+output "project_number" {
+  value = data.google_project.project.number
+}
+
+output "project_name" {
+  value = data.google_project.project.name
 }
 
 # Enables required APIs.
@@ -33,12 +42,4 @@ resource "google_project_service" "google_services_default" {
   # Don't disable the service if the resource block is removed by accident.
   disable_on_destroy         = false
   disable_dependent_services = true
-}
-
-output "project_number" {
-  value = data.google_project.project.number
-}
-
-output "project_name" {
-  value = data.google_project.project.name
 }

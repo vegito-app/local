@@ -8,7 +8,7 @@ resource "google_artifact_registry_repository" "public_docker_repository" {
 
 output "public_docker_repository" {
   description = "Project docker container registry."
-  value       = "${var.region}-docker.pkg.dev/${data.google_project.project.project_id}/${google_artifact_registry_repository.public_docker_repository.repository_id}"
+  value       = "${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.public_docker_repository.repository_id}"
 }
 
 resource "google_artifact_registry_repository_iam_member" "public_read" {
@@ -22,7 +22,7 @@ resource "null_resource" "docker_auth" {
   depends_on = [google_artifact_registry_repository.public_docker_repository]
 
   provisioner "local-exec" {
-    command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${data.google_project.project.project_id}/${google_artifact_registry_repository.public_docker_repository.repository_id}"
+    command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.public_docker_repository.repository_id}"
   }
 }
 
@@ -38,11 +38,11 @@ resource "null_resource" "docker_auth_public" {
   depends_on = [google_artifact_registry_repository.private_docker_repository]
 
   provisioner "local-exec" {
-    command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${data.google_project.project.project_id}/${google_artifact_registry_repository.private_docker_repository.repository_id}"
+    command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.private_docker_repository.repository_id}"
   }
 }
 
 output "docker_repository" {
   description = "Project docker container registry."
-  value       = "${var.region}-docker.pkg.dev/${data.google_project.project.project_id}/${google_artifact_registry_repository.private_docker_repository.repository_id}"
+  value       = "${var.region}-docker.pkg.dev/${var.project_name}/${google_artifact_registry_repository.private_docker_repository.repository_id}"
 }

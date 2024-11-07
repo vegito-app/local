@@ -165,9 +165,10 @@ RUN ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comman
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 
+ARG android_studio_version=2024.2.1.11
 # RUN ANDROID_STUDIO_URL=$(curl -s https://developer.android.com/studio \
 # | grep -oP '(https://redirector.gvt1.com/edgedl/android/studio/ide-zips/.*?linux.tar.gz)' | head -1); \
-RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2024.1.2.12/android-studio-2024.1.2.12-linux.tar.gz ; \
+RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz ; \
     curl -o /tmp/android-studio.tar.gz -L ${ANDROID_STUDIO_URL}  && \
     tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
     mv /tmp/android-studio ${STUDIO_PATH} && \
@@ -178,14 +179,7 @@ COPY local/android/caches-refresh.sh /usr/local/bin/local-android-caches-refresh
 
 # Install Google Chrome
 RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
-    curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg -i google-chrome-stable_current_amd64.deb && \
-    apt-get install -f -y ; \
-    else \
-    echo TARGETPLATFORM =  `dpkg --print-architecture && uname` ; sleep 10;\
-    echo "Chrome not supported on this platform "  ; \
-    echo "Installing chromium"; \
-    apt-get install -y chromium; \
+    apt-get update && apt-get install -y chromium; \
     fi
 
 # X11

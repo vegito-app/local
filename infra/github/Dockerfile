@@ -1,4 +1,4 @@
-ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/prod-docker-repository-public/moov-438615:builder-latest
+ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest
 FROM ${builder_image}
 RUN npm install -g standard-version
 ARG non_root_user=devuser

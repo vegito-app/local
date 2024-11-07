@@ -1,26 +1,30 @@
-
-output "backend" {
-  value       = module.infra.backend
-  description = "web application uri"
-}
-
 output "docker_repository" {
   description = "Project docker container registry."
-  value       = module.infra.docker_repository
+  value       = module.gcloud.docker_repository
 }
 
-output "docker_repository_public" {
+output "public_docker_repository" {
   description = "Project public docker container registry."
-  value       = module.infra.docker_repository_public
+  value       = module.gcloud.public_docker_repository
 }
-
 
 output "firebase_ios_config_plist" {
-  value       = module.infra.firebase_ios_config_plist
+  value       = module.gcloud.firebase_ios_config_plist
   description = "Configuration client Firebase iOS (GoogleService-Info.plist)"
+  sensitive   = true
 }
 
 output "firebase_android_config_json" {
-  value       = module.infra.firebase_android_config_json
+  value       = module.gcloud.firebase_android_config_json
   description = "Configuration client Firebase Android (google-services.json)"
+  sensitive   = true
+}
+
+output "backend_url" {
+  value = module.gcloud.backend_url
+}
+
+output "oauth_redirect_uri" {
+  description = "Web OAUTH redirect URI (must authorized set on google console 'ID clients OAuth 2.0' credentials)"
+  value       = module.gcloud.oauth_redirect_uri
 }

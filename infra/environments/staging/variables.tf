@@ -1,7 +1,3 @@
-variable "google_credentials_file" {
-  description = "Google Service Account JSON file"
-  type        = string
-}
 variable "project_id" {
   description = "GCP project ID"
   type        = string
@@ -12,19 +8,10 @@ variable "region" {
   type        = string
   default     = "europe-west1"
 }
-variable "repository_id" {
-  description = "docker repository image name: container-registry/<repository_id>:image-tag"
+variable "cloud_storage_location" {
+  description = "The Google Cloud Storage location"
   type        = string
-  default     = "docker-repository"
-}
-variable "public_repository_id" {
-  description = "docker repository image name: container-registry/<repository_id>:public-<image-tag>"
-  type        = string
-  default     = "docker-repository-public"
-}
-variable "private_docker_repository_id" {
-  type        = string
-  description = "Private Docker repository name"
+  default     = "EU"
 }
 variable "application_backend_image" {
   description = "application Docker image"
