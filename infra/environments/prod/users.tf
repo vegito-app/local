@@ -7,6 +7,11 @@ variable "staging_project" {
   default = "moov-staging-440506"
 }
 
+variable "dev_project" {
+  type    = string
+  default = "moov-dev-439608"
+}
+
 variable "environments" {
   type = map(string)
   default = {
@@ -16,8 +21,8 @@ variable "environments" {
   }
 }
 
-# Map des rôles par environnement
-variable "roles_per_environment" {
+# Map des rôles par environnement par défaut
+variable "default_roles_per_environment" {
   type = map(list(string))
   default = {
     dev     = ["roles/editor", "roles/secretmanager.secretAccessor", "roles/secretmanager.admin"] # Exemple : plus de permissions en dev
@@ -26,18 +31,72 @@ variable "roles_per_environment" {
   }
 }
 
-# Variables pour les développeurs et les environnements
+# Add a developper to this list first, then apply to get the automatically 
+# generated service accounts IDs from each <developer> value:
+# * Production
+#   - serviceAccount:<developer>-prod@moov-438615.iam.gserviceaccount.com
+#   - serviceAccount:<developer>-prod@moov-438615.iam.gserviceaccount.com
+# * Staging
+#   - serviceAccount:<developer>-staging@moov-staging-440506.iam.gserviceaccount.com
+#   - serviceAccount:<developer>-staging@moov-staging-440506.iam.gserviceaccount.com
+# * Staging
+#   - serviceAccount:<developer>-dev@moov-dev-439608.iam.gserviceaccount.com
+#   - serviceAccount:<developer>-dev@moov-dev-439608.iam.gserviceaccount.com
 variable "developers" {
   type = map(string)
   default = {
-    # "alice@email.com"       = "alice-id",
-    # "bob@email.com"         = "bob-id",
     "davidberich@gmail.com" = "david-berichon"
   }
 }
+variable "prod_admins_service_accounts" {
+  type = list(string)
+  default = [
+    "serviceAccount:david-berichon-prod@moov-438615.iam.gserviceaccount.com"
+  ]
+}
+variable "prod_editors_service_accounts" {
+  type = list(string)
+  default = [
+    "serviceAccount:david-berichon-prod@moov-438615.iam.gserviceaccount.com"
+  ]
+}
+# After automatic creation of developer service account (from developers list), use the generated service account
+# to add the developer as member to get default roles based on his profile.
+module "production_members" {
+  source     = "./roles"
+  project_id = var.project_id
+  admins     = var.prod_admins_service_accounts
+  editors    = var.prod_editors_service_accounts
+}
+
+# After automatic creation of developer service account (from developers list), use the generated service account
+# to add the developer as member to get default roles based on his profile.
+module "staging_members" {
+  source     = "./roles"
+  project_id = var.staging_project
+  admins = concat(var.prod_admins_service_accounts, [
+    # "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
+  ])
+  editors = concat(var.prod_editors_service_accounts, [
+    "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
+  ])
+}
+
+# After automatic creation of developer service account (from developers list), use the generated service account
+# to add the developer as member to get default roles based on his profile.
+module "dev_members" {
+  source     = "./roles"
+  project_id = var.dev_project
+  admins = concat(var.prod_admins_service_accounts, [
+    "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
+  ])
+  editors = concat(var.prod_editors_service_accounts, [
+    # "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
+  ])
+}
 
 # Ajoutez ensuite le rôle 'propriétaire' à ce compte de service pour le projet
-resource "google_project_iam_member" "moov_staging" {
+resource "google_project_iam_member" "production_root_admin" {
   project = var.staging_project
   role    = "roles/owner"
   member  = "serviceAccount:${data.google_service_account.production_root_admin_service_account.email}"
@@ -67,7 +126,7 @@ locals {
           id         = id
           env        = env
           project_id = project_id
-          roles      = lookup(var.roles_per_environment, env, [])
+          roles      = lookup(var.default_roles_per_environment, env, [])
         }
       }
     ]
@@ -102,22 +161,6 @@ resource "google_project_iam_member" "developer_service_account_roles" {
   member  = "serviceAccount:${each.value.email}"
 }
 
-variable "staging_editors" {
-  description = "Liste des utilisateurs staging editors"
-  type        = list(string)
-  default = [
-    "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
-  ]
-}
-
-variable "staging_admin" {
-  description = "Liste des utilisateurs staging editors"
-  type        = list(string)
-  default = [
-    "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
-  ]
-}
-
 resource "google_storage_bucket_iam_member" "bucket_iam_member" {
   for_each = local.for_each_developer_environment_map
   bucket   = google_storage_bucket.bucket_tf_state_eu_global.name
@@ -146,97 +189,6 @@ resource "google_project_iam_member" "artifact_registry_reader" {
   project  = each.value.project_id
   role     = "roles/artifactregistry.reader"
   member   = "serviceAccount:${google_service_account.developer_service_account[each.key].email}"
-}
-
-resource "google_project_iam_binding" "staging_editor" {
-  project = var.staging_project
-  role    = "roles/editor"
-
-  members = var.staging_editors
-}
-
-resource "google_project_iam_binding" "staging_secret_accessor" {
-  project = var.staging_project
-  role    = "roles/secretmanager.secretAccessor"
-  members = var.staging_editors
-}
-
-resource "google_project_iam_binding" "staging_secret_admin" {
-  project = var.staging_project
-  role    = "roles/secretmanager.admin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_cloudfunction_admin" {
-  project = var.staging_project
-  role    = "roles/cloudfunctions.admin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_artifactregistry_admin" {
-  project = var.staging_project
-  role    = "roles/artifactregistry.admin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_artifactregistry_editor" {
-  project = var.staging_project
-  role    = "roles/artifactregistry.writer"
-  members = var.staging_editors
-}
-
-resource "google_project_iam_binding" "staging_iam_admin" {
-  project = var.staging_project
-  role    = "roles/resourcemanager.projectIamAdmin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_storage_admin" {
-  project = var.staging_project
-  role    = "roles/storage.admin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_storage_editor" {
-  project = var.staging_project
-  role    = "roles/storage.objectViewer"
-  members = var.staging_editors
-}
-
-resource "google_project_iam_binding" "staging_firebasedatabase_admin" {
-  project = var.staging_project
-  role    = "roles/firebasedatabase.admin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_firebasedatabase_editor" {
-  project = var.staging_project
-  role    = "roles/firebasedatabase.viewer"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_datastore_owner" {
-  project = var.staging_project
-  role    = "roles/datastore.owner"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_roles_admin" {
-  project = var.staging_project
-  role    = "roles/iam.roleAdmin"
-  members = var.staging_admin
-}
-
-resource "google_project_iam_binding" "staging_datastore_editor" {
-  project = var.staging_project
-  role    = "roles/datastore.viewer"
-  members = var.staging_editors
-}
-
-resource "google_project_iam_binding" "staging_service_account_user_as_admin" {
-  project = var.staging_project
-  role    = "roles/iam.serviceAccountUser"
-  members = var.staging_admin
 }
 
 # Clés API Google Maps pour chaque développeur

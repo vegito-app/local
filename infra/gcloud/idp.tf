@@ -97,10 +97,6 @@ resource "google_cloudfunctions_function" "auth_before_sign_in" {
   source_archive_bucket = google_storage_bucket.bucket_gcf_source.name
   source_archive_object = google_storage_bucket_object.auth.name
   service_account_email = google_service_account.firebase_admin_service_account.email
-
-  # environment_variables = {
-  # FIREBASE_ADMINSDK_SERVICEACCOUNT_ID = google_service_account.firebase_admin_service_account.id
-  # }
 }
 
 output "auth_func_utrade_before_sign_in_id" {
@@ -143,4 +139,21 @@ resource "google_storage_bucket_iam_binding" "bucket_iam_binding" {
   members = [
     "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
   ]
+}
+
+data "google_secret_manager_secret_version" "google_idp_oauth_client_secret" {
+  secret = var.google_idp_oauth_key_secret_id
+}
+
+data "google_secret_manager_secret_version" "google_idp_oauth_client_id" {
+  secret = var.google_idp_oauth_client_id_secret_id
+}
+
+# Assigner les secrets
+resource "google_identity_platform_default_supported_idp_config" "google" {
+  enabled = true
+  idp_id  = "google.com"
+
+  client_id     = data.google_secret_manager_secret_version.google_idp_oauth_client_id.secret_data
+  client_secret = data.google_secret_manager_secret_version.google_idp_oauth_client_secret.secret_data
 }

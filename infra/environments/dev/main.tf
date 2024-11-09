@@ -1,8 +1,16 @@
+locals {
+  environment = "dev"
+}
 module "gcloud" {
   source       = "../../gcloud"
-  environment  = "dev"
+  environment  = local.environment
   project_name = data.google_project.project.name
   project_id   = var.project_id
+
+  application_public_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-back-5ollyxkdkq-ew.a.run.app"
+
+  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
+  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
 
   cloud_storage_location    = var.cloud_storage_location
   application_backend_image = var.application_backend_image

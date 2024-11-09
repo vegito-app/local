@@ -9,6 +9,9 @@ module "gcloud" {
   project_id   = var.project_id
   region       = var.region
 
+  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
+  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
+
   application_public_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-bac-homb3x53ta-ew.a.run.app"
 
   application_backend_image = var.application_backend_image

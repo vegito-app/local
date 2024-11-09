@@ -212,11 +212,11 @@ gcloud-users-roles: $(GCLOUD_USERS_EMAILS:%=gcloud-user-%-roles)
 
 # Upadte this list with '$(GCLOUD) secrets list' values
 GCLOUD_SECRETS := \
-  prod-firebase-adminsdk-service-account-key \
-  prod-firebase-config-web \
-  prod-google-idp-oauth-client-id \
-  prod-google-idp-oauth-key \
-  prod-google-maps-api-key
+  firebase-adminsdk-service-account-key \
+  firebase-config-web \
+  google-idp-oauth-client-id \
+  google-idp-oauth-key \
+  google-maps-api-key
 
 $(GCLOUD_SECRETS:%=gcloud-secret-%-show):
 	@a=$$($(GCLOUD) secrets versions access latest --secret=$(@:gcloud-secret-%-show=%)) \

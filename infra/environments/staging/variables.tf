@@ -32,3 +32,11 @@ variable "ui_googlemaps_secret_id" {
   type        = string
   default     = "ui_googlemaps_secret"
 }
+variable "google_idp_oauth_key_secret_id" {
+  description = "google.com IDP oauth key cloud secret"
+  type        = string
+}
+variable "google_idp_oauth_client_id_secret_id" {
+  description = "google.com IDP oauth client ID cloud secret"
+  type        = string
+}
