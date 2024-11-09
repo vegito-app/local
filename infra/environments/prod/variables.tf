@@ -8,7 +8,7 @@ variable "region" {
   type        = string
   default     = "europe-west1"
 }
-variable "default" {
+variable "cloud_storage_location" {
   description = "The Google Cloud Storage location"
   type        = string
   default     = "EU"

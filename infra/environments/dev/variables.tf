@@ -12,16 +12,6 @@ variable "region" {
   type        = string
   default     = "europe-west1"
 }
-variable "repository_id" {
-  description = "docker repository image name: container-registry/<repository_id>:image-tag"
-  type        = string
-  default     = "docker-repository"
-}
-variable "public_repository_id" {
-  description = "docker repository image name: container-registry/<repository_id>:public-<image-tag>"
-  type        = string
-  default     = "docker-repository-public"
-}
 variable "application_backend_image" {
   description = "application Docker image"
   type        = string

@@ -20,7 +20,6 @@ module "gcloud" {
   cloud_storage_location    = var.cloud_storage_location
 }
 
-
 data "google_project" "project" {
   project_id = var.project_id
 }

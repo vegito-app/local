@@ -22,15 +22,6 @@ module "gcloud" {
 data "google_project" "project" {
   project_id = var.project_id
 }
-
-output "project_number" {
-  value = data.google_project.project.number
-}
-
-output "project_name" {
-  value = data.google_project.project.name
-}
-
 # Enables required APIs.
 resource "google_project_service" "google_services_default" {
   provider = google-beta.no_user_project_override

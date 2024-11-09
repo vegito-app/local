@@ -186,7 +186,7 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
     echo TARGETPLATFORM =  `dpkg --print-architecture` ; \
     echo "Chrome not supported on this platform "  ; \
     echo "Installing chromium"; \
-    apt-get install -y chromium; \
+    apt-get update && apt-get install -y chromium; \
     fi
 
 # X11

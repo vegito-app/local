@@ -134,7 +134,8 @@ import {
   id = "${data.google_project.project.id}/secrets/prod-firebase-web-config"
   to = module.gcloud.google_secret_manager_secret.firebase_config_web
 }
-import {
-  id = "${data.google_project.project.id}/defaultSupportedIdpConfigs/google"
-  to = google_identity_platform_default_supported_idp_config.google
-}
+# import {
+#   # id = "${data.google_project.project.id}/defaultSupportedIdpConfigs/google"
+#   id = "google"
+#   to = module.gcloud.google_identity_platform_default_supported_idp_config.google
+# }

@@ -1,9 +1,12 @@
-TERRAFORM_SECRETS_ROOT_MODULE ?= $(CURDIR)/infra/secrets
+TERRAFORM_SECRETS_ROOT_MODULE ?= $(CURDIR)/infra/environments/$(INFRA_ENV)/secrets
+
+GOOGLE_IDP_OAUTH_KEY=google-idp-oauth-key
+GOOGLE_IDP_OAUTH_CLIENT_ID=google-idp-oauth-client-id
 
 SECRETS_TERRAFORM = \
 	TF_VAR_google_credentials_file=$(GOOGLE_APPLICATION_CREDENTIALS) \
-	TF_VAR_google_idp_oauth_key_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_KEY) \
-	TF_VAR_google_idp_oauth_client_id_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_CLIENT_ID) \
+	TF_VAR_google_idp_oauth_key_secret_id=$(GOOGLE_IDP_OAUTH_KEY) \
+	TF_VAR_google_idp_oauth_client_id_secret_id=$(GOOGLE_IDP_OAUTH_CLIENT_ID) \
 	terraform -chdir=$(TERRAFORM_SECRETS_ROOT_MODULE)
 
 terraform-secrets-init: $(GOOGLE_APPLICATION_CREDENTIALS)

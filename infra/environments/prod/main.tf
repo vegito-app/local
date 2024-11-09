@@ -56,6 +56,10 @@ resource "google_project_service" "google_services_default" {
   disable_dependent_services = true
 }
 
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
 resource "google_storage_bucket" "bucket_tf_state_eu_global" {
   name     = "global-${var.region}-tf-state"
   location = var.region
