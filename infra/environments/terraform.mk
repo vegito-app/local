@@ -1,9 +1,11 @@
 TERRAFORM_PROJECT ?= $(CURDIR)/infra/environments/$(INFRA_ENV)
 
+-include infra/environments/secrets.mk
+
 TERRAFORM = \
 	TF_VAR_application_backend_image=$(APPLICATION_BACKEND_IMAGE) \
-	TF_VAR_google_idp_oauth_key_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_KEY) \
-	TF_VAR_google_idp_oauth_client_id_secret_id=$(INFRA_GOOGLE_IDP_OAUTH_CLIENT_ID) \
+	TF_VAR_google_idp_oauth_key_secret_id=$(GOOGLE_IDP_OAUTH_KEY) \
+	TF_VAR_google_idp_oauth_client_id_secret_id=$(GOOGLE_IDP_OAUTH_CLIENT_ID) \
 		terraform -chdir=$(TERRAFORM_PROJECT)
 
 terraform-init: $(GOOGLE_APPLICATION_CREDENTIALS)
@@ -11,8 +13,7 @@ terraform-init: $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: terraform-init
 
 terraform-import : $(GOOGLE_APPLICATION_CREDENTIALS)
-	$(TERRAFORM) state rm  module.gcloud.google_firestore_database.moov
-	$(TERRAFORM) import module.gcloud.google_firebase_database_instance.moov "moov-438615/locations/europe-west1/instances/projects/moov-438615/databases/\(default\)"
+	$(TERRAFORM) import module.gcloud.google_identity_platform_default_supported_idp_config.google "projects/moov-438615/defaultSupportedIdpConfigs/google"
 .PHONY: terraform-import 
 
 # Use this target to help updating the bellow TF_STATE_ITEMS list manually.
@@ -160,7 +161,7 @@ terraform-providers: $(GOOGLE_APPLICATION_CREDENTIALS)
 terraform-validate: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) validate
 .PHONY: terraform-validate
-
+	
 terraform-refresh: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) refresh
 .PHONY: terraform-refresh
@@ -196,3 +197,12 @@ terraform-output-firebase-android-config-json:
 terraform-output-firebase-ios-config-plist:
 	@$(TERRAFORM) output firebase_ios_config_plist | sed -e '1d' -e '$$d' -e '/^$$/d'
 .PHONY: terraform-output-firebase-ios-config-plist
+
+terraform-rotate:
+	@bash -c ' \
+		set -eu; \
+		for i in dev staging prod; do \
+		  INFRA_ENV=$$i $(MAKE) terraform-plan terraform-apply-auto-approve;\
+		done; \
+	'
+.PHONY: terraform-rotate

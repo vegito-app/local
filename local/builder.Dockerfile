@@ -179,7 +179,14 @@ COPY local/android/caches-refresh.sh /usr/local/bin/local-android-caches-refresh
 
 # Install Google Chrome
 RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
-    apt-get update && apt-get install -y chromium; \
+    curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    dpkg -i google-chrome-stable_current_amd64.deb && \
+    apt-get install -f -y ; \
+    else \
+    echo TARGETPLATFORM =  `dpkg --print-architecture` ; \
+    echo "Chrome not supported on this platform "  ; \
+    echo "Installing chromium"; \
+    apt-get install -y chromium; \
     fi
 
 # X11
@@ -193,7 +200,7 @@ RUN chown -R ${non_root_user}:${non_root_user} ${HOME}/.cache
 USER ${non_root_user}
 
 # Flutter 
-ENV FLUTTER_VERSION=3.24.3
+ENV FLUTTER_VERSION=3.24.4
 RUN curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     tar -xf flutter.tar.xz -C ${HOME}/ && rm flutter.tar.xz
 ENV PATH=${PATH}:${HOME}/flutter/bin

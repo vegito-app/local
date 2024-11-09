@@ -14,14 +14,16 @@ module "gcloud" {
   source      = "../../gcloud"
   environment = local.environment
 
+  cloud_storage_location = var.cloud_storage_location
+
   project_name = data.google_project.project.name
   project_id   = var.project_id
   region       = var.region
 
+  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
+  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
+
   application_public_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-backend-v4bqtohg4a-ew.a.run.app"
-
-  cloud_storage_location = var.cloud_storage_location
-
   application_backend_image = var.application_backend_image
 
   ui_firebase_secret_id   = var.ui_firebase_secret_id

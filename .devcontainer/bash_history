@@ -1411,4 +1411,56 @@ make terraform-apply-auto-approve
 gcloud functions describe moov-europe-west1-idp-before-create
 gcloud functions describe moov-europe-west1-idp-before-signin
 make terraform-upgrade-all
-make application-backend-docker-compose-logs 
+make application-backend-docker-compose-logs INFRA_ENV=dev make local-android-studio-docker-compose-up cd ..
+INFRA_ENV=staging make terraform-secrets-init 
+INFRA_ENV=staging make terraform-secrets-upgrade 
+INFRA_ENV=prod make terraform-secrets-init 
+INFRA_ENV=prod make terraform-secrets-migrate-state 
+INFRA_ENV=prod make terraform-secrets-refresh 
+INFRA_ENV=staging make terraform-secrets-plan 
+INFRA_ENV=staging make terraform-secrets-apply-auto-approve 
+INFRA_ENV=dev make terraform-secrets-init terraform-secrets-plan terraform-secrets-apply-auto-approve 
+make terraform-secrets-upgrade terraform-secrets-plan terraform-secrets-apply-auto-approve 
+make terraform-rotate 
+make google_identity_platform_default_supported_idp_config.google-rm
+gcloud projects add-iam-policy-binding moov-staging-440506   --member=serviceAccount:root-admin@moov-438615.iam.gserviceaccount.com --role=roles/owner
+INFRA_ENV=staging make application-backend-image-push
+INFRA_ENV=staging make docker-login application-backend-image-push
+INFRA_ENV=staging make terraform-apply-auto-approve 
+INFRA_ENV=staging make terraform-apply-auto-approve docker images|grep backend
+docker images | grep backend
+INFRA_ENV=staging VERSION=latest make terraform-plan terraform-apply-auto-approve 
+LOCK_ID=1731153440082957 INFRA_ENV=staging VERSION=latest make terraform-unlock terraform-plan terraform-apply-auto-approve 
+INFRA_ENV=staging  make terraform-plan terraform-apply-auto-approve 
+INFRA_ENV=dev VERSION=latest make terraform-plan terraform-apply-auto-approve 
+INFRA_ENV=dev VERSION=latest make terraform-plan
+INFRA_ENV=dev VERSION=latest make terraform-apply-auto-approve 
+INFRA_ENV=prod make terraform-plan terraform-apply-auto-approve 
+INFRA_ENV=dev  make application-backend-image-push terraform-apply-auto-approve 
+INFRA_ENV=dev  make terraform-plan terraform-apply-auto-approve cd ..
+make terraform-rotate 
+git commit --amend 
+git commit --amend --no-edit 
+make terraform-refresh 
+INFRA_ENV=staging make terraform-refresh 
+INFRA_ENV=dev make terraform-refresh 
+make terraform-plan terraform-apply-auto-approve 
+VERSION=latest make terraform-plan terraform-apply-auto-approve 
+INFRA_ENV=dev make terraform-refresh 
+gcloud --project=moov-dev-439608 iam service-accounts keys create   /workspaces/refactored-winner/infra/environments/dev/gcloud-credentials.json   --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com
+make gcloud-auth-login 
+INFRA_ENV=dev make terraform-refresh 
+gcloud --project=moov-dev-439608 iam service-accounts keys create   /workspaces/refactored-winner/infra/environments/dev/gcloud-credentials.json   --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com
+INFRA_ENV=staging make terraform-refresh 
+gcloud config set project oov-dev-439608
+gcloud config set project moov-dev-439608
+export INFRA_ENV=dev
+make gcloud-auth-login 
+make terraform-refresh 
+gcloud iam service-accounts list --project=moov-dev-439608
+gcloud iam service-accounts keys list --project=moov-dev-439608 --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com
+for i in 7c8b6a217abb53a5c320b67cce701ddb40e26f33 2ae14480d8ad2a502646f5020784356d8b9e8e28 39d45ea74bf9989d8d5f6679b9a78ef607659fd9 f859cc41820ce7fa50da32633fcf7e3a6111ccb7 b0b16615dfd63a43afe68999fc07169db5a6f2da 5c04cfa59c33c0cbaed9b893798dfb89231ece56 b68775b48cde2d7fea4525c704b5e729447cb81f c1b00623707a54b855c0c4e76bfc3e730912f045 cbc5e65ebf412c67a27a3d751c4e5e8c50f1bc46 a2e3f414b34ca0c79ac373d3be74037dfe1942bc a9c06637d511b2057a0fb099fc0c81406edcf021  ; do gcloud iam service-accounts keys delete $i --project=moov-dev-439608 --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com; 
+for i in 7c8b6a217abb53a5c320b67cce701ddb40e26f33 2ae14480d8ad2a502646f5020784356d8b9e8e28 39d45ea74bf9989d8d5f6679b9a78ef607659fd9 f859cc41820ce7fa50da32633fcf7e3a6111ccb7 b0b16615dfd63a43afe68999fc07169db5a6f2da 5c04cfa59c33c0cbaed9b893798dfb89231ece56 b68775b48cde2d7fea4525c704b5e729447cb81f c1b00623707a54b855c0c4e76bfc3e730912f045 cbc5e65ebf412c67a27a3d751c4e5e8c50f1bc46 a2e3f414b34ca0c79ac373d3be74037dfe1942bc a9c06637d511b2057a0fb099fc0c81406edcf021  ; do gcloud iam service-accounts keys delete $i --project=moov-dev-439608 --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com; done
+gcloud iam service-accounts keys list --project=moov-dev-439608 --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com
+gcloud projects list
+gcloud config set project moov-438615

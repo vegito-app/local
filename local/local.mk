@@ -32,3 +32,11 @@ local-builder-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print builder-ci
 	@$(DOCKER_BUILDX_BAKE) --push builder-ci
 .PHONY: local-builder-image-ci
+
+local-dev-logs:
+	@$(LOCAL_DOCKER_COMPOSE) logs dev
+.PHONY: local-dev-logs
+
+local-dev-logsf:
+	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
+.PHONY: local-dev-logsf

@@ -17,6 +17,11 @@ variable "application_backend_image" {
   description = "application Docker image"
   type        = string
 }
+variable "application_public_domain" {
+  description = "application Docker image"
+  type        = string
+  default     = "https://moov-438615-europe-west1-application-backend-v4bqtohg4a-ew.a.run.app"
+}
 variable "ui_firebase_secret_id" {
   description = "Firebase - UI config - secret ID"
   type        = string

@@ -8,13 +8,13 @@ trap "echo Exited with code $?." EXIT
 localDotenvFile=${PWD}/local/.env
 # [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
-COMPOSE_PROJECT_NAME=moov
-BUILDER_IMAGE=europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest
+COMPOSE_PROJECT_NAME=moov-dev-local
 GOOGLE_CLOUD_PROJECT_ID=moov-438615
-FIREBASE_PROJECT_ID=moov-438615
-UI_CONFIG_FIREBASE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-firebase-config-web/versions/1
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-google-maps-api-key/versions/1
-FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/prod-firebase-adminsdk-service-account-key/versions/1
+BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
+FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
+UI_CONFIG_FIREBASE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/1
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-maps-api-key/versions/1
+FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/1
 FIREBASE_FUNCTIONS_EMULATOR_HOST=http://firebase-emulators:5001
 FIREBASE_DATABASE_EMULATOR_HOST=http://firebase-emulators:9199
 FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
@@ -29,6 +29,9 @@ workspaceFile=${PWD}/vscode.code-workspace
     {
       "path": ".",
       "name": "project"
+    },
+    {
+      "path": "docs",
     },
     {
       "name": "application-backend-go",
@@ -55,7 +58,7 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "local"
     },
     {
-      "name": "infra-terraform",
+      "name": "infra-cloud",
       "path": "infra"
     },
     {
@@ -77,6 +80,10 @@ workspaceFile=${PWD}/vscode.code-workspace
     {
       "name": "dev-environment-infra-terraform",
       "path": "infra/environments/dev"
+    },
+    {
+      "name": "gcloud-terraform",
+      "path": "infra/gcloud"
     }
   ],
   "settings": {}
@@ -109,6 +116,5 @@ cat <<'EOF' > $backendLaunchDebug
         }
     ]
 }
-
 EOF
 fi
