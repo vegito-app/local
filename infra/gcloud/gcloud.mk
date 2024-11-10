@@ -55,6 +55,10 @@ gcloud-auth-docker:
 	@$(GCLOUD) auth configure-docker $(REGISTRY)
 .PHONY: gcloud-auth-docker
 
+gcloud-config-set-project:
+	@$(GCLOUD) gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY:gcloud-config-set-project
+
 gcloud-images-list:
 	$(GCLOUD) container images list --repository=$(REPOSITORY)
 .PHONY: gcloud-images-list
