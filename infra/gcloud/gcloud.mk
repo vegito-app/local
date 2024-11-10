@@ -56,7 +56,7 @@ gcloud-auth-docker:
 .PHONY: gcloud-auth-docker
 
 gcloud-config-set-project:
-	@$(GCLOUD) gcloud config set project $(GOOGLE_CLOUD_PROJECT_ID)
+	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY:gcloud-config-set-project
 
 gcloud-images-list:
