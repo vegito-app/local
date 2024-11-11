@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.10](https://github.com/7d4b9/refactored-winner/compare/v0.0.9...v0.0.10) (2024-11-11)
+
+
+### Features
+
+* **github-actions:** enhance staging workflow with service account key setup ([80815ce](https://github.com/7d4b9/refactored-winner/commit/80815cea1335c11ff3bad3b186638b09de64e400))
+
 ### [0.0.9](https://github.com/7d4b9/refactored-winner/compare/v0.0.8...v0.0.9) (2024-11-11)
 
 ### [0.0.8](https://github.com/7d4b9/refactored-winner/compare/v0.0.7...v0.0.8) (2024-11-11)
