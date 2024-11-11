@@ -1,6 +1,4 @@
-TERRAFORM_PROJECT ?= $(CURDIR)/infra/environments/$(INFRA_ENV)
-
--include infra/environments/secrets.mk
+TERRAFORM_PROJECT = $(CURDIR)/infra/environments/$(INFRA_ENV)
 
 TERRAFORM = \
 	TF_VAR_application_backend_image=$(APPLICATION_BACKEND_IMAGE) \
@@ -190,19 +188,17 @@ terraform-output-github-actions-private-key:
 	@$(TERRAFORM) output -json | jq '.github_actions_private_key.value' | sed 's/\"//g' | base64 --decode 
 .PHONY: terraform-output-github-actions-private-key
 
+$(INFRA_FIREBASE_ANDROID_CONFIG_JSON): terraform-output-firebase-android-config-json
+
 terraform-output-firebase-android-config-json:
-	@@$(TERRAFORM) output firebase_android_config_json | sed -e '1d' -e '$$d' -e '/^$$/d'
+	@echo Creating Android configuration for "'$(INFRA_ENV)'": "'$(INFRA_FIREBASE_ANDROID_CONFIG_JSON)'"
+	@$(TERRAFORM) output firebase_android_config_json | sed -e '1d' -e '$$d' -e '/^$$/d' > $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
 .PHONY: terraform-output-firebase-android-config-json
 
-terraform-output-firebase-ios-config-plist:
-	@$(TERRAFORM) output firebase_ios_config_plist | sed -e '1d' -e '$$d' -e '/^$$/d'
+$(INFRA_FIREBASE_IOS_CONFIG_PLIST): terraform-output-firebase-ios-config-plist
+
+terraform-output-firebase-ios-config-plist: 
+	@echo Creating iOS configuration for "'$(INFRA_ENV)'": "'$(INFRA_FIREBASE_IOS_CONFIG_PLIST)'"
+	@$(TERRAFORM) output firebase_ios_config_plist | sed -e '1d' -e '$$d' -e '/^$$/d' > $(INFRA_FIREBASE_IOS_CONFIG_PLIST)
 .PHONY: terraform-output-firebase-ios-config-plist
 
-terraform-rotate:
-	@bash -c ' \
-		set -eu; \
-		for i in dev staging prod; do \
-		  INFRA_ENV=$$i $(MAKE) terraform-plan terraform-apply-auto-approve;\
-		done; \
-	'
-.PHONY: terraform-rotate

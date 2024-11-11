@@ -1,4 +1,4 @@
-TERRAFORM_SECRETS_ROOT_MODULE ?= $(CURDIR)/infra/environments/$(INFRA_ENV)/secrets
+TERRAFORM_SECRETS_ROOT_MODULE = $(CURDIR)/infra/environments/$(INFRA_ENV)/secrets
 
 GOOGLE_IDP_OAUTH_KEY=google-idp-oauth-key
 GOOGLE_IDP_OAUTH_CLIENT_ID=google-idp-oauth-client-id

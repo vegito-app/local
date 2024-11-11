@@ -1,15 +1,15 @@
 # Activate cgo for using v8go server side html rendering
 UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_M), x86_64)
-  GOARCH ?= amd64
+  GOARCH = amd64
 endif
 
 ifeq ($(findstring arm,$(UNAME_M)),arm)
-  GOARCH ?= arm64
+  GOARCH = arm64
 endif
 
 ifeq ($(UNAME_M), aarch64)
-  GOARCH ?= arm64
+  GOARCH = arm64
 endif
 
 APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
@@ -32,12 +32,12 @@ application-backend-install:
 	@echo Installed backend.
 .PHONY: application-backend-install
 
-LATEST_APPLICATION_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-latest
+LATEST_APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):backend-latest
 
 APPLICATION_BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
 
 # Handle buildx cache in local folder
-APPLICATION_BACKEND_IMAGE ?= $(IMAGES_BASE):backend-$(VERSION)
+APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):backend-$(VERSION)
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/application/backend/.docker-buildx-cache/
 $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
@@ -50,10 +50,16 @@ application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE
 	@$(DOCKER_BUILDX_BAKE) --load backend
 .PHONY: application-backend-image
 
+# 
 application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 	@$(DOCKER_BUILDX_BAKE) --print backend
 	@$(DOCKER_BUILDX_BAKE) --push backend
 .PHONY: application-backend-image-push
+
+# Push application-backend images on each environments
+$(INFRA_ENV:%=application-backend-%-image-push):
+	@INFRA_ENV=$(@:application-backend-%-image-push=%) $(MAKE) application-backend-image-push
+.PHONY: $(INFRA_ENV:%=application-backend-%-image-push)
 
 application-backend-image-push-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend-ci

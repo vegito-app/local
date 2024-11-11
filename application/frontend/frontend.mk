@@ -1,4 +1,4 @@
-REACT_APP_VERSION ?= $(VERSION)
+REACT_APP_VERSION = $(VERSION)
 
 FRONTEND_BUILD_DIR = $(CURDIR)/application/frontend/build
 
@@ -8,7 +8,7 @@ application-frontend-build: application/frontend/node_modules
 
 $(FRONTEND_BUILD_DIR): application-frontend-build
 
-UI_JAVASCRIPT_SOURCE_FILE ?= $(CURDIR)/application/frontend/build/bundle.js
+UI_JAVASCRIPT_SOURCE_FILE = $(CURDIR)/application/frontend/build/bundle.js
 
 application-frontend-bundle: 
 	@cd $(CURDIR)/application/frontend && npm run dev:server

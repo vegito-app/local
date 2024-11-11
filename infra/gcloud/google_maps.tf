@@ -14,7 +14,7 @@ resource "google_project_service" "google_maps_services" {
 }
 
 resource "google_secret_manager_secret" "web_google_maps_api_key" {
-  secret_id = "google-maps-api-key"
+  secret_id = "googlemaps-web-api-key"
   replication {
     auto {
 
@@ -33,7 +33,7 @@ locals {
 
 # Créer la clé API Google Maps pour le web
 resource "google_apikeys_key" "web_google_maps_api_key" {
-  name         = "web-google-maps-api-key"
+  name         = "googlemaps-web-api-key"
   display_name = "Web Maps API Key"
   restrictions {
     # Limiter l'usage de cette clé API aux requêtes provenant du domaine Cloud Run
@@ -63,7 +63,7 @@ output "google_maps_api_key_web" {
 # Clé API pour Android
 resource "google_apikeys_key" "google_maps_android_api_key" {
   display_name = "Google Maps Android API Key"
-  name         = "mobile-google-maps-api-key-android"
+  name         = "googlemaps-android-api-key"
   restrictions {
     # android_key_restrictions {
     #   allowed_applications {
@@ -81,7 +81,7 @@ resource "google_apikeys_key" "google_maps_android_api_key" {
 # Clé API pour iOS
 resource "google_apikeys_key" "google_maps_ios_api_key" {
   display_name = "Google Maps iOS API Key"
-  name         = "mobile-google-maps-api-key-ios"
+  name         = "googlemaps-ios-api-key"
 
   restrictions {
     ios_key_restrictions {

@@ -47,15 +47,15 @@ import {
 #   to = module.gcloud.google_artifact_registry_repository_iam_member.github_actions_private_repo_write_member
 # }
 # import {
-#   id = "${data.google_project.project.id}/locations/global/keys/mobile-google-maps-api-key-android"
+#   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-android-api-key"
 #   to = module.gcloud.google_apikeys_key.google_maps_android_api_key
 # }
 # import {
-#   id = "${data.google_project.project.id}/locations/global/keys/mobile-google-maps-api-key-ios"
+#   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-ios-api-key"
 #   to = module.gcloud.google_apikeys_key.google_maps_ios_api_key
 # }
 # import {
-#   id = "${data.google_project.project.id}/locations/global/keys/web-google-maps-api-key"
+#   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-web-api-key"
 #   to = module.gcloud.google_apikeys_key.web_google_maps_api_key
 # }
 # import {

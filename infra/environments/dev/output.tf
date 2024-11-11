@@ -22,9 +22,11 @@ output "github_actions_private_key" {
 output "firebase_ios_config_plist" {
   value       = module.gcloud.firebase_ios_config_plist
   description = "Configuration client Firebase iOS (GoogleService-Info.plist)"
+  sensitive   = true
 }
 
 output "firebase_android_config_json" {
   value       = module.gcloud.firebase_android_config_json
   description = "Configuration client Firebase Android (google-services.json)"
+  sensitive   = true
 }

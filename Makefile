@@ -4,7 +4,7 @@ ifeq ($(VERSION),)
 VERSION := latest
 endif
 
-export 
+export
 
 -include go.mk
 -include nodejs.mk

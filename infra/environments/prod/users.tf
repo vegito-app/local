@@ -194,8 +194,9 @@ resource "google_project_iam_member" "artifact_registry_reader" {
 # Clés API Google Maps pour chaque développeur
 resource "google_apikeys_key" "developer_google_maps_api_key" {
   for_each     = var.developers
-  name         = "web-google-maps-api-key-${each.value}"
-  display_name = "Web Maps API Key"
+  project      = var.dev_project
+  name         = "${each.value}-googlemaps-web-api-key"
+  display_name = "${each.value} - Web Maps API Key - Dev"
   restrictions {
     # Limiter l'usage de cette clé API aux requêtes provenant du domaine localhost
     browser_key_restrictions {
@@ -212,7 +213,8 @@ resource "google_apikeys_key" "developer_google_maps_api_key" {
 # Stocker chaque clé dans Google Secret Manager
 resource "google_secret_manager_secret" "developer_maps_api_secret" {
   for_each  = var.developers
-  secret_id = "maps-api-key-secret-${each.value}"
+  project   = var.dev_project
+  secret_id = "${each.value}-googlemaps-web-api-key"
   replication {
     auto {
     }
@@ -220,15 +222,19 @@ resource "google_secret_manager_secret" "developer_maps_api_secret" {
 }
 
 resource "google_secret_manager_secret_version" "developer_maps_api_secret_version" {
-  for_each    = var.developers
-  secret      = google_secret_manager_secret.developer_maps_api_secret[each.key].id
-  secret_data = google_apikeys_key.developer_google_maps_api_key[each.key].key_string
+  for_each = var.developers
+  secret   = google_secret_manager_secret.developer_maps_api_secret[each.key].id
+  secret_data = jsonencode({
+    apiKey = google_apikeys_key.developer_google_maps_api_key[each.key].key_string
+  })
 }
 
 # Accès au secret pour chaque compte de service
 resource "google_secret_manager_secret_iam_member" "allow_service_account_access" {
-  for_each  = local.for_each_developer_environment_map
-  secret_id = "maps-api-key-secret-${each.value.id}"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.developer_service_account[each.key].email}"
+  for_each   = local.for_each_developer_environment_map
+  project    = var.dev_project
+  secret_id  = "${each.value.id}-googlemaps-web-api-key"
+  role       = "roles/secretmanager.secretAccessor"
+  member     = "serviceAccount:${google_service_account.developer_service_account[each.key].email}"
+  depends_on = [google_secret_manager_secret.developer_maps_api_secret]
 }

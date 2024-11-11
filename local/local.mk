@@ -10,7 +10,7 @@ local-run: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCR
 -include $(CURDIR)/local/firebase/firebase.mk
 -include $(CURDIR)/local/android/android.mk
 
-BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-$(VERSION)
+BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-$(VERSION)
 BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/local/.docker-buildx-cache/builder
 $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)

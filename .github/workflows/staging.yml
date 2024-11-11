@@ -46,4 +46,4 @@ jobs:
           make terraform-plan
       - name: Deployment of last changes to staging environment
         run: |
-          make terraform-apply-auto-approve
+          make deploy-staging
