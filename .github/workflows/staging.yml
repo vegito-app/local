@@ -1,4 +1,4 @@
-name: Build and Push new Version Tag Docker Images
+name: Build and Deploy new Version To Staging Environment
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
 permissions:
   contents: write
 jobs:
-  build-and-push-images:
+  upgrade-staging-environment:
     runs-on: self-hosted
     env:
       INFRA_ENV: staging
