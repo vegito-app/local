@@ -32,12 +32,17 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.STAGING_GCLOUD_SERVICE_KEY }}
+      - name: Create Service Account key file
+        run: echo '${{ secrets.STAGING_GCLOUD_SERVICE_KEY }}' > service-key.json
+
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/service-key.json" >> $GITHUB_ENV
       - name: Set up Cloud SDK
         run: |
           make gcloud-config-set-project
       - name: Configure Docker for GCR
         run: |
-          gcloud auth configure-docker europe-west1-docker.pkg.dev
+          make gcloud-auth-docker
       - name: Set up Docker Buildx
         # uses: docker/setup-buildx-action@v3
         run: |
