@@ -10,6 +10,7 @@ jobs:
     runs-on: self-hosted
     env:
       INFRA_ENV: staging
+      GOOGLE_APPLICATIONS_CREDENTIALS: /tmp/gcp.json
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -24,6 +25,9 @@ jobs:
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
+      - name: Write gcr credentials
+        run: |
+          echo ${{ secrets.STAGING_GCLOUD_SERVICE_KEY }} > /tmp/gcp.json
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
