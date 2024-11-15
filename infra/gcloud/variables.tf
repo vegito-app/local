@@ -10,6 +10,11 @@ variable "project_id" {
   description = "GCP project ID"
   type        = string
 }
+variable "production_project_id" {
+  description = "GCP project ID"
+  type        = string
+  default     = "moov-438615"
+}
 variable "region" {
   description = "GCP used region"
   type        = string
@@ -41,5 +46,10 @@ variable "google_idp_oauth_key_secret_id" {
 variable "google_idp_oauth_client_id_secret_id" {
   description = "google.com IDP oauth client ID cloud secret"
   type        = string
+}
+variable "tf_state_global_bucket_name" {
+  description = "tf_state bucket name, required to setup github action service account to deploy using terraform"
+  type        = string
+  default     = "global-europe-west1-tf-state"
 }
 

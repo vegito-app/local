@@ -61,3 +61,5 @@ vscode.code-workspace
 google-services.json
 GoogleService-Info.plist
 .docker-buildx-cache
+
+.secret

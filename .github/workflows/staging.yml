@@ -28,6 +28,10 @@ jobs:
       - name: Write gcr credentials
         run: |
           echo ${{ secrets.STAGING_GCLOUD_SERVICE_KEY }} > /tmp/gcp.json
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp.json" >> $GITHUB_ENV
+      - name: Set GOOGLE_GHA_CREDS_PATH
+        run: echo "GOOGLE_GHA_CREDS_PATH=/tmp/gcp.json" >> $GITHUB_ENV
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
@@ -49,9 +53,6 @@ jobs:
       - name: Build and push up to date project images to staging registries
         run: |
           make images-ci
-      - name: Prepare deployment to staging environment
-        run: |
-          make terraform-plan
       - name: Deployment of last changes to staging environment
         run: |
-          make deploy-staging
+          make infra-deploy-staging

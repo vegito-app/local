@@ -33,4 +33,4 @@ jobs:
           make docker-buildx-setup
       - name: Build and load local project images
         run: |
-          make images
+          make images-ci

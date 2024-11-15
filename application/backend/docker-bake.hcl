@@ -43,17 +43,17 @@ variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 target "backend" {
   dockerfile = "application/backend/Dockerfile"
   args = {
-    builder_image = "europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest"
+    builder_image = LATEST_BUILDER_IMAGE
   }
   tags = [
     notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
     LATEST_APPLICATION_BACKEND_IMAGE,
   ]
-  # cache-from = [
-  #   APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  #   BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  # ]
-  # cache-to = [
-  #   APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
-  # ]
+  cache-from = [
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to = [
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+  ]
 }

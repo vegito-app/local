@@ -8,7 +8,7 @@ INFRA_ENVIRONMENTS := \
 	dev
 
 $(INFRA_ENVIRONMENTS:%=infra-deploy-%):
-	@INFRA_ENV=$(@:infra-deploy-%=%) $(MAKE) terraform-plan terraform-apply-auto-approve firebase-mobiles-configs
+	@INFRA_ENV=$(@:infra-deploy-%=%) $(MAKE) terraform-init terraform-plan terraform-apply-auto-approve firebase-mobiles-configs
 .PHONY: $(INFRA_ENVIRONMENTS:%=infra-deploy-%)
 
 infra-production: infra-deploy-prod 

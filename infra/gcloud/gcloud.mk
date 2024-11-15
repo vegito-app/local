@@ -28,7 +28,11 @@ GCLOUD_PROJET_USER_ID ?= david-berichon
 
 GCLOUD_DEVELOPER_SERVICE_ACCOUNT = $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
+export GOOGLE_APPLICATION_CREDENTIALS
+
+ifeq ($(GOOGLE_APPLICATION_CREDENTIALS),)
 GOOGLE_APPLICATION_CREDENTIALS = $(CURDIR)/infra/environments/$(INFRA_ENV)/gcloud-credentials.json
+endif
 
 gcloud-auth-default-application-credentials:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
@@ -52,7 +56,7 @@ gcloud-auth-login:
 .PHONY: gcloud-auth-login
 
 gcloud-auth-docker:
-	@$(GCLOUD) auth configure-docker $(REGISTRY)
+	$(GCLOUD) --quiet auth configure-docker $(REGISTRY)
 .PHONY: gcloud-auth-docker
 
 gcloud-config-set-project:

@@ -47,3 +47,25 @@ local-github-runner-docker-compose-up: local-github-runner-docker-compose-rm loc
 local-github-runner-docker-compose-rm:
 	@-$(GITHUB_DOCKER_COMPOSE) rm -s -f github-runner
 .PHONY: local-github-runner-docker-compose-rm
+
+LOCAL_GITHUB_WORKFLOWS_DIR := $(CURDIR)/.github/workflows/
+LOCAL_GITHUB_ACT_SECRET_FILE := $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret
+
+$(LOCAL_GITHUB_ACT_SECRET_FILE):
+	@-rm -f $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>&1
+	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(CURDIR)/infra/environments/dev/gcloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
+	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(CURDIR)/infra/environments/staging/gcloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
+	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(CURDIR)/infra/environments/prod/gcloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
+
+GITHUB_WORKFLOWS := \
+  dev.yml \
+  dev-feature.yml \
+  staging.yml \
+  production.yml
+
+LOCAL_GITHUB_ACT := act --secret-file $(LOCAL_GITHUB_ACT_SECRET_FILE) \
+	 -P self-hosted=$(GITHUB_ACTIONS_RUNNER_IMAGE) \
+	 
+$(GITHUB_WORKFLOWS:%=github-run-%-workflow): $(LOCAL_GITHUB_ACT_SECRET_FILE)
+	@$(LOCAL_GITHUB_ACT) -W $(CURDIR)/.github/workflows/$(@:github-run-%-workflow=%)
+.PHONY: $(GITHUB_WORKFLOWS:%=-github-run-%-workflow)
