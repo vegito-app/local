@@ -27,7 +27,7 @@ jobs:
         run: echo "Current version is ${{ env.VERSION }}"
       - name: Write gcr credentials
         run: |
-          echo ${{ secrets.STAGING_GCLOUD_SERVICE_KEY }} > /tmp/gcp.json
+          echo "${{ secrets.STAGING_GCLOUD_SERVICE_KEY }}" > /tmp/gcp.json
       - name: Set GOOGLE_APPLICATION_CREDENTIALS
         run: echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp.json" >> $GITHUB_ENV
       - name: Set GOOGLE_GHA_CREDS_PATH
@@ -36,11 +36,6 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.STAGING_GCLOUD_SERVICE_KEY }}
-      - name: Create Service Account key file
-        run: echo '${{ secrets.STAGING_GCLOUD_SERVICE_KEY }}' > /tmp/gcp.json
-
-      - name: Set GOOGLE_APPLICATION_CREDENTIALS
-        run: echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp.json" >> $GITHUB_ENV
       - name: Set up Cloud SDK
         run: |
           make gcloud-config-set-project
