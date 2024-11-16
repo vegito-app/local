@@ -1448,4 +1448,39 @@ gcloud iam service-accounts keys list --project=moov-dev-439608 --iam-account=da
 for i in 7c8b6a217abb53a5c320b67cce701ddb40e26f33 2ae14480d8ad2a502646f5020784356d8b9e8e28 39d45ea74bf9989d8d5f6679b9a78ef607659fd9 f859cc41820ce7fa50da32633fcf7e3a6111ccb7 b0b16615dfd63a43afe68999fc07169db5a6f2da 5c04cfa59c33c0cbaed9b893798dfb89231ece56 b68775b48cde2d7fea4525c704b5e729447cb81f c1b00623707a54b855c0c4e76bfc3e730912f045 cbc5e65ebf412c67a27a3d751c4e5e8c50f1bc46 a2e3f414b34ca0c79ac373d3be74037dfe1942bc a9c06637d511b2057a0fb099fc0c81406edcf021  ; do gcloud iam service-accounts keys delete $i --project=moov-dev-439608 --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com; 
 for i in 7c8b6a217abb53a5c320b67cce701ddb40e26f33 2ae14480d8ad2a502646f5020784356d8b9e8e28 39d45ea74bf9989d8d5f6679b9a78ef607659fd9 f859cc41820ce7fa50da32633fcf7e3a6111ccb7 b0b16615dfd63a43afe68999fc07169db5a6f2da 5c04cfa59c33c0cbaed9b893798dfb89231ece56 b68775b48cde2d7fea4525c704b5e729447cb81f c1b00623707a54b855c0c4e76bfc3e730912f045 cbc5e65ebf412c67a27a3d751c4e5e8c50f1bc46 a2e3f414b34ca0c79ac373d3be74037dfe1942bc a9c06637d511b2057a0fb099fc0c81406edcf021  ; do gcloud iam service-accounts keys delete $i --project=moov-dev-439608 --iam-account=david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com; done
 VERSION=latest make -C .. local-android-studio-docker-compose-up 
-VERSION=latest make local-android-studio-docker-compose-up 
+VERSION=latest make local-android-studio-docker-compose-up make application-mobile-flutter-pub-get 
+htop
+git checkout dev 
+git stash 
+git fetch -p
+git rebase -i origin/main 
+git stash --apply
+git stash apply 
+git branch 
+git log
+git push 
+git tag -f s
+git reset origin/dev 
+git stash 
+git reset ts
+git reset s
+git push -s
+git push -f
+htop
+sudo htop
+htop
+sudo iftop eno1
+sudo iftop -i eno1
+sudo iftop -i eth0
+ls
+htop
+df -h
+docker volumes ls
+docker volume ls
+docker volume inspect buildx_buildkit_moov-438615-builder0_state
+git log
+git reset s
+git log
+git reset origin/dev 
+git branch 
+git log

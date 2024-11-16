@@ -9,6 +9,7 @@ localDotenvFile=${PWD}/local/.env
 # [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
+DEV_GOOGLE_CLOUD_PROJECT_USER=david-berichon
 BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
 COMPOSE_PROJECT_NAME=moov-dev-local
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/1
@@ -18,7 +19,7 @@ FIREBASE_FUNCTIONS_EMULATOR_HOST=http://firebase-emulators:5001
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 FIRESTORE_EMULATOR_HOST=firebase-emulators:8090
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/3
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/googlemaps-web-api-key/versions/1
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${DEV_GOOGLE_CLOUD_PROJECT_USER}-googlemaps-web-api-key/versions/1
 EOF
 
 # Vscode

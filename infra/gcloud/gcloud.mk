@@ -56,7 +56,7 @@ gcloud-auth-login:
 .PHONY: gcloud-auth-login
 
 gcloud-auth-docker:
-	$(GCLOUD) --quiet auth configure-docker $(REGISTRY)
+	@$(GCLOUD) --quiet auth configure-docker $(REGISTRY)
 .PHONY: gcloud-auth-docker
 
 gcloud-config-set-project:

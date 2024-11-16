@@ -214,4 +214,7 @@ RUN if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; t
     flutter doctor --android-licenses ; \
     fi
 
+    
+RUN curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
 COPY local/dev-entrypoint.sh /usr/local/bin/
