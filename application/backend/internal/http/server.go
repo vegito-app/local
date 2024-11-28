@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/7d4b9/utrade/backend/btc"
 	backendhttp "github.com/7d4b9/utrade/backend/http"
 	"github.com/7d4b9/utrade/backend/internal/firebase"
 	apiv1 "github.com/7d4b9/utrade/backend/internal/http/internal/api/v1"
@@ -26,7 +27,7 @@ func init() {
 }
 
 // StartAPI creates a new instance of apiv1.Service.
-func StartAPI(firebaseClient *firebase.Client) error {
+func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC) error {
 	frontendDir := config.GetString(uiBuildDirConfig)
 	port := config.GetString(portConfig)
 	mux := http.NewServeMux()
@@ -40,6 +41,7 @@ func StartAPI(firebaseClient *firebase.Client) error {
 	mux.Handle("GET /ui/config/googlemaps", http.HandlerFunc(uiconfig.GoogleMaps))
 	mux.Handle("GET /ui/public", http.StripPrefix("/ui", http.FileServer(http.Dir(frontendDir))))
 	mux.Handle("GET /ui", uiServe)
+	mux.Handle("GET /price", http.HandlerFunc(btcService.Price))
 	mux.Handle("GET /cgv", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))

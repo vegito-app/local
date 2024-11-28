@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/7d4b9/utrade/backend/log"
 
+	"github.com/7d4b9/utrade/backend/btc"
 	"github.com/7d4b9/utrade/backend/internal/firebase"
 	"github.com/7d4b9/utrade/backend/internal/http"
 	"github.com/7d4b9/utrade/backend/track"
@@ -16,7 +17,11 @@ func main() {
 		log.Fatal().Err(err).Msg("new firebase app")
 	}
 	defer firebaseClient.Close()
-	if err := http.StartAPI(firebaseClient); err != nil {
+
+	btcService := btc.NewBTC()
+	defer btcService.Close()
+
+	if err := http.StartAPI(firebaseClient, btcService); err != nil {
 		log.Fatal().Err(err).Msg("http start api")
 	}
 }
