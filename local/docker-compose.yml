@@ -3,6 +3,7 @@ networks:
     driver: bridge
 volumes:
   firebase-emulators-cache:
+  clarinet_var_lib_docker:
 services:
   dev:
     # restart: unless-stopped
@@ -16,6 +17,12 @@ services:
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
       - /var/run/docker.sock:/var/run/docker.sock
+      - /dev:/dev
+      - /lib/modules:/lib/modules:ro
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
@@ -66,26 +73,82 @@ services:
     command: |
       bash -c '
       set -e
-      trap "echo Exited with code $?." EXIT
+
+      # List to hold background job PIDs
+      bg_pids=()
+
+      # Function to kill background jobs when script ends
+      kill_jobs() {
+         echo "Killing background jobs"
+         for pid in "$${bg_pids[@]}"; do
+             kill "$$pid"
+             wait "$$pid" 2>/dev/null
+         done
+      }
+
+      # Trap to call kill_jobs on script exit
+      trap kill_jobs EXIT
 
       make local-firebase-emulators-install
       make local-firebase-emulators-start &
+      bg_pids+=("$!") 
 
       # Need localproxy to forward some required port that could not be 
       # configured to listen on 0.0.0.0 from firebase.json file.
       TARGET_PORT=4400 LISTEN_PORT=4401 localproxy &
+      bg_pids+=("$!") 
       until nc -z localhost 4500; do
         echo Waiting Firebase Emulator Reserved port at http://localhost:4500/ ;
         sleep 1 ;
       done
       TARGET_PORT=4500 LISTEN_PORT=4501 localproxy &
+      bg_pids+=("$!") 
       until nc -z localhost 9299; do
         echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9299/ ;
         sleep 1 ;
       done
       TARGET_PORT=9299 LISTEN_PORT=9399 localproxy &
+      bg_pids+=("$!") 
 
       while true ; do sleep 1000 ; done
+      '
+    networks:
+      dev:
+
+  clarinet-devnet:
+    # restart: unless-stopped
+    container_name: clarinet-devnet
+    privileged: true
+    tty: true
+    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest}
+    # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
+    # build: NOT
+    env_file:
+      - .env
+    environment:
+      DOCKER_HOST: "unix:///run/user/1000/docker.sock"
+    volumes:
+      - /dev:/dev
+      - /lib/modules:/lib/modules
+      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
+      - clarinet_var_lib_docker:/home/devuser/.local/share/docker
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    command: |
+      bash -c '
+      set -e
+      trap "echo Exited with code $?." EXIT
+      ./contracts/clarinet-devnet-entrypoint.sh &
+      export DOCKER_HOST=unix:///run/user/1000/docker.sock
+      until docker info >/dev/null 2>&1; do echo waiting dockerd startup ; sleep 1 ; done
+      docker info
+      TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
+      mkdir -p /home/devuser/.docker/run
+      ln -s /run/user/1000/docker.sock /home/devuser/.docker/run/docker.sock
+      # make local-builder-image
+      make clarinet-devnet-start
       '
     networks:
       dev:

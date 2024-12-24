@@ -8,6 +8,7 @@ export
 
 -include go.mk
 -include nodejs.mk
+-include contracts/clarinet.mk
 -include docker/docker.mk
 -include infra/infra.mk 
 -include local/local.mk
