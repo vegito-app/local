@@ -1,0 +1,27 @@
+{
+    "id": "Tyn1US7lWevme0HOvJrVWqa7S4YSixlH",
+    "createdTime": "12/22/2024, 2:38:17 AM",
+    "name": "Docker contexts",
+    "conversations": [
+        {
+            "id": "Tyn1US7lWevme0HOvJrVWqa7S4YSixlH",
+            "createdTime": "12/22/2024, 2:38:17 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "Tyn1US7lWevme0HOvJrVWqa7S4YSixlH",
+                "role": "user",
+                "text": "peut on utiliser les contextes d'un client docker local pour switcher vers un démon dans un des container exposé localement sur le port 2375 ou un autre ?"
+            },
+            "response": {
+                "id": "zEVbXlkdvXIMwdyRnTraZBqL9xUbTp62",
+                "role": "assistant",
+                "text": "Oui, on peut utiliser les contextes d'un client Docker pour basculer vers un démon dans l'un des conteneurs exposés localement sur le port 2375 ou tout autre port. Pour cela, il faut configurer correctement le contexte de votre client.\n\nVoici comment vous pouvez le faire:\n\n1. **Créer un nouveau contexte Docker**\n\nVous devez d'abord créer un nouveau contexte Docker qui pointe vers le démon Docker du conteneur.\n\n```bash\ndocker context create my-context --docker \"host=tcp://localhost:2375\"\n```\n\n2. **Utiliser le nouveau contexte**\n\nUne fois que vous avez créé le nouveau contexte, vous pouvez basculer vers ce contexte.\n\n```bash\ndocker context use my-context\n```\n\n3. **Vérifier le changement de contexte**\n\nPour vérifier que vous avez bien basculé vers le nouveau contexte, utilisez la commande suivante :\n\n```bash\ndocker context ls\n```\n\nCette commande affiche une liste de tous les contextes disponibles et met en évidence le contexte actuellement utilisé.\n\nRemarque: Assurez-vous que le démon Docker dans le conteneur est configuré pour écouter sur le port que vous spécifiez (dans cet exemple, 2375) et que ce port est correctement mappé à l'hôte. De plus, selon la configuration de votre réseau, vous devrez peut-être remplacer \"localhost\" par l'adresse IP réelle de votre machine hôte."
+            }
+        }
+    ]
+}

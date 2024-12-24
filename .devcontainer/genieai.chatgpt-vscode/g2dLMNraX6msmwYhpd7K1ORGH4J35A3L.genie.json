@@ -1,0 +1,67 @@
+{
+    "id": "g2dLMNraX6msmwYhpd7K1ORGH4J35A3L",
+    "createdTime": "11/20/2024, 4:24:26 PM",
+    "name": "plex prevent shutdown",
+    "conversations": [
+        {
+            "id": "g2dLMNraX6msmwYhpd7K1ORGH4J35A3L",
+            "createdTime": "11/20/2024, 4:24:26 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "g2dLMNraX6msmwYhpd7K1ORGH4J35A3L",
+                "role": "user",
+                "text": "comment ajouter un service à debian 12 qui surveille si plex media server lit sert du contenu. plex tourne dans un container "
+            },
+            "response": {
+                "id": "OIitN5vXrSoip2avXWgGXTCYWA1e7qMO",
+                "role": "assistant",
+                "text": "Pour créer un service qui surveille le Plex Media Server, vous devrez écrire un script bash et l'ajouter comme un service systemd. Nous utiliserons la commande `docker stats` pour vérifier si le serveur Plex est actif.\n\nSuivez ces étapes:\n\n1. **Écrivez un script Bash** \n\nCréez un nouveau fichier appelé `plex_monitor.sh` et ouvrez-le dans votre éditeur de texte. Ajoutez les lignes de code suivantes :\n\n```bash\n#!/bin/bash\n\nwhile true; do\n    # Change 'plex' with your docker container's name\n    if  [[ \"$(docker stats --no-stream plex)\" != *\"PlexMediaServer\"* ]]; then\n        echo \"Plex is not running. Restarting...\"\n        # Replace this with the command to start your Plex server\n        docker start plex\n    else\n        echo \"Plex is running.\"\n    fi\n    sleep 60\ndone\n```\n\nCe script vérifie toutes les minutes si le conteneur Docker du serveur Plex est en cours d'exécution et, sinon, il le redémarre.\n\n2. **Rendez le script exécutable**\n\nExécutez la commande suivante pour rendre le script exécutable :\n\n```bash\nchmod +x plex_monitor.sh\n```\n\n3. **Ajoutez le script à systemd comme un service**\n\nCréez un nouveau fichier appelé `plex-monitor.service` dans le répertoire `/etc/systemd/system`. Ajoutez le contenu suivant à ce fichier :\n\n```ini\n[Unit]\nDescription=Plex Monitor Service\nAfter=network.target\n\n[Service]\nExecStart=/path/to/your/script/plex_monitor.sh\nRestart=always\nUser=root\nGroup=docker\nEnvironment=\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"\n\n[Install]\nWantedBy=multi-user.target\n```\n\nN'oubliez pas de remplacer `/path/to/your/script` par le chemin vers le script `plex_monitor.sh`.\n\n4. **Activez le service**\n\nPour activer le service, utilisez les commandes suivantes :\n\n```bash\nsystemctl start plex-monitor.service\nsystemctl enable plex-monitor.service\n```\n\n5. **Vérifier le statut du service**\n\nVous pouvez vérifier le statut du service en utilisant la commande suivante :\n\n```bash\nsystemctl status plex-monitor.service\n```\n\nCela devrait vous donner une sortie indiquant que le service est actif (en cours d'exécution)."
+            }
+        },
+        {
+            "id": "g2dLMNraX6msmwYhpd7K1ORGH4J35A3L",
+            "createdTime": "11/20/2024, 4:26:52 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "RTyombe6zwZP7iklzeukYfrpwHDjiRiD",
+                "role": "user",
+                "text": "comment ajouter un service à debian 12 qui surveille si plex media server lit sert du contenu et empeche le systeme de se mettre en veille . plex tourne dans un container. Le script doit vérifier si une vidéo est en cours de lecture car ce container est toujours up\n"
+            },
+            "response": {
+                "id": "2dMPVirfCvYKIGbUWwT3Z8pjcPieYF2y",
+                "role": "assistant",
+                "text": "Pour créer un service qui empêche le système de se mettre en veille lorsque Plex lit du contenu, vous pouvez suivre les étapes ci-dessous:\n\n1. **Créez le script de surveillance Plex**\n\n```bash\nsudo nano /usr/local/bin/plex-watcher.sh\n```\n\nAjoutez ces lignes dans le fichier :\n\n```bash\n#!/bin/bash\n\n# Container name\nCONTAINER='your_container_name'\n\nwhile true; do\n    # Check if any video is playing\n    if docker exec $CONTAINER curl -s http://localhost:32400/status/sessions | grep -q 'MediaContainer size=\"0\"'; then\n        # No video is playing\n        echo \"No video is playing\"\n    else\n        # A video is playing\n        echo \"A video is playing, prevent sleep\"\n        systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target\n    fi\n\n    # Wait 5 minutes before next check\n    sleep 5m\ndone\n```\nModifier 'your_container_name' par le nom de votre container docker.\n\nRendez le script exécutable :\n\n```bash\nsudo chmod +x /usr/local/bin/plex-watcher.sh\n```\n\n2. **Créez le service systemd**\n\n```bash\nsudo nano /etc/systemd/system/plex-watcher.service\n```\n\nAjoutez ces lignes dans le fichier :\n\n```ini\n[Unit]\nDescription=Plex Watcher Service\nAfter=network.target\n\n[Service]\nType=simple\nUser=root\nExecStart=/usr/local/bin/plex-watcher.sh\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target\n```\n\n3. **Activez et démarrez le service**\n\n```bash\nsudo systemctl enable plex-watcher\nsudo systemctl start plex-watcher\n```\n\nMaintenant, ce service surveillera si Plex lit une vidéo toutes les 5 minutes et empêchera le système de se mettre en veille tant qu'une vidéo est en cours de lecture.\n\nNote: Ceci est un exemple basique et il pourrait nécessiter des modifications selon votre environnement exact et l'installation de Plex. Le script interroge API de Plex pour vérifier si une vidéo est en cours de lecture et cela peut varier selon la version de Plex que vous utilisez."
+            }
+        },
+        {
+            "id": "g2dLMNraX6msmwYhpd7K1ORGH4J35A3L",
+            "createdTime": "11/20/2024, 4:34:09 PM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "uQrAqb8K9bFpYticoZUZQZvQcWbUydB9",
+                "role": "user",
+                "text": "le container plex produit  curl -s http://localhost:32400/status/sessions\n<html><head><title>Unauthorized</title></head><body><h1>401 Unauthorized</h1></body></html>root@pc-vanves:/# \n"
+            },
+            "response": {
+                "id": "vf8FaKO7GLWDvyxxTankPAZPw2Qguo0P",
+                "role": "assistant",
+                "text": "Votre script doit s'authentifier auprès de l'API Plex - c'est pourquoi vous obtenez une erreur \"Unauthorized\". Vous pouvez le faire en ajoutant un `token` à la fin de votre URL. \n\nVous trouverez ce token dans les paramètres de votre serveur Plex : \n- Aller à `Paramètres` > `Serveur` > `Accès à distance`.\n- Cocher `Afficher Avancé`.\n- Le `token` se trouve vers la fin de la page.\n\nAprès avoir trouvé votre `token`, modifiez votre script pour inclure ce `token` :\n\n```bash\n#!/bin/bash\n\n# Container name\nCONTAINER='your_container_name'\nTOKEN='your_plex_token'\n\nwhile true; do\n    # Check if any video is playing\n    if docker exec $CONTAINER curl -s \"http://localhost:32400/status/sessions?X-Plex-Token=$TOKEN\" | grep -q 'MediaContainer size=\"0\"'; then\n        # No video is playing\n        echo \"No video is playing\"\n    else\n        # A video is playing\n        echo \"A video is playing, prevent sleep\"\n        systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target\n    fi\n\n    # Wait 5 minutes before next check\n    sleep 5m\ndone\n```\nAssurez-vous de remplacer `'your_container_name'` par le nom de votre conteneur et `'your_plex_token'` par le token que vous avez trouvé.\n\nCela devrait résoudre le problème d'autorisation. De plus, vérifiez que l'adresse IP de l'hôte Docker est accessible depuis le conteneur Plex. Si ce n'est pas le cas, vous devrez peut-être ajouter des options supplémentaires à la commande `docker run` pour cela."
+            }
+        }
+    ]
+}

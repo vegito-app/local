@@ -1,0 +1,27 @@
+{
+    "id": "DzgyjSO43xQwZdqcQcmBMIpfVkVj34bc",
+    "createdTime": "11/27/2024, 6:10:20 AM",
+    "name": "hirosystem npx/npm",
+    "conversations": [
+        {
+            "id": "DzgyjSO43xQwZdqcQcmBMIpfVkVj34bc",
+            "createdTime": "11/27/2024, 6:10:20 AM",
+            "completionParams": {
+                "model": "gpt-4",
+                "max_tokens": 2048,
+                "temperature": 0.9,
+                "top_p": 1
+            },
+            "prompt": {
+                "id": "DzgyjSO43xQwZdqcQcmBMIpfVkVj34bc",
+                "role": "user",
+                "text": "quelle difference et que choisir entre 'npx @hirosystems/clarinet-sdk' et 'npm install @hirosystems/cl\narinet-sdk' ?"
+            },
+            "response": {
+                "id": "BN9h0DWMwrfM6IGeVwEL9PupBhG3F1lz",
+                "role": "assistant",
+                "text": "Les deux commandes `npx` et `npm install` sont utilisées pour gérer les packages Node.js, mais elles ont des comportements différents.\n\n## npx\n`npx` est un outil de package runner inclus avec npm (Node package manager) à partir de la version 5.2.0. Il exécute soit depuis un local `./node_modules/.bin`, soit depuis un cache global, sans avoir besoin d'installer le package. \n\nLorsque vous utilisez `npx`, il vérifie si le package demandé existe dans le répertoire local `./node_modules/.bin`. S'il ne le trouve pas, il l'installe temporairement dans un cache global et l'exécute à partir de là. C'est particulièrement utile pour tester des versions temporaires d'un package ou pour exécuter un package une seule fois.\n\nCommande :\n\n```bash\nnpx @hirosystems/clarinet-sdk\n```\n\n## npm install\n\nD'un autre côté, `npm install` est utilisé pour installer un package spécifique de façon permanente dans votre projet. Le package sera ajouté dans votre `package.json` et `package-lock.json` et peut être importé et utilisé dans tout votre projet.\n\nCommande :\n\n```bash\nnpm install @hirosystems/clarinet-sdk\n```\n\n## Quoi choisir ?\n\nLa décision dépend entièrement de vos besoins :\n\n- Si vous avez besoin d'utiliser le package sur plusieurs fichiers ou à plusieurs reprises, vous devriez utiliser `npm install`.\n\n- Si vous voulez simplement tester un package ou l'utiliser pour une tâche ad hoc, `npx` est le meilleur choix.\n\nDans ce cas particulier, étant donné que `@hirosystems/clarinet-sdk` semble être une dépendance de développement qui pourrait être nécessaire à plusieurs endroits dans votre projet, vous devriez probablement l'installer avec `npm install`."
+            }
+        }
+    ]
+}
