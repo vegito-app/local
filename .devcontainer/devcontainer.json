@@ -152,7 +152,7 @@
         "redhat.vscode-yaml",
         "standard.vscode-standard",
         "toba.vsfire",
-        "Dart-Code.flutter",
+        // "Dart-Code.flutter",
         "alexisvt.flutter-snippets",
         "HCLTechnologies.hclappscancodesweep",
         "Nash.awesome-flutter-snippets",

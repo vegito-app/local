@@ -33,6 +33,10 @@ local-builder-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --push builder-ci
 .PHONY: local-builder-image-ci
 
+local-dev-image-pull:
+	@$(LOCAL_DOCKER_COMPOSE) pull dev
+.PHONY: local-dev-image-pull
+
 local-dev-logs:
 	@$(LOCAL_DOCKER_COMPOSE) logs dev
 .PHONY: local-dev-logs

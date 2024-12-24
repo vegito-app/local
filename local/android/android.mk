@@ -19,7 +19,7 @@ local-android-studio-image-push: docker-buildx-setup
 local-android-studio-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print android-studio
 	@$(DOCKER_BUILDX_BAKE) android-studio-ci
-.PHONY: local-android-studio-image
+.PHONY: local-android-studio-image-ci
 
 local-android-studio-docker-compose-up: local-android-studio-docker-compose-rm
 	@$(CURDIR)/local/android/studio-docker-start.sh &
@@ -27,7 +27,7 @@ local-android-studio-docker-compose-up: local-android-studio-docker-compose-rm
 	@echo
 	@echo Started Androïd studio display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-android-studio-docker-compose
+.PHONY: local-android-studio-docker-compose-up
 
 local-android-studio-docker-compose-stop:
 	@-$(LOCAL_DOCKER_COMPOSE) stop android-studio 2>/dev/null

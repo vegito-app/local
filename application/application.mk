@@ -1,13 +1,13 @@
 -include application/frontend/frontend.mk
 -include application/backend/backend.mk
--include application/mobile/flutter.mk
+-include application/mobile/mobile.mk
 
 APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST = $(CURDIR)/application/mobile/ios/GoogleService-Info.plist
 
 $(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST): 
 	@$(MAKE) application-ios-config-plist
 
-application-ios-config-plist: $(FIREBASE_IOS_CONFIG_PLIST)
+application-ios-config-plist: $(INFRA_FIREBASE_IOS_CONFIG_PLIST)
 	@echo Creating local link "'$(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST) -> $<'"
 	@ln -sf $< $(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST)
 .PHONY:application-ios-config-plist
@@ -17,7 +17,7 @@ APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(CURDIR)/application/mobile/a
 $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON): 
 	@$(MAKE) application-android-config-json
 
-application-android-config-json: $(FIREBASE_ANDROID_CONFIG_JSON)
-	@echo Creating local link "'$(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST) -> $<'"
+application-android-config-json: $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
+	@echo Creating local link "'$< -> $(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST)'"
 	@ln -sf $< $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
 .PHONY: application-android-config-json

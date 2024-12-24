@@ -37,7 +37,7 @@ docker-buildx-setup:
 .PHONY: docker-buildx-setup
 
 docker-login: gcloud-auth-docker
-	@docker login --quiet $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
+	@docker login $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: docker-login
 
 docker-sock:

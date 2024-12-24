@@ -10,10 +10,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type EstimatredPrice struct {
+	Value       float64
+	Cardinal    int
+	TrustIndice float64
+}
+
 type BTC struct {
-	stop      func()
-	priceLock sync.RWMutex
-	euroPrice float64
+	stop               func()
+	priceLock          sync.RWMutex
+	EstimatedEuroPrice *EstimatredPrice
 }
 
 func NewBTC() *BTC {
@@ -51,7 +57,7 @@ func (btc *BTC) Price(resp http.ResponseWriter, req *http.Request) {
 	btc.priceLock.RLock()
 	defer btc.priceLock.RUnlock()
 	if err := json.NewEncoder(resp).Encode(map[string]any{
-		"btc_price_eur": btc.euroPrice,
+		"btc_price_eur": btc.EstimatedEuroPrice,
 	}); err != nil {
 		log.Error().
 			Err(err).
@@ -59,10 +65,14 @@ func (btc *BTC) Price(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (btc *BTC) setEuroPrice(btcEuroPrice float64) {
+func (btc *BTC) setEstimatedEuroPrice(btcEuroPrice float64, trustIndice float64, valueCount int) {
 	btc.priceLock.Lock()
 	defer btc.priceLock.Unlock()
-	btc.euroPrice = btcEuroPrice
+	btc.EstimatedEuroPrice = &EstimatredPrice{
+		Value:       btcEuroPrice,
+		Cardinal:    valueCount,
+		TrustIndice: trustIndice,
+	}
 }
 
 func (btc *BTC) updatePrice(ctx context.Context) {
@@ -95,20 +105,21 @@ func (btc *BTC) updatePrice(ctx context.Context) {
 		rawPrices = append(rawPrices, result)
 	}
 	btcEuroPrice, filteredPrices := filterOutliers(rawPrices)
-	trustIndice := float64(len(filteredPrices)) / float64(len(rawPrices))
+	trustedValuesCount := len(filteredPrices)
+	trustIndice := float64(trustedValuesCount) / float64(len(rawPrices))
 	if trustIndice < 0.5 {
 		log.Error().
-			Float64("btc_euro_price", btc.euroPrice).
+			Float64("btc_euro_price", btcEuroPrice).
 			Int("used_api_number", len(rawPrices)).
-			Int("filtered_api_number", len(filteredPrices)).
+			Int("filtered_api_number", trustedValuesCount).
 			Float64("trust_indice", trustIndice).
 			Msg("BTC euro price not updated")
 	}
-	btc.setEuroPrice(btcEuroPrice)
+	btc.setEstimatedEuroPrice(btcEuroPrice, trustIndice, trustedValuesCount)
 	log.Info().
-		Float64("btc_euro_price", btc.euroPrice).
+		Float64("btc_euro_price", btcEuroPrice).
 		Int("used_api_number", len(rawPrices)).
-		Int("filtered_api_number", len(filteredPrices)).
+		Int("filtered_api_number", trustedValuesCount).
 		Float64("trust_indice", trustIndice).
 		Msg("updated BTC euro price")
 }
