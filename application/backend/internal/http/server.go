@@ -23,7 +23,28 @@ const (
 func init() {
 	config.AutomaticEnv()
 	config.SetDefault(portConfig, "8080")
-	config.SetDefault(uiBuildDirConfig, "./frontend/build")
+	config.SetDefault(uiBuildDirConfig, "../frontend/build")
+}
+
+// Middleware CORS
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Autoriser les requêtes depuis n'importe quelle origine (en dev)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Autoriser les méthodes HTTP spécifiques
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		// Autoriser les en-têtes spécifiques
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Gérer la pré-vérification des requêtes OPTIONS (préflight requests)
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Passer à l'étape suivante
+		next.ServeHTTP(w, r)
+	})
 }
 
 // StartAPI creates a new instance of apiv1.Service.
@@ -52,7 +73,7 @@ func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC) error {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))
 	mux.Handle("GET /", http.FileServer(http.Dir(frontendDir)))
-	if err := backendhttp.ListenAndServe(":"+port, mux); err != nil {
+	if err := backendhttp.ListenAndServe("0.0.0.0:"+port, corsMiddleware(mux)); err != nil {
 		return fmt.Errorf("HTTP listenAndServe: %w", err)
 	}
 	fmt.Print("BORDEL")

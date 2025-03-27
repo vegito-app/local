@@ -2,9 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignInPage extends StatelessWidget {
-  const SignInPage({super.key});
+  SignInPage({super.key});
 
-  // ... autres codes
+  // Instance de FirebaseAuth.
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +13,14 @@ class SignInPage extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('chemin/vers/votre/image.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          // Container(
+          //   decoration: const BoxDecoration(
+          //     image: DecorationImage(
+          //       image: AssetImage('chemin/vers/votre/image.png'),
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          // ),
           Center(
             child: ElevatedButton(
               onPressed: _signInAnonymously,
@@ -31,8 +32,22 @@ class SignInPage extends StatelessWidget {
     );
   }
 
+//   Future<void> _signInAnonymously() async {
+//     final userCredential = await FirebaseAuth.instance.signInAnonymously();
+//     print('${userCredential.user?.uid}');
+//   }
+// }
+
   Future<void> _signInAnonymously() async {
-    final userCredential = await FirebaseAuth.instance.signInAnonymously();
-    print('${userCredential.user?.uid}');
+    try {
+      UserCredential userCredential = await _auth.signInAnonymously();
+      print('Connecté avec succès : ${userCredential.user?.uid}');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'operation-not-allowed') {
+        print('Connexion anonyme non activée');
+      } else {
+        print(e.message);
+      }
+    }
   }
 }

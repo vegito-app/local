@@ -19,7 +19,7 @@ const javascriptSourceFileConfig = "javascript_source_file"
 func init() {
 	config.AutomaticEnv()
 	config.SetEnvPrefix("ui")
-	config.SetDefault(javascriptSourceFileConfig, "./build/bundle.js")
+	config.SetDefault(javascriptSourceFileConfig, "../frontend/build/bundle.js")
 }
 
 func PrintJSError(e error) {
