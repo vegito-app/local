@@ -8,6 +8,8 @@ display-start.sh
 
 local-android-caches-refresh.sh 
 
+xset r on
+
 studio &
 
 exec "$@"

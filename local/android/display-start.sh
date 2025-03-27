@@ -14,7 +14,6 @@ until xdpyinfo -display ${DISPLAY} > /dev/null 2>&1; do
     sleep 1
 done
 
-x11vnc -display ${DISPLAY} -nopw -noxdamage  -forever &
-# x11vnc -display ${DISPLAY} &
+x11vnc -display :1 -nopw -noxdamage -shared -forever -repeat -ncache 10 -ncache_cr &
 
 openbox&
