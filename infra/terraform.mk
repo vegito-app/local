@@ -188,6 +188,8 @@ terraform-output-github-actions-private-key:
 	@$(TERRAFORM) output -json | jq '.github_actions_private_key.value' | sed 's/\"//g' | base64 --decode 
 .PHONY: terraform-output-github-actions-private-key
 
+$(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON): terraform-output-firebase-android-config-json
+
 $(INFRA_FIREBASE_ANDROID_CONFIG_JSON): terraform-output-firebase-android-config-json
 
 terraform-output-firebase-android-config-json:

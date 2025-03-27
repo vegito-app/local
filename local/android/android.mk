@@ -1,4 +1,3 @@
-ANDROID_STUDIO_IMAGE = $(PUBLIC_IMAGES_BASE):android-studio-$(VERSION)
 ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/local/android/.docker-buildx-cache/studio
 $(ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
@@ -22,7 +21,7 @@ local-android-studio-image-ci: docker-buildx-setup
 .PHONY: local-android-studio-image-ci
 
 local-android-studio-docker-compose-up: local-android-studio-docker-compose-rm
-	@$(CURDIR)/local/android/studio-docker-start.sh &
+	@VERSION=latest $(CURDIR)/local/android/studio-docker-start.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs android-studio
 	@echo
 	@echo Started Androïd studio display: 

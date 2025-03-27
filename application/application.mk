@@ -18,6 +18,6 @@ $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON):
 	@$(MAKE) application-android-config-json
 
 application-android-config-json: $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
-	@echo Creating local link "'$< -> $(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST)'"
+	@echo Creating local link "'$< -> $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)'"
 	@ln -sf $< $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
 .PHONY: application-android-config-json

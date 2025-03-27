@@ -1,5 +1,5 @@
 
-LOCAL_FIREBASE_EMULATORS_IMAGE =  $(BUILDER_IMAGE)
+LOCAL_FIREBASE_EMULATORS_IMAGE =  $(LATEST_BUILDER_IMAGE)
 LOCAL_FIREBASE_DIR = $(CURDIR)/local/firebase
 LOCAL_FIREBASE = cd $(LOCAL_FIREBASE_DIR) && firebase
 # This is a comma separated list of emulator names.# Valid options are:

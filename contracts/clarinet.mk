@@ -1,3 +1,25 @@
+CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/contracts/.docker-buildx-cache/clarinet
+$(CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
+CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+endif
+CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+
+clarinet-devnet-image: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print clarinet-devnet
+	@$(DOCKER_BUILDX_BAKE) --load clarinet-devnet
+.PHONY: clarinet-devnet-image
+
+clarinet-devnet-image-push: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print clarinet-devnet
+	@$(DOCKER_BUILDX_BAKE) --push clarinet-devnet
+.PHONY: clarinet-devnet-image-push
+
+clarinet-devnet-image-ci: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print clarinet-devnet
+	@$(DOCKER_BUILDX_BAKE) clarinet-devnet-ci
+.PHONY: clarinet-devnet-image-ci
+
 CONTRACTS := \
   my-first-contract \
   counter \
@@ -7,7 +29,7 @@ CONTRACTS_DEVNET_DOCKERD_CONTAINER_NAME=contracts-clarinet-devnet
 clarinet-devnet-start:
 	@-docker rm -f `docker ps -aq --filter name=devnet` 2>/dev/null
 	@-docker network rm -f `docker network ls -q --filter name=devnet` 2>/dev/null
-	@cd $(CURDIR)/contracts && clarinet devnet start
+	@cd $(CURDIR)/contracts && clarinet devnet start --no-dashboard
 .PHONY: clarinet-devnet-start
 
 clarinet-devnet-docker-compose-up: clarinet-devnet-docker-compose-rm

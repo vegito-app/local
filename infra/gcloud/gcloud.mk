@@ -79,15 +79,23 @@ gcloud-images-list-tags-public:
 	@$(GCLOUD) container images list-tags $(PUBLIC_IMAGES_BASE)
 .PHONY: gcloud-images-list-tags-public
 
-gcloud-images-builder-untag-all:
-	@$(GCLOUD) container images list-tags $(IMAGES_BASE) --format='get(digest)' \
-	| xargs -I {} $(GCLOUD) container images untag $(IMAGES_BASE)@{}
-.PHONY: gcloud-images-builder-untag-all
+gcloud-images-delete-all:
+	$(GCLOUD) artifacts docker images list \
+    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
+    --format='get(package)' \
+    $(IMAGES_BASE) \
+    | uniq \
+    | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY: gcloud-images-delete-all
 
-gcloud-images-builder-untag-all-public:
-	@$(GCLOUD) container images list-tags $(PUBLIC_IMAGES_BASE) --format='get(digest)' \
-	| xargs -I {} $(GCLOUD) container images untag $(PUBLIC_IMAGES_BASE)@{}
-.PHONY: gcloud-images-builder-untag-all-public
+gcloud-images-delete-all-public:
+	@$(GCLOUD) artifacts docker images list \
+    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
+    --format='get(package)' \
+    $(PUBLIC_IMAGES_BASE) \
+    | uniq \
+    | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY: gcloud-images-delete-all-public
 
 gcloud-backend-image-delete:
 	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
