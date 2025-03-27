@@ -33,11 +33,12 @@ COPY application/backend/go.mod application/backend/
 
 RUN make go-application/backend-mod-download
 
-COPY application/backend/internal application/backend/internal
+COPY application/backend/btc application/backend/btc
+COPY application/backend/firebase application/backend/firebase
 COPY application/backend/http application/backend/http
+COPY application/backend/internal application/backend/internal
 COPY application/backend/log application/backend/log
 COPY application/backend/track application/backend/track
-COPY application/backend/firebase application/backend/firebase
 COPY application/backend/main.go application/backend/
 
 COPY .git .git

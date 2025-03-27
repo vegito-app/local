@@ -1,7 +1,3 @@
-variable "ANDROID_STUDIO_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
-}
-
 variable "ANDROID_STUDIO_IMAGE_TAG" {
   default = notequal("", VERSION) ? "${PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
 }
@@ -26,7 +22,6 @@ target "android-studio-ci" {
   dockerfile = "studio.Dockerfile"
   tags = [
     LATEST_ANDROID_STUDIO_IMAGE,
-    ANDROID_STUDIO_IMAGE_VERSION,
     ANDROID_STUDIO_IMAGE_TAG,
   ]
   cache-from = [
@@ -46,7 +41,6 @@ target "android-studio" {
   dockerfile = "studio.Dockerfile"
   tags = [
     LATEST_ANDROID_STUDIO_IMAGE,
-    ANDROID_STUDIO_IMAGE_VERSION,
     ANDROID_STUDIO_IMAGE_TAG,
   ]
   cache-from = [
@@ -56,4 +50,5 @@ target "android-studio" {
   cache-to = [
     ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
+  load = true
 }

@@ -9,7 +9,6 @@ services:
     # restart: unless-stopped
     container_name: dev
     image: ${BUILDER_IMAGE}
-    entrypoint: dev-entrypoint.sh
     env_file:
       - .env
     environment:
@@ -32,7 +31,9 @@ services:
       while true; do sleep 1000 ; done
       '
     networks:
-      - dev
+      dev:
+        aliases:
+          - devcontainer
 
   backend:
     restart: unless-stopped
@@ -41,7 +42,7 @@ services:
       context: ..
       dockerfile: application/backend/Dockerfile
       args:
-        builder_image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest}
+        builder_image: ${BUILDER_IMAGE}
 
     env_file:
       - .env
@@ -56,9 +57,10 @@ services:
       - dev
 
   firebase-emulators:
+    user: devuser
     restart: unless-stopped
     container_name: firebase-emulators
-    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest}
+    image: ${BUILDER_IMAGE}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
@@ -71,7 +73,7 @@ services:
       # - firebase-emulators-cache:/home/devuser/.cache/firebase/emulators
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
-      bash -c '
+     bash -c '
       set -e
 
       # List to hold background job PIDs
@@ -120,7 +122,7 @@ services:
     container_name: clarinet-devnet
     privileged: true
     tty: true
-    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest}
+    image: ${CLARINET_DEVNET_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:clarinet-devnet-latest}
     # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
     # build: NOT
     env_file:
@@ -157,13 +159,57 @@ services:
     container_name: android-studio
     cap_add:
       - SYS_ADMIN
-    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:android-studio-latest}
+    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:android-studio-latest}
     env_file:
       - .env
     environment:
-      DISPALY_RESOLUTION: "${DISPALY_RESOLUTION:-1440x900}"
+      DISPALY_RESOLUTION: ${DISPALY_RESOLUTION:-1440x900}
+      CHROME_LOG_FILE: /tmp/chrome_debug.log
+      ANDROID_STUDIO_LOG_LEVEL: DEBUG
     command: |
-      bash -c 'while sleep 1000 ; do : ; done'
+      bash -c '
+
+      set -e
+
+      # List to hold background job PIDs
+      bg_pids=()
+
+      # Function to kill background jobs when script ends
+      kill_jobs() {
+         echo "Killing background jobs"
+         for pid in "$${bg_pids[@]}"; do
+             kill "$$pid"
+             wait "$$pid" 2>/dev/null
+         done
+      }
+
+      # Trap to call kill_jobs on script exit
+      trap kill_jobs EXIT
+
+      # Forward firebase-emulators to container as localhost
+      socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4501.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4401.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-firebase-emulators-9000.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:9099,fork,reuseaddr TCP:firebase-emulators:9099 > /tmp/socat-firebase-emulators-9099.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:5001,fork,reuseaddr TCP:firebase-emulators:5001 > /tmp/socat-firebase-emulators-5001.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-firebase-emulators-4000.log 2>&1 &
+      bg_pids+=("$!")
+
+      # access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
+      socat TCP-LISTEN:8080,fork,reuseaddr TCP:backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
+      bg_pids+=("$!")
+
+      while sleep 1000 ; do : ; done
+      '
     # deploy:
     #   resources:
     #     reservations:
@@ -171,8 +217,15 @@ services:
     #         - driver: nvidia
     #           count: all
     #           capabilities: [gpu]
+    privileged: true
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+    devices:
+      - /dev/kvm
+    shm_size: "8gb"
+    group_add:
+      - render
+      - sgx
     working_dir: ${PWD:-/workspaces/refactored-winner}
     networks:
       dev:

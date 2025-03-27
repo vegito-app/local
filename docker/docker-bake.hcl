@@ -37,16 +37,18 @@ variable "platforms" {
 
 group "services-load-local-arch" {
   targets = [
-    "backend",
     "android-studio",
+    "backend",
+    "clarinet-devnet",
     "github-runner",
   ]
 }
 
 group "services-push-multi-arch" {
   targets = [
-    "backend-ci",
     "android-studio-ci",
+    "backend-ci",
+    "clarinet-devnet-ci",
     "github-runner-ci",
   ]
 }

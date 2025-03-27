@@ -3,15 +3,13 @@ REGISTRY = $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 PUBLIC_REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
 PUBLIC_IMAGES_BASE = $(PUBLIC_REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
-BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-$(VERSION)
-LATEST_BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-latest
-
 REPOSITORY = $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 IMAGES_BASE = $(REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
 DOCKER_BUILDX_BAKE = docker buildx bake \
-	-f docker/docker-bake.hcl \
 	-f application/backend/docker-bake.hcl \
+	-f docker/docker-bake.hcl \
+	-f contracts/docker-bake.hcl \
 	-f local/docker-bake.hcl \
 	-f local/android/docker-bake.hcl \
 	-f infra/github/docker-bake.hcl 
