@@ -17,7 +17,7 @@ Build project service images for the local machine architecture only.
 
 Project have images for:
 
-- **builder**: contains project tools (`gcloud`, `terraform`, `flutter`, ...). See [local/builder.Dockerfile](local/builder.Dockerfile).
+- **builder**: contains project tools (`gcloud`, `terraform`, `flutter`, ...). See [dev/builder.Dockerfile](dev/builder.Dockerfile).
 - **backend**: minified image with only application and _application-backend_ web server. See [application/backend/Dockerfile](application/backend/Dockerfile).
 - **github action runner**: used to provide Github Action Workflow local hosted-runners. See [infra/github/Dockerfile](infra/github/Dockerfile).
 
@@ -33,7 +33,7 @@ Pipeline which runs this target is available under the Github project repository
 
 ## Local
 
-Folder `./local/` provides a dedicated development environment to work on this project locally, remotly, in CI...
+Folder `./dev/` provides a dedicated development environment to work on this project locally, remotly, in CI...
 This _local_ environment is also used by [Devcontainer](https://containers.dev), see locale [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) file.
 
 Exemple to run the application on the local native machine (no docker):
@@ -44,16 +44,16 @@ $ make local-run
 # Application is available at [http://localhost:8080](http://localhost:8080).
 ```
 
-More local Makefile targets are available to work on the project locally, see [local/local.mk](local/local.mk):
+More local Makefile targets are available to work on the project locally, see [dev/local.mk](dev/local.mk):
 
-    local-android-studio-docker-compose           local-builder-image                           local-firebase-emulators-functions-serve      local-github-runner-image-ci
-    local-android-studio-docker-compose-logs      local-firebase-emulators                      local-firebase-emulators-init                 local-github-runner-token-exist
-    local-android-studio-docker-compose-rm        local-firebase-emulators-docker-compose       local-firebase-emulators-install              local-install
-    local-android-studio-docker-compose-sh        local-firebase-emulators-docker-compose-bash  local-firebase-emulators-prepare              local-builder-image-ci
-    local-android-studio-docker-compose-stop      local-firebase-emulators-docker-compose-logs  local-firebase-emulators-start                local-run
-    local-android-studio-docker-compose-up        local-firebase-emulators-docker-compose-rm    local-github-runner-docker-compose-rm
-    local-android-studio-image                    local-firebase-emulators-docker-compose-stop  local-github-runner-docker-compose-up
-    local-android-studio-image-push               local-firebase-emulators-docker-compose-up    local-github-runner-image
+    local-android-studio-docker-compose           local-builder-image                           firebase-emulators-functions-serve      local-github-runner-image-ci
+    local-android-studio-docker-compose-logs      firebase-emulators                      firebase-emulators-init                 local-github-runner-token-exist
+    local-android-studio-docker-compose-rm        firebase-emulators-docker-compose       firebase-emulators-install              local-install
+    local-android-studio-docker-compose-sh        firebase-emulators-docker-compose-bash  firebase-emulators-prepare              local-builder-image-ci
+    local-android-studio-docker-compose-stop      firebase-emulators-docker-compose-logs  firebase-emulators-start                local-run
+    local-android-studio-docker-compose-up        firebase-emulators-docker-compose-rm    local-github-runner-docker-compose-rm
+    local-android-studio-image                    firebase-emulators-docker-compose-stop  local-github-runner-docker-compose-up
+    local-android-studio-image-push               firebase-emulators-docker-compose-up    local-github-runner-image
 
 ## Infrastructure
 

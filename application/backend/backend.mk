@@ -63,7 +63,7 @@ $(INFRA_ENV:%=application-backend-%-image-push):
 
 application-backend-image-push-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print backend-ci
-	@$(DOCKER_BUILDX_BAKE) backend-ci
+	@$(DOCKER_BUILDX_BAKE) --push backend-ci
 .PHONY: application-backend-image-push-ci
 
 application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
@@ -80,7 +80,7 @@ application-backend-docker-compose-up: application-backend-docker-compose-rm
 	@until nc -z backend 8080 ; do \
 		sleep 1 ; \
 	done
-	@$(LOCAL_DOCKER_COMPOSE) logs backend
+	@$(DOCKER_COMPOSE) logs backend
 	@echo
 	@echo Started Application Backend: 
 	@echo View UI at http://127.0.0.1:8080/ui
@@ -88,13 +88,13 @@ application-backend-docker-compose-up: application-backend-docker-compose-rm
 .PHONY: application-backend-docker-compose-up
 
 application-backend-docker-compose-stop:
-	@-$(LOCAL_DOCKER_COMPOSE) stop backend 2>/dev/null
+	@-$(DOCKER_COMPOSE) stop backend 2>/dev/null
 .PHONY: application-backend-docker-compose-stop
 
 application-backend-docker-compose-rm: application-backend-docker-compose-stop
-	@$(LOCAL_DOCKER_COMPOSE) rm -f -s backend
+	@$(DOCKER_COMPOSE) rm -f -s backend
 .PHONY: application-backend-docker-compose-rm
 
 application-backend-docker-compose-logs:
-	@$(LOCAL_DOCKER_COMPOSE) logs --follow backend
+	@$(DOCKER_COMPOSE) logs --follow backend
 .PHONY: application-backend-docker-compose-logs

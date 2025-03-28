@@ -233,9 +233,9 @@ ln
 ln --help
 ln -f ../../../functions/index.js .
 commment faire pointer un front vers cett emulateur ?
-make local-firebase-emulators-init 
-make local-firebase-emulators-start 
-make local-firebase-emulators-start
+make firebase-emulators-init 
+make firebase-emulators-start 
+make firebase-emulators-start
 mv functions/ local/firebase/
 cd local/firebase/
 ln -s ../../../infra/gcloud/auth functions/auth
@@ -281,11 +281,11 @@ ls -lha
 ls -lh ../../..
 cd /workspaces/refactored-winner/r
 firebase init emulators --no-localhost
-make local-firebase-emulators
+make firebase-emulators
 firebase emulators init --help
 firebase init emulators --help
 firebase init functions
-make local-firebase-emulators-docker-compose-up 
+make firebase-emulators-docker-compose-up 
 cd refactored-winner/
 docker compose rm   firebase-emulators 
 ls local/
@@ -299,9 +299,9 @@ git rebase origin/codespace-humble-meme-wrq66vwrr4wh5979
 gi tlog
 cd local/firebase/functions
 ls  /workspaces/refactored-winner/infra/gcloud/auth
-make local-firebase-emulators-docker-compose-rm
-make local-firebase-emulators-docker-compose
-make local-firebase-emulators-docker-compose-rm 
+make firebase-emulators-docker-compose-rm
+make firebase-emulators-docker-compose
+make firebase-emulators-docker-compose-rm 
 make local-docker-firebase-emulators-
 make local-docker-firebase-emulators-up
 rm auth
@@ -315,12 +315,12 @@ socat TCP-LISTEN:4000,fork TCP:firebase-emulators:4000
 curl firebase-emulators:4000
 socat TCP-LISTEN:4000,fork TCP:172.18.0.2/16:4000
 socat TCP-LISTEN:4000,fork TCP:172.18.0.2:4000
-make local-firebase-docker-emulators-logs 
+make firebase-docker-emulators-logs 
 docker copose up --help
 nc -z firebase 4000  && echo ok
 socat TCP-LISTEN:4000,fork TCP:localhost:4000
 socat TCP-LISTEN:4000,fork TCP:firebase-emulators4001
-make local-firebase-emulators-docker-compose-up
+make firebase-emulators-docker-compose-up
 git branch -d
 git log --oneline 
 git push --set-upstream origin codespace-humble-meme-wrq66vwrr4wh5979:dev
@@ -337,15 +337,15 @@ docker compose stop firebase-emulator
 docker compose stop --help
 docker compose down --help
 docker compose rm --help
-make local-firebase-docker-emulators-logs
+make firebase-docker-emulators-logs
 docker compose logs --help
 docker compose logs --follow firebase-emulator
 docker compose logs  firebase-emulator
-make local-firebase-docker-emulators-rm
-make local-firebase-docker-emulators
+make firebase-docker-emulators-rm
+make firebase-docker-emulators
 bg
-make local-firebase-docker-emulators-rm 
-make local-firebase-emulators-docker-compose-stop 
+make firebase-docker-emulators-rm 
+make firebase-emulators-docker-compose-stop 
 docker ps -a
 docker rm -f 19c38
 sudo apt-get install netcat
@@ -356,25 +356,25 @@ nc -z firebase-emulators 4000
 nc -z 172.18.0.2 4000
 nc -z localhost 4000
 nc -z firebase-emulator 4000
-make local-firebase-emulators-docker-compose-logs 
+make firebase-emulators-docker-compose-logs 
 nc -z firebas 5001
 nc -z firebase 5001
 make  local-builder-image 
 nc -z 0.0.0.0 4000
 make local-builder-image
 ps aux
-make local-firebase-emulators-install 
+make firebase-emulators-install 
 kill -INT 7
-make local-firebase-emulators-docker-compose-build-no-pull 
+make firebase-emulators-docker-compose-build-no-pull 
 ss -tulnp
 ls -lha local/
 ls -lha local/firebase/
 ls -lha local/firebase/data/
-make local-firebase-emulators-stop 
+make firebase-emulators-stop 
 firebase emulators:help
 firebase emulators --help
-make local-firebase-emulators-docker-compose-b
-make local-firebase-emulators-docker-compose-bash 
+make firebase-emulators-docker-compose-b
+make firebase-emulators-docker-compose-bash 
 chmod o+rwx local/firebase/data/
 netstat -tuln
 sudo apt-get install -y netstat
@@ -405,7 +405,7 @@ test
 test --help
 ps aux|grep 4000
 sudo iptables -t nat -A PREROUTING -p tcp --dport 4000 -j DNAT --to-destination `dig +short firebase-emulators`:4000
-make local-firebase-emulators-docker-compose-bash
+make firebase-emulators-docker-compose-bash
 make local-build
 make builder-image 
 make application-frontend-npm-ci 
@@ -442,10 +442,10 @@ docker images -a
 docker run -v /:`pwd`/root --rm -it -w `pwd`/root 0bb51c6f07de bash
 docker run -v /:`pwd`/root --rm --entrypoint bash -it -w `pwd`/root 0bb51c6f07de 
 env|grep -i folder
-make local-firebase-emulators-docker-compose-rm  local-builder-image local-firebase-emulators-docker-compose-up 
+make firebase-emulators-docker-compose-rm  local-builder-image firebase-emulators-docker-compose-up 
 git rm dev-entrypoint.sh 
 git rm -f dev-entrypoint.sh 
-make local-firebase-emulators-docker-compose-rm local-firebase-emulators-docker-compose-up 
+make firebase-emulators-docker-compose-rm firebase-emulators-docker-compose-up 
 git push -f
 git reset ad39
 git push git push 
@@ -522,7 +522,7 @@ make local-run
 ls -lh local/firebase/data/*
 ls -lh local/firebase/data/auth_export
 ls -lh local/firebase/data/firebase-export-metadata.jso
-make local-firebase-emulators-docker-compose-logs
+make firebase-emulators-docker-compose-logs
 git reset ad39f604e038f7f1c225e5c3415c845795e260d0
 git reset 55805
 lsof -i :4000
@@ -622,7 +622,7 @@ env| grep -i proj
 unset FIREBASE_AUTH_EMULATOR_HOST
 killall backend
 node --trace-deprecation
-make local-firebase-emulators-functions-serve 
+make firebase-emulators-functions-serve 
 ncu -v
 which bash file mkdir rm which
 sudo apt-get install -y file
@@ -760,7 +760,7 @@ socat TCP-LISTEN:45483,fork,reuseaddr TCP:android-studio:45483 > /tmp/socat-andr
 socat TCP-LISTEN:46483,fork,reuseaddr TCP:android-studio:46483 > /tmp/socat-android-studio-46483.log 2>&1 
 flutter upgrade
 make local-android-studio-docker-compose-up &
-make -C .. local-firebase-emulators-docker-compose-up 
+make -C .. firebase-emulators-docker-compose-up 
 make -C .. local-android-studio-docker-compose-up 
 . .bash
 . .bashrc 
@@ -860,10 +860,10 @@ test -h
 man test
 git add .
 git show
-git add local/android/studio-entrypoint.sh 
-chmod +x local/android/android-start-docker.sh 
+git add android-studio/studio-entrypoint.sh 
+chmod +x android-studio/android-start-docker.sh 
 make local-android-studio-docker-compose-rm
-chmod +x local/android/studio-entrypoint.sh 
+chmod +x android-studio/studio-entrypoint.sh 
 make github-runner
 code /workspaces/refactored-winner/
 git push origin HEAD:dev
@@ -884,8 +884,8 @@ unset GITHUB_ACTION_RUNNER_TOKEN
 make github-runner-image-push 
 make github-runner-rm
 make github-runner-image-@
-make local-firebase-emulators-image
-make local-firebase-emulators-image-push 
+make firebase-emulators-image
+make firebase-emulators-image-push 
 make local-android-studio-image
 make local-android-studio-image-push 
 make backend-image-run 
@@ -969,7 +969,7 @@ make application-backend-docker-compose-up
 .devcontainer/post-start-cmd.sh make local-android-studio-docker-compose-up 
 cd /usr/local/
 cd bin/
-chmod +x local/android/caches-refresh.sh 
+chmod +x android-studio/caches-refresh.sh 
 ls .local/share/Google/AndroidStudio2024.1/
 flutter pub get
 flutter pub get .
@@ -1167,7 +1167,7 @@ npm install typescript@4.9.5 --save-dev
 make -C ../../ application-frontend-bundle 
 make -C ../../ node-modules
 make -C ../../ node-modules-ci git branch git fetch -p
-git checkout d48918d96cab628f8af6c8bf2a20a3e0300fa597 local/android/docker-bake.hclmake terraform-init 
+git checkout d48918d96cab628f8af6c8bf2a20a3e0300fa597 android-studio/docker-bake.hclmake terraform-init 
 make terraform-taint-backend a
 make terraform-reconfigure 
 docker pull europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder-latest
@@ -1563,7 +1563,7 @@ sudo    tar --extract     --file docker.tgz     --strip-components 1     --direc
 echo $DOCKER_HOST
 export DOCKER_HOST=unix:///var/run/docker.sock
 dockerd-entrypoint.sh 
-docker exec -it contracts-clarinet-devnet bash
+docker exec -it clarinet-devnet bash
 cd contracts/toto/counter/
 clarinet devnet start
 make clarity-devnet-rm
@@ -1611,4 +1611,147 @@ docker log
 make clarinet-devnet-docker-compose-up `clarinet version
 make clarinet-devnet-docker-compose-rm 
 unset DOCKER_HOST
-make clarinet-devnet-docker-compose
+make clarinet-devnet-docker-composecd .. && make clarinet-devnet-docker-compose-up
+make local-builder-image-ci
+make local-android-studio-image local-android-studio-docker-compose-up 
+sudo iftop -i eth0 
+sudo iftop -i lo 
+ping -q host.docker.internal
+sudo apt-get install ping
+sudo apt-get install -y iputils-ping
+ping -q materiel.net
+#rm ~/.config/Google/AndroidStudio2024.
+#rm ~/.config/Google/AndroidStudio2024.*
+rm -rf ~/.config/Google/AndroidStudio2024.
+cat /proc/sys/fs/inotify/max_user_watches
+fs.inotify.max_user_watches=524288
+sudo fs.inotify.max_user_watches=524288
+alias
+hiftop 
+hhtop 
+docker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest sudo chroot /host /bin/bash
+hi
+base 64 --decode qHpeMciIr9B2UUm7HIz1Y0pwbIpcjBT7XngOmeaQMIY=
+base64 --decode qHpeMciIr9B2UUm7HIz1Y0pwbIpcjBT7XngOmeaQMIY=
+echo qHpeMciIr9B2UUm7HIz1Y0pwbIpcjBT7XngOmeaQMIY= | base64 --decode
+echo qHpeMciIr9B2UUm7HIz1Y0pwbIpcjBT7XngOmeaQMIY= | base64 --decode|hex
+echo qHpeMciIr9B2UUm7HIz1Y0pwbIpcjBT7XngOmeaQMIY= | base64 --decode|hexdump
+eenv
+en
+hh
+ailas
+ocker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest sudo chroot /host bash
+docker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest sudo chroot /host bash
+make local-builder-image-push
+make -C .. local-android-studio-image
+make local-android-studio-docker-compose-rm 
+make -C  local-android-studio-image
+make local-android-studio-docker-compose-rm local-android-studio-docker-compose-up 
+make -C .. local-android-studio-image-push 
+docker run --rm -it europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:android-studio-v0.0.14-5-g8a42e1a bash
+docker pull europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:android-studio-v0.0.14-5-g8a42e1a
+docker rmi europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:android-studio-v0.0.14-5-g8a42e1a
+docker pull europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:android-studio-latest
+docker run --rm -it europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-v0.0.14-5-g8a42e1a bash
+docker run --rm -it europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest bash
+echo $BUILDER_IMAGE 
+docker pull europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
+make local-android-studio-docker-compose-rm local-android-studio-docker-compose-up
+rm -r application/backend/.docker-buildx-cache/
+make application-backend-dev-image-push
+alias m='make -C ../..'
+m local-android-studio-docker-compose-up
+m local-android-studio-docker-compose-upmake local/
+make local-android-studio-docker-compose-logs
+make local-android-studio-docker-compose-logs|more
+curl -s https://go.dev/dl/ | grep -oP '(go.*?.linux-amd64.tar.gz)' | head -1
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+bash
+npm version
+ps aux|grep -i entrypoint
+ls -l $(which sh)
+ls -l $(which bash)
+ls -l /bin/bash
+/bin/bash
+cd .. 
+make clarinet-devnet-docker-compose-urm
+make clarinet-devnet-docker-composerm
+make clarinet-devnet-image
+make clarinet-devnet-image-push 
+make gcloud-images-untag-all-public 
+gcloud --project=moov-dev-439608 container images list-tags europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608 --fromat='get(digest)'
+gcloud --project=moov-dev-439608 container images list-tags europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608 --fromat=get(digest)
+gcloud --project=moov-dev-439608 container images list-tags europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608 --fromat=get\(digest\)
+gcloud --project=moov-dev-439608 container images list-tags europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608 
+gcloud --project=moov-dev-439608 container images list-tags europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608  --format='get(digest)'make local-android-studio-docker-compose-up 
+echo $BUILDER_IMAGE
+make local-android-studio-docker-composerm
+git push gggg
+make terraform-output-json 
+make -C ../..  terraform-state-list > lst
+make -C ../..  terraform-state-show > lsts
+make -C ../..  terraform-state-show-all > lstsa
+make -C ../..  terraform-plan 
+make -C ../.. gcloud-auth-login 
+make -C ../..  terraform-refresh 
+make -C ../..  gcloud-se
+make -C ../..  gcloud-config-set-project 
+make -C ../..  terraform-reconfigure 
+make -C ../..  terraform-init 
+INFRA_ENV=prod make -C ../..  terraform-refresh 
+git rebase -i HEAD~6
+make android-studio
+make android-studio-image
+make android-studio-image-push 
+make  docker-login 
+make dev
+make firebase-emulators-prepare 
+INFRA_ENV=prod make gcloud-auth-login 
+INFRA_ENV=prod make firebase-emulators-init 
+make dev-builder-image
+INFRA_ENV=prod make firebase-emulators-docker-compose-up 
+make firebase-emulators-in
+make firebase-emulators-docker-compose-up m
+ls android-studio/
+make dev-builder-image-push 
+du -sh .android-studio/
+du -sh 
+du -sh local/
+a
+make -C .. firebase-emulators-install 
+make -C .. firebase-emulators-init
+make firebase-emulators-init
+ls -lha functions/
+ln -sf ../../infra/gcloud/auth functions/auth
+make application-backendcd ..
+make clarinet-image-ci 
+curl -O https://github.com/hirosystems/clarinet/archive/refs/tags/v2.12.0.tar.gz
+curl -L https://github.com/hirosystems/clarinet/archive/refs/tags/v2.12.0.tar.gz
+wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v2.12.0.tar.gz
+tar -xf xf v2.12.0.tar.gz.1 
+tar -xf v2.12.0.tar.gz.1 
+ls 
+cd clarinet-2.12.0/
+sudo apt-get install  cmake git make bash perl     rust cargo
+sudo apt-get update && sudo apt-get install  cmake git make bash perl     rust cargo
+docker run --rm -it -v $(PWD):$(PWD) -w $(PWD) rust:1-bookworm
+docker run --rm -it -v $(PWD):$(PWD) -w $(PWD) rust:1-bookworm bash
+docker run --rm -it -v $(pwd):$(pwd) -w $(pwd) rust:1-bookworm 
+docker run --rm -it -v $(pwd):$(pwd) -w $(pwd) rust:1-alpine3.20 bash 
+docker run --rm -it -v $(pwd):$(pwd) -w $(pwd) rust:1-alpine3.20 sh
+make clarinet-image
+make firebase-emulators-image-ci 
+sudo rm -r clarinet-2.12.0/
+make dev-builder-image-ci 
+make firebase-emulators-docker-compose-sh
+make firebase-emulators-imagedu -sh .
+make firebase-emulators-docker-compose-up & 
+make node-modules-npm-check-updates 
+make node-list-npm-versions 
+make node-available-from-nvm-ls-remote cd ..
+make application-backend
+git rebase -i HEAD~10
+git rm -f clarinet/clarinet.bash
+git reset 7c28
+git reset 78d65
+make application-frontend-build 

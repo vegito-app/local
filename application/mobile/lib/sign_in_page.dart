@@ -1,53 +1,104 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SignInPage extends StatelessWidget {
-  SignInPage({super.key});
+import 'wallet_service.dart';
 
-  // Instance de FirebaseAuth.
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Container(
-          //   decoration: const BoxDecoration(
-          //     image: DecorationImage(
-          //       image: AssetImage('chemin/vers/votre/image.png'),
-          //       fit: BoxFit.cover,
-          //     ),
-          //   ),
-          // ),
-          Center(
-            child: ElevatedButton(
-              onPressed: _signInAnonymously,
-              child: const Text('Se connecter'),
+  _SignInPageState createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
+  String? recoveryKey;
+
+  Future<void> _signInWithGoogle() async {
+    final userCredential =
+        await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
+    final user = userCredential.user;
+
+    if (user != null) {
+      final keys = await WalletService.getKeys(user.uid);
+      setState(() {
+        recoveryKey = keys['recoveryKey'];
+      });
+
+      // Afficher la boîte de dialogue avec la recovery key
+      _showRecoveryDialog();
+    }
+  }
+
+  void _showRecoveryDialog() {
+    showDialog(
+      barrierDismissible: false, // Empêche la fermeture sans sauvegarder la clé
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Clé de récupération"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Cette clé est ESSENTIELLE pour restaurer votre wallet. "
+              "Si vous la perdez, votre wallet sera irrécupérable ! "
+              "Veuillez la noter et la stocker en sécurité.",
+              style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
             ),
+            const SizedBox(height: 10),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: SelectableText(
+                recoveryKey ?? "Erreur",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("J'ai noté ma clé"),
           ),
         ],
       ),
     );
   }
 
-//   Future<void> _signInAnonymously() async {
-//     final userCredential = await FirebaseAuth.instance.signInAnonymously();
-//     print('${userCredential.user?.uid}');
-//   }
-// }
-
-  Future<void> _signInAnonymously() async {
-    try {
-      UserCredential userCredential = await _auth.signInAnonymously();
-      print('Connecté avec succès : ${userCredential.user?.uid}');
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'operation-not-allowed') {
-        print('Connexion anonyme non activée');
-      } else {
-        print(e.message);
-      }
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                icon: Image.asset("assets/images/logo-google.png", height: 20),
+                onPressed: _signInWithGoogle,
+                label: Text("Se connecter avec Google"),
+              ),
+            ],
+          ),
+        )
+      ],
+    ));
   }
 }

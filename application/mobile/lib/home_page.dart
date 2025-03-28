@@ -17,7 +17,10 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AccountPage()),
+                  MaterialPageRoute<AccountPage>(
+                      builder: (BuildContext context) {
+                    return const AccountPage();
+                  }),
                 );
               },
               child: const Text("Aller à Mon Compte"),
@@ -26,7 +29,7 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SignInPage()),
+                  MaterialPageRoute(builder: (context) => const SignInPage()),
                 );
               },
               child: const Text("Se connecter"),

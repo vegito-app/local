@@ -24,7 +24,7 @@ local-github-runner-image-push: $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCA
 # This target will build and push a multi architecture image.
 local-github-runner-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print github-runner-ci
-	@$(DOCKER_BUILDX_BAKE) github-runner-ci
+	@$(DOCKER_BUILDX_BAKE) --push github-runner-ci
 .PHONY: local-github-runner-image-ci
 
 GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(GOOGLE_CLOUD_PROJECT_ID)-github-actions \

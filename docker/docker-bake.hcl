@@ -3,6 +3,11 @@ variable "VERSION" {
   default     = "dev"
 }
 
+variable "DOCKER_VERSION" {
+  description = "current docker version"
+  default     = "28.0.2"
+}
+
 variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
@@ -39,7 +44,8 @@ group "services-load-local-arch" {
   targets = [
     "android-studio",
     "backend",
-    "clarinet-devnet",
+    "clarinet",
+    "firebase-emulators",
     "github-runner",
   ]
 }
@@ -48,7 +54,8 @@ group "services-push-multi-arch" {
   targets = [
     "android-studio-ci",
     "backend-ci",
-    "clarinet-devnet-ci",
+    "clarinet-ci",
+    "firebase-emulators-ci",
     "github-runner-ci",
   ]
 }

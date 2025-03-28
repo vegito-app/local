@@ -5,7 +5,7 @@ set -eu
 trap "echo Exited with code $?." EXIT
 
 # Create default local .env file with minimum required values to start.
-localDotenvFile=${PWD}/local/.env
+localDotenvFile=${PWD}/dev/.env
 # [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
@@ -29,37 +29,38 @@ workspaceFile=${PWD}/vscode.code-workspace
   "folders": [
     {
       "path": ".",
-      "name": "project"
+      "name": "Project"
     },
     {
+      "name": "Documentation",
       "path": "docs",
     },
     {
-      "name": "application-backend-go",
+      "name": "Application - Backend",
       "path": "application/backend"
     },
     {
-      "name": "application-mobile-flutter",
+      "name": "Application - Mobile",
       "path": "application/mobile"
     },
     {
-      "name": "application-web-react",
+      "name": "Application - Web",
       "path": "application/frontend"
     },
     {
-      "name": "android-studio-local",
-      "path": "local/android"
+      "name": "Androïd Studio",
+      "path": "android-studio"
     },
     {
-      "name": "firebase-emulators-local",
-      "path": "local/firebase"
+      "name": "Firebase Emulators",
+      "path": "firebase/emulators"
     },
     {
-      "name": "dev-local",
-      "path": "local"
+      "name": "Dev - Builder",
+      "path": "dev"
     },
     {
-      "name": "infra-cloud",
+      "name": "Infrastructure",
       "path": "infra"
     },
     {
@@ -67,24 +68,28 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "infra/gcloud/auth"
     },
     {
-      "name": "devcontainer",
+      "name": "Devcontainer",
       "path": ".devcontainer"
     },
     {
-      "name": "production-environment-infra-terraform",
+      "name": "Infrastructure - Production",
       "path": "infra/environments/prod"
     },
     {
-      "name": "staging-environment-infra-terraform",
+      "name": "Infrastructure - Staging",
       "path": "infra/environments/staging"
     },
     {
-      "name": "dev-environment-infra-terraform",
+      "name": "Infrastructure - Dev",
       "path": "infra/environments/dev"
     },
     {
-      "name": "gcloud-terraform",
+      "name": "Cloud - GCP",
       "path": "infra/gcloud"
+    },
+    {
+      "name": "Clarinet/Devnet",
+      "path": "clarinet"
     }
   ],
   "settings": {}

@@ -3,7 +3,7 @@ GO_VERSION = 1.23
 GO_MODULES := \
 	application/backend \
 	infra/gcloud/auth \
-	local/proxy
+	dev/proxy
 
 go-mod-tidy: $(GO_MODULES:%=go-%-mod-tidy)
 .PHONY: go-mod-tidy

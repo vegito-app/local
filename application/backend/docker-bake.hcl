@@ -29,7 +29,6 @@ target "backend-ci" {
   platforms = [
     "linux/amd64",
   ]
-  push = true
 }
 
 variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {

@@ -1,7 +1,7 @@
 NODE_MODULES := \
 	infra/gcloud/auth \
 	application/frontend \
-	local/firebase/functions
+	firebase/functions
 
 node-modules-npm-check-updates: 
 	@$(MAKE) -j $(NODE_MODULES:%=%-npm-check-updates)

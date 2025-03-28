@@ -4,7 +4,7 @@ _*
 ._*
 *backup*
 vendor
-android-studio*
+.android-studio
 # Logs
 logs
 *.log

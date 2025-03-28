@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:clipboard/clipboard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
 import 'wallet_service.dart';
 
 class AccountPage extends StatefulWidget {
@@ -21,11 +23,27 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _loadWalletData() async {
-    String key = await WalletService.getPrivateKey();
-    setState(() {
-      _privateKey = key;
-      _balance = "0.00 BTC"; // Simuler le solde
-    });
+    final userCredential =
+        await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
+    final user = userCredential.user;
+
+    if (user != null) {
+      final keys = await WalletService.getKeys(user.uid);
+      setState(() {
+        //     recoveryKey = keys['recoveryKey'];
+        //   });
+
+        //   // Affichage d'une boîte de dialogue avec la clé de récupération
+        //   _showRecoveryDialog();
+        // Map<String, String> keys = await WalletService.getKeys();
+        // setState(() {
+        var recoveryKey = keys['recoveryKey'];
+        if (recoveryKey != null) {
+          _privateKey = recoveryKey;
+        }
+        _balance = "0.00 BTC"; // Simuler le solde
+      });
+    }
   }
 
   void _toggleKeyVisibility() {
@@ -51,11 +69,14 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Solde :", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Solde :",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
-            Text(_balance, style: const TextStyle(fontSize: 20, color: Colors.blue)),
+            Text(_balance,
+                style: const TextStyle(fontSize: 20, color: Colors.blue)),
             const SizedBox(height: 20),
-            const Text("Clé Privée :", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Clé Privée :",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             GestureDetector(
               onLongPress: _toggleKeyVisibility,
               child: Container(

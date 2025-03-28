@@ -8,10 +8,12 @@ export
 
 -include go.mk
 -include nodejs.mk
--include contracts/clarinet.mk
 -include docker/docker.mk
 -include infra/infra.mk 
--include local/local.mk
+-include android-studio/studio.mk
+-include firebase/firebase.mk
+-include dev/dev.mk
+-include clarinet/clarinet.mk
 -include application/application.mk
 
 images: docker-images-local-arch
@@ -20,11 +22,17 @@ images: docker-images-local-arch
 images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
 
-android-studio: local-android-studio-docker-compose-up
-.PHONY: images images-ci android-studio
+android-studio: android-studio-docker-compose-up
+.PHONY: android-studio
 
-dev-local: \
-local-firebase-emulators-docker-compose-up \
-local-android-studio-docker-compose-up \
-application-backend-docker-compose-up
-.PHONY: dev-local
+firebase-emulators: firebase-emulators-docker-compose-up
+.PHONY: firebase-emulators
+
+clarinet-devnet: clarinet-devnet-docker-compose-up
+.PHONY: clarinet-devnet
+
+application-backend: application-backend-docker-compose-up
+.PHONY: application-backend
+
+dev: firebase-emulators android-studio application-backend clarinet-devnet
+.PHONY: dev

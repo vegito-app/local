@@ -1,0 +1,223 @@
+networks:
+  dev:
+    driver: bridge
+volumes:
+  firebase-emulators-cache:
+  clarinet_var_lib_docker:
+services:
+  dev:
+    # restart: unless-stopped
+    container_name: dev
+    image: ${BUILDER_IMAGE}
+    env_file:
+      - .env
+    environment:
+      HOST_PWD: ${PWD:-/workspaces/refactored-winner}
+    volumes:
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev:/dev
+      - /lib/modules:/lib/modules:ro
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    command: |
+      bash -c '
+      # Ensure docker socket permissions
+      make docker-sock
+      make dev-local
+      while true; do sleep 1000 ; done
+      '
+    networks:
+      dev:
+        aliases:
+          - devcontainer
+
+  backend:
+    restart: unless-stopped
+    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:backend-latest}
+    build:
+      context: ..
+      dockerfile: application/backend/Dockerfile
+      args:
+        builder_image: ${BUILDER_IMAGE}
+
+    env_file:
+      - .env
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/.devcontainer/gcloud/infra/application_default_credentials.json}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-moov}
+      UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/moov-dev-439608/secrets/firebase-config-web/versions/2}
+      UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID:-projects/moov-dev-439608/secrets/google-maps-api-key/versions/1}
+    volumes:
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+    networks:
+      - dev
+
+  firebase-emulators:
+    restart: unless-stopped
+    container_name: firebase-emulators
+    image: ${FIREBASE_EMULATORS_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:firebase-emulators-latest}
+    # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
+    # build: NOT
+    env_file:
+      - .env
+    environment:
+      FIREBASE_AUTH_EMULATOR_HOST: http://localhost:9099
+      FIRESTORE_EMULATOR_HOST: http://localhost:8090
+    volumes:
+      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
+      # - firebase-emulators-cache:/home/devuser/.cache/firebase/emulators
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    command: |
+      bash -c '
+       set -e
+
+       # List to hold background job PIDs
+       bg_pids=()
+
+       # Function to kill background jobs when script ends
+       kill_jobs() {
+          echo "Killing background jobs"
+          for pid in "$${bg_pids[@]}"; do
+              kill "$$pid"
+              wait "$$pid" 2>/dev/null
+          done
+       }
+
+       # Trap to call kill_jobs on script exit
+       trap kill_jobs EXIT
+
+       make firebase-emulators-install
+       make firebase-emulators-start &
+       bg_pids+=("$!") 
+
+       # Need localproxy to forward some required port that could not be 
+       # configured to listen on 0.0.0.0 from firebase.json file.
+       TARGET_PORT=4400 LISTEN_PORT=4401 localproxy &
+       bg_pids+=("$!") 
+       until nc -z localhost 4500; do
+         echo Waiting Firebase Emulator Reserved port at http://localhost:4500/ ;
+         sleep 1 ;
+       done
+       TARGET_PORT=4500 LISTEN_PORT=4501 localproxy &
+       bg_pids+=("$!") 
+       until nc -z localhost 9299; do
+         echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9299/ ;
+         sleep 1 ;
+       done
+       TARGET_PORT=9299 LISTEN_PORT=9399 localproxy &
+       bg_pids+=("$!") 
+
+       while true ; do sleep 1000 ; done
+       '
+    networks:
+      dev:
+
+  clarinet-devnet:
+    # restart: unless-stopped
+    container_name: clarinet-devnet
+    privileged: true
+    tty: true
+    image: ${CLARINET_DEVNET_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:clarinet-latest}
+    # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
+    # build: NOT
+    env_file:
+      - .env
+    environment:
+      DOCKER_HOST: "unix:///run/user/1000/docker.sock"
+    volumes:
+      - /dev:/dev
+      - /lib/modules:/lib/modules
+      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
+      - clarinet_var_lib_docker:/home/devuser/.local/share/docker
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    command: |
+      bash -c '
+       set -eux
+
+       while true ; do sleep 1000 ; done
+      '
+    networks:
+      dev:
+  android-studio:
+    restart: unless-stopped
+    container_name: android-studio
+    cap_add:
+      - SYS_ADMIN
+    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:android-studio-latest}
+    env_file:
+      - .env
+    environment:
+      # DISPLAY_RESOLUTION: "2560x1600"
+      DISPLAY_RESOLUTION: "1920x1080"
+      CHROME_LOG_FILE: /tmp/chrome_debug.log
+      ANDROID_STUDIO_LOG_LEVEL: DEBUG
+    command: |
+      bash -c '
+
+      set -e
+
+      # List to hold background job PIDs
+      bg_pids=()
+
+      # Function to kill background jobs when script ends
+      kill_jobs() {
+         echo "Killing background jobs"
+         for pid in "$${bg_pids[@]}"; do
+             kill "$$pid"
+             wait "$$pid" 2>/dev/null
+         done
+      }
+
+      # Trap to call kill_jobs on script exit
+      trap kill_jobs EXIT
+
+      # Forward firebase-emulators to container as localhost
+      socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4501.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4401.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-firebase-emulators-9000.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:9099,fork,reuseaddr TCP:firebase-emulators:9099 > /tmp/socat-firebase-emulators-9099.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:5001,fork,reuseaddr TCP:firebase-emulators:5001 > /tmp/socat-firebase-emulators-5001.log 2>&1 &
+      bg_pids+=("$!")
+      socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-firebase-emulators-4000.log 2>&1 &
+      bg_pids+=("$!")
+
+      # access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
+      socat TCP-LISTEN:8080,fork,reuseaddr TCP:backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
+      bg_pids+=("$!")
+
+      while sleep 1000 ; do : ; done
+      '
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    privileged: true
+    volumes:
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+    devices:
+      - /dev/kvm
+    shm_size: "8gb"
+    group_add:
+      - render
+      - sgx
+    working_dir: ${PWD:-/workspaces/refactored-winner}
+    networks:
+      dev:

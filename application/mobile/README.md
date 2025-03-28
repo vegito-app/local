@@ -1,3 +1,28 @@
+# Wallet app
+
+A new Flutter project.
+
+```mermaid
+sequenceDiagram
+    participant Utilisateur
+    participant App (Mobile)
+    participant Backend (Firestore)
+    
+    Utilisateur->>App (Mobile): Connexion
+    App (Mobile)->>App (Mobile): Génère Private Key
+    App (Mobile)->>App (Mobile): Génère Recovery Key
+    App (Mobile)->>App (Mobile): XOR (Private Key, Recovery Key) → XorKey
+    App (Mobile)->>Backend (Firestore): Envoie XorKey (jamais Recovery Key)
+    App (Mobile)->>Utilisateur: Affiche Recovery Key et demande de la sauvegarder
+    Utilisateur-->>App (Mobile): Stocke Recovery Key manuellement
+
+    Note right of Backend (Firestore): Stocke seulement XorKey
+    
+    Utilisateur->>App (Mobile): Tentative de récupération
+    App (Mobile)->>Backend (Firestore): Récupère XorKey
+    Utilisateur->>App (Mobile): Fournit Recovery Key
+    App (Mobile)->>App (Mobile): XOR (XorKey, Recovery Key) → Private Key retrouvée 🎉
+```
 # car2go
 
 A new Flutter project.
