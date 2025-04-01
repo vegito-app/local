@@ -1,11 +1,14 @@
 ARG builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
 FROM ${builder_image}
+
 USER root
+
 RUN apt-get update && apt-get install -y \
     x11vnc \
     xvfb \
     xinit openbox xorg \
     xdg-utils \
+    menu-xdg \
     #Flutter
     clang \
     cmake \

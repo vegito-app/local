@@ -6,7 +6,7 @@ default_resolution=1440x900
 resolution=${DISPLAY_RESOLUTION:-$default_resolution}
 
 # Lancez xvfb en arrière-plan
-Xvfb ${DISPLAY} -nolisten tcp -cc 4 -screen 0, ${resolution}x24 &
+Xvfb ${DISPLAY} -nolisten tcp -ac -screen 0, ${resolution}x24 &
 
 # Boucle d'attente pour permettre à xvfb de démarrer
 until xdpyinfo -display ${DISPLAY} > /dev/null 2>&1; do 
@@ -14,6 +14,6 @@ until xdpyinfo -display ${DISPLAY} > /dev/null 2>&1; do
     sleep 1
 done
 
-x11vnc -display :1 -nopw -noxdamage -shared -forever -repeat -ncache 10 -ncache_cr &
+x11vnc -display ${DISPLAY} -nopw -noxdamage -shared -forever -repeat -ncache 10 -ncache_cr &
 
 openbox&

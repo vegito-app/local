@@ -5,18 +5,17 @@ set -eu
 LOCAL_ANDROID_STUDIO=${PWD}/.android-studio
 mkdir -p $LOCAL_ANDROID_STUDIO
 
-# # Android emulators cache
-# ANDROID_AVD=${HOME}/.android/avd
-# mkdir -p ${PWD}/android-studio/studio/avd
-# ln -sf ${PWD}/android-studio/studio/avd $ANDROID_AVD
-
 # # Android Studio config
 ANDROID_STUDIO_CONFIG=${HOME}/.config/Google
 mkdir -p $LOCAL_ANDROID_STUDIO/Google
 ln -s $LOCAL_ANDROID_STUDIO/Google $ANDROID_STUDIO_CONFIG
-
 # Drop lock eventually remaining after previous container run exit
 rm -f ${ANDROID_STUDIO_CONFIG}/AndroidStudio2024.1/.lock
+
+# # Android Studio config
+ANDROID_STUDIO_CACHE=${HOME}/.cache/Google
+mkdir -p $LOCAL_ANDROID_STUDIO/.cache/Google ${HOME}/.cache
+ln -s $LOCAL_ANDROID_STUDIO/.cache/Google $ANDROID_STUDIO_CACHE
 
 # # Android Studio config (local)
 ANDROID_STUDIO_LOCAL_SHARE_CONFIG=${HOME}/.local/share/Google
@@ -44,6 +43,7 @@ ANDROID_STUDIO_FLUTTER_CONFIG=${HOME}/.dart-tool
 rsync -av $ANDROID_STUDIO_FLUTTER_CONFIG $LOCAL_ANDROID_STUDIO
 rm -rf $ANDROID_STUDIO_FLUTTER_CONFIG
 ln -s $LOCAL_ANDROID_STUDIO/.dart-tool $ANDROID_STUDIO_FLUTTER_CONFIG
+
 # Android Studio Pub config
 ANDROID_STUDIO_PUB_CACHE_CONFIG=${HOME}/.pub-cache
 rsync -av $ANDROID_STUDIO_PUB_CACHE_CONFIG $LOCAL_ANDROID_STUDIO
