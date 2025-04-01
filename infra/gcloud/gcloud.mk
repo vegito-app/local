@@ -158,10 +158,6 @@ $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin):
 gcloud-storage-admins: $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin)
 .PHONY: gcloud-storage-admins
 
-gcloud-infra-auth-npm-install:
-	@cd infra/gcloud/auth && npm install
-.PHONY: gcloud-infra-auth-npm-install
-
 gcloud-apikeys-list:
 	@$(GCLOUD) alpha services api-keys list
 .PHONY: gcloud-apikeys-list

@@ -7,7 +7,7 @@ variable "LATEST_BUILDER_IMAGE" {
 }
 
 target "builder-ci" {
-  dockerfile = "dev/builder.Dockerfile"
+  dockerfile = "dev/Dockerfile"
   args = {
     docker_version = DOCKER_VERSION
   }
@@ -29,7 +29,7 @@ variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "builder" {
-  dockerfile = "dev/builder.Dockerfile"
+  dockerfile = "dev/Dockerfile"
   args = {
     docker_version = DOCKER_VERSION
   }
@@ -38,6 +38,7 @@ target "builder" {
     notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
+    LATEST_BUILDER_IMAGE,
     BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [

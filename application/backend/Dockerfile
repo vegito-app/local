@@ -1,12 +1,17 @@
 ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder
 FROM ${builder_image} AS build
 
-RUN mkdir ${HOME}/src
+ARG non_root_user=dev
+USER ${non_root_user}
+
+RUN mkdir -p ${HOME}/src/dev
+
 WORKDIR ${HOME}/src
 
 COPY Makefile .
-COPY go.mk .
-COPY nodejs.mk .
+COPY dev/dev.mk ./dev/dev.mk
+COPY dev/nodejs.mk ./dev/nodejs.mk
+COPY dev/go.mk ./dev/go.mk
 
 # frontend
 RUN mkdir -p application/frontend 
@@ -42,14 +47,9 @@ COPY application/backend/track application/backend/track
 COPY application/backend/main.go application/backend/
 
 COPY .git .git
-USER root
-RUN git config --global --add safe.directory ${HOME}/src
-
-ARG non_root_user=devuser
-
-USER ${non_root_user}
-
-RUN make application-backend-install 
+RUN \
+    git config --global --add safe.directory ${HOME}/src && \
+    make application-backend-install
 
 # artefacts
 
@@ -78,17 +78,16 @@ RUN make application-backend-install
 # FROM final-${TARGETARCH} AS final
 
 FROM scratch
-ARG builder_home=/home/devuser
+ARG builder_home=/home/dev
 # Actions supplémentaires à réaliser après la copie des bibliothèques
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /home/devuser/src/application/frontend/build/ /frontend/build
-COPY --from=build /home/devuser/src/application/frontend/public/ /frontend/public
-COPY --from=build /home/devuser/go/bin/backend /backend
+COPY --from=build ${builder_home}/src/application/frontend/build/ /frontend/build
+COPY --from=build ${builder_home}/src/application/frontend/public/ /frontend/public
+COPY --from=build ${builder_home}/go/bin/backend /backend
 
 ENV FRONTEND_BUILD_DIR=/frontend/build \
     FRONTEND_PUBLIC_DIR=/frontend/public \
     UI_JAVASCRIPT_SOURCE_FILE=/frontend/build/bundle.js
 
 ENTRYPOINT ["/backend"]
-EXPOSE 8080

@@ -6,14 +6,8 @@ endif
 
 export
 
--include go.mk
--include nodejs.mk
--include docker/docker.mk
--include infra/infra.mk 
--include android-studio/studio.mk
--include firebase/firebase.mk
 -include dev/dev.mk
--include clarinet/clarinet.mk
+-include infra/infra.mk 
 -include application/application.mk
 
 images: docker-images-local-arch

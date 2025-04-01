@@ -6,7 +6,6 @@ endif
 
 -include infra/gcloud/gcloud.mk
 -include infra/terraform.mk
--include infra/github/github.mk
 -include infra/environments/environments.mk
 
 infra-rotate: infra-dev infra-staging infra-production

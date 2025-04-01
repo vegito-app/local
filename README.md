@@ -46,14 +46,14 @@ $ make local-run
 
 More local Makefile targets are available to work on the project locally, see [dev/local.mk](dev/local.mk):
 
-    local-android-studio-docker-compose           local-builder-image                           firebase-emulators-functions-serve      local-github-runner-image-ci
-    local-android-studio-docker-compose-logs      firebase-emulators                      firebase-emulators-init                 local-github-runner-token-exist
+    local-android-studio-docker-compose           local-builder-image                           firebase-emulators-functions-serve      github-runner-image-ci
+    local-android-studio-docker-compose-logs      firebase-emulators                      firebase-emulators-init                 github-runner-token-exist
     local-android-studio-docker-compose-rm        firebase-emulators-docker-compose       firebase-emulators-install              local-install
     local-android-studio-docker-compose-sh        firebase-emulators-docker-compose-bash  firebase-emulators-prepare              local-builder-image-ci
     local-android-studio-docker-compose-stop      firebase-emulators-docker-compose-logs  firebase-emulators-start                local-run
-    local-android-studio-docker-compose-up        firebase-emulators-docker-compose-rm    local-github-runner-docker-compose-rm
-    local-android-studio-image                    firebase-emulators-docker-compose-stop  local-github-runner-docker-compose-up
-    local-android-studio-image-push               firebase-emulators-docker-compose-up    local-github-runner-image
+    local-android-studio-docker-compose-up        firebase-emulators-docker-compose-rm    github-runner-docker-compose-rm
+    local-android-studio-image                    firebase-emulators-docker-compose-stop  github-runner-docker-compose-up
+    local-android-studio-image-push               firebase-emulators-docker-compose-up    github-runner-image
 
 ## Infrastructure
 

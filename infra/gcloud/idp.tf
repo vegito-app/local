@@ -78,7 +78,7 @@ resource "google_identity_platform_config" "default" {
 data "archive_file" "auth_func_src" {
   type        = "zip"
   output_path = "/tmp/auth-function-source.zip"
-  source_dir  = "${path.module}/auth/"
+  source_dir  = "${path.module}/../../application/firebase/functions/auth/"
 }
 
 resource "google_storage_bucket_object" "auth" {

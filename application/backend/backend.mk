@@ -38,7 +38,7 @@ APPLICATION_BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
 
 # Handle buildx cache in local folder
 APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):backend-$(VERSION)
-APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/application/backend/.docker-buildx-cache
+APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/.docker-buildx-cache/application-backend
 $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
@@ -50,7 +50,11 @@ application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE
 	@$(DOCKER_BUILDX_BAKE) --load backend
 .PHONY: application-backend-image
 
-# 
+application-backend-image-ci: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+	@$(DOCKER_BUILDX_BAKE) --print backend-ci
+	@$(DOCKER_BUILDX_BAKE) --load backend-ci
+.PHONY: application-backend-image-ci
+
 application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 	@$(DOCKER_BUILDX_BAKE) --print backend
 	@$(DOCKER_BUILDX_BAKE) --push backend
@@ -76,7 +80,7 @@ application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE
 .PHONY: application-backend-docker-compose-run
 
 application-backend-docker-compose-up: application-backend-docker-compose-rm
-	@$(CURDIR)/application/backend/docker-start.sh &
+	@$(CURDIR)/application/backend/docker-compose-up.sh &
 	@until nc -z backend 8080 ; do \
 		sleep 1 ; \
 	done

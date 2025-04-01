@@ -32,6 +32,10 @@ workspaceFile=${PWD}/vscode.code-workspace
       "name": "Project"
     },
     {
+      "name": "Devcontainer",
+      "path": ".devcontainer"
+    },
+    {
       "name": "Documentation",
       "path": "docs",
     },
@@ -48,28 +52,16 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "application/frontend"
     },
     {
-      "name": "Androïd Studio",
-      "path": "android-studio"
+      "name": "Application - Auth",
+      "path": "application/firebase/functions/auth"
     },
     {
-      "name": "Firebase Emulators",
-      "path": "firebase/emulators"
+      "name": "Cloud - GCP",
+      "path": "infra/gcloud"
     },
     {
-      "name": "Dev - Builder",
-      "path": "dev"
-    },
-    {
-      "name": "Infrastructure",
+      "name": "Infrastrusture",
       "path": "infra"
-    },
-    {
-      "name": "auth-func-firebase-infra-nodejs",
-      "path": "infra/gcloud/auth"
-    },
-    {
-      "name": "Devcontainer",
-      "path": ".devcontainer"
     },
     {
       "name": "Infrastructure - Production",
@@ -84,12 +76,20 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "infra/environments/dev"
     },
     {
-      "name": "Cloud - GCP",
-      "path": "infra/gcloud"
+      "name": "Dev",
+      "path": "dev"
     },
     {
-      "name": "Clarinet/Devnet",
-      "path": "clarinet"
+      "name": "Dev - Androïd Studio",
+      "path": "dev/android-studio"
+    },
+    {
+      "name": "Dev - Firebase - Emulators",
+      "path": "dev/firebase-emulators"
+    },
+    {
+      "name": "Dev - Clarinet",
+      "path": "dev/clarinet"
     }
   ],
   "settings": {}
@@ -118,7 +118,7 @@ cat <<'EOF' > $backendLaunchDebug
                 "FRONTEND_PUBLIC_DIR": "../frontend/public",
                 "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
             },
-            "envFile": "${workspaceFolder}/../../local/.env",
+            "envFile": "${workspaceFolder}/../../dev/.env",
         }
     ]
 }

@@ -1,3 +1,7 @@
+-include dev/docker/docker.mk
+-include dev/go.mk
+-include dev/nodejs.mk
+
 LATEST_BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-latest
 
 DOCKER_COMPOSE = docker compose -f $(CURDIR)/dev/docker-compose.yml
@@ -5,11 +9,11 @@ DOCKER_COMPOSE = docker compose -f $(CURDIR)/dev/docker-compose.yml
 dev-install: application-frontend-build application-frontend-bundle backend-install 
 .PHONY: install
 
-dev-run: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)
+dev-local: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)
 	@$(APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: run
+.PHONY: dev-local
 
-BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/dev/.docker-buildx-cache/builder
+BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/.docker-buildx-cache/dev-builder
 $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
@@ -42,3 +46,8 @@ dev-logs:
 dev-logsf:
 	@$(DOCKER_COMPOSE) logs -f dev
 .PHONY: dev-logsf
+
+-include dev/android-studio/android-studio.mk
+-include dev/clarinet/clarinet.mk
+-include dev/github/github.mk
+-include dev/firebase-emulators/firebase-emulators.mk
