@@ -4,6 +4,11 @@ variable "admin_user_roles" {
     "apikeys_admin" : "roles/serviceusage.apiKeysAdmin"
     "artifactregistry_admin" : "roles/artifactregistry.admin",
     "cloudfunction_admin" : "roles/cloudfunctions.admin",
+    "cloud_kms_admin" : "roles/cloudkms.admin",
+
+    "container_cluster_admin" : "roles/container.clusterAdmin",
+    "container_cluster_admin" : "roles/container.admin",
+
     "datastore_owner" : "roles/datastore.owner",
     "firebasedatabase_admin" : "roles/firebasedatabase.admin",
     "firebasedatabase_viewer" : "roles/firebasedatabase.viewer",
@@ -25,3 +30,24 @@ resource "google_project_iam_binding" "admin_user_roles" {
   role     = each.value
   members  = var.admins
 }
+
+resource "google_project_iam_custom_role" "k8s_rbac_role" {
+  role_id     = "k8sRBACAdmin"
+  project     = var.project_id
+  title       = "Kubernetes RBAC Admin Role"
+  description = "Role for managing Kubernetes RBAC resources in GKE"
+  permissions = [
+    "container.clusterRoles.create",
+    "container.clusterRoleBindings.create",
+    "container.roles.create",
+    "container.roleBindings.create"
+  ]
+}
+
+resource "google_project_iam_binding" "k8s_rbac_admin_user_roles" {
+  project = var.project_id
+  role    = google_project_iam_custom_role.k8s_rbac_role.name
+  members = var.admins
+}
+
+

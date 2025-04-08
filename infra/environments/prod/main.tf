@@ -10,6 +10,13 @@ module "cdn" {
   region     = var.region
 }
 
+module "vault" {
+  source = "../../vault"
+
+  project_id = var.project_id
+  region     = var.region
+}
+
 module "gcloud" {
   source      = "../../gcloud"
   environment = local.environment
@@ -48,6 +55,8 @@ resource "google_project_service" "google_services_default" {
     "iam.googleapis.com",
     "secretmanager.googleapis.com",
     "serviceusage.googleapis.com",
+    "container.googleapis.com",
+    "cloudkms.googleapis.com",
   ])
   service = each.key
 
