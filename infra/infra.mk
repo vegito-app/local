@@ -5,6 +5,7 @@ INFRA_ENV = dev
 endif
 
 -include infra/gcloud/gcloud.mk
+-include infra/vault/vault.mk
 -include infra/terraform.mk
 -include infra/environments/environments.mk
 

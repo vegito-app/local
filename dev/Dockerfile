@@ -5,7 +5,7 @@ COPY dev/proxy proxy
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-FROM debian:bookworm
+FROM debian:bookworm-stable
 
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy 
 
@@ -59,13 +59,35 @@ ARG TARGETPLATFORM
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
-    && apt-get update -y && apt-get install google-cloud-sdk -y
+    && apt-get update && apt-get install -y \
+    google-cloud-cli-gke-gcloud-auth-plugin \
+    google-cloud-sdk \
+    && rm -rf /var/lib/apt/lists/* 
 
 # Terraform
-ENV TERRAFORM_VERSION=1.11.2
-RUN curl -OL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
-    && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+ARG terraform_version=1.11.2
+RUN curl -OL https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
+    && unzip terraform_${terraform_version}_linux_amd64.zip -d /usr/local/bin/ \
+    && rm terraform_${terraform_version}_linux_amd64.zip
+
+# kubectl
+ARG kubectl_version=1.32
+RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null \
+    && curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null \
+    && chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
+    && chmod 644 /etc/apt/sources.list.d/kubernetes.list \
+    && apt-get update \
+    && apt-get install -y kubectl \
+    && rm -rf /var/lib/apt/lists/* 
+
+# helm
+RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list > /dev/null \
+    && apt-get update \
+    && apt-get install helm \ 
+    && rm -rf /var/lib/apt/lists/* \
+    && helm repo add hashicorp https://helm.releases.hashicorp.com \
+    && helm repo update 
 
 ARG go_version=1.24.1
 RUN case "$TARGETPLATFORM" in \
@@ -193,13 +215,34 @@ RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_use
     && chown -R ${non_root_user}:${non_root_user} ${HOME}
 
 ENV HOME=/home/${non_root_user}
+
 WORKDIR ${HOME}
 
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh
-
 USER ${non_root_user}
+
+# ARG kubectl_version=1.32
+# RUN bash -c ' \
+#     # kubectl
+#     set -eux; \
+#     echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list > /dev/null ; \
+#     curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null ; \
+#     sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg ; \
+#     sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list ; \
+#     sudo apt-get update ; \
+#     sudo apt-get install -y kubectl ; \
+#     # helm
+#     curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null ; \
+#     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list > /dev/null ; \
+#     sudo apt-get update ; \
+#     sudo apt-get install helm ; \ 
+#     sudo rm -rf /var/lib/apt/lists/* ; \
+#     rm -rf /var/lib/apt/lists/* ; \
+#     helm repo add hashicorp https://helm.releases.hashicorp.com ; \
+#     helm repo update ; \
+#     '
+
 
 COPY dev/docker-entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
-

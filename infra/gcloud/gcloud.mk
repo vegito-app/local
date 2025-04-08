@@ -189,6 +189,7 @@ GCLOUD_SERVICE_ACCOUNTS = \
   david-berichon-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
   production-application-backend@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
   github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+  vault-sa@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
   root-admin@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-bindings-roles):

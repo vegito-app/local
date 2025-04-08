@@ -14,7 +14,7 @@ RUN wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarin
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
 
-FROM debian:bookworm
+FROM debian:bookworm-stable
 
 COPY --from=project-builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/
