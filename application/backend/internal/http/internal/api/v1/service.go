@@ -1,10 +1,8 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
-
-	secretmanager "cloud.google.com/go/secretmanager/apiv1"
-	"github.com/rs/zerolog/log"
 )
 
 // // Runner is the underlying data processing layer of Service.
@@ -20,14 +18,15 @@ import (
 // Service defines all routes handled by Service
 type Service struct {
 	// runner Runner
+	vault Vault
 }
 
 type Vault interface {
-	StorUserRecoveryXorKey()
+	StorUserRecoveryXorKey(xorKey []byte) error
 }
 
-func NewService() *Service {
-	s := &Service{}
+func NewService(vault Vault) *Service {
+	s := &Service{vault: vault}
 	return s
 }
 
@@ -41,40 +40,27 @@ func (s *Service) Status(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+type StoreRecoveryXorKeyRequestBody struct {
+	UserID string `json:"userId"`
+	XorKey []byte `json:"xorKey"`
+}
+
 func (s *Service) StoreUserRecoveryXorKey(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	client, err := secretmanager.NewClient(ctx)
-	if err != nil {
-		log.Error().Err(err).Msg("new firebase config secretmanager client")
+	_ = r.Context()
+
+	var reqBody StoreRecoveryXorKeyRequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, `{"error":"invalid request body"}`, http.StatusBadRequest)
 		return
 	}
-	defer func() {
-		err = client.Close()
-		if err != nil {
-			log.Error().Err(err).Msg("new firebase secretmanager client")
-			return
-		}
-	}()
 
-	// firebaseConfigSecretID := config.GetString(firebaseSecretSecretIDConfig)
-	// firebaseConfigSecretVersionRequest := &secretmanagerpb.AccessSecretVersionRequest{
-	// 	Name: firebaseConfigSecretID,
-	// }
-	// firebaseConfigSecretVersion, err := client.AccessSecretVersion(ctx, firebaseConfigSecretVersionRequest)
-	// if err != nil {
-	// 	log.Error().Err(err).Msg("firebase secret version access")
-	// 	return
-	// }
-	// firebaseConfigSecret := firebaseConfigSecretVersion.GetPayload()
-	// if firebaseConfigSecret == nil {
-	// 	log.Error().Err(err).Msg("firebase config get payload from secret version")
-	// 	return
-	// }
-	// firebaseConfigJSON := firebaseConfigSecret.Data
-	// _, err = w.Write(firebaseConfigJSON)
-	// if err != nil {
-	// 	log.Error().Err(err).Msg("write firebase decoded secret JSON returned payload")
-	// 	return
-	// }
+	if err := s.vault.StorUserRecoveryXorKey(reqBody.XorKey); err != nil {
+		http.Error(w, `{"error":"failed to store xorKey in vault"}`, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"xorKey stored successfully"}`))
 }

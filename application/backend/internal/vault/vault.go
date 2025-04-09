@@ -41,6 +41,19 @@ func NewVaultClient() (*Client, error) {
 	return c, nil
 }
 
-func StoreUserRecoveryXorKey() {
+func StoreUserRecoveryXorKey(xorKey []byte) error {
+	client, err := NewVaultClient()
+	if err != nil {
+		return err
+	}
 
+	data := map[string]interface{}{
+		"xorKey": xorKey,
+	}
+
+	_, err = client.apiClient.Logical().Write("secret/data/xorkey", map[string]interface{}{
+		"data": data,
+	})
+
+	return err
 }
