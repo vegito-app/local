@@ -3,6 +3,8 @@ package v1
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 // // Runner is the underlying data processing layer of Service.
@@ -22,7 +24,7 @@ type Service struct {
 }
 
 type Vault interface {
-	StorUserRecoveryXorKey(xorKey []byte) error
+	StoreUserRecoveryXorKey(xorKey []byte) error
 }
 
 func NewService(vault Vault) *Service {
@@ -55,8 +57,9 @@ func (s *Service) StoreUserRecoveryXorKey(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := s.vault.StorUserRecoveryXorKey(reqBody.XorKey); err != nil {
-		http.Error(w, `{"error":"failed to store xorKey in vault"}`, http.StatusInternalServerError)
+	if err := s.vault.StoreUserRecoveryXorKey(reqBody.XorKey); err != nil {
+		http.Error(w, `{"error":"failed to store UserRecoveryXorKey in vault"}`, http.StatusInternalServerError)
+		log.Error().Err(err).Msg("failed to store UserRecoveryXorKey in vault")
 		return
 	}
 

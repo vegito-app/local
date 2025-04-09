@@ -1,21 +1,18 @@
 package vault
 
 import (
-	"net"
-
+	"fmt"
 	"github.com/hashicorp/vault/api"
 	"github.com/spf13/viper"
 )
 
 var config viper.Viper
 
-const hostConfig = "host"
-const portConfig = "port"
+const addrConfig = "addr"
 
 func init() {
 	config.AutomaticEnv()
-	config.SetDefault(hostConfig, "vault")
-	config.SetDefault(portConfig, "8200")
+	config.SetDefault(addrConfig, "http://vault:8200")
 }
 
 type Client struct {
@@ -25,15 +22,12 @@ type Client struct {
 func NewVaultClient() (*Client, error) {
 	vaultAPIconfig := api.DefaultConfig()
 
-	host := config.GetString(hostConfig)
-	port := config.GetString(portConfig)
+	vaultAPIaddr := config.GetString(addrConfig)
+	vaultAPIconfig.Address = vaultAPIaddr
 
-	addr := net.JoinHostPort(host, port)
-
-	vaultAPIconfig.Address = "http://" + addr
 	client, err := api.NewClient(vaultAPIconfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create Vault client: %w", err)
 	}
 	c := &Client{
 		apiClient: client,
@@ -44,7 +38,7 @@ func NewVaultClient() (*Client, error) {
 func StoreUserRecoveryXorKey(xorKey []byte) error {
 	client, err := NewVaultClient()
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to initialize Vault client: %w", err)
 	}
 
 	data := map[string]interface{}{
@@ -55,5 +49,8 @@ func StoreUserRecoveryXorKey(xorKey []byte) error {
 		"data": data,
 	})
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to write xorKey to Vault: %w", err)
+	}
+	return nil
 }
