@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'
+    show FlutterSecureStorage;
+import 'package:http/http.dart' as http show get, post;
 
 import 'config.dart';
 
@@ -17,16 +17,16 @@ String generatePrivateKey() {
 }
 
 // XOR entre deux clés
-String xorKeys(String privateKey, String xorKey) {
+String xorKeys(String privateKey, String recoveryKey) {
   List<int> privateKeyBytes = base64Decode(privateKey);
-  List<int> xorKeyBytes = base64Decode(xorKey);
-  List<int> recoveryKeyBytes =
-      List.generate(32, (i) => privateKeyBytes[i] ^ xorKeyBytes[i]);
-  return base64Encode(recoveryKeyBytes);
+  List<int> recoveryKeyBytes = base64Decode(recoveryKey);
+  List<int> recoveryXorKeyBytes =
+      List.generate(32, (i) => privateKeyBytes[i] ^ recoveryKeyBytes[i]);
+  return base64Encode(recoveryXorKeyBytes);
 }
 
-// Fonction pour récupérer la xorkey depuis le backend
-Future<String> fetchXorKey(String userId) async {
+// Fonction pour récupérer la recoveryKey depuis le backend
+Future<String> fetchRecoveryKeyXorComponent(String userId) async {
   final response = await http.get(
     Uri.parse("${Config.backendUrl}/generate-xorkey"),
     headers: {"X-User-ID": userId},
@@ -34,20 +34,19 @@ Future<String> fetchXorKey(String userId) async {
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
-    String? xKey = data['xorkey'] as String?;
-    if (xKey != null) {
-      return xKey;
+    String? rKey = data['recoveryKey'] as String?;
+    if (rKey != null) {
+      return rKey;
     }
-    throw Exception("xorkey manquante dans la réponse du backend");
+    throw Exception("recoveryKey manquante dans la réponse du backend");
   } else {
-    throw Exception("Impossible de récupérer la xorkey");
+    throw Exception("Impossible de récupérer la recoveryKey");
   }
 }
 
 class WalletService {
   static const _storage = FlutterSecureStorage();
   static const _privateKeyKey = 'private_key';
-  static const _xorKeyKey = 'xor_key';
   static const _recoveryKeyKey = 'recovery_key';
 
   // Génération d'une clé aléatoire
@@ -86,31 +85,34 @@ class WalletService {
     return privateKey; // Toujours retourner la clé privée existante ou nouvellement créée
   }
 
-  // Mise en place de la clé de récupération et XorKey
+  // Mise en place de la clé de récupération et recoveryKey
   static Future<String> _setupRecovery(String privateKey) async {
     final recoveryKey = _generateRandomKey();
-    final xorKey = _xor(privateKey, recoveryKey);
+    final xorKey = _recoveryKeyXor(privateKey, recoveryKey);
 
     // Stocker recoveryKey en local
     await _storage.write(key: _recoveryKeyKey, value: recoveryKey);
 
-    // Envoyer xorKey au backend pour stockage sécurisé
+    // Envoyer recoveryKey au backend pour stockage sécurisé
     final response = await http.post(
       Uri.parse("${Config.backendUrl}/store-xorkey"),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode(
-          {"userId": FirebaseAuth.instance.currentUser?.uid, "xorKey": xorKey}),
+      body: jsonEncode({
+        "userId": FirebaseAuth.instance.currentUser?.uid,
+        "recoveryKey": xorKey
+      }),
     );
 
     if (response.statusCode == 200) {
-      return "XorKey stockée avec succès dans le backend.";
+      return "RecoveryKey stockée avec succès dans le backend.";
     } else {
-      throw Exception("Échec de l'enregistrement de la XorKey sur le serveur.");
+      throw Exception(
+          "Échec de l'enregistrement de la RecoveryKey sur le serveur.");
     }
   }
 
   // Fonction de chiffrement XOR
-  static String _xor(String data, String key) {
+  static String _recoveryKeyXor(String data, String key) {
     List<int> dataBytes = base64Decode(data);
     List<int> keyBytes = base64Decode(key);
     List<int> result = List.generate(
@@ -130,5 +132,16 @@ class WalletService {
       return await _setupRecovery(privateKey);
     }
     return "Échec de la rotation des clés.";
+  }
+
+  // Ajout des nouvelles fonctions
+  static Future<void> storeRecoveryKeyWithRotation(
+      String userId, String newKey) async {
+    // Logique pour décaler les anciennes versions et stocker newKey
+  }
+
+  static Future<String?> getRecoveryKeyVersion(
+      String userId, int version) async {
+    // Logique pour lire une version spécifique de recoveryKey
   }
 }

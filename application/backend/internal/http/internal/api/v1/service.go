@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -24,7 +25,9 @@ type Service struct {
 }
 
 type Vault interface {
-	StoreUserRecoveryXorKey(xorKey []byte) error
+	StoreUserRecoveryKey(userID string, xorKey []byte) error
+	RetrieveUserRecoveryKey(userID string) ([]byte, error)
+	RotateUserRecoveryKey(userID string, xorKey []byte) error
 }
 
 func NewService(vault Vault) *Service {
@@ -47,7 +50,10 @@ type StoreRecoveryXorKeyRequestBody struct {
 	XorKey []byte `json:"xorKey"`
 }
 
-func (s *Service) StoreUserRecoveryXorKey(w http.ResponseWriter, r *http.Request) {
+func (s *Service) RetrieveUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
+}
+
+func (s *Service) StoreUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
 	_ = r.Context()
 
 	var reqBody StoreRecoveryXorKeyRequestBody
@@ -57,7 +63,7 @@ func (s *Service) StoreUserRecoveryXorKey(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := s.vault.StoreUserRecoveryXorKey(reqBody.XorKey); err != nil {
+	if err := s.vault.StoreUserRecoveryKey(reqBody.UserID, reqBody.XorKey); err != nil {
 		http.Error(w, `{"error":"failed to store UserRecoveryXorKey in vault"}`, http.StatusInternalServerError)
 		log.Error().Err(err).Msg("failed to store UserRecoveryXorKey in vault")
 		return
@@ -66,4 +72,21 @@ func (s *Service) StoreUserRecoveryXorKey(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"xorKey stored successfully"}`))
+}
+
+func (s *Service) StoreUserRecoveryKeyWithRotation(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		UserID      string `json:"userId"`
+		RecoveryKey string `json:"recoveryKey"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error":"invalid JSON body"}`, http.StatusBadRequest)
+		return
+	}
+	if err := s.vault.StoreUserRecoveryKey(req.UserID, []byte(req.RecoveryKey)); err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"status":"rotated"}`))
 }

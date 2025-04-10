@@ -48,13 +48,15 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 // StartAPI creates a new instance of apiv1.Service.
-func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC) error {
+func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC, vault apiv1.Vault) error {
 	frontendDir := config.GetString(uiBuildDirConfig)
 	port := config.GetString(portConfig)
 	mux := http.NewServeMux()
-	serviceV1 := apiv1.NewService()
+	serviceV1 := apiv1.NewService(vault)
 	mux.HandleFunc("POST /run", serviceV1.Run)
-	mux.HandleFunc("POST /store-xorkey", serviceV1.StoreUserRecoveryXorKey)
+	mux.HandleFunc("GET /user/store-recoverykey", serviceV1.RetrieveUserRecoveryKey)
+	mux.HandleFunc("POST /user/store-recoverykey", serviceV1.StoreUserRecoveryKey)
+	mux.HandleFunc("POST /user/rotate-recoverykey", serviceV1.StoreUserRecoveryKeyWithRotation)
 	uiServe, err := ui.NewUI(frontendDir)
 	if err != nil {
 		return fmt.Errorf("http start api, server side ui render: %w", err)
