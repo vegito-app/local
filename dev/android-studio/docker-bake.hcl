@@ -15,9 +15,6 @@ variable "ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "android-studio-ci" {
-  args = {
-    builder_image = LATEST_BUILDER_IMAGE
-  }
   context    = "dev/android-studio"
   dockerfile = "Dockerfile"
   tags = [
@@ -25,7 +22,6 @@ target "android-studio-ci" {
     ANDROID_STUDIO_IMAGE_TAG,
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
     LATEST_ANDROID_STUDIO_IMAGE
   ]
   cache-to  = ["type=inline"]
@@ -33,9 +29,6 @@ target "android-studio-ci" {
 }
 
 target "android-studio" {
-  args = {
-    builder_image = LATEST_BUILDER_IMAGE
-  }
   context    = "dev/android-studio"
   dockerfile = "Dockerfile"
   tags = [
@@ -44,7 +37,6 @@ target "android-studio" {
   ]
   cache-from = [
     ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
     ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE

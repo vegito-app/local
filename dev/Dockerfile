@@ -103,7 +103,7 @@ RUN case "$TARGETPLATFORM" in \
 ENV CGO_ENABLED=1
 ENV PATH=${PATH}:/usr/local/go/bin
 
-ARG docker_version
+ARG docker_version=28.0.2
 ARG docker_compose_version=2.34.0
 ARG docker_buildx_version=0.22.0
 RUN \

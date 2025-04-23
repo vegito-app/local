@@ -2,7 +2,7 @@
 
 set -eu
 
-LOCAL_ANDROID_STUDIO=${PWD}/.android-studio
+LOCAL_ANDROID_STUDIO=${PWD}/dev/.containers/android-studio
 mkdir -p $LOCAL_ANDROID_STUDIO
 
 # # Android Studio config

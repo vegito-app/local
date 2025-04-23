@@ -1,4 +1,4 @@
-FROM debian:bookworm-stable
+FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     htop \
     make \
     rsync \
+    socat \
     sudo \
     unzip \
     wget \
@@ -101,7 +102,7 @@ ENV DISPLAY=":1"
 COPY display-start.sh /usr/local/bin/
 
 COPY docker-caches-refresh.sh /usr/local/bin/studio-caches-refresh.sh
-COPY docker-entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
 
 ENTRYPOINT [ "android-studio-entrypoint.sh" ]
 CMD ["studio"]
