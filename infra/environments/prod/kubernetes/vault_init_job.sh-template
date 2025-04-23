@@ -1,0 +1,104 @@
+#!/bin/sh
+
+set -eu
+
+apk update && apk add curl jq
+
+echo "🔄 Preparing Vault initialization..."
+
+echo "⏳ Waiting for Vault service to be reachable..."
+while ! nc -z $VAULT_HOST $VAULT_PORT ; do
+  echo "⌛ Still waiting on Vault TCP port..."
+  sleep 2
+done
+
+echo "🌐 Waiting for Vault HTTP API to respond..."
+until curl --silent "$VAULT_ADDR/v1/sys/health" | jq -e '.sealed == true' > /dev/null; do
+  echo "⌛ Vault API still unavailable..."
+  sleep 2
+done
+
+echo "✅ Vault service is up."
+
+if vault status -format=json | jq -e '.initialized' | grep -q 'true'; then
+  echo "✅ Vault is already initialized. Exiting."
+  exit 0
+fi
+
+echo "🚀 Vault is ready, proceeding with initialization..."
+
+vault operator init -format=json > vault-init.json
+
+export VAULT_TOKEN=$(cat vault-init.json | jq -r '.root_token')
+
+echo "📝 Enabling file audit log..."
+if ! vault audit list -format=json | jq -e '."file/"' > /dev/null; then
+  vault audit enable file file_path=/vault/audit/vault_audit.log
+fi
+
+echo "🔐 Writing base policies..."
+vault policy write admin - <<EOF
+path "*" {
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+EOF
+
+vault policy write default - <<EOF
+path "secret/data/default/*" {
+  capabilities = ["read"]
+}
+EOF
+
+vault policy write gcp - <<EOF
+path "auth/gcp/role/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+path "auth/gcp/config" {
+  capabilities = ["create", "read", "update"]
+}
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+EOF
+
+vault policy write vault-user-gcp - <<EOF
+path "secret/data/*" {
+  capabilities = ["read", "list"]
+}
+path "auth/gcp/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+EOF
+
+echo "🔐 Enabling GCP auth method if needed..."
+if ! vault auth list -format=json | jq -e '."gcp/"' > /dev/null; then
+  vault auth enable gcp
+fi
+
+echo "🔐 Creating Vault roles for GCP IAM identities..."
+if ! vault read -format=json auth/gcp/role/vault-user > /dev/null 2>&1; then
+  vault write auth/gcp/role/vault-user \
+    type="iam" \
+    policies="vault-user-gcp" \
+    bound_service_accounts="${vault_service_account}" \
+    bound_projects="${project_id}"
+fi
+
+if ! vault read -format=json auth/gcp/role/vault-admin > /dev/null 2>&1; then
+  vault write auth/gcp/role/vault-admin \
+    type="iam" \
+    policies="admin" \
+    bound_service_accounts="\
+    root-admin@${project_id}.iam.gserviceaccount.com, \
+    david-berichon-prod@${project_id}.iam.gserviceaccount.com, \
+    " \
+    bound_projects="${project_id}"
+fi
+
+echo "🧹 Revoking root token for safety..."
+vault token revoke $VAULT_TOKEN
+
+echo "✅ Vault initialization complete!"
