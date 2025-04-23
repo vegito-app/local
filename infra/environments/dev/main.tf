@@ -22,6 +22,7 @@ module "gcloud" {
 data "google_project" "project" {
   project_id = var.project_id
 }
+
 # Enables required APIs.
 resource "google_project_service" "google_services_default" {
   provider = google-beta.no_user_project_override
