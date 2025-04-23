@@ -35,12 +35,9 @@ variable "default_roles_per_environment" {
 # generated service accounts IDs from each <developer> value:
 # * Production
 #   - serviceAccount:<developer>-prod@moov-438615.iam.gserviceaccount.com
-#   - serviceAccount:<developer>-prod@moov-438615.iam.gserviceaccount.com
 # * Staging
 #   - serviceAccount:<developer>-staging@moov-staging-440506.iam.gserviceaccount.com
-#   - serviceAccount:<developer>-staging@moov-staging-440506.iam.gserviceaccount.com
 # * Staging
-#   - serviceAccount:<developer>-dev@moov-dev-439608.iam.gserviceaccount.com
 #   - serviceAccount:<developer>-dev@moov-dev-439608.iam.gserviceaccount.com
 variable "developers" {
   type = map(string)
@@ -224,7 +221,7 @@ resource "google_secret_manager_secret" "developer_maps_api_secret" {
 resource "google_secret_manager_secret_version" "developer_maps_api_secret_version" {
   for_each = var.developers
   secret   = google_secret_manager_secret.developer_maps_api_secret[each.key].id
-  secret_data = jsonencode({
+  secret_data_wo = jsonencode({
     apiKey = google_apikeys_key.developer_google_maps_api_key[each.key].key_string
   })
 }

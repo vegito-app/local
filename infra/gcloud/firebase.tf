@@ -1,4 +1,3 @@
-# Learn more about the relationship between Firebase projects and Google Cloud: https://firebase.google.com/docs/projects/learn-more?authuser=0&hl=fr#firebase-cloud-relationship.
 resource "google_firebase_project" "default" {
   provider = google-beta
   # Use the provider that performs quota checks from now on
@@ -200,8 +199,8 @@ resource "google_service_account_key" "firebase_admin_service_account_key" {
 }
 
 resource "google_secret_manager_secret_version" "firebase_adminsdk_secret_version" {
-  secret      = google_secret_manager_secret.firebase_admin_service_account_secret.id
-  secret_data = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
+  secret         = google_secret_manager_secret.firebase_admin_service_account_secret.id
+  secret_data_wo = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
 }
 
 resource "google_secret_manager_secret_iam_member" "firebase_admin_service_account_secret_member" {
@@ -222,7 +221,7 @@ resource "google_secret_manager_secret" "firebase_config_web" {
 
 resource "google_secret_manager_secret_version" "firebase_config_web_version" {
   secret = google_secret_manager_secret.firebase_config_web.id
-  secret_data = jsonencode({
+  secret_data_wo = jsonencode({
     apiKey            = data.google_firebase_web_app_config.web_app_config.api_key
     authDomain        = data.google_firebase_web_app_config.web_app_config.auth_domain
     databaseURL       = data.google_firebase_web_app_config.web_app_config.database_url
@@ -232,4 +231,3 @@ resource "google_secret_manager_secret_version" "firebase_config_web_version" {
     appId             = google_firebase_web_app.web_app.app_id
   })
 }
-

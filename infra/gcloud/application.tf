@@ -33,6 +33,14 @@ resource "google_cloud_run_service" "application_backend" {
           value = google_firebase_project.default.id
         }
         env {
+          name  = "VAULT_ADDR"
+          value = "http://vault.vault.svc.cluster.local:8200"
+        }
+        env {
+          name  = "VAULT_TRANSIT_KEY_NAME"
+          value = "recovery"
+        }
+        env {
           name  = "FIREBASE_ADMINSDK_SERVICEACCOUNT_ID"
           value = google_secret_manager_secret_version.firebase_adminsdk_secret_version.id
         }
@@ -98,4 +106,10 @@ resource "google_secret_manager_secret_iam_member" "application_backend_firebase
   secret_id = google_secret_manager_secret_version.firebase_adminsdk_secret_version.secret
   member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
   role      = "roles/secretmanager.secretAccessor"
+}
+
+resource "google_project_iam_member" "application_backend_vault_access" {
+  project = var.project_id
+  role    = "roles/iam.workloadIdentityUser"
+  member  = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
 }
