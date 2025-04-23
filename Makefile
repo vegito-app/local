@@ -8,6 +8,7 @@ export
 
 -include dev/dev.mk
 -include infra/infra.mk 
+-include vault/vault.mk 
 -include application/application.mk
 
 images: docker-images-local-arch
@@ -28,5 +29,5 @@ clarinet-devnet: clarinet-devnet-docker-compose-up
 application-backend: application-backend-docker-compose-up
 .PHONY: application-backend
 
-dev: firebase-emulators android-studio application-backend clarinet-devnet
+dev: firebase-emulators android-studio application-backend clarinet-devnet vault-dev
 .PHONY: dev

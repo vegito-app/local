@@ -90,6 +90,14 @@
             "label": "VNC - Androïd Studio X server",
             "onAutoForward": "silent"
           },
+          "8200": {
+            "label": "Vault API",
+            "onAutoForward": "silent"
+          },
+          "8201": {
+            "label": "Vault Cluster",
+            "onAutoForward": "silent"
+          },
           "8090": {
             "label": "Firebase Firestore",
             "onAutoForward": "silent"
@@ -144,7 +152,6 @@
         "hashicorp.terraform",
         "huang-an-sheng.firebase-web-app-snippets",
         "jsayol.firebase-explorer",
-        "mauve.terraform",
         "ms-azuretools.vscode-docker",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
         "msjsdiag.vscode-react-native",
@@ -153,6 +160,7 @@
         "redhat.vscode-yaml",
         "standard.vscode-standard",
         "toba.vsfire",
+        "tylerharris.terraform-link-docs",
         // "Dart-Code.flutter",
         "alexisvt.flutter-snippets",
         "Nash.awesome-flutter-snippets",
