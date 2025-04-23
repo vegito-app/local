@@ -47,6 +47,7 @@ group "services-load-local-arch" {
     "clarinet",
     "firebase-emulators",
     "github-action-runner",
+    "vault-dev",
   ]
 }
 
@@ -57,5 +58,6 @@ group "services-push-multi-arch" {
     "clarinet-ci",
     "firebase-emulators-ci",
     "github-action-runner-ci",
+    "vault-dev-ci",
   ]
 }

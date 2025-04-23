@@ -5,7 +5,7 @@ COPY dev/proxy proxy
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-FROM debian:bookworm-stable
+FROM debian:bookworm
 
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy 
 
@@ -100,8 +100,8 @@ RUN case "$TARGETPLATFORM" in \
     esac \
     && curl -o- https://dl.google.com/go/${archive} | tar xz -C /usr/local --
 
-ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
 ENV CGO_ENABLED=1
+ENV PATH=${PATH}:/usr/local/go/bin
 
 ARG docker_version
 ARG docker_compose_version=2.34.0
@@ -182,6 +182,20 @@ RUN \
     docker-compose --version; \
     docker compose version
 
+ARG non_root_user=dev
+
+RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user} \
+    \
+    && chown -R ${non_root_user}:${non_root_user} ${HOME}
+
+ENV HOME=/home/${non_root_user}
+
+WORKDIR ${HOME}
+
+ENV PATH=${PATH}:${HOME}/go/bin
+
 ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version=0.40.1
@@ -206,43 +220,9 @@ RUN set -x; \
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-ARG non_root_user=dev
-
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
-
-ENV HOME=/home/${non_root_user}
-
-WORKDIR ${HOME}
-
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
-# ARG kubectl_version=1.32
-# RUN bash -c ' \
-#     # kubectl
-#     set -eux; \
-#     echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list > /dev/null ; \
-#     curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null ; \
-#     sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg ; \
-#     sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list ; \
-#     sudo apt-get update ; \
-#     sudo apt-get install -y kubectl ; \
-#     # helm
-#     curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null ; \
-#     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list > /dev/null ; \
-#     sudo apt-get update ; \
-#     sudo apt-get install helm ; \ 
-#     sudo rm -rf /var/lib/apt/lists/* ; \
-#     rm -rf /var/lib/apt/lists/* ; \
-#     helm repo add hashicorp https://helm.releases.hashicorp.com ; \
-#     helm repo update ; \
-#     '
-
-
-COPY dev/docker-entrypoint.sh /usr/local/bin/dev-entrypoint.sh
+COPY dev/entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

@@ -8,9 +8,6 @@ variable "LATEST_BUILDER_IMAGE" {
 
 target "builder-ci" {
   dockerfile = "dev/Dockerfile"
-  args = {
-    docker_version = DOCKER_VERSION
-  }
   tags = [
     LATEST_BUILDER_IMAGE,
     notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
@@ -30,9 +27,6 @@ variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "builder" {
   dockerfile = "dev/Dockerfile"
-  args = {
-    docker_version = DOCKER_VERSION
-  }
   tags = [
     LATEST_BUILDER_IMAGE,
     notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
