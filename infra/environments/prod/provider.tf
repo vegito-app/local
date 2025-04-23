@@ -1,13 +1,12 @@
-# Terraform configuration to set up providers by version.
 terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 6.17.0"
+      version = "~> 6.30.0"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 6.17.0"
+      version = "~> 6.30.0"
     }
   }
   backend "gcs" {
@@ -29,3 +28,4 @@ provider "google-beta" {
   alias                 = "no_user_project_override"
   user_project_override = true
 }
+

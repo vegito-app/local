@@ -40,3 +40,31 @@ variable "google_idp_oauth_client_id_secret_id" {
   description = "google.com IDP oauth client ID cloud secret"
   type        = string
 }
+
+variable "vault_version" {
+  description = "GCP used region"
+  type        = string
+  default     = "1.19.0"
+}
+
+variable "terraform_version" {
+  description = "Terraform version"
+  type        = string
+  default     = "1.12.2"
+}
+
+variable "helm_vault_chart_version" {
+  description = "GCP used region"
+  type        = string
+  default     = "0.30.0"
+}
+
+variable "vault_gcp_credentials_secret_name" {
+  default     = "vault-gcp-credentials"
+  description = "kubernetes secrets contains vault GCP credentials"
+}
+
+variable "vault_tf_apply_sa_kubernetes_secret_name" {
+  default     = "vault-tf-apply-gcp-credentials"
+  description = "kubernetes secrets contains vault GCP credentials"
+}
