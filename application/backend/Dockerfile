@@ -44,6 +44,7 @@ COPY application/backend/http application/backend/http
 COPY application/backend/internal application/backend/internal
 COPY application/backend/log application/backend/log
 COPY application/backend/track application/backend/track
+COPY application/backend/vault application/backend/vault
 COPY application/backend/main.go application/backend/
 
 COPY .git .git

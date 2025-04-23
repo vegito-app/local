@@ -10,13 +10,17 @@ variable "admin_user_roles" {
     "container_cluster_admin" : "roles/container.admin",
 
     "datastore_owner" : "roles/datastore.owner",
+
     "firebasedatabase_admin" : "roles/firebasedatabase.admin",
     "firebasedatabase_viewer" : "roles/firebasedatabase.viewer",
+
     "iam_admin" : "roles/resourcemanager.projectIamAdmin",
     "roles_admin" : "roles/iam.roleAdmin",
     "secret_admin" : "roles/secretmanager.admin",
     "identitytoolkit_admin" : "roles/identitytoolkit.admin",
+    "service_account_admin" : "roles/iam.serviceAccountAdmin",
     "service_account_key_admin" : "roles/iam.serviceAccountKeyAdmin",
+    "service_account_token_creator" : "roles/iam.serviceAccountTokenCreator",
     "service_account_user_as_admin" : "roles/iam.serviceAccountUser",
     "serviceusage_apikey_viewer" : "roles/serviceusage.apiKeysViewer",
     "servuceussage_consumer" : "roles/serviceusage.serviceUsageConsumer",
@@ -49,5 +53,3 @@ resource "google_project_iam_binding" "k8s_rbac_admin_user_roles" {
   role    = google_project_iam_custom_role.k8s_rbac_role.name
   members = var.admins
 }
-
-
