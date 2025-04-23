@@ -29,6 +29,5 @@ docker info
 TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
 mkdir -p ${HOME}/.docker/run
 ln -s /run/user/1000/docker.sock ${HOME}/.docker/run/docker.sock
-make clarinet-devnet-start &
 
 exec "$@"

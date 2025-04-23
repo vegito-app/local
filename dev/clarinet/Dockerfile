@@ -14,7 +14,7 @@ RUN wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarin
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
 
-FROM debian:bookworm-stable
+FROM debian:bookworm
 
 COPY --from=project-builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/
@@ -131,5 +131,5 @@ RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_use
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
-COPY docker-entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
-ENTRYPOINT [ "clarinet-entrypoint.sh" ]
+COPY devnet-entrypoint.sh /usr/local/bin/clarinet-devnet-entrypoint.sh
+ENTRYPOINT [ "clarinet-devnet-entrypoint.sh" ]
