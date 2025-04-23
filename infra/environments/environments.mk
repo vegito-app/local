@@ -4,21 +4,13 @@
 
 INFRA_ENVIRONMENTS := \
 	prod \
+	vault \
 	staging \
 	dev
 
 $(INFRA_ENVIRONMENTS:%=infra-deploy-%):
 	@INFRA_ENV=$(@:infra-deploy-%=%) $(MAKE) terraform-init terraform-plan terraform-apply-auto-approve firebase-mobiles-configs
 .PHONY: $(INFRA_ENVIRONMENTS:%=infra-deploy-%)
-
-infra-production: infra-deploy-prod 
-.PHONY: infra-production
-
-infra-staging: infra-deploy-staging
-.PHONY: infra-staging
-
-infra-dev: infra-deploy-dev
-.PHONY: infra-dev
 
 INFRA_FIREBASE_IOS_CONFIG_PLIST = $(CURDIR)/infra/environments/$(INFRA_ENV)/GoogleService-Info.plist
 INFRA_FIREBASE_ANDROID_CONFIG_JSON = $(CURDIR)/infra/environments/$(INFRA_ENV)/google-services.json

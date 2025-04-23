@@ -1,9 +1,10 @@
-ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/.docker-buildx-cache/android-studio
+ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/dev/.containers/docker-buildx-cache/android-studio
 $(ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
 ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+ANDROID_STUDIO_IMAGE = ${PUBLIC_IMAGES_BASE}:android-studio-latest
 
 android-studio-image: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print android-studio
@@ -27,6 +28,10 @@ android-studio-docker-compose-up: android-studio-docker-compose-rm
 	@echo Started Androïd studio display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: android-studio-docker-compose-up
+
+android-studio-docker-compose-start:
+	@-$(DOCKER_COMPOSE) start android-studio 2>/dev/null
+.PHONY: android-studio-docker-compose-start
 
 android-studio-docker-compose-stop:
 	@-$(DOCKER_COMPOSE) stop android-studio 2>/dev/null

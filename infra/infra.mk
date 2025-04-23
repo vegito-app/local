@@ -5,9 +5,10 @@ INFRA_ENV = dev
 endif
 
 -include infra/gcloud/gcloud.mk
--include infra/vault/vault.mk
 -include infra/terraform.mk
 -include infra/environments/environments.mk
+-include infra/environments/prod/vault/vault.mk
+-include infra/environments/prod/kubernetes/kubernetes.mk
 
 infra-rotate: infra-dev infra-staging infra-production
 .PHONY: infra-rotate

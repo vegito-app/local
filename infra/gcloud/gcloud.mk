@@ -24,21 +24,20 @@ endif
 
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
-GCLOUD_PROJET_USER_ID ?= david-berichon
+GCLOUD_PROJET_USER_ID ?= ${PROJECT_USER}
 
 GCLOUD_DEVELOPER_SERVICE_ACCOUNT = $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
-
-export GOOGLE_APPLICATION_CREDENTIALS
 
 ifeq ($(GOOGLE_APPLICATION_CREDENTIALS),)
 GOOGLE_APPLICATION_CREDENTIALS = $(CURDIR)/infra/environments/$(INFRA_ENV)/gcloud-credentials.json
 endif
 
+export GOOGLE_APPLICATION_CREDENTIALS
+
 gcloud-auth-default-application-credentials:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 	@$(GCLOUD) auth application-default login
 	@$(GCLOUD) auth application-default set-quota-project $(GOOGLE_CLOUD_PROJECT_ID)
-	@mv ~/.config/gcloud/application_default_credentials.json $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: gcloud-auth-default-application-credentials
 
 $(GOOGLE_APPLICATION_CREDENTIALS):
@@ -181,16 +180,18 @@ gcloud-docker-registry-temporary-token:
 	@echo  username: oauth2accesstoken
 	@echo  password: `$(GCLOUD) auth print-access-token`
 .PHONY: gcloud-docker-registry-temporary-token
-
 GCLOUD_SERVICE_ACCOUNTS = \
-  $(GOOGLE_CLOUD_PROJECT_ID)@appspot.gserviceaccount.com \
-  $(GOOGLE_CLOUD_PROJECT_NUMBER)-compute@developer.gserviceaccount.com \
-  firebase-admin-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-  david-berichon-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-  production-application-backend@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-  github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-  vault-sa@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-  root-admin@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
+	$(GOOGLE_CLOUD_PROJECT_ID)@appspot.gserviceaccount.com \
+	$(GOOGLE_CLOUD_PROJECT_ID)-compute@developer.gserviceaccount.com \
+	github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	production-application-backend@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	firebase-admin-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	firebase-adminsdk-mvk7v@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	${PROJECT_USER}-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	root-admin@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-node-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-tf-apply@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com  
 
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-bindings-roles):
 	@echo Print bindings members roles for $(@:gcloud-%-serviceaccount-bindings-roles=%):
@@ -236,3 +237,14 @@ $(GCLOUD_SECRETS:%=gcloud-secret-%-show):
 	&& echo $$a | jq 2>/dev/null \
 	|| echo $$a
 .PHONY: $(GCLOUD_SECRETS:%=gcloud-secret-%-show)
+
+
+gcloud-compute-disk-list:
+	@echo Disk used:
+	@$(GCLOUD) compute disks list --filter="zone:($(GOOGLE_CLOUD_REGION)-*)" --format="table(name,sizeGb,type,zone)"
+.PHONY: gcloud-compute-disk-list
+
+gcloud-compute-list-available-machine-type:
+	@echo GCP compute available machine types:
+	@$(GCLOUD) compute machine-types list --filter="zone:($(GOOGLE_CLOUD_REGION)-*)" --project $(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY: gcloud-compute-list-available-machine-type

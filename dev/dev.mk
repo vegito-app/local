@@ -13,7 +13,7 @@ dev-local: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCR
 	@$(APPLICATION_BACKEND_INSTALL_BIN)
 .PHONY: dev-local
 
-BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/.docker-buildx-cache/dev-builder
+BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/dev/.containers/docker-buildx-cache/dev-builder
 $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
@@ -51,3 +51,4 @@ dev-logsf:
 -include dev/clarinet/clarinet.mk
 -include dev/github/github.mk
 -include dev/firebase-emulators/firebase-emulators.mk
+-include dev/vault/vault.mk

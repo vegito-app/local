@@ -13,7 +13,8 @@ DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f dev/clarinet/docker-bake.hcl \
 	-f dev/android-studio/docker-bake.hcl \
 	-f dev/firebase-emulators/docker-bake.hcl \
-	-f dev/github/docker-bake.hcl 
+	-f dev/github/docker-bake.hcl \
+	-f dev/vault/docker-bake.hcl 
 
 DOCKER_BUILDX_TARGETS := \
 	backend \

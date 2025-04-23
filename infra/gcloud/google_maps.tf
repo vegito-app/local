@@ -50,7 +50,7 @@ resource "google_apikeys_key" "web_google_maps_api_key" {
 
 resource "google_secret_manager_secret_version" "web_google_maps_api_key_version" {
   secret = google_secret_manager_secret.web_google_maps_api_key.id
-  secret_data = jsonencode({
+  secret_data_wo = jsonencode({
     apiKey = google_apikeys_key.web_google_maps_api_key.key_string
   })
 }
