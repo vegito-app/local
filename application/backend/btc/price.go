@@ -27,7 +27,7 @@ var apis = []APIConfig{
 		ParseFn: func(body []byte) (float64, error) {
 			var data map[string]map[string]float64
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing CoinGecko price: %w", err)
+				return 0, fmt.Errorf("parsing CoinGecko price: %w", err)
 			}
 			return data["bitcoin"]["eur"], nil
 		},
@@ -39,7 +39,7 @@ var apis = []APIConfig{
 		ParseFn: func(body []byte) (float64, error) {
 			var data map[string]float64
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing CryptoCompare price: %w", err)
+				return 0, fmt.Errorf("parsing CryptoCompare price: %w", err)
 			}
 			return data["EUR"], nil
 		},
@@ -49,11 +49,15 @@ var apis = []APIConfig{
 		Name: "Binance",
 		URL:  "https://api.binance.com/api/v3/ticker/price?symbol=BTCEUR",
 		ParseFn: func(body []byte) (float64, error) {
-			var data map[string]float64
+			var data map[string]string
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing Binance price: %w", err)
+				return 0, fmt.Errorf("parsing Binance price: %w", err)
 			}
-			return data["price"], nil
+			price, err := strconv.ParseFloat(data["price"], 64)
+			if err != nil {
+				return 0, fmt.Errorf("convert binance euro price from string: %w", err)
+			}
+			return price, nil
 		},
 	},
 	// Add more APIs (e.g., Binance)
@@ -67,12 +71,12 @@ var apis = []APIConfig{
 				} `json:"result"`
 			}
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing Kraken price: %w", err)
+				return 0, fmt.Errorf("parsing Kraken price: %w", err)
 			}
 			for _, ticker := range data.Result {
 				price, err := strconv.ParseFloat(ticker.Ask[0], 64)
 				if err != nil {
-					return 0, fmt.Errorf("error parsing Kraken price: %w", err)
+					return 0, fmt.Errorf("parsing Kraken price: %w", err)
 				}
 				return price, nil
 			}
@@ -84,18 +88,19 @@ var apis = []APIConfig{
 		Name: "Bitfinex",
 		URL:  "https://api.binance.com/api/v3/ticker/price?symbol=BTCEUR",
 		ParseFn: func(body []byte) (float64, error) {
-			var data []any
+			var data map[string]any
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing Bitfinex price: %w", err)
+				return 0, fmt.Errorf("parsing Bitfinex price: %w", err)
 			}
-			if len(data) > 6 {
-				price, ok := data[6].(float64)
-				if !ok {
-					return 0, fmt.Errorf("error parsing Bitfinex price")
-				}
-				return price, nil
+			priceStr, ok := data["price"].(string)
+			if !ok {
+				return 0, fmt.Errorf("parsing Bitfinex price")
 			}
-			return 0, fmt.Errorf("no Bitfinex BTC/EUR price found")
+			price, err := strconv.ParseFloat(priceStr, 64)
+			if err != nil {
+				return 0, fmt.Errorf("parse Bitfinex BTC/EUR price from string value: %w", err)
+			}
+			return price, nil
 		},
 	},
 	// Add more APIs (e.g., Coinbase)
@@ -109,11 +114,11 @@ var apis = []APIConfig{
 				} `json:"data"`
 			}
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing Coinbase price: %w", err)
+				return 0, fmt.Errorf("parsing Coinbase price: %w", err)
 			}
 			price, err := strconv.ParseFloat(data.Data.Amount, 64)
 			if err != nil {
-				return 0, fmt.Errorf("error parsing Coinbase price: %w", err)
+				return 0, fmt.Errorf("parsing Coinbase price: %w", err)
 			}
 			return price, nil
 		},
@@ -129,12 +134,12 @@ var apis = []APIConfig{
 				} `json:"data"`
 			}
 			if err := json.Unmarshal(body, &data); err != nil {
-				return 0, fmt.Errorf("error parsing okx price: %w", err)
+				return 0, fmt.Errorf("parsing okx price: %w", err)
 			}
 			if len(data.Data) > 0 {
 				price, err := strconv.ParseFloat(data.Data[0].Last, 64)
 				if err != nil {
-					return 0, fmt.Errorf("error parsing okx price: %v", err)
+					return 0, fmt.Errorf("parsing okx price: %v", err)
 				}
 				return price, nil
 			}
