@@ -128,20 +128,65 @@ class WalletService {
   // Rotation des clés
   static Future<String> rotateKeys() async {
     final privateKey = await getPrivateKey();
-    if (privateKey != null) {
-      return await _setupRecovery(privateKey);
+    final recoveryKey = _generateRandomKey();
+    final xorKey = _recoveryKeyXor(privateKey, recoveryKey);
+
+    // Stocker recoveryKey localement
+    await _storage.write(key: _recoveryKeyKey, value: recoveryKey);
+
+    // Appeler le backend avec le nouvel xorKey
+    final response = await http.post(
+      Uri.parse("${Config.backendUrl}/user/rotate-recoverykey"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "userId": FirebaseAuth.instance.currentUser?.uid,
+        "recoveryKey": xorKey
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return "RecoveryKey mise à jour avec succès.";
+    } else {
+      throw Exception("Échec de la mise à jour de la RecoveryKey.");
     }
-    return "Échec de la rotation des clés.";
   }
 
   // Ajout des nouvelles fonctions
   static Future<void> storeRecoveryKeyWithRotation(
       String userId, String newKey) async {
-    // Logique pour décaler les anciennes versions et stocker newKey
+    final xorKey = _recoveryKeyXor(await getPrivateKey(), newKey);
+
+    final response = await http.post(
+      Uri.parse("${Config.backendUrl}/user/store-recoverykey"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "userId": FirebaseAuth.instance.currentUser?.uid,
+        "recoveryKey": xorKey,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Échec de l'enregistrement de la RecoveryKey.");
+    }
   }
 
   static Future<String?> getRecoveryKeyVersion(
       String userId, int version) async {
-    // Logique pour lire une version spécifique de recoveryKey
+    final response = await http.post(
+      Uri.parse("${Config.backendUrl}/user/get-recoverykey-version"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "userId": userId,
+        "version": version,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return body["recoveryKey"] as String?;
+    } else {
+      throw Exception(
+          "Impossible de récupérer la version $version de la RecoveryKey");
+    }
   }
 }

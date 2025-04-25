@@ -1,6 +1,10 @@
+import 'dart:convert'; // Ajouté pour jsonEncode
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // Ajouté pour http
 
+import 'config.dart'; // Ajouté pour Config
 import 'wallet_service.dart';
 
 class SignInPage extends StatefulWidget {
@@ -23,6 +27,38 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {
         recoveryKey = rKey;
       });
+
+      final userId = user?.uid;
+      if (userId != null && rKey != null) {
+        final response = await http.post(
+          Uri.parse("${Config.backendUrl}/user/rotate-recoverykey"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({
+            "userId": userId,
+            "recoveryKey": rKey,
+          }),
+        );
+
+        if (response.statusCode != 200) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Échec de la rotation de la recovery key"),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Recovery key enregistrée avec succès"),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      }
 
       // Afficher la boîte de dialogue avec la recovery key
       _showRecoveryDialog();
