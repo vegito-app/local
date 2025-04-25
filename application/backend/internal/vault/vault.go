@@ -49,12 +49,10 @@ func (c *Client) StoreUserRecoveryKey(userID string, recoveryKey []byte) error {
 	}
 
 	data := map[string]interface{}{
-		"recoveryKey": recoveryKey,
+		"plaintext": recoveryKey,
 	}
 
-	_, err = client.apiClient.Logical().Write("secret/data/recoverykey", map[string]interface{}{
-		"data": data,
-	})
+	_, err = client.apiClient.Logical().Write("transit/encrypt/user/wallet/recovery", data)
 
 	if err != nil {
 		return fmt.Errorf("failed to write recoveryKey to Vault: %w", err)
@@ -80,9 +78,9 @@ func (c *Client) RotateUserRecoveryKey(userID string, newKey []byte) error {
 	}
 
 	// store new key in recoverykey/0
-	path := fmt.Sprintf("secret/data/recoverykey/%s/0", userID)
+	path := "transit/encrypt/user/wallet/recovery"
 	_, err := c.apiClient.Logical().Write(path, map[string]interface{}{
-		"data": map[string]interface{}{"recoveryKey": newKey},
+		"plaintext": newKey,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to write recoveryKey to Vault: %w", err)
@@ -113,4 +111,34 @@ func (c *Client) RetrieveUserRecoveryKey(userID string) ([]byte, error) {
 	}
 
 	return []byte(val), nil
+}
+
+func (c *Client) GetRecoveryKeyVersion(userID string) (int, error) {
+	path := fmt.Sprintf("secret/data/recoverykey/%s/version", userID)
+	secret, err := c.apiClient.Logical().Read(path)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read recoveryKey version from Vault: %w", err)
+	}
+
+	if secret == nil || secret.Data == nil {
+		return 0, fmt.Errorf("no version data found at path %s", path)
+	}
+
+	version, ok := secret.Data["version"].(float64)
+	if !ok {
+		return 0, fmt.Errorf("version not found or invalid at path %s", path)
+	}
+
+	return int(version), nil
+}
+
+func (c *Client) StoreRecoveryKeyVersion(userID string, version int) error {
+	path := fmt.Sprintf("secret/data/recoverykey/%s/version", userID)
+	_, err := c.apiClient.Logical().Write(path, map[string]interface{}{
+		"version": version,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to store recoveryKey version in Vault: %w", err)
+	}
+	return nil
 }

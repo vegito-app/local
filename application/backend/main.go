@@ -23,6 +23,9 @@ func main() {
 	defer btcService.Close()
 
 	vaultClient, err := vault.NewVaultClient()
+	if err != nil {
+		log.Fatal().Err(err).Msg("new vault client")
+	}
 
 	if err := http.StartAPI(firebaseClient, btcService, vaultClient); err != nil {
 		log.Fatal().Err(err).Msg("http start api")
