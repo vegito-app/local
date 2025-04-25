@@ -158,7 +158,7 @@ services:
     command: |
       bash -c '
 
-      set -eu
+      set -eux
 
       vault server -dev -dev-root-token-id $${VAULT_DEV_ROOT_TOKEN_ID} &
 
@@ -171,7 +171,16 @@ services:
 
       # vault login root;
 
-      # vault policy write backend-policy ./policies/backend-policy.hcl
+      # vault policy write backend-policy ./policies/backend-application-vault-policies.hcl
+      vault policy write backend-application ./dev/backend-application-vault-policies.hcl
+
+      vault auth enable gcp
+
+      vault write auth/gcp/role/application-backend \
+        type="iam" \
+        bound_service_accounts="production-application-backend@moov-438615.iam.gserviceaccount.com" \
+        bound_projects="moov-438615" \
+        token_policies="backend-application"
 
       # vault kv put secret/firebase api_key=FAKE dev_id=123
 
