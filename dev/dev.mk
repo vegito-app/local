@@ -52,3 +52,17 @@ dev-logsf:
 -include dev/github/github.mk
 -include dev/firebase-emulators/firebase-emulators.mk
 -include dev/vault/vault.mk
+
+DEV_SERVICES = \
+  dev-firebase-emulators \
+  dev-clarinet-devnet \
+  dev-vault-dev \
+  dev-android-studio \
+  dev-application-backend
+
+$(DEV_SERVICES:dev-%=%): 
+	@$(MAKE) $(@:%=%-docker-compose-up)
+.PHONY: $(DEV_SERVICES:%=dev-%)
+
+dev:$(DEV_SERVICES:dev-%=%)
+.PHONY: dev

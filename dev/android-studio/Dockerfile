@@ -66,9 +66,9 @@ ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
 ENV PATH=$PATH:$ANDROID_SDK/emulator:$ANDROID_SDK/tools:$ANDROID_SDK/tools/bin:$ANDROID_SDK/platform-tools
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 ENV PATH=${PATH}:${HOME}/flutter/bin
+ENV ANDROID_NDK_HOME=$ANDROID_SDK/ndk/27.0.12077973
 
 ARG flutter_version=3.29.2
-ARG android_studio_version=2024.3.1.13
 RUN \
     # Flutter 
     curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutter_version}-stable.tar.xz && \
@@ -83,26 +83,28 @@ RUN \
     rm sdk.zip && \
     mv cmdline-tools latest && \
     yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-30" \
-    && ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz; \
+    sdkmanager "platform-tools" "platforms;android-30" "emulator" "build-tools;30.0.1" "build-tools;35.0.0" "build-tools;36.0.0" "ndk;27.0.12077973"
+
+ARG android_studio_version=2025.1.1.7
+RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz; \
     curl -o /tmp/android-studio.tar.gz -L $ANDROID_STUDIO_URL  && \
     tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
     mv /tmp/android-studio ${STUDIO_PATH} && \
-    rm /tmp/android-studio.tar.gz \
-    && if [ "`dpkg --print-architecture`" = "amd64" ] && [ "`uname`" = "Linux" ]; then \
-    sdkmanager "build-tools;30.0.1" "build-tools;35.0.0" "emulator" && \
-    # Telemetry is not sent on the very first run. To disable reporting of telemetry,
-    # run this terminal command:
-    flutter && \
-    # Accept All Androïd SDK package licenses
-    flutter doctor --android-licenses ; \
-    fi
+    rm /tmp/android-studio.tar.gz
+
+RUN flutter doctor --android-licenses && flutter doctor
 
 ENV DISPLAY=":1"
 COPY display-start.sh /usr/local/bin/
 
 COPY docker-caches-refresh.sh /usr/local/bin/studio-caches-refresh.sh
 COPY entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+
+# Persist bash history for the non-root user
+ENV HISTFILE=/home/${non_root_user}/.bash_history
+RUN touch $HISTFILE && chown ${non_root_user}:${non_root_user} $HISTFILE
+# Ensure history is written after each command in bash
+RUN echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> /home/${non_root_user}/.bashrc
 
 ENTRYPOINT [ "android-studio-entrypoint.sh" ]
 CMD ["studio"]

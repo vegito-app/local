@@ -16,18 +16,3 @@ images: docker-images-local-arch
 
 images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
-
-android-studio: android-studio-docker-compose-up
-.PHONY: android-studio
-
-firebase-emulators: firebase-emulators-docker-compose-up
-.PHONY: firebase-emulators
-
-clarinet-devnet: clarinet-devnet-docker-compose-up
-.PHONY: clarinet-devnet
-
-application-backend: application-backend-docker-compose-up
-.PHONY: application-backend
-
-dev: firebase-emulators android-studio application-backend clarinet-devnet vault-dev
-.PHONY: dev

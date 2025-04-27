@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 trap "echo Exited with code $?." EXIT
 
@@ -46,5 +46,13 @@ bg_pids+=("$!")
 # access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
 socat TCP-LISTEN:8080,fork,reuseaddr TCP:backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
 bg_pids+=("$!")
+
+# Developer-friendly aliases
+alias gs='git status'
+alias gb='git branch'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate'
+alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
+alias run-android='flutter run -d android'
 
 exec "$@"
