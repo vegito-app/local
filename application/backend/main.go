@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	_ "github.com/7d4b9/utrade/backend/log"
 
 	"github.com/7d4b9/utrade/backend/btc"
@@ -22,7 +24,7 @@ func main() {
 	btcService := btc.NewBTC()
 	defer btcService.Close()
 
-	vaultClient, err := vault.NewVaultClient()
+	vaultClient, err := vault.NewClient(context.Background(), firebaseClient)
 	if err != nil {
 		log.Fatal().Err(err).Msg("new vault client")
 	}

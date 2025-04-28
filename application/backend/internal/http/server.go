@@ -56,9 +56,7 @@ func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC, vault apiv1.
 	mux.HandleFunc("POST /run", serviceV1.Run)
 	mux.HandleFunc("GET /user/store-recoverykey", serviceV1.RetrieveUserRecoveryKey)
 	mux.HandleFunc("POST /user/store-recoverykey", serviceV1.StoreUserRecoveryKey)
-	mux.HandleFunc("GET /user/recoverykey-version", serviceV1.GetRecoveryKeyVersion)
-	mux.HandleFunc("POST /user/recoverykey-version", serviceV1.StoreRecoveryKeyVersion)
-	mux.HandleFunc("POST /user/rotate-recoverykey", serviceV1.StoreUserRecoveryKeyWithRotation)
+	mux.HandleFunc("POST /user/get-recoverykey-version", serviceV1.GetUserRecoveryKeyVersion)
 	uiServe, err := ui.NewUI(frontendDir)
 	if err != nil {
 		return fmt.Errorf("http start api, server side ui render: %w", err)
