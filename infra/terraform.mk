@@ -23,7 +23,8 @@ terraform-state-list: $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: terraform-state-list
 
 # This list is used to provide generic terraform targets 
-TF_STATE_ITEMS = \
+TF_STATE_ITEMS =
+_= \
   data.google_project.project \
   data.google_service_account.production_root_admin_service_account \
   google_apikeys_key.developer_google_maps_api_key["davidberich@gmail.com"] \

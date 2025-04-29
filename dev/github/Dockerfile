@@ -120,7 +120,7 @@ RUN set -x; \
 
 WORKDIR /runner
 
-ENV RUNNER_VERSION=2.320.0
+ENV RUNNER_VERSION=2.323.0
 USER root
 RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERSION/actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && tar xzf ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \

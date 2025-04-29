@@ -59,23 +59,17 @@ USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-ENV ANDROID_SDK=${HOME}/Android/Sdk
-ENV STUDIO_PATH=${HOME}/android-studio
+# Flutter 
+ENV PATH=${PATH}:${HOME}/flutter/bin
+ARG flutter_version=3.29.2
+RUN git clone -b ${flutter_version} https://github.com/flutter/flutter.git && flutter doctor 
 
+# Android SDK
+ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
 ENV PATH=$PATH:$ANDROID_SDK/emulator:$ANDROID_SDK/tools:$ANDROID_SDK/tools/bin:$ANDROID_SDK/platform-tools
-ENV PATH=${STUDIO_PATH}/bin:${PATH}
-ENV PATH=${PATH}:${HOME}/flutter/bin
 ENV ANDROID_NDK_HOME=$ANDROID_SDK/ndk/27.0.12077973
-
-ARG flutter_version=3.29.2
-RUN \
-    # Flutter 
-    curl -o flutter.tar.xz -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutter_version}-stable.tar.xz && \
-    tar -xf flutter.tar.xz && rm flutter.tar.xz \
-    # 
-    # Android SDK
-    && ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip; \
+RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip; \
     mkdir -p $ANDROID_SDK/cmdline-tools/ && \
     cd $ANDROID_SDK/cmdline-tools/ && \
     curl -o sdk.zip -L $ANDROID_COMMANDLINETOOLS_URL && \
@@ -83,8 +77,20 @@ RUN \
     rm sdk.zip && \
     mv cmdline-tools latest && \
     yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-30" "emulator" "build-tools;30.0.1" "build-tools;35.0.0" "build-tools;36.0.0" "ndk;27.0.12077973"
+    sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.1" "build-tools;35.0.0" "build-tools;36.0.0" "ndk;27.0.12077973" \
+    # Install emulator
+    && case "$TARGETPLATFORM" in \
+    "linux/amd64") \
+    sdkmanager "emulator" \
+    ;; \
+    "linux/arm64") \
+    echo "Skipping emulator install on $TARGETPLATFORM (not supported)"; \
+    ;; \
+    esac
 
+# Android Studio
+ENV STUDIO_PATH=${HOME}/android-studio
+ENV PATH=${STUDIO_PATH}/bin:${PATH}
 ARG android_studio_version=2025.1.1.7
 RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz; \
     curl -o /tmp/android-studio.tar.gz -L $ANDROID_STUDIO_URL  && \

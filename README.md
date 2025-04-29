@@ -1,91 +1,129 @@
-# CAR2GO
+# 🚗 Refactored Winner (aka CAR2GO)
 
-CAR2GO est fait pour proposer un service de déplacement par véhicule.
+Welcome aboard! This project is a vehicle-based mobility service (backend + mobile/web) powered by modern Google Cloud architecture, secured with Vault, and designed to be pleasant to develop on.
 
-### Build project images
+📘 This README is also available in [🇫🇷 French](README.fr.md)
 
-The project is making use of your existing GOOGLE_APPLICATION_CREDENTIALS for authentication.
-The values used by defauls can be configured if required.
+## ✨ What's inside
 
-#### Locally
-
-Build project service images for the local machine architecture only.
-
-```
-    make images
-```
-
-Project have images for:
-
-- **builder**: contains project tools (`gcloud`, `terraform`, `flutter`, ...). See [dev/builder.Dockerfile](dev/builder.Dockerfile).
-- **backend**: minified image with only application and _application-backend_ web server. See [application/backend/Dockerfile](application/backend/Dockerfile).
-- **github action runner**: used to provide Github Action Workflow local hosted-runners. See [infra/github/Dockerfile](infra/github/Dockerfile).
-
-#### CI - Github Actions worflows
-
-Build and push multi-architecture project images.
-
-```
-    make images-ci
-```
-
-Pipeline which runs this target is available under the Github project repository Actions section at https://github.com/7d4b9/refactored-winner/actions.
-
-## Local
-
-Folder `./dev/` provides a dedicated development environment to work on this project locally, remotly, in CI...
-This _local_ environment is also used by [Devcontainer](https://containers.dev), see locale [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) file.
-
-Exemple to run the application on the local native machine (no docker):
-
-```bash
-# Local Backend run:
-$ make local-run
-# Application is available at [http://localhost:8080](http://localhost:8080).
-```
-
-More local Makefile targets are available to work on the project locally, see [dev/local.mk](dev/local.mk):
-
-    local-android-studio-docker-compose           local-builder-image                           firebase-emulators-functions-serve      github-runner-image-ci
-    local-android-studio-docker-compose-logs      firebase-emulators                      firebase-emulators-init                 github-runner-token-exist
-    local-android-studio-docker-compose-rm        firebase-emulators-docker-compose       firebase-emulators-install              local-install
-    local-android-studio-docker-compose-sh        firebase-emulators-docker-compose-bash  firebase-emulators-prepare              local-builder-image-ci
-    local-android-studio-docker-compose-stop      firebase-emulators-docker-compose-logs  firebase-emulators-start                local-run
-    local-android-studio-docker-compose-up        firebase-emulators-docker-compose-rm    github-runner-docker-compose-rm
-    local-android-studio-image                    firebase-emulators-docker-compose-stop  github-runner-docker-compose-up
-    local-android-studio-image-push               firebase-emulators-docker-compose-up    github-runner-image
-
-## Infrastructure
-
-Infrastructure is based on google cloud. It is managed _as code_ using the google and google-beta providers with Terraform.
-
-See [infra/infra.mk](infra/infra.mk) for more details on the specific provided Makefile targets to manage the project infrastructure:
-
-    terraform-apply-auto-approve  terraform-destroy
-    terraform-import              terraform-init
-    terraform-output              terraform-plan
-    terraform-providers           terraform-refresh
-    terraform-state-backup        terraform-state-list
-    terraform-state-rm            terraform-state-show
-    terraform-state-show-all      terraform-taint-backend
-    terraform-unlock              terraform-upgrade
-    terraform-validate
+- **A Go backend** running on Cloud Run
+- **A Flutter frontend** (mobile/web)
+- **Secrets secured via Vault (GCP Auth)**
+- **Infrastructure declared using Terraform**
+- **A full-featured local dev environment with DevContainer**
 
 ---
 
-There is also a nested `infra/gcloud` specific folder with specific target to use gcloud directly as helper and memo:
+## ⚙️ Getting started locally
 
-    gcloud-admin-developper-utrade-storage-admin           gcloud-images-builder-untag-all-public
-    gcloud-apikeys-list                                    gcloud-images-list
-    gcloud-auth-default-application-credentials            gcloud-images-list-tags
-    gcloud-auth-docker                                     gcloud-images-list-tags-public
-    gcloud-auth-func-deploy                                gcloud-infra-auth-npm-install
-    gcloud-auth-func-logs                                  gcloud-services-apis-disable
-    gcloud-auth-login                                      gcloud-services-apis-enable
-    gcloud-backend-image-delete                            gcloud-services-disable-cloudbilling-api
-    gcloud-builder-image-delete                            gcloud-services-disable-serviceusage-api
-    gcloud-docker-registry-temporary-token                 gcloud-services-enable-cloudbilling-api
-    gcloud-firebase-adminsdk-service-account-roles-list     gcloud-services-enable-serviceusage-api
-    gcloud-images-builder-untag-all                        gcloud-storage-admin
+> 💡 Prerequisites: Docker, Git, a GCP token (`GOOGLE_APPLICATION_CREDENTIALS`), and `make`.
 
-More details about thos targets: [infra/gcloud/gcloud.mk](infra/gcloud/gcloud.mk)
+### 1. Clone the project
+
+```bash
+git clone git@github.com:<your-org>/refactored-winner.git
+cd refactored-winner
+```
+
+### 2. Start the local dev environment
+
+```bash
+make dev
+```
+
+This will launch:
+
+- Vault (dev mode)
+- Firebase emulators
+- Clarinet (for Stacks smart contracts)
+- Local Go backend
+- Android Studio (optional)
+
+---
+
+## 🔐 Vault Authentication
+
+Locally: Vault token or AppRole auto-generated
+
+- Config directory: `dev/vault/`
+- Use `make vault-dev` to start it
+- Vault UI available at: http://127.0.0.1:8200/
+
+In production (Cloud Run): authentication is done via GCP IAM (Workload Identity) using the `backend-application` role.
+
+---
+
+## 🔥 Firebase & Emulators
+
+The local setup includes Firebase emulators for:
+
+- Authentication (`auth`)
+- Cloud functions (`functions`)
+- Firestore database (`firestore`)
+
+This allows safe local development without touching production Firebase.
+
+- Config lives in: `dev/firebase-emulators/`
+- Launched automatically via: `make firebase-emulators`
+- Emulator UI: http://127.0.0.1:4000/
+
+📘 Learn more: [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite)
+
+---
+
+## 🚀 Deployment
+
+```bash
+make infra-deploy-prod
+```
+
+This orchestrates:
+
+- Terraform initialization
+- Infrastructure apply to GCP
+- Firebase config deployment (mobile)
+
+---
+
+## 🧪 Useful Make commands
+
+| Action                        | Command                                              |
+| ----------------------------- | ---------------------------------------------------- |
+| Show backend logs             | `make dev-logsf`                                     |
+| Rebuild Docker builder images | `make dev-builder-image`                             |
+| Apply production Terraform    | `make production-vault-terraform-apply-auto-approve` |
+| Restart Vault in dev mode     | `make dev-vault-dev-docker-compose-up`               |
+
+---
+
+## 📁 Project structure
+
+- `application/` – Go backend code
+- `mobile/` – Flutter mobile/web app
+- `infra/` – all infra-as-code (Terraform, Vault, GKE, etc.)
+- `dev/` – Docker-based development environment
+
+---
+
+## 🤝 Need help?
+
+Helpful links for this stack:
+
+- 📦 [DevContainer](https://containers.dev) – portable dev environments
+- 🔐 [Vault](https://developer.hashicorp.com/vault) – secret management
+- ☁️ [Terraform](https://www.terraform.io/) – infrastructure as code
+- 🔄 [Cloud Run](https://cloud.google.com/run) – backend deployment
+- 📱 [Flutter](https://flutter.dev) – multiplatform frontend
+
+You can discover all available Make targets via tab completion in the DevContainer shell:
+
+```bash
+make <TAB>
+```
+
+Working on smart contracts for STX/Clarity?
+
+- 🧱 [Clarinet](https://www.hiro.so/clarinet) – CLI for testing, simulating, and deploying Stacks smart contracts
+- 📚 [Clarity Lang](https://docs.stacks.co/concepts/clarity/overview) – the smart contract language
+
+You're in the right place. Happy hacking! ✨
