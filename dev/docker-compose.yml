@@ -109,8 +109,7 @@ services:
     env_file:
       - .env
     environment:
-      # DISPLAY_RESOLUTION: "2560x1600"
-      DISPLAY_RESOLUTION: "1920x1080"
+      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
     # deploy:

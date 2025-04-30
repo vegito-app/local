@@ -1,7 +1,7 @@
 GITHUB_ACTIONS_RUNNER_STACK_ID = $(shell echo $$RANDOM)
 GITHUB_ACTIONS_RUNNER_STACK = github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
 
-GITHUB_ACTIONS_RUNNER_IMAGE = $(PUBLIC_IMAGES_BASE):github-action-runner-$(VERSION)
+GITHUB_ACTIONS_RUNNER_IMAGE = $(PUBLIC_IMAGES_BASE):github-action-runner-latest
 GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/dev/.containers/docker-buildx-cache/infra-github
 $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
@@ -28,7 +28,7 @@ github-action-runner-image-ci: docker-buildx-setup
 .PHONY: github-action-runner-image-ci
 
 GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(GOOGLE_CLOUD_PROJECT_ID)-github-actions \
-  docker compose -f $(CURDIR)/infra/github/docker-compose.yml
+  docker compose -f $(CURDIR)/dev/github/docker-compose.yml
 
 github-action-runner-token-exist:
 	@if [ ! -v GITHUB_ACTIONS_RUNNER_TOKEN ] ; then \

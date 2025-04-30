@@ -7,6 +7,15 @@ variable "LATEST_BUILDER_IMAGE" {
 }
 
 target "builder-ci" {
+  args = {
+    docker_version          = DOCKER_VERSION
+    docker_compose_version  = DOCKER_COMPOSE_VERSION
+    docker_buildx_version   = DOCKER_BUILDX_VERSION
+    terraform_version       = TERRAFORM_VERSION
+    kubectl_version         = KUBECTL_VERSION
+    node_version            = NODE_VERSION
+    nvm_version             = NVM_VERSION
+  }
   dockerfile = "dev/Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
@@ -26,6 +35,15 @@ variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "builder" {
+  args = {
+    docker_version          = DOCKER_VERSION
+    docker_compose_version  = DOCKER_COMPOSE_VERSION
+    docker_buildx_version   = DOCKER_BUILDX_VERSION
+    terraform_version       = TERRAFORM_VERSION
+    kubectl_version         = KUBECTL_VERSION
+    node_version            = NODE_VERSION
+    nvm_version             = NVM_VERSION
+  }
   dockerfile = "dev/Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,

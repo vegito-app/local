@@ -96,6 +96,28 @@ This orchestrates:
 
 ---
 
+## 📱 Android Studio Environment
+
+The local dev environment provides a full-featured Android Studio setup inside a container with:
+
+- Flutter SDK (with Dart) preinstalled
+- Android SDK + NDK + selected build-tools
+- Optional Chrome or Chromium
+- VNC + X11 display (via xvfb, openbox, and x11vnc)
+- Automatic history and cache persistence
+
+Launch it via:
+
+```bash
+make dev-android-studio
+```
+
+> Runs on both `linux/amd64` and `linux/arm64`. The Android emulator is available only on `amd64`.
+
+If running inside DevContainer, connect via VNC at `localhost:5901`. Default resolution: 1440x900.
+
+---
+
 ## 📁 Project structure
 
 - `application/` – Go backend code

@@ -3,9 +3,39 @@ variable "VERSION" {
   default     = "dev"
 }
 
+variable "NODE_VERSION" {
+  description = "current Node version"
+  default     = "22.14.0"
+}
+
+variable "NVM_VERSION" {
+  description = "current NVM version"
+  default     = "0.40.1"
+}
+
 variable "DOCKER_VERSION" {
-  description = "current docker version"
+  description = "current Docker version"
   default     = "28.0.2"
+}
+
+variable "DOCKER_COMPOSE_VERSION" {
+  description = "current Docker Compose version"
+  default     = "2.34.0"
+}
+
+variable "DOCKER_BUILDX_VERSION" {
+  description = "current Docker Buildx version"
+  default     = "0.22.0"
+}
+
+variable "TERRAFORM_VERSION" {
+  description = "current Terraform version"
+  default     = "1.11.2"
+}
+
+variable "KUBECTL_VERSION" {
+  description = "current Terraform version"
+  default     = "1.32"
 }
 
 variable "INFRA_ENV" {

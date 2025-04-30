@@ -13,9 +13,12 @@ target "vault-dev-ci" {
     LATEST_VAULT_DEV_IMAGE,
     notequal("", VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
-  cache-from = [LATEST_VAULT_DEV_IMAGE]
-  cache-to   = ["type=inline"]
-  platforms  = platforms
+  cache-from = [
+    LATEST_BUILDER_IMAGE,
+    LATEST_VAULT_DEV_IMAGE
+  ]
+  cache-to  = ["type=inline"]
+  platforms = platforms
 }
 
 variable "VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {

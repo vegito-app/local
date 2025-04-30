@@ -55,4 +55,6 @@ alias gl='git log --oneline --graph --decorate'
 alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
 alias run-android='flutter run -d android'
 
+echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+
 exec "$@"

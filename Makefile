@@ -6,9 +6,8 @@ endif
 
 export
 
--include dev/dev.mk
 -include infra/infra.mk 
--include vault/vault.mk 
+-include dev/dev.mk
 -include application/application.mk
 
 images: docker-images-local-arch

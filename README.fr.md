@@ -69,6 +69,26 @@ Cela permet de développer et tester localement les fonctionnalités web et back
 
 ---
 
+## 📱 Environnement Android Studio
+
+L’environnement local propose une configuration complète d’Android Studio dans un conteneur :
+
+- SDK Flutter (avec Dart) préinstallé
+- SDK Android + NDK + outils de build sélectionnés
+- Chrome ou Chromium selon l’architecture
+- Affichage VNC + X11 (xvfb, openbox, x11vnc)
+- Historique et caches persistants
+
+Lancer avec :
+
+```bash
+make dev-android-studio
+```
+
+> Fonctionne sur `linux/amd64` et `linux/arm64`. L’émulateur Android est uniquement disponible sur `amd64`.
+
+Si lancé dans le DevContainer, se connecter via VNC à `localhost:5901`. Résolution par défaut : 1440x900.
+
 ## 🚀 Déploiement
 
 ```bash
@@ -109,7 +129,7 @@ Besoin d’un coup de main ? Voici quelques liens utiles :
 
 - 📦 [DevContainer](https://containers.dev) : environnement de développement portable
 - 🔐 [Vault](https://developer.hashicorp.com/vault) : gestion des secrets
-- ☁️ [Terraform](https://www.terraform.io/) : déploiement de l'infra
+- ☁️ [Terraform](https://www.terraform.io/) : déploiement de l’infra
 - 🔄 [Cloud Run](https://cloud.google.com/run) : déploiement du backend
 - 📱 [Flutter](https://flutter.dev) : frontend multiplateforme
 

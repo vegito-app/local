@@ -19,7 +19,4 @@ trap kill_jobs EXIT
 
 socat TCP-LISTEN:5901,fork,reuseaddr TCP:android-studio:5900 > /tmp/socat-android-studio-5900.log 2>&1 &
 bg_pids+=("$!")
-
-echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
-
 docker compose -f dev/docker-compose.yml up android-studio 2>&1

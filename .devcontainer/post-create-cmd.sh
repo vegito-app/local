@@ -4,7 +4,10 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-ln -sfn ${PWD}/.caches/devcontainer/bash_history ~/.bash_history
+DEV_CONTAINER_CACHE=${PWD}/dev/.containers/dev
+mkdir -p $DEV_CONTAINER_CACHE
+
+ln -sfn ${DEV_CONTAINER_CACHE}/bash_history ~/.bash_history
 
 # Vscode server/remote
 VSCODE_REMOTE=${HOME}/.vscode-server
@@ -18,10 +21,10 @@ fi
 VSCODE_REMOTE_USER_DATA=${VSCODE_REMOTE}/data/User
 if [ -d $VSCODE_REMOTE_USER_DATA ] ; then 
 mv $VSCODE_REMOTE_USER_DATA ${VSCODE_REMOTE_USER_DATA}_back
-LOCAL_VSCODE_USER_GLOBAL_STORAGE=${PWD}/.caches/devcontainer/vscode/userData/globalStorage
+LOCAL_VSCODE_USER_GLOBAL_STORAGE=${DEV_CONTAINER_CACHE}/vscode/userData/globalStorage
 mkdir -p ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}
 # persist locally (gitignored)
-ln -sf ${PWD}/.caches/devcontainer/vscode/userData $VSCODE_REMOTE_USER_DATA
-# versionned folder for gpt chat logging (folder ${PWD}/.caches/devcontainer/genieai.chatgpt-vscode)
-ln -sf ${PWD}/.caches/devcontainer/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
+ln -sf ${DEV_CONTAINER_CACHE}/vscode/userData $VSCODE_REMOTE_USER_DATA
+# versionned folder for gpt chat logging (folder ${DEV_CONTAINER_CACHE}/genieai.chatgpt-vscode)
+ln -sf ${DEV_CONTAINER_CACHE}/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
 fi

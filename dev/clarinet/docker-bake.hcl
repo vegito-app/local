@@ -14,10 +14,15 @@ variable "CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for clarinet image build (cannot be used before first write)"
 }
 
+variable "CLARINET_VERSION" {
+  default = "2.12.0"
+}
+
 target "clarinet-ci" {
   args = {
-    builder_image = LATEST_BUILDER_IMAGE
-    docker_version = DOCKER_VERSION
+    builder_image    = LATEST_BUILDER_IMAGE
+    docker_version   = DOCKER_VERSION
+    clarinet_version = CLARINET_VERSION
   }
   context    = "dev/clarinet"
   dockerfile = "Dockerfile"
@@ -35,8 +40,9 @@ target "clarinet-ci" {
 
 target "clarinet" {
   args = {
-    builder_image = LATEST_BUILDER_IMAGE
-    docker_version = DOCKER_VERSION
+    builder_image    = LATEST_BUILDER_IMAGE
+    docker_version   = DOCKER_VERSION
+    clarinet_version = CLARINET_VERSION
   }
   context    = "dev/clarinet"
   dockerfile = "Dockerfile"

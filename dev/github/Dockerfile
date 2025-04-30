@@ -3,14 +3,53 @@ FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
     curl \
+    git \
+    gpg \
+    make \
+    unzip \
     sudo \
     wget
 
 ARG TARGETPLATFORM
 
+# GCP CLI
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+    && apt-get update && apt-get install -y \
+    google-cloud-cli-gke-gcloud-auth-plugin \
+    google-cloud-sdk \
+    && rm -rf /var/lib/apt/lists/* 
+
+# Terraform
+ARG terraform_version
+RUN curl -OL https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
+    && unzip terraform_${terraform_version}_linux_amd64.zip -d /usr/local/bin/ \
+    && rm terraform_${terraform_version}_linux_amd64.zip
+
+# kubectl
+ARG kubectl_version
+RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null \
+    && curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null \
+    && chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
+    && chmod 644 /etc/apt/sources.list.d/kubernetes.list \
+    && apt-get update \
+    && apt-get install -y kubectl \
+    && rm -rf /var/lib/apt/lists/* 
+
+# helm
+RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list > /dev/null \
+    && apt-get update \
+    && apt-get install helm \ 
+    && rm -rf /var/lib/apt/lists/* \
+    && helm repo add hashicorp https://helm.releases.hashicorp.com \
+    && helm repo update 
+
+
 ARG docker_version
-ARG docker_compose_version=2.34.0
-ARG docker_buildx_version=0.22.0
+ARG docker_compose_version
+ARG docker_buildx_version
 RUN \
     set -eux; \
     \
@@ -101,13 +140,13 @@ USER ${non_root_user}
 
 ENV NVM_DIR=${HOME}/nvm
 
-ARG nvm_version=0.40.1
-ARG node_version=22.14.0
+ARG nvm_version
+ARG node_version
 RUN set -x; \
     # 
     mkdir -p ${NVM_DIR} \
     # 
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash - \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - \
     && . ${NVM_DIR}/nvm.sh \
     && nvm install ${node_version} \
     && nvm alias default ${node_version} \
@@ -120,7 +159,8 @@ RUN set -x; \
 
 WORKDIR /runner
 
-ENV RUNNER_VERSION=2.323.0
+ARG github_runner_version
+ENV RUNNER_VERSION=${github_runner_version}
 USER root
 RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERSION/actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && tar xzf ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
