@@ -66,3 +66,6 @@ $(DEV_SERVICES:dev-%=%):
 
 dev:$(DEV_SERVICES:dev-%=%)
 .PHONY: dev
+
+dev-rm: $(DEV_SERVICES:dev-%=%-docker-compose-rm)
+.PHONY: dev-rm
