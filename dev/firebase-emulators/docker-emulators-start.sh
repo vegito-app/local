@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux
+set -eu
 
 # List to hold background job PIDs
 bg_pids=()
@@ -38,4 +38,4 @@ done
 TARGET_PORT=9299 LISTEN_PORT=9399 localproxy &
 bg_pids+=("$!") 
 
-while true ; do sleep 1000 ; done
+sleep infinity

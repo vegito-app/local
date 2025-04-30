@@ -38,7 +38,7 @@ ARG docker_version
 
 ARG TARGETPLATFORM
 RUN \
-    set -eux; \
+    set -eu; \
     \
     mkdir -p /run/user && chmod 1777 /run/user; \
     \ 

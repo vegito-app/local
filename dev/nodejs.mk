@@ -1,5 +1,4 @@
 NODE_MODULES := \
-	infra/gcloud/auth \
 	application/frontend \
 	application/firebase/functions
 

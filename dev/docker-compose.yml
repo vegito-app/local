@@ -95,7 +95,7 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
-        set -eux
+        set -eu
         make clarinet-devnet-start
         while true ; do sleep 1000 ; done
       '
@@ -157,7 +157,7 @@ services:
     command: |
       bash -c '
 
-      set -eux
+      set -eu
 
       vault server -dev -dev-root-token-id $${VAULT_DEV_ROOT_TOKEN_ID} &
 

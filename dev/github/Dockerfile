@@ -51,7 +51,7 @@ ARG docker_version
 ARG docker_compose_version
 ARG docker_buildx_version
 RUN \
-    set -eux; \
+    set -eu; \
     \
     case "$TARGETPLATFORM" in \
     "linux/amd64") \
