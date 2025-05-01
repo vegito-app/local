@@ -34,6 +34,8 @@ module "gcloud" {
   source      = "../../gcloud"
   environment = local.environment
 
+  bucket_tf_state_eu_global_name = "global-${var.region}-tf-state"
+
   cloud_storage_location = var.cloud_storage_location
 
   project_name = data.google_project.project.name
@@ -52,6 +54,12 @@ module "gcloud" {
 
 output "project" {
   value = data.google_project.project.id
+}
+
+
+import {
+  to = module.gcloud.google_storage_bucket.bucket_tf_state_eu_global
+  id = "global-${var.region}-tf-state"
 }
 
 # Enables required APIs.
@@ -75,31 +83,6 @@ resource "google_project_service" "google_services_default" {
   # Don't disable the service if the resource block is removed by accident.
   disable_on_destroy         = false
   disable_dependent_services = true
-}
-
-resource "google_storage_bucket" "bucket_tf_state_eu_global" {
-  name     = "global-${var.region}-tf-state"
-  location = var.region
-
-  storage_class = "STANDARD"
-
-  force_destroy = false # Do not remove bucket if remaining tf_state
-
-  uniform_bucket_level_access = true # Needed to use with tf tf_lock
-
-  versioning {
-    enabled = true
-  }
-}
-
-import {
-  to = google_storage_bucket.bucket_tf_state_eu_global
-  id = "global-${var.region}-tf-state"
-}
-
-output "tf_state_bucket_url" {
-  description = "Terraform state GCS bucket URL."
-  value       = google_storage_bucket.bucket_tf_state_eu_global.url
 }
 
 resource "google_project_iam_member" "application_backend_vault_access" {

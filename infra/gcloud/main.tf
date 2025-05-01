@@ -64,3 +64,24 @@ resource "google_project_service" "google_services_maps" {
   disable_dependent_services = true
 }
 
+variable "bucket_tf_state_eu_global_name" {}
+
+resource "google_storage_bucket" "bucket_tf_state_eu_global" {
+  name     = var.bucket_tf_state_eu_global_name
+  location = var.region
+
+  storage_class = "STANDARD"
+
+  force_destroy = false # Do not remove bucket if remaining tf_state
+
+  uniform_bucket_level_access = true # Needed to use with tf tf_lock
+
+  versioning {
+    enabled = true
+  }
+}
+
+output "tf_state_bucket_url" {
+  description = "Terraform state GCS bucket URL."
+  value       = google_storage_bucket.bucket_tf_state_eu_global.url
+}

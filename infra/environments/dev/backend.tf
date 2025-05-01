@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "global-europe-west1-tf-state"
-    prefix = "terraform/state/dev"
+    bucket = "global-europe-west1-tf-state-dev"
+    prefix = "terraform/state/"
   }
 }

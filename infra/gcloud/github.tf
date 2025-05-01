@@ -23,10 +23,6 @@ resource "google_artifact_registry_repository_iam_member" "github_actions_public
   member     = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
-data "google_storage_bucket" "tf_state_global" {
-  name = var.tf_state_global_bucket_name
-}
-
 resource "google_project_iam_member" "github_action_project_editor" {
   role    = "roles/editor"
   project = var.project_id
@@ -46,13 +42,13 @@ resource "google_project_iam_member" "github_action_project_storage_admin" {
 }
 
 resource "google_storage_bucket_iam_member" "github_actions_public_strorage_object_user" {
-  bucket = data.google_storage_bucket.tf_state_global.name
+  bucket = google_storage_bucket.bucket_tf_state_eu_global.name
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
 resource "google_storage_bucket_iam_member" "github_actions_global_tf_state_strorage_admin" {
-  bucket = data.google_storage_bucket.tf_state_global.name
+  bucket = google_storage_bucket.bucket_tf_state_eu_global.name
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.github_actions.email}"
 }

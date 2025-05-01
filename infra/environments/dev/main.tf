@@ -2,6 +2,8 @@ locals {
   environment = "dev"
 }
 module "gcloud" {
+  bucket_tf_state_eu_global_name = "global-${var.region}-tf-state-dev"
+
   source       = "../../gcloud"
   environment  = local.environment
   project_name = data.google_project.project.name
