@@ -27,14 +27,14 @@ services:
       # Ensure docker socket permissions
       make docker-sock
       make dev
-      while true; do sleep 1000 ; done
+      sleep infinity 
       '
     networks:
       dev:
         aliases:
           - devcontainer
 
-  backend:
+  application-backend:
     restart: unless-stopped
     image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:backend-latest}
     build:
@@ -129,10 +129,6 @@ services:
       - render
       - sgx
     working_dir: ${PWD:-/workspaces/refactored-winner}
-    command: |
-      bash -c '
-      studio & \
-      sleep infinity'
     networks:
       dev:
   vault-dev:
@@ -149,8 +145,6 @@ services:
       VAULT_ADDR: http://0.0.0.0:8200
       VAULT_DEV_ROOT_TOKEN_ID: root
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
-    ports:
-      - "8200:8200"
     volumes:
       - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
     working_dir: ${PWD:-/workspaces/refactored-winner}
@@ -158,29 +152,10 @@ services:
       bash -c '
 
       set -eu
+      
+      ./dev/backend-application-vault-init.sh
 
-      vault server -dev -dev-root-token-id $${VAULT_DEV_ROOT_TOKEN_ID} &
-
-      until vault status -format=json | jq -e '.sealed' | grep -q 'false'; do
-        echo "Vault is sealed, waiting..."
-        sleep 1
-      done
-        
-      vault audit enable file file_path=$${VAULT_AUDIT}/vault_audit.log
-
-      # vault login root;
-
-      # vault policy write backend-policy ./policies/backend-application-vault-policies.hcl
-      vault policy write backend-application ./dev/backend-application-vault-policies.hcl
-
-      vault auth enable gcp
-
-      vault write auth/gcp/role/application-backend \
-        type="iam" \
-        bound_service_accounts="production-application-backend@moov-438615.iam.gserviceaccount.com" \
-        bound_projects="moov-438615" \
-        token_policies="backend-application"
-
-        sleep infinity'
+      sleep infinity
+      '
     networks:
       dev:

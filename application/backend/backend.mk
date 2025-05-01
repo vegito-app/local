@@ -90,15 +90,3 @@ application-backend-docker-compose-up: application-backend-docker-compose-rm
 	@echo View UI at http://127.0.0.1:8080/ui
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: application-backend-docker-compose-up
-
-application-backend-docker-compose-stop:
-	@-$(DOCKER_COMPOSE) stop backend 2>/dev/null
-.PHONY: application-backend-docker-compose-stop
-
-application-backend-docker-compose-rm: application-backend-docker-compose-stop
-	@$(DOCKER_COMPOSE) rm -f -s backend
-.PHONY: application-backend-docker-compose-rm
-
-application-backend-docker-compose-logs:
-	@$(DOCKER_COMPOSE) logs --follow backend
-.PHONY: application-backend-docker-compose-logs

@@ -60,36 +60,33 @@ DEV_SERVICES = \
   dev-android-studio \
   dev-application-backend
 
-$(DEV_SERVICES:dev-%=%): 
-	@$(MAKE) $(@:%=%-docker-compose-up)
-.PHONY: $(DEV_SERVICES:%=dev-%)
-
-dev:$(DEV_SERVICES:dev-%=%)
+dev: $(DEV_SERVICES:dev-%=%)
 .PHONY: dev
 
 dev-rm: $(DEV_SERVICES:dev-%=%-docker-compose-rm)
 .PHONY: dev-rm
 
+$(DEV_SERVICES:dev-%=%):
+	@$(MAKE) $(@:%=%-docker-compose-up)
+.PHONY: $(DEV_SERVICES:dev-%=%)
+
 $(DEV_SERVICES:dev-%=%-docker-compose-start):
-	@-$(DOCKER_COMPOSE) start $(@:%-docker-compose-start=%) 2>/dev/null
+	-$(DOCKER_COMPOSE) start $(@:%-docker-compose-start=%) 2>/dev/null
 .PHONY: $(DEV_SERVICES:dev-%=%-docker-compose-start)
 
 $(DEV_SERVICES:dev-%=%-docker-compose-stop):
-	@-$(DOCKER_COMPOSE) stop $(@:%-docker-compose-up=%) 2>/dev/null
+	-$(DOCKER_COMPOSE) stop $(@:%-docker-compose-stop=%) 2>/dev/null
 .PHONY: $(DEV_SERVICES:%=%-docker-compose-stop)
 
-$(DEV_SERVICES:dev-%=%-docker-compose-rm): $(DEV_SERVICES:%=%-docker-compose-stop)
-	@$(DOCKER_COMPOSE) rm -f $(@:%-docker-compose-rm=%)
+$(DEV_SERVICES:dev-%=%-docker-compose-rm): 
+	$(MAKE) $(@:%-rm=%-stop)
+	$(DOCKER_COMPOSE) rm -f $(@:%-docker-compose-rm=%)
 .PHONY: $(DEV_SERVICES:%=%-docker-compose-rm)
 
 $(DEV_SERVICES:dev-%=%-docker-compose-logs):
-	@$(DOCKER_COMPOSE) logs --follow $(@:%-docker-compose-logs=%)
+	$(DOCKER_COMPOSE) logs --follow $(@:%-docker-compose-logs=%)
 .PHONY: $(DEV_SERVICES:%=%-docker-compose-logs)
 
-android-studio-emulator-logs:
-	@$(DOCKER_COMPOSE) exec android-studio adb logcat -T 10
-.PHONY: android-studio-docker-compose-logs
-
 $(DEV_SERVICES:dev-%=%-docker-compose-sh):
-	@$(DOCKER_COMPOSE) exec -it $(@:%-docker-compose-sh=%) bash
+	$(DOCKER_COMPOSE) exec -it $(@:%-docker-compose-sh=%) bash
 .PHONY: $(DEV_SERVICES:%=%-docker-compose-sh)

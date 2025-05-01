@@ -51,9 +51,9 @@ services:
       # Function to kill background jobs when script ends
       kill_jobs() {
           echo "Killing clarinet background jobs"
-          for pid in "${bg_pids[@]}"; do
-              kill "$pid"
-              wait "$pid" 2>/dev/null
+          for pid in "$${bg_pids[@]}"; do
+              kill "$$pid"
+              wait "$$pid" 2>/dev/null
           done
       }
 
@@ -63,8 +63,8 @@ services:
           8200 8201 \
           4000 4400 4500 5001 5901 8090 9000 9099 \
           8080 ; do
-          socat TCP-LISTEN:$i,fork,reuseaddr TCP:dev:$i > /tmp/socat-nestor-dev-$i.log 2>&1 &
-          bg_pids+=("$!")
+          socat TCP-LISTEN:$$i,fork,reuseaddr TCP:dev:$$i > /tmp/socat-nestor-dev-$$i.log 2>&1 &
+          bg_pids+=("$$!")
       done
 
       sleep infinity

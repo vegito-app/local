@@ -18,15 +18,15 @@ import (
 var config = viper.New()
 
 const (
-	vaultAddrConfig = "vault_addr"
-	vaultRoleConfig = "vault_role"
+	vaultAddrConfig = "addr"
+	vaultRoleConfig = "role"
 
 	minimumLeaseTimeDurationConfig = "minimum_lease_time_duration"
 )
 
 func init() {
 	config.AutomaticEnv()
-	config.SetEnvPrefix("firebase")
+	config.SetEnvPrefix("vault")
 	config.SetDefault(minimumLeaseTimeDurationConfig, "30s")
 	config.SetDefault(vaultRoleConfig, "backend-application")
 }
@@ -37,6 +37,8 @@ type APIclient struct {
 	vaultClient *vault.Client
 
 	minimumLeaseTimeDuration time.Duration
+
+	obtainedViaLogin bool
 
 	close func()
 }
@@ -127,7 +129,12 @@ loop:
 		case <-time.After(renewInterval):
 			var backoff time.Duration = 1 * time.Second
 			for ; retries < 5; retries++ {
-				lookup, err = c.vaultClient.Auth().Token().RenewSelf(0)
+				if c.obtainedViaLogin {
+					lookup, err = c.vaultClient.Auth().Token().RenewSelf(0)
+				} else {
+					log.Debug().Msg("skipping RenewSelf — token not renewable in dev mode")
+					break
+				}
 				if err != nil {
 					log.Warn().
 						Err(err).
@@ -191,6 +198,22 @@ func (c *APIclient) login() (*vault.Secret, error) {
 	var backoff time.Duration = 1 * time.Second
 	for retries := 0; retries < 5; retries++ {
 		var resp *vault.Secret
+		if token := c.vaultClient.Token(); token != "" && token != "unset" {
+			log.Info().
+				Str("token", token).
+				Msg("vault: VAULT_TOKEN already set, skipping GCP login — running in dev mode?")
+			// simule une réponse de login avec un lease long arbitraire pour le dev
+			c.obtainedViaLogin = false
+			return &vault.Secret{
+				Auth: &vault.SecretAuth{
+					ClientToken:   token,
+					LeaseDuration: int(c.minimumLeaseTimeDuration / time.Second),
+				},
+				Data: map[string]interface{}{
+					"ttl": json.Number(fmt.Sprintf("%d", int(c.minimumLeaseTimeDuration/time.Second))),
+				},
+			}, nil
+		}
 		resp, err = c.vaultClient.Logical().Write("auth/gcp/login", map[string]any{
 			"role": vaultRole,
 		})
@@ -213,16 +236,15 @@ func (c *APIclient) login() (*vault.Secret, error) {
 		}
 
 		// SUCCESS CASE
+		vaultToken := resp.Auth.ClientToken
+
+		c.stateLock.Lock()
+		c.vaultClient.SetToken(vaultToken)
+		c.stateLock.Unlock()
+
 		loginResp = resp
 		break
 	}
-	if loginResp == nil {
-		return nil, fmt.Errorf("failed to login to Vault after retries: %w", err)
-	}
-	vaultToken := loginResp.Auth.ClientToken
-	c.stateLock.Lock()
-	c.vaultClient.SetToken(vaultToken)
-	c.stateLock.Unlock()
 	return loginResp, nil
 }
 
