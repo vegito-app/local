@@ -73,20 +73,3 @@ firebase-emulators-docker-compose-up: firebase-emulators-docker-compose-rm
 	@echo View Emulator UI at http://127.0.0.1:4000/
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: firebase-emulators-docker-compose-up
-
-firebase-emulators-docker-compose-stop:
-	@-$(DOCKER_COMPOSE) stop firebase-emulators 2>/dev/null
-.PHONY: firebase-emulators-docker-compose-stop
-
-firebase-emulators-docker-compose-rm: firebase-emulators-docker-compose-stop
-	@$(DOCKER_COMPOSE) rm -f firebase-emulators
-.PHONY: firebase-emulators-docker-compose-rm
-
-firebase-emulators-docker-compose-logs:
-	@$(DOCKER_COMPOSE) logs --follow firebase-emulators
-.PHONY: firebase-emulators-docker-compose-logs
-
-firebase-emulators-docker-compose-sh:
-	@$(DOCKER_COMPOSE) exec -it firebase-emulators bash
-.PHONY: firebase-emulators-docker-compose-sh
-

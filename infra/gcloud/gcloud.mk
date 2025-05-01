@@ -180,6 +180,7 @@ gcloud-docker-registry-temporary-token:
 	@echo  username: oauth2accesstoken
 	@echo  password: `$(GCLOUD) auth print-access-token`
 .PHONY: gcloud-docker-registry-temporary-token
+
 GCLOUD_SERVICE_ACCOUNTS = \
 	$(GOOGLE_CLOUD_PROJECT_ID)@appspot.gserviceaccount.com \
 	$(GOOGLE_CLOUD_PROJECT_ID)-compute@developer.gserviceaccount.com \
@@ -237,7 +238,6 @@ $(GCLOUD_SECRETS:%=gcloud-secret-%-show):
 	&& echo $$a | jq 2>/dev/null \
 	|| echo $$a
 .PHONY: $(GCLOUD_SECRETS:%=gcloud-secret-%-show)
-
 
 gcloud-compute-disk-list:
 	@echo Disk used:

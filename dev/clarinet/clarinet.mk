@@ -72,19 +72,3 @@ clarinet-devnet-docker-compose-up: clarinet-devnet-docker-compose-rm
 	@echo Started Clarinet Devnet: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: clarinet-devnet-docker-compose-up
-
-clarinet-devnet-docker-compose-stop:
-	@-$(DOCKER_COMPOSE) stop clarinet-devnet 2>/dev/null
-.PHONY: clarinet-devnet-docker-compose-stop
-
-clarinet-devnet-docker-compose-rm: clarinet-devnet-docker-compose-stop
-	@$(DOCKER_COMPOSE) rm -f clarinet-devnet
-.PHONY: clarinet-devnet-docker-compose-rm
-
-clarinet-devnet-docker-compose-logs:
-	@$(DOCKER_COMPOSE) logs --follow clarinet-devnet
-.PHONY: clarinet-devnet-docker-compose-logs
-
-clarinet-devnet-docker-compose-sh:
-	@$(DOCKER_COMPOSE) exec -it clarinet-devnet bash
-.PHONY: clarinet-devnet-docker-compose-sh

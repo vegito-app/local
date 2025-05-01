@@ -27,27 +27,3 @@ vault-dev-docker-compose-up: vault-dev-docker-compose-rm
 	@echo Started Androïd studio display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: vault-dev-docker-compose-up
-
-vault-dev-docker-compose-startvp:
-	@-$(DOCKER_COMPOSE) startvp vault-dev 2>/dev/null
-.PHONY: vault-dev-docker-compose-startvp
-
-vault-dev-docker-compose-stop:
-	@-$(DOCKER_COMPOSE) stop vault-dev 2>/dev/null
-.PHONY: vault-dev-docker-compose-stop
-
-vault-dev-docker-compose-rm: vault-dev-docker-compose-stop
-	@$(DOCKER_COMPOSE) rm -f vault-dev
-.PHONY: vault-dev-docker-compose-rm
-
-vault-dev-docker-compose-logs:
-	@$(DOCKER_COMPOSE) logs --follow vault-dev
-.PHONY: vault-dev-docker-compose-logs
-
-vault-dev-audit-logs:
-	@$(DOCKER_COMPOSE) exec vault-dev tail -f /vault/audit/audit-logs.json | jq
-.PHONY: vault-dev-audit-logs
-
-vault-dev-docker-compose-sh:
-	@$(DOCKER_COMPOSE) exec -it vault-dev bash
-.PHONY: vault-dev-docker-compose-sh

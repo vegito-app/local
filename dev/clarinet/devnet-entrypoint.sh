@@ -24,9 +24,14 @@ TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
 bg_pids+=("$!")
 
 export DOCKER_HOST=unix:///run/user/1000/docker.sock
+
 until docker info >/dev/null 2>&1; do echo waiting dockerd startup ; sleep 1 ; done
+
 docker info
+
 TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
+bg_pids+=("$!")
+
 mkdir -p ${HOME}/.docker/run
 ln -s /run/user/1000/docker.sock ${HOME}/.docker/run/docker.sock
 

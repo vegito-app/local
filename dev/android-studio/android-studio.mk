@@ -28,27 +28,3 @@ android-studio-docker-compose-up: android-studio-docker-compose-rm
 	@echo Started Androïd studio display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: android-studio-docker-compose-up
-
-android-studio-docker-compose-start:
-	@-$(DOCKER_COMPOSE) start android-studio 2>/dev/null
-.PHONY: android-studio-docker-compose-start
-
-android-studio-docker-compose-stop:
-	@-$(DOCKER_COMPOSE) stop android-studio 2>/dev/null
-.PHONY: android-studio-docker-compose-stop
-
-android-studio-docker-compose-rm: android-studio-docker-compose-stop
-	@$(DOCKER_COMPOSE) rm -f android-studio
-.PHONY: android-studio-docker-compose-rm
-
-android-studio-docker-compose-logs:
-	@$(DOCKER_COMPOSE) logs --follow android-studio
-.PHONY: android-studio-docker-compose-logs
-
-android-studio-emulator-logs:
-	@$(DOCKER_COMPOSE) exec android-studio adb logcat -T 10
-.PHONY: android-studio-docker-compose-logs
-
-android-studio-docker-compose-sh:
-	@$(DOCKER_COMPOSE) exec -it android-studio bash
-.PHONY: android-studio-docker-compose-sh
