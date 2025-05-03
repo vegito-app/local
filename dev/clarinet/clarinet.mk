@@ -5,21 +5,6 @@ CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(CLARINET
 endif
 CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-clarinet-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print clarinet
-	@$(DOCKER_BUILDX_BAKE) --load clarinet
-.PHONY: clarinet-image
-
-clarinet-image-push: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print clarinet
-	@$(DOCKER_BUILDX_BAKE) --push clarinet
-.PHONY: clarinet-image-push
-
-clarinet-image-ci: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print clarinet-ci
-	@$(DOCKER_BUILDX_BAKE) --push clarinet-ci
-.PHONY: clarinet-image-ci
-
 CONTRACTS := \
   my-first-contract \
   counter \

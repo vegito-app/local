@@ -15,3 +15,9 @@ images: docker-images-local-arch
 
 images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
+
+dev: dev-docker-compose
+.PHONY: dev
+
+dev-rm: dev-docker-compose-rm
+.PHONY: dev-rm

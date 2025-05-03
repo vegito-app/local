@@ -1,25 +1,9 @@
-
 FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/dev/.containers/docker-buildx-cache/firebase-emulators
 $(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
 FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-
-firebase-emulators-image: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print firebase-emulators
-	@$(DOCKER_BUILDX_BAKE) --load firebase-emulators
-.PHONY: firebase-emulators-image
-
-firebase-emulators-image-push: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print firebase-emulators
-	@$(DOCKER_BUILDX_BAKE) --push firebase-emulators
-.PHONY: firebase-emulators-image-push
-
-firebase-emulators-image-ci: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print firebase-emulators
-	@$(DOCKER_BUILDX_BAKE) --push firebase-emulators-ci
-.PHONY: firebase-emulators-image-ci
 
 FIREBASE_EMULATORS_DIR = $(CURDIR)/dev/firebase-emulators
 FIREBASE_EMULATORS = cd $(FIREBASE_EMULATORS_DIR) && firebase

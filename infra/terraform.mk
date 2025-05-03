@@ -306,7 +306,7 @@ terraform-taint-backend: module.gcloud.google_cloud_run_service.application_back
 .PHONY: terraform-taint-backend
 
 terraform-state-show-all : $(TF_STATE_ITEMS:%=%-show)
-.PHONY: terraform-state-show
+.PHONY: terraform-state-show-all
 
 TERRAFORM_PROJECTS := \
 	infra/environments/prod \

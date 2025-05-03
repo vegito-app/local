@@ -16,11 +16,6 @@ DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f dev/github/docker-bake.hcl \
 	-f dev/vault/docker-bake.hcl 
 
-DOCKER_BUILDX_TARGETS := \
-	backend \
-	android-studio \
-	github-action-runner
-
 docker-images-ci-multi-arch: docker-buildx-setup dev-builder-image-ci
 	@$(DOCKER_BUILDX_BAKE) --print services-push-multi-arch
 	@$(DOCKER_BUILDX_BAKE) --push services-push-multi-arch
@@ -43,3 +38,56 @@ docker-login: gcloud-auth-docker
 docker-sock:
 	sudo chmod o+rw /var/run/docker.sock
 .PHONY: docker-sock
+
+DEV_DOCKER_COMPOSE_SERVICES = \
+  android-studio \
+  application-backend \
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet
+
+dev-docker-compose: $(DEV_DOCKER_COMPOSE_SERVICES)
+.PHONY: dev-docker-compose
+
+dev-docker-compose-rm: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-rm)
+.PHONY: dev-docker-compose-rm
+
+$(DEV_DOCKER_COMPOSE_SERVICES):
+	@$(MAKE) $(@:%=%-docker-compose-up)
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-rm): 
+	@$(MAKE) $(@:%-rm=%-stop)
+	@$(DOCKER_COMPOSE) rm -f $(@:%-docker-compose-rm=%)
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-rm))
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-image): docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
+	@$(DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-image)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-image-push): docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print $(@:%-image-push=%)
+	@$(DOCKER_BUILDX_BAKE) --push $(@:%-image-push=%)
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-image-push)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-image-ci): docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
+	@$(DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-image-ci)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-start):
+	@-$(DOCKER_COMPOSE) start $(@:%-docker-compose-start=%) 2>/dev/null
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-start)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-stop):
+	@-$(DOCKER_COMPOSE) stop $(@:%-docker-compose-stop=%) 2>/dev/null
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-stop)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-logs):
+	@$(DOCKER_COMPOSE) logs --follow $(@:%-docker-compose-logs=%)
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-logs)
+
+$(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-sh):
+	@$(DOCKER_COMPOSE) exec -it $(@:%-docker-compose-sh=%) bash
+.PHONY: $(DEV_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-sh)

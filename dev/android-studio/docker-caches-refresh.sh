@@ -88,11 +88,12 @@ if [ -f "$GIT_CONFIG_GLOBAL" ]; then
 fi
 ln -sf $LOCAL_ANDROID_STUDIO/git/.gitconfig $GIT_CONFIG_GLOBAL
 
-# Persist VS Code settings (optional)
-VSCODE_SETTINGS=${HOME}/.config/Code
-mkdir -p $LOCAL_ANDROID_STUDIO/vscode
-if [ -d "$VSCODE_SETTINGS" ]; then
-  rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_STUDIO/vscode/
-  rm -rf "$VSCODE_SETTINGS"
-fi
-ln -s $LOCAL_ANDROID_STUDIO/vscode/Code $VSCODE_SETTINGS
+# CAUSES UNFORTUNATE START WITH INCONSISTENT ALREADY RUNNING STATE
+# # Persist VS Code settings (optional)
+# VSCODE_SETTINGS=${HOME}/.config/Code
+# mkdir -p $LOCAL_ANDROID_STUDIO/vscode
+# if [ -d "$VSCODE_SETTINGS" ]; then
+#   rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_STUDIO/vscode/
+#   rm -rf "$VSCODE_SETTINGS"
+# fi
+# ln -sf $LOCAL_ANDROID_STUDIO/vscode/Code $VSCODE_SETTINGS

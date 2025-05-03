@@ -32,10 +32,6 @@ application-backend-install:
 	@echo Installed backend.
 .PHONY: application-backend-install
 
-LATEST_APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):backend-latest
-
-APPLICATION_BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
-
 # Handle buildx cache in local folder
 APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):backend-$(VERSION)
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/dev/.containers/docker-buildx-cache/application-backend
@@ -45,31 +41,19 @@ APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPL
 endif
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) --load backend
-.PHONY: application-backend-image
+application-backend-docker-compose-up: application-backend-docker-compose-rm
+	$(CURDIR)/application/backend/docker-compose-up.sh &
+	until nc -z application-backend 8080 ; do \
+		sleep 1 ; \
+	done
+	@$(DOCKER_COMPOSE) logs application-backend
+	@echo
+	@echo Started Application Backend: 
+	@echo View UI at http://127.0.0.1:8080/ui
+	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
+.PHONY: application-backend-docker-compose-up
 
-application-backend-image-ci: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-	@$(DOCKER_BUILDX_BAKE) --print backend-ci
-	@$(DOCKER_BUILDX_BAKE) --load backend-ci
-.PHONY: application-backend-image-ci
-
-application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-	@$(DOCKER_BUILDX_BAKE) --print backend
-	@$(DOCKER_BUILDX_BAKE) --push backend
-.PHONY: application-backend-image-push
-
-# Push application-backend images on each environments
-$(INFRA_ENV:%=application-backend-%-image-push):
-	@INFRA_ENV=$(@:application-backend-%-image-push=%) $(MAKE) application-backend-image-push
-.PHONY: $(INFRA_ENV:%=application-backend-%-image-push)
-
-application-backend-image-push-ci: docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print backend-ci
-	@$(DOCKER_BUILDX_BAKE) --push backend-ci
-.PHONY: application-backend-image-push-ci
-
+APPLICATION_BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
 application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
 	@docker run \
 	  -p 8080:8080 \
@@ -79,14 +63,7 @@ application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE
 	  $(APPLICATION_BACKEND_IMAGE)
 .PHONY: application-backend-docker-compose-run
 
-application-backend-docker-compose-up: application-backend-docker-compose-rm
-	@$(CURDIR)/application/backend/docker-compose-up.sh &
-	@until nc -z backend 8080 ; do \
-		sleep 1 ; \
-	done
-	@$(DOCKER_COMPOSE) logs backend
-	@echo
-	@echo Started Application Backend: 
-	@echo View UI at http://127.0.0.1:8080/ui
-	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: application-backend-docker-compose-up
+# Push application-backend images on each environments
+$(INFRA_ENV:%=application-backend-%-image-push):
+	@INFRA_ENV=$(@:application-backend-%-image-push=%) $(MAKE) application-backend-image-push
+.PHONY: $(INFRA_ENV:%=application-backend-%-image-push)
