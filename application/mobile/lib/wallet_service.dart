@@ -28,7 +28,7 @@ String xorKeys(String privateKey, String recoveryKey) {
 // Fonction pour récupérer la recoveryKey depuis le backend
 Future<String> fetchRecoveryKeyXorComponent(String userId) async {
   final response = await http.get(
-    Uri.parse("${Config.backendUrl}/generate-xorkey"),
+    Uri.parse("${Config.backendUrl}/user/generate-recoverykey"),
     headers: {"X-User-ID": userId},
   );
 
@@ -64,10 +64,10 @@ class WalletService {
   }
 
 // Processus complet
-  static Future<void> generateRecoveryKey(String userId) async {
+  static Future<String> generateRecoveryKey(String userId) async {
     String privateKey = await getPrivateKey();
 
-    _setupRecovery(privateKey);
+    return await _setupRecovery(privateKey);
   }
 
   // Récupération sécurisée ou création de la clé privée
@@ -95,7 +95,7 @@ class WalletService {
 
     // Envoyer recoveryKey au backend pour stockage sécurisé
     final response = await http.post(
-      Uri.parse("${Config.backendUrl}/store-xorkey"),
+      Uri.parse("${Config.backendUrl}/user/store-recoverykey"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "userId": FirebaseAuth.instance.currentUser?.uid,
@@ -122,53 +122,10 @@ class WalletService {
 
   // Récupération de la clé de récupération
   static Future<String?> getRecoveryKey() async {
-    return await _storage.read(key: _recoveryKeyKey);
+    return _storage.read(key: _recoveryKeyKey);
   }
 
   // Rotation des clés
-  static Future<String> rotateKeys() async {
-    final privateKey = await getPrivateKey();
-    final recoveryKey = _generateRandomKey();
-    final xorKey = _recoveryKeyXor(privateKey, recoveryKey);
-
-    // Stocker recoveryKey localement
-    await _storage.write(key: _recoveryKeyKey, value: recoveryKey);
-
-    // Appeler le backend avec le nouvel xorKey
-    final response = await http.post(
-      Uri.parse("${Config.backendUrl}/user/rotate-recoverykey"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "userId": FirebaseAuth.instance.currentUser?.uid,
-        "recoveryKey": xorKey
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return "RecoveryKey mise à jour avec succès.";
-    } else {
-      throw Exception("Échec de la mise à jour de la RecoveryKey.");
-    }
-  }
-
-  // Ajout des nouvelles fonctions
-  static Future<void> storeRecoveryKeyWithRotation(
-      String userId, String newKey) async {
-    final xorKey = _recoveryKeyXor(await getPrivateKey(), newKey);
-
-    final response = await http.post(
-      Uri.parse("${Config.backendUrl}/user/store-recoverykey"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "userId": FirebaseAuth.instance.currentUser?.uid,
-        "recoveryKey": xorKey,
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Échec de l'enregistrement de la RecoveryKey.");
-    }
-  }
 
   static Future<String?> getRecoveryKeyVersion(
       String userId, int version) async {
