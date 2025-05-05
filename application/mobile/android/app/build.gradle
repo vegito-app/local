@@ -9,7 +9,7 @@ android {
     namespace = "com.example.car2go"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
+    ndkVersion = "27.0.12077973"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -34,13 +34,17 @@ android {
     buildTypes {
         debug {
             //minifyEnabled true fixes this issue and allows you to use minSdkVersion 21
-            minifyEnabled = true
+            // minifyEnabled = true
             signingConfig = signingConfigs.debug
+            minifyEnabled false // Désactive la minification en mode debug
+            shrinkResources false // Désactive aussi le nettoyage des ressources
         }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
         }
     }
 }

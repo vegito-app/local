@@ -1,140 +1,45 @@
-import 'dart:convert'; // Ajouté pour jsonEncode
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart'; // Ajouté pour kReleaseMode
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Ajouté pour http
 
-import 'config.dart'; // Ajouté pour Config
-import 'wallet_service.dart';
+class SignInPage extends StatelessWidget {
+  const SignInPage({Key? key}) : super(key: key);
 
-class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
-
-  @override
-  _SignInPageState createState() => _SignInPageState();
-}
-
-class _SignInPageState extends State<SignInPage> {
-  String? recoveryKey;
-
-  Future<void> _signInWithGoogle() async {
-    final userCredential =
-        await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
-    final user = userCredential.user;
-
-    if (user != null) {
-      final rKey = await WalletService.getRecoveryKey();
-      setState(() {
-        recoveryKey = rKey;
-      });
-
-      final userId = user?.uid;
-      if (userId != null && rKey != null) {
-        final response = await http.post(
-          Uri.parse("${Config.backendUrl}/user/rotate-recoverykey"),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({
-            "userId": userId,
-            "recoveryKey": rKey,
-          }),
-        );
-
-        if (response.statusCode != 200) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Échec de la rotation de la recovery key"),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Recovery key enregistrée avec succès"),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        }
+  Future<UserCredential?> _signInWithFirebase(BuildContext context) async {
+    try {
+      if (!kReleaseMode) {
+        await FirebaseAuth.instance.useAuthEmulator(
+            'localhost', 9099); // Utilisation de l'émulateur en dev
+      }
+      final user = FirebaseAuth.instance.currentUser;
+      // Connexion anonyme si pas connecté
+      if (user == null) {
+        return await FirebaseAuth.instance.signInAnonymously();
       }
 
-      // Afficher la boîte de dialogue avec la recovery key
-      _showRecoveryDialog();
+      // Déjà connecté, inutile de re-signer, retourner null
+      return null;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur de connexion Firebase : $e')),
+      );
+      return null;
     }
-  }
-
-  void _showRecoveryDialog() {
-    showDialog(
-      barrierDismissible: false, // Empêche la fermeture sans sauvegarder la clé
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Clé de récupération"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Cette clé est ESSENTIELLE pour restaurer votre wallet. "
-              "Si vous la perdez, votre wallet sera irrécupérable ! "
-              "Veuillez la noter et la stocker en sécurité.",
-              style: TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: SelectableText(
-                recoveryKey ?? "Erreur",
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("J'ai noté ma clé"),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      fit: StackFit.expand,
-      children: [
-        Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/background.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
+      appBar: AppBar(title: const Text('Se connecter')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            await _signInWithFirebase(context);
+            Navigator.of(context).pop(); // Retour à l'écran précédent
+          },
+          child: const Text('Connexion Firebase'),
         ),
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                icon: Image.asset("assets/images/logo-google.png", height: 20),
-                onPressed: _signInWithGoogle,
-                label: const Text("Se connecter avec Google"),
-              ),
-            ],
-          ),
-        )
-      ],
-    ));
+      ),
+    );
   }
 }

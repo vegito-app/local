@@ -15,6 +15,7 @@ class _AccountPageState extends State<AccountPage> {
   String _privateKey = "??????????????";
   bool _isKeyVisible = false;
   String _balance = "Chargement...";
+  bool _hasRecoveryKey = false;
 
   @override
   void initState() {
@@ -23,17 +24,25 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _loadWalletData() async {
-    final userCredential =
-        await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
-    final user = userCredential.user;
-
-    if (user != null) {
-      final privateKey = await WalletService.getPrivateKey();
-      setState(() {
-        _privateKey = privateKey;
-        _balance = "0.00 BTC"; // Simuler le solde
-      });
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+      if (userCredential.user != null) {
+        await _initializeWallet();
+      }
+    } else {
+      await _initializeWallet();
     }
+  }
+
+  Future<void> _initializeWallet() async {
+    final privateKey = await WalletService.getPrivateKey();
+    final recoveryKeyVersion = await WalletService.getRecoveryKey();
+    setState(() {
+      _privateKey = privateKey;
+      _balance = "0.00 BTC"; // Simuler le solde
+      _hasRecoveryKey = recoveryKeyVersion != null;
+    });
   }
 
   void _toggleKeyVisibility() {
@@ -52,6 +61,21 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && user.isAnonymous) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Compte temporaire : enregistrez votre clé sinon vos fonds pourraient être perdus !",
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(title: const Text("Mon Compte")),
       body: Padding(
@@ -86,6 +110,52 @@ class _AccountPageState extends State<AccountPage> {
             ElevatedButton(
               onPressed: _copyToClipboard,
               child: const Text("Copier la clé privée"),
+            ),
+            if (FirebaseAuth.instance.currentUser?.isAnonymous == true) ...[
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    final userCredential = await FirebaseAuth.instance
+                        .signInWithProvider(GoogleAuthProvider());
+                    await _initializeWallet();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Compte validé avec succès !')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                              'Erreur lors de la validation : ${e.toString()}')),
+                    );
+                  }
+                },
+                child: const Text("Valider mon compte"),
+              ),
+            ],
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await WalletService.generateRecoveryKey(
+                    FirebaseAuth.instance.currentUser?.uid ?? "");
+                await _initializeWallet();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Clé de récupération générée !')),
+                );
+              },
+              child: const Text("Créer ma clé de récupération"),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await _initializeWallet();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Données rafraîchies.')),
+                );
+              },
+              child: const Text("Rafraîchir"),
             ),
           ],
         ),
