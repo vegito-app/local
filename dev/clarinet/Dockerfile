@@ -104,23 +104,6 @@ RUN apt-get update && apt-get install -y \
     iptables \
     uidmap 
 
-# ARG clarinet_version
-
-# RUN case "$TARGETPLATFORM" in \
-#     "linux/amd64") \
-#     archive="clarinet-linux-x64-glibc.tar.gz" ; \
-#     wget -nv https://github.com/hirosystems/clarinet/releases/download/v${clarinet_version}/$archive && \
-#     tar -xf ${archive} && \
-#     chmod +x ./clarinet && \
-#     mv ./clarinet /usr/local/bin && \
-#     clarinet completion bash && \
-#     mv clarinet.bash /etc/bash_completion.d/clarinet.bash && \
-#     echo 'source /etc/bash_completion.d/clarinet.bash' >> ~/.bashrc \
-#     ;; \
-#     "linux/arm64") \
-#     ;; \
-#     esac
-
 ARG non_root_user=clarinet
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
