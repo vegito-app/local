@@ -10,14 +10,6 @@ import (
 
 func GoogleMaps(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	// googlemapsAPIkey := config.GetString(googleMapsAPIkey)
-	// if googlemapsAPIkey != "" {
-	// 	_, err := w.Write([]byte(`{"apiKey": "` + googlemapsAPIkey + `"}`))
-	// 	if err != nil {
-	// 		log.Error().Err(err).Msg("write googlemaps local secrets response")
-	// 	}
-	// 	return
-	// }
 	client, err := secretmanager.NewClient(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("new googlemaps config secretmanager client")

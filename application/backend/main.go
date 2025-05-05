@@ -8,6 +8,7 @@ import (
 	"github.com/7d4b9/utrade/backend/btc"
 	"github.com/7d4b9/utrade/backend/internal/firebase"
 	"github.com/7d4b9/utrade/backend/internal/http"
+	v1 "github.com/7d4b9/utrade/backend/internal/http/api/v1"
 	"github.com/7d4b9/utrade/backend/internal/vault"
 	"github.com/7d4b9/utrade/backend/track"
 	"github.com/rs/zerolog/log"
@@ -29,7 +30,11 @@ func main() {
 		log.Fatal().Err(err).Msg("new vault client")
 	}
 
-	if err := http.StartAPI(firebaseClient, btcService, vaultClient); err != nil {
+	s, err := v1.NewService(firebaseClient, btcService, vaultClient)
+	if err != nil {
+		log.Fatal().Err(err).Msg("create api services")
+	}
+	if err := http.StartAPI(s); err != nil {
 		log.Fatal().Err(err).Msg("http start api")
 	}
 }
