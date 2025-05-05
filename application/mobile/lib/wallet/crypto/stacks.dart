@@ -1,9 +1,11 @@
-// ignore_for_file: unused_shown_name
+// ignore_for_file: unused_shown_name, unused_import
 
 import 'dart:typed_data';
 
 import 'package:bs58/bs58.dart' show base58;
 import 'package:car2go/wallet/crypto/c32check.dart';
+import 'package:car2go/wallet/crypto/typed_data.dart';
+import 'package:car2go/wallet/crypto/wif.dart';
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:dartsv/dartsv.dart'
     show
@@ -35,7 +37,7 @@ Uint8List getCompressedPublicKey(ECPrivateKey privKey) {
   final x = pubPoint.x!.toBigInteger()!;
   final y = pubPoint.y!.toBigInteger()!;
   final prefix = y.isEven ? 0x02 : 0x03;
-  final xBytes = _bigIntToBytes(x, 32);
+  final xBytes = bigIntToBytes(x, 32);
   return Uint8List.fromList([prefix, ...xBytes]);
 }
 
@@ -54,20 +56,10 @@ String getStacksAddress(Uint8List pubKey, {bool testnet = true}) {
   return c32Encode(fullPayload, version: version);
 }
 
-// ----------- Utilitaires -----------
-Uint8List _bigIntToBytes(BigInt value, int size) {
-  final result = Uint8List(size);
-  final bytes =
-      value.toUnsigned(size * 8).toRadixString(16).padLeft(size * 2, '0');
-  final byteList = HEX.decode(bytes);
-  result.setRange(size - byteList.length, size, byteList);
-  return result;
-}
-
 // ----------- Exemple d'utilisation -----------
 void main() {
   final privKey = generatePrivateKey();
-  final privKeyHex = HEX.encode(_bigIntToBytes(privKey.d!, 32));
+  final privKeyHex = HEX.encode(bigIntToBytes(privKey.d!, 32));
   print('Clé privée : $privKeyHex');
 
   final pubKey = getCompressedPublicKey(privKey);
@@ -212,40 +204,4 @@ ECSignature _decodeSignatureDER(Uint8List der) {
   final s = BigInt.parse(HEX.encode(der.sublist(6 + rLen, 6 + rLen + sLen)),
       radix: 16);
   return ECSignature(r, s);
-}
-
-// Wallet Import Format (WIF)
-ECPrivateKey wifToPrivateKey(String wif) {
-  final decoded = base58.decode(wif);
-  if (decoded.length != 37 && decoded.length != 38) {
-    throw ArgumentError('Longueur invalide pour une clé WIF');
-  }
-  final checksum = decoded.sublist(decoded.length - 4);
-  final payload = decoded.sublist(0, decoded.length - 4);
-  final validChecksum =
-      sha256.convert(sha256.convert(payload).bytes).bytes.sublist(0, 4);
-  if (!checksum.asMap().entries.every((e) => e.value == validChecksum[e.key])) {
-    throw ArgumentError('Checksum WIF invalide');
-  }
-  final compressed = payload.length == 34 && payload.last == 0x01;
-  final privKeyBytes = compressed ? payload.sublist(1, 33) : payload.sublist(1);
-  final d = BigInt.parse(HEX.encode(privKeyBytes), radix: 16);
-  return ECPrivateKey(d, ECCurve_secp256k1());
-}
-
-String privateKeyToWIF(ECPrivateKey privKey,
-    {bool compressed = true, bool testnet = true}) {
-  final prefix = testnet ? 0xEF : 0x80;
-  final privKeyBytes = _bigIntToBytes(privKey.d!, 32);
-  final payload = [prefix, ...privKeyBytes];
-  if (compressed) {
-    payload.add(0x01);
-  }
-  final checksum = sha256
-      .convert(sha256.convert(Uint8List.fromList(payload)).bytes)
-      .bytes
-      .sublist(0, 4);
-  final fullPayload = Uint8List.fromList([...payload, ...checksum]);
-  // return base58.encode(fullPayload);
-  return base58.encode(fullPayload);
 }
