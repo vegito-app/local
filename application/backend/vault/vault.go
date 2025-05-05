@@ -256,7 +256,7 @@ func (c *APIclient) DecryptUserRecoveryKey(encryptedRecoveryKey []byte) ([]byte,
 	data := map[string]any{
 		"ciphertext": string(encryptedRecoveryKey),
 	}
-	decryptedSecret, err := c.vaultClient.Logical().Write("transit/decrypt/user/wallet/recovery", data)
+	decryptedSecret, err := c.vaultClient.Logical().Write("transit/decrypt/user_wallet_recovery", data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt recoveryKey with Vault Transit: %w", err)
 	}
@@ -277,7 +277,7 @@ func (c *APIclient) EncryptUserRecoveryKey(recoveryKey []byte) ([]byte, error) {
 	data := map[string]any{
 		"plaintext": recoveryKey,
 	}
-	encryptedSecret, err := c.vaultClient.Logical().Write("transit/encrypt/user/wallet/recovery", data)
+	encryptedSecret, err := c.vaultClient.Logical().Write("transit/encrypt/user_wallet_recovery", data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encrypt recoveryKey with Vault Transit: %w", err)
 	}

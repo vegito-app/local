@@ -8,8 +8,11 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/7d4b9/utrade/backend/firebase"
+	"github.com/7d4b9/utrade/backend/internal/vault"
 	"github.com/spf13/viper"
 	"google.golang.org/api/option"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var config = viper.New()
@@ -89,6 +92,11 @@ func (f *Client) RetrieveLatestRecoveryKeyVersion(userID string) (int, error) {
 	ctx := context.Background()
 	doc := f.firestore.Collection("users").Doc(userID).Collection("recoveryKeys_metadata").Doc("metadata")
 	snapshot, err := doc.Get(ctx)
+	if errFromError, ok := status.FromError(err); ok {
+		if errFromError.Code() == codes.NotFound {
+			return 0, vault.ErrRecoveryKeyVersionNotFound
+		}
+	}
 	if err != nil {
 		return 0, fmt.Errorf("failed to retrieve latest version: %w", err)
 	}
@@ -120,13 +128,18 @@ func (f *Client) RetrieveLastRotationTimestamp(userID string) (time.Time, error)
 	ctx := context.Background()
 	doc := f.firestore.Collection("users").Doc(userID).Collection("recoveryKeys_metadata").Doc("metadata")
 	snapshot, err := doc.Get(ctx)
+	if errFromError, ok := status.FromError(err); ok {
+		if errFromError.Code() == codes.NotFound {
+			return time.Time{}, vault.ErrRotationTimestampNotFound
+		}
+	}
 	if err != nil {
 		return time.Time{}, fmt.Errorf("failed to retrieve last rotation timestamp: %w", err)
 	}
 	data := snapshot.Data()
 	timestampRaw, ok := data["lastRotationAt"]
 	if !ok {
-		return time.Time{}, fmt.Errorf("lastRotationAt not found for user %s", userID)
+		return time.Time{}, vault.ErrRotationTimestampNotFound
 	}
 	timestamp, ok := timestampRaw.(time.Time)
 	if !ok {

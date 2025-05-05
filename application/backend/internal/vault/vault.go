@@ -2,20 +2,35 @@ package vault
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	api "github.com/7d4b9/utrade/backend/internal/http/api/v1"
 	"github.com/7d4b9/utrade/backend/vault"
 	"github.com/spf13/viper"
+)
+
+var (
+	ErrRecoveryKeyNotFound        = errors.New("recovery key not found")
+	ErrRecoveryKeyVersionNotFound = errors.New("recovery key version not found")
+	ErrRotationTimestampNotFound  = errors.New("rotation timestamp not found")
 )
 
 var config = viper.New()
 
 const (
-	addrConfig                = "addr"
-	maxUserRecoveryKeysConfig = "max_user_recovery_xorkeys"
-	minRotationInterval       = 24 * time.Hour
+	addrConfig                               = "addr"
+	maxUserRecoveryKeysConfig                = "max_user_recovery_xorkeys"
+	minUserRecoveryKeyRotationIntervalConfig = "min_user_recovery_key_rotation_interval"
 )
+
+func init() {
+	config.AutomaticEnv()
+	config.SetEnvPrefix("vault")
+	config.SetDefault(minUserRecoveryKeyRotationIntervalConfig, "24h")
+	config.SetDefault(maxUserRecoveryKeysConfig, "5")
+}
 
 // UserStorage is backend storage for secured userData
 type Vault interface {
@@ -25,12 +40,31 @@ type Vault interface {
 
 // UserStorage is backend storage for secured userData
 type UserStorage interface {
+	// StoreEncryptedUserRecoveryKey stores the encrypted recovery key at a specific version.
+	// Returns an error if storage fails (500).
 	StoreEncryptedUserRecoveryKey(userID string, version int, encryptedUserRecoveryKey []byte) error
+
+	// RetrieveEncryptedUserRecoveryKey returns the encrypted recovery key of a given version.
+	// Returns (nil, ErrRecoveryKeyNotFound) if not found (404).
 	RetrieveEncryptedUserRecoveryKey(userID string, version int) ([]byte, error)
+
+	// RetrieveLatestRecoveryKeyVersion returns the latest version number for the user's recovery key.
+	// Returns (0, ErrRecoveryKeyVersionNotFound) if none exists (404).
 	RetrieveLatestRecoveryKeyVersion(userID string) (int, error)
+
+	// StoreLatestRecoveryKeyVersion sets the given version as the latest one.
+	// Returns an error if it fails to persist (500).
 	StoreLatestRecoveryKeyVersion(userID string, version int) error
+
+	// RetrieveLastRotationTimestamp returns the last rotation timestamp.
+	// Returns (zero time, ErrRotationTimestampNotFound) if not set yet.
 	RetrieveLastRotationTimestamp(userID string) (time.Time, error)
+
+	// StoreLastRotationTimestamp stores the last rotation timestamp.
 	StoreLastRotationTimestamp(userID string, timestamp time.Time) error
+
+	// DeleteOldRecoveryKeyVersions deletes old versions and keeps only the latest N.
+	// Returns an error if the deletion fails.
 	DeleteOldRecoveryKeyVersions(userID string, keepLatestN int) error
 }
 
@@ -39,26 +73,26 @@ type Client struct {
 
 	userStorage UserStorage
 
-	maxRecoveryXorKeys int
+	maxRecoveryKeysPerUser int
+
+	minRecoveryKeyRotationInterval time.Duration
 }
 
 func NewClient(ctx context.Context, userStorage UserStorage) (*Client, error) {
-	config.AutomaticEnv()
 
-	maxUserRecoveryKeys := config.GetInt(maxUserRecoveryKeysConfig)
-	if maxUserRecoveryKeys == 0 {
-		maxUserRecoveryKeys = 5
-	}
+	minUserRecoveryKeyRotationInterval := config.GetDuration(minUserRecoveryKeyRotationIntervalConfig)
+	maxRecoveryKeysPerUser := config.GetInt(maxUserRecoveryKeysConfig)
+
 	vaultAPIclient, err := vault.NewAPIclient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("new Vault vault: %w", err)
 	}
 	return &Client{
-		apiClient: vaultAPIclient,
-
+		apiClient:   vaultAPIclient,
 		userStorage: userStorage,
 
-		maxRecoveryXorKeys: maxUserRecoveryKeys,
+		maxRecoveryKeysPerUser:         maxRecoveryKeysPerUser,
+		minRecoveryKeyRotationInterval: minUserRecoveryKeyRotationInterval,
 	}, nil
 }
 
@@ -66,12 +100,18 @@ func NewClient(ctx context.Context, userStorage UserStorage) (*Client, error) {
 func (c *Client) StoreUserRecoveryKey(userID string, recoveryKey []byte) error {
 
 	lastRotation, err := c.userStorage.RetrieveLastRotationTimestamp(userID)
-	if err == nil && time.Since(lastRotation) < minRotationInterval {
+	if err != nil && !errors.Is(err, ErrRotationTimestampNotFound) {
+		return fmt.Errorf("failed to retrieve last rotation timestamp: %w", api.ErrRecoveryKeyNotFound)
+	}
+	if err == nil && time.Since(lastRotation) < c.minRecoveryKeyRotationInterval {
 		return fmt.Errorf("recovery key rotation too frequent for user %s", userID)
 	}
 
 	latestVersion, err := c.userStorage.RetrieveLatestRecoveryKeyVersion(userID)
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrRecoveryKeyVersionNotFound) {
+		return fmt.Errorf("failed to retrieve latest recovery key version: %w", err)
+	}
+	if errors.Is(err, ErrRecoveryKeyVersionNotFound) {
 		latestVersion = 0
 	}
 	newVersion := latestVersion + 1
@@ -93,7 +133,7 @@ func (c *Client) StoreUserRecoveryKey(userID string, recoveryKey []byte) error {
 		return fmt.Errorf("failed to update last rotation timestamp: %w", err)
 	}
 
-	if err := c.userStorage.DeleteOldRecoveryKeyVersions(userID, c.maxRecoveryXorKeys); err != nil {
+	if err := c.userStorage.DeleteOldRecoveryKeyVersions(userID, c.maxRecoveryKeysPerUser); err != nil {
 		return fmt.Errorf("failed to delete old recovery keys: %w", err)
 	}
 
@@ -105,11 +145,17 @@ func (c *Client) RetrieveUserRecoveryKey(userID string) ([]byte, error) {
 
 	latestVersion, err := c.userStorage.RetrieveLatestRecoveryKeyVersion(userID)
 	if err != nil {
+		if errors.Is(err, ErrRecoveryKeyVersionNotFound) {
+			return nil, api.ErrRecoveryKeyNotFound
+		}
 		return nil, fmt.Errorf("failed to retrieve latest version: %w", err)
 	}
 
 	encryptedRecoveryKey, err := c.userStorage.RetrieveEncryptedUserRecoveryKey(userID, latestVersion)
 	if err != nil {
+		if errors.Is(err, ErrRecoveryKeyNotFound) {
+			return nil, api.ErrRecoveryKeyNotFound
+		}
 		return nil, fmt.Errorf("failed to retrieve encrypted recovery key: %w", err)
 	}
 
@@ -122,7 +168,14 @@ func (c *Client) RetrieveUserRecoveryKey(userID string) ([]byte, error) {
 }
 
 func (c *Client) GetUserRecoveryKeyVersion(userID string) (int, error) {
-	return c.userStorage.RetrieveLatestRecoveryKeyVersion(userID)
+	version, err := c.userStorage.RetrieveLatestRecoveryKeyVersion(userID)
+	if err != nil {
+		if errors.Is(err, ErrRecoveryKeyVersionNotFound) {
+			return 0, api.ErrRecoveryKeyNotFound
+		}
+		return 0, fmt.Errorf("failed to retrieve latest recovery key version: %w", err)
+	}
+	return version, nil
 }
 
 func (c *Client) StoreRecoveryKeyVersion(userID string, version int) error {
