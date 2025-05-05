@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'wallet_screen.dart';
+import 'package:flutter/material.dart';
+
 import 'security_warning_screen.dart';
 
 class AuthGuard extends StatelessWidget {

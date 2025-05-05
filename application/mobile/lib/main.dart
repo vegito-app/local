@@ -1,13 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'account_page.dart';
+import 'account/account_page.dart';
 import 'auth_guard.dart';
 import 'config.dart';
 import 'firebase_config.dart';
-import 'home_page.dart';
-import 'wallet_screen.dart';
+import 'home_page/home_page.dart';
+import 'wallet/wallet_screen.dart';
+
+Future<void> signInWithFirebase() async {
+  try {
+    if (!kReleaseMode) {
+      await FirebaseAuth.instance.useAuthEmulator('firebase-emulators', 9099);
+    }
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      await FirebaseAuth.instance.signInAnonymously();
+    }
+  } catch (e) {
+    debugPrint('Erreur de connexion Firebase : $e');
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +36,8 @@ void main() async {
 
   await Firebase.initializeApp(options: options);
 
-// Ideal time to initialize
-  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-//...
+  await signInWithFirebase();
+
   runApp(MyApp());
 }
 
@@ -29,6 +45,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        FirebaseUILocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('fr'),
+      ],
       title: 'Wallet App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
