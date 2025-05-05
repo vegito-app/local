@@ -2,11 +2,11 @@ resource "vault_policy" "backend_application" {
   name = "backend-application"
 
   policy = <<EOT
-path "transit/encrypt/user/wallet/recovery" {
+path "transit/encrypt/user_wallet_recovery" {
   capabilities = ["update"]
 }
 
-path "transit/decrypt/user/wallet/recovery" {
+path "transit/decrypt/user_wallet_recovery" {
   capabilities = ["update"]
 }
 
@@ -63,4 +63,9 @@ resource "vault_gcp_auth_backend_role" "vault_admin" {
   ]
   bound_projects = [var.project_id]
   token_policies = ["admin"]
+}
+
+resource "vault_mount" "transit" {
+  path = "transit"
+  type = "transit"
 }

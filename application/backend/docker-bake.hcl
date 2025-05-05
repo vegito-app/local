@@ -10,7 +10,7 @@ variable "LATEST_APPLICATION_BACKEND_IMAGE" {
   default = "${APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
-target "backend-ci" {
+target "application-backend-ci" {
   dockerfile = "application/backend/Dockerfile"
   args = {
     builder_image = LATEST_BUILDER_IMAGE
@@ -39,7 +39,7 @@ variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for backend image build (cannot be used before first write)"
 }
 
-target "backend" {
+target "application-backend" {
   dockerfile = "application/backend/Dockerfile"
   args = {
     builder_image = LATEST_BUILDER_IMAGE

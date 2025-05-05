@@ -34,7 +34,7 @@ module "gcloud" {
   source      = "../../gcloud"
   environment = local.environment
 
-  bucket_tf_state_eu_global_name = "global-${var.region}-tf-state"
+  bucket_tf_state_eu_global_name = local.bucket_tf_state_eu_global_name
 
   cloud_storage_location = var.cloud_storage_location
 

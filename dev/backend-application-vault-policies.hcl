@@ -1,8 +1,8 @@
-path "transit/encrypt/user/wallet/recovery" {
+path "transit/encrypt/user_wallet_recovery," {
   capabilities = ["update"]
 }
 
-path "transit/decrypt/user/wallet/recovery" {
+path "transit/decrypt/user_wallet_recovery," {
   capabilities = ["update"]
 }
 

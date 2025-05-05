@@ -11,13 +11,16 @@ done
 
 vault audit enable file file_path=${VAULT_AUDIT}/vault_audit.log
 
+vault secrets enable transit || echo "transit engine already enabled"
+
 vault policy write backend-application ./dev/backend-application-vault-policies.hcl
 
 vault auth enable gcp || echo "gcp auth already enabled"
+
 vault write auth/gcp/role/backend-application \
   type="gce" \
   policies="backend-application" \
   bound_service_accounts="*" \
   project_id="your-gcp-project-id"
 
-echo ✅ Success ! Tnitialized vault for backend-application.
+echo ✅ Success ! Initialized vault for backend-application.

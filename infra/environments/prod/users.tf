@@ -1,24 +1,5 @@
 data "google_service_account" "production_root_admin_service_account" {
-  account_id = "root-admin@moov-438615.iam.gserviceaccount.com"
-}
-
-variable "staging_project" {
-  type    = string
-  default = "moov-staging-440506"
-}
-
-variable "dev_project" {
-  type    = string
-  default = "moov-dev-439608"
-}
-
-variable "environments" {
-  type = map(string)
-  default = {
-    "dev"     = "moov-dev-439608",
-    "staging" = "moov-staging-440506",
-    "prod"    = "moov-438615"
-  }
+  account_id = "root-admin@${var.project_id}.iam.gserviceaccount.com"
 }
 
 # Map des rôles par environnement par défaut
@@ -31,6 +12,16 @@ variable "default_roles_per_environment" {
   }
 }
 
+locals {
+
+  prod_admins_service_accounts = [
+    "serviceAccount:david-berichon-prod@${var.project_id}.iam.gserviceaccount.com"
+  ]
+
+  prod_editors_service_accounts = [
+    "serviceAccount:david-berichon-prod@${var.project_id}.iam.gserviceaccount.com"
+  ]
+}
 # Add a developper to this list first, then apply to get the automatically 
 # generated service accounts IDs from each <developer> value:
 # * Production
@@ -42,28 +33,18 @@ variable "default_roles_per_environment" {
 variable "developers" {
   type = map(string)
   default = {
-    "davidberich@gmail.com" = "david-berichon"
+    "davidberich@gmail.com"   = "david-berichon"
+    "richardberich@gmail.com" = "richard-berichon"
   }
 }
-variable "prod_admins_service_accounts" {
-  type = list(string)
-  default = [
-    "serviceAccount:david-berichon-prod@moov-438615.iam.gserviceaccount.com"
-  ]
-}
-variable "prod_editors_service_accounts" {
-  type = list(string)
-  default = [
-    "serviceAccount:david-berichon-prod@moov-438615.iam.gserviceaccount.com"
-  ]
-}
+
 # After automatic creation of developer service account (from developers list), use the generated service account
 # to add the developer as member to get default roles based on his profile.
 module "production_members" {
   source     = "./roles"
   project_id = var.project_id
-  admins     = var.prod_admins_service_accounts
-  editors    = var.prod_editors_service_accounts
+  admins     = local.prod_admins_service_accounts
+  editors    = local.prod_editors_service_accounts
 }
 
 # After automatic creation of developer service account (from developers list), use the generated service account
@@ -71,10 +52,10 @@ module "production_members" {
 module "staging_members" {
   source     = "./roles"
   project_id = var.staging_project
-  admins = concat(var.prod_admins_service_accounts, [
+  admins = concat(local.prod_admins_service_accounts, [
     # "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
   ])
-  editors = concat(var.prod_editors_service_accounts, [
+  editors = concat(local.prod_editors_service_accounts, [
     "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
   ])
 }
@@ -84,10 +65,10 @@ module "staging_members" {
 module "dev_members" {
   source     = "./roles"
   project_id = var.dev_project
-  admins = concat(var.prod_admins_service_accounts, [
+  admins = concat(local.prod_admins_service_accounts, [
     "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
   ])
-  editors = concat(var.prod_editors_service_accounts, [
+  editors = concat(local.prod_editors_service_accounts, [
     # "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
   ])
 }
@@ -106,6 +87,11 @@ resource "google_project_iam_member" "artifactregistry_reader" {
 }
 
 locals {
+  environments = {
+    "dev"     = var.dev_project,
+    "staging" = var.staging_project
+    "prod"    = var.project_id
+  }
   flattened_for_each_developer_map = flatten([
     for email, id in var.developers : [
       {
@@ -116,7 +102,7 @@ locals {
   ])
   flattened_for_each_developer_environment_map = flatten([
     for email, id in var.developers : [
-      for env, project_id in var.environments : {
+      for env, project_id in local.environments : {
         name = "${id}-${env}"
         value = {
           email      = email
@@ -158,19 +144,24 @@ resource "google_project_iam_member" "developer_service_account_roles" {
   member  = "serviceAccount:${each.value.email}"
 }
 
+data "google_storage_bucket" "bucket_tf_state_eu_global" {
+  name = local.bucket_tf_state_eu_global_name
+}
+
 resource "google_storage_bucket_iam_member" "bucket_iam_member" {
   for_each = local.for_each_developer_environment_map
-  bucket   = google_storage_bucket.bucket_tf_state_eu_global.name
+  bucket   = data.google_storage_bucket.bucket_tf_state_eu_global.name
   role     = "roles/storage.objectViewer"
   member   = "serviceAccount:${google_service_account.developer_service_account[each.key].email}"
 }
 
 resource "google_storage_bucket_iam_member" "bucket_locking_iam_member" {
   for_each = local.for_each_developer_environment_map
-  bucket   = google_storage_bucket.bucket_tf_state_eu_global.name
+  bucket   = data.google_storage_bucket.bucket_tf_state_eu_global.name
   role     = "roles/storage.objectAdmin"
   member   = "serviceAccount:${google_service_account.developer_service_account[each.key].email}"
 }
+
 # Attribuez le rôle de gestionnaire de clé à ce compte de service spécifique
 resource "google_service_account_iam_member" "key_admin" {
   for_each = local.for_each_developer_environment_map

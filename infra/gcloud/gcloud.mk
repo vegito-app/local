@@ -35,8 +35,11 @@ endif
 export GOOGLE_APPLICATION_CREDENTIALS
 
 gcloud-auth-default-application-credentials:
+	@echo "🔐 Setting up default application credentials and logging in..."
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
+	@echo "🔐 Logging in with application default credentials..."
 	@$(GCLOUD) auth application-default login
+	@echo "🔐 Setting quota project for application default credentials..."
 	@$(GCLOUD) auth application-default set-quota-project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-default-application-credentials
 
@@ -46,39 +49,50 @@ $(GOOGLE_APPLICATION_CREDENTIALS):
 	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)
 
 gcloud-info:
+	@echo "ℹ️  Displaying gcloud info..."
 	@$(GCLOUD) info
 .PHONY: gcloud-info
 
 gcloud-auth-login:
+	@echo "🔐 Logging in to gcloud and activating service account..."
 	@$(GCLOUD) auth login
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
+	@echo "🔐 Activating service account via GOOGLE_APPLICATION_CREDENTIALS..."
+	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
 .PHONY: gcloud-auth-login
 
 gcloud-auth-docker:
+	@echo "🐳 Authenticating Docker with Google Artifact Registry..."
 	@$(GCLOUD) --quiet auth configure-docker $(REGISTRY)
 .PHONY: gcloud-auth-docker
 
 gcloud-config-set-project:
+	@echo "🔧 Setting gcloud config project to $(GOOGLE_CLOUD_PROJECT_ID)..."
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY:gcloud-config-set-project
 
 gcloud-images-list:
+	@echo "📦 Listing all images in repository $(REPOSITORY)..."
 	$(GCLOUD) container images list --repository=$(REPOSITORY)
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
+	@echo "📦 Listing all images in public repository $(PUBLIC_REPOSITORY)..."
 	$(GCLOUD) container images list --repository=$(PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:
+	@echo "🏷️  Listing tags for image base $(IMAGES_BASE)..."
 	@$(GCLOUD) container images list-tags $(IMAGES_BASE)
 .PHONY: gcloud-images-list-tags
 
 gcloud-images-list-tags-public:
+	@echo "🏷️  Listing tags for public image base $(PUBLIC_IMAGES_BASE)..."
 	@$(GCLOUD) container images list-tags $(PUBLIC_IMAGES_BASE)
 .PHONY: gcloud-images-list-tags-public
 
 gcloud-images-delete-all:
+	@echo "🗑️  Deleting all images from repository $(IMAGES_BASE)..."
 	$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
@@ -88,6 +102,7 @@ gcloud-images-delete-all:
 .PHONY: gcloud-images-delete-all
 
 gcloud-images-delete-all-public:
+	@echo "🗑️  Deleting all images from public repository $(PUBLIC_IMAGES_BASE)..."
 	@$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
@@ -97,18 +112,22 @@ gcloud-images-delete-all-public:
 .PHONY: gcloud-images-delete-all-public
 
 gcloud-backend-image-delete:
+	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE)..."
 	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
 .PHONY: gcloud-backend-image-delete
 
 gcloud-builder-image-delete:
+	@echo "🗑️  Deleting builder image $(BUILDER_IMAGE)..."
 	@$(GCLOUD) container images delete --force-delete-tags $(BUILDER_IMAGE)
 .PHONY: gcloud-builder-image-delete
 
 gcloud-auth-func-logs:
+	@echo "📜 Reading logs for Cloud Function: utrade-us-central1-identity-platform..."
 	@$(GCLOUD) logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform"
 .PHONY: gcloud-auth-func-logs
 
 gcloud-auth-func-deploy:
+	@echo "🚀 Deploying Cloud Function: my-pubsub-function to region $(GOOGLE_CLOUD_REGION)..."
 	@$(GCLOUD) functions deploy my-pubsub-function \
 	  --gen2 \
 	  --region=$(GOOGLE_CLOUD_REGION) \
@@ -121,15 +140,18 @@ gcloud-auth-func-deploy:
 GOOGLE_SERVICES_API = serviceusage cloudbilling
 
 gcloud-services-apis-enable: $(GOOGLE_SERVICES_API:%=gcloud-services-enable-%-api)
+	@echo "✅ Enabled required Google Cloud APIs."
 .PHONY: gcloud-services-apis-enable
 
 gcloud-services-apis-disable: $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api)
+	@echo "🚫 Disabled specified Google Cloud APIs."
 .PHONY: gcloud-services-apis-disable
 
 FIREBASE_ADMINSDK_SERVICEACCOUNT = \
   $(INFRA_ENV)-firebase-adminsdk@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
 gcloud-firebase-adminsdk-service-account-roles-list:
+	@echo "🔎 Listing IAM roles for Firebase Admin SDK service account $(FIREBASE_ADMINSDK_SERVICEACCOUNT)..."
 	@$(GCLOUD) projects get-iam-policy $(GOOGLE_CLOUD_PROJECT_ID) \
 	  --flatten="bindings[].members" \
 	  --format='table(bindings.role)' \
@@ -162,7 +184,7 @@ gcloud-apikeys-list:
 .PHONY: gcloud-apikeys-list
 
 gcloud-roles-list:
-	@$(GCLOUD) iam roles list $(GOOGLE_CLOUD_PROJECT_ID)
+	@$(GCLOUD) iam roles list
 .PHONY: gcloud-roles-list
 
 gcloud-serviceaccounts-list:

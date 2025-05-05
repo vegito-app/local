@@ -3,6 +3,14 @@ variable "project_id" {
   type        = string
   default     = "moov-438615"
 }
+variable "staging_project" {
+  type    = string
+  default = "moov-staging-440506"
+}
+variable "dev_project" {
+  type    = string
+  default = "moov-dev-439608"
+}
 variable "region" {
   description = "GCP used region"
   type        = string
@@ -67,4 +75,8 @@ variable "vault_gcp_credentials_secret_name" {
 variable "vault_tf_apply_sa_kubernetes_secret_name" {
   default     = "vault-tf-apply-gcp-credentials"
   description = "kubernetes secrets contains vault GCP credentials"
+}
+
+locals {
+  bucket_tf_state_eu_global_name = "global-${var.region}-tf-state"
 }

@@ -131,6 +131,11 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     networks:
       dev:
+    command: |
+      bash -c '
+      studio &
+      sleep infinity
+      '
   vault-dev:
     container_name: vault-dev
     # image: hashicorp/vault:1.19
@@ -152,7 +157,7 @@ services:
       bash -c '
 
       set -eu
-      
+
       ./dev/backend-application-vault-init.sh
 
       sleep infinity
