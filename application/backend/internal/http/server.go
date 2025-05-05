@@ -54,6 +54,7 @@ func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC) error {
 	mux := http.NewServeMux()
 	serviceV1 := apiv1.NewService()
 	mux.HandleFunc("POST /run", serviceV1.Run)
+	mux.HandleFunc("POST /store-xorkey", serviceV1.StoreUserRecoveryXorKey)
 	uiServe, err := ui.NewUI(frontendDir)
 	if err != nil {
 		return fmt.Errorf("http start api, server side ui render: %w", err)
@@ -76,6 +77,6 @@ func StartAPI(firebaseClient *firebase.Client, btcService *btc.BTC) error {
 	if err := backendhttp.ListenAndServe("0.0.0.0:"+port, corsMiddleware(mux)); err != nil {
 		return fmt.Errorf("HTTP listenAndServe: %w", err)
 	}
-	fmt.Print("BORDEL")
+	fmt.Print("See you the next time ! Bye")
 	return nil
 }

@@ -28,19 +28,9 @@ class _AccountPageState extends State<AccountPage> {
     final user = userCredential.user;
 
     if (user != null) {
-      final keys = await WalletService.getKeys(user.uid);
+      final privateKey = await WalletService.getPrivateKey();
       setState(() {
-        //     recoveryKey = keys['recoveryKey'];
-        //   });
-
-        //   // Affichage d'une boîte de dialogue avec la clé de récupération
-        //   _showRecoveryDialog();
-        // Map<String, String> keys = await WalletService.getKeys();
-        // setState(() {
-        var recoveryKey = keys['recoveryKey'];
-        if (recoveryKey != null) {
-          _privateKey = recoveryKey;
-        }
+        _privateKey = privateKey;
         _balance = "0.00 BTC"; // Simuler le solde
       });
     }

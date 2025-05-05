@@ -1,8 +1,8 @@
 module github.com/7d4b9/utrade/dev/proxy
 
-go 1.23
+go 1.24
 
-toolchain go1.23.2
+toolchain go1.24.1
 
 require github.com/spf13/viper v1.19.0
 

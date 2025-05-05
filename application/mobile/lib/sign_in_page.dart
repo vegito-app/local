@@ -19,9 +19,9 @@ class _SignInPageState extends State<SignInPage> {
     final user = userCredential.user;
 
     if (user != null) {
-      final keys = await WalletService.getKeys(user.uid);
+      final rKey = await WalletService.getRecoveryKey();
       setState(() {
-        recoveryKey = keys['recoveryKey'];
+        recoveryKey = rKey;
       });
 
       // Afficher la boîte de dialogue avec la recovery key
@@ -34,7 +34,7 @@ class _SignInPageState extends State<SignInPage> {
       barrierDismissible: false, // Empêche la fermeture sans sauvegarder la clé
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Clé de récupération"),
+        title: const Text("Clé de récupération"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -47,14 +47,14 @@ class _SignInPageState extends State<SignInPage> {
             ),
             const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.black,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: SelectableText(
                 recoveryKey ?? "Erreur",
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
@@ -65,7 +65,7 @@ class _SignInPageState extends State<SignInPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("J'ai noté ma clé"),
+            child: const Text("J'ai noté ma clé"),
           ),
         ],
       ),
@@ -93,7 +93,7 @@ class _SignInPageState extends State<SignInPage> {
               ElevatedButton.icon(
                 icon: Image.asset("assets/images/logo-google.png", height: 20),
                 onPressed: _signInWithGoogle,
-                label: Text("Se connecter avec Google"),
+                label: const Text("Se connecter avec Google"),
               ),
             ],
           ),

@@ -1,8 +1,8 @@
-GO_VERSION = 1.23
+GO_VERSION = 1.24
 
 GO_MODULES := \
 	application/backend \
-	infra/gcloud/auth \
+	application/firebase/functions/auth \
 	dev/proxy
 
 go-mod-tidy: $(GO_MODULES:%=go-%-mod-tidy)

@@ -1,264 +1,3 @@
-git branch 
-make frontend-node-modules 
-make gcloud-auth-
-make gcloud-auth-login 
-VERSION=v0.0.1 make application-image terraform-plan 
-make docker-login 
-make terraform-init 
-VERSION=v0.0.1 make terraform-plan 
-gcloud config get-value project
-make go-mod-tidy
-make go-mod-vendor
-gcloud iam service-accounts list 
-make terraform-plan 
-VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
-make terraform-import 
-make terraform-refresh 
-VERSION=v0.0.1 make terraform-apply-auto-approve 
-VERSION=v0.0.1 make terraform-import 
-VERSION=v0.0.1 make terraform-plan
-make backend-run 
-make backend-install 
-make gcloud-auth-func-logs 
-gcloud functions logs read projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform-before-create
-gcloud functions logs read projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform-before-sign-in
-gcloud functions logs read projects/utrade-taxi-run-0/locations/us-central1/functions/utrade-us-central1-identity-platform-before-signin
-VERSION=v0.0.1 make terraform-refresh 
-htop
-make go-mod tidy
-make go-mod-tidy 
-BUILDER_VRSION=v0.0.0 VERSION=v0.0.3 make application-image terraform-plan terraform-apply-auto-approve 
-make unlock-docker-sock 
-BUILDER_VERSION=v0.0.0 VERSION=v0.0.3 make application-image terraform-plan terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.3 make application-image terraform-plan terraform-apply-auto-approve 
-git tag -f s
-git reset HEAD~1
-git log
-env|grep -i utrade
-make local-image
-make local-image-run 
-gcloud functions list 
-gcloud functions logs utrade-us-central1-identity-platform-before-create
-gcloud functions logs read utrade-us-central1-identity-platform-before-create
-gcloud functions logs read utrade-us-central1-identity-platform-before-sign-in
-gcloud functions logs read utrade-us-central1-identity-platform-before-signin
-gcloud functions logs read --start-time=2024-08-09 utrade-us-central1-identity-platform-before-signin
-gcloud functions logs read --start-time=2024-08-09 utrade-us-central1-identity-platform-before-create
-gcloud iam service-accounts describe firebase-adminsdk-vxdj8@utrade-taxi-run-0.iam.gserviceaccount.com 
-gcloud functions logs read --execution-id=vbwic0ky3ehm utrade-us-central1-identity-platform-before-create
-gcloud functions logs read --execution-id=vbwic0ky3ehm --min-log-level=debug utrade-us-central1-identity-platform-before-create
-gcloud functions logs read --execution-id=vbwic0ky3ehm --min-log-level=infoutrade-us-central1-identity-platform-before-create
-gcloud functions logs read --execution-id=vbwic0ky3ehm  --verbosity=debug utrade-us-central1-identity-platform-before-create
-gcloud functions logs read --execution-id=vbwic0ky3ehm  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json
-gcloud functions logs read --execution-id=vbwic0ky3ehm  --verbosity=debug utrade-us-central1-identity-platform-before-create 
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create 
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin 
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --user-output-enabled 
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --help 
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format=
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format= --start-time="2024-08-10 06:15:01.128"
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format= --start-time="2024-08-10 06:10:01.128"
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format=json --start-time="2024-08-10 06:10:01.128"
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-signin --format=json --start-
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json --start-time="2024-08-10 06:10:01.128"
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --format=json --start-time="2024-08-10"
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --desc
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --order=desc
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create
-gcloud functions logs read  --verbosity=debug utrade-us-central1-identity-platform-before-create --freshness 10m
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50 --format json --order desc --freshness 10m 
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc --freshness 10m 
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc --freshness 20m 
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50 --format json --order desc --freshness 20m 
-git,log
-pwd
-code ~/go/pkg/mod/firebase.google.com/go/v4\@v4.14.1/
-gcloud iam  service-accounts list 
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc 
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --order desc |more
-BUILDER_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-plan terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-plan terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make application-image terraform-plan terraform-apply-auto-approve 
-ls
-make builder-image
-git reset s
-rm -rf infra/gcloud/auth/firebase && cp -r firebase infra/gcloud/auth/firebase
-rm -rf infra/gcloud/auth/firebase && cp -r backend/firebase infra/gcloud/auth/firebase
-make go-mod-tidy go-mod-vendor
-git add -f .devcontainer/vscode/userData/globalStorage/genieai.chatgpt-vscode/
-ls .devcontainer/vscode/userData/
-ls .devcontainer/vscode/userData/globalStorage/
-du -sh .devcontainer/*
-du -sh backend/vendor/
-du -sh infra/gcloud/auth/*
-make go-mod-vendor-rm 
-echo $?
-git add .devcontainer/bash_history 
-git commit --amend --no-edit
-git branch
-git push origin codespace-verbose-spoon-97gvv6p7q7pf746:dev
-git branch -a
-git fetch -a
-git rebase -i origin/codespace-stunning-couscous-jjp66rxj4992jg6w 
-git rebase -i origin/codespace-verbose-spoon-97gvv6p7q7pf746 
-git fetch -p
-git push origin :codespace-stunning-couscous-jjp66rxj4992jg6w 
-git push origin :codespace-verbose-spoon-97gvv6p7q7pf746 
-git checkout dev
-git pull --rebase
-git rebase --continu
-git rebase origin/dev 
-git rebase --continue 
-git rebase --edit-todo 
-git push 
-git rebase origin/codespace-verbose-spoon-97gvv6p7q7pf746 
-git branch -d codespace-verbose-spoon-97gvv6p7q7pf746  
-code .devcontainer/gopath/pkg/mod/firebase.google.com/go/v4@v4.14.1/
-env |grep -i firebase
-env |grep -i utrade_firebase
-env |grep -i maps
-gcloud iam service-accounts list
-echo $GOOGLE_CLOUD_CREDENTIALS |jq
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make terraform-plan 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-apply-auto-approve 
-gcloud logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform-before-create" --limit 50  --freshness 2m --order desc |more
-Bas
-make frontend-start 
-git push --set-upstream origin dev 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-pl@
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-plan 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make terraform-import 
-cd ..
-make terraform-apply-auto-approve 
-make go-mod)tidy
-make go-od-vendor
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.2 make application-image terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.0 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
-ake go-mod-tidy
-cd infra/gcloud/auth/go/
-go mod tidy
-go mod vendor
-cd -
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make -C ../../..  builder-image  application-image terraform-apply-auto-approve 
-make unl
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make   builder-image  application-image terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
-make backend-run
-ls frontend/
-ls frontend/*
-ls -l frontend
-make local-image-run
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make application-image terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-apply-auto-approve a
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make application-image terraform-apply-auto-approve a
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.2 make terraform-apply-auto-approve a
-mount
-env|grep -i database
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-apply-auto-approve
-git fetch 
-git origin -v
-git remote -v
-git  push origin master 
-git checkout -b dev
-git push --set-upstream origin dev v
-sudo rm -rf .devcontainer/gopath/pkg/mod/github.com/7d4b9/
-firebase --help
-firebase list
-firebase help
-firebase firestore
-gcloud firestore databases --list --tr
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-plan 
-gcloud firestore list
-gcloud firestore database list
-gcloud firestore databases list
-gcloud firestore databases list --help
-firebase project
-firebaseinfo
-firebase info
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-import 
-cd gcloud/
-terraform import
-terraform import google_firebase_database_instance utrade
-terraform import google_firebase_database_instance.utrade
-terraform import google_firebase_database_instance.utrade utrade-taxi-run-0-default-rtdb
-terraform import module.infra.google_firebase_database_instance.utrade utrade-taxi-run-0-default-rtdb
-terraform import google_firebase_database_instance.utrade module.infra.utrade-taxi-run-0-default-rtdb
-gcloud firebase projects:list
-gcloud firebase projects list
-gcloud firebase 
-make terraform-state-rm 
-terraform state list
-terraform -chdir ./cloud state list
-terraform -chdir=./cloud state list
-make terraform-state-list 
-terraform state --help
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-state-show 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make terraform-state-show-all 
-make 
-BUILDER_IMAGE_VERSION=v0.0.1 VERSION=v0.0.1 make module.secrets.google_identity_platform_default_supported_idp_config.google[0]-show 
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make terraform-apply-auto-approve 
-git clone https://github.com/7d4b9/firebase-admin-go.git
-code firebase-admin-go/
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.2 make terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make application-image terraform-apply-auto-approve 
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make builder-image application-image terraform-apply-auto-approve 
-npm install
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make application-image terraform-apply-auto-approve 
-npm start
-nodejs --version
-node --version
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make terraform-plan 
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.0 make terraform-apply-auto-approve 
-cd infra/gcloud/auth/
-sudo npm install -g npm-check-updates
-ncu -u
-rm -r node_modules/ package-lock.json 
-npm i
-npm i @google-gcloud/firestore
-npm i @grpc/grpc-js
-npm update
-terraform init --upgrade
-BUILDER_IMAGE_VERSION=v0.0.2 VERSION=v0.0.1 make terraform-plan 
-code ..
-cd functions/
-cd ../infra/gcloud/auth/
-ln ../../../functions/index.js .
-ln -h
-ln
-ln --help
-ln -f ../../../functions/index.js .
-commment faire pointer un front vers cett emulateur ?
-make firebase-emulators-init 
-make firebase-emulators-start 
-make firebase-emulators-start
-mv functions/ local/firebase/
-cd local/firebase/
-ln -s ../../../infra/gcloud/auth functions/auth
-git add functions/auth
-git status 
-ls -a
-ln -s ../../../infra/gcloud/auth auth
-ln `pwd`/__auth auth
-ln -s `pwd`/__auth auth
-cd infra/auth/
-cd local/firebase/functions/
-ls -alh ../../../infra/gcloud/auth
-ls -alh ../../../infra/gcloud/
-ls -la
-rm auth 
-ls auth 
-ls auth/*
-ls -lha ../../../infra/gcloud/auth 
-ls -lha ../../../infra/gcloud/
-firebase init emulators
-npm install -g firebase-tools
-cd /workspaces/refactored-winner/
-sudo npm install -g firebase-tools
 firebase login
 firebase emulators:start
 uname -a
@@ -939,9 +678,8 @@ make local-multi-arch-builder-image
 make images
 git commit --amend
 git reset origin/main~1 
-make local-github-runner-image
-make local-github-runner-docker-compose-rm 
-make local-github-runner-docker-compose-up
+make github-runner-docker-compose-rm 
+make github-runner-docker-compose-up
 qgit log
 tree --help
 sudo apt-get install tree
@@ -1754,4 +1492,275 @@ git rebase -i HEAD~10
 git rm -f clarinet/clarinet.bash
 git reset 7c28
 git reset 78d65
+make application-frontend-build cd ..
+make android-studio-docker-compose-rm 
+make android-studio-docker-compose-up 
+make -C .. android-studio-image
+make -C .. android-studio
+make -C .. android-studio-image-push 
+make -C .. android-studio-docker-compose-up 
+du -sh ../.android-studio/.cache/Google/*
+du -sh ../.android-studio/.cache/Google/AndroidStudio2024.3/*
+make -C .. android-studio-docker-compose-rm 
+du -sh ../.android-studio/
+make android-studio-docker-compose-sh 
+du -sh .android-studio/*
+make android-studio-image android-studio
+make -C .. android-studio-image android-studio
+make -C ../.. dev
+ls -lh firebase/emulators/
+make -C .. dev
+make -C .. clarinet-image
+make -C .. clarinet
+make -C .. clarinet-devnet
+make  images
+[A
 make application-frontend-build 
+make go-application/backend-mod-download
+make go-application/backend-mod-download 
+ls -lh infra/gcloud/
+ls -lh infra/gcloud/auth/
+du -sh .docker-buildx-cache/*
+du -sh .docker-buildx-cache/dev/
+watch du -sh .docker-buildx-cache/dev/
+du -sh _.docker-buildx-cache/
+du -sh .docker-buildx-cache/
+rm -rf _.docker-buildx-cache/
+INFRA_ENV=prod make terraform-refresh 
+make android-studio-docker-compose-up
+make android-studio-docker-compose-rm
+make android-studio-docker-compose-sh
+make android-studio-docker-compose-logs-emulators 
+uptime
+mv infra/github/ dev/github-runner
+make github-action-runner-image
+make clarinet--d-uhh
+watch uptime
+git log
+make application-backend-image-ci 
+echo $?
+make application-frontend-bundle
+go env GOBIN
+echo $GOBIN
+cd ..
+cd -
+docker compose logs -f dev
+make dev-logs
+make dev-logsf
+0;34;16M0;34;16m
+make docker-buildx-setup 
+git commit --amend --no-edi
+du -sh ../.docker-buildx-cache/
+make -C ../ dev
+make -C .. github-action-runner-image
+make -C .. github-action-runner-image-ci 
+gii log
+git status 
+make -C .. firebase-emulators
+ls
+pwd
+bqsh
+,lcmsbash
+docker exec -it 43da5558b26b htop
+make -C .. terraform-output-json 
+INFRA_ENV=prod make terraform-plan
+INFRA_ENV=prod make terraform-init 
+make terraform-import 
+make terraform-init 
+INFRA_ENV=prod make terraform-import 
+INFRA_ENV=prod make terraform-apply
+sudo apt search helm
+chmod +x get_helm.sh 
+./get_helm.sh 
+helm template vault hashicorp/vault --version 0.30.0   --set server.extraInitContainers[0].name=vault-init   --set server.extraInitContainers[0].image=hashicorp/vault:1.15.4   --set server.extraInitContainers[0].command[0]=/vault/userconfig/init.sh   --set server.extraInitContainers[0].volumeMounts[0].name=config   --set server.extraInitContainers[0].volumeMounts[0].mountPath=/vault/userconfig   --set server.extraVolumes[0].name=config   --set server.extraVolumes[0].secret.secretName=vault-init-script   --set server.extraVolumeMounts[0].name=config   --set server.extraVolumeMounts[0].mountPath=/vault/userconfig   --set server.ha.enabled=true   --set server.dataStorage.enabled=false   --set server.extraEnvironmentVars.VAULT_STORAGE=gcp   --set server.extraEnvironmentVars.VAULT_GCP_PROJECT=ton-projet   --set server.extraEnvironmentVars.VAULT_GCP_COLLECTION=vault-secrets   --namespace vault
+helm --help
+helm search repo vault
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm install vault hashicorp/vault
+helm template vault hashicorp/vault --version 0.30.0   --set server.extraInitContainers[0].name=vault-init   --set server.extraInitContainers[0].image=hashicorp/vault:1.15.4   --set server.extraInitContainers[0].command[0]=/vault/userconfig/init.sh   --set server.extraInitContainers[0].volumeMounts[0].name=config   --set server.extraInitContainers[0].volumeMounts[0].mountPath=/vault/userconfig   --set server.extraVolumes[0].name=config   --set server.extraVolumes[0].secret.secretName=vault-init-script   --set server.extraVolumeMounts[0].name=config   --set server.extraVolumeMounts[0].mountPath=/vault/userconfig   --set server.ha.enabled=true   --set server.dataStorage.enabled=false   --set server.extraEnvironmentVars.VAULT_STORAGE=gcp   --set server.extraEnvironmentVars.VAULT_GCP_PROJECT=ton-projet   --set server.extraEnvironmentVars.VAULT_GCP_COLLECTION=vault-secrets   --namespace vault --debug
+helm template vault hashicorp/vault --version 0.30.0   --set server.extraInitContainers[0].name=vault-init   --set server.extraInitContainers[0].image=hashicorp/vault:1.15.4   --set server.extraInitContainers[0].command[0]=/vault/userconfig/init.sh   --set server.extraInitContainers[0].volumeMounts[0].name=config   --set server.extraInitContainers[0].volumeMounts[0].mountPath=/vault/userconfig   --set server.extraVolumes[0].name=config   --set server.extraVolumes[0].secret.secretName=vault-init-script   --set server.extraVolumeMounts[0].name=config   --set server.extraVolumeMounts[0].mountPath=/vault/userconfig   --set server.ha.enabled=true   --set server.dataStorage.enabled=false   --set server.extraEnvironmentVars.VAULT_STORAGE=gcp   --set server.extraEnvironmentVars.VAULT_GCP_PROJECT=ton-projet   --set server.extraEnvironmentVars.VAULT_GCP_COLLECTION=vault-secrets   --namespace vault --debug|tee bug
+helm template vault hashicorp/vault --version 0.30.0   --set server.extraInitContainers[0].name=vault-init   --set server.extraInitContainers[0].image=hashicorp/vault:1.15.4   --set server.extraInitContainers[0].command[0]=/vault/userconfig/init.sh   --set server.extraInitContainers[0].volumeMounts[0].name=config   --set server.extraInitContainers[0].volumeMounts[0].mountPath=/vault/userconfig   --set server.extraVolumes[0].name=config   --set server.extraVolumes[0].secret.secretName=vault-init-script   --set server.extraVolumeMounts[0].name=config   --set server.extraVolumeMounts[0].mountPath=/vault/userconfig   --set server.ha.enabled=true   --set server.dataStorage.enabled=false   --set server.extraEnvironmentVars.VAULT_STORAGE=gcp   --set server.extraEnvironmentVars.VAULT_GCP_PROJECT=ton-projet   --set server.extraEnvironmentVars.VAULT_GCP_COLLECTION=vault-secrets   --namespace vault --debug 2>&1 >  bug
+helm template vault hashicorp/vault --version 0.30.0   --set server.extraInitContainers[0].name=vault-init   --set server.extraInitContainers[0].image=hashicorp/vault:1.15.4   --set server.extraInitContainers[0].command[0]=/vault/userconfig/init.sh   --set server.extraInitContainers[0].volumeMounts[0].name=config   --set server.extraInitContainers[0].volumeMounts[0].mountPath=/vault/userconfig   --set server.extraVolumes[0].name=config   --set server.extraVolumes[0].secret.secretName=vault-init-script   --set server.extraVolumeMounts[0].name=config   --set server.extraVolumeMounts[0].mountPath=/vault/userconfig   --set server.ha.enabled=true   --set server.dataStorage.enabled=false   --set server.extraEnvironmentVars.VAULT_STORAGE=gcp   --set server.extraEnvironmentVars.VAULT_GCP_PROJECT=ton-projet   --set server.extraEnvironmentVars.VAULT_GCP_COLLECTION=vault-secrets   --namespace vault --debug >  bug
+helm template vault hashicorp/vault --version 0.30.0 --help
+helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml --debug >debug 2>bug
+sudp apy install yamlint
+sudo apy install yamlint
+sudo apt install yamlint
+sudo apt install yamllint
+yamllint bug 
+yamllint debug 
+helm template vault hashicorp/vault --version 0.27.0 -f infra/vault/vault-helm-values.yaml --debug >debug 2>bug
+cd infra/vault/
+helm lint .
+helm lint vault-helm-values.yaml 
+helm lint -f vault-helm-values.yaml 
+helm -f vault-helm-values.yaml lint
+gcloud container clusters get-credentials vault-cluster
+gcloud container clusters get-credentials vault-cluster --location europe-west1
+gcloud components install kubectl
+sudo apt-get install kubectl
+sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
+kubectl get namespaces
+code ~/.kube/
+env |grep -i west
+kubectl port-forward service/vault 8200:8200
+kubectl --namespace vault port-forward service/vault 8200:8200
+helm list
+helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml --debug --help >debug 2>bug
+kubectl get namespaces --help
+helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml --debug --help >debug 
+helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml --debug  >debug 
+helm template vault hashicorp/vault --version 0.27.0 -f infra/vault/vault-helm-values.yaml --debug  >debug 
+helm template vault hashicorp/vault --version 0.25.0 -f infra/vault/vault-helm-values.yaml --debug  >debug 
+helm template vault hashicorp/vault --version 0.17.0 -f infra/vault/vault-helm-values.yaml --debug  >debug 
+rm debug 
+git clone git@github.com:<ton-pseudo-github>/vault-helm.git
+cd vault-helm
+git clone git@github.com:7d4b9/vault-helm.git
+git fetch 
+code vault-helm/
+code ~/vault-helm/
+git remote add upstream https://github.com/hashicorp/vault-helm.git
+git checkout -b fix-extra-volumes-handling
+git add templates/_helpers.tpl
+git commit -m "fix: robust handling of extraVolumes in vault.volumes helper"
+git push origin fix-extra-volumes-handling
+gh pr create --base main --title "Fix: support alternative formats in extraVolumes" --body "This PR makes the 'vault.volumes' helper compatible with more robust Helm syntax. Supports both `.type`-based and full `secret`/`configMap` object definitions. Backward-compatible." --repo hashicorp/vault-helm
+gh pr create --base main --title "Fix: support alternative formats in extraVolumes" --body "This PR makes the 'vault.volumes' helper compatible with more robust Helm syntax. Supports both \`.type\`-based and full \`secret\`/\`configMap\` object definitions. Backward-compatible." --repo hashicorp/vault-helm
+sudo apt search gh
+sudo apt search github
+sudo apt add gh
+sudo apt install -y gh
+gh auth login
+kubectl logs pod/vault-helm-1 --namespace=vault --container=vault-init -f --since=0
+pager /etc/apt/sources.list.d/kubernetes.list
+pager /etc/apt/sources.list.d/debian.sources 
+kubectl --version
+kubectl version
+apt-get search kubectl
+apt search kubectl
+pager /etc/apt/sources.list.d/google-cloud-sdk.list 
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as command-not-found to work correctly
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list 
+sudo apt-get install -y kubectl
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg # allow unprivileged APT programs to read this keyring
+sudo apt-get upgrade
+cat /etc/apt/sources.list.d/kubernetes.list 
+which kubectl
+kubectl --help
+INFRA_ENV=prod make gcloud-roles-list 
+INFRA_ENV=prod make gcloud-david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com-serviceaccount-bindings-roles 
+INFRA_ENV=prod
+INFRA_ENV=prod make gcloud-serviceaccount-roles 
+INFRA_ENV=prod make vault-rollout-restart 
+kubectl --namespace vault rollout restart statefulset vault-helm
+kubectl --namespace vault list pod
+kubectl --namespace vault list pods
+kubectl pods list --namespace vault 
+kubectl pod list --namespace vault 
+kubectl get pods --namespace vault 
+kubectl rollout restart statefulset vault-helm --namespace vault 
+kubectl get deployments --namespace vault 
+kubectl get services --namespace vault 
+kubectl rm pod vault-helm-0 --namespace vault 
+kubectl delete pod vault-helm-0 --namespace vault 
+kubectl delete pod -f vault-helm-0 --namespace vault 
+kubectl delete pod vault-helm-1 vault-helm-2 vault-helm-0 --namespace vault 
+kubectl get deployments --namespace default
+kubectl get statefulsets
+kubectl rollout restart statefulset vault-helm
+git clone https://github.com/hashicorp/vault-guides
+code vault-guides/
+kubectl delete pod vault-helm-0
+helm list --all-namespace
+helm list --all-namespaces
+kubectl get all --namespace vault -l "release=vault-helm"
+kubectl get all --namespace default -l "release=vault-helm"
+kubectl get all --all-namespaces -l "release=vault-helm"
+helm list --namespace vault
+helm uninstall vault-helm --namespace vault
+make gcloud-roles-list 
+gcloud iam roles describe roles/container.clusterAdmin
+make vault-helm-uninstall-release-destroy 
+kubectl --namespace vault port-forward service/vault-helm 8200:8200
+make vault-rollout-restart 
+make vault-gke-cluster-init 
+make vault-gcloud-cluster-get-jobs 
+make
+kubectl get pods
+kubectl logs vault-helm
+kubectl logs vault-helm-0
+kubectl delete pods -l app=vault
+kubectl delete pods -l app=vault-helm
+kubectl exec -it vault-helm-0 sh
+kubectl exec -it vault-helm-0 -- sh
+helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml 
+git clone https://github.com/hashicorp-education/learn-vault-kubernetes-consul
+code learn-vault-kubernetes-consul/
+kubectl delete statefulset vault-helm
+INFRA_ENV=prod make vault-helm-uninstall-release-destroy 
+kubectl exec -it vault-0 -- cat /vault/config/config.json
+kubectl exec -it vault-helm-0 -- cat /vault/config/config.json
+INFRA_ENV=prod helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml --debug >debug 2>bug
+kubectl get configmap vault-config -n vault -o yaml
+kubectl get configmap vault-helm-config -n vault -o yaml
+helm template vault hashicorp/vault --version 0.30.0 -f infra/vault/vault-helm-values.yaml --debug >debug 
+git branch -a
+git checkout -b dev
+helm template vault hashicorp/vault --version 0.30.0 -f manifests/helm-vault-values.yml
+kubectl delete pod -l app.kubernetes.io/name=vault -n vault
+kubectl logs vault-0 -n vault
+kubectl logs vault-helm-0 -n vault
+kubectl logs -f vault-helm-0 -n vault
+kubectl exec -it vault-helm-0 -n vault bash
+kubectl exec -it vault-helm-0 -n vault -- bash
+kubectl exec -it vault-helm-0 -n vault -- sh
+helm status vault-helm
+helm get manifest vault-helm
+helm help
+cd && mkdir helm-vault-pull && cd helm-vault-pull && helm pull hashicorp/vault --version 0.30.0 --untar
+kubectl kms key list
+gcloud kms key list
+gcloud kms keys list
+gcloud kms keys list --location=global
+gcloud kms keys list --location=global --keyring=my-keyring
+gcloud kms keys list --location=global --keyring=vault-keyring
+gcloud iam service-accounts list
+gcloud iam service-accounts get-iam-policy vault-sa@moov-438615.iam.gserviceaccount.com
+make vault-helm-serviceaccount-get-iam-policy
+INFFRA_ENV=prod make vault-helm-serviceaccount-get-iam-policy
+INFRA_ENV=prod make vault-helm-serviceaccount-get-iam-policy
+git diff infra/vault/abcd.yml
+make consul-helm-rollout-restart 
+kubectl delete pod -l app.kubernetes.io/name=consul -n vault
+kubectl delete pod -l app=consul -n vault
+kubectl delete pod --name=consul-helm -n vault
+kubectl delete pod consul-helm-consul-client-f8vgr -n vaultmake -C .. terraform-plan 
+INFRA_ENV=prod make -C .. terraform-plan 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+git log
+INFRA_ENV=prod make -C ../ application-backend-image
+INFRA_ENV=prod make -C .. terraform-plan 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+INFRA_ENV=prod make -C .. vault-helm-pods-delete 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+INFRA_ENV=prod make -C .. vault-helm-pods-delete 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+man set
+set --help
+kubectl get pods -l job-name=vault-operator-init -n vault
+kubectl get pods -l job-name=vault-init-job -n vault
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+INFRA_ENV=prod make -C .. vault-helm-uninstall-release-destroy 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+kubectl get pods -l job-name=vault-init-job -n vault
+INFRA_ENV=prod make -C .. vault-helm-pods-delete 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+INFRA_ENV=prod make -C .. vault-helm-pods-delete 
+INFRA_ENV=prod make -C .. terraform-apply-auto-approve 
+git log
+git tag -f s
+git reset origin/dev 
+git commit --amend --no-edi
