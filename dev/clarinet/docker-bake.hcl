@@ -18,7 +18,7 @@ variable "CLARINET_VERSION" {
   default = "2.12.0"
 }
 
-target "clarinet-ci" {
+target "clarinet-devnet-ci" {
   args = {
     builder_image    = LATEST_BUILDER_IMAGE
     docker_version   = DOCKER_VERSION
@@ -38,7 +38,7 @@ target "clarinet-ci" {
   platforms = platforms
 }
 
-target "clarinet" {
+target "clarinet-devnet" {
   args = {
     builder_image    = LATEST_BUILDER_IMAGE
     docker_version   = DOCKER_VERSION

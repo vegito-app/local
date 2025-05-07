@@ -6,8 +6,6 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       args:
-        github_project_name: ${GITHUB_REPOSITORY_NAME:-refactored-winner}
-        host_pwd: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
         builder_image: ${BUILDER_IMAGE}
     env_file:
       - .env

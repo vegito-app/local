@@ -1,4 +1,5 @@
-.devcontainer/
+dev/.containers
+.github/
 gcloud/.terraform
 .android-studio/
 .docker-buildx-cache/

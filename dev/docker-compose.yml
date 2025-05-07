@@ -88,16 +88,16 @@ services:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
-      - clarinet_var_lib_docker:/home/clarinet/.local/share/docker
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
     working_dir: ${PWD:-/workspaces/refactored-winner}
+    # entrypoint: bash -c
     command: |
       bash -c '
-        set -eu
-        make clarinet-devnet-start
-        sleep infinity
+      set -eu
+      make clarinet-devnet-start
+      sleep infinity
       '
     networks:
       dev:
@@ -127,6 +127,7 @@ services:
     shm_size: "8gb"
     group_add:
       - render
+      - kvm
       - sgx
     working_dir: ${PWD:-/workspaces/refactored-winner}
     networks:
@@ -155,11 +156,8 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
-
       set -eu
-
       ./dev/backend-application-vault-init.sh
-
       sleep infinity
       '
     networks:

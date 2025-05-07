@@ -59,6 +59,16 @@ alias gl='git log --oneline --graph --decorate'
 alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
 alias run-android='flutter run -d android'
 
+# Some linux distibution like Codespaces are requiring this additionnaly to the docker group addition.
+sudo chown root:kvm /dev/kvm
+sudo chmod 660 /dev/kvm
+
+# Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
+current_workspace=$(dirname $PWD)
+if [ "$current_workspace" != "/workspaces" ] ; then
+    sudo ln -s $current_workspace /workspaces
+fi
+
 echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 exec "$@"

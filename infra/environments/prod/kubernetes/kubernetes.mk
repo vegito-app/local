@@ -33,7 +33,7 @@ production-vault-gke-describe-container-cluster:
 
 production-vault-gke-describe-container-node-pools:
 	$(GCLOUD) container node-pools describe default-pool \
-	  --cluster vault-cluster \ù
+	  --cluster vault-cluster \
 	  --region $(GOOGLE_CLOUD_REGION) \
 	  --format="yaml(workloadMetadataConfig)"
 .PHONY: production-vault-gke-describe-container-cluster

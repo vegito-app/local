@@ -17,6 +17,15 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
+LOCAL_CLARINET_DEVNET_CACHE=${PWD}/dev/.containers/clarinet-devnet
+mkdir -p $LOCAL_CLARINET_DEVNET_CACHE
+
+# local docker rootless cache 
+LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.local/share/docker
+mkdir -p $LOCAL_CLARINET_DEVNET_CACHE/dockerd 
+mkdir -p ${HOME}/.local/share/
+ln -s $LOCAL_CLARINET_DEVNET_CACHE/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+
 dockerd-entrypoint.sh --dns=8.8.8.8 --dns=8.8.4.4 &
 bg_pids+=("$!")
 

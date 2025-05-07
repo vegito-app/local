@@ -51,6 +51,16 @@
           "editor.defaultFormatter": "vscode.json-language-features"
         },
         "remote.portsAttributes": {
+          "2375": {
+            "label": "Devcontainer - Host - Docker Socket",
+            "protocol": "http",
+            "onAutoForward": "silent"
+          },
+          "2376": {
+            "label": "Clarinet - Devnet - Docker Socket",
+            "protocol": "http",
+            "onAutoForward": "silent"
+          },
           "3000": {
             "label": "Application UI - Debug",
             "protocol": "http",

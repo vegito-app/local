@@ -53,9 +53,11 @@ gcloud-info:
 	@$(GCLOUD) info
 .PHONY: gcloud-info
 
-gcloud-auth-login:
+gcloud-auth-login: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@echo "🔐 Logging in to gcloud and activating service account..."
 	@$(GCLOUD) auth login
+	# $(GCLOUD) config set account davidberich@gmail.com
+	@$(MAKE) $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 	@echo "🔐 Activating service account via GOOGLE_APPLICATION_CREDENTIALS..."
 	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
@@ -205,7 +207,6 @@ gcloud-docker-registry-temporary-token:
 
 GCLOUD_SERVICE_ACCOUNTS = \
 	$(GOOGLE_CLOUD_PROJECT_ID)@appspot.gserviceaccount.com \
-	$(GOOGLE_CLOUD_PROJECT_ID)-compute@developer.gserviceaccount.com \
 	github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
 	production-application-backend@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
 	firebase-admin-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
@@ -230,8 +231,51 @@ gcloud-serviceaccount-iam-policy: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceac
 .PHONY: gcloud-serviceaccount-iam-policy
 
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-iam-policy):
-	@$(GCLOUD) iam service-accounts get-iam-policy $(@:gcloud-%-serviceaccount-iam-policy=%)
+	@echo 📋 listing service-account iam policies of $(@:gcloud-%-serviceaccount-keys-list=%)
+	@-$(GCLOUD) iam service-accounts get-iam-policy $(@:gcloud-%-serviceaccount-iam-policy=%)
 .PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-iam-policy)
+
+gcloud-serviceaccount-keys-list: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-list)
+.PHONY: gcloud-serviceaccount-keys-list
+
+$(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-list):
+	@echo 📋 listing keys of service account $(@:gcloud-%-serviceaccount-keys-list=%)
+	@-$(GCLOUD) iam service-accounts keys list --iam-account $(@:gcloud-%-serviceaccount-keys-list=%)
+.PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-list)
+
+gcloud-serviceaccount-keys-rm: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm)
+.PHONY: gcloud-serviceaccount-keys-rm
+
+$(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm):
+	@echo 📋 removing keys of service account $(@:gcloud-%-serviceaccount-keys-rm=%)
+	@-$(MAKE) gcloud-developper-iam-sa-keys-clean-oldest-3
+.PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm)
+
+gcloud-developper-iam-sa-keys-clean-oldest-3:
+	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
+	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
+		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+		--format="value(name)" --sort-by=validAfterTime | head -n 3); \
+	for KEY in $$KEYS; do \
+		echo "🗑️ Suppression de la clé $$KEY..."; \
+		$(GCLOUD) iam service-accounts keys delete $$KEY \
+			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+			--quiet; \
+	done
+.PHONY: gcloud-developper-iam-sa-keys-clean-oldest-3
+
+gcloud-developper-iam-sa-keys-clean-all:
+	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
+	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
+		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+		--format="value(name)"; \
+	for KEY in $$KEYS; do \
+		echo "🗑️ Suppression de la clé $$KEY..."; \
+		$(GCLOUD) iam service-accounts keys delete $$KEY \
+			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+			--quiet; \
+	done
+.PHONY: gcloud-developper-iam-sa-keys-clean-all
 
 GCLOUD_USERS_EMAILS := \
   davidberich@gmail.com

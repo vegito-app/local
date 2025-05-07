@@ -40,4 +40,13 @@ mkdir -p $GCLOUD_CONFIG ${DEV_CONTAINER_CACHE}/gcloud
 rm -rf $GCLOUD_CONFIG
 ln -sf ${DEV_CONTAINER_CACHE}/gcloud $GCLOUD_CONFIG
 
+# Dev container docker socket locally forwarded from distant dockerd host VM
+socat TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock &
+
+# Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
+current_workspace=$(dirname $PWD)
+if [ "$current_workspace" != "/workspaces" ] ; then
+    sudo ln -s $current_workspace /workspaces
+fi
+
 exec "$@"
