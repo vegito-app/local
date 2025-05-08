@@ -3,7 +3,6 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
-import './crypto/stacks.dart';
 
 class ShowPrivateKeyButton extends StatefulWidget {
   const ShowPrivateKeyButton({super.key});
@@ -45,7 +44,7 @@ class _ShowPrivateKeyButtonState extends State<ShowPrivateKeyButton> {
   }
 
   Future<void> _loadPrivateKey() async {
-    final key = await getPrivateKey();
+    final key = await getPrivateKeyWIF();
     setState(() => _privateKey = key);
   }
 

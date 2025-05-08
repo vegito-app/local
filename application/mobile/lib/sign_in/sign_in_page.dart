@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart'; // Ajouté pour kReleaseMode
 import 'package:flutter/material.dart';
 
 class SignInPage extends StatelessWidget {
-  const SignInPage({Key? key}) : super(key: key);
+  const SignInPage({super.key});
 
   Future<UserCredential?> _signInWithFirebase(BuildContext context) async {
     try {

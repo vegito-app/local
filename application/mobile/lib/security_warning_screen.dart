@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class SecurityWarningScreen extends StatefulWidget {
-  const SecurityWarningScreen({Key? key}) : super(key: key);
+  const SecurityWarningScreen({super.key});
 
   @override
   State<SecurityWarningScreen> createState() => _SecurityWarningScreenState();

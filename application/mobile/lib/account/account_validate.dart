@@ -1,9 +1,9 @@
-import 'dart:ui';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AccountValidate extends StatefulWidget {
+  const AccountValidate({super.key});
+
   @override
   _AccountValidateState createState() => _AccountValidateState();
 }
@@ -44,8 +44,6 @@ class _AccountValidateState extends State<AccountValidate>
         ElevatedButton(
           onPressed: () async {
             try {
-              final userCredential = await FirebaseAuth.instance
-                  .signInWithProvider(GoogleAuthProvider());
               await _loadWallet();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

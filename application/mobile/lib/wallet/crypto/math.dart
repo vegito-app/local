@@ -1,6 +1,5 @@
 // Fonction pour générer une clé privée aléatoire
 import 'dart:convert';
-import 'dart:math';
 
 // XOR entre deux clés
 String xorKeys(String privateKey, String recoveryKey) {

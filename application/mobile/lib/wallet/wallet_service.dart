@@ -35,27 +35,33 @@ class WalletService {
 
   void _initialize() async {
     try {
-      final existingKey = await WalletStorage.getPrivateKey();
-      String privateKeyStr;
-
-      if (existingKey != null) {
-        privateKeyStr = existingKey;
+      final existingKeyWIF = await WalletStorage.getPrivateKey();
+      if (existingKeyWIF != null) {
         final recoveryKey = await WalletStorage.getLocallyStoredRecoveryKey();
         if (recoveryKey == null) {
-          await _setupRecovery(privateKeyStr);
+          await _setupRecovery(existingKeyWIF);
         }
       } else {
-        privateKeyStr = generatePrivateKey().toString();
-        final wif = fromPrivateKeyStrToWIF(privateKeyStr);
-        await WalletStorage.storePrivateKey(privateKeyToWIF(wif));
-        await _setupRecovery(privateKeyStr);
+        final privateKey = generatePrivateKey();
+        final privateKeyWIF = privateKeyToWIF(privateKey);
+        await WalletStorage.storePrivateKey(privateKeyWIF);
+        await _setupRecovery(privateKeyWIF);
       }
-
-      final privKey = wifToPrivateKey(privateKeyStr);
-
+      if (existingKeyWIF == null) {
+        throw Exception('required WIF for computing wallet public keys');
+      }
+      final privKey = wifToPrivateKey(existingKeyWIF);
       _pubKey = getCompressedPublicKey(privKey);
-      _addressTestnet = getStacksAddress(_pubKey, testnet: true);
-      _addressMainnet = getStacksAddress(_pubKey, testnet: false);
+      final addressTestnet = getStacksAddress(_pubKey, testnet: true);
+      if (!isValidStacksAddress(addressTestnet, testnet: true)) {
+        throw Exception('computing Stacks Testnet Address not valid');
+      }
+      _addressTestnet = addressTestnet;
+      final addressMainnet = getStacksAddress(_pubKey, testnet: false);
+      if (!isValidStacksAddress(addressMainnet, testnet: false)) {
+        throw Exception('computing Stacks Mainnet Address not valid');
+      }
+      _addressMainnet = addressMainnet;
     } catch (e, stack) {
       debugPrint("Erreur lors de l'initialisation du wallet : $e");
       debugPrint("$stack");
@@ -89,13 +95,13 @@ Future<String> generateRecoveryKey(String userId) async {
 
 // Mise en place de la clé de récupération et recoveryKey
 Future<String> _setupRecovery(String privateKey) async {
-  final recoveryKey = generatePrivateKey();
-  final xorKey = xorKeys(privateKey, recoveryKey.d as String);
+  final recoveryKey = generatePrivateKey().toString();
+  final xorKey = xorKeys(privateKey, recoveryKey);
 
   try {
     await postRecoveryKey(xorKey);
-    await WalletStorage.storeRecoveryKeyLocally(recoveryKey as String);
-    return recoveryKey as String;
+    await WalletStorage.storeRecoveryKeyLocally(recoveryKey);
+    return recoveryKey;
   } catch (e) {
     debugPrint("Erreur lors de l'envoi de la recovery key : $e");
     rethrow;
@@ -115,20 +121,20 @@ Future<String> getRecoveryKey() async {
   return recoveryKey;
 }
 
-Future<String> getPrivateKey() async {
+Future<String> getPrivateKeyWIF() async {
   if (await _isCompromisedDevice()) {
     return "Appareil compromis, accès refusé.";
   }
-
-  var privateKey = await WalletStorage
+  var privateKeyWIF = await WalletStorage
       .getPrivateKey(); // Toujours retourner la clé existante ou nouvellement créée
 
-  if (privateKey == null) {
-    privateKey = generatePrivateKey() as String;
-    await WalletStorage.storePrivateKey(privateKey);
-    await _setupRecovery(privateKey);
+  if (privateKeyWIF == null) {
+    final privateKey = generatePrivateKey();
+    privateKeyWIF = privateKeyToWIF(privateKey, testnet: true);
+    await WalletStorage.storePrivateKey(privateKeyWIF);
+    await _setupRecovery(privateKeyWIF);
   }
-  return privateKey;
+  return privateKeyWIF;
 }
 
 // Vérification si l'appareil est rooté/jailbreaké

@@ -10,6 +10,8 @@ import 'wallet_private_key_button.dart';
 import 'wallet_recovery_key_section.dart';
 
 class WalletScreen extends StatefulWidget {
+  const WalletScreen({super.key});
+
   @override
   _WalletScreenState createState() => _WalletScreenState();
 }
@@ -80,7 +82,7 @@ class _WalletScreenState extends State<WalletScreen>
       if (user == null) {
         throw Exception("Utilisateur non authentifié");
       }
-      String? privateKey = await getPrivateKey();
+      String? privateKey = await getPrivateKeyWIF();
       if (privateKey.contains("compromis")) {
         setState(() {
           _recoveryKey = "Appareil compromis, accès refusé.";
@@ -102,7 +104,7 @@ class _WalletScreenState extends State<WalletScreen>
         _isCompromised = false;
         _fadeController.reset();
       });
-      if (recoveryKey != null && recoveryKey.isNotEmpty) {
+      if (recoveryKey!.isNotEmpty) {
         _fadeController.forward();
       }
     } catch (e) {
@@ -114,49 +116,6 @@ class _WalletScreenState extends State<WalletScreen>
         _isCompromised = false;
         _fadeController.reset();
       });
-    }
-  }
-
-  Future<void> _generateRecoveryKey() async {
-    setState(() {
-      _isLoading = true;
-      _showRecoveryKey = false;
-      _fadeController.reset();
-    });
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("Utilisateur non authentifié");
-      }
-      // Generate new recovery key
-      final newKey = await generateRecoveryKey(user.uid);
-
-      await _loadWallet();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Clé de récupération générée avec succès. Veuillez la sauvegarder en lieu sûr.',
-          ),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 4),
-        ),
-      );
-    } catch (e) {
-      setState(() {
-        _recoveryKey = "Erreur génération : ${e.toString()}";
-        _isLoading = false;
-        _showRecoveryKey = false;
-        _fadeController.reset();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Erreur lors de la génération de la clé de récupération 🔑. Veuillez réessayer. Détail : ${e.toString()}',
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
-        ),
-      );
     }
   }
 
@@ -176,7 +135,6 @@ class _WalletScreenState extends State<WalletScreen>
         );
       }
     });
-    final showKeyMissing = _recoveryKey == null || _recoveryKey!.isEmpty;
     return Scaffold(
       appBar: AppBar(title: const Text("Mon Wallet")),
       body: Center(
@@ -220,9 +178,9 @@ class _WalletScreenState extends State<WalletScreen>
                               }
                             });
                           },
-                    label: Text("Clé de récupération"),
+                    label: const Text("Clé de récupération"),
                   ),
-                  AccountValidate(),
+                  const AccountValidate(),
                   const SizedBox(height: 10),
                   WalletRecoveryKeySection(
                     recoveryKey: _recoveryKey,

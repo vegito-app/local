@@ -127,7 +127,7 @@ Uint8List signMessage(String message, ECPrivateKey privKey) {
 }
 
 Uint8List _encodeSignatureDER(ECSignature sig) {
-  Uint8List _encodeInt(BigInt i) {
+  Uint8List encodeInt(BigInt i) {
     final raw = i.toRadixString(16).padLeft(2, '0');
     final b = HEX.decode(raw.length % 2 == 1 ? '0$raw' : raw);
     return (b[0] & 0x80) != 0
@@ -135,8 +135,8 @@ Uint8List _encodeSignatureDER(ECSignature sig) {
         : Uint8List.fromList(b);
   }
 
-  final r = _encodeInt(sig.r);
-  final s = _encodeInt(sig.s);
+  final r = encodeInt(sig.r);
+  final s = encodeInt(sig.s);
 
   final sequence = <int>[
     0x02,

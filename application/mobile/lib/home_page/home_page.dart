@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage>
         return;
       }
 
-      final _ = await getPrivateKey();
+      final _ = await getPrivateKeyWIF();
     } catch (e) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(

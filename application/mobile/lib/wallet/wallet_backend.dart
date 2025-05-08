@@ -1,6 +1,5 @@
 // Fonction pour récupérer la recoveryKey depuis le backend
 import 'dart:convert';
-import 'dart:math';
 import 'package:car2go/config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http show get, post;

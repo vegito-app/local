@@ -6,7 +6,7 @@ import 'security_warning_screen.dart';
 class AuthGuard extends StatelessWidget {
   final Widget child;
 
-  const AuthGuard({Key? key, required this.child}) : super(key: key);
+  const AuthGuard({super.key, required this.child});
 
   Future<User?> _ensureUserIsAuthenticated(BuildContext context) async {
     User? user = FirebaseAuth.instance.currentUser;

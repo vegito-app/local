@@ -38,10 +38,12 @@ void main() async {
 
   await signInWithFirebase();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -62,7 +64,7 @@ class MyApp extends StatelessWidget {
         child: HomePage(),
       ),
       routes: {
-        '/wallet': (context) => AuthGuard(child: WalletScreen()),
+        '/wallet': (context) => const AuthGuard(child: WalletScreen()),
         '/account': (context) => const AuthGuard(child: AccountPage()),
       },
     );

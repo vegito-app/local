@@ -4,6 +4,8 @@ import '../account/account_page.dart';
 import '../wallet/wallet_screen.dart';
 
 class ActionButtons extends StatelessWidget {
+  const ActionButtons({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const Column(
@@ -25,7 +27,7 @@ class _GoToWalletButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => WalletScreen()),
+          MaterialPageRoute(builder: (context) => const WalletScreen()),
         );
       },
       child: const Text('Aller à Mon Wallet'),

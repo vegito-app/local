@@ -23,17 +23,17 @@ ECPrivateKey wifToPrivateKey(String wif) {
   final compressed = payload.length == 34 && payload.last == 0x01;
   final privKeyBytes = compressed ? payload.sublist(1, 33) : payload.sublist(1);
   final d = HEX.encode(privKeyBytes);
-  return fromPrivateKeyStrToWIF(d);
+  return privateKeyFromStr(d);
 }
 
-ECPrivateKey fromPrivateKeyStrToWIF(String privateKeyStr) {
+ECPrivateKey privateKeyFromStr(String privateKeyStr) {
   return ECPrivateKey(
       BigInt.parse(privateKeyStr, radix: 16), ECCurve_secp256k1());
 }
 
 String privateKeyStrToWIF(String privateKeyStr,
     {bool compressed = true, bool testnet = true}) {
-  return privateKeyToWIF(fromPrivateKeyStrToWIF(privateKeyStr));
+  return privateKeyToWIF(privateKeyFromStr(privateKeyStr));
 }
 
 String privateKeyToWIF(ECPrivateKey privKey,
