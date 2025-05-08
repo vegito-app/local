@@ -7,7 +7,7 @@ variable "LATEST_ANDROID_STUDIO_IMAGE" {
 }
 
 variable "ANDROID_STUDIO_VERSION" {
-  default = "2025.1.1.8"
+  default = "2025.1.1.9"
 }
 
 variable "ANDROID_NDK_VERSION" {

@@ -79,8 +79,13 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     mv cmdline-tools latest && \
     yes | sdkmanager --licenses && \
     sdkmanager \
-    "platform-tools" "platforms;android-30" \
-    "build-tools;30.0.1" "build-tools;35.0.0"  "build-tools;36.0.0" \
+    "platform-tools" \
+    "platforms;android-30" \
+    "platforms;android-36" \
+    "sources;android-36" \
+    "build-tools;30.0.1" \
+    "build-tools;35.0.0" \
+    "build-tools;36.0.0" \
     "ndk;${android_ndk_version}" \
     # Install emulator
     && case "$TARGETPLATFORM" in \

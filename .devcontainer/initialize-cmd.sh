@@ -131,7 +131,7 @@ fi
 
 # EMACS initial container config from host.
 DEV_CONTAINER_CACHE_DIR=${PWD}/dev/.containers/dev
-if [ ~/.emacs.d ]; then
+if [ -d ~/.emacs.d ]; then
   mkdir -p ${DEV_CONTAINER_CACHE_DIR}
   rsync -av ~/.emacs.d ${DEV_CONTAINER_CACHE_DIR}/emacs
 fi

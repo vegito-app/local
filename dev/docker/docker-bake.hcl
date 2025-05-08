@@ -73,8 +73,8 @@ variable "platforms" {
 group "services-load-local-arch" {
   targets = [
     "android-studio",
-    "backend",
-    "clarinet",
+    "application-backend",
+    "clarinet-devnet",
     "firebase-emulators",
     "github-action-runner",
     "vault-dev",
@@ -84,8 +84,8 @@ group "services-load-local-arch" {
 group "services-push-multi-arch" {
   targets = [
     "android-studio-ci",
-    "backend-ci",
-    "clarinet-ci",
+    "application-backend-ci",
+    "clarinet-devnet-ci",
     "firebase-emulators-ci",
     "github-action-runner-ci",
     "vault-dev-ci",

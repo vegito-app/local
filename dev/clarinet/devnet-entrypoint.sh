@@ -29,9 +29,6 @@ ln -s $LOCAL_CLARINET_DEVNET_CACHE/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
 dockerd-entrypoint.sh --dns=8.8.8.8 --dns=8.8.4.4 &
 bg_pids+=("$!")
 
-TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
-bg_pids+=("$!")
-
 export DOCKER_HOST=unix:///run/user/1000/docker.sock
 
 until docker info >/dev/null 2>&1; do echo waiting dockerd startup ; sleep 1 ; done
@@ -43,5 +40,11 @@ bg_pids+=("$!")
 
 mkdir -p ${HOME}/.docker/run
 ln -s /run/user/1000/docker.sock ${HOME}/.docker/run/docker.sock
+
+# Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
+current_workspace=$(dirname $PWD)
+if [ "$current_workspace" != "/workspaces" ] ; then
+    sudo ln -s $current_workspace /workspaces
+fi
 
 exec "$@"
