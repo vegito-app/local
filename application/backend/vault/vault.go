@@ -173,9 +173,13 @@ loop:
 
 func (c *APIclient) leaseDurationSeconds(lookup *vault.Secret) (int64, error) {
 	minimumLeaseDurationSeconds := int64(c.minimumLeaseTimeDuration / time.Second)
-	leaseDurationRaw, ok := lookup.Data["ttl"].(json.Number)
+	leaseDurationRawData, ok := lookup.Data["ttl"]
 	if !ok {
 		return minimumLeaseDurationSeconds, fmt.Errorf("failed to parse token ttl")
+	}
+	leaseDurationRaw, ok := leaseDurationRawData.(json.Number)
+	if !ok {
+		return minimumLeaseDurationSeconds, fmt.Errorf("failed to parse token ttl data as number")
 	}
 	leaseDurationSeconds, err := leaseDurationRaw.Int64()
 	if err != nil {
