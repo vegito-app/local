@@ -17,9 +17,18 @@ PROD_VAULT_TERRAFORM = \
 $(PROD_VAULT_HELM_VAULT_TOKEN): 
 	@$(MAKE) production-vault-login
 
+production-vault-terraform-state-list: $(GOOGLE_APPLICATION_CREDENTIALS)
+	@$(PROD_VAULT_TERRAFORM) state list
+.PHONY: production-vault-terraform-state-list
+
 production-vault-terraform-init: $(GOOGLE_APPLICATION_CREDENTIALS)
-	@$(PROD_VAULT_TERRAFORM) init -upgrade
+	@$(PROD_VAULT_TERRAFORM) init -lockfile=readonly
 .PHONY: production-vault-terraform-init
+
+
+production-vault-terraform-upgrade: $(GOOGLE_APPLICATION_CREDENTIALS)
+	@$(PROD_VAULT_TERRAFORM) init -upgrade
+.PHONY: production-vault-terraform-upgrade
 
 production-vault-terraform-reconfigure: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(PROD_VAULT_TERRAFORM) init -reconfigure

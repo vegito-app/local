@@ -1,11 +1,11 @@
 TERRAFORM_PROJECT ?= $(CURDIR)/infra/environments/$(INFRA_ENV)
 
-TERRAFORM = \
+TERRAFORM = cd $(TERRAFORM_PROJECT) && \
 	TF_VAR_application_backend_image=$(APPLICATION_BACKEND_IMAGE) \
 	TF_VAR_google_idp_oauth_key_secret_id=$(GOOGLE_IDP_OAUTH_KEY) \
 	TF_VAR_google_idp_oauth_client_id_secret_id=$(GOOGLE_IDP_OAUTH_CLIENT_ID) \
 	TF_VAR_helm_vault_chart_version=$(HELM_VAULT_CHART_VERSION) \
-		terraform -chdir=$(TERRAFORM_PROJECT)
+		terraform
 
 terraform-init: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) init --upgrade
@@ -23,22 +23,20 @@ terraform-state-list: $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: terraform-state-list
 
 # This list is used to provide generic terraform targets 
-TF_STATE_ITEMS =
-_= \
-  data.google_project.project \
+TF_STATE_ITEMS =   module.gcloud.google_project_service.google_services_maps["maps-android-backend.googleapis.com"] 
+_= \  data.google_project.project \
   data.google_service_account.production_root_admin_service_account \
+  data.google_storage_bucket.bucket_tf_state_eu_global \
   google_apikeys_key.developer_google_maps_api_key["davidberich@gmail.com"] \
   google_project_iam_member.application_backend_vault_access \
   google_project_iam_member.artifact_registry_reader["david-berichon-dev"] \
   google_project_iam_member.artifact_registry_reader["david-berichon-prod"] \
   google_project_iam_member.artifact_registry_reader["david-berichon-staging"] \
-  google_project_iam_member.artifactregistry_reader \
   google_project_iam_member.developer_service_account_roles["0"] \
   google_project_iam_member.developer_service_account_roles["1"] \
   google_project_iam_member.developer_service_account_roles["2"] \
   google_project_iam_member.developer_service_account_roles["3"] \
   google_project_iam_member.developer_service_account_roles["4"] \
-  google_project_iam_member.production_root_admin \
   google_project_service.google_services_default["cloudbilling.googleapis.com"] \
   google_project_service.google_services_default["cloudbuild.googleapis.com"] \
   google_project_service.google_services_default["cloudfunctions.googleapis.com"] \
@@ -60,7 +58,6 @@ _= \
   google_service_account_iam_member.key_admin["david-berichon-dev"] \
   google_service_account_iam_member.key_admin["david-berichon-prod"] \
   google_service_account_iam_member.key_admin["david-berichon-staging"] \
-  google_storage_bucket.bucket_tf_state_eu_global \
   google_storage_bucket_iam_member.bucket_iam_member["david-berichon-dev"] \
   google_storage_bucket_iam_member.bucket_iam_member["david-berichon-prod"] \
   google_storage_bucket_iam_member.bucket_iam_member["david-berichon-staging"] \
@@ -75,31 +72,34 @@ _= \
   module.cdn.google_storage_bucket.public_images \
   module.cdn.google_storage_bucket_iam_binding.web_public_image \
   module.cdn.google_storage_bucket_object.public_web_background_image \
-  module.dev_members.google_project_iam_binding.admin_user_roles["apikeys_admin"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["artifactregistry_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["cloud_kms_admin"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["cloudfunction_admin"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["compute_instance_admin"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["container_cluster_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["datastore_owner"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["firebasedatabase_admin"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["firebasedatabase_viewer"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["iam_admin"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["iam_service_account_admin"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["iam_service_account_token_creator"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["iam_service_account_user_as_admin"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["identitytoolkit_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["roles_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["secret_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["service_account_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["service_account_key_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["service_account_token_creator"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["service_account_user_as_admin"] \
-  module.dev_members.google_project_iam_binding.admin_user_roles["servuceussage_consumer"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["serviceusage_apikeys_viewer"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["servieusage_apikeys_admin"] \
+  module.dev_members.google_project_iam_binding.admin_user_roles["servuceusage_consumer"] \
   module.dev_members.google_project_iam_binding.admin_user_roles["storage_admin"] \
   module.dev_members.google_project_iam_binding.editor_user_roles["artifactregistry_writer"] \
   module.dev_members.google_project_iam_binding.editor_user_roles["datastore_viewer"] \
   module.dev_members.google_project_iam_binding.editor_user_roles["global_editor"] \
   module.dev_members.google_project_iam_binding.editor_user_roles["secret_accessor"] \
-  module.dev_members.google_project_iam_binding.editor_user_roles["service_account_token_creator"] \
   module.dev_members.google_project_iam_binding.editor_user_roles["storage_objectviewer"] \
-  module.dev_members.google_project_iam_binding.k8s_rbac_admin_user_roles \
+  module.dev_members.google_project_iam_binding.k8s_rbac_admin_users_binding \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["datastore_owner"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["firebasedatabase_admin"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["iam_roles_admin"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["iam_service_account_key_admin"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["iam_service_account_token_creator"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["legacy_1"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["secret_admin"] \
+  module.dev_members.google_project_iam_binding.root_admin_user_bindings["secret_cloud_kms_admin"] \
   module.dev_members.google_project_iam_custom_role.k8s_rbac_role \
   module.gcloud.data.archive_file.auth_func_src \
   module.gcloud.data.google_firebase_android_app.android_sha \
@@ -109,7 +109,6 @@ _= \
   module.gcloud.data.google_project.project \
   module.gcloud.data.google_secret_manager_secret_version.google_idp_oauth_client_id \
   module.gcloud.data.google_secret_manager_secret_version.google_idp_oauth_client_secret \
-  module.gcloud.data.google_storage_bucket.tf_state_global \
   module.gcloud.google_apikeys_key.google_maps_android_api_key \
   module.gcloud.google_apikeys_key.google_maps_ios_api_key \
   module.gcloud.google_apikeys_key.web_google_maps_api_key \
@@ -170,6 +169,7 @@ _= \
   module.gcloud.google_service_account_key.firebase_admin_service_account_key \
   module.gcloud.google_service_account_key.github_actions_key \
   module.gcloud.google_storage_bucket.bucket_gcf_source \
+  module.gcloud.google_storage_bucket.bucket_tf_state_eu_global \
   module.gcloud.google_storage_bucket_iam_binding.bucket_iam_binding \
   module.gcloud.google_storage_bucket_iam_member.github_actions_global_tf_state_strorage_admin \
   module.gcloud.google_storage_bucket_iam_member.github_actions_public_strorage_object_user \
@@ -208,6 +208,8 @@ _= \
   module.kubernetes.google_service_account.vault_sa \
   module.kubernetes.google_service_account.vault_tf_apply_sa \
   module.kubernetes.google_service_account_iam_binding.name \
+  module.kubernetes.google_service_account_iam_member.vault_tf_apply_member_sa_list["serviceAccount:david-berichon-prod@moov-438615.iam.gserviceaccount.com"] \
+  module.kubernetes.google_service_account_iam_member.vault_tf_apply_member_sa_list["serviceAccount:root-admin@moov-438615.iam.gserviceaccount.com"] \
   module.kubernetes.google_service_account_iam_member.vault_tf_apply_token_creator["roles/iam.serviceAccountTokenCreator"] \
   module.kubernetes.google_service_account_iam_member.vault_tf_apply_token_creator["roles/iam.serviceAccountUser"] \
   module.kubernetes.google_service_account_iam_member.vault_tf_apply_token_creator["roles/iam.serviceAccountViewer"] \
@@ -218,6 +220,7 @@ _= \
   module.kubernetes.helm_release.vault \
   module.kubernetes.kubernetes_config_map.vault_tf_code \
   module.kubernetes.kubernetes_job.vault_init_job \
+  module.kubernetes.kubernetes_job.vault_terraform_apply \
   module.kubernetes.kubernetes_namespace.vault \
   module.kubernetes.kubernetes_secret.vault_init_script \
   module.kubernetes.kubernetes_secret.vault_service_account \
@@ -225,81 +228,87 @@ _= \
   module.kubernetes.kubernetes_secret.vault_tf_apply_gcs_token \
   module.kubernetes.kubernetes_secret.vault_tf_apply_sa_secret \
   module.kubernetes.kubernetes_service_account.vault_tf_apply \
-  module.production_members.google_project_iam_binding.admin_user_roles["apikeys_admin"] \
   module.production_members.google_project_iam_binding.admin_user_roles["artifactregistry_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["cloud_kms_admin"] \
   module.production_members.google_project_iam_binding.admin_user_roles["cloudfunction_admin"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["compute_instance_admin"] \
   module.production_members.google_project_iam_binding.admin_user_roles["container_cluster_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["datastore_owner"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["firebasedatabase_admin"] \
   module.production_members.google_project_iam_binding.admin_user_roles["firebasedatabase_viewer"] \
   module.production_members.google_project_iam_binding.admin_user_roles["iam_admin"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["iam_service_account_admin"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["iam_service_account_token_creator"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["iam_service_account_user_as_admin"] \
   module.production_members.google_project_iam_binding.admin_user_roles["identitytoolkit_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["roles_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["secret_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["service_account_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["service_account_key_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["service_account_token_creator"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["service_account_user_as_admin"] \
-  module.production_members.google_project_iam_binding.admin_user_roles["servuceussage_consumer"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["serviceusage_apikeys_viewer"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["servieusage_apikeys_admin"] \
+  module.production_members.google_project_iam_binding.admin_user_roles["servuceusage_consumer"] \
   module.production_members.google_project_iam_binding.admin_user_roles["storage_admin"] \
   module.production_members.google_project_iam_binding.editor_user_roles["artifactregistry_writer"] \
   module.production_members.google_project_iam_binding.editor_user_roles["datastore_viewer"] \
   module.production_members.google_project_iam_binding.editor_user_roles["global_editor"] \
   module.production_members.google_project_iam_binding.editor_user_roles["secret_accessor"] \
-  module.production_members.google_project_iam_binding.editor_user_roles["service_account_token_creator"] \
   module.production_members.google_project_iam_binding.editor_user_roles["storage_objectviewer"] \
-  module.production_members.google_project_iam_binding.k8s_rbac_admin_user_roles \
+  module.production_members.google_project_iam_binding.k8s_rbac_admin_users_binding \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["datastore_owner"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["firebasedatabase_admin"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["iam_roles_admin"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["iam_service_account_key_admin"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["iam_service_account_token_creator"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["legacy_1"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["secret_admin"] \
+  module.production_members.google_project_iam_binding.root_admin_user_bindings["secret_cloud_kms_admin"] \
   module.production_members.google_project_iam_custom_role.k8s_rbac_role \
-  module.staging_members.google_project_iam_binding.admin_user_roles["apikeys_admin"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["artifactregistry_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["cloud_kms_admin"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["cloudfunction_admin"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["compute_instance_admin"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["container_cluster_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["datastore_owner"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["firebasedatabase_admin"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["firebasedatabase_viewer"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["iam_admin"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["iam_service_account_admin"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["iam_service_account_token_creator"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["iam_service_account_user_as_admin"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["identitytoolkit_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["roles_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["secret_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["service_account_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["service_account_key_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["service_account_token_creator"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["service_account_user_as_admin"] \
-  module.staging_members.google_project_iam_binding.admin_user_roles["servuceussage_consumer"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["serviceusage_apikeys_viewer"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["servieusage_apikeys_admin"] \
+  module.staging_members.google_project_iam_binding.admin_user_roles["servuceusage_consumer"] \
   module.staging_members.google_project_iam_binding.admin_user_roles["storage_admin"] \
   module.staging_members.google_project_iam_binding.editor_user_roles["artifactregistry_writer"] \
   module.staging_members.google_project_iam_binding.editor_user_roles["datastore_viewer"] \
   module.staging_members.google_project_iam_binding.editor_user_roles["global_editor"] \
   module.staging_members.google_project_iam_binding.editor_user_roles["secret_accessor"] \
-  module.staging_members.google_project_iam_binding.editor_user_roles["service_account_token_creator"] \
   module.staging_members.google_project_iam_binding.editor_user_roles["storage_objectviewer"] \
-  module.staging_members.google_project_iam_binding.k8s_rbac_admin_user_roles \
+  module.staging_members.google_project_iam_binding.k8s_rbac_admin_users_binding \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["datastore_owner"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["firebasedatabase_admin"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["iam_roles_admin"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["iam_service_account_key_admin"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["iam_service_account_token_creator"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["legacy_1"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["secret_admin"] \
+  module.staging_members.google_project_iam_binding.root_admin_user_bindings["secret_cloud_kms_admin"] \
   module.staging_members.google_project_iam_custom_role.k8s_rbac_role
 
 $(TF_STATE_ITEMS:%=%-show): $(GOOGLE_APPLICATION_CREDENTIALS)
-	$(TERRAFORM) state show $(@:%-show=%)
+	$(TERRAFORM) state show '$(@:%-show=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-show)
 
 $(TF_STATE_ITEMS:%=%-rm): $(GOOGLE_APPLICATION_CREDENTIALS)
-	$(TERRAFORM) state rm $(@:%-rm=%)
+	$(TERRAFORM) state rm '$(@:%-rm=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-rm)
 
 $(TF_STATE_ITEMS:%=%-apply): $(GOOGLE_APPLICATION_CREDENTIALS)
-	@echo $(TERRAFORM) apply -target=$(@:%-apply=%)
+	$(TERRAFORM) apply -target='$(@:%-apply=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-apply)
 
 $(TF_STATE_ITEMS:%=%-destroy): $(GOOGLE_APPLICATION_CREDENTIALS)
-	@echo $(TERRAFORM) destroy -target=$(@:%-destroy=%)
+	@$(TERRAFORM) destroy -target='$(@:%-destroy=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-destroy)
 
 $(TF_STATE_ITEMS:%=%-taint): $(GOOGLE_APPLICATION_CREDENTIALS)
-	@$(TERRAFORM) taint $(@:%-taint=%)
+	@$(TERRAFORM) taint '$(@:%-taint=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-taint)
 
 $(TF_STATE_ITEMS:%=%-untaint): $(GOOGLE_APPLICATION_CREDENTIALS)
-	@$(TERRAFORM) untaint $(@:%-untaint=%)
+	@$(TERRAFORM) untaint '$(@:%-untaint=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-untaint)
 
 terraform-taint-backend: module.gcloud.google_cloud_run_service.application_backend-taint

@@ -12,6 +12,7 @@ services:
       - .env
     environment:
       HOST_PWD: ${PWD:-/workspaces/refactored-winner}
+      MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -26,7 +27,7 @@ services:
       bash -c '
       # Ensure docker socket permissions
       make docker-sock
-      make dev
+      [ ( $${MAKE_DEV_ON_START} ) ] && make dev
       sleep infinity 
       '
     networks:

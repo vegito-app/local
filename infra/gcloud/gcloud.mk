@@ -26,14 +26,80 @@ GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
 GCLOUD_PROJET_USER_ID ?= ${PROJECT_USER}
 
-GCLOUD_DEVELOPER_SERVICE_ACCOUNT = $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
+GCLOUD_DEVELOPER_SERVICE_ACCOUNT ?= $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
 ifeq ($(GOOGLE_APPLICATION_CREDENTIALS),)
 GOOGLE_APPLICATION_CREDENTIALS = $(CURDIR)/infra/environments/$(INFRA_ENV)/gcloud-credentials.json
 endif
 
-export GOOGLE_APPLICATION_CREDENTIALS
+# export GOOGLE_APPLICATION_CREDENTIALS
 
+$(GOOGLE_APPLICATION_CREDENTIALS):
+	@$(MAKE) gcloud-application-credentials
+
+# The project currently accepts this number of maximum keys in use per service account.
+# If this limit is reach, creation of new credentials will fail living a message in the console like:
+# 'ERROR: (gcloud.iam.service-accounts.keys.create) FAILED_PRECONDITION: Precondition check failed.'
+# Each developer have the responsibility to rotate his developer's keys. Please check.
+# Local developer current keys in use can be listed using 'make gcloud-user-iam-sa-keys-list'
+# Old keys can be erased using 'make gcloud-user-iam-sa-keys-clean-oldest-3'
+PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT ?=  10
+
+gcloud-application-credentials:
+	@$(GCLOUD) iam service-accounts keys create $(GOOGLE_APPLICATION_CREDENTIALS) \
+	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)  \
+	  || rm $(GOOGLE_APPLICATION_CREDENTIALS)
+	@if [ !  -f $(GOOGLE_APPLICATION_CREDENTIALS) ] ; then \
+	  echo Check if you do not have more than $(PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT)	keys in use: ; \
+	  echo \* 👉 Use \'make gcloud-user-iam-sa-keys-list\' to checks if the limit is not exceeded. ; \
+	  echo \* 👉 Use \'make gcloud-user-iam-sa-keys-clean-oldest-3\' to deletes the 3 oldest keys. ; \
+	  echo \* 👉 Then, use \'make $@\' or \'make gcloud-auth-login\' to retry. ; \
+	fi
+.PHONY: gcloud-application-credentials
+
+gcloud-auth-sa: gcloud-auth-login gcloud-application-credentials gcloud-project-set gcloud-serviceaccount-activate
+	@echo '✅ Successfully authenticated using service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)"'
+	@echo 'Further gcloud commands are going to use service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)" IAM role bindings'
+.PHONY: gcloud-auth-sa
+
+# Use your root user email address permissions instead of your developer service account.
+gcloud-auth-email: #gcloud-auth-login gcloud-project-set
+	@echo "✅ Successfully authenticated using email."
+	@if [ ! -v USER_EMAIL ] ; then \
+	  echo USER_EMAIL is not set for automatic account activation. ; \
+	  echo Please activate the current user account usage manually: ; \
+	  echo \* gcloud config set account \<user@address-email.com\> ; \
+	else \
+		$(MAKE) gcloud-auth-config-set-account-user-email ; \
+	fi
+.PHONY: gcloud-email-login
+
+gcloud-auth-config-set-account-user-email:
+	@if [ ! -v USER_EMAIL ] ; then \
+	  echo Missing variabe USER_EMAIL. ; \
+	  exit 1 ; \
+	fi 
+	@$(GCLOUD) config set account $(USER_EMAIL)
+	@echo "Further gcloud commands are going to use your email as user with IAM role bindings if GOOGLE_APPLICATION_CREDENTIALS is empty."
+.PHONY: gcloud-auth-config-set-account
+
+gcloud-auth-login:
+	@echo "🔐 Logging in to gcloud and activating service account..."
+	@$(GCLOUD) auth login
+.PHONY: gcloud-auth-login
+
+gcloud-project-set:
+	@echo "🔧 Configuring current project to $(GOOGLE_CLOUD_PROJECT_ID)."
+	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY: gcloud-project-set
+
+gcloud-serviceaccount-activate:
+	@echo "🔐 Activating service account via GOOGLE_APPLICATION_CREDENTIALS..."
+	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
+.PHONY: gcloud-serviceaccount-activate
+
+
+# ADC (Application Default Credentials: https://cloud.google.com/docs/authentication/provide-credentials-adc?hl=en)
 gcloud-auth-default-application-credentials:
 	@echo "🔐 Setting up default application credentials and logging in..."
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
@@ -43,25 +109,23 @@ gcloud-auth-default-application-credentials:
 	@$(GCLOUD) auth application-default set-quota-project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-default-application-credentials
 
-$(GOOGLE_APPLICATION_CREDENTIALS):
-	$(GCLOUD) iam service-accounts keys create \
-	  $(GOOGLE_APPLICATION_CREDENTIALS) \
-	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)
+ROOT_ADMIN_SERVICE_ACCOUNT = root-admin@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
+
+gcloud-root-admin-credentials:
+	@GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
+	$(MAKE) gcloud-application-credentials
+.PHONY: gcloud-root-admin-credentials
+
+gcloud-root-admin-credentials-revoke:
+	@GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
+	$(MAKE) gcloud-user-iam-sa-keys-clean-all
+.PHONY: gcloud-root-admin-credentials-revoke
 
 gcloud-info:
 	@echo "ℹ️  Displaying gcloud info..."
 	@$(GCLOUD) info
 .PHONY: gcloud-info
 
-gcloud-auth-login: $(GOOGLE_APPLICATION_CREDENTIALS)
-	@echo "🔐 Logging in to gcloud and activating service account..."
-	@$(GCLOUD) auth login
-	# $(GCLOUD) config set account davidberich@gmail.com
-	@$(MAKE) $(GOOGLE_APPLICATION_CREDENTIALS)
-	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
-	@echo "🔐 Activating service account via GOOGLE_APPLICATION_CREDENTIALS..."
-	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
-.PHONY: gcloud-auth-login
 
 gcloud-auth-docker:
 	@echo "🐳 Authenticating Docker with Google Artifact Registry..."
@@ -168,19 +232,6 @@ $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api):
 	@$(GCLOUD) services disable $(@:gcloud-services-disable-%-api=%).googleapis.com --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: $(GOOGLE_SERVICES_API:%=gcloud-services-disable-%-api)
 
-ADMIN_DEVELOPPER_MEMBERS := \
-  admin-developper-$(GOOGLE_CLOUD_PROJECT_ID) \
-  root-admin
-
-$(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin):
-	@$(GCLOUD) projects add-iam-policy-binding $(GOOGLE_CLOUD_PROJECT_ID) \
-	  --member serviceaccount:$(@:gcloud-%-storage-admin=%)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	  --role roles/storage.admin
-.PHONY: $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin)
-
-gcloud-storage-admins: $(ADMIN_DEVELOPPER_MEMBERS:%=gcloud-%-storage-admin)
-.PHONY: gcloud-storage-admins
-
 gcloud-apikeys-list:
 	@$(GCLOUD) alpha services api-keys list
 .PHONY: gcloud-apikeys-list
@@ -205,17 +256,20 @@ gcloud-docker-registry-temporary-token:
 	@echo  password: `$(GCLOUD) auth print-access-token`
 .PHONY: gcloud-docker-registry-temporary-token
 
+PRODUCTION_ONLY_SERVICE_ACCOUNTS = 	\
+	firebase-adminsdk-mvk7v@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	$(ROOT_ADMIN_SERVICE_ACCOUNT) \
+	vault-node-sa@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-sa@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-tf-apply@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com  
+
 GCLOUD_SERVICE_ACCOUNTS = \
+	$(PRODUCTION_ONLY_SERVICE_ACCOUNTS) \
 	$(GOOGLE_CLOUD_PROJECT_ID)@appspot.gserviceaccount.com \
 	github-actions-main@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
 	production-application-backend@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
 	firebase-admin-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	firebase-adminsdk-mvk7v@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	${PROJECT_USER}-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	root-admin@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	vault-node-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	vault-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	vault-tf-apply@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com  
+	$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)
 
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-bindings-roles):
 	@echo Print bindings members roles for $(@:gcloud-%-serviceaccount-bindings-roles=%):
@@ -231,7 +285,7 @@ gcloud-serviceaccount-iam-policy: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceac
 .PHONY: gcloud-serviceaccount-iam-policy
 
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-iam-policy):
-	@echo 📋 listing service-account iam policies of $(@:gcloud-%-serviceaccount-keys-list=%)
+	@echo 📋 listing service-account iam policies of $(@:%=gcloud-%-serviceaccount-iam-policy)
 	@-$(GCLOUD) iam service-accounts get-iam-policy $(@:gcloud-%-serviceaccount-iam-policy=%)
 .PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-iam-policy)
 
@@ -243,39 +297,42 @@ $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-list):
 	@-$(GCLOUD) iam service-accounts keys list --iam-account $(@:gcloud-%-serviceaccount-keys-list=%)
 .PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-list)
 
-gcloud-serviceaccount-keys-rm: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm)
-.PHONY: gcloud-serviceaccount-keys-rm
-
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm):
 	@echo 📋 removing keys of service account $(@:gcloud-%-serviceaccount-keys-rm=%)
-	@-$(MAKE) gcloud-developper-iam-sa-keys-clean-oldest-3
+	@-$(GCLOUD) iam service-accounts keys delete $$KEY \
+			--iam-account=$(@:gcloud-%-serviceaccount-keys-rm=%) \
+			--quiet;
 .PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm)
 
-gcloud-developper-iam-sa-keys-clean-oldest-3:
-	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
-	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
-		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-		--format="value(name)" --sort-by=validAfterTime | head -n 3); \
-	for KEY in $$KEYS; do \
-		echo "🗑️ Suppression de la clé $$KEY..."; \
-		$(GCLOUD) iam service-accounts keys delete $$KEY \
-			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-			--quiet; \
-	done
-.PHONY: gcloud-developper-iam-sa-keys-clean-oldest-3
+gcloud-user-iam-sa-keys-list: gcloud-$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)-serviceaccount-keys-list
+.PHONY: gcloud-user-iam-sa-keys-list
 
-gcloud-developper-iam-sa-keys-clean-all:
+gcloud-user-iam-sa-keys-clean-oldest-3:
 	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
 	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
 		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-		--format="value(name)"; \
+		--format="value(name)" --sort-by=validAfterTime | head -n 3) \
+	&& for KEY in $$KEYS; do \
+		echo "🗑️ Suppression de la clé $$KEY..."; \
+		$(GCLOUD) iam service-accounts keys delete $$KEY \
+			--project=$(GOOGLE_CLOUD_PROJECT_ID) \
+			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+			--quiet; \
+	done
+.PHONY: gcloud-user-iam-sa-keys-clean-oldest-3
+
+gcloud-user-iam-sa-keys-clean-all:
+	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
+	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
+		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+		--format="value(name)"); \
 	for KEY in $$KEYS; do \
 		echo "🗑️ Suppression de la clé $$KEY..."; \
 		$(GCLOUD) iam service-accounts keys delete $$KEY \
 			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
 			--quiet; \
 	done
-.PHONY: gcloud-developper-iam-sa-keys-clean-all
+.PHONY: gcloud-user-iam-sa-keys-clean-all
 
 GCLOUD_USERS_EMAILS := \
   davidberich@gmail.com
@@ -291,6 +348,19 @@ $(GCLOUD_USERS_EMAILS:%=gcloud-user-%-roles):
 gcloud-users-roles: $(GCLOUD_USERS_EMAILS:%=gcloud-user-%-roles)
 .PHONY: gcloud-users-roles
 
+gcloud-user-sa-permission-list:
+	@$(GCLOUD) projects get-iam-policy "$(GOOGLE_CLOUD_PROJECT_ID)" \
+	  --format=json \
+	  | jq --arg ACCOUNT "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)" ' \
+	  	.bindings[] \
+	  	| select(.members[]? == $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)) \
+	  	| .role' \
+	  | xargs -I{} gcloud iam roles describe {} \
+	  	--project="$(GOOGLE_CLOUD_PROJECT_ID)" \
+	  	--format="value(includedPermissions)" \
+  	  | wc -l
+.PHONY: gcloud-user-sa-permission-list
+
 # Upadte this list with '$(GCLOUD) secrets list' values
 GCLOUD_SECRETS := \
   firebase-adminsdk-service-account-key \
@@ -300,17 +370,37 @@ GCLOUD_SECRETS := \
   google-maps-api-key
 
 $(GCLOUD_SECRETS:%=gcloud-secret-%-show):
-	@a=$$($(GCLOUD) secrets versions access latest --secret=$(@:gcloud-secret-%-show=%)) \
+	@a=$$($(GCLOUD) secrets versions access latest \
+	  --secret=$(@:gcloud-secret-%-show=%)) \
 	&& echo $$a | jq 2>/dev/null \
 	|| echo $$a
 .PHONY: $(GCLOUD_SECRETS:%=gcloud-secret-%-show)
 
 gcloud-compute-disk-list:
 	@echo Disk used:
-	@$(GCLOUD) compute disks list --filter="zone:($(GOOGLE_CLOUD_REGION)-*)" --format="table(name,sizeGb,type,zone)"
+	@$(GCLOUD) compute disks list \
+	  --filter="zone:($(GOOGLE_CLOUD_REGION)-*)" \
+	  --format="table(name,sizeGb,type,zone)"
 .PHONY: gcloud-compute-disk-list
 
 gcloud-compute-list-available-machine-type:
 	@echo GCP compute available machine types:
-	@$(GCLOUD) compute machine-types list --filter="zone:($(GOOGLE_CLOUD_REGION)-*)" --project $(GOOGLE_CLOUD_PROJECT_ID)
+	@$(GCLOUD) compute machine-types list \
+	  --filter="zone:($(GOOGLE_CLOUD_REGION)-*)" \
+	  --project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-compute-list-available-machine-type
+
+
+gcloud-user-compute-instance-suspend:
+	$(GCLOUD) compute instances suspend dev-$(PROJECT_USER) --zone=europe-west1-b
+.PHONY: gcloud-user-suspend
+
+
+gcloud-user-compute-instance-start:
+	$(GCLOUD) compute instances start dev-$(PROJECT_USER) --zone=europe-west1-b
+.PHONY: gcloud-user-start
+
+
+gcloud-user-compute-instance-status:
+	$(GCLOUD) compute instances describe dev-$(PROJECT_USER) --zone=europe-west1-b --format='get(status)'
+.PHONY: gcloud-user-status

@@ -40,61 +40,69 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "docs",
     },
     {
-      "name": "Application - Backend",
+      "name": "Application Backend - Go",
       "path": "application/backend"
     },
     {
-      "name": "Application - Mobile",
+      "name": "Application Mobile - Flutter",
       "path": "application/mobile"
     },
     {
-      "name": "Application - Web",
+      "name": "Application Web - React",
       "path": "application/frontend"
     },
     {
-      "name": "Application - Auth",
-      "path": "application/firebase/functions/auth"
+      "name": "Application - Authentication - Firebase Functions",
+      "path": "application/firebase/functions"
     },
     {
-      "name": "Cloud - GCP",
-      "path": "infra/gcloud"
-    },
+      "name": "Application - Run - Terraform",
+      "path": "application/run"
+    }
     {
-      "name": "Infrastrusture",
-      "path": "infra"
-    },
-    {
-      "name": "Infrastructure - Production",
-      "path": "infra/environments/prod"
-    },
-    {
-      "name": "Infrastructure - Vault - Production",
-      "path": "infra/environments/prod/vault"
-    },
-    {
-      "name": "Infrastructure - Staging",
-      "path": "infra/environments/staging"
-    },
-    {
-      "name": "Infrastructure - Dev",
-      "path": "infra/environments/dev"
-    },
-    {
-      "name": "Dev",
+      "name": "Dev - Builder",
       "path": "dev"
     },
     {
-      "name": "Dev - Androïd Studio",
+      "name": "Dev - Firebase Emulators - Local",
+      "path": "dev/firebase-emulators"
+    },
+    {
+      "name": "Dev - Android Studio - Local",
       "path": "dev/android-studio"
     },
     {
-      "name": "Dev - Firebase - Emulators",
-      "path": "dev/firebase-emulators"
+      "name": "Dev - Vault - Local",
+      "path": "dev/vault"
     },
     {
       "name": "Dev - Clarinet",
       "path": "dev/clarinet"
     }
+    {
+      "name": "Infrastructure - Cloud",
+      "path": "infra"
+    },
+    {
+      "name": "Infrastructure - Production - Terraform",
+      "path": "infra/environments/prod"
+    },
+    {
+      "name": "Infrastructure - Staging - Terraform",
+      "path": "infra/environments/staging"
+    },
+    {
+      "name": "Infrastructure - Dev - Terraform",
+      "path": "infra/environments/dev"
+    },
+    {
+      "name": "Infrastructure - Google Cloud - Terraform",
+      "path": "infra/gcloud"
+    },
+    {
+      "name": "Infrastructure - Vault - Production",
+      "path": "infra/environments/prod/vault"
+    },
   ],
   "settings": {}
 }
@@ -121,8 +129,43 @@ cat <<'EOF' > $backendLaunchDebug
                 "FRONTEND_BUILD_DIR": "../frontend/build",
                 "FRONTEND_PUBLIC_DIR": "../frontend/public",
                 "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
+                "VAULT_TOKEN": "root",
+                "VAULT_ADDR": "http://vault-dev:8200",
             },
             "envFile": "${workspaceFolder}/../../dev/.env",
+        }
+    ]
+}
+EOF
+fi
+
+mobileLaunchDebug=${PWD}/application/mobile/.vscode/launch.json
+if [ ! -f $mobileLaunchDebug ] ;  then
+mkdir -p $(dirname $mobileLaunchDebug)
+cat <<'EOF' > $mobileLaunchDebug
+{
+    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+    // Pointez pour afficher la description des attributs existants.
+    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "mobile",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "args": [ "--dart-define=BACKEND_URL=http://localhost:8888" ],
+            "name": "mobile (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mobile (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
         }
     ]
 }
