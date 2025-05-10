@@ -9,13 +9,13 @@ class WalletRecoveryKeySection extends StatelessWidget {
   final Animation<double> scaleAnimation;
 
   const WalletRecoveryKeySection({
-    Key? key,
+    super.key,
     required this.recoveryKey,
     required this.recoveryKeyVersion,
     required this.showRecoveryKey,
     required this.fadeAnimation,
     required this.scaleAnimation,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -72,20 +72,6 @@ class _AccountPageState extends State<AccountPage> {
                 },
                 child: const Text("Valider mon compte"),
               ),
-            ],
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                await generateRecoveryKey(
-                    FirebaseAuth.instance.currentUser?.uid ?? "");
-                await _initializeWallet();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Clé de récupération générée !')),
-                );
-              },
-              child: const Text("Créer ma clé de récupération"),
-            ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
