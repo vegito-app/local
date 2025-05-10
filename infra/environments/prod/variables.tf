@@ -80,3 +80,15 @@ variable "vault_tf_apply_sa_kubernetes_secret_name" {
 locals {
   bucket_tf_state_eu_global_name = "global-${var.region}-tf-state"
 }
+
+variable "root_admin_user_roles" {
+  type = map(string)
+}
+
+variable "admin_user_roles" {
+  type = map(string)
+}
+
+variable "editor_user_roles" {
+  type = map(string)
+}

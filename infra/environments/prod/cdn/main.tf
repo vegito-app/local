@@ -16,12 +16,10 @@ resource "google_storage_bucket_object" "public_web_background_image" {
   content_type = "image/jpeg"
 }
 
-resource "google_storage_bucket_iam_binding" "web_public_image" {
+resource "google_storage_bucket_iam_member" "web_public_image" {
   bucket = google_storage_bucket.public_images.name
   role   = "roles/storage.objectViewer"
-  members = [
-    "allUsers",
-  ]
+  member = "allUsers"
 }
 
 resource "google_compute_backend_bucket" "public_cdn" {

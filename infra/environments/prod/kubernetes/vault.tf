@@ -46,13 +46,11 @@ resource "google_kms_crypto_key" "vault" {
   }
 }
 
-resource "google_kms_key_ring_iam_binding" "vault_iam_kms_binding" {
+resource "google_kms_key_ring_iam_member" "vault_iam_kms_binding" {
   key_ring_id = google_kms_key_ring.vault.id
   role        = "roles/cloudkms.admin"
 
-  members = [
-    "serviceAccount:${google_service_account.vault_sa.email}",
-  ]
+  member = "serviceAccount:${google_service_account.vault_sa.email}"
 }
 
 resource "google_kms_crypto_key_iam_member" "vault_sa_key_encrypter" {
@@ -300,6 +298,7 @@ data "google_service_account_access_token" "vault_gcs_token" {
   target_service_account = google_service_account.vault_tf_apply_sa.email
   scopes                 = ["https://www.googleapis.com/auth/cloud-platform"]
   lifetime               = "300s"
+  depends_on             = [google_service_account_iam_member.vault_tf_apply_member_sa_list]
 }
 
 resource "kubernetes_secret" "vault_tf_apply_gcs_token" {
@@ -343,6 +342,13 @@ resource "google_project_iam_member" "vault_tf_apply_bindings" {
   role    = each.value
 
   member = "serviceAccount:${google_service_account.vault_tf_apply_sa.email}"
+}
+
+resource "google_service_account_iam_member" "vault_tf_apply_member_sa_list" {
+  for_each           = toset(var.vault_tf_apply_member_sa_list)
+  service_account_id = google_service_account.vault_tf_apply_sa.id
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = each.value
 }
 
 resource "google_service_account_iam_member" "vault_tf_apply_token_creator" {
@@ -444,7 +450,9 @@ resource "kubernetes_job" "vault_terraform_apply" {
     }
   }
   depends_on = [
+    kubernetes_config_map.vault_tf_code,
     google_project_iam_member.vault_tf_apply_bindings,
     google_service_account_iam_member.vault_tf_apply_token_creator,
+    google_service_account_iam_member.vault_tf_apply_member_sa_list,
   ]
 }

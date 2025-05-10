@@ -133,12 +133,10 @@ resource "google_cloudfunctions_function_iam_member" "auth_before_create" {
 data "google_project" "project" {
   project_id = var.project_id
 }
-resource "google_storage_bucket_iam_binding" "bucket_iam_binding" {
+resource "google_storage_bucket_iam_member" "bucket_iam_member" {
   bucket = "gcf-sources-${data.google_project.project.number}-europe-west1"
   role   = "roles/storage.objectViewer"
-  members = [
-    "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-  ]
+  member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 data "google_secret_manager_secret_version" "google_idp_oauth_client_secret" {

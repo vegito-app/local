@@ -1,89 +1,105 @@
-data "google_service_account" "production_root_admin_service_account" {
-  account_id = "root-admin@${var.project_id}.iam.gserviceaccount.com"
-}
+
 
 # Map des rôles par environnement par défaut
 variable "default_roles_per_environment" {
   type = map(list(string))
   default = {
-    dev     = ["roles/editor", "roles/secretmanager.secretAccessor", "roles/secretmanager.admin"] # Exemple : plus de permissions en dev
+    dev = [
+      "roles/editor",
+      "roles/secretmanager.secretAccessor",
+      "roles/secretmanager.admin",
+    ] # Exemple : plus de permissions en dev
     staging = ["roles/viewer"]
     prod    = ["roles/viewer"] # Permissions plus restrictives en prod
   }
 }
 
-locals {
+variable "developers" {
 
+  type = map(string)
+  default = {
+    "davidberich@gmail.com" = "david-berichon"
+    # "richardberich@gmail.com" = "richard-berichon"
+  }
+}
+
+data "google_service_account" "production_root_admin_service_account" {
+  account_id = "root-admin@${var.project_id}.iam.gserviceaccount.com"
+}
+
+locals {
+  root_admins_service_accounts = [
+    "serviceAccount:${data.google_service_account.production_root_admin_service_account.email}"
+  ]
+}
+
+locals {
   prod_admins_service_accounts = [
     "serviceAccount:david-berichon-prod@${var.project_id}.iam.gserviceaccount.com"
   ]
-
   prod_editors_service_accounts = [
-    "serviceAccount:david-berichon-prod@${var.project_id}.iam.gserviceaccount.com"
+    # "serviceAccount:david-berichon-prod@${var.project_id}.iam.gserviceaccount.com"
   ]
-}
-# Add a developper to this list first, then apply to get the automatically 
-# generated service accounts IDs from each <developer> value:
-# * Production
-#   - serviceAccount:<developer>-prod@moov-438615.iam.gserviceaccount.com
-# * Staging
-#   - serviceAccount:<developer>-staging@moov-staging-440506.iam.gserviceaccount.com
-# * Staging
-#   - serviceAccount:<developer>-dev@moov-dev-439608.iam.gserviceaccount.com
-variable "developers" {
-  type = map(string)
-  default = {
-    "davidberich@gmail.com"   = "david-berichon"
-    "richardberich@gmail.com" = "richard-berichon"
-  }
 }
 
 # After automatic creation of developer service account (from developers list), use the generated service account
 # to add the developer as member to get default roles based on his profile.
 module "production_members" {
-  source     = "./roles"
-  project_id = var.project_id
-  admins     = local.prod_admins_service_accounts
-  editors    = local.prod_editors_service_accounts
+  source      = "./roles"
+  project_id  = var.project_id
+  admins      = local.prod_admins_service_accounts
+  editors     = local.prod_editors_service_accounts
+  root_admins = local.root_admins_service_accounts
+
+  admin_user_roles      = var.admin_user_roles
+  root_admin_user_roles = var.root_admin_user_roles
+  editor_user_roles     = var.admin_user_roles
 }
 
-# After automatic creation of developer service account (from developers list), use the generated service account
-# to add the developer as member to get default roles based on his profile.
-module "staging_members" {
-  source     = "./roles"
-  project_id = var.staging_project
-  admins = concat(local.prod_admins_service_accounts, [
+locals {
+  staging_admins_service_accounts = concat(local.prod_admins_service_accounts, [
     # "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
   ])
-  editors = concat(local.prod_editors_service_accounts, [
+  staging_editors_service_accounts = concat(local.prod_editors_service_accounts, [
     "serviceAccount:david-berichon-staging@moov-staging-440506.iam.gserviceaccount.com"
   ])
 }
 
 # After automatic creation of developer service account (from developers list), use the generated service account
 # to add the developer as member to get default roles based on his profile.
-module "dev_members" {
-  source     = "./roles"
-  project_id = var.dev_project
-  admins = concat(local.prod_admins_service_accounts, [
-    "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
-  ])
-  editors = concat(local.prod_editors_service_accounts, [
+module "staging_members" {
+  source      = "./roles"
+  project_id  = var.staging_project
+  admins      = local.staging_admins_service_accounts
+  editors     = local.staging_editors_service_accounts
+  root_admins = local.root_admins_service_accounts
+
+  admin_user_roles      = var.admin_user_roles
+  root_admin_user_roles = var.root_admin_user_roles
+  editor_user_roles     = var.admin_user_roles
+}
+
+locals {
+  dev_admins_service_accounts = concat(local.staging_admins_service_accounts, [
     # "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
   ])
+  dev_editors_service_accounts = concat(local.staging_editors_service_accounts, [
+    "serviceAccount:david-berichon-dev@moov-dev-439608.iam.gserviceaccount.com"
+  ])
 }
 
-# Ajoutez ensuite le rôle 'propriétaire' à ce compte de service pour le projet
-resource "google_project_iam_member" "production_root_admin" {
-  project = var.staging_project
-  role    = "roles/owner"
-  member  = "serviceAccount:${data.google_service_account.production_root_admin_service_account.email}"
-}
+# After automatic creation of developer service account (from developers list), use the generated service account
+# to add the developer as member to get default roles based on his profile.
+module "dev_members" {
+  source      = "./roles"
+  project_id  = var.dev_project
+  admins      = local.dev_admins_service_accounts
+  editors     = local.dev_editors_service_accounts
+  root_admins = local.root_admins_service_accounts
 
-resource "google_project_iam_member" "artifactregistry_reader" {
-  project = var.project_id
-  role    = "roles/artifactregistry.reader"
-  member  = "serviceAccount:${data.google_service_account.production_root_admin_service_account.email}"
+  admin_user_roles      = var.admin_user_roles
+  root_admin_user_roles = var.root_admin_user_roles
+  editor_user_roles     = var.admin_user_roles
 }
 
 locals {

@@ -48,10 +48,10 @@ resource "google_project_iam_member" "node_sa_roles" {
   member  = "serviceAccount:${google_service_account.cluster_node_sa.email}"
 }
 
-resource "google_service_account_iam_binding" "name" {
+resource "google_service_account_iam_member" "name" {
   service_account_id = google_service_account.cluster_node_sa.id
   role               = "roles/iam.serviceAccountUser"
-  members            = ["serviceAccount:${var.project_number}@cloudservices.gserviceaccount.com"]
+  member             = "serviceAccount:${var.project_number}@cloudservices.gserviceaccount.com"
 }
 
 resource "google_container_cluster" "vault_cluster" {
@@ -67,8 +67,8 @@ resource "google_container_cluster" "vault_cluster" {
   node_locations      = ["europe-west1-b", "europe-west1-c"] # évite la d !
   node_config {
     service_account = google_service_account.cluster_node_sa.email
-    machine_type    = "e2-micro"
-    disk_size_gb    = 12
+    machine_type    = "e2-small"
+    disk_size_gb    = 30
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
@@ -89,7 +89,7 @@ resource "google_container_node_pool" "vault_cluster_nodes" {
   cluster  = google_container_cluster.vault_cluster.name
 
   node_config {
-    machine_type = "e2-medium"
+    machine_type = "e2-small"
     disk_size_gb = 30
 
     service_account = google_service_account.cluster_node_sa.email

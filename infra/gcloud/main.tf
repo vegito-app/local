@@ -15,28 +15,22 @@ resource "google_storage_bucket" "bucket_gcf_source" {
   uniform_bucket_level_access = true
 }
 
-resource "google_project_iam_binding" "compute_service_log_writer" {
+resource "google_project_iam_member" "compute_service_log_writer" {
   project = var.project_id
   role    = "roles/logging.logWriter"
-  members = [
-    "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-  ]
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "compute_service_artifactory_reader" {
+resource "google_project_iam_member" "compute_service_artifactory_reader" {
   project = var.project_id
   role    = "roles/artifactregistry.reader"
-  members = [
-    "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-  ]
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "compute_service_artifactory_writer" {
+resource "google_project_iam_member" "compute_service_artifactory_writer" {
   project = var.project_id
   role    = "roles/artifactregistry.writer"
-  members = [
-    "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-  ]
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 // Création d'un rôle personnalisé avec les permissions nécessaires
@@ -53,7 +47,7 @@ resource "google_project_service" "google_services_maps" {
   for_each = toset([
     "directions-backend.googleapis.com",
     "geocoding-backend.googleapis.com",
-    # "maps-android-backend.googleapis.com ",
+    "maps-android-backend.googleapis.com",
     "maps-backend.googleapis.com",
     "maps-ios-backend.googleapis.com",
   ])

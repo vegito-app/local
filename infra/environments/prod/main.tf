@@ -23,15 +23,21 @@ module "cdn" {
 
 module "kubernetes" {
   source = "./kubernetes"
+  region = var.region
 
   project_id     = data.google_project.project.project_id
   project_number = data.google_project.project.number
 
-  region = var.region
+  vault_tf_apply_member_sa_list = concat(
+    local.prod_admins_service_accounts,
+    local.root_admins_service_accounts,
+  )
 }
 
 module "gcloud" {
-  source      = "../../gcloud"
+  source = "../../gcloud"
+  region = var.region
+
   environment = local.environment
 
   bucket_tf_state_eu_global_name = local.bucket_tf_state_eu_global_name
@@ -40,7 +46,6 @@ module "gcloud" {
 
   project_name = data.google_project.project.name
   project_id   = data.google_project.project.project_id
-  region       = var.region
 
   google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
   google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id

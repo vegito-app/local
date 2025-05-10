@@ -94,10 +94,10 @@ import {
   id = "${data.google_project.project.id}/global/urlMaps/${data.google_project.project.project_id}-${var.region}-public-cdn-url-map"
   to = module.cdn.google_compute_url_map.url_map
 }
-import {
-  id = "b/${data.google_project.project.project_id}-${var.region}-public-images-web roles/storage.objectViewer"
-  to = module.cdn.google_storage_bucket_iam_binding.web_public_image
-}
+# import {
+#   id = "b/${data.google_project.project.project_id}-${var.region}-public-images-web roles/storage.objectViewer"
+#   to = module.cdn.google_storage_bucket_iam_binding.web_public_image
+# }
 import {
   id = "${data.google_project.project.project_id}-${var.region}-public-images-web"
   to = module.cdn.google_storage_bucket.public_images

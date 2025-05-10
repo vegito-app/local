@@ -1,38 +1,24 @@
-variable "admin_user_roles" {
-  type = map(string)
-  default = {
-    "apikeys_admin" : "roles/serviceusage.apiKeysAdmin"
-    "artifactregistry_admin" : "roles/artifactregistry.admin",
-    "cloudfunction_admin" : "roles/cloudfunctions.admin",
-    "cloud_kms_admin" : "roles/cloudkms.admin",
-
-    "container_cluster_admin" : "roles/container.clusterAdmin",
-    "container_cluster_admin" : "roles/container.admin",
-
-    "datastore_owner" : "roles/datastore.owner",
-
-    "firebasedatabase_admin" : "roles/firebasedatabase.admin",
-    "firebasedatabase_viewer" : "roles/firebasedatabase.viewer",
-
-    "iam_admin" : "roles/resourcemanager.projectIamAdmin",
-    "roles_admin" : "roles/iam.roleAdmin",
-    "secret_admin" : "roles/secretmanager.admin",
-    "identitytoolkit_admin" : "roles/identitytoolkit.admin",
-    "service_account_admin" : "roles/iam.serviceAccountAdmin",
-    "service_account_key_admin" : "roles/iam.serviceAccountKeyAdmin",
-    "service_account_token_creator" : "roles/iam.serviceAccountTokenCreator",
-    "service_account_user_as_admin" : "roles/iam.serviceAccountUser",
-    "serviceusage_apikey_viewer" : "roles/serviceusage.apiKeysViewer",
-    "servuceussage_consumer" : "roles/serviceusage.serviceUsageConsumer",
-    "storage_admin" : "roles/storage.admin",
-  }
+variable "admins" {
+  description = "ID list of environement (prod/staging/dev) administrators"
+  type        = list(string)
 }
 
-resource "google_project_iam_binding" "admin_user_roles" {
-  for_each = var.admin_user_roles
-  project  = var.project_id
-  role     = each.value
-  members  = var.admins
+variable "admin_user_roles" {
+  type = map(string)
+}
+
+resource "google_project_iam_member" "admin_user_roles" {
+  for_each = {
+    for pair in setproduct(keys(var.admin_user_roles), var.admins) :
+    "${pair[0]}-${pair[1]}" => {
+      role   = var.admin_user_roles[pair[0]]
+      member = pair[1]
+    }
+  }
+
+  project = var.project_id
+  role    = each.value.role
+  member  = each.value.member
 }
 
 resource "google_project_iam_custom_role" "k8s_rbac_role" {
@@ -48,8 +34,9 @@ resource "google_project_iam_custom_role" "k8s_rbac_role" {
   ]
 }
 
-resource "google_project_iam_binding" "k8s_rbac_admin_user_roles" {
-  project = var.project_id
-  role    = google_project_iam_custom_role.k8s_rbac_role.name
-  members = var.admins
+resource "google_project_iam_member" "k8s_rbac_admin_user_roles" {
+  for_each = toset(var.admins)
+  project  = var.project_id
+  role     = google_project_iam_custom_role.k8s_rbac_role.name
+  member   = each.value
 }
