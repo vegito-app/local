@@ -52,3 +52,11 @@ String privateKeyToWIF(ECPrivateKey privKey,
   // return base58.encode(fullPayload);
   return base58.encode(fullPayload);
 }
+
+String xorWIFkeys(String privKey, String xorKey) {
+  final List<int> privateKeyBytes = base58.decode(privKey).toList();
+  final List<int> xorKeyBytes = base58.decode(xorKey).toList();
+  List<int> recoveryXorKeyBytes =
+      List.generate(32, (i) => privateKeyBytes[i] ^ xorKeyBytes[i]);
+  return base58.encode(Uint8List.fromList(recoveryXorKeyBytes));
+}

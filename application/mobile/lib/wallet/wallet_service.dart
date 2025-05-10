@@ -1,9 +1,11 @@
-import 'package:car2go/wallet/crypto/math.dart';
 import 'package:car2go/wallet/crypto/stacks.dart';
 import 'package:car2go/wallet/crypto/wif.dart';
+import 'package:car2go/wallet/crypto/clarity.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pointycastle/ecc/api.dart';
+import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 
 import 'wallet_backend.dart';
 import 'wallet_backend.dart';
@@ -94,9 +96,9 @@ Future<String> generateRecoveryKey(String userId) async {
 }
 
 // Mise en place de la clé de récupération et recoveryKey
-Future<String> _setupRecovery(String privateKey) async {
-  final recoveryKey = generatePrivateKey().toString();
-  final xorKey = xorKeys(privateKey, recoveryKey);
+Future<String> _setupWIFrecovery(String privateKey) async {
+  final recoveryKey = privateKeyStrToWIF(generatePrivateKey());
+  final xorKey = xorWIFkeys(privateKey, recoveryKey);
 
   try {
     await postRecoveryKey(xorKey);
@@ -135,6 +137,30 @@ Future<String> getPrivateKeyWIF() async {
     await _setupRecovery(privateKeyWIF);
   }
   return privateKeyWIF;
+}
+
+Future<String> signAndBroadCast(ContractCall tx) async {
+  if (await _isCompromisedDevice()) {
+    throw Exception("Appareil compromis, signature refusée.");
+  }
+
+  final privKeyWIF = await WalletStorage.getPrivateKey();
+  if (privKeyWIF == null) {
+    throw Exception("Aucune clé privée trouvée pour signer.");
+  }
+
+  final privKey = wifToPrivateKey(privKeyWIF);
+  final message = tx.serialize();
+  final signature = signMessage(message, privKey);
+
+  // Ici, la diffusion est simulée.
+  // Dans une vraie app, on appellerait un backend ou une API RPC Stacks
+  debugPrint("Transaction signée: $message");
+  debugPrint("Signature DER: ${HEX.encode(signature)}");
+
+  // Retourner un hash fictif de la tx pour l'instant
+  final txId = sha256.convert(signature).toString();
+  return txId;
 }
 
 // Vérification si l'appareil est rooté/jailbreaké
