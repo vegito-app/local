@@ -48,22 +48,22 @@ PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT ?=  10
 gcloud-application-credentials:
 	@$(GCLOUD) iam service-accounts keys create $(GOOGLE_APPLICATION_CREDENTIALS) \
 	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)  \
-	  || rm $(GOOGLE_APPLICATION_CREDENTIALS)
-	@if [ !  -f $(GOOGLE_APPLICATION_CREDENTIALS) ] ; then \
+	&& if [ !  -f $(GOOGLE_APPLICATION_CREDENTIALS) ] ; then \
 	  echo Check if you do not have more than $(PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT)	keys in use: ; \
-	  echo \* 👉 Use \'make gcloud-user-iam-sa-keys-list\' to checks if the limit is not exceeded. ; \
-	  echo \* 👉 Use \'make gcloud-user-iam-sa-keys-clean-oldest-3\' to deletes the 3 oldest keys. ; \
-	  echo \* 👉 Then, use \'make $@\' or \'make gcloud-auth-login\' to retry. ; \
-	fi
+	  echo \* 👉 check limit exceeded: \'make gcloud-user-iam-sa-keys-list\'. ; \
+	  echo \* 🔧 Use \'make gcloud-user-iam-sa-keys-clean-oldest-3\' to deletes the 3 oldest keys. ; \
+	  echo \* ☑️ Then, use \'make $@\' or \'make gcloud-auth-login\' to retry. ; \
+	fi \
+	|| rm $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: gcloud-application-credentials
 
-gcloud-auth-sa: gcloud-auth-login gcloud-application-credentials gcloud-project-set gcloud-serviceaccount-activate
+gcloud-auth-login-sa: gcloud-auth-login gcloud-application-credentials gcloud-project-set gcloud-auth-serviceaccount-activate
 	@echo '✅ Successfully authenticated using service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)"'
 	@echo 'Further gcloud commands are going to use service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)" IAM role bindings'
-.PHONY: gcloud-auth-sa
+.PHONY: gcloud-auth-login-sa
 
 # Use your root user email address permissions instead of your developer service account.
-gcloud-auth-email: #gcloud-auth-login gcloud-project-set
+gcloud-auth-login-email: gcloud-auth-login gcloud-project-set
 	@echo "✅ Successfully authenticated using email."
 	@if [ ! -v USER_EMAIL ] ; then \
 	  echo USER_EMAIL is not set for automatic account activation. ; \
@@ -72,7 +72,7 @@ gcloud-auth-email: #gcloud-auth-login gcloud-project-set
 	else \
 		$(MAKE) gcloud-auth-config-set-account-user-email ; \
 	fi
-.PHONY: gcloud-email-login
+.PHONY: gcloud-auth-login-email
 
 gcloud-auth-config-set-account-user-email:
 	@if [ ! -v USER_EMAIL ] ; then \
@@ -81,7 +81,7 @@ gcloud-auth-config-set-account-user-email:
 	fi 
 	@$(GCLOUD) config set account $(USER_EMAIL)
 	@echo "Further gcloud commands are going to use your email as user with IAM role bindings if GOOGLE_APPLICATION_CREDENTIALS is empty."
-.PHONY: gcloud-auth-config-set-account
+.PHONY: gcloud-auth-config-set-account-user-email
 
 gcloud-auth-login:
 	@echo "🔐 Logging in to gcloud and activating service account..."
@@ -93,11 +93,10 @@ gcloud-project-set:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-project-set
 
-gcloud-serviceaccount-activate:
+gcloud-auth-serviceaccount-activate:
 	@echo "🔐 Activating service account via GOOGLE_APPLICATION_CREDENTIALS..."
 	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
-.PHONY: gcloud-serviceaccount-activate
-
+.PHONY: gcloud-auth-serviceaccount-activate
 
 # ADC (Application Default Credentials: https://cloud.google.com/docs/authentication/provide-credentials-adc?hl=en)
 gcloud-auth-default-application-credentials:
@@ -125,7 +124,6 @@ gcloud-info:
 	@echo "ℹ️  Displaying gcloud info..."
 	@$(GCLOUD) info
 .PHONY: gcloud-info
-
 
 gcloud-auth-docker:
 	@echo "🐳 Authenticating Docker with Google Artifact Registry..."
