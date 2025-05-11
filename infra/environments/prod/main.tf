@@ -29,7 +29,7 @@ module "kubernetes" {
   project_number = data.google_project.project.number
 
   vault_tf_apply_member_sa_list = concat(
-    local.prod_admins_service_accounts,
+    local.production_admins_service_accounts,
     local.root_admins_service_accounts,
   )
 }

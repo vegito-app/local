@@ -60,7 +60,7 @@ import {
 }
 import {
   id = "${data.google_project.project.id}/locations/global/keys/david-berichon-googlemaps-web-api-key"
-  to = google_apikeys_key.developer_google_maps_api_key["davidberich@gmail.com"]
+  to = google_apikeys_key.user_google_maps_api_key["davidberich@gmail.com"]
 }
 import {
   id = "${data.google_project.project.id}/locations/${var.region}/namespaces/${data.google_project.project.project_id}/services/prod-${var.project_id}-${var.region}-application-backend"

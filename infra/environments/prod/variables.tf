@@ -82,13 +82,37 @@ locals {
 }
 
 variable "root_admin_user_roles" {
-  type = map(string)
+  type = list(string)
 }
 
 variable "admin_user_roles" {
-  type = map(string)
+  type = list(string)
 }
 
 variable "editor_user_roles" {
-  type = map(string)
+  type = list(string)
+}
+
+variable "staging_root_admin_user_roles" {
+  type = list(string)
+}
+
+variable "staging_admin_user_roles" {
+  type = list(string)
+}
+
+variable "staging_editor_user_roles" {
+  type = list(string)
+}
+
+variable "dev_root_admin_user_roles" {
+  type = list(string)
+}
+
+variable "dev_admin_user_roles" {
+  type = list(string)
+}
+
+variable "dev_editor_user_roles" {
+  type = list(string)
 }

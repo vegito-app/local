@@ -58,7 +58,6 @@ resource "google_container_cluster" "vault_cluster" {
   depends_on = [
     google_project_service.google_k8s_cluster_services,
     google_project_iam_member.cloud_service_member
-    # google_project_iam_member.developer_service_account_roles
   ]
   name                = "vault-cluster"
   location            = var.region
