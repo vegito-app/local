@@ -130,11 +130,16 @@ resource "google_cloudfunctions_function_iam_member" "auth_before_create" {
   role           = "roles/cloudfunctions.invoker"
   member         = "allUsers"
 }
-data "google_project" "project" {
-  project_id = var.project_id
+
+resource "google_storage_bucket" "bucket_gcf_source" {
+  name     = "${var.environment}-${var.project_name}-${var.region}-gcf-source" # Every bucket name must be globally unique
+  location = var.cloud_storage_location
+
+  uniform_bucket_level_access = true
 }
+
 resource "google_storage_bucket_iam_member" "bucket_iam_member" {
-  bucket = "gcf-sources-${data.google_project.project.number}-europe-west1"
+  bucket = "gcf-sources-${data.google_project.project.number}-${var.region}"
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }

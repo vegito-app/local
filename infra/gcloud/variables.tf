@@ -2,18 +2,9 @@ variable "environment" {
   description = "Environment name (dev, staging, prod)"
   type        = string
 }
-variable "project_name" {
-  description = "GCP project Name"
-  type        = string
-}
 variable "project_id" {
   description = "GCP project ID"
   type        = string
-}
-variable "production_project_id" {
-  description = "GCP project ID"
-  type        = string
-  default     = "moov-438615"
 }
 variable "region" {
   description = "GCP used region"
@@ -27,29 +18,11 @@ variable "application_backend_image" {
   description = "application Docker image"
   type        = string
 }
-variable "application_public_domain" {
-  description = "application public domain"
+variable "application_backend_domain" {
+  description = "The public domain of the application"
   type        = string
 }
-variable "ui_firebase_secret_id" {
-  description = "Firebase - UI config - secret ID"
+variable "bucket_tf_state_eu_global_name" {
+  description = "Name of the GCS bucket for Terraform state"
   type        = string
 }
-variable "ui_googlemaps_secret_id" {
-  description = "GoogleMaps - UI API Key - secret ID"
-  type        = string
-}
-variable "google_idp_oauth_key_secret_id" {
-  description = "google.com IDP oauth key cloud secret"
-  type        = string
-}
-variable "google_idp_oauth_client_id_secret_id" {
-  description = "google.com IDP oauth client ID cloud secret"
-  type        = string
-}
-variable "tf_state_global_bucket_name" {
-  description = "tf_state bucket name, required to setup github action service account to deploy using terraform"
-  type        = string
-  default     = "global-europe-west1-tf-state"
-}
-

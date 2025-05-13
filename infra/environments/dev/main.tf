@@ -9,7 +9,7 @@ module "gcloud" {
   project_name = data.google_project.project.name
   project_id   = var.project_id
 
-  application_public_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-backend-203475703228.europe-west1.run.app"
+  application_backend_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-backend-203475703228.europe-west1.run.app"
 
   google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
   google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
@@ -21,6 +21,13 @@ module "gcloud" {
   ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
 }
 
+module "application" {
+  source       = "../../application"
+  environment  = local.environment
+  project_name = data.google_project.project.name
+  project_id   = var.project_id
+  region       = var.region
+}
 data "google_project" "project" {
   project_id = var.project_id
 }

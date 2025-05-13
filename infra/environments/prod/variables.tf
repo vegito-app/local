@@ -25,7 +25,7 @@ variable "application_backend_image" {
   description = "application Docker image"
   type        = string
 }
-variable "application_public_domain" {
+variable "application_backend_domain" {
   description = "application Docker image"
   type        = string
   default     = "https://moov-438615-europe-west1-application-backend-v4bqtohg4a-ew.a.run.app"

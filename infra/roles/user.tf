@@ -1,7 +1,7 @@
 
 resource "google_project_iam_member" "roles" {
   for_each = {
-    for pair in setproduct(var.roles, var.users_sa) :
+    for pair in setproduct(var.roles, var.user_service_accounts) :
     "${pair[0]}-${pair[1]}" => {
       role   = pair[0]
       member = pair[1]
@@ -22,7 +22,7 @@ variable "user_native_email_roles" {
 
 locals {
   flattened_for_each_user_map = flatten([
-    for email, id in var.users_sa : [
+    for email, id in var.user_service_accounts : [
       {
         id    = id
         email = email
@@ -30,7 +30,7 @@ locals {
     ]
   ])
   flattened_for_each_user_environment_map = flatten([
-    for idx, sa in var.users_sa : {
+    for idx, sa in var.user_service_accounts : {
       idx = "${idx}"
       value = {
         service_account = sa

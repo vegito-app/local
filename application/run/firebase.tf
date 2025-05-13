@@ -56,7 +56,7 @@ resource "google_firebase_database_instance" "default" {
   provider    = google-beta
   project     = google_firebase_project.default.project
   region      = var.region
-  instance_id = "${google_firebase_project.default.project}-${var.environment}-rtdb-default"
+  instance_id = "${google_firebase_project.default.project}-rtdb-default"
   # type        = "DEFAULT_DATABASE"
   type          = "USER_DATABASE"
   desired_state = "ACTIVE"
@@ -163,52 +163,6 @@ output "oauth_redirect_uri" {
   value       = "https://${google_firebase_project.default.id}.firebaseapp.com/__/auth/handler"
 }
 
-resource "google_service_account" "firebase_admin_service_account" {
-  account_id   = "firebase-admin-sa"
-  display_name = "Firebase Admin SDK Service Account"
-  description  = "Ce compte de service est utilisé par Firebase Admin SDK pour interagir avec Firebase"
-}
-
-resource "google_project_iam_member" "firebase_admin_service_agent" {
-  project = var.project_id
-  role    = "roles/firebase.sdkAdminServiceAgent"
-  member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
-}
-
-resource "google_project_iam_member" "firebase_token_creator" {
-  project = var.project_id
-  role    = "roles/iam.serviceAccountTokenCreator"
-  member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
-}
-
-resource "google_secret_manager_secret" "firebase_admin_service_account_secret" {
-  secret_id = "firebase-adminsdk-service-account-key"
-  project   = var.project_id
-  labels = {
-    environment = "production"
-  }
-  replication {
-    auto {
-
-    }
-  }
-}
-
-resource "google_service_account_key" "firebase_admin_service_account_key" {
-  service_account_id = google_service_account.firebase_admin_service_account.name
-}
-
-resource "google_secret_manager_secret_version" "firebase_adminsdk_secret_version" {
-  secret         = google_secret_manager_secret.firebase_admin_service_account_secret.id
-  secret_data_wo = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
-}
-
-resource "google_secret_manager_secret_iam_member" "firebase_admin_service_account_secret_member" {
-  secret_id = google_secret_manager_secret.firebase_admin_service_account_secret.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
-}
-
 resource "google_secret_manager_secret" "firebase_config_web" {
   secret_id = "firebase-config-web"
 
@@ -230,4 +184,50 @@ resource "google_secret_manager_secret_version" "firebase_config_web_version" {
     messagingSenderId = data.google_firebase_web_app_config.web_app_config.messaging_sender_id
     appId             = google_firebase_web_app.web_app.app_id
   })
+}
+
+resource "google_secret_manager_secret_iam_member" "firebase_admin_service_account_secret_member" {
+  secret_id = google_secret_manager_secret.firebase_admin_service_account_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"
+}
+
+resource "google_secret_manager_secret" "firebase_admin_service_account_secret" {
+  secret_id = "firebase-adminsdk-service-account-key"
+  project   = var.project_id
+  labels = {
+    environment = "production"
+  }
+  replication {
+    auto {
+
+    }
+  }
+}
+# This secret is used to store the Firebase Admin SDK service account key.
+resource "google_service_account" "firebase_admin_service_account" {
+  account_id   = "firebase-admin-sa"
+  display_name = "Firebase Admin SDK Service Account"
+  description  = "Ce compte de service est utilisé par Firebase Admin SDK pour interagir avec Firebase"
+}
+
+resource "google_project_iam_member" "firebase_admin_service_agent" {
+  project = var.project_id
+  role    = "roles/firebase.sdkAdminServiceAgent"
+  member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
+}
+
+resource "google_project_iam_member" "firebase_token_creator" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:${google_service_account.firebase_admin_service_account.email}"
+}
+
+resource "google_service_account_key" "firebase_admin_service_account_key" {
+  service_account_id = google_service_account.firebase_admin_service_account.name
+}
+
+resource "google_secret_manager_secret_version" "firebase_adminsdk_secret_version" {
+  secret         = google_secret_manager_secret.firebase_admin_service_account_secret.id
+  secret_data_wo = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
 }

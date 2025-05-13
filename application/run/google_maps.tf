@@ -1,4 +1,3 @@
-
 # Enables required APIs.
 resource "google_project_service" "google_maps_services" {
   provider = google-beta.no_user_project_override
@@ -25,9 +24,11 @@ resource "google_secret_manager_secret" "web_google_maps_api_key" {
 
 locals {
   allowed_referrers = [
+    "prod-moov-europe-west1-application-backend-v4bqtohg4a-ew.a.run.app",
     "${var.project_id}.firebaseapp.com",
+    "${var.project_id}.firebaseio.com",
     "${var.project_id}.web.app",
-    var.application_public_domain,
+    "${var.project_id}.cloudfunctions.net",
   ]
 }
 

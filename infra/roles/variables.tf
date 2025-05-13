@@ -3,7 +3,7 @@ variable "project_id" {
   type        = string
 }
 
-variable "users_sa" {
+variable "user_service_accounts" {
   description = "IAM serviceAccount list of environement (prod/staging/dev) users"
   type        = list(string)
 }
