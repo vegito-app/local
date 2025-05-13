@@ -9,8 +9,8 @@ locals {
 
 # Enables required APIs.
 resource "google_project_service" "application_backend_services" {
-  provider = google-beta.no_user_project_override
   project  = var.project_id
+  provider = google-beta.no_user_project_override
   for_each = toset([
     "run.googleapis.com",
   ])
@@ -84,8 +84,6 @@ resource "google_cloud_run_service_iam_member" "allow_unauthenticated" {
 }
 
 resource "google_artifact_registry_repository_iam_member" "application_backend_repo_read_member" {
-  project    = var.project_id
-  location   = var.region
   repository = google_artifact_registry_repository.private_docker_repository.name
   role       = "roles/artifactregistry.reader"
   member     = "serviceAccount:${google_service_account.application_backend_cloud_run_sa.email}"

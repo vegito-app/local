@@ -25,14 +25,12 @@ module "kubernetes" {
 }
 
 module "gcloud" {
-  source                         = "../../gcloud"
-  region                         = var.region
-  environment                    = local.environment
   bucket_tf_state_eu_global_name = local.bucket_tf_state_eu_global_name
-  project_id                     = data.google_project.project.project_id
-  application_backend_domain     = module.application.backend_url
-  application_backend_image      = var.application_backend_image
   cloud_storage_location         = var.cloud_storage_location
+  environment                    = local.environment
+  project_id                     = data.google_project.project.project_id
+  region                         = var.region
+  source                         = "../../gcloud"
 }
 
 output "project" {

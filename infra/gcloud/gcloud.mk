@@ -84,7 +84,7 @@ gcloud-auth-config-set-account-user-email:
 .PHONY: gcloud-auth-config-set-account-user-email
 
 gcloud-auth-login:
-	@echo "🔐 Logging in to gcloud and activating service account..."
+	@echo "🔐 Logging in to gcloud..."
 	@$(GCLOUD) auth login
 .PHONY: gcloud-auth-login
 
@@ -94,7 +94,7 @@ gcloud-project-set:
 .PHONY: gcloud-project-set
 
 gcloud-auth-serviceaccount-activate:
-	@echo "🔐 Activating service account via GOOGLE_APPLICATION_CREDENTIALS..."
+	@echo "🔧 Activating local service account: $(GOOGLE_APPLICATION_CREDENTIALS)..."
 	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
 .PHONY: gcloud-auth-serviceaccount-activate
 
@@ -104,7 +104,7 @@ gcloud-auth-default-application-credentials:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 	@echo "🔐 Logging in with application default credentials..."
 	@$(GCLOUD) auth application-default login
-	@echo "🔐 Setting quota project for application default credentials..."
+	@echo "💰 Setting quota project for application default credentials..."
 	@$(GCLOUD) auth application-default set-quota-project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-default-application-credentials
 
