@@ -1,33 +1,32 @@
 locals {
   environment = "dev"
 }
+
 module "gcloud" {
   bucket_tf_state_eu_global_name = "global-${var.region}-tf-state-dev"
 
-  source       = "../../gcloud"
-  environment  = local.environment
-  project_name = data.google_project.project.name
-  project_id   = var.project_id
+  source      = "../../gcloud"
+  region      = var.region
+  environment = local.environment
+  project_id  = var.project_id
 
-  application_backend_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-backend-203475703228.europe-west1.run.app"
-
-  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
-  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
-
-  cloud_storage_location    = var.cloud_storage_location
-  application_backend_image = var.application_backend_image
-  region                    = var.region
-  ui_firebase_secret_id     = var.ui_firebase_secret_id
-  ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
+  cloud_storage_location = var.cloud_storage_location
 }
 
 module "application" {
-  source       = "../../application"
+  source = "../../../application/run"
+
+  region       = var.region
   environment  = local.environment
   project_name = data.google_project.project.name
   project_id   = var.project_id
-  region       = var.region
+
+  application_backend_image = var.application_backend_image
+
+  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
+  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
 }
+
 data "google_project" "project" {
   project_id = var.project_id
 }
