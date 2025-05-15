@@ -178,3 +178,5 @@ if [ -d ~/.emacs.d ]; then
   mkdir -p ${DEV_CONTAINER_CACHE_DIR}
   rsync -av ~/.emacs.d ${DEV_CONTAINER_CACHE_DIR}/emacs
 fi
+
+sudo chmod o+rwX -R ${PWD}/dev/.containers
