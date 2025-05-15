@@ -2,24 +2,10 @@
 # Map des rôles par environnement par défaut
 variable "default_roles_per_environment" {
   type = map(list(string))
-  default = {
-    dev = [
-      "roles/editor",
-      "roles/secretmanager.secretAccessor",
-      "roles/secretmanager.admin",
-    ] # Exemple : plus de permissions en dev
-    staging = ["roles/viewer"]
-    prod    = ["roles/viewer"] # Permissions plus restrictives en prod
-  }
 }
 
 variable "users_email" {
-
   type = map(string)
-  default = {
-    "davidberich@gmail.com" = "david-berichon"
-    # "richardberich@gmail.com" = "richard-berichon"
-  }
 }
 
 data "google_service_account" "production_root_admin_service_account" {

@@ -2,22 +2,27 @@ locals {
   environment = "staging"
 }
 
-module "gcloud" {
-  source       = "../../gcloud"
-  environment  = local.environment
-  project_name = data.google_project.project.name
-  project_id   = var.project_id
-  region       = var.region
-
+module "application" {
+  source                               = "../../../application/run"
+  environment                          = local.environment
+  project_name                         = data.google_project.project.name
+  project_id                           = var.project_id
+  region                               = var.region
+  application_backend_domain           = "${local.environment}-${data.google_project.project.name}-${var.region}-application-backend-203475703228.europe-west1.run.app"
   google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
   google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
 
-  application_public_domain = "${local.environment}-${data.google_project.project.name}-${var.region}-application-bac-homb3x53ta-ew.a.run.app"
-
   application_backend_image = var.application_backend_image
-  ui_firebase_secret_id     = var.ui_firebase_secret_id
-  ui_googlemaps_secret_id   = var.ui_googlemaps_secret_id
-  cloud_storage_location    = var.cloud_storage_location
+}
+
+module "gcloud" {
+  source      = "../../gcloud"
+  environment = local.environment
+  project_id  = var.project_id
+  region      = var.region
+
+  bucket_tf_state_eu_global_name = "global-${var.region}-tf-state-staging"
+  cloud_storage_location         = var.cloud_storage_location
 }
 
 data "google_project" "project" {
