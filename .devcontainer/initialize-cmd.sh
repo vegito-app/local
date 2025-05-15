@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script is run on the host as devcontainer 'initializeCommand' (cf. https://containers.dev/implementors/json_reference/#lifecycle-scripts)
+
 set -eu
 
 trap "echo Exited with code $?." EXIT
@@ -172,11 +174,17 @@ cat <<'EOF' > $mobileLaunchDebug
 EOF
 fi
 
-# EMACS initial container config from host.
-DEV_CONTAINER_CACHE_DIR=${PWD}/dev/.containers/dev
+CONTAINERS_CACHE_DIR=${PWD}/dev/.containers
+mkdir -p ${CONTAINERS_CACHE_DIR}
+
+# Cache of container 'dev'
+mkdir -p ${CONTAINERS_CACHE_DIR}/dev
+
+# Copy config from host files.
 if [ -d ~/.emacs.d ]; then
-  mkdir -p ${DEV_CONTAINER_CACHE_DIR}
-  rsync -av ~/.emacs.d ${DEV_CONTAINER_CACHE_DIR}/emacs
+    rsync -av ~/.emacs.d ${CONTAINERS_CACHE_DIR}/dev/emacs
 fi
 
-sudo chmod o+rwX -R ${PWD}/dev/.containers
+# Keep the directory writable by the other container user id if is not the same than the host user id.
+sudo chmod o+rwX -R ${CONTAINERS_CACHE_DIR}
+# The other containers will also use the same directory to store their data. 

@@ -75,10 +75,9 @@ ln -s $LOCAL_ANDROID_STUDIO/.vscode-server $ANDROID_STUDIO_VSCODE_SERVER
 
 # Bash history
 BASH_HISTORY_PATH=${HOME}/.bash_history
-mkdir -p $LOCAL_ANDROID_STUDIO/bash_history
+mkdir -p $LOCAL_ANDROID_STUDIO
 rm -f $BASH_HISTORY_PATH
-ln -s $LOCAL_ANDROID_STUDIO/bash_history/.bash_history $BASH_HISTORY_PATH
-
+ln -s $LOCAL_ANDROID_STUDIO/.bash_history $BASH_HISTORY_PATH
 # Git config (optional but useful)
 GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
 mkdir -p $LOCAL_ANDROID_STUDIO/git
