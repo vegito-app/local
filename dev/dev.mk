@@ -52,4 +52,3 @@ dev-logsf:
 -include dev/github/github.mk
 -include dev/firebase-emulators/firebase-emulators.mk
 -include dev/vault/vault.mk
-

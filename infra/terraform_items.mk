@@ -14,7 +14,8 @@
 # make 'module.module_abcd.resource_xyz.collection["example"]-taint'
 # make 'module.module_abcd.resource_xyz.collection["example"]-untaint'
 # make 'module.module_abcd.resource_xyz.collection["example"]-destroy'
-TF_STATE_ITEMS = \
+TF_STATE_ITEMS = google_compute_instance.dev_vm["$(PROJECT_USER)"]
+_=\
 module.gcloud.google_apikeys_key.google_maps_android_api_key \
 module.gcloud.google_apikeys_key.google_maps_ios_api_key \
 module.application.google_artifact_registry_repository_iam_member.application_backend_repo_read_member \
@@ -49,8 +50,8 @@ $(TF_STATE_ITEMS:%=%-apply): $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: $(TF_STATE_ITEMS:%=%-apply)
 
 $(TF_STATE_ITEMS:%=%-destroy): $(GOOGLE_APPLICATION_CREDENTIALS)
-	@echo "🔥 Destroying Terraform target $(@:%-destroy=%). Use the command below by hand:"
-	@echo $(TERRAFORM) destroy -target='$(@:%-destroy=%)'
+	@echo "🔥 Destroying Terraform target $(@:%-destroy=%)..."
+	@$(TERRAFORM) destroy -target='$(@:%-destroy=%)'
 .PHONY: $(TF_STATE_ITEMS:%=%-destroy)
 
 $(TF_STATE_ITEMS:%=%-taint): $(GOOGLE_APPLICATION_CREDENTIALS)
@@ -66,5 +67,10 @@ $(TF_STATE_ITEMS:%=%-untaint): $(GOOGLE_APPLICATION_CREDENTIALS)
 terraform-state-items-show-all: $(TF_STATE_ITEMS:%=%-show)
 .PHONY: terraform-state-items-show-all
 
+# ⚠️
+# Do not use this target unless you know what you are doing.
+# And you already have a backup of your state file (make terraform-state-backup).
+# This will remove all items in TF_STATE_ITEMS from the state file.
+# 
 # terraform-state-rm-all: $(TF_STATE_ITEMS:%=%-rm)
 # .PHONY: terraform-state-rm-all

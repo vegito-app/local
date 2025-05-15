@@ -388,6 +388,10 @@ gcloud-compute-list-available-machine-type:
 	  --project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-compute-list-available-machine-type
 
+gcloud-compute-quotas:
+	@echo GCP compute quotas:
+	@$(GCLOUD) compute regions describe $(GOOGLE_CLOUD_REGION) --format="flattened(quotas)
+.PHONY: gcloud-compute-quotas
 
 gcloud-user-compute-instance-suspend:
 	$(GCLOUD) compute instances suspend dev-$(PROJECT_USER) --zone=europe-west1-b

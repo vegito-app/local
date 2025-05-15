@@ -1,8 +1,6 @@
 # Fichiers de configuration locaux
 .terraform/
 .planed_terraform
-# Fichier tfstate qui peut contenir des données sensibles
-*.tfvars
 
 # Fichiers de sauvegardes créés lors de la planification ou l'application d'une erreur
 *.tfplan
@@ -19,4 +17,3 @@ Thumbs.db
 Desktop.ini
 
 *.zip
-*.tfvars

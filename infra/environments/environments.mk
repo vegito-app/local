@@ -1,6 +1,8 @@
 
 -include infra/environments/secrets.mk
--include infra/environments/terraform.mk
+-include infra/environments/prod/vault/vault.mk
+-include infra/environments/prod/kubernetes/kubernetes.mk
+-include infra/environments/dev/dev.mk
 
 INFRA_ENVIRONMENTS := \
 	prod \

@@ -27,8 +27,8 @@ services:
       bash -c '
       # Ensure docker socket permissions
       make docker-sock
-      [ ( $${MAKE_DEV_ON_START} ) ] && make dev
-      sleep infinity 
+      [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev
+      sleep infinity
       '
     networks:
       dev:

@@ -24,7 +24,7 @@ terraform-state-backup: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(TERRAFORM) state pull > $(TERRAFORM_PROJECT)/backup.tfstate
 .PHONY: terraform-state-backup
 
--include infra/tf_state_items.mk
+-include infra/terraform_items.mk
 
 TERRAFORM_PROJECTS := \
 	infra/environments/prod \
