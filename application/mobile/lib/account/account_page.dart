@@ -72,16 +72,17 @@ class _AccountPageState extends State<AccountPage> {
                 },
                 child: const Text("Valider mon compte"),
               ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                await _initializeWallet();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Données rafraîchies.')),
-                );
-              },
-              child: const Text("Rafraîchir"),
-            ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () async {
+                  await _initializeWallet();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Données rafraîchies.')),
+                  );
+                },
+                child: const Text("Rafraîchir"),
+              ),
+            ],
           ],
         ),
       ),

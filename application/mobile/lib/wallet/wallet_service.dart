@@ -1,13 +1,12 @@
+import 'package:car2go/wallet/crypto/clarity.dart';
 import 'package:car2go/wallet/crypto/stacks.dart';
 import 'package:car2go/wallet/crypto/wif.dart';
-import 'package:car2go/wallet/crypto/clarity.dart';
+import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hex/hex.dart';
 import 'package:pointycastle/ecc/api.dart';
-import 'package:convert/convert.dart';
-import 'package:crypto/crypto.dart';
 
-import 'wallet_backend.dart';
 import 'wallet_backend.dart';
 import 'wallet_store.dart';
 
@@ -86,20 +85,19 @@ Future<String> generateRecoveryKey(String userId) async {
     return "Appareil compromis, accès refusé.";
   }
 
-  var privateKey = await WalletStorage
+  var wif = await WalletStorage
       .getPrivateKey(); // Toujours retourner la clé existante ou nouvellement créée
 
-  if (privateKey == null) {
+  if (wif == null) {
     throw Exception("Le compte n'a aucune clé privé");
   }
-  return await _setupRecovery(privateKey);
+  return await _setupRecovery(wif);
 }
 
 // Mise en place de la clé de récupération et recoveryKey
-Future<String> _setupWIFrecovery(String privateKey) async {
-  final recoveryKey = privateKeyStrToWIF(generatePrivateKey());
+Future<String> _setupRecovery(String privateKey) async {
+  final recoveryKey = privateKeyToWIF(generatePrivateKey());
   final xorKey = xorWIFkeys(privateKey, recoveryKey);
-
   try {
     await postRecoveryKey(xorKey);
     await WalletStorage.storeRecoveryKeyLocally(recoveryKey);
@@ -127,8 +125,7 @@ Future<String> getPrivateKeyWIF() async {
   if (await _isCompromisedDevice()) {
     return "Appareil compromis, accès refusé.";
   }
-  var privateKeyWIF = await WalletStorage
-      .getPrivateKey(); // Toujours retourner la clé existante ou nouvellement créée
+  var privateKeyWIF = await WalletStorage.getPrivateKey();
 
   if (privateKeyWIF == null) {
     final privateKey = generatePrivateKey();
