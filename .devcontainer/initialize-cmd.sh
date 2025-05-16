@@ -184,7 +184,3 @@ mkdir -p ${CONTAINERS_CACHE_DIR}/dev
 if [ -d ~/.emacs.d ]; then
     rsync -av ~/.emacs.d ${CONTAINERS_CACHE_DIR}/dev/emacs
 fi
-
-# Keep the directory writable by the other container user id if is not the same than the host user id.
-sudo chmod o+rwX -R ${CONTAINERS_CACHE_DIR}
-# The other containers will also use the same directory to store their data. 

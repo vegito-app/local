@@ -41,12 +41,6 @@
         "zenMode.centerLayout": false,
         "zenMode.hideLineNumbers": false,
         "diffEditor.ignoreTrimWhitespace": false,
-        "[javascript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[json]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
         "[jsonc]": {
           "editor.defaultFormatter": "vscode.json-language-features"
         },
@@ -154,6 +148,7 @@
         "alexisvt.flutter-snippets",
         "ChFlick.firecode",
         "circlecodesolution.ccs-flutter-color",
+        "googlecloudtools.cloudcode",
         "dart-code.dart-code",
         "dbaeumer.vscode-eslint",
         "diemasmichiels.emulate",

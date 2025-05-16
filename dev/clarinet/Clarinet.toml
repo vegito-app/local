@@ -3,7 +3,7 @@ name = "counter"
 description = ""
 authors = []
 telemetry = true
-cache_dir = "./.cache"
+cache_dir = "../.containers/clarinet-devnet/cache"
 
 # [contracts.counter]
 # path = "contracts/counter.clar"

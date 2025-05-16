@@ -101,14 +101,15 @@ resource "google_compute_instance" "dev_vm" {
 
     echo "*/30 * * * * root /usr/local/bin/suspend-if-idle.sh" >> /etc/crontab
     
-    echo "alias h='htop' >> /etc/bash.bashrc
-    echo "alias i='sudo iftop' >> /etc/bash.bashrc
-
-    echo "alias ll='ls -lha'" >> /etc/bash.bashrc
-    echo "alias l='ls -lh'" >> /etc/bash.bashrc
-    echo "alias la='ls -Ah'" >> /etc/bash.bashrc
-    echo "alias lla='ls -lhA'" >> /etc/bash.bashrc
-
+    cat << 'EOF' > /etc/profile.d/00-aliases.sh
+    alias h='htop'
+    alias i='sudo iftop'
+    alias ll='ls -lha'
+    alias l='ls -lh'
+    alias la='ls -Ah'
+    alias lla='ls -lhA'
+    EOF
+    chmod +x /etc/profile.d/00-aliases.sh
 
   EOT
 
@@ -124,7 +125,12 @@ resource "google_compute_instance" "dev_vm" {
 
   tags = ["dev-ssh", "dev-ssh-${each.key}"]
 }
-
+output "dev_vm_ips" {
+  value = {
+    for email, user in var.vm_users :
+    user => google_compute_instance.dev_vm[user].network_interface[0].access_config[0].nat_ip
+  }
+}
 resource "google_project_iam_member" "ssh_access_using_user_email" {
   for_each = var.vm_users
   project  = data.google_project.project.project_id

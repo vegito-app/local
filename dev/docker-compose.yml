@@ -25,9 +25,16 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
+
       # Ensure docker socket permissions
       make docker-sock
-      [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev
+
+      sudo mkdir -p ${HOST_PWD}/dev/.containers
+
+      sudo chmod o+rwX -R $${HOST_PWD}/
+
+      [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev -j
+
       sleep infinity
       '
     networks:
