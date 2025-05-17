@@ -1,0 +1,54 @@
+-include local/docker/docker.mk
+-include local/go.mk
+-include local/nodejs.mk
+
+LATEST_BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-latest
+
+DOCKER_COMPOSE = docker compose -f $(CURDIR)/local/docker-compose.yml
+
+local-install: application-frontend-build application-frontend-bundle backend-install 
+.PHONY: install
+
+local-dev: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)
+	@$(APPLICATION_BACKEND_INSTALL_BIN)
+.PHONY: local-dev
+
+BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/local/.containers/docker-buildx-cache/local-builder
+$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
+BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+endif
+BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+
+local-builder-image: $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder
+	@$(DOCKER_BUILDX_BAKE) --load builder
+.PHONY: local-builder-image
+
+local-builder-image-push: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder
+	@$(DOCKER_BUILDX_BAKE) --push builder
+.PHONY: local-builder-image-push
+
+local-builder-image-ci: docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder-ci
+	@$(DOCKER_BUILDX_BAKE) --push builder-ci
+.PHONY: local-builder-image-ci
+
+local-image-pull:
+	@$(DOCKER_COMPOSE) pull dev
+.PHONY: local-image-pull
+
+local-logs:
+	@$(DOCKER_COMPOSE) logs dev
+.PHONY: local-logs
+
+local-logsf:
+	@$(DOCKER_COMPOSE) logs -f dev
+.PHONY: local-logsf
+
+-include local/android-studio/android-studio.mk
+-include local/clarinet/clarinet.mk
+-include local/github/github.mk
+-include local/firebase-emulators/firebase-emulators.mk
+-include local/vault/vault.mk
