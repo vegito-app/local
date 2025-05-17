@@ -1,4 +1,4 @@
-module github.com/7d4b9/utrade/dev/proxy
+module github.com/7d4b9/utrade/local/proxy
 
 go 1.24
 
