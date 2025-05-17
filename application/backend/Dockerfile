@@ -9,9 +9,10 @@ RUN mkdir -p ${HOME}/src/dev
 WORKDIR ${HOME}/src
 
 COPY Makefile .
-COPY local/dev.mk ./local/dev.mk
-COPY local/nodejs.mk ./local/nodejs.mk
-COPY local/go.mk ./local/go.mk
+RUN mkdir -p application
+COPY application/application.mk ./application/application.mk
+COPY application/nodejs.mk ./application/nodejs.mk
+COPY application/go.mk ./application/go.mk
 
 # frontend
 RUN mkdir -p application/frontend 

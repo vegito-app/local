@@ -1,4 +1,4 @@
-dev/.containers
+local/.containers
 .github/
 gcloud/.terraform
 .android-studio/

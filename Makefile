@@ -26,6 +26,7 @@ endif
 
 export
 
+-include docker/docker.mk
 -include local/local.mk
 -include infra/infra.mk 
 -include application/application.mk
@@ -36,8 +37,8 @@ images: docker-images-local-arch
 images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
 
-dev: dev-docker-compose
+dev: local-docker-compose
 .PHONY: dev
 
-dev-rm: dev-docker-compose-rm
+dev-rm: local-docker-compose-rm
 .PHONY: dev-rm
