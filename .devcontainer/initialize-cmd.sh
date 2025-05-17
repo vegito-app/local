@@ -7,7 +7,7 @@ set -eu
 trap "echo Exited with code $?." EXIT
 
 # Create default local .env file with minimum required values to start.
-localDotenvFile=${PWD}/dev/.env
+localDotenvFile=${PWD}/local/.env
 # [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
 PROJECT_USER=david-berichon
@@ -62,24 +62,24 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "application/run"
     }
     {
-      "name": "Dev - Builder",
-      "path": "dev"
+      "name": "Local - Builder",
+      "path": "local"
     },
     {
-      "name": "Dev - Firebase Emulators - Local",
-      "path": "dev/firebase-emulators"
+      "name": "Local - Firebase Emulators - Local",
+      "path": "local/firebase-emulators"
     },
     {
-      "name": "Dev - Android Studio - Local",
-      "path": "dev/android-studio"
+      "name": "Local - Android Studio - Local",
+      "path": "local/android-studio"
     },
     {
-      "name": "Dev - Vault - Local",
-      "path": "dev/vault"
+      "name": "Local - Vault - Local",
+      "path": "local/vault"
     },
     {
-      "name": "Dev - Clarinet",
-      "path": "dev/clarinet"
+      "name": "Local - Clarinet",
+      "path": "local/clarinet"
     }
     {
       "name": "Infrastructure - Cloud",
@@ -94,7 +94,7 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "infra/environments/staging"
     },
     {
-      "name": "Infrastructure - Dev - Terraform",
+      "name": "Infrastructure - Local - Terraform",
       "path": "infra/environments/dev"
     },
     {
@@ -134,7 +134,7 @@ cat <<'EOF' > $backendLaunchDebug
                 "VAULT_TOKEN": "root",
                 "VAULT_ADDR": "http://vault-dev:8200",
             },
-            "envFile": "${workspaceFolder}/../../dev/.env",
+            "envFile": "${workspaceFolder}/../../local/.env",
         }
     ]
 }
@@ -174,7 +174,7 @@ cat <<'EOF' > $mobileLaunchDebug
 EOF
 fi
 
-CONTAINERS_CACHE_DIR=${PWD}/dev/.containers
+CONTAINERS_CACHE_DIR=${PWD}/local/.containers
 mkdir -p ${CONTAINERS_CACHE_DIR}
 
 # Cache of container 'dev'
@@ -182,5 +182,5 @@ mkdir -p ${CONTAINERS_CACHE_DIR}/dev
 
 # Copy config from host files.
 if [ -d ~/.emacs.d ]; then
-    rsync -av ~/.emacs.d ${CONTAINERS_CACHE_DIR}/dev/emacs
+    rsync -av ~/.emacs.d ${CONTAINERS_CACHE_DIR}/local/emacs
 fi

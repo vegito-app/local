@@ -43,7 +43,7 @@ Cela démarre :
 
 En local : AppRole ou token Vault auto-généré
 
-- Le répertoire de configuration est : `dev/vault/`
+- Le répertoire de configuration est : `local/vault/`
 - La commande `make vault-dev` les lance automatiquement
 - L'UI des émulateurs est accessible sur : http://127.0.0.1:8200/
 
@@ -61,7 +61,7 @@ L’environnement local embarque aussi les émulateurs Firebase pour :
 
 Cela permet de développer et tester localement les fonctionnalités web et backend, sans interagir avec la prod Firebase.
 
-- Le répertoire de configuration est : `dev/firebase-emulators/`
+- Le répertoire de configuration est : `local/firebase-emulators/`
 - La commande `make firebase-emulators` les lance automatiquement
 - L'UI des émulateurs est accessible sur : http://127.0.0.1:4000/
 
@@ -119,7 +119,7 @@ Ce `make` orchestre :
 - `application/` : code Go backend
 - `mobile/` : application Flutter
 - `infra/` : tout l'infra-as-code (Terraform, Vault, GKE, etc.)
-- `dev/` : environnement Docker de développement
+- `local/` : environnement Docker de développement
 
 ---
 

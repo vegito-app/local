@@ -1,7 +1,7 @@
 {
   "name": "Go Dev Container",
   "dockerComposeFile": [
-    "../dev/docker-compose.yml",
+    "../local/docker-compose.yml",
     "./docker-compose.yml"
   ],
   "service": "dev",

@@ -26,7 +26,7 @@ endif
 
 export
 
--include dev/dev.mk
+-include local/local.mk
 -include infra/infra.mk 
 -include application/application.mk
 

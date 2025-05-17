@@ -45,7 +45,7 @@ This will launch:
 
 Locally: Vault token or AppRole auto-generated
 
-- Config directory: `dev/vault/`
+- Config directory: `local/vault/`
 - Use `make vault-dev` to start it
 - Vault UI available at: http://127.0.0.1:8200/
 
@@ -63,7 +63,7 @@ The local setup includes Firebase emulators for:
 
 This allows safe local development without touching production Firebase.
 
-- Config lives in: `dev/firebase-emulators/`
+- Config lives in: `local/firebase-emulators/`
 - Launched automatically via: `make firebase-emulators`
 - Emulator UI: http://127.0.0.1:4000/
 
@@ -123,7 +123,7 @@ If running inside DevContainer, connect via VNC at `localhost:5901`. Default res
 - `application/` – Go backend code
 - `mobile/` – Flutter mobile/web app
 - `infra/` – all infra-as-code (Terraform, Vault, GKE, etc.)
-- `dev/` – Docker-based development environment
+- `local/` – Docker-based development environment
 
 ---
 
