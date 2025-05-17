@@ -1,27 +1,3 @@
-GOOGLE_CLOUD_REGION = europe-west1
-
-PROD_GOOGLE_CLOUD_PROJECT_ID = moov-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER = 378762893981
-
-STAGING_GOOGLE_CLOUD_PROJECT_ID = moov-staging-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER = 326118600145
-
-DEV_GOOGLE_CLOUD_PROJECT_ID = moov-dev-439608
-DEV_GOOGLE_CLOUD_PROJECT_NUMBER = 203475703228
-
-ifeq ($(INFRA_ENV),prod)
-GOOGLE_CLOUD_PROJECT_ID = $(PROD_GOOGLE_CLOUD_PROJECT_ID)
-GOOGLE_CLOUD_PROJECT_NUMBER = $(PROD_GOOGLE_CLOUD_PROJECT_NUMBER)
-else ifeq ($(INFRA_ENV),staging)
-GOOGLE_CLOUD_PROJECT_ID =  $(STAGING_GOOGLE_CLOUD_PROJECT_ID)
-GOOGLE_CLOUD_PROJECT_NUMBER = $(STAGING_GOOGLE_CLOUD_PROJECT_NUMBER)
-else ifeq ($(INFRA_ENV),dev)
-GOOGLE_CLOUD_PROJECT_ID = $(DEV_GOOGLE_CLOUD_PROJECT_ID)
-GOOGLE_CLOUD_PROJECT_NUMBER = $(DEV_GOOGLE_CLOUD_PROJECT_NUMBER)
-else
-  $(error Invalid INFRA_ENV: $(INFRA_ENV))
-endif
-
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
 GCLOUD_PROJET_USER_ID ?= ${PROJECT_USER}
@@ -108,7 +84,7 @@ gcloud-auth-default-application-credentials:
 	@$(GCLOUD) auth application-default set-quota-project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-auth-default-application-credentials
 
-ROOT_ADMIN_SERVICE_ACCOUNT = root-admin@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
+ROOT_ADMIN_SERVICE_ACCOUNT = root-admin@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
 gcloud-root-admin-credentials:
 	@GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
@@ -255,11 +231,11 @@ gcloud-docker-registry-temporary-token:
 .PHONY: gcloud-docker-registry-temporary-token
 
 PRODUCTION_ONLY_SERVICE_ACCOUNTS = 	\
-	firebase-adminsdk-mvk7v@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	firebase-adminsdk-mvk7v@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
 	$(ROOT_ADMIN_SERVICE_ACCOUNT) \
-	vault-node-sa@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	vault-sa@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
-	vault-tf-apply@$(PROD_GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com  
+	vault-node-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-sa@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com \
+	vault-tf-apply@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com  
 
 GCLOUD_SERVICE_ACCOUNTS = \
 	$(PRODUCTION_ONLY_SERVICE_ACCOUNTS) \

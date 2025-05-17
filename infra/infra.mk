@@ -1,9 +1,3 @@
-export INFRA_ENV
-
-ifeq ($(INFRA_ENV),)
-INFRA_ENV = dev
-endif
-
 -include infra/gcloud/gcloud.mk
 -include infra/terraform.mk
 -include infra/environments/environments.mk

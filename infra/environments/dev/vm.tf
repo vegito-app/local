@@ -1,45 +1,58 @@
 variable "vm_users" {
-  type = map(string)
-}
-
-variable "developer_vm_machine_type" {
-  type    = string
-  default = "c3-standard-8"
+  type = map(map(string))
 }
 
 data "google_service_account" "developer_service_account" {
   for_each   = var.vm_users
-  account_id = "${each.value}-dev"
-}
-
-variable "dev_vm_disk_type" {
-  type    = string
-  default = "pd-balanced"
-}
-
-locals {
-  dev_vm_zone = "${var.region}-c"
+  account_id = "${each.value.id}-dev"
 }
 
 resource "google_compute_disk" "dev_vm_disk" {
   for_each = var.vm_users
-  name     = "${each.value}-${var.dev_vm_disk_type}"
-  type     = var.dev_vm_disk_type
-  zone     = local.dev_vm_zone
+  name     = "${each.value.id}-${each.value.disk_type}"
+  type     = each.value.disk_type
+  zone     = each.value.zone
   image    = "projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts"
-  size     = 100
+  size     = each.value.disk_size
+}
+
+variable "vm_machine_type_architecture" {
+  type = map(object({
+    cpu_platform = string
+  }))
+  default = {
+    "n2-standard-16" = {
+      cpu_platform = "Intel Cascade Lake"
+    }
+    "c3-standard-8" = {
+      cpu_platform = "Intel Sapphire Rapids"
+    }
+  }
+}
+
+locals {
+  dev_vm_zone = "${var.region}-c"
+  vm_machine_type_architecture = {
+    for machine_type, architecture in var.vm_machine_type_architecture :
+    machine_type => {
+      cpu_platform = architecture.cpu_platform
+    }
+  }
 }
 
 resource "google_compute_instance" "dev_vm" {
   for_each = {
-    for email, user in var.vm_users : user => email
+    for email, user in var.vm_users : user.id => {
+      email        = email
+      machine_type = user.machine_type
+    }
   }
-  name         = "${each.key}-developer-vm-${var.developer_vm_machine_type}"
-  machine_type = var.developer_vm_machine_type
+  name         = "${each.key}-developer-vm-${each.value.machine_type}"
+  machine_type = each.value.machine_type
   advanced_machine_features {
     enable_nested_virtualization = true
   }
-  min_cpu_platform = "Intel Sapphire Rapids" # pour c3
+  min_cpu_platform = local.vm_machine_type_architecture[each.value.machine_type].cpu_platform
   zone             = local.dev_vm_zone
   scheduling {
     preemptible        = false
@@ -47,12 +60,12 @@ resource "google_compute_instance" "dev_vm" {
     provisioning_model = "STANDARD"
   }
   boot_disk {
-    source      = google_compute_disk.dev_vm_disk[each.value].self_link
+    source      = google_compute_disk.dev_vm_disk[each.value.email].self_link
     auto_delete = false
   }
 
   service_account {
-    email  = data.google_service_account.developer_service_account[each.value].email
+    email  = data.google_service_account.developer_service_account[each.value.email].email
     scopes = ["cloud-platform"]
   }
 
@@ -128,7 +141,7 @@ resource "google_compute_instance" "dev_vm" {
 output "dev_vm_ips" {
   value = {
     for email, user in var.vm_users :
-    user => google_compute_instance.dev_vm[user].network_interface[0].access_config[0].nat_ip
+    user.id => google_compute_instance.dev_vm[user.id].network_interface[0].access_config[0].nat_ip
   }
 }
 resource "google_project_iam_member" "ssh_access_using_user_email" {
