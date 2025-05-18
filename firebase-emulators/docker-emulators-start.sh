@@ -17,8 +17,8 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
-make firebase-emulators-install
-make firebase-emulators-start &
+make local-firebase-emulators-install
+make local-firebase-emulators-start &
 bg_pids+=("$!") 
 
 # Need localproxy to forward some required port that could not be 

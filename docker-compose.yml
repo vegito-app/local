@@ -33,7 +33,7 @@ services:
 
       sudo chmod o+rwX -R $${HOST_PWD}/
 
-      [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev -j
+      [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev
 
       sleep infinity
       '
@@ -44,7 +44,7 @@ services:
 
   application-backend:
     restart: unless-stopped
-    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:backend-latest}
+    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:application-backend-latest}
     build:
       context: ..
       dockerfile: application/backend/Dockerfile
@@ -58,6 +58,8 @@ services:
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-moov}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/moov-dev-439608/secrets/firebase-config-web/versions/2}
       UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID:-projects/moov-dev-439608/secrets/google-maps-api-key/versions/1}
+      VAULT_ADDR: http://vault-dev:8200
+      VAULT_TOKEN: root
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     networks:
@@ -104,7 +106,7 @@ services:
     command: |
       bash -c '
       set -eu
-      make clarinet-devnet-start
+      make local-clarinet-devnet-start
       sleep infinity
       '
     networks:
@@ -165,7 +167,7 @@ services:
     command: |
       bash -c '
       set -eu
-      ./dev/backend-application-vault-init.sh
+      ./local/backend-application-vault-init.sh
       sleep infinity
       '
     networks:

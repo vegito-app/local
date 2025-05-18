@@ -224,5 +224,5 @@ ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
-COPY local/entrypoint.sh /usr/local/bin/local-entrypoint.sh
+COPY local/entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "local-entrypoint.sh" ]

@@ -1,14 +1,14 @@
 
 LATEST_BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-latest
 
-DOCKER_COMPOSE = docker compose -f $(CURDIR)/local/docker-compose.yml
+LOCAL_DOCKER_COMPOSE = docker compose -f $(CURDIR)/local/docker-compose.yml
 
-local-install: application-frontend-build application-frontend-bundle backend-install 
-.PHONY: install
+local-application-install: application-frontend-build application-frontend-bundle backend-install 
+.PHONY: local-application-install
 
-local-dev: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)
+local-application-backend-install: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)
 	@$(APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: local-dev
+.PHONY: local-application-backend-install
 
 BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/local/.containers/docker-buildx-cache/local-builder
 $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
@@ -32,70 +32,84 @@ local-builder-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --push builder-ci
 .PHONY: local-builder-image-ci
 
-local-image-pull:
-	@$(DOCKER_COMPOSE) pull dev
-.PHONY: local-image-pull
+local-docker-compose-dev-image-pull:
+	@$(LOCAL_DOCKER_COMPOSE) pull dev
+.PHONY: local-docker-compose-dev-image-pull
 
-local-logs:
-	@$(DOCKER_COMPOSE) logs dev
-.PHONY: local-logs
+local-docker-compose-dev-logs:
+	@$(LOCAL_DOCKER_COMPOSE) logs dev
+.PHONY: local-docker-compose-dev-logs
 
-local-logsf:
-	@$(DOCKER_COMPOSE) logs -f dev
-.PHONY: local-logsf
+local-docker-compose-dev-logs-f:
+	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
+.PHONY: local-docker-compose-dev-logs-f
 
 LOCAL_DOCKER_COMPOSE_SERVICES = \
   android-studio \
-  application-backend \
-  vault \
+  vault-dev \
   firebase-emulators \
-  clarinet-devnet
+  clarinet-devnet \
+  application-backend # Backend last to avoid lockup until all other services are up (when 'make' is run with '-j' parallel option the problem is not present, and it's faster, use it! expl: 'make -j dev' or 'make -j dev-rm' or 'make -j images-pull' etc.)
 
-local-docker-compose: $(LOCAL_DOCKER_COMPOSE_SERVICES)
-.PHONY: local-docker-compose
+local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull) local-docker-compose-dev-image-pull
+.PHONY: local-docker-images-pull
 
-local-docker-compose-rm: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-rm)
-.PHONY: local-docker-compose-rm
+local-docker-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-push) local-builder-image-push
+.PHONY: local-docker-images-push
+
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image): docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print $(@:docker-%-image=%)
+	@$(DOCKER_BUILDX_BAKE) --load $(@:local-%-image=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image)
+
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull):
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:docker-%-image-pull=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull)
+
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-push):
+	@$(DOCKER_BUILDX_BAKE) --print $(@:docker-%-image-push=%)
+	@$(DOCKER_BUILDX_BAKE) --push $(@:docker-%-image-push=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-push)
+
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-ci): docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image-ci=%-ci)
+	@$(DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-ci)
+
+local-docker-compose-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
+.PHONY: local-docker-compose-up
+
+local-docker-compose-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-rm)
+.PHONY: local-docker-compose-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):
-	@$(MAKE) $(@:%=%-docker-compose-up)
+	@$(MAKE) $(@:%=local-%-docker-compose-up)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-rm): 
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-rm): 
 	@$(MAKE) $(@:%-rm=%-stop)
-	@$(DOCKER_COMPOSE) rm -f $(@:%-docker-compose-rm=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-rm))
+	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-docker-compose-rm=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-rm)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-image): docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
-	@$(DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-image)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-start):
+	@-$(LOCAL_DOCKER_COMPOSE) start $(@:local-%-docker-compose-start=%) 2>/dev/null
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-start)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-image-push): docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print $(@:%-image-push=%)
-	@$(DOCKER_BUILDX_BAKE) --push $(@:%-image-push=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-image-push)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-stop):
+	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-docker-compose-stop=%) 2>/dev/null
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-stop)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-image-ci): docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
-	@$(DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-image-ci)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs):
+	@$(LOCAL_DOCKER_COMPOSE) logs $(@:local-%-docker-compose-logs=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-start):
-	@-$(DOCKER_COMPOSE) start $(@:%-docker-compose-start=%) 2>/dev/null
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-start)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs-f):
+	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:local-%-docker-compose-logs-f=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs-f)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-stop):
-	@-$(DOCKER_COMPOSE) stop $(@:%-docker-compose-stop=%) 2>/dev/null
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-stop)
-
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-logs):
-	@$(DOCKER_COMPOSE) logs --follow $(@:%-docker-compose-logs=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-logs)
-
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-sh):
-	@$(DOCKER_COMPOSE) exec -it $(@:%-docker-compose-sh=%) bash
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=%-docker-compose-sh)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-sh):
+	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-docker-compose-sh=%) bash
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-sh)
 
 -include local/android-studio/android-studio.mk
 -include local/clarinet/clarinet.mk
