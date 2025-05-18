@@ -1,3 +1,28 @@
+# This Makefile is used to manage the infrastructure for the project.
+ifeq ($(INFRA_ENV),)
+INFRA_ENV = dev
+endif
+
+ifeq ($(INFRA_ENV),prod)
+
+GOOGLE_CLOUD_PROJECT_ID = $(PROD_GOOGLE_CLOUD_PROJECT_ID)
+GOOGLE_CLOUD_PROJECT_NUMBER = $(PROD_GOOGLE_CLOUD_PROJECT_NUMBER)
+
+else ifeq ($(INFRA_ENV),staging)
+
+GOOGLE_CLOUD_PROJECT_ID = $(STAGING_GOOGLE_CLOUD_PROJECT_ID)
+GOOGLE_CLOUD_PROJECT_NUMBER = $(STAGING_GOOGLE_CLOUD_PROJECT_NUMBER)
+
+else ifeq ($(INFRA_ENV),dev)
+
+GOOGLE_CLOUD_PROJECT_ID = $(DEV_GOOGLE_CLOUD_PROJECT_ID)
+GOOGLE_CLOUD_PROJECT_NUMBER = $(DEV_GOOGLE_CLOUD_PROJECT_NUMBER)
+
+else
+  $(error Invalid INFRA_ENV: $(INFRA_ENV))
+endif
+
+
 -include infra/gcloud/gcloud.mk
 -include infra/terraform.mk
 -include infra/environments/environments.mk

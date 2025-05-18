@@ -44,7 +44,7 @@ socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-fi
 bg_pids+=("$!")
 
 # access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
-socat TCP-LISTEN:8080,fork,reuseaddr TCP:backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
+socat TCP-LISTEN:8080,fork,reuseaddr TCP:application-backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
 bg_pids+=("$!")
 
 # access to backend launched with debugger in container dev using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)

@@ -11,49 +11,49 @@ FIREBASE_EMULATORS = cd $(FIREBASE_EMULATORS_DIR) && firebase
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
 FIREBASE_EMULATORS_SERVICES = auth,functions,firestore
 
-firebase-emulators-prepare: firebase-emulators-install firebase-emulators-init
-.PHONY: firebase-emulators-prepare
+local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
+.PHONY: local-firebase-emulators-prepare
 
-firebase-emulators-install: gcloud-infra-auth-npm-install
+local-firebase-emulators-install: gcloud-infra-auth-npm-install
 	# @cd $(CURDIR)/application/firebase/functions && npm install
-.PHONY: firebase-emulators-install
+.PHONY: local-firebase-emulators-install
 
 gcloud-infra-auth-npm-install:
 	@cd $(CURDIR)/application/firebase/functions/auth && npm install
 .PHONY: gcloud-infra-auth-npm-install
 
-firebase-emulators-init:
+local-firebase-emulators-init:
 	@$(FIREBASE_EMULATORS) init emulators 
-.PHONY: firebase-emulators-init
+.PHONY: local-firebase-emulators-init
 
-firebase-emulators-functions-serve:
+local-firebase-emulators-functions-serve:
 	@cd $(FIREBASE_EMULATORS_DIR)/functions && \
 	unset GOOGLE_APPLICATION_CREDENTIALS && \
 	npm run serve
-.PHONY: firebase-emulators-functions-serve
+.PHONY: local-firebase-emulators-functions-serve
 
 FIREBASE_EMULATORS_DATA := $(CURDIR)/local/firebase-emulators/data
 
-firebase-emulators-start: firebase-emulators-install
+local-firebase-emulators-start: local-firebase-emulators-install
 	@unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
 	  $(FIREBASE_EMULATORS) emulators:start \
 	    --import=$(FIREBASE_EMULATORS_DATA) \
 	    --export-on-exit $(FIREBASE_EMULATORS_DATA) \
 	    --log-verbosity DEBUG \
 	    --only $(FIREBASE_EMULATORS_SERVICES)
-.PHONY: firebase-emulators-start
+.PHONY: local-firebase-emulators-start
 
-firebase-emulators-docker-compose: firebase-emulators-prepare firebase-emulators-docker-compose-up firebase-emulators-docker-compose-logs
-.PHONY: firebase-emulators-docker-compose
+local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-docker-compose-up local-firebase-emulators-docker-compose-logs
+.PHONY: local-firebase-emulators-docker-compose
 
-firebase-emulators-docker-compose-up: firebase-emulators-docker-compose-rm
+local-firebase-emulators-docker-compose-up: local-firebase-emulators-docker-compose-rm
 	@$(CURDIR)/local/firebase-emulators/docker-compose-up.sh &
 	@until nc -z firebase-emulators 4000 ; do \
 		sleep 1 ; \
 	done
-	$(DOCKER_COMPOSE) logs firebase-emulators
+	$(LOCAL_DOCKER_COMPOSE) logs firebase-emulators
 	@echo
 	@echo Started Firebase Emulator: 
 	@echo View Emulator UI at http://127.0.0.1:4000/
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: firebase-emulators-docker-compose-up
+.PHONY: local-firebase-emulators-docker-compose-up

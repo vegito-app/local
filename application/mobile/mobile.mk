@@ -1,6 +1,6 @@
-Psplapplication-mobile-flutter-pub-get:
+application-mobile-flutter-pub-get:
 	@cd $(CURDIR)/application/mobile && flutter pub get
-.PHoNY: application-mobile-flutter-pub-get
+.PHONY: application-mobile-flutter-pub-get
 
 APPLICATION_MOBILE_BUILDS = apk ios
 

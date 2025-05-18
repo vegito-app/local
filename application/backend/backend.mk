@@ -33,7 +33,7 @@ application-backend-install:
 .PHONY: application-backend-install
 
 # Handle buildx cache in local folder
-APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):backend-$(VERSION)
+APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):application-backend-$(VERSION)
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(CURDIR)/local/.containers/docker-buildx-cache/application-backend
 $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
@@ -41,29 +41,14 @@ APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPL
 endif
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-application-backend-docker-compose-up: application-backend-docker-compose-rm
+local-application-backend-docker-compose-up: local-application-backend-docker-compose-rm
 	$(CURDIR)/application/backend/docker-compose-up.sh &
 	until nc -z application-backend 8080 ; do \
 		sleep 1 ; \
 	done
-	@$(DOCKER_COMPOSE) logs application-backend
+	@$(LOCAL_DOCKER_COMPOSE) logs application-backend
 	@echo
 	@echo Started Application Backend: 
 	@echo View UI at http://127.0.0.1:8080/ui
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: application-backend-docker-compose-up
-
-APPLICATION_BACKEND_CONTAINER_NAME = $(GOOGLE_CLOUD_PROJECT_ID)_backend
-application-backend-docker-compose-run: backend-image backend-docker-rm $(GOOGLE_APPLICATION_CREDENTIALS)
-	@docker run \
-	  -p 8080:8080 \
-	  --name $(APPLICATION_BACKEND_CONTAINER_NAME) \
-	  -v $(GOOGLE_APPLICATION_CREDENTIALS):$(GOOGLE_APPLICATION_CREDENTIALS) \
-	  -e GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
-	  $(APPLICATION_BACKEND_IMAGE)
-.PHONY: application-backend-docker-compose-run
-
-# Push application-backend images on each environments
-$(INFRA_ENV:%=application-backend-%-image-push):
-	@INFRA_ENV=$(@:application-backend-%-image-push=%) $(MAKE) application-backend-image-push
-.PHONY: $(INFRA_ENV:%=application-backend-%-image-push)
+.PHONY: local-application-backend-docker-compose-up

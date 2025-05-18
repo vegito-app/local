@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# This script is run on the host as devcontainer 'initializeCommand' (cf. https://containers.dev/implementors/json_reference/#lifecycle-scripts)
+# This script is run on the host as devcontainer 'initializeCommand' 
+# (cf. https://containers.dev/implementors/json_reference/#lifecycle-scripts)
 
 set -eu
 
@@ -8,9 +9,9 @@ trap "echo Exited with code $?." EXIT
 
 # Create default local .env file with minimum required values to start.
 localDotenvFile=${PWD}/local/.env
-# [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
+
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
-PROJECT_USER=david-berichon
+PROJECT_USER=user-name-here
 DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
 BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
 COMPOSE_PROJECT_NAME=moov-dev-local

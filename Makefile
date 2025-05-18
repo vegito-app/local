@@ -6,23 +6,14 @@ endif
 
 GOOGLE_CLOUD_REGION = europe-west1
 
-ifeq ($(INFRA_ENV),)
-INFRA_ENV = dev
-endif
+DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
+DEV_GOOGLE_CLOUD_PROJECT_NUMBER = 203475703228
 
-ifeq ($(INFRA_ENV),prod)
+STAGING_GOOGLE_CLOUD_PROJECT_ID=moov-staging-440506
+STAGING_GOOGLE_CLOUD_PROJECT_NUMBER = 326118600145
 
-GOOGLE_CLOUD_PROJECT_ID = moov-438615
-GOOGLE_CLOUD_PROJECT_NUMBER = 378762893981
-else ifeq ($(INFRA_ENV),staging)
-GOOGLE_CLOUD_PROJECT_ID = moov-staging-440506
-GOOGLE_CLOUD_PROJECT_NUMBER = 326118600145
-else ifeq ($(INFRA_ENV),dev)
-GOOGLE_CLOUD_PROJECT_ID = moov-dev-439608
-GOOGLE_CLOUD_PROJECT_NUMBER = 203475703228
-else
-  $(error Invalid INFRA_ENV: $(INFRA_ENV))
-endif
+PROD_GOOGLE_CLOUD_PROJECT_ID=moov-438615
+PROD_GOOGLE_CLOUD_PROJECT_NUMBER = 378762893981
 
 export
 
@@ -37,8 +28,21 @@ images: docker-images-local-arch
 images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
 
-dev: local-docker-compose
+images-pull: 
+	@$(MAKE) -j local-docker-images-pull
+.PHONY: images-fast-pull
+
+images-push: 
+	@$(MAKE) -j local-docker-images-push
+.PHONY: images-push
+
+dev: 
+	@$(MAKE) -j local-docker-compose-up
 .PHONY: dev
 
-dev-rm: local-docker-compose-rm
+dev-rm: 
+	@$(MAKE) -j local-docker-compose-rm-all
 .PHONY: dev-rm
+
+logs: local-docker-compose-dev-logs-f
+.PHONY: logs
