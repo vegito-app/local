@@ -31,7 +31,7 @@ services:
 
       sudo mkdir -p $${HOST_PWD}/local/.containers
 
-      sudo chmod o+rwX -R $${HOST_PWD}/
+      sudo chmod o+rwX -R $${HOST_PWD}/local/.containers
 
       [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev
 
