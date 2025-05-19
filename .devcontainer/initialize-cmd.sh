@@ -11,7 +11,25 @@ trap "echo Exited with code $?." EXIT
 localDotenvFile=${PWD}/local/.env
 
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
-PROJECT_USER=user-name-here
+# The following variables are used to configure the local development environment.
+# They are used in the docker-compose.yml file and should be set according to your local setup.
+# 
+# * Set PROJECT_USER according to your user_id in the project.
+# This will be be used in the project to refer to your personnal IAM permissions via service accounts.
+# Make sure to set the correct values for your propper personnal credentials usage. 
+# For example, if your user id is "david-berichon", you should set PROJECT_USER=david-berichon.
+# 
+PROJECT_USER=user-id-here
+# 
+# * Set DISPLAY_RESOLUTION to match your screen resolution (e.g. if you are using the GUI from docker compose android-studio container).
+#
+# DISPLAY_RESOLUTION=680x1440
+#
+# After settinng up the file, you have to rebuild the dev container if you are running in it.
+# You can set MAKE_DEV_ON_START=false to restart only the 'dev' container (skip 'make dev' in container dev docker-compose command).
+#
+MAKE_DEV_ON_START=true
+# 
 DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
 BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
 COMPOSE_PROJECT_NAME=moov-dev-local
@@ -21,8 +39,10 @@ FIREBASE_DATABASE_EMULATOR_HOST=http://firebase-emulators:9199
 FIREBASE_FUNCTIONS_EMULATOR_HOST=http://firebase-emulators:5001
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 FIRESTORE_EMULATOR_HOST=firebase-emulators:8090
-UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/3
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/1
+UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
+VAULT_ADDR=http://vault-dev:8200
+VAULT_DEV_ROOT_TOKEN_ID=root
 EOF
 
 # Vscode
@@ -153,6 +173,7 @@ cat <<'EOF' > $mobileLaunchDebug
     "version": "0.2.0",
     "configurations": [
         {
+            "args": [ "--dart-define=BACKEND_URL=http://localhost:8888" ],
             "name": "mobile",
             "request": "launch",
             "type": "dart"
@@ -165,6 +186,7 @@ cat <<'EOF' > $mobileLaunchDebug
             "flutterMode": "profile"
         },
         {
+            "args": [ "--dart-define=BACKEND_URL=http://localhost:8888" ],
             "name": "mobile (release mode)",
             "request": "launch",
             "type": "dart",
