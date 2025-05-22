@@ -14,6 +14,46 @@ Bienvenue à bord ! Ce projet propose un service de déplacement basé sur des v
 
 ## ⚙️ Comment démarrer localement
 
+## 🧭 Architecture et séquence de démarrage
+
+Voici une représentation graphique de l’architecture du conteneur `dev` :
+
+```mermaid
+graph TD
+  A[dev container] --> B[firebase-emulators]
+  A --> C[clarinet-devnet]
+  A --> D[application-backend]
+  A --> E[android-studio]
+  A --> F[vault-dev]
+```
+
+Seul le conteneur `dev` est démarré explicitement via `make dev`.  
+Il exécute ensuite des sous-commandes `make` pour démarrer les autres conteneurs.
+
+Diagramme de séquence UML correspondant :
+
+```mermaid
+sequenceDiagram
+  participant Hôte
+  participant DevContainer as dev
+  participant Firebase
+  participant Clarinet
+  participant Backend
+  participant AndroidStudio
+  participant Vault
+
+  Hôte->>dev: make dev
+  activate dev
+  dev->>Firebase: make firebase-emulators
+  dev->>Clarinet: make local-clarinet-devnet-start
+  dev->>Backend: make dev-backend
+  dev->>AndroidStudio: make dev-android-studio (optionnel)
+  dev->>Vault: make vault-dev
+  deactivate dev
+```
+
+> ℹ️ Les commandes `make` sont parallélisées avec `-j` pour un démarrage plus rapide.
+
 > 💡 Pré-requis : Docker, Git, un token GCP (`GOOGLE_APPLICATION_CREDENTIALS`), et `make`.
 
 ### 1. Cloner le projet

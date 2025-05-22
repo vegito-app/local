@@ -31,13 +31,64 @@ cd refactored-winner
 make dev
 ```
 
-This will launch:
+This will start the main `dev` container, which automatically launches:
 
 - Vault (dev mode)
 - Firebase emulators
 - Clarinet (for Stacks smart contracts)
 - Local Go backend
 - Android Studio (optional)
+
+> ℹ️ The `dev` container acts as a bootstrapper. When it starts, it runs `make dev` internally to orchestrate the other containers.  
+> To prevent auto-launch of all services when rebuilding `dev`, set `MAKE_DEV_ON_START=false` in `local/.env`.
+
+This design supports modularity and maintainability by isolating the orchestration logic.  
+It is compatible with GitHub Codespaces and local DevContainer usage.  
+Only the `dev` container is started explicitly—others are brought up as part of its internal startup logic.
+You can also call `make dev` again inside the container `dev` itself or from the host to restart the containers.
+
+---
+
+
+## 🧭 Architecture et séquence de démarrage
+
+Voici une représentation graphique de l’architecture du conteneur `dev` :
+
+```mermaid
+graph TD
+  A[dev container] --> B[firebase-emulators]
+  A --> C[clarinet-devnet]
+  A --> D[application-backend]
+  A --> E[android-studio]
+  A --> F[vault-dev]
+```
+
+Cette architecture montre que seul le conteneur `dev` est explicitement démarré par `make dev`.  
+Les autres sont démarrés automatiquement via des sous-commandes `make` à l'intérieur du conteneur `dev`.
+
+Et voici un diagramme de séquence UML correspondant :
+
+```mermaid
+sequenceDiagram
+  participant Host
+  participant DevContainer as dev
+  participant Firebase
+  participant Clarinet
+  participant Backend
+  participant AndroidStudio
+  participant Vault
+
+  Host->>dev: make dev
+  activate dev
+  dev->>Firebase: make firebase-emulators
+  dev->>Clarinet: make local-clarinet-devnet-start
+  dev->>Backend: make dev-backend
+  dev->>AndroidStudio: make dev-android-studio (optionnel)
+  dev->>Vault: make vault-dev
+  deactivate dev
+```
+
+> ℹ️ Les commandes `make` internes sont parallélisées grâce au flag `-j`, améliorant la rapidité de démarrage.
 
 ---
 
