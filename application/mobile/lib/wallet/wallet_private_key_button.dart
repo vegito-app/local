@@ -18,7 +18,6 @@ class _ShowPrivateKeyButtonState extends State<ShowPrivateKeyButton> {
   final LocalAuthentication auth = LocalAuthentication();
 
   Future<bool> _authenticateBiometric() async {
-    // Désactiver la biométrie dans l'émulateur ou en mode debug
     const bool disableBiometric = kDebugMode ||
         !bool.fromEnvironment("USE_BIOMETRIC", defaultValue: true);
 
@@ -108,38 +107,46 @@ class _ShowPrivateKeyButtonState extends State<ShowPrivateKeyButton> {
     if (mounted) {
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text("Clé privée sécurisée"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_privateKey == null) const CircularProgressIndicator(),
-              if (_privateKey != null)
-                Text(
-                  _revealed ? _privateKey! : _obscureKey(_privateKey!),
-                  style: const TextStyle(fontFamily: 'monospace'),
-                ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (!_revealed)
-                    TextButton(
-                      onPressed: _revealTemporarily,
-                      child: const Text("Révéler 10s"),
-                    ),
-                  TextButton(
-                    onPressed: () {
-                      _copyToClipboard(context);
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Copier"),
+        barrierDismissible: false,
+        builder: (_) {
+          Future.delayed(const Duration(seconds: 10), () {
+            if (Navigator.canPop(context)) Navigator.pop(context);
+            // Effacer la variable pour sécurité mémoire
+            _privateKey = '';
+          });
+          return AlertDialog(
+            title: const Text("Clé privée sécurisée"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_privateKey == null) const CircularProgressIndicator(),
+                if (_privateKey != null)
+                  Text(
+                    _revealed ? _privateKey! : _obscureKey(_privateKey!),
+                    style: const TextStyle(fontFamily: 'monospace'),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (!_revealed)
+                      TextButton(
+                        onPressed: _revealTemporarily,
+                        child: const Text("Révéler 10s"),
+                      ),
+                    TextButton(
+                      onPressed: () {
+                        _copyToClipboard(context);
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Copier"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       );
     }
   }

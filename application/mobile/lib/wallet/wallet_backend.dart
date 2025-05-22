@@ -44,8 +44,9 @@ Future<String?> getRecoveryKeyVersion(String userId) async {
 // Mise en place de la clé de récupération et recoveryKey
 Future<String> postRecoveryKey(String recoveryKey) async {
   // Envoyer recoveryKey au backend pour stockage sécurisé
+  const backendUrl = Config.backendUrl;
   final response = await http.post(
-    Uri.parse("${Config.backendUrl}/user/store-recoverykey"),
+    Uri.parse("${backendUrl}/user/store-recoverykey"),
     headers: {"Content-Type": "application/json"},
     body: jsonEncode({
       "userId": FirebaseAuth.instance.currentUser?.uid,

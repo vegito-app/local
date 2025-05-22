@@ -85,8 +85,7 @@ Future<String> generateRecoveryKey(String userId) async {
     return "Appareil compromis, accès refusé.";
   }
 
-  var wif = await WalletStorage
-      .getPrivateKey(); // Toujours retourner la clé existante ou nouvellement créée
+  var wif = await WalletStorage.getPrivateKey();
 
   if (wif == null) {
     throw Exception("Le compte n'a aucune clé privé");
