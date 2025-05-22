@@ -26,12 +26,14 @@ services:
     command: |
       bash -c '
 
+      set -eu
+
       # Ensure docker socket permissions
       make docker-sock
 
       sudo mkdir -p $${HOST_PWD}/local/.containers
 
-      sudo chmod o+rwX -R $${HOST_PWD}/local/.containers
+      # sudo chmod o+rwX -R $${HOST_PWD}/local/.containers
 
       [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev
 
@@ -144,7 +146,33 @@ services:
       dev:
     command: |
       bash -c '
+
+      set -eux
+
+      echo "Lancement de l'\''émulateur via Android Studio..."
       studio &
+
+      echo "Démarrage du serveur adb si absent..."
+      if ! pgrep -x "adb" >/dev/null; then
+        adb start-server
+      fi
+
+      sudo bash -c "curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+          apt-get install -y nodejs && \
+          npm install -g appium"
+
+      sudo apt-get update
+      sudo apt-get install -y netcat-openbsd 
+
+      echo "Attente de l'\''ouverture du port de l'\''émulateur (5037)..."
+      until nc -z localhost 5037; do
+        echo "En attente que l'\''émulateur Android soit prêt..."
+        sleep 2
+      done
+
+      echo "Lancement du serveur Appium..."
+      appium --address 0.0.0.0 --port 4723 &
+
       sleep infinity
       '
   vault-dev:
@@ -172,3 +200,22 @@ services:
       '
     networks:
       dev:
+
+  application-tests:
+    container_name: application-tests
+    image: ${VAULT_DEV_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/moov-dev-439608:application-tests-latest}
+    env_file:
+      - .env
+    volumes:
+      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+    networks:
+      dev:
+    working_dir: ${PWD:-/workspaces/refactored-winner/application/tests}
+    tty: true
+    command: |
+      bash -c '
+      set -eu
+      echo "[application-tests] Ready to run Robot Framework tests."
+      ./application/tests/check_env.sh
+      sleep infinity
+      '

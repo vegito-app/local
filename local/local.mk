@@ -49,7 +49,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES = \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-backend # Backend last to avoid lockup until all other services are up (when 'make' is run with '-j' parallel option the problem is not present, and it's faster, use it! expl: 'make -j dev' or 'make -j dev-rm' or 'make -j images-pull' etc.)
+  application-backend \
+  application-tests
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull) local-docker-compose-dev-image-pull
 .PHONY: local-docker-images-pull
@@ -57,19 +58,19 @@ local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull)
 local-docker-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-push) local-builder-image-push
 .PHONY: local-docker-images-push
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image): docker-buildx-setup
-	@$(DOCKER_BUILDX_BAKE) --print $(@:docker-%-image=%)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image): docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image=%)
 	@$(DOCKER_BUILDX_BAKE) --load $(@:local-%-image=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull):
-	@$(LOCAL_DOCKER_COMPOSE) pull $(@:docker-%-image-pull=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-pull)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-push):
-	@$(DOCKER_BUILDX_BAKE) --print $(@:docker-%-image-push=%)
-	@$(DOCKER_BUILDX_BAKE) --push $(@:docker-%-image-push=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=docker-%-image-push)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push):
+	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image-push=%)
+	@$(DOCKER_BUILDX_BAKE) --push $(@:local-%-image-push=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-ci): docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image-ci=%-ci)

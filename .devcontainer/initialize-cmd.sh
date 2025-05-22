@@ -14,6 +14,8 @@ localDotenvFile=${PWD}/local/.env
 # The following variables are used to configure the local development environment.
 # They are used in the docker-compose.yml file and should be set according to your local setup.
 # 
+DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
+# 
 # * Set PROJECT_USER according to your user_id in the project.
 # This will be be used in the project to refer to your personnal IAM permissions via service accounts.
 # Make sure to set the correct values for your propper personnal credentials usage. 
@@ -30,13 +32,13 @@ PROJECT_USER=user-id-here
 #
 MAKE_DEV_ON_START=true
 # 
-DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
+ANDROID_HOST=android-studio
+APPLICATION_BACKEND_URL=http://application-backend:8080
 BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
+CLARINET_RPC=http://clarinet-devnet:20443
 COMPOSE_PROJECT_NAME=moov-dev-local
-FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/1
-FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
-FIREBASE_DATABASE_EMULATOR_HOST=http://firebase-emulators:9199
-FIREBASE_FUNCTIONS_EMULATOR_HOST=http://firebase-emulators:5001
+FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
+FIREBASE_EMULATORS_HOST=firebase-emulators
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 FIRESTORE_EMULATOR_HOST=firebase-emulators:8090
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
@@ -173,27 +175,15 @@ cat <<'EOF' > $mobileLaunchDebug
     "version": "0.2.0",
     "configurations": [
         {
-            "args": [ "--dart-define=BACKEND_URL=http://localhost:8888" ],
-            "name": "mobile",
+            "name": "debug",
             "request": "launch",
+            "args": [ "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888" ],
+            "program": "lib/main.dart",
             "type": "dart"
         },
-        {
-            "args": [ "--dart-define=BACKEND_URL=http://localhost:8888" ],
-            "name": "mobile (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "args": [ "--dart-define=BACKEND_URL=http://localhost:8888" ],
-            "name": "mobile (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
     ]
 }
+
 EOF
 fi
 

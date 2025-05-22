@@ -3,3 +3,4 @@
 -include application/frontend/frontend.mk
 -include application/backend/backend.mk
 -include application/mobile/mobile.mk
+-include application/tests/tests.mk

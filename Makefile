@@ -46,3 +46,6 @@ dev-rm:
 
 logs: local-docker-compose-dev-logs-f
 .PHONY: logs
+
+tests-all: application-tests-all
+.PHONY: tests-all

@@ -8,6 +8,7 @@ IMAGES_BASE = $(REPOSITORY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
 DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f application/backend/docker-bake.hcl \
+	-f application/tests/docker-bake.hcl \
 	-f docker/docker-bake.hcl \
 	-f local/android-studio/docker-bake.hcl \
 	-f local/clarinet/docker-bake.hcl \
