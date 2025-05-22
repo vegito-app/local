@@ -17,8 +17,14 @@ $(INFRA_ENVIRONMENTS:%=infra-deploy-%):
 INFRA_FIREBASE_IOS_CONFIG_PLIST = $(CURDIR)/infra/environments/$(INFRA_ENV)/GoogleService-Info.plist
 INFRA_FIREBASE_ANDROID_CONFIG_JSON = $(CURDIR)/infra/environments/$(INFRA_ENV)/google-services.json
 
+$(INFRA_FIREBASE_IOS_CONFIG_PLIST):
+	@$(MAKE) firebase-ios-config-plist
+
 firebase-ios-config-plist: terraform-output-firebase-ios-config-plist
 .PHONY: firebase-ios-config-plist
+
+$(INFRA_FIREBASE_ANDROID_CONFIG_JSON):
+	@$(MAKE) firebase-android-config-json
 
 firebase-android-config-json: terraform-output-firebase-android-config-json
 .PHONY: firebase-android-config-json
