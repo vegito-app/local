@@ -1,44 +1,39 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:car2go/auth/auth_provider.dart';
+import 'package:car2go/cart/cart_provider.dart';
+import 'package:car2go/config/routes.dart';
+import 'package:car2go/firebase_service.dart';
+import 'package:car2go/vegetable_gallery/vegetable_gallery_screen.dart';
+import 'package:car2go/order/consumer_order_screen.dart';
+import 'package:car2go/order/order_screen.dart';
+import 'package:car2go/vegetable_upload/vegetable_upload_provider.dart';
 import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 import 'account/account_page.dart';
-import 'auth_guard.dart';
+import 'auth/auth_guard.dart';
 import 'config.dart';
-import 'firebase_config.dart';
 import 'home_page/home_page.dart';
+import 'wallet/wallet_provider.dart';
 import 'wallet/wallet_screen.dart';
-
-Future<void> signInWithFirebase() async {
-  try {
-    if (!kReleaseMode) {
-      await FirebaseAuth.instance.useAuthEmulator('firebase-emulators', 9099);
-    }
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      await FirebaseAuth.instance.signInAnonymously();
-    }
-  } catch (e) {
-    debugPrint('Erreur de connexion Firebase : $e');
-  }
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  FirebaseConfigService configService = FirebaseConfigService();
-  var backendUrl = Config.backendUrl;
-  FirebaseOptions options =
-      await configService.getConfig('$backendUrl/ui/config/firebase');
-
-  await Firebase.initializeApp(options: options);
-
-  await signInWithFirebase();
-
-  runApp(const MyApp());
+  await FirebaseService.init(backendUrl: Config.backendUrl);
+  await initNotifications();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => WalletProvider()),
+        ChangeNotifierProvider(create: (_) => VegetableUploadProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        // Ajoute ici tous tes autres providers si besoin
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -64,8 +59,14 @@ class MyApp extends StatelessWidget {
         child: HomePage(),
       ),
       routes: {
-        '/wallet': (context) => const AuthGuard(child: WalletScreen()),
-        '/account': (context) => const AuthGuard(child: AccountPage()),
+        AppRoutes.wallet: (context) => const AuthGuard(child: WalletScreen()),
+        AppRoutes.account: (context) => const AuthGuard(child: AccountPage()),
+        AppRoutes.planteurGallery: (context) =>
+            const AuthGuard(child: VegetableGalleryScreen()),
+        AppRoutes.planteurOrders: (context) =>
+            const AuthGuard(child: OrderScreen()),
+        AppRoutes.clientOrders: (context) =>
+            const AuthGuard(child: ConsumerOrderScreen()),
       },
     );
   }

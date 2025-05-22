@@ -13,9 +13,6 @@ Future<void> signInWithGoogle() async {
     idToken: googleAuth.idToken,
   );
 
-  if (!kReleaseMode) {
-    await FirebaseAuth.instance.useAuthEmulator('firebase-emulators', 9099);
-  }
   final user = FirebaseAuth.instance.currentUser;
   if (user != null && user.isAnonymous) {
     await user.linkWithCredential(credential); // Upgrade compte anonyme

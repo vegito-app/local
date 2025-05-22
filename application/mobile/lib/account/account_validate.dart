@@ -1,5 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:car2go/wallet/wallet_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../auth/auth_provider.dart';
 
 class AccountValidate extends StatefulWidget {
   const AccountValidate({super.key});
@@ -11,33 +13,19 @@ class AccountValidate extends StatefulWidget {
 class _AccountValidateState extends State<AccountValidate>
     with SingleTickerProviderStateMixin {
   Future<void> _loadWallet() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("Utilisateur non authentifié");
-      }
-      return;
-    } catch (e) {
-      setState(() {});
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    if (user == null) throw Exception("Utilisateur non authentifié");
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    await walletProvider.refresh(user.uid);
+    final wallet = walletProvider.wallet;
+    if (wallet!.isCompromised) {
+      throw Exception("Accès compromis détecté.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null && user.isAnonymous) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Compte temporaire : enregistrez votre clé sinon vos fonds pourraient être perdus !",
-            ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
-    });
     return Column(
       children: [
         const SizedBox(height: 10),

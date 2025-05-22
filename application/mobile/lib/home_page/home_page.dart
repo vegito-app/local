@@ -1,8 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import 'package:car2go/wallet/wallet_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../auth/auth_provider.dart';
 import '../home_page/home_page_actions.dart';
+// ignore: unused_import
 import '../wallet/wallet_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -39,28 +41,26 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _loadWallet() async {
-    try {
-      if (!kReleaseMode) {
-        await FirebaseAuth.instance.useAuthEmulator('firebase-emulators', 9099);
-      }
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User not authenticated')),
-          );
-        });
-        return;
-      }
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Utilisateur non authentifié')),
+        );
+      });
+      return;
+    }
 
-      final _ = await getPrivateKeyWIF();
+    try {
+      final _ = Provider.of<WalletProvider>(context, listen: false).wallet;
     } catch (e) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load wallet: $e')),
+          SnackBar(content: Text('Échec du chargement du wallet : $e')),
         );
       });
-    } finally {}
+    }
   }
 
   @override
