@@ -1,9 +1,14 @@
+# Install Appium globally (requires Node.js)
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
+    bash-completion \
     curl \
     git \
     htop \
+    gnupg \
+    jq \
+    netcat-openbsd \
     make \
     rsync \
     socat \
@@ -29,6 +34,11 @@ RUN apt-get update && apt-get install -y \
     libpulse0 \
     libasound2 \
     && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g appium
 
 ARG TARGETPLATFORM
 
