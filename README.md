@@ -31,42 +31,48 @@ cd refactored-winner
 make dev
 ```
 
-This will start the main `dev` container, which automatically launches:
+This will either:
 
-- Vault (dev mode)
-- Firebase emulators
-- Clarinet (for Stacks smart contracts)
-- Local Go backend
-- Android Studio (optional)
+- Start the main `dev` container which will **automatically** run `make dev` **unless** `MAKE_DEV_ON_START=false` is set in `local/.env`.
+- Or run `make dev` directly from the host, which transparently invokes the same orchestration logic in the same environment as the container.
 
-> ℹ️ The `dev` container acts as a bootstrapper. When it starts, it runs `make dev` internally to orchestrate the other containers.  
-> To prevent auto-launch of all services when rebuilding `dev`, set `MAKE_DEV_ON_START=false` in `local/.env`.
+🧰 The `dev` container is the project's main toolbox. It contains Docker CLI, `make`, `gcloud`, and other dev tools, and shares its filesystem with the host. You can develop locally with or without Codespaces—your experience remains consistent.
 
-This design supports modularity and maintainability by isolating the orchestration logic.  
-It is compatible with GitHub Codespaces and local DevContainer usage.  
-Only the `dev` container is started explicitly—others are brought up as part of its internal startup logic.
-You can also call `make dev` again inside the container `dev` itself or from the host to restart the containers.
-
----
-
-
-## 🧭 Architecture et séquence de démarrage
-
-Voici une représentation graphique de l’architecture du conteneur `dev` :
+Here's a simplified view of the local architecture:
 
 ```mermaid
 graph TD
-  A[dev container] --> B[firebase-emulators]
-  A --> C[clarinet-devnet]
-  A --> D[application-backend]
-  A --> E[android-studio]
-  A --> F[vault-dev]
+  Host[Host with Docker] -->|mount volume| Dev[Dev container]
+  Dev --> Firebase[firebase-emulators]
+  Dev --> Clarinet[clarinet-devnet]
+  Dev --> Backend[application-backend]
+  Dev --> AndroidStudio[android-studio]
+  Dev --> Vault[vault-dev]
+  Dev --> Tests[application-tests-e2e]
 ```
 
-Cette architecture montre que seul le conteneur `dev` est explicitement démarré par `make dev`.  
-Les autres sont démarrés automatiquement via des sous-commandes `make` à l'intérieur du conteneur `dev`.
+### 🛠️ Additional details about the local environment
 
-Et voici un diagramme de séquence UML correspondant :
+The `dev` container is the main entry point for any developer. It is assumed to be launched automatically (via Codespaces or Devcontainer) and provides a unified dev experience. **It is never started or destroyed by any `Makefile`**.
+
+Once inside the `dev` container, you can:
+
+- launch any service individually:
+  ```bash
+  make firebase-emulators
+  make application-backend
+  make vault-dev
+  make android-studio
+  ```
+- or run:
+  ```bash
+  make dev
+  ```
+  This simply chains the individual service targets in a defined order.
+
+> 💡 `make dev` never creates or removes the `dev` container itself. It is always meant to be run **inside** the container, not from the host.
+
+And the corresponding sequence diagram:
 
 ```mermaid
 sequenceDiagram
@@ -77,20 +83,19 @@ sequenceDiagram
   participant Backend
   participant AndroidStudio
   participant Vault
+  participant E2E Tests
 
-  Host->>dev: make dev
+  Host->>dev: start dev container
   activate dev
+  dev->>dev: [optional] MAKE_DEV_ON_START ? make dev : interactive shell
   dev->>Firebase: make firebase-emulators
-  dev->>Clarinet: make local-clarinet-devnet-start
-  dev->>Backend: make dev-backend
-  dev->>AndroidStudio: make dev-android-studio (optionnel)
+  dev->>Clarinet: make clarinet-devnet
+  dev->>Backend: make application-backend
+  dev->>AndroidStudio: make android-studio (optional)
   dev->>Vault: make vault-dev
+  dev->>E2E Tests: make application-tests
   deactivate dev
 ```
-
-> ℹ️ Les commandes `make` internes sont parallélisées grâce au flag `-j`, améliorant la rapidité de démarrage.
-
----
 
 ## 🔐 Vault Authentication
 
@@ -140,10 +145,10 @@ This orchestrates:
 
 | Action                        | Command                                              |
 | ----------------------------- | ---------------------------------------------------- |
-| Show backend logs             | `make dev-logsf`                                     |
-| Rebuild Docker builder images | `make dev-builder-image`                             |
+| Show dev container logs       | `make logsf`                                         |
+| Rebuild Docker builder images | `make local-builder-image`                           |
 | Apply production Terraform    | `make production-vault-terraform-apply-auto-approve` |
-| Restart Vault in dev mode     | `make dev-vault-dev-docker-compose-up`               |
+| Restart Vault in dev mode     | `make vault-dev`                                     |
 
 ---
 
@@ -160,7 +165,7 @@ The local dev environment provides a full-featured Android Studio setup inside a
 Launch it via:
 
 ```bash
-make dev-android-studio
+make android-studio
 ```
 
 > Runs on both `linux/amd64` and `linux/arm64`. The Android emulator is available only on `amd64`.

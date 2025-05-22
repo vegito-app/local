@@ -14,41 +14,68 @@ Bienvenue à bord ! Ce projet propose un service de déplacement basé sur des v
 
 ## ⚙️ Comment démarrer localement
 
-## 🧭 Architecture et séquence de démarrage
+Le conteneur `dev` est la boîte à outils principale du projet. Il embarque tous les outils nécessaires (CLI Docker, make, gcloud, etc.) et partage son système de fichiers avec le host.
 
-Voici une représentation graphique de l’architecture du conteneur `dev` :
+Par défaut, ce conteneur exécute automatiquement `make dev` à son démarrage, **sauf si** la variable d’environnement `MAKE_DEV_ON_START=false` est définie (utile en cas de débogage).
+
+Il est également possible de lancer `make dev` directement depuis le host : cela exécutera exactement la même séquence de commandes dans le même environnement, de façon transparente.
+
+Voici une représentation simplifiée de l’architecture locale :
 
 ```mermaid
 graph TD
-  A[dev container] --> B[firebase-emulators]
-  A --> C[clarinet-devnet]
-  A --> D[application-backend]
-  A --> E[android-studio]
-  A --> F[vault-dev]
+  Host[Host with Docker] -->|mount volume| Dev[Dev container]
+  Dev --> Firebase[firebase-emulators]
+  Dev --> Clarinet[clarinet-devnet]
+  Dev --> Backend[application-backend]
+  Dev --> AndroidStudio[android-studio]
+  Dev --> Vault[vault-dev]
+  Dev --> Tests[application-tests-e2e]
 ```
 
-Seul le conteneur `dev` est démarré explicitement via `make dev`.  
-Il exécute ensuite des sous-commandes `make` pour démarrer les autres conteneurs.
+### 🛠️ Détails supplémentaires sur l’environnement local
 
-Diagramme de séquence UML correspondant :
+Le conteneur `dev` est le point d’entrée principal de tout développeur. Il est supposé être lancé automatiquement (via Codespaces ou Devcontainer) et fournir une expérience de développement unifiée. **Il n’est jamais lancé ou détruit par les `Makefile`**.
+
+Une fois dans le conteneur `dev`, tu peux :
+
+- lancer individuellement n’importe quel service avec :
+  ```bash
+  make firebase-emulators
+  make application-backend
+  make vault-dev
+  make android-studio
+  ```
+- ou utiliser :
+  ```bash
+  make dev
+  ```
+  Ce qui ne fait que chaîner les commandes ci-dessus dans un ordre défini.
+
+> 💡 `make dev` n’a jamais pour effet de recréer ou supprimer le conteneur `dev` lui-même. Il est toujours supposé être lancé **à l’intérieur** du conteneur, pas depuis le host.
+
+And the corresponding sequence diagram:
 
 ```mermaid
 sequenceDiagram
-  participant Hôte
+  participant Host
   participant DevContainer as dev
   participant Firebase
   participant Clarinet
   participant Backend
   participant AndroidStudio
   participant Vault
+  participant E2E Tests
 
-  Hôte->>dev: make dev
+  Host->>dev: start dev container
   activate dev
+  dev->>dev: [optional] MAKE_DEV_ON_START ? make dev : interactive shell
   dev->>Firebase: make firebase-emulators
-  dev->>Clarinet: make local-clarinet-devnet-start
-  dev->>Backend: make dev-backend
-  dev->>AndroidStudio: make dev-android-studio (optionnel)
+  dev->>Clarinet: make clarinet-devnet
+  dev->>Backend: make application-backend
+  dev->>AndroidStudio: make android-studio (optional)
   dev->>Vault: make vault-dev
+  dev->>E2E Tests: make application-tests
   deactivate dev
 ```
 
@@ -125,6 +152,8 @@ Lancer avec :
 make dev-android-studio
 ```
 
+bierner.markdown-mermaid
+
 > Fonctionne sur `linux/amd64` et `linux/arm64`. L’émulateur Android est uniquement disponible sur `amd64`.
 
 Si lancé dans le DevContainer, se connecter via VNC à `localhost:5901`. Résolution par défaut : 1440x900.
@@ -145,12 +174,12 @@ Ce `make` orchestre :
 
 ## 🧪 Quelques commandes utiles
 
-| Action                          | Commande                                             |
-| ------------------------------- | ---------------------------------------------------- |
-| Lancer les logs backend         | `make dev-logsf`                                     |
-| Rebuilder les images Docker     | `make dev-builder-image`                             |
-| Appliquer la prod via Terraform | `make production-vault-terraform-apply-auto-approve` |
-| Redémarrer Vault en local       | `make dev-vault-dev-docker-compose-up`               |
+| Action                           | Commande                                             |
+| -------------------------------- | ---------------------------------------------------- |
+| Lancer les logs du container dev | `make logsf`                                         |
+| Rebuilder les images Docker      | `make local-builder-image`                           |
+| Appliquer la prod via Terraform  | `make production-vault-terraform-apply-auto-approve` |
+| Redémarrer Vault en local        | `make vault-dev`                                     |
 
 ---
 
