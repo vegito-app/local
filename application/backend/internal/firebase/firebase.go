@@ -2,8 +2,11 @@ package firebase
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -21,13 +24,14 @@ const appCreationTimeoutConfig = "new_application_timeout"
 
 func init() {
 	config.AutomaticEnv()
-	config.SetEnvPrefix("utrade_firebase")
+	config.SetEnvPrefix("firebase")
 	config.SetDefault(appCreationTimeoutConfig, 1*time.Minute)
 }
 
 type Client struct {
-	firestore   *firestore.Client
-	firebaseApp *firebase.App
+	*VegetableStorage
+	firestore *firestore.Client
+	app       *firebase.App
 }
 
 func NewClient(opts ...option.ClientOption) (*Client, error) {
@@ -45,9 +49,13 @@ func NewClient(opts ...option.ClientOption) (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("firebase failed to create client: %w", err)
 	}
+	vegetableStorage := &VegetableStorage{
+		firestore: firestore,
+	}
 	return &Client{
-		firebaseApp: app,
-		firestore:   firestore,
+		VegetableStorage: vegetableStorage,
+		app:              app,
+		firestore:        firestore,
 	}, nil
 }
 
@@ -178,4 +186,44 @@ func (f *Client) DeleteOldRecoveryKeyVersions(userID string, keepLatestN int) er
 		}
 	}
 	return nil
+}
+
+func (f *Client) VerifyIDToken(ctx context.Context, idToken string) (string, error) {
+	// Bypass verification if using Auth Emulator
+	if f.app.UseAuthEmulator {
+		// decode payload part of the JWT to extract user ID (mock)
+		parts := strings.Split(idToken, ".")
+		if len(parts) != 3 {
+			return "", fmt.Errorf("invalid mock token structure")
+		}
+		payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+		if err != nil {
+			return "", fmt.Errorf("invalid mock token payload: %w", err)
+		}
+		var data struct {
+			UserID string `json:"user_id"`
+			Sub    string `json:"sub"`
+		}
+		if err := json.Unmarshal(payload, &data); err != nil {
+			return "", fmt.Errorf("unmarshal payload: %w", err)
+		}
+		if data.Sub != "" {
+			return data.Sub, nil
+		}
+		if data.UserID != "" {
+			return data.UserID, nil
+		}
+		return "", fmt.Errorf("no user id found in mock token")
+	}
+
+	// Normal production verification
+	authClient, err := f.app.NewAuthClient(ctx)
+	if err != nil {
+		return "", fmt.Errorf("getting auth client: %w", err)
+	}
+	token, err := authClient.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		return "", fmt.Errorf("invalid token: %w", err)
+	}
+	return token.UID, nil
 }

@@ -1,15 +1,14 @@
 package v1
 
 import (
-	"encoding/json"
-	"errors"
+	"context"
 	"fmt"
-	"net/http"
+	nethttp "net/http"
 
 	"github.com/7d4b9/utrade/backend/btc"
+	"github.com/7d4b9/utrade/backend/internal/http"
 	"github.com/7d4b9/utrade/backend/internal/http/ui"
 	uiconfig "github.com/7d4b9/utrade/backend/internal/http/ui/config"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -26,151 +25,113 @@ func init() {
 
 // Service defines all routes handled by Service
 type Service struct {
-	http.Handler
-	vault Vault
+	nethttp.Handler
+	rks RecoveryKeyService
+	vgs VegetableService
+
+	fbAuth FirebaseAuth
 }
 
 type Firebase interface {
+	FirebaseAuth
+	VegetableStorage
+}
+
+type FirebaseAuth interface {
+	VerifyIDToken(ctx context.Context, idToken string) (string, error)
 }
 
 var (
 	ErrRecoveryKeyNotFound = fmt.Errorf("recovery key not found")
 )
 
-type Vault interface {
-	// StoreUserRecoveryKey stores a user's recovery key in the vault.
-	// Returns an error if the storage fails (500).
-	StoreUserRecoveryKey(userID string, recoveryKey []byte) error
-
-	// RetrieveUserRecoveryKey retrieves a user's recovery key.
-	// Returns (nil, ErrRecoveryKeyNotFound) if the key does not exist (404).
-	RetrieveUserRecoveryKey(userID string) ([]byte, error)
-
-	// GetUserRecoveryKeyVersion returns the latest version of the user's recovery key.
-	// Returns (0, ErrRecoveryKeyNotFound) if not found (404).
-	GetUserRecoveryKeyVersion(userID string) (int, error)
-
-	// StoreRecoveryKeyVersion stores the version for a user's recovery key.
-	// Returns an error if the storage fails (500).
-	StoreRecoveryKeyVersion(userID string, version int) error
-}
-
-func NewService(firebase Firebase, btcService *btc.BTC, vault Vault) (*Service, error) {
-	mux := http.NewServeMux()
+func NewService(firebase Firebase, btcService *btc.BTC, vault RecoveryKeyVault) (*Service, error) {
+	mux := nethttp.NewServeMux()
 
 	frontendDir := config.GetString(uiBuildDirConfig)
 	uiServe, err := ui.NewUI(frontendDir)
 	if err != nil {
 		return nil, fmt.Errorf("http start api, server side ui render: %w", err)
 	}
-	mux.Handle("GET /ui/config/firebase", http.HandlerFunc(uiconfig.Firebase))
-	mux.Handle("GET /ui/config/googlemaps", http.HandlerFunc(uiconfig.GoogleMaps))
-	mux.Handle("GET /ui/public", http.StripPrefix("/ui", http.FileServer(http.Dir(frontendDir))))
+	mux.Handle("GET /ui/config/firebase", nethttp.HandlerFunc(uiconfig.Firebase))
+	mux.Handle("GET /ui/config/googlemaps", nethttp.HandlerFunc(uiconfig.GoogleMaps))
+	mux.Handle("GET /ui/public", nethttp.StripPrefix("/ui", nethttp.FileServer(nethttp.Dir(frontendDir))))
 	mux.Handle("GET /ui", uiServe)
-	mux.Handle("GET /price", http.HandlerFunc(btcService.Price))
-	mux.Handle("GET /cgv", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /price", nethttp.HandlerFunc(btcService.Price))
+	mux.Handle("GET /cgv", nethttp.HandlerFunc(func(w nethttp.ResponseWriter, r *nethttp.Request) {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))
-	mux.Handle("GET /confidentiality", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /confidentiality", nethttp.HandlerFunc(func(w nethttp.ResponseWriter, r *nethttp.Request) {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))
-	mux.Handle("GET /info", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /info", nethttp.HandlerFunc(func(w nethttp.ResponseWriter, r *nethttp.Request) {
 		fmt.Fprintf(w, "Bienvenue à Autostop BackEnd!")
 	}))
-	mux.Handle("GET /", http.FileServer(http.Dir(frontendDir)))
+	mux.Handle("GET /", nethttp.FileServer(nethttp.Dir(frontendDir)))
 
 	serviceV1 := &Service{
-		vault:   vault,
+		rks: RecoveryKeyService{
+			vault: vault,
+		},
+		vgs: VegetableService{
+			storage: firebase,
+		},
+		fbAuth:  firebase,
 		Handler: mux,
 	}
 	mux.HandleFunc("POST /run", serviceV1.run)
-	mux.HandleFunc("GET /user/store-recoverykey", serviceV1.retrieveUserRecoveryKey)
-	mux.HandleFunc("POST /user/store-recoverykey", serviceV1.storeUserRecoveryKey)
-	mux.HandleFunc("POST /user/get-recoverykey-version", serviceV1.getUserRecoveryKeyVersion)
 
+	mux.Handle("GET /user/store-recoverykey", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.rks.retrieveUserRecoveryKey),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("POST /user/store-recoverykey", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.rks.storeUserRecoveryKey),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("POST /user/get-recoverykey-version", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.rks.getUserRecoveryKeyVersion),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("GET /api/auth-check", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.authCheck),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.vgs.CreateVegetable),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("GET /api/vegetables", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.vgs.ListVegetables),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("GET /api/vegetable", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.vgs.GetVegetable),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("DELETE /api/vegetable", http.ApplyMiddleware(
+		nethttp.HandlerFunc(serviceV1.vgs.DeleteVegetable),
+		FirebaseAuthMiddleware))
+
+	// mux.HandleFunc("POST  /vegetables/{id}/image", serviceV1.vgs.UploadVegetableImage)
 	return serviceV1, nil
 }
 
-func (s *Service) run(w http.ResponseWriter, r *http.Request) {
+func (s *Service) run(w nethttp.ResponseWriter, r *nethttp.Request) {
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(nethttp.StatusOK)
 }
 
-func (s *Service) Status(w http.ResponseWriter, r *http.Request) {
+func (s *Service) Status(w nethttp.ResponseWriter, r *nethttp.Request) {
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(nethttp.StatusOK)
 }
 
-type StoreRecoveryKeyRequestBody struct {
-	UserID      string `json:"userId"`
-	RecoveryKey []byte `json:"recoveryKey"`
-}
+func (s *Service) authCheck(w nethttp.ResponseWriter, r *nethttp.Request) {
 
-func (s *Service) retrieveUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct {
-		UserID string `json:"userId"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		http.Error(w, `{"error":"invalid request body"}`, http.StatusBadRequest)
-		return
-	}
-
-	recoveryKey, err := s.vault.RetrieveUserRecoveryKey(reqBody.UserID)
-	if err != nil {
-		if errors.Is(err, ErrRecoveryKeyNotFound) {
-			http.Error(w, `{"error":"recovery key not found"}`, http.StatusNotFound)
-		} else {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
-		}
-		return
-	}
+	userID := requestUserID(r)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"recoveryKey": string(recoveryKey),
-	})
-}
-
-func (s *Service) storeUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
-	_ = r.Context()
-
-	var reqBody StoreRecoveryKeyRequestBody
-
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		http.Error(w, `{"error":"invalid request body"}`, http.StatusBadRequest)
-		return
-	}
-
-	if err := s.vault.StoreUserRecoveryKey(reqBody.UserID, reqBody.RecoveryKey); err != nil {
-		http.Error(w, `{"error":"failed to store UserRecoveryKey in vault"}`, http.StatusInternalServerError)
-		log.Error().Err(err).Msg("failed to store UserRecoveryKey in vault")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"recoveryKey stored successfully"}`))
-}
-
-// getUserRecoveryKeyVersion handles getting the current version of the recovery key for a user.
-func (s *Service) getUserRecoveryKeyVersion(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		UserID string `json:"userId"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, `{"error":"invalid JSON body"}`, http.StatusBadRequest)
-		return
-	}
-	version, err := s.vault.GetUserRecoveryKeyVersion(req.UserID)
-	if err != nil {
-		if errors.Is(err, ErrRecoveryKeyNotFound) {
-			http.Error(w, `{"error":"recovery key version not found"}`, http.StatusNotFound)
-		} else {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
-		}
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]int{"version": version})
+	w.WriteHeader(nethttp.StatusOK)
+	w.Write([]byte(fmt.Sprintf(`{"status":"authenticated", "uid":"%s"}`, userID)))
 }
