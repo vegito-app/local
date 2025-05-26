@@ -31,6 +31,7 @@ func init() {
 
 type App struct {
 	*firebase.App
+	UseAuthEmulator bool
 }
 
 func NewApp(ctx context.Context) (*App, error) {
@@ -44,13 +45,16 @@ func NewApp(ctx context.Context) (*App, error) {
 	firebasseConfig := &firebase.Config{
 		ProjectID: projectID,
 	}
-	if databaseEmulatorHost != "" || authEmulatorHost != "" {
+	useAuthEmulator := authEmulatorHost != ""
+	useDatabaseEmulator := databaseEmulatorHost != ""
+	if useDatabaseEmulator || useAuthEmulator {
 		app, err := firebase.NewApp(ctx, firebasseConfig, opts...)
 		if err != nil {
 			return nil, fmt.Errorf("firebase new app: %w", err)
 		}
 		return &App{
-			App: app,
+			App:             app,
+			UseAuthEmulator: true,
 		}, nil
 	}
 
@@ -80,7 +84,8 @@ func NewApp(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("firebase new app: %w", err)
 	}
 	return &App{
-		App: app,
+		App:             app,
+		UseAuthEmulator: useAuthEmulator,
 	}, nil
 }
 
