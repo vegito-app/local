@@ -25,18 +25,17 @@ services:
     working_dir: ${PWD:-/workspaces/refactored-winner}
     command: |
       bash -c '
-
-      set -eu
-
-      # Ensure docker socket permissions
       make docker-sock
-
-      sudo mkdir -p $${HOST_PWD}/local/.containers
-
-      # sudo chmod o+rwX -R $${HOST_PWD}/local/.containers
-
-      [ "$${MAKE_DEV_ON_START}" = "true" ] && make dev
-
+      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        make dev
+        if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+          until make local-application-tests-check-env ; do
+            echo "[application-tests] Waiting for environment to be ready..."
+            sleep 5
+          done
+          make application-tests-robot-framework-all-run
+        fi
+      fi
       sleep infinity
       '
     networks:
@@ -103,8 +102,7 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
-    working_dir: ${PWD:-/workspaces/refactored-winner}
-    # entrypoint: bash -c
+    working_dir: ${PWD:-/workspaces/refactored-winner}/local/clarinet
     command: |
       bash -c '
       set -eu
@@ -121,6 +119,7 @@ services:
     env_file:
       - .env
     environment:
+      PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
@@ -141,37 +140,21 @@ services:
       - render
       - kvm
       - sgx
-    working_dir: ${PWD:-/workspaces/refactored-winner}
+    working_dir: ${PWD:-/workspaces/refactored-winner}/application/mobile
     networks:
       dev:
     command: |
       bash -c '
 
-      set -eux
+      set -eu
 
-      echo "Lancement de l'\''émulateur via Android Studio..."
-      studio &
+      # For using Android Studio with emulator in a graphical session
+      [ "$${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ] && \
+        android-studio.sh &
 
-      echo "Démarrage du serveur adb si absent..."
-      if ! pgrep -x "adb" >/dev/null; then
-        adb start-server
-      fi
-
-      sudo bash -c "curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-          apt-get install -y nodejs && \
-          npm install -g appium"
-
-      sudo apt-get update
-      sudo apt-get install -y netcat-openbsd 
-
-      echo "Attente de l'\''ouverture du port de l'\''émulateur (5037)..."
-      until nc -z localhost 5037; do
-        echo "En attente que l'\''émulateur Android soit prêt..."
-        sleep 2
-      done
-
-      echo "Lancement du serveur Appium..."
-      appium --address 0.0.0.0 --port 4723 &
+      # For automatic e2e application/tests 
+      [ "$${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ] && \
+        appium-emulator-avd.sh &
 
       sleep infinity
       '
@@ -203,19 +186,21 @@ services:
 
   application-tests:
     container_name: application-tests
-    image: ${VAULT_DEV_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/moov-dev-439608:application-tests-latest}
+    image: ${APPLICATION_TESTS_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/moov-dev-439608:application-tests-latest}
+    environment:
+      APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
+      PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
+      LOCAL_APPLICATION_TESTS_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests
     env_file:
       - .env
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     networks:
       dev:
-    working_dir: ${PWD:-/workspaces/refactored-winner/application/tests}
+    working_dir: ${PWD:-/workspaces/refactored-winner}/application/tests
     tty: true
     command: |
       bash -c '
-      set -eu
-      echo "[application-tests] Ready to run Robot Framework tests."
-      ./application/tests/check_env.sh
+
       sleep infinity
       '
