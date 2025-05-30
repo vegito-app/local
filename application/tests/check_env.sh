@@ -34,8 +34,8 @@ check_command robot
 
 # Vérifie les endpoints essentiels
 check_url "Backend" "${APPLICATION_BACKEND_URL}"
-check_url "Firebase Auth Emulator" "http://${FIREBASE_EMULATORS_HOST}:9099"
-check_url "Firestore Emulator" "http://${FIREBASE_EMULATORS_HOST}:8090"
+check_url "Firebase Auth Emulator" "http://${FIREBASE_AUTH_EMULATOR_HOST}"
+check_url "Firestore Emulator" "http://${FIRESTORE_EMULATOR_HOST}"
 echo "🔍 Vérification du serveur Appium (port 4723)..."
 if curl -s --fail --max-time 2 http://${ANDROID_HOST}:4723/wd/hub/status | jq -e '.value.ready == true' >/dev/null; then
     echo "✅ Appium est prêt sur ${ANDROID_HOST}:4723"

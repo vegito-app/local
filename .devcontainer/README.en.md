@@ -44,8 +44,6 @@ And in `devcontainer.json`:
 
 - ❌ `"workspaceMount"` and auto-volume mapping
 - ❌ `"features"` that inject tooling implicitly
-- ❌ `"postCreateCommand"` tricks with privilege elevation
-- ❌ Docker-managed anonymous volume paths
 
 ---
 

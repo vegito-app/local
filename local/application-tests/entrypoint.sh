@@ -4,7 +4,7 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-APPLICATION_TESTS_CONTAINER_CACHE=${PWD}/local/.containers/e2e-tests
+APPLICATION_TESTS_CONTAINER_CACHE=${PROJECT_DIR}/local/.containers/e2e-tests
 mkdir -p $APPLICATION_TESTS_CONTAINER_CACHE
 
 # Bash history
@@ -19,9 +19,6 @@ PIP_CACHE_DIR=${HOME}/.cache/pip
 mkdir -p ${APPLICATION_TESTS_CONTAINER_CACHE}/pip ${PIP_CACHE_DIR}
 ln -sf ${APPLICATION_TESTS_CONTAINER_CACHE}/pip $PIP_CACHE_DIR
 
-# Forward backend and emulators to localhost
-bg_pids=()
-
 kill_jobs() {
     echo "Killing background jobs"
     for pid in "$${bg_pids[@]}"; do
@@ -33,13 +30,13 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 # Configuration du workspace (utile avec GitHub Codespaces ou chemins dynamiques)
-current_workspace=$(dirname $PWD)
+current_workspace=$(dirname $PROJECT_DIR)
 if [ "$current_workspace" != "/workspaces" ] ; then
     sudo ln -s $current_workspace /workspaces
 fi
-    
+
 cat << 'EOF' >> ~/.bashrc
-alias rf='robot --outputdir ${PWD}/application/tests/output tests/robot'
+alias rf='robot --outputdir ${LOCAL_APPLICATION_TESTS_DIR} tests/robot'
 alias h='htop'
 alias i='sudo iftop'
 alias ll='ls -lha'
@@ -47,5 +44,10 @@ alias l='ls -lh'
 alias la='ls -Ah'
 alias lla='ls -lhA'
 EOF
+
+mkdir -p ${LOCAL_APPLICATION_TESTS_DIR}
+
+cd ${LOCAL_APPLICATION_TESTS_DIR} && python3 -m http.server 8088 &
+bg_pids+=($!)
 
 exec "$@"

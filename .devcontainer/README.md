@@ -44,8 +44,6 @@ Et dans le fichier `devcontainer.json` :
 
 - ❌ `"workspaceMount"` implicite
 - ❌ `"features"` injectant des outils sans visibilité (comme `ghcr.io/devcontainers/features/docker`)
-- ❌ `"postCreateCommand"` imprévisible sur les droits utilisateurs
-- ❌ Volumes nommés non déclarés dans le `docker-compose.yml`
 
 ---
 

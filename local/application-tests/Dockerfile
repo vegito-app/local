@@ -39,4 +39,7 @@ RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_use
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 COPY entrypoint.sh /usr/local/bin/tests-entrypoint.sh
+
+ENV LOCAL_APPLICATION_TESTS_DIR=${HOME}/application-tests
+
 ENTRYPOINT [ "tests-entrypoint.sh" ]
