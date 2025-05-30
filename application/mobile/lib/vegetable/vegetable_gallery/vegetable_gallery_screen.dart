@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../auth/auth_provider.dart';
-import '../vegetable_upload/vegetable_model.dart';
+import '../../auth/auth_provider.dart';
+import '../vegetable_model.dart';
 
 class VegetableGalleryScreen extends StatelessWidget {
   const VegetableGalleryScreen({super.key});

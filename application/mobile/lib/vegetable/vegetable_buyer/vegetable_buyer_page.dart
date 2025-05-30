@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../cart/cart_provider.dart';
-import '../cart/cart_screen.dart';
-import '../vegetable_upload/vegetable_model.dart';
-import '../user/user_card.dart';
-import '../reputation/user_reputation.dart';
+import '../../cart/cart_provider.dart';
+import '../../cart/cart_screen.dart';
+import '../../reputation/user_reputation.dart';
+import '../../user/user_card.dart';
+import '../vegetable_model.dart';
 
 class VegetableBuyerPage extends StatelessWidget {
   const VegetableBuyerPage({super.key});
@@ -22,7 +22,7 @@ class VegetableBuyerPage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const CartScreen()),
+                MaterialPageRoute<void>(builder: (_) => const CartScreen()),
               );
             },
           ),
@@ -81,19 +81,20 @@ class VegetableBuyerPage extends StatelessWidget {
                       FutureBuilder<DocumentSnapshot>(
                         future: FirebaseFirestore.instance
                             .collection('users')
-                            .doc(veg.userId)
+                            .doc(veg.ownerId)
                             .get(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) return const SizedBox();
-                          final data =
-                              snapshot.data!.data() as Map<String, dynamic>;
+                          final data = Map<String, dynamic>.from(
+                              snapshot.data!.data() as Map);
                           final reputation =
-                              UserReputation.fromMap(veg.userId, data);
+                              UserReputation.fromMap(veg.ownerId, data);
                           return Padding(
                             padding:
                                 const EdgeInsets.only(left: 8.0, bottom: 8),
                             child: UserCard(
-                              displayName: data['displayName'] ?? 'Utilisateur',
+                              displayName: (data['displayName'] as String?) ??
+                                  'Utilisateur',
                               reputation: reputation,
                             ),
                           );
