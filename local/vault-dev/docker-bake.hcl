@@ -7,14 +7,13 @@ variable "LATEST_VAULT_DEV_IMAGE" {
 }
 
 target "vault-dev-ci" {
-  context    = "local/vault"
+  context    = "local/vault-dev"
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
     notequal("", VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
     LATEST_VAULT_DEV_IMAGE
   ]
   cache-to  = ["type=inline"]
@@ -30,7 +29,7 @@ variable "VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "vault-dev" {
-  context    = "local/vault"
+  context    = "local/vault-dev"
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
