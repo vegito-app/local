@@ -35,10 +35,10 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Nodejs for Appium
 RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g appium
+    apt-get install -y nodejs
 
 ARG TARGETPLATFORM
 
@@ -69,6 +69,10 @@ USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
+# Appium (required driver to be installed as non root user to be available)
+RUN sudo npm install -g appium && \
+    appium driver install uiautomator2
+
 # Flutter 
 ENV PATH=${PATH}:${HOME}/flutter/bin
 ARG flutter_version
@@ -76,10 +80,9 @@ RUN git clone -b ${flutter_version} https://github.com/flutter/flutter.git && fl
 
 # Android SDK
 ENV ANDROID_SDK=${HOME}/Android/Sdk
-ENV PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
-ENV PATH=$PATH:$ANDROID_SDK/emulator:$ANDROID_SDK/tools:$ANDROID_SDK/tools/bin:$ANDROID_SDK/platform-tools
+ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/emulator:${ANDROID_SDK}/tools:${ANDROID_SDK}/tools/bin:${ANDROID_SDK}/platform-tools
+ENV ANDROID_HOME=${ANDROID_SDK}
 ARG android_ndk_version
-ENV ANDROID_NDK_HOME=$ANDROID_SDK/ndk/${android_ndk_version}
 RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip; \
     mkdir -p $ANDROID_SDK/cmdline-tools/ && \
     cd $ANDROID_SDK/cmdline-tools/ && \
@@ -97,15 +100,16 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     "build-tools;35.0.0" \
     "build-tools;36.0.0" \
     "ndk;${android_ndk_version}" \
-    # Install emulator
     && case "$TARGETPLATFORM" in \
     "linux/amd64") \
-    sdkmanager "emulator" \
-    ;; \
+    sdkmanager "emulator" ;; \
     "linux/arm64") \
-    echo "Skipping emulator install on $TARGETPLATFORM (not supported)"; \
-    ;; \
-    esac
+    echo "Skipping emulator install on $TARGETPLATFORM (not supported)" ;; \
+    esac \
+    && sdkmanager --install "system-images;android-33;google_apis;x86_64" \
+    && sdkmanager --install "system-images;android-33;google_apis;arm64-v8a" \
+    && echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel" \
+    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel"
 
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
@@ -123,6 +127,8 @@ COPY display-start.sh /usr/local/bin/
 
 COPY docker-caches-refresh.sh /usr/local/bin/studio-caches-refresh.sh
 COPY entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+COPY appium-emulator-avd.sh /usr/local/bin/appium-emulator-avd.sh
+COPY android-studio.sh /usr/local/bin/android-studio.sh
 
 # Persist bash history for the non-root user
 ENV HISTFILE=/home/${non_root_user}/.bash_history
