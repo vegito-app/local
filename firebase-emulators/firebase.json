@@ -1,6 +1,9 @@
 {
   "storage": {
-    "rules": "./storage.rules"
+    "host": "0.0.0.0",
+    "port": 9199,
+    "rules": "./storage.rules",
+    "storageBucket": "moov-dev-439608.appspot.com"
   },
   "firestore": {
     "rules": "./firestore.rules"
@@ -32,9 +35,12 @@
       "host": "0.0.0.0",
       "port": 9000
     },
+
     "storage": {
       "host": "0.0.0.0",
-      "port": 9199
+      "port": 9199,
+      "rules": "./storage.rules",
+      "storageBucket": "moov-dev-439608.appspot.com"
     }
   }
 }
