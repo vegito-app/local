@@ -26,8 +26,9 @@ func init() {
 // Service defines all routes handled by Service
 type Service struct {
 	nethttp.Handler
-	rks RecoveryKeyService
-	vgs VegetableService
+	rks   *RecoveryKeyService
+	vgs   *VegetableService
+	order *OrderService
 
 	fbAuth FirebaseAuth
 }
@@ -35,6 +36,7 @@ type Service struct {
 type Firebase interface {
 	FirebaseAuth
 	VegetableStorage
+	OrderStorage
 }
 
 type FirebaseAuth interface {
@@ -69,14 +71,19 @@ func NewService(firebase Firebase, btcService *btc.BTC, vault RecoveryKeyVault) 
 	}))
 	mux.Handle("GET /", nethttp.FileServer(nethttp.Dir(frontendDir)))
 
+	orderService, err := NewOrderService(mux, firebase)
+	if err != nil {
+		return nil, fmt.Errorf("http api v1 new order service: %w", err)
+	}
 	serviceV1 := &Service{
-		rks: RecoveryKeyService{
+		rks: &RecoveryKeyService{
 			vault: vault,
 		},
-		vgs: VegetableService{
+		vgs: &VegetableService{
 			storage: firebase,
 		},
 		fbAuth:  firebase,
+		order:   orderService,
 		Handler: mux,
 	}
 	mux.HandleFunc("POST /run", serviceV1.run)

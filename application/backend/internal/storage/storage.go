@@ -25,6 +25,7 @@ func init() {
 type Storage struct {
 	*VegetableStorage
 	*RecoveryKeyStorage
+	*OrderStorage
 	firestore *firestore.Client
 	app       *firebase.App
 }
@@ -50,11 +51,15 @@ func NewStorage(opts ...option.ClientOption) (*Storage, error) {
 	vegetableStorage := &VegetableStorage{
 		firestore: firestore,
 	}
+	orderStorage := &OrderStorage{
+		firestore: firestore,
+	}
 	return &Storage{
 		VegetableStorage:   vegetableStorage,
 		RecoveryKeyStorage: recoveryKeyStorage,
 		app:                app,
 		firestore:          firestore,
+		OrderStorage:       orderStorage,
 	}, nil
 }
 
