@@ -15,7 +15,7 @@ BITCOIND_DOCKER_CONTAINER_NAME = bitcoin-node.$(BITCOIND_DOCKER_NETWORK_NAME)
 # Variables
 CONTRACT_DIR   = $(CURDIR)/application/contracts
 DEPLOYMENT_DIR = $(CONTRACT_DIR)/deployment
-CLARINET_DIR   = $(CURDIR)/local/clarinet
+CLARINET_DIR   = $(CURDIR)/local/clarinet-devnet
 CLARINET       = clarinet 
 
 local-clarinet-check: ## Vérifie la validité des contrats
