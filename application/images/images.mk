@@ -1,0 +1,2 @@
+-include $(CURDIR)/application/images/cleaner/cleaner.mk
+-include $(CURDIR)/application/images/moderator/moderator.mk
