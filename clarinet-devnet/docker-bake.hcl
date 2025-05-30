@@ -24,14 +24,14 @@ target "clarinet-devnet-ci" {
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }
-  context    = "local/clarinet"
+  context    = "local/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
     LATEST_CLARINET_DEVNET_IMAGE,
     CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
+    # LATEST_BUILDER_IMAGE,
     LATEST_CLARINET_DEVNET_IMAGE
   ]
   cache-to  = ["type=inline"]
@@ -44,7 +44,7 @@ target "clarinet-devnet" {
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }
-  context    = "local/clarinet"
+  context    = "local/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
     LATEST_CLARINET_DEVNET_IMAGE,
