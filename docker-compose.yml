@@ -102,11 +102,11 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
-    working_dir: ${PWD:-/workspaces/refactored-winner}/local/clarinet
+    working_dir: ${PWD:-/workspaces/refactored-winner}/local/clarinet-devnet
     command: |
       bash -c '
       set -eu
-      make local-clarinet-devnet-start
+      make -C ../.. local-clarinet-devnet-start
       sleep infinity
       '
     networks:
