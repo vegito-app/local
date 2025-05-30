@@ -24,7 +24,7 @@ Future<void> main() async {
       await configService.getConfig('$backendUrl/ui/config/firebase');
   await Firebase.initializeApp(options: options);
 
-  FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
   const testEmail = 'test@example.com';
   const testPassword = '123456';
 

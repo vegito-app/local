@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         title: const Text('Wallet'),
       ),
-      body: Center(child: ActionButtons()),
+      body: const Center(child: ActionButtons()),
     );
   }
 }

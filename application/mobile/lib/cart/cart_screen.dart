@@ -23,9 +23,16 @@ class CartScreen extends StatelessWidget {
                 final veg = entry.key;
                 final qty = entry.value;
                 return ListTile(
-                  leading: Image.network(veg.imageUrl, width: 64, height: 64),
+                  leading: veg.images.isNotEmpty
+                      ? Image.network(
+                          veg.images.first.url,
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.cover,
+                        )
+                      : const Icon(Icons.image_not_supported, size: 64),
                   title: Text(veg.name),
-                  subtitle: Text('${qty} × ${veg.priceCents / 100}€'),
+                  subtitle: Text('$qty × ${veg.priceCents / 100}€'),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () => cart.remove(veg),
@@ -38,31 +45,31 @@ class CartScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () async {
-                  final authProvider =
-                      Provider.of<AuthProvider>(context, listen: false);
-                  final user = authProvider.user;
-                  if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Vous devez être connecté')),
-                    );
-                    return;
-                  }
-
-                  for (final entry in items.entries) {
-                    await VegetableOrderService.createOrder(
-                      vegetableId: entry.key.id,
-                      clientId: user.uid,
-                      quantity: entry.value,
-                    );
-                  }
-
-                  cart.clear();
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Commandes envoyées !')),
+                  // await _validateOrders(context);
+                  // Optionally, you can show a confirmation dialog before validating
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Confirmer la commande'),
+                      content: const Text(
+                          'Êtes-vous sûr de vouloir valider les commandes ?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Annuler'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Confirmer'),
+                        ),
+                      ],
+                    ),
                   );
-
-                  Navigator.pop(context);
+                  // If the user confirmed, proceed with order validation
+                  // If the user cancelled, do nothing
+                  if (confirm == true) {
+                    await _validateOrders(context);
+                  }
                 },
                 child: const Text('Valider les commandes'),
               ),
@@ -70,4 +77,29 @@ class CartScreen extends StatelessWidget {
           : null,
     );
   }
+}
+
+Future<void> _validateOrders(BuildContext context) async {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  final cart = Provider.of<CartProvider>(context, listen: false);
+  final user = authProvider.user;
+  if (user == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Vous devez être connecté')),
+    );
+    return;
+  }
+
+  for (final entry in cart.items.entries) {
+    await OrderService.createOrder(
+      vegetableId: entry.key.id,
+      clientId: user.uid,
+      quantity: entry.value,
+    );
+  }
+
+  cart.clear();
+  ScaffoldMessenger.of(context)
+      .showSnackBar(const SnackBar(content: Text('Commandes envoyées !')));
+  Navigator.pop(context);
 }

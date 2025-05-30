@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../order/order_model.dart' as order;
 import '../order/order_card.dart';
-import '../vegetable_upload/vegetable_model.dart';
+import '../order/order_model.dart' as order;
+import '../order/order_service.dart';
+import '../vegetable/vegetable_model.dart';
+import '../vegetable/vegetable_service.dart';
 import 'client_location_model.dart';
 
 class ClientDetailScreen extends StatelessWidget {
@@ -35,31 +36,24 @@ class ClientDetailScreen extends StatelessWidget {
     }
     return Scaffold(
       appBar: AppBar(title: Text(client.displayName)),
-      body: FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('orders')
-            .where('clientId', isEqualTo: client.id)
-            .orderBy('createdAt', descending: true)
-            .get(),
+      body: FutureBuilder<List<order.Order>>(
+        future: OrderService.listByClientId(client.id),
         builder: (context, orderSnapshot) {
           if (!orderSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final orders = orderSnapshot.data!.docs
-              .map((doc) => order.Order.fromDoc(doc))
-              .toList();
+          final orders = orderSnapshot.data!;
 
-          return FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('vegetables').get(),
+          return FutureBuilder<List<Vegetable>>(
+            future: VegetableService.listVegetables(),
             builder: (context, vegSnapshot) {
               if (!vegSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
 
               final vegMap = {
-                for (var doc in vegSnapshot.data!.docs)
-                  doc.id: Vegetable.fromDoc(doc)
+                for (final veg in vegSnapshot.data!) veg.id: veg,
               };
 
               return Padding(
@@ -86,10 +80,7 @@ class ClientDetailScreen extends StatelessWidget {
                         vegetable: veg,
                         order: order,
                         onStatusChanged: (value) {
-                          FirebaseFirestore.instance
-                              .collection('orders')
-                              .doc(order.id)
-                              .update({'status': value});
+                          OrderService.updateStatus(order.id, value);
                         },
                       );
                     }),

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/vegetable/vegetable_model.dart';
 import 'package:car2go/vegetable/vegetable_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -91,7 +90,7 @@ class VegetableUploadProvider with ChangeNotifier {
 
         final storageRef = FirebaseStorage.instance.ref().child(
             'vegetables/${user.uid}/${DateTime.now().millisecondsSinceEpoch}_${imageFile.name}');
-        final uploadTask = await storageRef.putFile(compressedFile);
+        final uploadTask = await storageRef.putFile(File(compressedFile.path));
         final imageUrl = await uploadTask.ref.getDownloadURL();
 
         vegetableImages.add(VegetableImage(
@@ -101,10 +100,8 @@ class VegetableUploadProvider with ChangeNotifier {
         ));
       }
 
-      final vegetableService = VegetableService(
-        backendUrl: const String.fromEnvironment('APPLICATION_BACKEND_URL'),
-      );
       final vegetable = Vegetable(
+        id: '',
         name: name,
         description: description,
         saleType: saleType,
@@ -114,7 +111,7 @@ class VegetableUploadProvider with ChangeNotifier {
         ownerId: user.uid,
         createdAt: DateTime.now(),
       );
-      await vegetableService.createVegetable(vegetable);
+      await VegetableService.createVegetable(vegetable);
 
       _images.clear();
       _mainImageIndex = 0;

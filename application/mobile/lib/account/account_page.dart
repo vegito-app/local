@@ -2,11 +2,10 @@ import 'package:car2go/account/account_validate.dart';
 import 'package:car2go/auth/auth_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
-import '../auth/auth_security_banner.dart';
 import '../activity_screen.dart';
+import '../auth/auth_security_banner.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -165,34 +164,44 @@ class _AccountPageState extends State<AccountPage> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  SwitchListTile(
-                    title: const Text("Autoriser les évaluations publiques"),
-                    subtitle: const Text(
-                        "Permet aux autres de vous noter (réputation visible)"),
-                    value:
-                        authProvider.user?.customClaims?["reputationOptIn"] ==
-                            true,
-                    onChanged: (enabled) async {
-                      final uid = authProvider.user?.uid;
-                      if (uid != null) {
-                        await FirebaseFirestore.instance
-                            .collection("users")
-                            .doc(uid)
-                            .set(
-                          {
-                            "reputationOptIn": enabled,
+                  if (authProvider.user != null) ...[
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(authProvider.user!.uid)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const SizedBox.shrink();
+                        final data =
+                            snapshot.data!.data() as Map<String, dynamic>? ??
+                                {};
+                        final optIn = data["reputationOptIn"] == true;
+                        return SwitchListTile(
+                          title:
+                              const Text("Autoriser les évaluations publiques"),
+                          subtitle: const Text(
+                              "Permet aux autres de vous noter (réputation visible)"),
+                          value: optIn,
+                          onChanged: (enabled) async {
+                            await FirebaseFirestore.instance
+                                .collection("users")
+                                .doc(authProvider.user!.uid)
+                                .set(
+                              {"reputationOptIn": enabled},
+                              SetOptions(merge: true),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(enabled
+                                    ? "Réputation activée"
+                                    : "Réputation désactivée"),
+                              ),
+                            );
                           },
-                          SetOptions(merge: true),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(enabled
-                                  ? "Réputation activée"
-                                  : "Réputation désactivée")),
-                        );
-                      }
-                    },
-                  ),
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () async {

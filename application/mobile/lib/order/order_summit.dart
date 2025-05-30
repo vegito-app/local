@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:pdf/widgets.dart' as pw;
 
-import '../vegetable_upload/vegetable_model.dart';
+import '../vegetable/vegetable_model.dart';
 import 'order_model.dart';
 
 Future<Uint8List> generateSummaryPdf(

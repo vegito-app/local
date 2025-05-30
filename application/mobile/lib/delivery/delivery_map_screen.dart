@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../client/client_location_model.dart';
+
 import '../client/client_detail_screen.dart';
+import '../client/client_location_model.dart';
 
 class DeliveryMapScreen extends StatefulWidget {
   final List<ClientLocation> clients;

@@ -3,7 +3,6 @@
 import 'package:car2go/wallet/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'wallet_service.dart';
 import '../account/account_validate.dart';
 import 'wallet_private_key_button.dart';
 import 'wallet_recovery_key_section.dart';

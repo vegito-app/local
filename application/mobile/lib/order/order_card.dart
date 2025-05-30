@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:flutter/material.dart';
 
 import '../reputation/user_reputation.dart';
 import '../user/user_card.dart';
-import '../vegetable_upload/vegetable_model.dart';
+import '../vegetable/vegetable_model.dart';
 import 'order_model.dart';
 
 class OrderCard extends StatelessWidget {
@@ -53,17 +53,18 @@ class OrderCard extends StatelessWidget {
     }
 
     Widget buildSellerCard() {
-      return FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance
+      return FutureBuilder<firestore.DocumentSnapshot>(
+        future: firestore.FirebaseFirestore.instance
             .collection('users')
-            .doc(vegetable.userId)
+            .doc(vegetable.ownerId)
             .get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const SizedBox();
           final data = snapshot.data!.data() as Map<String, dynamic>;
-          final reputation = UserReputation.fromMap(vegetable.userId, data);
+          final reputation = UserReputation.fromMap(
+              vegetable.ownerId, Map<String, dynamic>.from(data));
           return UserCard(
-            displayName: data['displayName'] ?? 'Utilisateur',
+            displayName: (data['displayName'] as String?) ?? 'Utilisateur',
             reputation: reputation,
           );
         },
@@ -79,10 +80,20 @@ class OrderCard extends StatelessWidget {
             Row(
               children: [
                 Image.network(
-                  vegetable.imageUrl,
+                  vegetable.images.isNotEmpty ? vegetable.images.first.url : '',
                   width: 64,
                   height: 64,
                   fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const SizedBox(
+                      width: 64,
+                      height: 64,
+                      child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2)),
+                    );
+                  },
                 ),
                 const SizedBox(width: 12),
                 Expanded(

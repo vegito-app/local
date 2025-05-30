@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../vegetable_upload/vegetable_model.dart';
+import '../vegetable/vegetable_model.dart';
 
 class CartProvider with ChangeNotifier {
   final Map<Vegetable, int> _items = {};

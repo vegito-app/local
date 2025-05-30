@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
@@ -6,8 +5,12 @@ import 'package:printing/printing.dart';
 import '../client/client_location_model.dart';
 import '../order/order_card.dart';
 import '../order/order_model.dart';
+import '../order/order_service.dart';
 import '../order/order_summit.dart';
-import '../vegetable_upload/vegetable_model.dart';
+import '../user/user_model.dart';
+import '../user/user_service.dart';
+import '../vegetable/vegetable_model.dart';
+import '../vegetable/vegetable_service.dart';
 import 'delivery_map_screen.dart';
 
 class DeliveryPlannerScreen extends StatelessWidget {
@@ -30,35 +33,20 @@ class DeliveryPlannerScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.map),
             onPressed: () async {
-              final vegSnapshot = await firestore.FirebaseFirestore.instance
-                  .collection('vegetables')
-                  .where('ownerId', isEqualTo: user.uid)
-                  .get();
+              final vegList = await VegetableService.listVegetables();
+              final userVeg =
+                  vegList.where((v) => v.ownerId == user.uid).toList();
+              final vegIds = userVeg.map((v) => v.id).toList();
 
-              final vegIds = vegSnapshot.docs.map((d) => d.id).toList();
-
-              final orderSnapshot = await firestore.FirebaseFirestore.instance
-                  .collection('orders')
-                  .where('vegetableId', whereIn: vegIds)
-                  .get();
-
-              final clientIds = orderSnapshot.docs
-                  .map((doc) => Order.fromDoc(doc).clientId)
-                  .toSet()
-                  .toList();
+              final orders = await OrderService.listByVegetableIds(vegIds);
+              final clientIds = orders.map((o) => o.clientId).toSet();
 
               final clients = <ClientLocation>[];
-
               for (final clientId in clientIds) {
-                final userDoc = await firestore.FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(clientId)
-                    .get();
-                if (userDoc.exists) {
-                  final data = userDoc.data()!;
-                  if (data.containsKey('location')) {
-                    clients.add(ClientLocation.fromMap(clientId, data));
-                  }
+                final profile = await UserService.getUserProfile(clientId);
+                if (profile.location != null) {
+                  clients
+                      .add(ClientLocation.fromMap(clientId, profile.toMap()));
                 }
               }
 
@@ -76,23 +64,13 @@ class DeliveryPlannerScreen extends StatelessWidget {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Exporter résumé PDF',
             onPressed: () async {
-              final vegSnapshot = await firestore.FirebaseFirestore.instance
-                  .collection('vegetables')
-                  .where('ownerId', isEqualTo: user.uid)
-                  .get();
-
-              final vegMap = {
-                for (var doc in vegSnapshot.docs) doc.id: Vegetable.fromDoc(doc)
-              };
-
-              final orderSnapshot = await firestore.FirebaseFirestore.instance
-                  .collection('orders')
-                  .where('vegetableId', whereIn: vegMap.keys.toList())
-                  .orderBy('createdAt')
-                  .get();
+              final vegList = await VegetableService.listVegetables();
+              final userVeg =
+                  vegList.where((v) => v.ownerId == user.uid).toList();
+              final vegMap = {for (var v in userVeg) v.id: v};
 
               final orders =
-                  orderSnapshot.docs.map((doc) => Order.fromDoc(doc)).toList();
+                  await OrderService.listByVegetableIds(vegMap.keys.toList());
 
               final pdfBytes = await generateSummaryPdf(orders, vegMap);
 
@@ -101,35 +79,25 @@ class DeliveryPlannerScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder<firestore.QuerySnapshot>(
-        future: firestore.FirebaseFirestore.instance
-            .collection('vegetables')
-            .where('ownerId', isEqualTo: user.uid)
-            .get(),
+      body: FutureBuilder<List<Vegetable>>(
+        future: VegetableService.listVegetables(),
         builder: (context, vegSnapshot) {
           if (!vegSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final vegMap = {
-            for (var doc in vegSnapshot.data!.docs)
-              doc.id: Vegetable.fromDoc(doc)
-          };
+          final vegList = vegSnapshot.data!;
+          final userVeg = vegList.where((v) => v.ownerId == user.uid).toList();
+          final vegMap = {for (var v in userVeg) v.id: v};
 
-          return StreamBuilder<firestore.QuerySnapshot>(
-            stream: firestore.FirebaseFirestore.instance
-                .collection('orders')
-                .where('vegetableId', whereIn: vegMap.keys.toList())
-                .orderBy('createdAt')
-                .snapshots(),
+          return FutureBuilder<List<Order>>(
+            future: OrderService.listByVegetableIds(vegMap.keys.toList()),
             builder: (context, orderSnapshot) {
               if (!orderSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final orders = orderSnapshot.data!.docs.map((doc) {
-                return Order.fromDoc(doc);
-              }).toList();
+              final orders = orderSnapshot.data!;
 
               if (orders.isEmpty) {
                 return const Center(
@@ -169,15 +137,12 @@ class DeliveryPlannerScreen extends StatelessWidget {
                 final clientId = entry.key;
                 final clientOrders = entry.value;
 
-                return FutureBuilder<firestore.DocumentSnapshot>(
-                  future: firestore.FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(clientId)
-                      .get(),
+                return FutureBuilder<UserProfile>(
+                  future: UserService.getUserProfile(clientId),
                   builder: (context, snapshot) {
-                    final clientData = snapshot.hasData && snapshot.data!.exists
-                        ? snapshot.data!.data() as Map<String, dynamic>
-                        : {};
+                    final clientData = snapshot.hasData
+                        ? snapshot.data!.toMap()
+                        : <String, dynamic>{};
                     final clientName = clientData['displayName'] ?? clientId;
                     final address = clientData['address'];
                     final location = clientData['location'];
@@ -211,10 +176,7 @@ class DeliveryPlannerScreen extends StatelessWidget {
                             vegetable: veg,
                             order: order,
                             onStatusChanged: (value) {
-                              firestore.FirebaseFirestore.instance
-                                  .collection('orders')
-                                  .doc(order.id)
-                                  .update({'status': value});
+                              OrderService.updateStatus(order.id, value);
                             },
                           );
                         }),

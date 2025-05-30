@@ -1,10 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../auth/auth_provider.dart';
-import '../vegetable_upload/vegetable_model.dart';
+import '../vegetable/vegetable_model.dart';
+import '../vegetable/vegetable_provider.dart';
+import '../vegetable/vegetable_service.dart';
 import 'order_model.dart' as order_model;
+import 'order_service.dart';
+
+class OrderWithVegetable {
+  final order_model.Order order;
+  final Vegetable vegetable;
+
+  OrderWithVegetable({required this.order, required this.vegetable});
+}
 
 class OrderScreen extends StatelessWidget {
   const OrderScreen({super.key});
@@ -22,69 +31,48 @@ class OrderScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Commandes reçues')),
-      body: FutureBuilder<firestore.QuerySnapshot>(
-        future: firestore.FirebaseFirestore.instance
-            .collection('vegetables')
-            .where('ownerId', isEqualTo: user.uid)
-            .get(),
-        builder: (context, vegSnapshot) {
-          if (vegSnapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<List<OrderWithVegetable>>(
+        future: _loadOrders(context),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final vegetableIds =
-              vegSnapshot.data!.docs.map((doc) => doc.id).toList();
+          final combined = snapshot.data!;
 
-          return StreamBuilder<firestore.QuerySnapshot>(
-            stream: firestore.FirebaseFirestore.instance
-                .collection('orders')
-                .where('vegetableId',
-                    whereIn: vegetableIds.isEmpty ? ['_'] : vegetableIds)
-                .orderBy('createdAt', descending: true)
-                .snapshots(),
-            builder: (context, orderSnapshot) {
-              if (orderSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          if (combined.isEmpty) {
+            return const Center(child: Text('Aucune commande.'));
+          }
 
-              if (!orderSnapshot.hasData || orderSnapshot.data!.docs.isEmpty) {
-                return const Center(child: Text('Aucune commande.'));
-              }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: combined.length,
+            itemBuilder: (context, index) {
+              final entry = combined[index];
+              final order = entry.order;
+              final vegetable = entry.vegetable;
+              final imageUrl = vegetable.images.isNotEmpty
+                  ? vegetable.images.first.url
+                  : null;
 
-              final orders = orderSnapshot.data!.docs
-                  .map((doc) => order_model.Order.fromDoc(doc))
-                  .toList();
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: orders.length,
-                itemBuilder: (context, index) {
-                  final order = orders[index];
-                  final veg = vegSnapshot.data!.docs
-                      .firstWhere((doc) => doc.id == order.vegetableId);
-                  final vegetable = Vegetable.fromDoc(veg);
-
-                  return Card(
-                    child: ListTile(
-                      title: Text('${vegetable.name} x${order.quantity}'),
-                      subtitle: Text('Statut : ${order.status}'),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          firestore.FirebaseFirestore.instance
-                              .collection('orders')
-                              .doc(order.id)
-                              .update({'status': value});
-                        },
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(
-                              value: 'prepared', child: Text('Préparé')),
-                          PopupMenuItem(
-                              value: 'delivered', child: Text('Livré')),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+              return Card(
+                child: ListTile(
+                  leading: imageUrl != null
+                      ? Image.network(imageUrl,
+                          width: 64, height: 64, fit: BoxFit.cover)
+                      : const Icon(Icons.image, size: 64),
+                  title: Text('${vegetable.name} x${order.quantity}'),
+                  subtitle: Text('Statut : ${order.status}'),
+                  trailing: PopupMenuButton<String>(
+                    onSelected: (value) {
+                      OrderService.updateStatus(order.id, value);
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'prepared', child: Text('Préparé')),
+                      PopupMenuItem(value: 'delivered', child: Text('Livré')),
+                    ],
+                  ),
+                ),
               );
             },
           );
@@ -92,4 +80,20 @@ class OrderScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<List<OrderWithVegetable>> _loadOrders(BuildContext context) async {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  final provider = Provider.of<VegetableListProvider>(context, listen: false);
+  final user = authProvider.user;
+  if (user == null) return [];
+
+  final vegetables = provider.vegetablesByOwner(user.uid);
+  final vegetableIds = vegetables.map((v) => v.id).toList();
+  final orders = await OrderService.listByVegetableIds(vegetableIds);
+
+  return orders.map((o) {
+    final veg = vegetables.firstWhere((v) => v.id == o.vegetableId);
+    return OrderWithVegetable(order: o, vegetable: veg);
+  }).toList();
 }

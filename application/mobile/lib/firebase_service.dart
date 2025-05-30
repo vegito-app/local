@@ -1,7 +1,7 @@
-import 'package:car2go/firebase_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -10,26 +10,28 @@ extension FirebaseAuthEmulatorCheck on FirebaseAuth {
 }
 
 class FirebaseService {
-  static Future<void> init({required String backendUrl}) async {
+  static Future<void> init() async {
     try {
-      await _initializeFirebase(backendUrl);
+      await _initializeFirebase();
     } catch (e) {
       throw Exception('Firebase initialization error: $e');
     }
   }
 
-  static Future<void> _initializeFirebase(String backendUrl) async {
+  static Future<void> _initializeFirebase() async {
     if (Firebase.apps.isNotEmpty) {
       return;
     }
-    FirebaseOptions options = await FirebaseConfigService()
-        .getConfig('$backendUrl/ui/config/firebase');
-
-    await Firebase.initializeApp(options: options);
+    await Firebase.initializeApp();
     await _initializeMessaging();
 
     if (!kReleaseMode && !FirebaseAuth.instance.isEmulator) {
-      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      await FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
+    }
+
+    // Utilisation de l’émulateur Storage en développement
+    if (!kReleaseMode) {
+      await FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
     }
   }
 

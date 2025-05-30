@@ -27,6 +27,17 @@ class Order {
     };
   }
 
+  factory Order.fromMap(Map<String, dynamic> map) {
+    return Order(
+      id: map['id'] as String,
+      vegetableId: map['vegetableId'] as String,
+      clientId: map['clientId'] as String,
+      quantity: map['quantity'] as int,
+      status: map['status'] as String,
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+    );
+  }
+
   factory Order.fromDoc(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Order(
