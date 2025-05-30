@@ -14,14 +14,14 @@ target "application-tests-ci" {
   args = {
     builder_image = LATEST_BUILDER_IMAGE
   }
-  context    = "application/tests"
+  context    = "local/application-tests"
   dockerfile = "Dockerfile"
   tags = [
     notequal("", VERSION) ? APPLICATION_TESTS_IMAGE_VERSION : "",
     LATEST_APPLICATION_TESTS_IMAGE,
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
+    # LATEST_BUILDER_IMAGE,
     LATEST_APPLICATION_TESTS_IMAGE,
   ]
   cache-to = [
@@ -41,7 +41,7 @@ variable "APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "application-tests" {
-  context    = "application/tests"
+  context    = "local/application-tests"
   dockerfile = "Dockerfile"
   args = {
     builder_image = LATEST_BUILDER_IMAGE
