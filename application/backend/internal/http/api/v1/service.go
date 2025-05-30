@@ -113,7 +113,6 @@ func NewService(firebase Firebase, btcService *btc.BTC, vault RecoveryKeyVault) 
 		nethttp.HandlerFunc(serviceV1.vgs.DeleteVegetable),
 		FirebaseAuthMiddleware))
 
-	// mux.HandleFunc("POST  /vegetables/{id}/image", serviceV1.vgs.UploadVegetableImage)
 	return serviceV1, nil
 }
 
