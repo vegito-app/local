@@ -2,13 +2,14 @@
 
 set -eu
 
-LOCAL_ANDROID_STUDIO=${PWD}/local/.containers/android-studio
+LOCAL_ANDROID_STUDIO=${PROJECT_DIR}/local/.containers/android-studio
 mkdir -p $LOCAL_ANDROID_STUDIO
 
-# # Android Studio config
+# Android Studio config
 ANDROID_STUDIO_CONFIG=${HOME}/.config/Google
-mkdir -p $LOCAL_ANDROID_STUDIO/Google
+mkdir -p $LOCAL_ANDROID_STUDIO/Google ${HOME}/.config
 ln -s $LOCAL_ANDROID_STUDIO/Google $ANDROID_STUDIO_CONFIG
+
 # Drop lock eventually remaining after previous container run exit
 rm -f ${ANDROID_STUDIO_CONFIG}/AndroidStudio2024.1/.lock
 
