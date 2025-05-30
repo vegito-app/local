@@ -31,3 +31,11 @@ variable "cloud_storage_location" {
   type        = string
   default     = "EU"
 }
+variable "vegetable_image_created_moderator_pubsub_topic" {
+  description = "Vegetable image created Pub/Sub topic for sending images to the moderator for validation"
+  type        = string
+}
+variable "vegetable_image_validated_moderator_pubsub_subscription" {
+  description = "Vegetable image validated Pub/Sub subscription for receiving messages from the moderator"
+  type        = string
+}

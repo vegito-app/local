@@ -116,3 +116,39 @@ variable "dev_admin_user_roles" {
 variable "dev_editor_user_roles" {
   type = list(string)
 }
+
+
+variable "input_images_moderator_image" {
+  description = "Input images moderator Docker image"
+  type        = string
+}
+
+variable "input_images_cleaner_image" {
+  description = "Input images cleaner Docker image"
+  type        = string
+}
+
+variable "validated_output_bucket" {
+  description = "The name of the bucket where validated images will be stored."
+  type        = string
+}
+
+variable "input_images_moderator_image" {
+  description = "The Docker image for the images moderator service."
+  type        = string
+}
+
+variable "vegetable_image_created_moderator_pubsub_topic_input" {
+  description = "The Pub/Sub topic for input messages."
+  type        = string
+}
+
+variable "vegetable_image_created_moderator_pull_pubsub_subscription" {
+  description = "The Pub/Sub subscription for input messages."
+  type        = string
+}
+
+variable "vegetable_image_validated_moderator_pubsub_topic_output" {
+  description = "The Pub/Sub topic for output messages."
+  type        = string
+}
