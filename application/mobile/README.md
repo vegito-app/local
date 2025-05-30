@@ -1,4 +1,6 @@
-# Wallet app
+# Mobile application
+
+## Recoverable Wallet
 
 A new Flutter project.
 
@@ -23,9 +25,6 @@ sequenceDiagram
     Utilisateur->>App (Mobile): Fournit Recovery Key
     App (Mobile)->>App (Mobile): XOR (XorKey, Recovery Key) → Private Key retrouvée 🎉
 ```
-# car2go
-
-A new Flutter project.
 
 ## Getting Started
 
@@ -36,6 +35,39 @@ A few resources to get you started if this is your first Flutter project:
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
+
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Vegetables Market
+
+## 📱 Mobile hybrid data Architecture: Vegetable Flow
+
+In this app, the `Vegetable` objects follow a hybrid architecture combining Firestore's real-time capabilities with backend-enforced logic.
+
+### 🔄 Write flow (creation/update)
+
+- All mutations (create/update/delete) of `Vegetable` objects are done via the **Go backend API** (`Cloud Run`).
+- The mobile app never writes directly to Firestore for these entities.
+- The backend performs filtering, moderation, validation, and persists sanitized data to Firestore.
+
+### 👁️ Read flow (real-time sync)
+
+- The mobile app listens **directly to Firestore** (via Provider/StreamBuilder).
+- This enables seamless and reactive UI updates when vegetables are added, modified, or removed.
+
+### 🔒 Security and control
+
+- Firestore write access is restricted to the backend service account.
+- Reads from Firestore are protected by Firestore security rules (based on user identity if needed).
+- This allows a safe, scalable, and maintainable architecture while leveraging Firestore's strengths.
+
+### 📷 Image moderation logic
+
+- The mobile app uploads images to Firebase Storage and provides the temporary `imageUrl` in the payload to the backend.
+- In production, the backend:
+  - Processes and filters the image,
+  - Stores the filtered version in a secure CDN (GCS bucket),
+  - Updates Firestore with the final `imageUrl`.
+- A custom prefix filter ensures only approved images are shown in the UI.

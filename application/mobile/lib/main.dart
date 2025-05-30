@@ -2,10 +2,10 @@ import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/cart/cart_provider.dart';
 import 'package:car2go/config/routes.dart';
 import 'package:car2go/firebase_service.dart';
-import 'package:car2go/vegetable_gallery/vegetable_gallery_screen.dart';
 import 'package:car2go/order/consumer_order_screen.dart';
 import 'package:car2go/order/order_screen.dart';
-import 'package:car2go/vegetable_upload/vegetable_upload_provider.dart';
+import 'package:car2go/vegetable/vegetable_gallery/vegetable_gallery_screen.dart';
+import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,14 +13,13 @@ import 'package:provider/provider.dart';
 
 import 'account/account_page.dart';
 import 'auth/auth_guard.dart';
-import 'config.dart';
 import 'home_page/home_page.dart';
 import 'wallet/wallet_provider.dart';
 import 'wallet/wallet_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseService.init(backendUrl: Config.backendUrl);
+  await FirebaseService.init();
   await initNotifications();
   runApp(
     MultiProvider(
