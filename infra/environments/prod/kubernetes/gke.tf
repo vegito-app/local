@@ -45,7 +45,8 @@ resource "google_project_iam_member" "node_sa_roles" {
   ])
   project = var.project_id
   role    = each.key
-  member  = "serviceAccount:${google_service_account.cluster_node_sa.email}"
+  member  = "serviceAccount:${google_service_account.cluster_node_sa.email}
+  "
 }
 
 resource "google_service_account_iam_member" "name" {
@@ -103,4 +104,19 @@ resource "google_container_node_pool" "vault_cluster_nodes" {
   }
 
   initial_node_count = 3
+}
+
+data "google_service_account" "input_images_workers" {
+  account_id = "input-images-workers"
+  project    = var.project_id
+}
+
+resource "kubernetes_service_account" "input_images_workers" {
+  metadata {
+    name      = "input-images-workers"
+    namespace = "default"
+    annotations = {
+      "iam.gke.io/gcp-service-account" = data.google_service_account.input_images_workers.email
+    }
+  }
 }

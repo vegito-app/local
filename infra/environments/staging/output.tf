@@ -39,16 +39,6 @@ output "web_background_image_cdn_url" {
   description = "CDN URL of the web background image"
 }
 
-output "firebase_ios_config_plist" {
-  value       = module.application.firebase_ios_config_plist
-  description = "Configuration client Firebase iOS (GoogleService-Info.plist)"
-}
-
-output "firebase_android_config_json" {
-  value       = module.application.firebase_android_config_json
-  description = "Configuration client Firebase Android (google-services.json)"
-}
-
 output "application_backend_cloud_run_sa_email" {
   value       = module.application.application_backend_cloud_run_sa_email
   description = "Application - Backend - Service Account - Email"

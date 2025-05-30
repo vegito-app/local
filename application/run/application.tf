@@ -33,6 +33,10 @@ resource "google_cloud_run_service" "application_backend" {
           value = google_firebase_project.default.id
         }
         env {
+          name  = "GCLOUD_PROJECT_ID"
+          value = var.project_id
+        }
+        env {
           name  = "VAULT_ADDR"
           value = "http://vault.vault.svc.cluster.local:8200"
         }
@@ -51,6 +55,14 @@ resource "google_cloud_run_service" "application_backend" {
         env {
           name  = "UI_CONFIG_GOOGLEMAPS_SECRET_ID"
           value = google_secret_manager_secret_version.web_google_maps_api_key_version.id
+        }
+        env {
+          name  = "VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC"
+          value = var.vegetable_image_created_moderator_pubsub_topic
+        }
+        env {
+          name  = "VEGETABLE_VALIDATED_IMAGES_PUBSUB_SUBSCRIPTION"
+          value = var.vegetable_image_validated_moderator_pubsub_subscription
         }
       }
       service_account_name = google_service_account.application_backend_cloud_run_sa.email
