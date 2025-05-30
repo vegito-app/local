@@ -1,4 +1,4 @@
-import Cocoa
+splimport Cocoa
 import FlutterMacOS
 
 @main
