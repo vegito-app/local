@@ -1,9 +1,9 @@
 vm_users = {
   "davidberich@gmail.com" = {
     "id"           = "david-berichon",
-    "machine_type" = "c3-standard-8",
+    "machine_type" = "n2-standard-16",
     "disk_type"    = "pd-balanced",
-    "disk_size"    = 100,
+    "disk_size"    = 200,
     "zone"         = "europe-west1-c",
   }
 }
