@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../auth/auth_provider.dart';
 import '../vegetable_model.dart';
+import '../vegetable_provider.dart';
 
 class VegetableGalleryScreen extends StatelessWidget {
   const VegetableGalleryScreen({super.key});
@@ -21,23 +21,13 @@ class VegetableGalleryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mes légumes')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('vegetables')
-            .where('ownerId', isEqualTo: user.uid)
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Consumer<VegetableListProvider>(
+        builder: (context, provider, _) {
+          final vegetables = provider.vegetablesByOwner(user.uid);
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (vegetables.isEmpty) {
             return const Center(child: Text('Aucun légume trouvé.'));
           }
-
-          final vegetables =
-              snapshot.data!.docs.map((doc) => Vegetable.fromDoc(doc)).toList();
 
           return GridView.builder(
             padding: const EdgeInsets.all(16),
@@ -50,18 +40,23 @@ class VegetableGalleryScreen extends StatelessWidget {
             itemCount: vegetables.length,
             itemBuilder: (context, index) {
               final veg = vegetables[index];
+              final imageUrl =
+                  veg.images.isNotEmpty ? veg.images.first.url : null;
+
               return Card(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AspectRatio(
                       aspectRatio: 1.5,
-                      child: Image.network(
-                        veg.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const Center(child: Icon(Icons.image)),
-                      ),
+                      child: imageUrl != null
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) =>
+                                  const Center(child: Icon(Icons.image)),
+                            )
+                          : const Center(child: Icon(Icons.image)),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8),

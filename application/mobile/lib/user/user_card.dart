@@ -25,7 +25,7 @@ class UserCard extends StatelessWidget {
             () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => UserProfileScreen(userId: reputation.userId),
+                  builder: (_) => UserProfileScreen(userId: reputation!.userId),
                 ),
               );
             },
@@ -50,7 +50,7 @@ class UserCard extends StatelessWidget {
                     if (reputation.optIn)
                       Row(
                         children: [
-                          Icon(Icons.star, size: 18, color: Colors.amber),
+                          const Icon(Icons.star, size: 18, color: Colors.amber),
                           const SizedBox(width: 4),
                           Text(
                             "${reputation.score.toStringAsFixed(1)} / 5",

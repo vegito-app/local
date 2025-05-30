@@ -1,42 +1,22 @@
 import 'package:flutter/material.dart';
 import 'vegetable_model.dart';
+import 'vegetable_service.dart';
 
 class VegetableListProvider with ChangeNotifier {
-  final List<Vegetable> _allVegetables;
-  final String filteredImagePrefix;
+  List<Vegetable> _allVegetables = [];
 
-  VegetableListProvider({
-    required List<Vegetable> vegetables,
-    required this.filteredImagePrefix,
-  }) : _allVegetables = vegetables;
+  List<Vegetable> get vegetables => _allVegetables;
 
-  List<Vegetable> get vegetables => _allVegetables.map((veg) {
-        if (_isAllowedImageUrl(veg.imageUrl)) {
-          return veg;
-        } else {
-          return Vegetable(
-            ownerId: veg.ownerId,
-            createdAt: veg.createdAt,
-            // If the image URL is not allowed, return a Vegetable with an empty imageUrl
-            // but keep other properties intact.
-            id: veg.id,
-            name: veg.name,
-            description: veg.description,
-            saleType: veg.saleType,
-            weightGrams: veg.weightGrams,
-            priceCents: veg.priceCents,
-            imageUrl: '',
-          );
-        }
-      }).toList();
-
-  bool _isAllowedImageUrl(String url) {
-    return filteredImagePrefix == '*' || url.startsWith(filteredImagePrefix);
-  }
-
-  void updateVegetables(List<Vegetable> updatedVegetables) {
-    _allVegetables.clear();
-    _allVegetables.addAll(updatedVegetables);
+  Future<void> reload() async {
+    _allVegetables = await VegetableService.listVegetables();
     notifyListeners();
   }
+
+  Future<List<Vegetable>> findByIds(List<String> ids) async {
+    final vegetables = await VegetableService.listVegetables();
+    return vegetables.where((v) => ids.contains(v.id)).toList();
+  }
+
+  List<Vegetable> vegetablesByOwner(String uid) =>
+      _allVegetables.where((veg) => veg.ownerId == uid).toList();
 }

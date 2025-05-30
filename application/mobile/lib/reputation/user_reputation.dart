@@ -20,6 +20,15 @@ class UserReputation {
     );
   }
 
+  factory UserReputation.empty({required String userId}) {
+    return UserReputation(
+      userId: userId,
+      optIn: false,
+      score: 0.0,
+      votes: 0,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'reputationOptIn': optIn,

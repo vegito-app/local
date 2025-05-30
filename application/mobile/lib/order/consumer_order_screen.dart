@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../vegetable_upload/vegetable_model.dart';
+import '../vegetable/vegetable_model.dart';
 import 'order_model.dart' as vegetable;
+import 'package:provider/provider.dart';
+import '../vegetable/vegetable_provider.dart';
 
 class ConsumerOrderScreen extends StatelessWidget {
   const ConsumerOrderScreen({super.key});
@@ -39,13 +41,8 @@ class ConsumerOrderScreen extends StatelessWidget {
               .toList();
 
           return FutureBuilder<List<Vegetable>>(
-            future: Future.wait(orders.map((order) async {
-              final vegDoc = await FirebaseFirestore.instance
-                  .collection('vegetables')
-                  .doc(order.vegetableId)
-                  .get();
-              return Vegetable.fromDoc(vegDoc);
-            })),
+            future: Provider.of<VegetableListProvider>(context, listen: false)
+                .findByIds(orders.map((o) => o.vegetableId).toList()),
             builder: (context, vegSnapshot) {
               if (!vegSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -58,12 +55,17 @@ class ConsumerOrderScreen extends StatelessWidget {
                 itemCount: orders.length,
                 itemBuilder: (context, index) {
                   final order = orders[index];
-                  final veg = vegetables[index];
+                  final veg =
+                      vegetables.firstWhere((v) => v.id == order.vegetableId);
+                  final imageUrl =
+                      veg.images.isNotEmpty ? veg.images.first.url : null;
 
                   return Card(
                     child: ListTile(
-                      leading:
-                          Image.network(veg.imageUrl, width: 64, height: 64),
+                      leading: imageUrl != null
+                          ? Image.network(imageUrl,
+                              width: 64, height: 64, fit: BoxFit.cover)
+                          : const Icon(Icons.image, size: 64),
                       title: Text('${veg.name} x${order.quantity}'),
                       subtitle: Text('Statut : ${order.status}'),
                       trailing: Text(

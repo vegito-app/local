@@ -29,7 +29,7 @@ class VegetableImage {
 }
 
 class Vegetable {
-  // final String id;
+  final String id;
   final String name;
   final String description;
   final String saleType;
@@ -40,7 +40,7 @@ class Vegetable {
   final DateTime createdAt;
 
   Vegetable({
-    // required this.id,
+    required this.id,
     required this.name,
     required this.description,
     required this.saleType,
@@ -53,7 +53,7 @@ class Vegetable {
 
   factory Vegetable.fromJson(Map<String, dynamic> json) {
     return Vegetable(
-      // id: json['id'] as String,
+      id: json['id'] as String,
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
           : (json['createdAt'] as DateTime),
@@ -71,7 +71,6 @@ class Vegetable {
 
   Map<String, dynamic> toJson() {
     return {
-      // 'id': id,
       'createdAt':
           createdAt is DateTime ? Timestamp.fromDate(createdAt) : createdAt,
       'description': description,

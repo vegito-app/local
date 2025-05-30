@@ -15,12 +15,13 @@ class UserProfileScreen extends StatelessWidget {
         future:
             FirebaseFirestore.instance.collection('users').doc(userId).get(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
 
           final data = snapshot.data!.data() as Map<String, dynamic>;
           final reputation = UserReputation.fromMap(userId, data);
-          final displayName = data['displayName'] ?? 'Utilisateur';
+          final displayName = (data['displayName'] as String?) ?? 'Utilisateur';
 
           return Padding(
             padding: const EdgeInsets.all(16),

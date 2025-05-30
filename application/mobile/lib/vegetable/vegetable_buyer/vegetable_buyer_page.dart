@@ -1,12 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:car2go/config.dart';
+import 'package:car2go/user/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../cart/cart_provider.dart';
 import '../../cart/cart_screen.dart';
-import '../../reputation/user_reputation.dart';
 import '../../user/user_card.dart';
-import '../vegetable_model.dart';
+import '../../user/user_provider.dart';
+import '../vegetable_provider.dart';
+
+const backendUrl = Config.backendUrl;
 
 class VegetableBuyerPage extends StatelessWidget {
   const VegetableBuyerPage({super.key});
@@ -28,28 +31,22 @@ class VegetableBuyerPage extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('vegetables')
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Consumer<VegetableListProvider>(
+        builder: (context, provider, _) {
+          final vegetables = provider.vegetables;
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (vegetables.isEmpty) {
             return const Center(child: Text('Aucun légume disponible.'));
           }
-
-          final vegetables =
-              snapshot.data!.docs.map((doc) => Vegetable.fromDoc(doc)).toList();
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: vegetables.length,
             itemBuilder: (context, index) {
               final veg = vegetables[index];
+              final imageUrl =
+                  veg.images.isNotEmpty ? veg.images.first.url : null;
+
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: Padding(
@@ -58,12 +55,10 @@ class VegetableBuyerPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ListTile(
-                        leading: Image.network(
-                          veg.imageUrl,
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                        ),
+                        leading: imageUrl != null
+                            ? Image.network(imageUrl,
+                                width: 64, height: 64, fit: BoxFit.cover)
+                            : const Icon(Icons.image, size: 64),
                         title: Text(veg.name),
                         subtitle: Text(
                             '${veg.weightGrams}g - ${veg.priceCents / 100}€'),
@@ -78,23 +73,22 @@ class VegetableBuyerPage extends StatelessWidget {
                           child: const Text('Ajouter au panier'),
                         ),
                       ),
-                      FutureBuilder<DocumentSnapshot>(
-                        future: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(veg.ownerId)
-                            .get(),
+                      FutureBuilder<UserProfile?>(
+                        future:
+                            Provider.of<UserProvider>(context, listen: false)
+                                .getUser(veg.ownerId),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData) return const SizedBox();
-                          final data = Map<String, dynamic>.from(
-                              snapshot.data!.data() as Map);
-                          final reputation =
-                              UserReputation.fromMap(veg.ownerId, data);
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return const SizedBox();
+                          }
+                          final profile = snapshot.data!;
+                          final reputation = profile.reputation;
+
                           return Padding(
                             padding:
                                 const EdgeInsets.only(left: 8.0, bottom: 8),
                             child: UserCard(
-                              displayName: (data['displayName'] as String?) ??
-                                  'Utilisateur',
+                              displayName: profile.name ?? 'Utilisateur',
                               reputation: reputation,
                             ),
                           );

@@ -1,15 +1,14 @@
 import 'dart:convert';
 
+import 'package:car2go/config.dart';
 import 'package:car2go/vegetable/vegetable_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 
+const backendUrl = Config.backendUrl;
+
 class VegetableService {
-  final String backendUrl;
-
-  VegetableService({required this.backendUrl});
-
-  Future<Map<String, String>> _authHeaders() async {
+  static Future<Map<String, String>> _authHeaders() async {
     final user = FirebaseAuth.instance.currentUser;
     final idToken = await user?.getIdToken();
     return {
@@ -18,7 +17,7 @@ class VegetableService {
     };
   }
 
-  Future<List<Vegetable>> listVegetables() async {
+  static Future<List<Vegetable>> listVegetables() async {
     final response = await http.get(
       Uri.parse('$backendUrl/vegetables'),
       headers: await _authHeaders(),
@@ -33,7 +32,7 @@ class VegetableService {
     }
   }
 
-  Future<Vegetable> getVegetable(String id) async {
+  static Future<Vegetable> getVegetable(String id) async {
     final response = await http.get(
       Uri.parse('$backendUrl/vegetables/$id'),
       headers: await _authHeaders(),
@@ -46,18 +45,21 @@ class VegetableService {
     }
   }
 
-  Future<void> createVegetable(Vegetable vegetable) async {
+  static Future<Vegetable> createVegetable(Vegetable vegetable) async {
     final response = await http.post(
       Uri.parse('$backendUrl/vegetables'),
       headers: await _authHeaders(),
       body: json.encode(vegetable.toJson()),
     );
-    if (response.statusCode != 201) {
+    if (response.statusCode == 201) {
+      return Vegetable.fromJson(
+          json.decode(response.body) as Map<String, dynamic>);
+    } else {
       throw Exception('Failed to create vegetable');
     }
   }
 
-  Future<void> updateVegetable(String id, Vegetable vegetable) async {
+  static Future<void> updateVegetable(String id, Vegetable vegetable) async {
     final response = await http.put(
       Uri.parse('$backendUrl/vegetables/$id'),
       headers: await _authHeaders(),
@@ -68,7 +70,7 @@ class VegetableService {
     }
   }
 
-  Future<void> deleteVegetable(String id) async {
+  static Future<void> deleteVegetable(String id) async {
     final response = await http.delete(
       Uri.parse('$backendUrl/vegetables/$id'),
       headers: await _authHeaders(),
