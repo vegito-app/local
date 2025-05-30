@@ -65,6 +65,10 @@
             "protocol": "http",
             "onAutoForward": "silent"
           },
+          "8088": {
+            "label": "Application Tests - Report",
+            "onAutoForward": "silent"
+          },
           "8888": {
             "label": "Application Backend - Debug",
             "onAutoForward": "silent"
@@ -150,6 +154,8 @@
         "circlecodesolution.ccs-flutter-color",
         "googlecloudtools.cloudcode",
         "dart-code.dart-code",
+        "dart-code.flutter",
+        "dart-code.dart-test-adapter",
         "dbaeumer.vscode-eslint",
         "diemasmichiels.emulate",
         "esbenp.prettier-vscode",

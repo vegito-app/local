@@ -11,40 +11,64 @@ trap "echo Exited with code $?." EXIT
 localDotenvFile=${PWD}/local/.env
 
 [ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
-# The following variables are used to configure the local development environment.
-# They are used in the docker-compose.yml file and should be set according to your local setup.
+######################################################################## 
+# After setting up values in this file, rebuild the local containers.  #
+########################################################################
+#  
+#------------------------------------------------------- 
+# Please set the values in this section according to your personnal settings.
 # 
-DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
+# Trigger the local project display name in Docker Compose.
+COMPOSE_PROJECT_NAME=moov-dev-local
 # 
-# * Set PROJECT_USER according to your user_id in the project.
-# This will be be used in the project to refer to your personnal IAM permissions via service accounts.
-# Make sure to set the correct values for your propper personnal credentials usage. 
-# For example, if your user id is "david-berichon", you should set PROJECT_USER=david-berichon.
-# 
+# Make sure to set the correct values for using your personnal credentials IAM permissions. 
 PROJECT_USER=user-id-here
 # 
-# * Set DISPLAY_RESOLUTION to match your screen resolution (e.g. if you are using the GUI from docker compose android-studio container).
-#
+# Can set 'MAKE_DEV_ON_START=false' to restart only the 'dev' container (skip 'make dev' in container 'dev' docker-compose command).
+MAKE_DEV_ON_START=true
+# 
+# Android Studio (openbox - x11vnc - Xvfb)
+LOCAL_ANDROID_STUDIO_ON_START=true
+# 
+# Set to match your screen resolution (e.g. if you are using the GUI from docker compose android-studio container).
 # DISPLAY_RESOLUTION=680x1440
 #
-# After settinng up the file, you have to rebuild the dev container if you are running in it.
-# You can set MAKE_DEV_ON_START=false to restart only the 'dev' container (skip 'make dev' in container dev docker-compose command).
+# Required if runnind E2E tests (application/tests)
+LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
 #
-MAKE_DEV_ON_START=true
+# Wether to currently run the local application tests on start.
+# If set to 'true', the local application tests will be run on start.
+MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START=true
+# 
+#------------------------------------------------------- 
+# The following variables are used with the local development environment.
+# 
+DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608
+BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
+FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
+FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
+UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
+# 
+#--------------------------------------------------------
+# ! Should not configure this section !
+#
+# The following variables are used for propagating the containers
+# configurations between them each others selves.
 # 
 ANDROID_HOST=android-studio
 APPLICATION_BACKEND_URL=http://application-backend:8080
-BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
 CLARINET_RPC=http://clarinet-devnet:20443
-COMPOSE_PROJECT_NAME=moov-dev-local
-FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
-FIREBASE_EMULATORS_HOST=firebase-emulators
-FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
+FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
+FIREBASE_DATABASE_EMULATOR_HOST=firebase-emulators:9000
+FIREBASE_STORAGE_EMULATOR_HOST=firebase-emulators:9199
 FIRESTORE_EMULATOR_HOST=firebase-emulators:8090
-UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
 VAULT_ADDR=http://vault-dev:8200
 VAULT_DEV_ROOT_TOKEN_ID=root
+VAULT_DEV_LISTEN_ADDRESS=http://vault-dev:8200
+# 
+# ! Should not configure this section !
+#---------------------------------------------------------
 EOF
 
 # Vscode
@@ -77,32 +101,40 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "application/frontend"
     },
     {
+      "name": "Application Images - Cleaner - Go",
+      "path": "application/images/cleaner"
+    },
+    {
+      "name": "Application Images - Moderator - Go",
+      "path": "application/images/moderator"
+    },
+    {
       "name": "Application - Authentication - Firebase Functions",
       "path": "application/firebase/functions"
     },
     {
       "name": "Application - Run - Terraform",
       "path": "application/run"
-    }
-    {
-      "name": "Local - Builder",
-      "path": "local"
     },
     {
-      "name": "Local - Firebase Emulators - Local",
-      "path": "local/firebase-emulators"
+      "name": "Dev - Builder",
+      "path": "dev"
     },
     {
-      "name": "Local - Android Studio - Local",
-      "path": "local/android-studio"
+      "name": "Dev - Firebase Emulators - Local",
+      "path": "dev/firebase-emulators"
     },
     {
-      "name": "Local - Vault - Local",
-      "path": "local/vault"
+      "name": "Dev - Android Studio - Local",
+      "path": "dev/android-studio"
     },
     {
-      "name": "Local - Clarinet",
-      "path": "local/clarinet"
+      "name": "Dev - Vault - Local",
+      "path": "dev/vault"
+    },
+    {
+      "name": "Dev - Clarinet",
+      "path": "dev/clarinet"
     }
     {
       "name": "Infrastructure - Cloud",
@@ -117,7 +149,7 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "infra/environments/staging"
     },
     {
-      "name": "Infrastructure - Local - Terraform",
+      "name": "Infrastructure - Dev - Terraform",
       "path": "infra/environments/dev"
     },
     {
@@ -181,9 +213,20 @@ cat <<'EOF' > $mobileLaunchDebug
             "program": "lib/main.dart",
             "type": "dart"
         },
+        {
+            "name": "profile",
+            "request": "launch",
+            "args": [ "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888" ],
+            "type": "dart"
+        },
+        {
+            "name": "release",
+            "request": "launch",
+            "args": [ "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888" ],
+            "type": "dart"
+        }   
     ]
 }
-
 EOF
 fi
 

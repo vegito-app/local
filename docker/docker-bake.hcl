@@ -78,7 +78,7 @@ group "services-load-local-arch" {
     "firebase-emulators",
     "github-action-runner",
     "vault-dev",
-    "application-e2e-tests",
+    "application-tests",
   ]
 }
 
@@ -90,6 +90,8 @@ group "services-push-multi-arch" {
     "firebase-emulators-ci",
     "github-action-runner-ci",
     "vault-dev-ci",
-    "application-e2e-tests-ci",
+    "application-tests-ci",
+    "application-images-cleaner-ci",
+    "application-images-moderator-ci",
   ]
 }

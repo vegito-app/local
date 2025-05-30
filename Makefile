@@ -17,23 +17,24 @@ PROD_GOOGLE_CLOUD_PROJECT_NUMBER = 378762893981
 
 export
 
--include docker/docker.mk
 -include local/local.mk
+-include docker/docker.mk
 -include infra/infra.mk 
 -include application/application.mk
 
-images: docker-images-local-arch
+images: 
+	@$(MAKE) -j docker-images-local-arch
 .PHONY: images
 
 images-ci: docker-images-ci-multi-arch
 .PHONY: images-ci
 
 images-pull: 
-	@$(MAKE) -j local-docker-images-pull
+	@$(MAKE) -j docker-local-images-pull
 .PHONY: images-fast-pull
 
 images-push: 
-	@$(MAKE) -j local-docker-images-push
+	@$(MAKE) -j docker-local-images-push
 .PHONY: images-push
 
 dev: 
