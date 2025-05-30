@@ -21,9 +21,6 @@ const adminSDKserviceAccountIDConfig = "adminsdk_serviceaccount_id"
 
 const projectIDconfig = "project_id"
 
-const authEmulatorHostConfig = "auth_emulator_host"
-const databaseEmulatorHostConfig = "database_emulator_host"
-
 func init() {
 	config.AutomaticEnv()
 	config.SetEnvPrefix("firebase")
@@ -31,31 +28,15 @@ func init() {
 
 type App struct {
 	*firebase.App
-	UseAuthEmulator bool
 }
 
 func NewApp(ctx context.Context) (*App, error) {
 
 	var opts []option.ClientOption
 
-	authEmulatorHost := config.GetString(authEmulatorHostConfig)
-	databaseEmulatorHost := config.GetString(databaseEmulatorHostConfig)
-
 	projectID := config.GetString(projectIDconfig)
 	firebasseConfig := &firebase.Config{
 		ProjectID: projectID,
-	}
-	useAuthEmulator := authEmulatorHost != ""
-	useDatabaseEmulator := databaseEmulatorHost != ""
-	if useDatabaseEmulator || useAuthEmulator {
-		app, err := firebase.NewApp(ctx, firebasseConfig, opts...)
-		if err != nil {
-			return nil, fmt.Errorf("firebase new app: %w", err)
-		}
-		return &App{
-			App:             app,
-			UseAuthEmulator: true,
-		}, nil
 	}
 
 	client, err := secretmanager.NewClient(ctx)
@@ -84,8 +65,7 @@ func NewApp(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("firebase new app: %w", err)
 	}
 	return &App{
-		App:             app,
-		UseAuthEmulator: useAuthEmulator,
+		App: app,
 	}, nil
 }
 
