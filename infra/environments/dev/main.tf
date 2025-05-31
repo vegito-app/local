@@ -13,6 +13,10 @@ module "gcloud" {
   cloud_storage_location = var.cloud_storage_location
 }
 
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
 module "application" {
   source = "../../../application/run"
 
@@ -23,12 +27,10 @@ module "application" {
 
   application_backend_image = var.application_backend_image
 
-  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
-  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
-}
-
-data "google_project" "project" {
-  project_id = var.project_id
+  google_idp_oauth_key_secret_id                        = var.google_idp_oauth_key_secret_id
+  google_idp_oauth_client_id_secret_id                  = var.google_idp_oauth_client_id_secret_id
+  vegetable_image_created_moderator_pubsub_topic        = google_pubsub_topic.vegetable_moderation_bypass.name
+  vegetable_image_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
 }
 
 # Enables required APIs.
@@ -51,3 +53,21 @@ resource "google_project_service" "google_services_default" {
   disable_on_destroy         = false
   disable_dependent_services = true
 }
+
+resource "google_pubsub_topic" "vegetable_moderation_bypass" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  name     = "vegetable-moderation-bypass"
+}
+
+
+resource "google_pubsub_subscription" "vegetable_moderation_bypass_moderator_pull_subscription" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  name     = "vegetable-validated-subscription"
+  topic    = google_pubsub_topic.vegetable_moderation_bypass.id
+
+  ack_deadline_seconds       = 60
+  message_retention_duration = "604800s" # 7 days
+}
+

@@ -8,6 +8,11 @@ resource "kubernetes_cron_job" "images_cleaner" {
   spec {
     schedule = "0 2 * * *"
     job_template {
+      metadata {
+        labels = {
+          app = "images-cleaner"
+        }
+      }
       spec {
         template {
           metadata {
@@ -21,7 +26,7 @@ resource "kubernetes_cron_job" "images_cleaner" {
               image = var.input_images_cleaner_image
               env {
                 name  = "CLEANER_BUCKET_NAME"
-                value = data.google_storage_bucket.firebase_storage_bucket.name
+                value = var.created_images_input_bucket_name
               }
             }
             restart_policy       = "OnFailure"

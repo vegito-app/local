@@ -34,7 +34,8 @@ resource "google_project_service" "google_services_firebase" {
     "firebase.googleapis.com",
     "firebasedatabase.googleapis.com",
     "firestore.googleapis.com",
-    "firebasestorage.googleapis.com"
+    "firebasestorage.googleapis.com",
+    "fcm.googleapis.com",
   ])
   service = each.key
 
@@ -141,7 +142,7 @@ resource "google_firebase_web_app" "web_app" {
   provider = google-beta
   project  = var.project_id
   # display_name is used as unique ID for this resource
-  display_name = "Utrade Web app (@${var.environment})"
+  display_name = "Utrade Web app (${var.environment})"
 
   # The other App types (Android and Apple) use "DELETE" by default.
   # Web apps don't use "DELETE" by default due to backward-compatibility.

@@ -1,4 +1,3 @@
-
 # Map des rôles par environnement par défaut
 variable "default_roles_per_environment" {
   type = map(list(string))

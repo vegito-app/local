@@ -62,7 +62,7 @@ resource "google_cloud_run_service" "application_backend" {
         }
         env {
           name  = "VEGETABLE_VALIDATED_IMAGES_PUBSUB_SUBSCRIPTION"
-          value = var.vegetable_image_validated_moderator_pubsub_subscription
+          value = var.vegetable_image_validated_backend_pubsub_subscription
         }
       }
       service_account_name = google_service_account.application_backend_cloud_run_sa.email

@@ -24,11 +24,6 @@ output "backend_url" {
   description = "URL of the backend service"
 }
 
-output "oauth_redirect_uri" {
-  description = "Web OAUTH redirect URI (must authorized set on google console 'ID clients OAuth 2.0' credentials)"
-  value       = module.application.oauth_redirect_uri
-}
-
 output "web_background_image_cdn_url" {
   value       = module.cdn.web_background_image_cdn_url
   description = "CDN URL of the web background image"

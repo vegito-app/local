@@ -20,7 +20,7 @@ module "staging_admin_members" {
   project_id            = var.staging_project
   user_service_accounts = local.staging_admin_service_accounts
 
-  roles = var.staging_admin_user_roles
+  roles = var.admin_user_roles
 }
 
 module "staging_editor_members" {
@@ -28,7 +28,7 @@ module "staging_editor_members" {
   project_id            = var.staging_project
   user_service_accounts = local.staging_editor_service_accounts
 
-  roles = var.staging_editor_user_roles
+  roles = var.editor_user_roles
 }
 
 module "staging_root_admin_members" {
@@ -36,7 +36,7 @@ module "staging_root_admin_members" {
   project_id            = var.staging_project
   user_service_accounts = local.root_admin_service_accounts
 
-  roles = var.staging_root_admin_user_roles
+  roles = var.root_admin_user_roles
 }
 
 data "google_service_account" "staging_user_service_account" {

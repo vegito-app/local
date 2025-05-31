@@ -45,7 +45,7 @@ resource "kubernetes_deployment" "images_moderator" {
           }
           env {
             name  = "APPLICATION_IMAGES_MODERATOR_CREATED_INPUT_FIREBASESTORAGE_BUCKET"
-            value = var.created_input_bucket
+            value = var.created_images_input_bucket_name
           }
         }
         service_account_name = kubernetes_service_account.input_images_workers.metadata[0].name

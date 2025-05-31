@@ -20,7 +20,7 @@ module "dev_admin_members" {
   project_id            = var.dev_project
   user_service_accounts = local.dev_admin_service_accounts
 
-  roles = var.dev_admin_user_roles
+  roles = var.admin_user_roles
 }
 
 module "dev_editor_members" {
@@ -28,7 +28,7 @@ module "dev_editor_members" {
   project_id            = var.dev_project
   user_service_accounts = local.dev_editor_service_accounts
 
-  roles = var.dev_editor_user_roles
+  roles = var.editor_user_roles
 }
 
 module "dev_root_admin_members" {
@@ -36,7 +36,7 @@ module "dev_root_admin_members" {
   project_id            = var.dev_project
   user_service_accounts = local.root_admin_service_accounts
 
-  roles = var.dev_root_admin_user_roles
+  roles = var.root_admin_user_roles
 }
 
 data "google_service_account" "dev_user_service_account" {

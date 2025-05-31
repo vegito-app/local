@@ -60,8 +60,3 @@ resource "google_compute_global_forwarding_rule" "public_cdn" {
   ip_address = google_compute_global_address.public_cdn.address
   port_range = "80"
 }
-
-output "web_background_image_cdn_url" {
-  value       = "http://${google_compute_global_address.public_cdn.address}/${google_storage_bucket_object.public_web_background_image.name}"
-  description = "CDN URL of the web background image"
-}

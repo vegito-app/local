@@ -45,18 +45,13 @@ variable "input_images_cleaner_image" {
   type        = string
 }
 
-variable "created_input_bucket" {
+variable "created_images_input_bucket_name" {
   description = "The name of the bucket where created input images will be stored."
   type        = string
 }
 
 variable "validated_output_bucket" {
   description = "The name of the bucket where validated images will be stored."
-  type        = string
-}
-
-variable "input_images_moderator_image" {
-  description = "The Docker image for the images moderator service."
   type        = string
 }
 
@@ -75,7 +70,7 @@ variable "vegetable_image_validated_moderator_pubsub_topic_output" {
   type        = string
 }
 
-variable "project_id" {
-  description = "The GCP project ID."
+variable "input_images_workers_sa_email" {
+  description = "The email of the service account used by the input images workers."
   type        = string
 }
