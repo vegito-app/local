@@ -1,4 +1,4 @@
-package v1
+package api
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func requestUserID(r *http.Request) string {
 	return ctx.Value(firebaseAuthTokenUID).(string)
 }
 
-func requestIsAnonymous(r *http.Request) bool {
-	ctx := r.Context()
-	return ctx.Value(firebaseAuthIsAnonymous).(bool)
-}
+// func requestIsAnonymous(r *http.Request) bool {
+// 	ctx := r.Context()
+// 	return ctx.Value(firebaseAuthIsAnonymous).(bool)
+// }

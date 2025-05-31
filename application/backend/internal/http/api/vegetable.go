@@ -1,12 +1,17 @@
-package v1
+package api
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	nethttp "net/http"
+	"time"
 
 	"github.com/7d4b9/utrade/backend/internal/http"
+	"github.com/7d4b9/utrade/backend/internal/vegetable"
+	vegetableimage "github.com/7d4b9/utrade/images/vegetable"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 type VegetableImage struct {
@@ -16,17 +21,19 @@ type VegetableImage struct {
 }
 
 type Vegetable struct {
-	ID          string           `json:"id,omitempty"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	SaleType    string           `json:"saleType"`
-	WeightGrams int              `json:"weightGrams"`
-	PriceCents  int              `json:"priceCents"`
-	Images      []VegetableImage `json:"images"`
-	CreatedAt   int64            `json:"createdAt"`
+	ID            string           `json:"id,omitempty"`
+	Name          string           `json:"name"`
+	Description   string           `json:"description"`
+	SaleType      string           `json:"saleType"`
+	WeightGrams   int              `json:"weightGrams"`
+	PriceCents    int              `json:"priceCents"`
+	Images        []VegetableImage `json:"images"`
+	CreatedAt     *time.Time       `json:"createdAt"`
+	UserCreatedAt *time.Time       `json:"userCreatedAt,omitempty"`
 }
 
 type VegetableStorage interface {
+	vegetable.Storage
 	StoreVegetable(ctx context.Context, userID string, v Vegetable) error
 	GetVegetable(ctx context.Context, userID, id string) (*Vegetable, error)
 	ListVegetables(ctx context.Context, userID string) ([]*Vegetable, error)
@@ -34,7 +41,7 @@ type VegetableStorage interface {
 }
 
 type VegetableImageValidator interface {
-	SetImageValidation(ctx context.Context, userID string, images []VegetableImage) error
+	SetImageValidation(ctx context.Context, userID string, images []vegetableimage.VegetableCreatedImageMessage) error
 }
 
 // VegetableService defines all routes handled by VegetableService
@@ -44,8 +51,14 @@ type VegetableService struct {
 }
 
 func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage) (*VegetableService, error) {
+	vegetableClient, err := vegetable.NewVegetableClient(storage)
+	if err != nil {
+		log.Fatal().Err(err).Msg("new vegetable client")
+	}
+	defer vegetableClient.Close()
 	service := &VegetableService{
-		storage: storage,
+		storage:        storage,
+		imageValidator: vegetableClient,
 	}
 	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.CreateVegetable),
@@ -70,22 +83,26 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 	userID := r.Header.Get("X-User-ID")
 	var v Vegetable
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+		log.Error().Err(err).Msg("failed to decode vegetable payload")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}
 	v.ID = uuid.NewString()
-	if v.CreatedAt == 0 {
-		v.CreatedAt = (r.Context().Value("requestTime")).(int64)
-		if v.CreatedAt == 0 {
-			// fallback to current unix time in seconds
-			v.CreatedAt = (int64)(r.Context().Value("requestUnixTime").(int64))
-		}
+	var createdImages []vegetableimage.VegetableCreatedImageMessage
+	for index, img := range v.Images {
+		createdImages = append(createdImages, vegetableimage.VegetableCreatedImageMessage{
+			VegetableID: v.ID,
+			ImageID:     fmt.Sprintf("%d", index),
+			ImageURL:    img.URL,
+		})
+		v.Images[index].URL = "" // Clear the URL to avoid storing it in the vegetable object before validation
 	}
 
-	if err := s.imageValidator.SetImageValidation(ctx, v.ID, v.Images); err != nil {
+	if err := s.imageValidator.SetImageValidation(ctx, v.ID, createdImages); err != nil {
 		nethttp.Error(w, "set image validation failed", nethttp.StatusInternalServerError)
 		return
 	}
+
 	if err := s.storage.StoreVegetable(ctx, userID, v); err != nil {
 		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
 		return

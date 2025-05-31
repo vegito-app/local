@@ -1,4 +1,4 @@
-package v1
+package api
 
 import (
 	nethttp "net/http"
@@ -39,15 +39,15 @@ func NewUserService(mux *nethttp.ServeMux, storage UserStorage, userRecoveryKeyV
 		},
 	}
 
-	mux.Handle("GET /user/store-recoverykey", http.ApplyMiddleware(
+	mux.Handle("GET /api/user/store-recoverykey", http.ApplyMiddleware(
 		nethttp.HandlerFunc(u.retrieveUserRecoveryKey),
 		FirebaseAuthMiddleware))
 
-	mux.Handle("POST /user/store-recoverykey", http.ApplyMiddleware(
+	mux.Handle("POST /api/user/store-recoverykey", http.ApplyMiddleware(
 		nethttp.HandlerFunc(u.storeUserRecoveryKey),
 		FirebaseAuthMiddleware))
 
-	mux.Handle("POST /user/get-recoverykey-version", http.ApplyMiddleware(
+	mux.Handle("POST /api/user/get-recoverykey-version", http.ApplyMiddleware(
 		nethttp.HandlerFunc(u.getUserRecoveryKeyVersion),
 		FirebaseAuthMiddleware))
 

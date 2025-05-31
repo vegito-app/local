@@ -8,7 +8,7 @@ import (
 
 	"github.com/7d4b9/utrade/backend/btc"
 	"github.com/7d4b9/utrade/backend/internal/http"
-	v1 "github.com/7d4b9/utrade/backend/internal/http/api/v1"
+	"github.com/7d4b9/utrade/backend/internal/http/api"
 	"github.com/7d4b9/utrade/backend/internal/storage"
 	"github.com/7d4b9/utrade/backend/internal/vault"
 	"github.com/7d4b9/utrade/backend/track"
@@ -39,7 +39,7 @@ func main() {
 	btcService := btc.NewBTC()
 	defer btcService.Close()
 
-	s, err := v1.NewService(firebaseApp, storage, btcService, vaultClient)
+	s, err := api.NewService(firebaseApp, storage, btcService, vaultClient)
 	if err != nil {
 		log.Fatal().Err(err).Msg("create api services")
 	}

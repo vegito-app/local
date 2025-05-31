@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"cloud.google.com/go/pubsub"
-	apiV1 "github.com/7d4b9/utrade/backend/internal/http/api/v1"
 	"github.com/7d4b9/utrade/images/vegetable"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -123,22 +122,15 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 	return nil
 }
 
-func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID string, images []apiV1.VegetableImage) error {
+func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID string, images []vegetable.VegetableCreatedImageMessage) error {
 
 	var wg sync.WaitGroup
 	defer wg.Wait()
 	wg.Add(len(images))
 	for index, img := range images {
-		go func(index int, img apiV1.VegetableImage) {
+		go func(index int, img vegetable.VegetableCreatedImageMessage) {
 			defer wg.Done()
-
-			msg := vegetable.VegetableCreatedImageMessage{
-				VegetableID: vegetableID,
-				ImageID:     fmt.Sprintf("%d", index),
-				ImageURL:    img.URL,
-			}
-
-			payload, err := json.Marshal(msg)
+			payload, err := json.Marshal(img)
 			if err != nil {
 				log.Error().Err(err).
 					Fields(map[string]any{

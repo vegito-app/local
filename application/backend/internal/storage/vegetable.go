@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/firestore"
-	apiV1 "github.com/7d4b9/utrade/backend/internal/http/api/v1"
+	"github.com/7d4b9/utrade/backend/internal/http/api"
 )
 
 type VegetableStorage struct {
@@ -18,9 +18,8 @@ func NewVegetableStorage(firestore *firestore.Client) *VegetableStorage {
 	}
 }
 
-func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v apiV1.Vegetable) error {
-
-	_, err := s.firestore.Collection("vegetables").Doc(v.ID).Set(ctx, map[string]any{
+func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v api.Vegetable) error {
+	data := map[string]any{
 		"name":        v.Name,
 		"description": v.Description,
 		"saleType":    v.SaleType,
@@ -29,14 +28,19 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 		"images":      v.Images,
 		"ownerId":     userID,
 		"createdAt":   firestore.ServerTimestamp,
-	})
+	}
+	if v.CreatedAt != nil {
+		data["userCreatedAt"] = v.CreatedAt.Format("2006-01-02T15:04:05Z07:00")
+	}
+
+	_, err := s.firestore.Collection("vegetables").Doc(v.ID).Set(ctx, data)
 	if err != nil {
 		return fmt.Errorf("failed to store vegetable %q: %w", v.ID, err)
 	}
 	return nil
 }
 
-func (f *Storage) GetVegetable(ctx context.Context, userID, id string) (*apiV1.Vegetable, error) {
+func (f *Storage) GetVegetable(ctx context.Context, userID, id string) (*api.Vegetable, error) {
 	doc, err := f.firestore.Collection("vegetables").Doc(id).Get(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get vegetable %q: %w", id, err)
@@ -45,18 +49,18 @@ func (f *Storage) GetVegetable(ctx context.Context, userID, id string) (*apiV1.V
 	if data["ownerId"] != userID {
 		return nil, fmt.Errorf("unauthorized access to vegetable %q", id)
 	}
-	var v apiV1.Vegetable
+	var v api.Vegetable
 	if err := doc.DataTo(&v); err != nil {
 		return nil, fmt.Errorf("failed to convert document %q to Vegetable: %w", doc.Ref.ID, err)
 	}
 	return &v, nil
 }
 
-func (f *Storage) ListVegetables(ctx context.Context, userID string) ([]*apiV1.Vegetable, error) {
+func (f *Storage) ListVegetables(ctx context.Context, userID string) ([]*api.Vegetable, error) {
 	iter := f.firestore.Collection("vegetables").Where("ownerId", "==", userID).Documents(ctx)
 	defer iter.Stop()
 
-	var list []*apiV1.Vegetable
+	var list []*api.Vegetable
 	for {
 		doc, err := iter.Next()
 		if err != nil {
@@ -65,7 +69,7 @@ func (f *Storage) ListVegetables(ctx context.Context, userID string) ([]*apiV1.V
 			}
 			return nil, fmt.Errorf("error while listing vegetables: %w", err)
 		}
-		var v apiV1.Vegetable
+		var v api.Vegetable
 
 		if err := doc.DataTo(&v); err != nil {
 			return nil, fmt.Errorf("failed to convert document %q to Vegetable: %w", doc.Ref.ID, err)

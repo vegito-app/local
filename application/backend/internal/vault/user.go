@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	api "github.com/7d4b9/utrade/backend/internal/http/api/v1"
+	"github.com/7d4b9/utrade/backend/internal/http/api"
 	"github.com/7d4b9/utrade/backend/vault"
 	"github.com/spf13/viper"
 )

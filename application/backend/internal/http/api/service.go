@@ -1,4 +1,4 @@
-package v1
+package api
 
 import (
 	"context"
@@ -26,11 +26,16 @@ func init() {
 // Service defines all routes handled by Service
 type Service struct {
 	nethttp.Handler
-	auth  Auth
-	rks   *UserRecoveryKeyService
-	vgs   *VegetableService
+	// authUser is used to verify user authentication
+	authUser AuthUser
+	// userRecoveryKey is used to manage user recovery keys
+	userRecoveryKey *UserRecoveryKeyService
+	// vegetable is used to manage vegetables
+	vegetable *VegetableService
+	// order is used to manage orders
 	order *OrderService
-	user  *UserService
+	// user is used to manage users
+	user *UserService
 }
 
 type Storage interface {
@@ -39,7 +44,7 @@ type Storage interface {
 	UserStorage
 }
 
-type Auth interface {
+type AuthUser interface {
 	VerifyIDToken(ctx context.Context, idToken string) (string, error)
 }
 
@@ -47,7 +52,7 @@ var (
 	ErrRecoveryKeyNotFound = fmt.Errorf("recovery key not found")
 )
 
-func NewService(auth Auth, storage Storage, btcService *btc.BTC, vault UserRecoveryKeyVault) (*Service, error) {
+func NewService(authUser AuthUser, storage Storage, btcService *btc.BTC, vault UserRecoveryKeyVault) (*Service, error) {
 	mux := nethttp.NewServeMux()
 
 	frontendDir := config.GetString(uiBuildDirConfig)
@@ -75,19 +80,23 @@ func NewService(auth Auth, storage Storage, btcService *btc.BTC, vault UserRecov
 	if err != nil {
 		return nil, fmt.Errorf("http api v1 new order service: %w", err)
 	}
+	vegetableService, err := NewVegetableService(mux, storage)
+	if err != nil {
+		return nil, fmt.Errorf("http api v1 new vegetable service: %w", err)
+	}
+	userService, err := NewUserService(mux, storage, vault)
+	if err != nil {
+		return nil, fmt.Errorf("http api v1 new user service: %w", err)
+	}
 	serviceV1 := &Service{
-		rks: &UserRecoveryKeyService{
+		userRecoveryKey: &UserRecoveryKeyService{
 			vault: vault,
 		},
-		vgs: &VegetableService{
-			storage: storage,
-		},
-		user: &UserService{
-			storage: storage,
-		},
-		auth:    auth,
-		order:   orderService,
-		Handler: mux,
+		vegetable: vegetableService,
+		user:      userService,
+		authUser:  authUser,
+		order:     orderService,
+		Handler:   mux,
 	}
 	mux.HandleFunc("POST /run", serviceV1.run)
 
