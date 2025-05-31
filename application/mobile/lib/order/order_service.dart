@@ -26,9 +26,12 @@ class OrderService {
 
   static Future<List<Order>> listByVegetableIds(
       List<String> vegetableIds) async {
-    final idsParam = vegetableIds.join(',');
-    final url = Uri.parse('$backendUrl/orders?vegetableIds=$idsParam');
-    final response = await http.get(url);
+    final url = Uri.parse('$backendUrl/orders/search');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'vegetableIds': vegetableIds}),
+    );
 
     if (response.statusCode != 200) {
       throw Exception('Échec lors de la récupération des commandes');
@@ -48,7 +51,7 @@ class OrderService {
   }
 
   static Future<List<Order>> listByClientId(String clientId) async {
-    final url = Uri.parse('$backendUrl/orders?clientId=$clientId');
+    final url = Uri.parse('$backendUrl/orders/client/$clientId');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -57,5 +60,32 @@ class OrderService {
 
     final data = jsonDecode(response.body) as List;
     return data.map((e) => Order.fromMap(e as Map<String, dynamic>)).toList();
+  }
+
+  static Future<Order> getOrder(String orderId) async {
+    final url = Uri.parse('$backendUrl/orders/$orderId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 404) {
+      throw Exception('Commande non trouvée');
+    }
+    if (response.statusCode != 200) {
+      throw Exception('Erreur lors de la récupération de la commande');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return Order.fromMap(data);
+  }
+
+  static Future<void> deleteOrder(String orderId) async {
+    final url = Uri.parse('$backendUrl/orders/$orderId');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 404) {
+      throw Exception('Commande non trouvée');
+    }
+    if (response.statusCode != 204) {
+      throw Exception('Erreur lors de la suppression de la commande');
+    }
   }
 }
