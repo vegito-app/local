@@ -117,25 +117,25 @@ workspaceFile=${PWD}/vscode.code-workspace
       "path": "application/run"
     },
     {
-      "name": "Dev - Builder",
-      "path": "dev"
+      "name": "Local - Builder",
+      "path": "local"
     },
     {
-      "name": "Dev - Firebase Emulators - Local",
-      "path": "dev/firebase-emulators"
+      "name": "Local - Firebase Emulators",
+      "path": "local/firebase-emulators"
     },
     {
-      "name": "Dev - Android Studio - Local",
-      "path": "dev/android-studio"
+      "name": "Local - Android Studio",
+      "path": "local/android-studio"
     },
     {
-      "name": "Dev - Vault - Local",
-      "path": "dev/vault"
+      "name": "Local - Vault",
+      "path": "local/vault-dev"
     },
     {
-      "name": "Dev - Clarinet",
-      "path": "dev/clarinet"
-    }
+      "name": "Local - Clarinet",
+      "path": "local/clarinet-devnet"
+    },
     {
       "name": "Infrastructure - Cloud",
       "path": "infra"
