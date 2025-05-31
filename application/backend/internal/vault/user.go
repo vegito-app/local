@@ -178,6 +178,6 @@ func (c *Client) GetUserRecoveryKeyVersion(userID string) (int, error) {
 	return version, nil
 }
 
-func (c *Client) StoreRecoveryKeyVersion(userID string, version int) error {
+func (c *Client) StoreUserRecoveryKeyVersion(userID string, version int) error {
 	return c.userStorage.StoreLatestRecoveryKeyVersion(userID, version)
 }

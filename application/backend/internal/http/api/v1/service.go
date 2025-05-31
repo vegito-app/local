@@ -26,20 +26,20 @@ func init() {
 // Service defines all routes handled by Service
 type Service struct {
 	nethttp.Handler
-	rks   *RecoveryKeyService
+	auth  Auth
+	rks   *UserRecoveryKeyService
 	vgs   *VegetableService
 	order *OrderService
-
-	fbAuth FirebaseAuth
+	user  *UserService
 }
 
-type Firebase interface {
-	FirebaseAuth
+type Storage interface {
 	VegetableStorage
 	OrderStorage
+	UserStorage
 }
 
-type FirebaseAuth interface {
+type Auth interface {
 	VerifyIDToken(ctx context.Context, idToken string) (string, error)
 }
 
@@ -47,7 +47,7 @@ var (
 	ErrRecoveryKeyNotFound = fmt.Errorf("recovery key not found")
 )
 
-func NewService(firebase Firebase, btcService *btc.BTC, vault RecoveryKeyVault) (*Service, error) {
+func NewService(auth Auth, storage Storage, btcService *btc.BTC, vault UserRecoveryKeyVault) (*Service, error) {
 	mux := nethttp.NewServeMux()
 
 	frontendDir := config.GetString(uiBuildDirConfig)
@@ -71,53 +71,28 @@ func NewService(firebase Firebase, btcService *btc.BTC, vault RecoveryKeyVault) 
 	}))
 	mux.Handle("GET /", nethttp.FileServer(nethttp.Dir(frontendDir)))
 
-	orderService, err := NewOrderService(mux, firebase)
+	orderService, err := NewOrderService(mux, storage)
 	if err != nil {
 		return nil, fmt.Errorf("http api v1 new order service: %w", err)
 	}
 	serviceV1 := &Service{
-		rks: &RecoveryKeyService{
+		rks: &UserRecoveryKeyService{
 			vault: vault,
 		},
 		vgs: &VegetableService{
-			storage: firebase,
+			storage: storage,
 		},
-		fbAuth:  firebase,
+		user: &UserService{
+			storage: storage,
+		},
+		auth:    auth,
 		order:   orderService,
 		Handler: mux,
 	}
 	mux.HandleFunc("POST /run", serviceV1.run)
 
-	mux.Handle("GET /user/store-recoverykey", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.rks.retrieveUserRecoveryKey),
-		FirebaseAuthMiddleware))
-
-	mux.Handle("POST /user/store-recoverykey", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.rks.storeUserRecoveryKey),
-		FirebaseAuthMiddleware))
-
-	mux.Handle("POST /user/get-recoverykey-version", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.rks.getUserRecoveryKeyVersion),
-		FirebaseAuthMiddleware))
-
 	mux.Handle("GET /api/auth-check", http.ApplyMiddleware(
 		nethttp.HandlerFunc(serviceV1.authCheck),
-		FirebaseAuthMiddleware))
-
-	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.vgs.CreateVegetable),
-		FirebaseAuthMiddleware))
-
-	mux.Handle("GET /api/vegetables", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.vgs.ListVegetables),
-		FirebaseAuthMiddleware))
-
-	mux.Handle("GET /api/vegetable", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.vgs.GetVegetable),
-		FirebaseAuthMiddleware))
-
-	mux.Handle("DELETE /api/vegetable", http.ApplyMiddleware(
-		nethttp.HandlerFunc(serviceV1.vgs.DeleteVegetable),
 		FirebaseAuthMiddleware))
 
 	return serviceV1, nil

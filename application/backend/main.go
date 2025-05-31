@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/7d4b9/utrade/backend/firebase"
 	_ "github.com/7d4b9/utrade/backend/log"
 
 	"github.com/7d4b9/utrade/backend/btc"
@@ -16,13 +17,21 @@ import (
 
 func main() {
 	track.TrackUsage()
-	storage, err := storage.NewStorage()
+
+	ctx := context.TODO()
+
+	firebaseApp, err := firebase.NewApp(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("new firebase app")
 	}
+
+	storage, err := storage.NewStorage(firebaseApp)
+	if err != nil {
+		log.Fatal().Err(err).Msg("new storage")
+	}
 	defer storage.Close()
 
-	vaultClient, err := vault.NewClient(context.Background(), storage)
+	vaultClient, err := vault.NewClient(ctx, storage)
 	if err != nil {
 		log.Fatal().Err(err).Msg("new vault client")
 	}
@@ -30,7 +39,7 @@ func main() {
 	btcService := btc.NewBTC()
 	defer btcService.Close()
 
-	s, err := v1.NewService(storage, btcService, vaultClient)
+	s, err := v1.NewService(firebaseApp, storage, btcService, vaultClient)
 	if err != nil {
 		log.Fatal().Err(err).Msg("create api services")
 	}

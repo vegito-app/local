@@ -84,3 +84,17 @@ func (f *App) NewAuthClient(ctx context.Context) (*AuthClient, error) {
 		Client: client,
 	}, nil
 }
+
+func (f *App) VerifyIDToken(ctx context.Context, idToken string) (string, error) {
+
+	// Normal production verification
+	authClient, err := f.NewAuthClient(ctx)
+	if err != nil {
+		return "", fmt.Errorf("getting auth client: %w", err)
+	}
+	token, err := authClient.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		return "", fmt.Errorf("invalid token: %w", err)
+	}
+	return token.UID, nil
+}

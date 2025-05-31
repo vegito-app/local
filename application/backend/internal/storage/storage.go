@@ -30,16 +30,11 @@ type Storage struct {
 	app       *firebase.App
 }
 
-func NewStorage(opts ...option.ClientOption) (*Storage, error) {
+func NewStorage(app *firebase.App, opts ...option.ClientOption) (*Storage, error) {
 
 	timeout := config.GetDuration(appCreationTimeoutConfig)
 	ctx, cancelAppCreation := context.WithTimeout(context.Background(), timeout)
 	defer cancelAppCreation()
-
-	app, err := firebase.NewApp(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("firebase new app: %w", err)
-	}
 
 	firestore, err := app.Firestore(ctx)
 	if err != nil {
@@ -67,18 +62,4 @@ func (c *Storage) Close() {
 	if err := c.firestore.Close(); err != nil {
 		log.Println("firebase close firestore, error:", err.Error())
 	}
-}
-
-func (f *Storage) VerifyIDToken(ctx context.Context, idToken string) (string, error) {
-
-	// Normal production verification
-	authClient, err := f.app.NewAuthClient(ctx)
-	if err != nil {
-		return "", fmt.Errorf("getting auth client: %w", err)
-	}
-	token, err := authClient.VerifyIDToken(ctx, idToken)
-	if err != nil {
-		return "", fmt.Errorf("invalid token: %w", err)
-	}
-	return token.UID, nil
 }

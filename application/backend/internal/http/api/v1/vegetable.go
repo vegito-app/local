@@ -3,8 +3,9 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"net/http"
+	nethttp "net/http"
 
+	"github.com/7d4b9/utrade/backend/internal/http"
 	"github.com/google/uuid"
 )
 
@@ -42,18 +43,34 @@ type VegetableService struct {
 	imageValidator VegetableImageValidator
 }
 
-func NewVegetableService(storage VegetableStorage) (*VegetableService, error) {
-	return &VegetableService{
+func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage) (*VegetableService, error) {
+	service := &VegetableService{
 		storage: storage,
-	}, nil
+	}
+	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.CreateVegetable),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("GET /api/vegetables", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.ListVegetables),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("GET /api/vegetable", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.GetVegetable),
+		FirebaseAuthMiddleware))
+
+	mux.Handle("DELETE /api/vegetable", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.DeleteVegetable),
+		FirebaseAuthMiddleware))
+	return service, nil
 }
 
-func (s *VegetableService) CreateVegetable(w http.ResponseWriter, r *http.Request) {
+func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := r.Header.Get("X-User-ID")
 	var v Vegetable
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
-		http.Error(w, "invalid payload", http.StatusBadRequest)
+		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}
 	v.ID = uuid.NewString()
@@ -66,57 +83,57 @@ func (s *VegetableService) CreateVegetable(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := s.imageValidator.SetImageValidation(ctx, v.ID, v.Images); err != nil {
-		http.Error(w, "set image validation failed", http.StatusInternalServerError)
+		nethttp.Error(w, "set image validation failed", nethttp.StatusInternalServerError)
 		return
 	}
 	if err := s.storage.StoreVegetable(ctx, userID, v); err != nil {
-		http.Error(w, "store failed", http.StatusInternalServerError)
+		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(nethttp.StatusCreated)
 }
 
-func (s *VegetableService) ListVegetables(w http.ResponseWriter, r *http.Request) {
+func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := r.Header.Get("X-User-ID")
 	veggies, err := s.storage.ListVegetables(ctx, userID)
 	if err != nil {
-		http.Error(w, "list failed", http.StatusInternalServerError)
+		nethttp.Error(w, "list failed", nethttp.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(veggies)
 }
 
-func (s *VegetableService) GetVegetable(w http.ResponseWriter, r *http.Request) {
+func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := r.Header.Get("X-User-ID")
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		http.Error(w, "missing id", http.StatusBadRequest)
+		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
 		return
 	}
 	veggie, err := s.storage.GetVegetable(ctx, userID, id)
 	if err != nil {
-		http.Error(w, "get failed", http.StatusInternalServerError)
+		nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(veggie)
 }
 
-func (s *VegetableService) DeleteVegetable(w http.ResponseWriter, r *http.Request) {
+func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := r.Header.Get("X-User-ID")
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		http.Error(w, "missing id", http.StatusBadRequest)
+		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
 		return
 	}
 	if err := s.storage.DeleteVegetable(ctx, userID, id); err != nil {
-		http.Error(w, "delete failed", http.StatusInternalServerError)
+		nethttp.Error(w, "delete failed", nethttp.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(nethttp.StatusNoContent)
 }
 
 // func (s *VegetableService) UpdateVegetable(w http.ResponseWriter, r *http.Request) {

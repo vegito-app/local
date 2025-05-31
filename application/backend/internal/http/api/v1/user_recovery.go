@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type RecoveryKeyVault interface {
+type UserRecoveryKeyVault interface {
 	// StoreUserRecoveryKey stores a user's recovery key in the vault.
 	// Returns an error if the storage fails (500).
 	StoreUserRecoveryKey(userID string, recoveryKey []byte) error
@@ -22,22 +22,22 @@ type RecoveryKeyVault interface {
 	// Returns (0, ErrRecoveryKeyNotFound) if not found (404).
 	GetUserRecoveryKeyVersion(userID string) (int, error)
 
-	// StoreRecoveryKeyVersion stores the version for a user's recovery key.
+	// StoreUserRecoveryKeyVersion stores the version for a user's recovery key.
 	// Returns an error if the storage fails (500).
-	StoreRecoveryKeyVersion(userID string, version int) error
+	StoreUserRecoveryKeyVersion(userID string, version int) error
 }
 
-// RecoveryKeyService defines all routes handled by RecoveryKeyService
-type RecoveryKeyService struct {
-	vault RecoveryKeyVault
+// UserRecoveryKeyService defines all routes handled by UserRecoveryKeyService
+type UserRecoveryKeyService struct {
+	vault UserRecoveryKeyVault
 }
 
-type StoreRecoveryKeyRequestBody struct {
+type StoreUserRecoveryKeyRequestBody struct {
 	UserID      string `json:"userId"`
 	RecoveryKey []byte `json:"recoveryKey"`
 }
 
-func (s *RecoveryKeyService) retrieveUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
+func (s *UserRecoveryKeyService) retrieveUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
 	var reqBody struct {
 		UserID string `json:"userId"`
 	}
@@ -63,10 +63,10 @@ func (s *RecoveryKeyService) retrieveUserRecoveryKey(w http.ResponseWriter, r *h
 	})
 }
 
-func (s *RecoveryKeyService) storeUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
+func (s *UserRecoveryKeyService) storeUserRecoveryKey(w http.ResponseWriter, r *http.Request) {
 	_ = r.Context()
 
-	var reqBody StoreRecoveryKeyRequestBody
+	var reqBody StoreUserRecoveryKeyRequestBody
 
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		http.Error(w, `{"error":"invalid request body"}`, http.StatusBadRequest)
@@ -85,7 +85,7 @@ func (s *RecoveryKeyService) storeUserRecoveryKey(w http.ResponseWriter, r *http
 }
 
 // getUserRecoveryKeyVersion handles getting the current version of the recovery key for a user.
-func (s *RecoveryKeyService) getUserRecoveryKeyVersion(w http.ResponseWriter, r *http.Request) {
+func (s *UserRecoveryKeyService) getUserRecoveryKeyVersion(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		UserID string `json:"userId"`
 	}
