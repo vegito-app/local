@@ -9,7 +9,7 @@ FIREBASE_EMULATORS_DIR = $(CURDIR)/local/firebase-emulators
 FIREBASE_EMULATORS = cd $(FIREBASE_EMULATORS_DIR) && firebase
 # This is a comma separated list of emulator names.# Valid options are:
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
-FIREBASE_EMULATORS_SERVICES = auth,functions,firestore,storage
+FIREBASE_EMULATORS_SERVICES = auth,functions,firestore,storage,pubsub
 
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators-prepare
