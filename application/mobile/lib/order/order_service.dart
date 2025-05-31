@@ -12,7 +12,7 @@ class OrderService {
     required String clientId,
     required int quantity,
   }) async {
-    final url = Uri.parse('$backendUrl/orders');
+    final url = Uri.parse('$backendUrl/api/orders');
     await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -26,7 +26,7 @@ class OrderService {
 
   static Future<List<Order>> listByVegetableIds(
       List<String> vegetableIds) async {
-    final url = Uri.parse('$backendUrl/orders/search');
+    final url = Uri.parse('$backendUrl/api/orders/search');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -42,7 +42,7 @@ class OrderService {
   }
 
   static Future<void> updateStatus(String orderId, String status) async {
-    final url = Uri.parse('$backendUrl/orders/$orderId');
+    final url = Uri.parse('$backendUrl/api/orders/$orderId');
     await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -51,7 +51,7 @@ class OrderService {
   }
 
   static Future<List<Order>> listByClientId(String clientId) async {
-    final url = Uri.parse('$backendUrl/orders/client/$clientId');
+    final url = Uri.parse('$backendUrl/api/orders/client/$clientId');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -63,7 +63,7 @@ class OrderService {
   }
 
   static Future<Order> getOrder(String orderId) async {
-    final url = Uri.parse('$backendUrl/orders/$orderId');
+    final url = Uri.parse('$backendUrl/api/orders/$orderId');
     final response = await http.get(url);
 
     if (response.statusCode == 404) {
@@ -78,7 +78,7 @@ class OrderService {
   }
 
   static Future<void> deleteOrder(String orderId) async {
-    final url = Uri.parse('$backendUrl/orders/$orderId');
+    final url = Uri.parse('$backendUrl/api/orders/$orderId');
     final response = await http.delete(url);
 
     if (response.statusCode == 404) {

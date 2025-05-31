@@ -5,8 +5,6 @@ import 'package:car2go/vegetable/vegetable_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 
-const backendUrl = Config.backendUrl;
-
 class VegetableService {
   static Future<Map<String, String>> _authHeaders() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -19,7 +17,7 @@ class VegetableService {
 
   static Future<List<Vegetable>> listVegetables() async {
     final response = await http.get(
-      Uri.parse('$backendUrl/vegetables'),
+      Uri.parse('${Config.backendUrl}/api/vegetables'),
       headers: await _authHeaders(),
     );
     if (response.statusCode == 200) {
@@ -34,7 +32,7 @@ class VegetableService {
 
   static Future<Vegetable> getVegetable(String id) async {
     final response = await http.get(
-      Uri.parse('$backendUrl/vegetables/$id'),
+      Uri.parse('${Config.backendUrl}/api/vegetables/$id'),
       headers: await _authHeaders(),
     );
     if (response.statusCode == 200) {
@@ -46,8 +44,9 @@ class VegetableService {
   }
 
   static Future<Vegetable> createVegetable(Vegetable vegetable) async {
+    final url = '${Config.backendUrl}/api/vegetables';
     final response = await http.post(
-      Uri.parse('$backendUrl/vegetables'),
+      Uri.parse(url),
       headers: await _authHeaders(),
       body: json.encode(vegetable.toJson()),
     );
@@ -61,7 +60,7 @@ class VegetableService {
 
   static Future<void> updateVegetable(String id, Vegetable vegetable) async {
     final response = await http.put(
-      Uri.parse('$backendUrl/vegetables/$id'),
+      Uri.parse('${Config.backendUrl}/api/vegetables/$id'),
       headers: await _authHeaders(),
       body: json.encode(vegetable.toJson()),
     );
@@ -72,7 +71,7 @@ class VegetableService {
 
   static Future<void> deleteVegetable(String id) async {
     final response = await http.delete(
-      Uri.parse('$backendUrl/vegetables/$id'),
+      Uri.parse('${Config.backendUrl}/api/vegetables/$id'),
       headers: await _authHeaders(),
     );
     if (response.statusCode != 204) {

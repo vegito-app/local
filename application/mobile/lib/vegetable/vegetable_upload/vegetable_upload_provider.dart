@@ -109,7 +109,7 @@ class VegetableUploadProvider with ChangeNotifier {
         priceCents: priceCents,
         images: vegetableImages,
         ownerId: user.uid,
-        createdAt: DateTime.now(),
+        createdAt: DateTime.now().toUtc(),
       );
       await VegetableService.createVegetable(vegetable);
 

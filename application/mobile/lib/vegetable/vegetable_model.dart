@@ -71,8 +71,7 @@ class Vegetable {
 
   Map<String, dynamic> toJson() {
     return {
-      'createdAt':
-          createdAt is DateTime ? Timestamp.fromDate(createdAt) : createdAt,
+      'createdAt': createdAt.toIso8601String(),
       'description': description,
       'images': images.map((e) => e.toJson()).toList(),
       'name': name,

@@ -47,7 +47,7 @@ Future<void> main() async {
       final recoveryKey = generateKey();
 
       final response = await http.post(
-        Uri.parse('$backendUrl/user/rotate-recoverykey'),
+        Uri.parse('$backendUrl/api/user/rotate-recoverykey'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "userId": userId,

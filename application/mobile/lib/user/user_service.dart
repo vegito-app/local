@@ -12,7 +12,7 @@ class UserService {
     required String email,
     required String password,
   }) async {
-    final url = Uri.parse('$backendUrl/users');
+    final url = Uri.parse('$backendUrl/api/users');
     await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -25,7 +25,7 @@ class UserService {
   }
 
   static Future<List<UserProfile>> listUsers() async {
-    final url = Uri.parse('$backendUrl/users');
+    final url = Uri.parse('$backendUrl/api/users');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
@@ -44,7 +44,7 @@ class UserService {
 
   static Future<void> updateUserById(
       String userId, Map<String, dynamic> updates) async {
-    final url = Uri.parse('$backendUrl/users/$userId');
+    final url = Uri.parse('$backendUrl/api/users/$userId');
     await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -53,7 +53,7 @@ class UserService {
   }
 
   static Future<UserProfile> getUserProfile(String userId) async {
-    final url = Uri.parse('$backendUrl/users/$userId');
+    final url = Uri.parse('$backendUrl/api/users/$userId');
     final response = await http.get(url);
 
     if (response.statusCode != 200) {
