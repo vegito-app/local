@@ -24,6 +24,7 @@ services:
       - ${NESTOR_FIREBASE_EMULATOR_HUB_PORT:-4400}:4400
       - ${NESTOR_FIREBASE_RESERVED_O_PORT:-4500}:4500
       - ${NESTOR_FIREBASE_FUNCTIONS_PORT:-5001}:5001
+      - ${NESTOR_FIREBASE_FIRESTORE_PORT:-8085}:8085
       - ${NESTOR_FIREBASE_FIRESTORE_PORT:-8090}:8090
       - ${NESTOR_FIREBASE_DATABASE_PORT:-9000}:9000
       - ${NESTOR_FIREBASE_AUTH_PORT:-9099}:9099
@@ -61,7 +62,7 @@ services:
       trap kill_jobs EXIT
       for i in \
           8200 8201 \
-          4000 4400 4500 5001 5901 8090 9000 9099 \
+          4000 4400 4500 5001 5901 8085 8090 9000 9099 \
           8080 ; do
           socat TCP-LISTEN:$$i,fork,reuseaddr TCP:dev:$$i > /tmp/socat-nestor-dev-$$i.log 2>&1 &
           bg_pids+=("$$!")

@@ -106,6 +106,10 @@
             "label": "Vault Cluster",
             "onAutoForward": "silent"
           },
+          "8085": {
+            "label": "Firebase Pub/Sub Emulator",
+            "onAutoForward": "silent"
+          },
           "8090": {
             "label": "Firebase Firestore",
             "onAutoForward": "silent"

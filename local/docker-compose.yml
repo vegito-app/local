@@ -75,6 +75,7 @@ services:
       - .env
     environment:
       FIREBASE_AUTH_EMULATOR_HOST: http://localhost:9099
+      FIREBASE_PUBSUB_EMULATOR_HOST: http://localhost:8085
       FIRESTORE_EMULATOR_HOST: http://localhost:8090
     volumes:
       - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
