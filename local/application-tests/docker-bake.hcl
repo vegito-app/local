@@ -27,9 +27,6 @@ target "application-tests-ci" {
   cache-to = [
     "type=inline",
   ]
-  platforms = [
-    "linux/amd64",
-  ]
 }
 
 variable "APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {

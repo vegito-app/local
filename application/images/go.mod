@@ -11,6 +11,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.20.1
 	google.golang.org/api v0.235.0
+	google.golang.org/genproto v0.0.0-20250528174236-200df99c418a
 )
 
 require (
@@ -70,7 +71,6 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
-	google.golang.org/genproto v0.0.0-20250528174236-200df99c418a // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250528174236-200df99c418a // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250528174236-200df99c418a // indirect
 	google.golang.org/grpc v1.72.2 // indirect

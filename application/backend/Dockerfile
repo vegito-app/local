@@ -36,6 +36,7 @@ RUN mkdir -p application/backend
 COPY application/backend/backend.mk application/backend/
 COPY application/backend/go.sum application/backend/
 COPY application/backend/go.mod application/backend/
+COPY application/images application/images
 
 RUN make go-application/backend-mod-download
 

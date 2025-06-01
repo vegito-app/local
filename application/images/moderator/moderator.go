@@ -14,6 +14,7 @@ import (
 	"github.com/7d4b9/utrade/images/vegetable"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	pb "google.golang.org/genproto/googleapis/cloud/vision/v1"
 )
 
 const (
@@ -99,7 +100,7 @@ func main() {
 			Str("message_data", string(msg.Data)).
 			Msg("Received message")
 
-		var payload vegetable.VegetableCreatedMessage
+		var payload vegetable.VegetableCreatedImageMessage
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			log.Error().Err(err).
 				Str("vegetable_id", payload.VegetableID).
@@ -143,10 +144,10 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 		return fmt.Errorf("No SafeSearch annotations found for image %s", vegetableID)
 	}
 	// Check for unsafe content
-	if annotations.Adult == vision.Likelihood_VERY_UNLIKELY &&
-		annotations.Medical == vision.Likelihood_VERY_UNLIKELY &&
-		annotations.Violence == vision.Likelihood_VERY_UNLIKELY &&
-		annotations.Racy == vision.Likelihood_VERY_UNLIKELY {
+	if annotations.Adult == pb.Likelihood_VERY_UNLIKELY &&
+		annotations.Medical == pb.Likelihood_VERY_UNLIKELY &&
+		annotations.Violence == pb.Likelihood_VERY_UNLIKELY &&
+		annotations.Racy == pb.Likelihood_VERY_UNLIKELY {
 		log.Debug().Str("vegetable_id", vegetableID).Msg("Image is safe")
 	} else {
 		storageClient, err := storage.NewClient(ctx)
