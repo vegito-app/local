@@ -69,10 +69,6 @@ USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-# Appium (required driver to be installed as non root user to be available)
-RUN sudo npm install -g appium && \
-    appium driver install uiautomator2
-
 # Flutter 
 ENV PATH=${PATH}:${HOME}/flutter/bin
 ARG flutter_version
@@ -102,14 +98,16 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     "ndk;${android_ndk_version}" \
     && case "$TARGETPLATFORM" in \
     "linux/amd64") \
-    sdkmanager "emulator" ;; \
-    "linux/arm64") \
-    echo "Skipping emulator install on $TARGETPLATFORM (not supported)" ;; \
-    esac \
+    sudo npm install -g appium \
+    && appium driver install uiautomator2 \
+    && sdkmanager "emulator" \
     && sdkmanager --install "system-images;android-33;google_apis;x86_64" \
     && sdkmanager --install "system-images;android-33;google_apis;arm64-v8a" \
     && echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel" \
-    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel"
+    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel" ;; \
+    "linux/arm64") \
+    echo "Skipping emulator install on $TARGETPLATFORM (not supported)" ;; \
+    esac
 
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
