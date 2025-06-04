@@ -56,9 +56,12 @@ services:
       - .env
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/.devcontainer/gcloud/infra/application_default_credentials.json}
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-moov}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-moov-dev-439608}
+      GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-moov-dev-439608}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/moov-dev-439608/secrets/firebase-config-web/versions/2}
       UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID:-projects/moov-dev-439608/secrets/google-maps-api-key/versions/1}
+      VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC: ${LOCAL_FIREBASE_EMULATORS_PUB_SUB_SUBSCRIPTIONS:-local-firebase-emulators-pubsub-created-images-moderator-topic}
+      VEGETABLE_VALIDATED_IMAGES_MODERATOR_PUBSUB_SUBSCRIPTION: ${LOCAL_FIREBASE_EMULATORS_PUBSUB_CREATED_IMAGES_TOPIC:-local-firebase-emulators-pubsub-validated-images-backend-subscription}
       VAULT_ADDR: http://vault-dev:8200
       VAULT_TOKEN: root
     volumes:
@@ -81,7 +84,11 @@ services:
       - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
       # - firebase-emulators-cache:/home/devuser/.cache/firebase/emulators
     working_dir: ${PWD:-/workspaces/refactored-winner}
-
+    command: |
+      bash -c '
+      set -eu
+      sleep infinity
+      '
     networks:
       dev:
 

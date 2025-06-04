@@ -57,4 +57,4 @@ done
 TARGET_PORT=9150 LISTEN_PORT=39150 localproxy &
 bg_pids+=("$!") 
 
-sleep infinity
+sleep infinity 

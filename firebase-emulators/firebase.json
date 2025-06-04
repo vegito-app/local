@@ -12,6 +12,7 @@
     "source": "../../application/firebase/functions",
     "ignore": [".git", "firebase-debug.log", "firebase-debug.*.log", "*.local"]
   },
+
   "emulators": {
     "ui": {
       "enabled": true,
@@ -23,6 +24,7 @@
       "port": 5001
     },
     "pubsub": {
+      "host": "0.0.0.0",
       "port": 8085
     },
     "firestore": {
@@ -45,5 +47,8 @@
       "rules": "./storage.rules",
       "storageBucket": "moov-dev-439608.appspot.com"
     }
+  },
+  "auth": {
+    "providers": ["password", "google.com", "facebook.com", "anonymous"]
   }
 }
