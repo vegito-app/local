@@ -22,7 +22,7 @@ localDotenvFile=${PWD}/local/.env
 COMPOSE_PROJECT_NAME=moov-dev-local
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-PROJECT_USER=user-id-here
+PROJECT_USER=user-to-setup
 # 
 # Can set 'MAKE_DEV_ON_START=false' to restart only the 'dev' container (skip 'make dev' in container 'dev' docker-compose command).
 MAKE_DEV_ON_START=true
@@ -49,6 +49,8 @@ FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secr
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
 UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
+LOCAL_FIREBASE_EMULATORS_PUBSUB_CREATED_IMAGES_TOPIC=local-firebase-emulators-pubsub-created-images-moderator-topic
+LOCAL_FIREBASE_EMULATORS_PUB_SUB_SUBSCRIPTIONS=local-firebase-emulators-pubsub-validated-images-backend-subscription
 # 
 #--------------------------------------------------------
 # ! Should not configure this section !
@@ -184,11 +186,21 @@ cat <<'EOF' > $backendLaunchDebug
             "program": "${workspaceFolder}",
             "env": {
                 "PORT": "8888",
+                "GOOGLE_APPLICATION_CREDENTIALS": "../../infra/environments/dev/gcloud-credentials.json",
+                "UI_CONFIG_FIREBASE_SECRET_ID": "projects/moov-dev-439608/secrets/firebase-config-web/versions/latest",
+                "UI_CONFIG_GOOGLEMAPS_SECRET_ID": "projects/moov-dev-439608/secrets/googlemaps-web-api-key/versions/latest",
+                "FIREBASE_PROJECT_ID": "moov-dev-439608",
+                "GCLOUD_PROJECT_ID": "moov-dev-439608",
                 "FRONTEND_BUILD_DIR": "../frontend/build",
                 "FRONTEND_PUBLIC_DIR": "../frontend/public",
                 "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
+                "FIRESTORE_EMULATOR_HOST": "localhost:8090",
+                "VAULT_ADDR": "http://localhost:8200",
                 "VAULT_TOKEN": "root",
-                "VAULT_ADDR": "http://vault-dev:8200",
+                "VAULT_MIN_USER_RECOVERY_KEY_ROTATION_INTERVAL": "1s",
+                "FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
+                "VEGETABLE_VALIDATED_IMAGES_MODERATOR_PUBSUB_SUBSCRIPTION": "local-firebase-emulators-pubsub-validated-images-backend-subscription",
+                "VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC": "projects/moov-dev-439608/topics/local-firebase-emulators-pubsub-created-images-moderator-topic"
             },
             "envFile": "${workspaceFolder}/../../local/.env",
         }
@@ -208,24 +220,37 @@ cat <<'EOF' > $mobileLaunchDebug
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "debug",
+            "name": "mobile",
             "request": "launch",
-            "args": [ "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888" ],
-            "program": "lib/main.dart",
             "type": "dart"
         },
         {
-            "name": "profile",
+            "name": "mobile (debug mode)",
             "request": "launch",
-            "args": [ "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888" ],
-            "type": "dart"
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+              "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888",
+            ]
         },
         {
-            "name": "release",
+            "name": "mobile (profile mode)",
             "request": "launch",
-            "args": [ "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888" ],
-            "type": "dart"
-        }   
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+              "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8080",
+            ]
+        },
+        {
+            "name": "mobile (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+              "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8080",
+            ]
+        }
     ]
 }
 EOF

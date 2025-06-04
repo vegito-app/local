@@ -183,11 +183,12 @@
         "Nash.awesome-flutter-snippets",
         "pjmiravalle.terraform-advanced-syntax-highlighting",
         "pkief.material-icon-theme",
+        "redhat.vscode-xml",
         "redhat.vscode-yaml",
         "shd101wyy.markdown-preview-enhanced",
         "standard.vscode-standard",
         "toba.vsfire",
-        "tylerharris.terraform-link-docs",
+        "tylerharris.terraform-link-docs"
       ]
     }
   }

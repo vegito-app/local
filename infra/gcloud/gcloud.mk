@@ -33,10 +33,32 @@ gcloud-application-credentials:
 	|| rm $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: gcloud-application-credentials
 
-gcloud-auth-login-sa: gcloud-auth-login gcloud-application-credentials gcloud-project-set gcloud-auth-serviceaccount-activate
-	@echo '✅ Successfully authenticated using service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)"'
-	@echo 'Further gcloud commands are going to use service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)" IAM role bindings'
-.PHONY: gcloud-auth-login-sa
+
+gcloud-auth-login:
+	@echo "🔐 Logging in to gcloud..."
+	@$(GCLOUD) auth login
+.PHONY: gcloud-auth-login
+
+gcloud-auth-reset:
+	@$(GCLOUD) auth revoke --all
+.PHONY: gcloud-auth-reset
+
+# gcloud-auth-login-sa: gcloud-auth-login gcloud-application-credentials gcloud-project-set gcloud-auth-serviceaccount-activate
+# 	@echo '✅ Successfully authenticated using service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)"'
+# 	@echo 'Further gcloud commands are going to use service account "$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)" IAM role bindings'
+# .PHONY: gcloud-auth-login-sa
+
+gcloud-auth-login-sa:
+	@if [ ! -f $(GOOGLE_APPLICATION_CREDENTIALS) ]; then \
+	  echo "🔐 No existing SA key found, logging in as user..."; \
+	  gcloud auth login --project=$(GOOGLE_CLOUD_PROJECT_ID); \
+	  echo "🔑 Creating key for $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."; \
+	  gcloud iam service-accounts keys create $(GOOGLE_APPLICATION_CREDENTIALS) \
+	    --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+	    --project=$(GOOGLE_CLOUD_PROJECT_ID); \
+	fi
+	@echo "✅ Activating service account credentials..."; \
+	gcloud auth activate-service-account --key-file=$(GOOGLE_APPLICATION_CREDENTIALS)
 
 # Use your root user email address permissions instead of your developer service account.
 gcloud-auth-login-email: gcloud-auth-login gcloud-project-set
@@ -58,11 +80,6 @@ gcloud-auth-config-set-account-user-email:
 	@$(GCLOUD) config set account $(USER_EMAIL)
 	@echo "Further gcloud commands are going to use your email as user with IAM role bindings if GOOGLE_APPLICATION_CREDENTIALS is empty."
 .PHONY: gcloud-auth-config-set-account-user-email
-
-gcloud-auth-login:
-	@echo "🔐 Logging in to gcloud..."
-	@$(GCLOUD) auth login
-.PHONY: gcloud-auth-login
 
 gcloud-project-set:
 	@echo "🔧 Configuring current project to $(GOOGLE_CLOUD_PROJECT_ID)."
@@ -86,11 +103,14 @@ gcloud-auth-default-application-credentials:
 
 ROOT_ADMIN_SERVICE_ACCOUNT = root-admin@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
+# set INFRA_ENV=prod in the environment to use root admin service account
 gcloud-root-admin-credentials:
-	@GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
+	INFRA_ENV=prod \
+	GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
 	$(MAKE) gcloud-application-credentials
 .PHONY: gcloud-root-admin-credentials
 
+# set INFRA_ENV=prod in the environment to use root admin service account
 gcloud-root-admin-credentials-revoke:
 	@GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
 	$(MAKE) gcloud-user-iam-sa-keys-clean-all
