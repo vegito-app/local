@@ -15,14 +15,15 @@ import (
 )
 
 type VegetableImage struct {
-	URL        string `json:"url"`
-	UploadedAt int64  `json:"uploadedAt"`
-	Status     string `json:"status"`
+	URL        string     `json:"url"`
+	UploadedAt *time.Time `json:"uploadedAt"`
+	Status     string     `json:"status"`
 }
 
 type Vegetable struct {
 	ID            string           `json:"id,omitempty"`
 	Name          string           `json:"name"`
+	OwnerID       string           `json:"ownerId"`
 	Description   string           `json:"description"`
 	SaleType      string           `json:"saleType"`
 	WeightGrams   int              `json:"weightGrams"`
@@ -50,15 +51,10 @@ type VegetableService struct {
 	imageValidator VegetableImageValidator
 }
 
-func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage) (*VegetableService, error) {
-	vegetableClient, err := vegetable.NewVegetableClient(storage)
-	if err != nil {
-		log.Fatal().Err(err).Msg("new vegetable client")
-	}
-	defer vegetableClient.Close()
+func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageValidator VegetableImageValidator) (*VegetableService, error) {
 	service := &VegetableService{
 		storage:        storage,
-		imageValidator: vegetableClient,
+		imageValidator: imageValidator,
 	}
 	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.CreateVegetable),
@@ -80,7 +76,7 @@ func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage) (*Vege
 
 func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	var v Vegetable
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 		log.Error().Err(err).Msg("failed to decode vegetable payload")
@@ -109,6 +105,11 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 	}
 
 	w.WriteHeader(nethttp.StatusCreated)
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		log.Error().Err(err).Msg("failed to encode vegetable response")
+		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {

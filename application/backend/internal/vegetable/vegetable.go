@@ -15,7 +15,7 @@ import (
 var config = viper.New()
 
 const (
-	gcloudProjectIDConfig                            = "gcloud_project_id"
+	gcloudProjectIDConfig                            = "google_cloud_projetct_id"
 	validatedImagesModeratorPubSubSubscriptionConfig = "validated_images_moderator_pubsub_subscription"
 	createdImagesModeratorPubSubTopic                = "created_images_moderator_pubsub_topic"
 )
@@ -56,8 +56,6 @@ func NewVegetableClient(storage Storage) (*VegetableClient, error) {
 		return nil, fmt.Errorf("image moderator subscription not set in config: %s", validatedImagesModeratorPubSubSubscriptionConfig)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-
 	validateImagesPublishTopic := pubSubClient.Topic(validateImagePublishTopic)
 
 	v := &VegetableClient{
@@ -65,13 +63,9 @@ func NewVegetableClient(storage Storage) (*VegetableClient, error) {
 		storage:                       storage,
 		validateImagesPublishTopic:    validateImagesPublishTopic,
 		validatedImagesSubscriptionID: validatedImagesTopicSubscription,
-		exit:                          cancel,
 	}
 
-	if err := v.receiveValidatedImages(ctx); err != nil {
-		return nil, fmt.Errorf("failed to initialize vegetable client: %w", err)
-	}
-
+	v.initialize()
 	log.Info().Str("image_moderator_input_topic", validateImagePublishTopic).Msg("Vegetable client running")
 
 	return v, nil
@@ -91,6 +85,25 @@ func (v *VegetableClient) Close() {
 	log.Info().Msg("Vegetable client closed")
 }
 
+func (v *VegetableClient) initialize() {
+	ctx, cancel := context.WithCancel(context.Background())
+	doneMessageReceive := make(chan struct{})
+	go func() {
+		defer close(doneMessageReceive)
+		if err := v.receiveValidatedImages(ctx); err != nil {
+			log.Error().Err(err).Msg("Failed to receive validated images")
+			cancel()
+			return
+		}
+		log.Info().Msg("Vegetable client started receiving validated images")
+	}()
+	v.exit = func() {
+		cancel()
+		<-doneMessageReceive
+		log.Info().Msg("Vegetable client shutdown complete")
+	}
+}
+
 func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 
 	validatedImagesSub := v.pubSubClient.Subscription(v.validatedImagesSubscriptionID)
@@ -108,7 +121,7 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 		}
 		log.Debug().Str("vegetable_id", payload.VegetableID).Msg("Processing validated image")
 
-		if err := v.storage.UpdateVegetableImageURL(ctx, payload.VegetableID, payload.ImageID, payload.ValidatedURL); err != nil {
+		if err := v.storage.UpdateVegetableImageURL(ctx, payload.VegetableID, payload.ImageID, payload.ImageURL); err != nil {
 			log.Error().Err(err).Msg("Failed to update vegetable image URL")
 			msg.Nack()
 			return

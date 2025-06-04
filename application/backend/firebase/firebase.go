@@ -7,24 +7,12 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	_ "github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
 	"google.golang.org/api/option"
 )
-
-var config = viper.New()
-
-const adminSDKserviceAccountIDConfig = "adminsdk_serviceaccount_id"
-
-const projectIDconfig = "project_id"
-
-func init() {
-	config.AutomaticEnv()
-	config.SetEnvPrefix("firebase")
-}
 
 type App struct {
 	*firebase.App

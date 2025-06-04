@@ -15,6 +15,7 @@ type Vegetable struct {
 	Name        string           `json:"name"`
 	Description string           `json:"description"`
 	SaleType    string           `json:"saleType"`
+	OwnerID     string           `json:"ownerId"`
 	WeightGrams int              `json:"weightGrams"`
 	PriceCents  int              `json:"priceCents"`
 	Images      []VegetableImage `json:"images"`

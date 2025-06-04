@@ -44,6 +44,10 @@ type Storage interface {
 	UserStorage
 }
 
+type ImageValidator interface {
+	VegetableImageValidator
+}
+
 type AuthUser interface {
 	VerifyIDToken(ctx context.Context, idToken string) (string, error)
 }
@@ -52,7 +56,7 @@ var (
 	ErrRecoveryKeyNotFound = fmt.Errorf("recovery key not found")
 )
 
-func NewService(authUser AuthUser, storage Storage, btcService *btc.BTC, vault UserRecoveryKeyVault) (*Service, error) {
+func NewService(authUser AuthUser, storage Storage, btcService *btc.BTC, vault UserRecoveryKeyVault, imageValidator ImageValidator) (*Service, error) {
 	mux := nethttp.NewServeMux()
 
 	frontendDir := config.GetString(uiBuildDirConfig)
@@ -80,7 +84,7 @@ func NewService(authUser AuthUser, storage Storage, btcService *btc.BTC, vault U
 	if err != nil {
 		return nil, fmt.Errorf("http api v1 new order service: %w", err)
 	}
-	vegetableService, err := NewVegetableService(mux, storage)
+	vegetableService, err := NewVegetableService(mux, storage, imageValidator)
 	if err != nil {
 		return nil, fmt.Errorf("http api v1 new vegetable service: %w", err)
 	}
