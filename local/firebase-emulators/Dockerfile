@@ -51,7 +51,7 @@ RUN set -ex; \
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-COPY docker-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-caches.sh
-COPY docker-emulators-start.sh /usr/local/bin/firebase-emulators-start.sh
+COPY container-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-caches.sh
+COPY container-entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
 
-CMD [ "firebase-emulators-start.sh" ]
+ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
