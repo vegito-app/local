@@ -69,11 +69,15 @@ dependencies:
   geolocator: ^14.0.0
   flutter_image_compress: ^2.4.0
   path_provider: ^2.1.5
+  flutter_facebook_auth: ^7.1.2
+  google_sign_in: ^6.3.0
+  mockito: ^5.4.6
 
 # import 'package:google_sign_in/google_sign_in.dart';
 # package:firebase_auth/firebase_auth.dart;
-
 dev_dependencies:
+  build_runner: any
+  build_test: any
   flutter_test:
     sdk: flutter
 
@@ -87,6 +91,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   test: ^1.25.15
+  mocktail: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
