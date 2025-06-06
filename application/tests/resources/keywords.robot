@@ -1,3 +1,6 @@
+*** Settings ***
+Library    AppiumLibrary
+Library    Process
 *** Keywords ***
 Fill Field By Index
     [Arguments]    ${index}    ${value}
@@ -19,3 +22,46 @@ Swipe Until Element Is Visible
 
 Handle Permission Popup
     Wait Until Keyword Succeeds    3x    1s    Run Keyword And Ignore Error    Click Element    id=com.android.permissioncontroller:id/permission_allow_button
+
+Go To Home Page
+    [Documentation]    Revient à l'écran d'accueil
+    ${visible}=    Run Keyword And Return Status    Page Contains Back
+    WHILE    ${visible}
+        Click Element    xpath=//android.widget.Button[@content-desc="Back"]
+        Sleep    0.5s
+        ${visible}=    Run Keyword And Return Status    Page Contains Back
+    END
+    
+Page Contains Back
+    [Documentation]    Vérifie si le bouton de retour est visible
+    Page Should Contain Element    xpath=//android.widget.Button[@content-desc="Back"]
+
+Reset State And Return Home
+    Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    automationName=UiAutomator2    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    noReset=true    dontStopAppOnReset=true
+    Clear Pictures Folder
+    Handle Permission Popup
+    Go To Home Page
+    # Reset Data Before Test    
+
+
+Remove Files From Device
+    [Arguments]    ${file_pattern}
+    Execute Adb Shell    rm -f ${file_pattern}
+
+Clear Pictures Folder
+    [Documentation]    Supprime toutes les images visibles dans /sdcard/Pictures.
+    Execute Adb Shell    rm -rf /sdcard/Pictures/*
+
+Push Test Image
+    [Arguments]    ${image}
+    [Documentation]    Copie une image donnée depuis le dépôt /sdcard/TestImagesDepot vers /sdcard/Pictures sur l'appareil Android.
+    Log    Copie de /sdcard/TestImagesDepot/${image} vers /sdcard/Pictures/${image}
+    Execute Adb Shell    cp /sdcard/TestImagesDepot/${image} /sdcard/Pictures/${image}
+
+Populate Pictures Folder With Selected Images
+    [Arguments]    @{images}
+    [Documentation]    Copie les images listées depuis le dépôt /sdcard/TestImagesDepot vers /sdcard/Pictures sur l'appareil Android.
+    FOR    ${image}    IN    @{images}
+        Log    Copie de /sdcard/TestImagesDepot/${image} vers /sdcard/Pictures/${image}
+        Execute Adb Shell    cp /sdcard/TestImagesDepot/${image} /sdcard/Pictures/${image}
+    END
