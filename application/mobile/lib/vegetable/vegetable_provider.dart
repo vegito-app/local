@@ -2,21 +2,17 @@ import 'package:flutter/material.dart';
 import 'vegetable_model.dart';
 import 'vegetable_service.dart';
 
-class VegetableListProvider with ChangeNotifier {
-  List<Vegetable> _allVegetables = [];
+class VegetableProvider with ChangeNotifier {
+  final VegetableService _service;
 
-  List<Vegetable> get vegetables => _allVegetables;
+  VegetableProvider({VegetableService? service})
+      : _service = service ?? VegetableService();
 
-  Future<void> reload() async {
-    _allVegetables = await VegetableService.listVegetables();
+  Future<Vegetable> createVegetable(Vegetable vegetable) async {
+    final created = await _service.createVegetable(vegetable);
     notifyListeners();
+    return created;
   }
 
-  Future<List<Vegetable>> findByIds(List<String> ids) async {
-    final vegetables = await VegetableService.listVegetables();
-    return vegetables.where((v) => ids.contains(v.id)).toList();
-  }
-
-  List<Vegetable> vegetablesByOwner(String uid) =>
-      _allVegetables.where((veg) => veg.ownerId == uid).toList();
+  // Tu peux ajouter d'autres méthodes si besoin (update, delete, list, ...)
 }

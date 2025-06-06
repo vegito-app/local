@@ -1,19 +1,17 @@
-import 'dart:io';
-
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/vegetable/vegetable_model.dart';
+import 'package:car2go/vegetable/vegetable_provider.dart';
 import 'package:car2go/vegetable/vegetable_service.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
 class VegetableUploadProvider with ChangeNotifier {
+  final VegetableService _service;
+  VegetableUploadProvider({VegetableService? service})
+      : _service = service ?? VegetableService();
+
   final List<XFile> _images = [];
   int _mainImageIndex = 0;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
 
   List<XFile> get images => _images;
@@ -48,80 +46,33 @@ class VegetableUploadProvider with ChangeNotifier {
   }
 
   Future<void> submitVegetable({
-    required BuildContext context,
+    required String userId,
+    required VegetableProvider vegetableProvider,
     required String name,
     required String description,
-    required String saleType,
     required int weightGrams,
     required int priceCents,
+    required String saleType,
   }) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final user = authProvider.user;
-    if (user == null) {
-      throw Exception('Utilisateur non authentifié');
-    }
-
     if (_images.isEmpty) {
-      throw Exception('Aucune image sélectionnée');
+      throw Exception('No images selected');
     }
+    final vegetableImages = await _service.uploadImages(
+      userId: userId,
+      images: _images,
+    );
 
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final List<VegetableImage> vegetableImages = [];
-
-      for (final imageFile in _images) {
-        final dir = await getTemporaryDirectory();
-        final targetPath =
-            '${dir.path}/${DateTime.now().millisecondsSinceEpoch}_${imageFile.name}.jpg';
-
-        final compressedFile = await FlutterImageCompress.compressAndGetFile(
-          imageFile.path,
-          targetPath,
-          quality: 85,
-          format: CompressFormat.jpeg,
-        );
-
-        if (compressedFile == null) {
-          throw Exception(
-              'Échec de la compression de l\'image : ${imageFile.name}');
-        }
-
-        final storageRef = FirebaseStorage.instance.ref().child(
-            'vegetables/${user.uid}/${DateTime.now().millisecondsSinceEpoch}_${imageFile.name}');
-        final uploadTask = await storageRef.putFile(File(compressedFile.path));
-        final imageUrl = await uploadTask.ref.getDownloadURL();
-
-        vegetableImages.add(VegetableImage(
-          url: imageUrl,
-          uploadedAt: DateTime.now().millisecondsSinceEpoch,
-          status: 'pending',
-        ));
-      }
-
-      final vegetable = Vegetable(
-        id: '',
-        name: name,
-        description: description,
-        saleType: saleType,
-        weightGrams: weightGrams,
-        priceCents: priceCents,
-        images: vegetableImages,
-        ownerId: user.uid,
-        createdAt: DateTime.now().toUtc(),
-      );
-      await VegetableService.createVegetable(vegetable);
-
-      _images.clear();
-      _mainImageIndex = 0;
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      throw Exception('Erreur lors de l\'envoi du légume : $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    final vegetable = Vegetable(
+      id: '',
+      name: name,
+      description: description,
+      saleType: saleType,
+      weightGrams: weightGrams,
+      priceCents: priceCents,
+      images: vegetableImages,
+      ownerId: userId,
+      createdAt: DateTime.now().toUtc(),
+    );
+    await _service.createVegetable(vegetable);
   }
 }
