@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/7d4b9/utrade/backend/firebase"
 )
 
@@ -30,17 +31,27 @@ func FirebaseAuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		isAnonymous := token.Firebase.SignInProvider == "anonymous"
-		ctx = context.WithValue(ctx, firebaseAuthIsAnonymous, isAnonymous)
-
-		ctx = context.WithValue(ctx, firebaseAuthTokenUID, token.UID)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		r = setRequiredUserID(r, token)
+		next.ServeHTTP(w, r)
 	})
 }
 
 func requestUserID(r *http.Request) string {
 	ctx := r.Context()
-	return ctx.Value(firebaseAuthTokenUID).(string)
+	a := ctx.Value(firebaseAuthTokenUID)
+	return a.(string)
+}
+
+func setRequiredUserID(r *http.Request, token *auth.Token) *http.Request {
+	ctx := r.Context()
+	checkAnonymousAuth(r, token)
+	return r.WithContext(context.WithValue(ctx, firebaseAuthTokenUID, token.UID))
+}
+
+func checkAnonymousAuth(r *http.Request, token *auth.Token) *http.Request {
+	ctx := r.Context()
+	isAnonymous := token.Firebase.SignInProvider == "anonymous"
+	return r.WithContext(context.WithValue(ctx, firebaseAuthIsAnonymous, isAnonymous))
 }
 
 // func requestIsAnonymous(r *http.Request) bool {
