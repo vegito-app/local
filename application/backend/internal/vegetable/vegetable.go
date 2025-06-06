@@ -27,7 +27,7 @@ func init() {
 }
 
 type Storage interface {
-	UpdateVegetableImageURL(ctx context.Context, vegetableID, imageID, imageURL string) error
+	SetVegetableImageUploaded(ctx context.Context, vegetableID, imageID, imageURL string) error
 }
 
 type VegetableClient struct {
@@ -121,13 +121,19 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 		}
 		log.Debug().Str("vegetable_id", payload.VegetableID).Msg("Processing validated image")
 
-		if err := v.storage.UpdateVegetableImageURL(ctx, payload.VegetableID, payload.ImageID, payload.ImageURL); err != nil {
-			log.Error().Err(err).Msg("Failed to update vegetable image URL")
-			msg.Nack()
+		// Acknowledge the message before processing to avoid reprocessing in case of errors
+		defer msg.Ack()
+		if err := v.storage.SetVegetableImageUploaded(ctx, payload.VegetableID, payload.ImageID, payload.ImageURL); err != nil {
+			log.Error().Fields(map[string]any{
+				"vegetable_id": payload.VegetableID,
+				"image_id":     payload.ImageID,
+				"data":         string(msg.Data),
+			}).Err(err).Msg("Failed to update vegetable image URL")
+			// msg.Nack()
 			return
 		}
 
-		msg.Ack()
+		// msg.Ack()
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create pubsub subscription: %w", err)

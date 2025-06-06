@@ -148,8 +148,8 @@ func (s *OrderService) ListOrdersByClientID(w nethttp.ResponseWriter, r *nethttp
 		nethttp.Error(w, "missing client ID", nethttp.StatusBadRequest)
 		return
 	}
-
-	if clientID != r.Header.Get("X-User-ID") {
+	userID := requestUserID(r)
+	if clientID != userID {
 		nethttp.Error(w, "forbidden", nethttp.StatusForbidden)
 		return
 	}
@@ -160,6 +160,9 @@ func (s *OrderService) ListOrdersByClientID(w nethttp.ResponseWriter, r *nethttp
 		return
 	}
 
+	if orders == nil {
+		orders = []*Order{}
+	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(orders)
 	if err != nil {
@@ -171,7 +174,7 @@ func (s *OrderService) ListOrdersByClientID(w nethttp.ResponseWriter, r *nethttp
 
 func (s *OrderService) UpdateOrderStatus(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	orderID := strings.TrimPrefix(r.URL.Path, "/orders/")
 
 	if orderID == "" {
@@ -206,7 +209,7 @@ func (s *OrderService) UpdateOrderStatus(w nethttp.ResponseWriter, r *nethttp.Re
 
 func (s *OrderService) GetOrder(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	orderID := strings.TrimPrefix(r.URL.Path, "/orders/")
 	if orderID == "" {
 		nethttp.Error(w, "missing order ID", nethttp.StatusBadRequest)
@@ -233,7 +236,7 @@ func (s *OrderService) GetOrder(w nethttp.ResponseWriter, r *nethttp.Request) {
 
 func (s *OrderService) DeleteOrder(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	orderID := strings.TrimPrefix(r.URL.Path, "/orders/")
 	if orderID == "" {
 		nethttp.Error(w, "missing order ID", nethttp.StatusBadRequest)

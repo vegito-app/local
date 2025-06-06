@@ -3,22 +3,31 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	nethttp "net/http"
 	"time"
 
 	"github.com/7d4b9/utrade/backend/internal/http"
-	"github.com/7d4b9/utrade/backend/internal/vegetable"
 	vegetableimage "github.com/7d4b9/utrade/images/vegetable"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
+var ErrVegetableNotFound = errors.New("vegetable not found")
+
 type VegetableImage struct {
-	URL        string     `json:"url"`
-	UploadedAt *time.Time `json:"uploadedAt"`
-	Status     string     `json:"status"`
+	URL        string               `json:"url"`
+	UploadedAt time.Time            `json:"uploadedAt"`
+	Status     VegetableImageStatus `json:"status"`
 }
+
+type VegetableImageStatus string
+
+const (
+	VegetableImageStatusPending  VegetableImageStatus = "pending"
+	VegetableImageStatusUploaded VegetableImageStatus = "uploaded"
+)
 
 type Vegetable struct {
 	ID            string           `json:"id,omitempty"`
@@ -29,15 +38,23 @@ type Vegetable struct {
 	WeightGrams   int              `json:"weightGrams"`
 	PriceCents    int              `json:"priceCents"`
 	Images        []VegetableImage `json:"images"`
-	CreatedAt     *time.Time       `json:"createdAt"`
-	UserCreatedAt *time.Time       `json:"userCreatedAt,omitempty"`
+	CreatedAt     time.Time        `json:"createdAt"`
+	UserCreatedAt time.Time        `json:"userCreatedAt,omitempty"`
 }
 
+// Implementations must return ErrVegetableNotFound when a requested vegetable
+// does not exist so that HTTP handlers can translate it into a 404 response.
 type VegetableStorage interface {
-	vegetable.Storage
-	StoreVegetable(ctx context.Context, userID string, v Vegetable) error
+	StoreVegetable(ctx context.Context, userID string, v Vegetable) (err error)
+
+	// GetVegetable returns a vegetable by its ID.
+	// Returns ErrVegetableNotFound if the vegetable does not exist.
 	GetVegetable(ctx context.Context, userID, id string) (*Vegetable, error)
+
 	ListVegetables(ctx context.Context, userID string) ([]*Vegetable, error)
+
+	// DeleteVegetable removes a vegetable by ID.
+	// Returns ErrVegetableNotFound if the vegetable does not exist.
 	DeleteVegetable(ctx context.Context, userID, id string) error
 }
 
@@ -93,14 +110,14 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		})
 		v.Images[index].URL = "" // Clear the URL to avoid storing it in the vegetable object before validation
 	}
-
-	if err := s.imageValidator.SetImageValidation(ctx, v.ID, createdImages); err != nil {
-		nethttp.Error(w, "set image validation failed", nethttp.StatusInternalServerError)
+	err := s.storage.StoreVegetable(ctx, userID, v)
+	if err != nil {
+		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
 		return
 	}
 
-	if err := s.storage.StoreVegetable(ctx, userID, v); err != nil {
-		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
+	if err := s.imageValidator.SetImageValidation(ctx, v.ID, createdImages); err != nil {
+		nethttp.Error(w, "set image validation failed", nethttp.StatusInternalServerError)
 		return
 	}
 
@@ -114,18 +131,22 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 
 func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	veggies, err := s.storage.ListVegetables(ctx, userID)
 	if err != nil {
+		log.Error().Err(err).Msg("failed to list vegetables")
 		nethttp.Error(w, "list failed", nethttp.StatusInternalServerError)
 		return
+	}
+	if veggies == nil {
+		veggies = []*Vegetable{}
 	}
 	json.NewEncoder(w).Encode(veggies)
 }
 
 func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
@@ -133,7 +154,11 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 	}
 	veggie, err := s.storage.GetVegetable(ctx, userID, id)
 	if err != nil {
-		nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
+		if errors.Is(err, ErrVegetableNotFound) {
+			nethttp.Error(w, "vegetable not found", nethttp.StatusNotFound)
+		} else {
+			nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
+		}
 		return
 	}
 	json.NewEncoder(w).Encode(veggie)
@@ -141,30 +166,19 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 
 func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
-	userID := r.Header.Get("X-User-ID")
+	userID := requestUserID(r)
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
 		return
 	}
 	if err := s.storage.DeleteVegetable(ctx, userID, id); err != nil {
-		nethttp.Error(w, "delete failed", nethttp.StatusInternalServerError)
+		if errors.Is(err, ErrVegetableNotFound) {
+			nethttp.Error(w, "vegetable not found", nethttp.StatusNotFound)
+		} else {
+			nethttp.Error(w, "delete failed", nethttp.StatusInternalServerError)
+		}
 		return
 	}
 	w.WriteHeader(nethttp.StatusNoContent)
 }
-
-// func (s *VegetableService) UpdateVegetable(w http.ResponseWriter, r *http.Request) {
-// 	ctx := r.Context()
-// 	userID := r.Header.Get("X-User-ID")
-// 	var v Vegetable
-// 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
-// 		http.Error(w, "invalid payload", http.StatusBadRequest)
-// 		return
-// 	}
-// 	if err := s.storage.UpdateVegetable(ctx, userID, v); err != nil {
-// 		http.Error(w, "update failed", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	return nil
-// }

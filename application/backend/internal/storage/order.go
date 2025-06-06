@@ -40,6 +40,7 @@ func (s *OrderStorage) GetOrder(ctx context.Context, userID, id string) (*api.Or
 
 func (s *OrderStorage) ListOrders(ctx context.Context, userID string) ([]*api.Order, error) {
 	// Implementation goes here
+
 	return nil, nil
 }
 
