@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../cart/cart_provider.dart';
 import '../order/order_service.dart';
+import 'cart_validate_order.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -80,26 +81,5 @@ class CartScreen extends StatelessWidget {
 }
 
 Future<void> _validateOrders(BuildContext context) async {
-  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-  final cart = Provider.of<CartProvider>(context, listen: false);
-  final user = authProvider.user;
-  if (user == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Vous devez être connecté')),
-    );
-    return;
-  }
-
-  for (final entry in cart.items.entries) {
-    await OrderService.createOrder(
-      vegetableId: entry.key.id,
-      clientId: user.uid,
-      quantity: entry.value,
-    );
-  }
-
-  cart.clear();
-  ScaffoldMessenger.of(context)
-      .showSnackBar(const SnackBar(content: Text('Commandes envoyées !')));
-  Navigator.pop(context);
+  await validateOrders(context);
 }
