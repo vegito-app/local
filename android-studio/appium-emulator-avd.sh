@@ -32,4 +32,8 @@ until adb devices | grep -w "device$"; do
 done
 
 echo "Lancement du serveur Appium..."
-appium --address 0.0.0.0 --port 4723
+appium --address 0.0.0.0 --port 4723 \
+  --session-override --log-level info \
+  --allow-insecure=adb_shell &
+
+load_tests_data.sh ${IMAGE_DIR:-./images}

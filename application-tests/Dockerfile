@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/venv
 
 RUN /opt/venv/bin/pip install --no-cache-dir \
+    firebase-admin \
     robotframework \
     robotframework-appiumlibrary \
     robotframework-requests \

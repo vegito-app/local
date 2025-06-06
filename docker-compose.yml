@@ -131,6 +131,7 @@ services:
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
+      IMAGE_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests/mobile_images
     # deploy:
     #   resources:
     #     reservations:
@@ -163,6 +164,7 @@ services:
       # For automatic e2e application/tests 
       [ "$${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ] && \
         appium-emulator-avd.sh &
+
 
       sleep infinity
       '
@@ -197,6 +199,7 @@ services:
     image: ${APPLICATION_TESTS_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/moov-dev-439608:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
+      STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST}
       PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
       LOCAL_APPLICATION_TESTS_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests
     env_file:

@@ -35,21 +35,29 @@ local-android-studio-emulator-dump:
 	  echo Capture android-studio mobile, outputs folder : $$(pwd) ; \
 	  adb shell uiautomator dump --compressed ; \
 	  adb pull /sdcard/window_dump.xml ; \
+	  adb shell rm /sdcard/window_dump.xml ; \
 	  adb shell screencap -p /sdcard/popup.png ; \
 	  adb pull /sdcard/popup.png ; \
+	  adb shell rm /sdcard/popup.png ; \
 	  adb shell uiautomator dump /sdcard/dump.xml ; \
 	  adb pull /sdcard/dump.xml ./dump.xml ; \
+	  adb shell rm /sdcard/dump.xml ; \
 	  sudo chmod o+rw -R $$(pwd) ; \
 	  echo "Capture android-studio mobile done, outputs folder : $$(pwd)" ; \
 	'
 .PHONY: local-android-studio-emulator-dump
 
 local-android-studio-emulator-data-load:
-	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) bash -c ' \
-	  set -e ; \
-	  echo "Load android-studio emulator data, inputs folder : $$(pwd)" ; \
-	  $(CURDIR)/local/android-studio/load_emulator_images.sh \
-	    $(CURDIR)/application/tests/mobile_images ; \
-	'
+	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) \
+	make -C ../.. local-android-studio-emulator-data-load-mobile-images
 	@echo "Data loaded to android-studio emulator"
 .PHONY: local-android-studio-emulator-data-load
+
+local-android-studio-emulator-data-load-mobile-images:
+	@bash -c ' \
+	set -e ; \
+	echo "Load android-studio emulator data, inputs folder : $$(pwd)" ; \
+	$(CURDIR)/local/android-studio/load_tests_data.sh \
+		$(CURDIR)/application/tests/mobile_images ; \
+	'
+.PHONY: local-android-studio-emulator-data-load-mobile-images

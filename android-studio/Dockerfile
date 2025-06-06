@@ -127,6 +127,7 @@ COPY docker-caches-refresh.sh /usr/local/bin/studio-caches-refresh.sh
 COPY entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
 COPY appium-emulator-avd.sh /usr/local/bin/appium-emulator-avd.sh
 COPY android-studio.sh /usr/local/bin/android-studio.sh
+COPY load_tests_data.sh /usr/local/bin/load_tests_data.sh
 
 # Persist bash history for the non-root user
 ENV HISTFILE=/home/${non_root_user}/.bash_history
