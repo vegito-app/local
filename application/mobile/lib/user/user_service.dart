@@ -1,21 +1,26 @@
 import 'dart:convert';
+import 'package:car2go/http/auth_headers.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
-
 import 'user_model.dart';
 
-const backendUrl = Config.backendUrl;
-
 class UserService {
-  static Future<void> createUser({
+  final http.Client client;
+  final String backendUrl;
+
+  UserService({http.Client? client, String? backendUrl})
+      : client = client ?? http.Client(),
+        backendUrl = backendUrl ?? Config.backendUrl;
+
+  Future<void> createUser({
     required String name,
     required String email,
     required String password,
   }) async {
     final url = Uri.parse('$backendUrl/api/users');
-    await http.post(
+    await client.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: await authHeaders(),
       body: jsonEncode({
         'name': name,
         'email': email,
@@ -24,9 +29,9 @@ class UserService {
     );
   }
 
-  static Future<List<UserProfile>> listUsers() async {
+  Future<List<UserProfile>> listUsers() async {
     final url = Uri.parse('$backendUrl/api/users');
-    final response = await http.get(url);
+    final response = await client.get(url, headers: await authHeaders());
 
     if (response.statusCode != 200) {
       throw Exception('Échec lors de la récupération des utilisateurs');
@@ -38,23 +43,23 @@ class UserService {
         .toList();
   }
 
-  static Future<void> updateUser(UserProfile user) async {
+  Future<void> updateUser(UserProfile user) async {
     await updateUserById(user.id, user.toMap());
   }
 
-  static Future<void> updateUserById(
+  Future<void> updateUserById(
       String userId, Map<String, dynamic> updates) async {
     final url = Uri.parse('$backendUrl/api/users/$userId');
-    await http.put(
+    await client.put(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: await authHeaders(),
       body: jsonEncode(updates),
     );
   }
 
-  static Future<UserProfile> getUserProfile(String userId) async {
-    final url = Uri.parse('$backendUrl/api/users/$userId');
-    final response = await http.get(url);
+  Future<UserProfile> getUserProfile(String userId) async {
+    final url = Uri.parse('$backendUrl/api/user/$userId');
+    final response = await client.get(url, headers: await authHeaders());
 
     if (response.statusCode != 200) {
       throw Exception('Échec lors de la récupération du profil utilisateur');

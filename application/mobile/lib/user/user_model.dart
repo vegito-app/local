@@ -12,7 +12,7 @@ class UserProfile {
   final String? address;
   final String? email;
   final String? password;
-  final UserReputation reputation;
+  final UserReputation? reputation;
 
   UserProfile({
     required this.id,
@@ -25,7 +25,7 @@ class UserProfile {
     this.address,
     this.email,
     this.password,
-    required this.reputation,
+    this.reputation,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,7 +33,7 @@ class UserProfile {
       'name': name,
       'email': email,
       'password': password,
-      'reputation': reputation.toMap(),
+      'reputation': reputation?.toMap(),
     };
   }
 

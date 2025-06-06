@@ -5,13 +5,13 @@ import 'user_profile_screen.dart';
 
 class UserCard extends StatelessWidget {
   final String displayName;
-  final UserReputation reputation;
+  final UserReputation? reputation;
   final VoidCallback? onTap;
 
   const UserCard({
     super.key,
     required this.displayName,
-    required this.reputation,
+    this.reputation,
     this.onTap,
   });
 
@@ -47,18 +47,26 @@ class UserCard extends StatelessWidget {
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),
-                    if (reputation.optIn)
+                    Text(
+                      reputation?.score.toString() ?? "Aucune réputation",
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    if (reputation != null &&
+                        reputation!.optIn &&
+                        reputation!.votes >= 3)
                       Row(
                         children: [
                           const Icon(Icons.star, size: 18, color: Colors.amber),
                           const SizedBox(width: 4),
                           Text(
-                            "${reputation.score.toStringAsFixed(1)} / 5",
+                            "${reputation!.score.toStringAsFixed(1)} / 5",
                             style: theme.textTheme.bodySmall,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            "(${reputation.votes} votes)",
+                            "(${reputation!.votes} votes)",
                             style: theme.textTheme.bodySmall
                                 ?.copyWith(color: Colors.grey),
                           ),

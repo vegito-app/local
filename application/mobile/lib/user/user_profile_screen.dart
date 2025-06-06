@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../reputation/user_reputation.dart';
+import 'user_provider.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final String userId;
@@ -9,19 +10,24 @@ class UserProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       appBar: AppBar(title: const Text("Profil utilisateur")),
-      body: FutureBuilder<DocumentSnapshot>(
-        future:
-            FirebaseFirestore.instance.collection('users').doc(userId).get(),
+      body: FutureBuilder<void>(
+        future: userProvider.loadUser(userId),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          final reputation = UserReputation.fromMap(userId, data);
-          final displayName = (data['displayName'] as String?) ?? 'Utilisateur';
+          final userProfile = userProvider.getCurrentUser(userId);
+          if (userProfile == null) {
+            return const Center(child: Text("Utilisateur non trouvé"));
+          }
+
+          final reputation =
+              UserReputation.fromMap(userId, userProfile.toMap());
+          final displayName = userProfile.displayName ?? 'Utilisateur';
 
           return Padding(
             padding: const EdgeInsets.all(16),
