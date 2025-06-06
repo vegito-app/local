@@ -1,8 +1,8 @@
+import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_entry_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../account/account_page.dart';
 import '../vegetable/vegetable_buyer/vegetable_buyer_page.dart';
-import '../vegetable/vegetable_upload/vegetable_upload_screen.dart';
 import '../wallet/wallet_screen.dart';
 
 class ActionButtons extends StatelessWidget {
@@ -101,7 +101,7 @@ class _GoToVegetableUploadButton extends StatelessWidget {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-              builder: (context) => const VegetableUploadScreen()),
+              builder: (context) => const VegetableSellerEntryScreen()),
         );
       },
     );

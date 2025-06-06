@@ -1,5 +1,5 @@
 class AppRoutes {
-  static const home = '/';
+  // static const home = '/';
   static const wallet = '/wallet';
   static const account = '/account';
 
@@ -10,4 +10,9 @@ class AppRoutes {
   // Client
   static const clientOrders = '/client/orders';
   static const clientCart = '/client/cart';
+
+//   // Vegetable Seller
+  static const vegetableSellerEntry = '/vegetable/seller/entry';
+  static const vegetableSellerGallery = '/vegetable/seller/gallery';
+  static const vegetableUpload = '/vegetable/upload';
 }

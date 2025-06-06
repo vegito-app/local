@@ -1,16 +1,17 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
 
 import '../client/client_location_model.dart';
 import '../order/order_card.dart';
 import '../order/order_model.dart';
-import '../order/order_service.dart';
+import '../order/order_provider.dart';
 import '../order/order_summit.dart';
 import '../user/user_model.dart';
-import '../user/user_service.dart';
+import '../user/user_provider.dart';
+import '../vegetable/vegetable_list_provider.dart';
 import '../vegetable/vegetable_model.dart';
-import '../vegetable/vegetable_service.dart';
 import 'delivery_map_screen.dart';
 
 class DeliveryPlannerScreen extends StatelessWidget {
@@ -18,7 +19,8 @@ class DeliveryPlannerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
 
     if (user == null) {
       return const Scaffold(
@@ -33,18 +35,25 @@ class DeliveryPlannerScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.map),
             onPressed: () async {
-              final vegList = await VegetableService.listVegetables();
+              final vegList =
+                  Provider.of<VegetableListProvider>(context, listen: false)
+                      .vegetables;
               final userVeg =
                   vegList.where((v) => v.ownerId == user.uid).toList();
               final vegIds = userVeg.map((v) => v.id).toList();
 
-              final orders = await OrderService.listByVegetableIds(vegIds);
-              final clientIds = orders.map((o) => o.clientId).toSet();
+              final orders =
+                  await Provider.of<OrderProvider>(context, listen: false)
+                      .loadOrdersByVegetableIds(vegIds);
 
+              final clientIds = orders.map((o) => o.clientId).toSet();
               final clients = <ClientLocation>[];
+
+              final userProvider =
+                  Provider.of<UserProvider>(context, listen: false);
               for (final clientId in clientIds) {
-                final profile = await UserService.getUserProfile(clientId);
-                if (profile.location != null) {
+                final profile = userProvider.getCurrentUser(clientId);
+                if (profile != null && profile.location != null) {
                   clients
                       .add(ClientLocation.fromMap(clientId, profile.toMap()));
                 }
@@ -53,7 +62,7 @@ class DeliveryPlannerScreen extends StatelessWidget {
               if (context.mounted) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  MaterialPageRoute<DeliveryMapScreen>(
                     builder: (_) => DeliveryMapScreen(clients: clients),
                   ),
                 );
@@ -64,23 +73,27 @@ class DeliveryPlannerScreen extends StatelessWidget {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Exporter résumé PDF',
             onPressed: () async {
-              final vegList = await VegetableService.listVegetables();
+              final vegList =
+                  Provider.of<VegetableListProvider>(context, listen: false)
+                      .vegetables;
               final userVeg =
                   vegList.where((v) => v.ownerId == user.uid).toList();
               final vegMap = {for (var v in userVeg) v.id: v};
 
               final orders =
-                  await OrderService.listByVegetableIds(vegMap.keys.toList());
+                  await Provider.of<OrderProvider>(context, listen: false)
+                      .loadOrdersByVegetableIds(vegMap.keys.toList());
 
               final pdfBytes = await generateSummaryPdf(orders, vegMap);
-
               await Printing.layoutPdf(onLayout: (_) => pdfBytes);
             },
           ),
         ],
       ),
       body: FutureBuilder<List<Vegetable>>(
-        future: VegetableService.listVegetables(),
+        future: Future.value(
+          Provider.of<VegetableListProvider>(context, listen: false).vegetables,
+        ),
         builder: (context, vegSnapshot) {
           if (!vegSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -91,7 +104,8 @@ class DeliveryPlannerScreen extends StatelessWidget {
           final vegMap = {for (var v in userVeg) v.id: v};
 
           return FutureBuilder<List<Order>>(
-            future: OrderService.listByVegetableIds(vegMap.keys.toList()),
+            future: Provider.of<OrderProvider>(context, listen: false)
+                .loadOrdersByVegetableIds(vegMap.keys.toList()),
             builder: (context, orderSnapshot) {
               if (!orderSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -137,10 +151,11 @@ class DeliveryPlannerScreen extends StatelessWidget {
                 final clientId = entry.key;
                 final clientOrders = entry.value;
 
-                return FutureBuilder<UserProfile>(
-                  future: UserService.getUserProfile(clientId),
+                return FutureBuilder<UserProfile?>(
+                  future: Provider.of<UserProvider>(context, listen: false)
+                      .getUser(clientId),
                   builder: (context, snapshot) {
-                    final clientData = snapshot.hasData
+                    final clientData = snapshot.hasData && snapshot.data != null
                         ? snapshot.data!.toMap()
                         : <String, dynamic>{};
                     final clientName = clientData['displayName'] ?? clientId;
@@ -176,7 +191,8 @@ class DeliveryPlannerScreen extends StatelessWidget {
                             vegetable: veg,
                             order: order,
                             onStatusChanged: (value) {
-                              OrderService.updateStatus(order.id, value);
+                              Provider.of<OrderProvider>(context, listen: false)
+                                  .updateOrderStatus(order.id, value);
                             },
                           );
                         }),

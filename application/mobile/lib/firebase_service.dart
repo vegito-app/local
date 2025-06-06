@@ -24,6 +24,7 @@ class FirebaseService {
     }
     await Firebase.initializeApp();
     await _initializeMessaging();
+    await FirebaseAuth.instance.signOut();
 
     if (!kReleaseMode && !FirebaseAuth.instance.isEmulator) {
       await FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);

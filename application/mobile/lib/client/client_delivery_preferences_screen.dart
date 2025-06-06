@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:car2go/auth/auth_provider.dart';
+import '../user/user_provider.dart';
 
 class ClientDeliveryPreferencesScreen extends StatefulWidget {
   const ClientDeliveryPreferencesScreen({super.key});
@@ -19,7 +20,11 @@ class _ClientDeliveryPreferencesScreenState
 
   Future<void> _savePreferences() async {
     setState(() => _isSaving = true);
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+
+    final uid = user?.uid;
     if (uid == null) return;
 
     final Map<String, dynamic> data = {
@@ -34,10 +39,8 @@ class _ClientDeliveryPreferencesScreenState
       };
     }
 
-    await FirebaseFirestore.instance.collection('users').doc(uid).set(
-          data,
-          SetOptions(merge: true),
-        );
+    // Utiliser userProvider pour mettre à jour
+    await userProvider.updateUserAddress(uid, data);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -49,17 +52,18 @@ class _ClientDeliveryPreferencesScreenState
   }
 
   Future<void> _loadPreferences() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    final uid = user?.uid;
     if (uid == null) return;
 
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    final data = doc.data();
-    if (data == null) return;
+    final userProfile = await userProvider.getUser(uid);
+    if (userProfile == null) return;
 
     setState(() {
-      _addressController.text = data['address'] as String;
-      _shareLocation = data.containsKey('location');
+      _addressController.text = userProfile.address ?? "";
+      _shareLocation = userProfile.location != null;
     });
   }
 
