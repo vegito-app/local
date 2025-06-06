@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class VegetableImage {
   final String url;
-  final int uploadedAt;
+  final DateTime uploadedAt;
   final String status;
 
   VegetableImage({
@@ -14,7 +12,9 @@ class VegetableImage {
   factory VegetableImage.fromJson(Map<String, dynamic> json) {
     return VegetableImage(
       url: json['url'] as String,
-      uploadedAt: json['uploadedAt'] as int,
+      uploadedAt: json['uploadedAt'] is int
+          ? DateTime.fromMillisecondsSinceEpoch(json['uploadedAt'] as int)
+          : DateTime.parse(json['uploadedAt'] as String),
       status: json['status'] as String,
     );
   }
@@ -22,7 +22,7 @@ class VegetableImage {
   Map<String, dynamic> toJson() {
     return {
       'url': url,
-      'uploadedAt': uploadedAt,
+      'uploadedAt': uploadedAt.toIso8601String(),
       'status': status,
     };
   }
@@ -54,9 +54,7 @@ class Vegetable {
   factory Vegetable.fromJson(Map<String, dynamic> json) {
     return Vegetable(
       id: json['id'] as String,
-      createdAt: json['createdAt'] is Timestamp
-          ? (json['createdAt'] as Timestamp).toDate()
-          : (json['createdAt'] as DateTime),
+      createdAt: DateTime.parse(json['createdAt'] as String),
       description: json['description'] as String,
       images: (json['images'] as List<dynamic>)
           .map((e) => VegetableImage.fromJson(e as Map<String, dynamic>))

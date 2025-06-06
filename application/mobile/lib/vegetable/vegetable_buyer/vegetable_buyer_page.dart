@@ -7,7 +7,7 @@ import '../../cart/cart_provider.dart';
 import '../../cart/cart_screen.dart';
 import '../../user/user_card.dart';
 import '../../user/user_provider.dart';
-import '../vegetable_provider.dart';
+import '../vegetable_list_provider.dart';
 
 const backendUrl = Config.backendUrl;
 
