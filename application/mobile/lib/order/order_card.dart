@@ -1,8 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../reputation/user_reputation.dart';
 import '../user/user_card.dart';
+import '../user/user_provider.dart';
 import '../vegetable/vegetable_model.dart';
 import 'order_model.dart';
 
@@ -27,9 +28,7 @@ class OrderCard extends StatelessWidget {
       'delivered': 'Livré',
     };
 
-    final statuses = ['pending', 'prepared', 'loaded', 'delivered'];
-
-    const steps = ['pending', 'prepared', 'loaded', 'delivered'];
+    final steps = ['pending', 'prepared', 'loaded', 'delivered'];
 
     Widget buildTimeline(String current) {
       return Row(
@@ -53,18 +52,17 @@ class OrderCard extends StatelessWidget {
     }
 
     Widget buildSellerCard() {
-      return FutureBuilder<firestore.DocumentSnapshot>(
-        future: firestore.FirebaseFirestore.instance
-            .collection('users')
-            .doc(vegetable.ownerId)
-            .get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const SizedBox();
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          final reputation = UserReputation.fromMap(
-              vegetable.ownerId, Map<String, dynamic>.from(data));
+      return Consumer<UserProvider>(
+        builder: (context, userProvider, _) {
+          final userProfile = userProvider.getCurrentUser(vegetable.ownerId);
+          if (userProfile == null) {
+            userProvider.loadUser(vegetable.ownerId);
+            return const SizedBox();
+          }
+          final reputation =
+              UserReputation.fromMap(vegetable.ownerId, userProfile.toMap());
           return UserCard(
-            displayName: (data['displayName'] as String?) ?? 'Utilisateur',
+            displayName: userProfile.displayName ?? 'Utilisateur',
             reputation: reputation,
           );
         },
@@ -116,7 +114,7 @@ class OrderCard extends StatelessWidget {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: statuses
+              children: statusLabels.keys
                   .map((status) => ChoiceChip(
                         label: Text(statusLabels[status]!),
                         selected: order.status == status,

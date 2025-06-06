@@ -4,16 +4,21 @@ import '../config.dart';
 
 import 'order_model.dart';
 
-const backendUrl = Config.backendUrl;
-
 class OrderService {
-  static Future<void> createOrder({
+  final http.Client client;
+  final String backendUrl;
+
+  OrderService({http.Client? client, String? backendUrl})
+      : client = client ?? http.Client(),
+        backendUrl = backendUrl ?? Config.backendUrl;
+
+  Future<void> createOrder({
     required String vegetableId,
     required String clientId,
     required int quantity,
   }) async {
     final url = Uri.parse('$backendUrl/api/orders');
-    await http.post(
+    await client.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -24,10 +29,9 @@ class OrderService {
     );
   }
 
-  static Future<List<Order>> listByVegetableIds(
-      List<String> vegetableIds) async {
+  Future<List<Order>> listByVegetableIds(List<String> vegetableIds) async {
     final url = Uri.parse('$backendUrl/api/orders/search');
-    final response = await http.post(
+    final response = await client.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'vegetableIds': vegetableIds}),
@@ -41,18 +45,18 @@ class OrderService {
     return data.map((e) => Order.fromMap(e as Map<String, dynamic>)).toList();
   }
 
-  static Future<void> updateStatus(String orderId, String status) async {
+  Future<void> updateStatus(String orderId, String status) async {
     final url = Uri.parse('$backendUrl/api/orders/$orderId');
-    await http.put(
+    await client.put(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'status': status}),
     );
   }
 
-  static Future<List<Order>> listByClientId(String clientId) async {
+  Future<List<Order>> listByClientId(String clientId) async {
     final url = Uri.parse('$backendUrl/api/orders/client/$clientId');
-    final response = await http.get(url);
+    final response = await client.get(url);
 
     if (response.statusCode != 200) {
       throw Exception('Échec lors de la récupération des commandes');
@@ -62,9 +66,9 @@ class OrderService {
     return data.map((e) => Order.fromMap(e as Map<String, dynamic>)).toList();
   }
 
-  static Future<Order> getOrder(String orderId) async {
+  Future<Order> getOrder(String orderId) async {
     final url = Uri.parse('$backendUrl/api/orders/$orderId');
-    final response = await http.get(url);
+    final response = await client.get(url);
 
     if (response.statusCode == 404) {
       throw Exception('Commande non trouvée');
@@ -77,9 +81,9 @@ class OrderService {
     return Order.fromMap(data);
   }
 
-  static Future<void> deleteOrder(String orderId) async {
+  Future<void> deleteOrder(String orderId) async {
     final url = Uri.parse('$backendUrl/api/orders/$orderId');
-    final response = await http.delete(url);
+    final response = await client.delete(url);
 
     if (response.statusCode == 404) {
       throw Exception('Commande non trouvée');

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../auth/auth_provider.dart';
+import '../vegetable/vegetable_list_provider.dart';
 import '../vegetable/vegetable_model.dart';
-import '../vegetable/vegetable_provider.dart';
-import '../vegetable/vegetable_service.dart';
 import 'order_model.dart' as order_model;
-import 'order_service.dart';
+import 'order_provider.dart';
 
 class OrderWithVegetable {
   final order_model.Order order;
@@ -65,7 +64,9 @@ class OrderScreen extends StatelessWidget {
                   subtitle: Text('Statut : ${order.status}'),
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) {
-                      OrderService.updateStatus(order.id, value);
+                      final orderProvider =
+                          Provider.of<OrderProvider>(context, listen: false);
+                      orderProvider.updateOrderStatus(order.id, value);
                     },
                     itemBuilder: (_) => const [
                       PopupMenuItem(value: 'prepared', child: Text('Préparé')),
@@ -85,12 +86,15 @@ class OrderScreen extends StatelessWidget {
 Future<List<OrderWithVegetable>> _loadOrders(BuildContext context) async {
   final authProvider = Provider.of<AuthProvider>(context, listen: false);
   final provider = Provider.of<VegetableListProvider>(context, listen: false);
+  final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+
   final user = authProvider.user;
   if (user == null) return [];
 
   final vegetables = provider.vegetablesByOwner(user.uid);
   final vegetableIds = vegetables.map((v) => v.id).toList();
-  final orders = await OrderService.listByVegetableIds(vegetableIds);
+
+  final orders = await orderProvider.loadOrdersByVegetableIds(vegetableIds);
 
   return orders.map((o) {
     final veg = vegetables.firstWhere((v) => v.id == o.vegetableId);
