@@ -1,0 +1,26 @@
+import 'package:car2go/auth/auth_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+
+import '../../lib/account/account_email_section.dart';
+import '../test_double.dart';
+
+void main() {
+  testWidgets('AccountEmailSection affiche l’e-mail de l’utilisateur',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AuthProvider>.value(
+        value: FakeAuthProvider(),
+        child: const MaterialApp(
+          home: Scaffold(
+            body: AccountEmailSection(),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Adresse e-mail :'), findsOneWidget);
+    expect(find.text('test@example.com'), findsOneWidget);
+  });
+}
