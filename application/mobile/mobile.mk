@@ -3,17 +3,33 @@
 FLUTTER = $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
 
 application-mobile-flutter-clean:
-	@cd $(CURDIR)/application/mobile && $(FLUTTER) clean
+	@$(FLUTTER) clean
 .PHONY: application-mobile-flutter-clean
 
 application-mobile-flutter-pub-get:
-	@cd $(CURDIR)/application/mobile && $(FLUTTER) pub get
+	@$(FLUTTER) pub get
 .PHONY: application-mobile-flutter-pub-get
+
+application-mobile-flutter-tests:
+	@$(FLUTTER) test
+.PHONY: application-mobile-flutter-tests
+
+DART = $(LOCAL_DOCKER_COMPOSE) exec android-studio dart
+
+application-mobile-flutter-tests-buildrunner:
+	@$(DART) run build_runner test --delete-conflicting-outputs
+.PHONY: application-mobile-flutter-tests-buildrunner
+
+
+application-mobile-flutter-analyze:
+	@$(FLUTTER) analyze
+.PHONY: application-mobile-flutter-analyze
+
 
 APPLICATION_MOBILE_BUILDS = apk ios
 
 $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%):
-	@cd $(CURDIR)/application/mobile && $(FLUTTER) build $(@:application-mobile-flutter-build-%=%)
+	@$(FLUTTER) build $(@:application-mobile-flutter-build-%=%)
 .PHONY: $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%)
 
 application-mobile-build: $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%)

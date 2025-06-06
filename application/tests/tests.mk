@@ -1,6 +1,8 @@
 APPLICATION_TESTS := \
+	account-validate \
 	anonymous-login \
-	vegetable-add
+	vegetable-add \
+	firestore
 
 application-tests-robot-framework-all-run: local-application-tests-check-env $(APPLICATION_TESTS:%=application-test-%)
 .PHONY: application-tests-robot-framework-all-run
