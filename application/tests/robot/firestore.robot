@@ -1,5 +1,5 @@
 *** Settings ***
-Resource         ../resources/vegetable_cleanup.robot
+Resource         ../resources/vegetable.robot
 Library          AppiumLibrary
 Suite Setup      Firebase.purge_test_vegetables
 Resource         ../resources/keywords.robot

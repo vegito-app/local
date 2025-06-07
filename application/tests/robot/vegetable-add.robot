@@ -1,10 +1,9 @@
 *** Settings ***
-Resource         ../resources/vegetable_cleanup.robot
 Library          AppiumLibrary
-Suite Setup      Firebase.purge_test_vegetables
 Resource         ../resources/keywords.robot
 Library           AppiumLibrary
 Library           Collections
+# Suite Setup      Firebase.purge_test_vegetables
 Test Setup        Reset State And Return Home
 
 *** Variables ***
@@ -16,7 +15,6 @@ ${APP_ACTIVITY}   .MainActivity
 *** Test Cases ***
 Ajouter une carotte depuis l’interface
     Push Test Image    carrotes.jpeg
-    Push Test Image    carrotes-couleur.jpeg
 
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element    accessibility_id=🧺 Vendre mes légumes
@@ -51,7 +49,12 @@ Ajouter une carotte depuis l’interface
     Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Carotte\n500g - 2.5€\nFraîche du jardin
     Go Back
 
-Ajouter une carotte avec plusieurs images depuis l’interface
+Ajouter un chouchou avec plusieurs images depuis l’interface
+    Push Test Image    chouchou-coupe.jpg
+    Push Test Image    chouchou-fin.jpeg
+    Push Test Image    chouchou-macro.jpeg
+    Push Test Image    chouchou-salazie.jpeg
+
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element    accessibility_id=🧺 Vendre mes légumes
 
@@ -100,7 +103,7 @@ Ajouter une carotte avec plusieurs images depuis l’interface
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
     Click Element    accessibility_id=Au poids (€/kg)
 
-    Fill Field By Index    1    Carotte
+    Fill Field By Index    1    Chouchou
     Fill Field By Index    2    Fraîche du jardin
     Fill Field By Index    3    500
     Fill Field By Index    4    250
@@ -111,9 +114,11 @@ Ajouter une carotte avec plusieurs images depuis l’interface
     # Go Back
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
-    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Carotte\n500g - 2.5€\nFraîche du jardin
+    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Chouchou\n500g - 2.5€\nFraîche du jardin
 
 Ajouter un légume vendu au poids
+    Push Test Image    tomate.jpg
+    Push Test Image    tomate-2.jpg
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
 
@@ -139,10 +144,11 @@ Ajouter un légume vendu au poids
     Fill Field By Index    4    450
 
     Swipe Until Element Is Visible    accessibility_id=Enregistrer
-    Click Element        accessibility_id=Enregistrer
     Sleep    2s
 
 Ajouter un légume vendu à l’unité
+    Push Test Image    citrouille.jpg
+    Push Test Image    citrouille-2.jpg
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
 
@@ -168,5 +174,4 @@ Ajouter un légume vendu à l’unité
     Fill Field By Index    4    300
     
     Swipe Until Element Is Visible    accessibility_id=Enregistrer
-    Click Element        accessibility_id=Enregistrer
     Sleep    2s

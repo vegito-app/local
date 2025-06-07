@@ -37,7 +37,7 @@ echo "✅ /sdcard is writable."
 
 echo "📦 Creating destination folder on device..."
 adb shell mkdir -p /sdcard/TestImagesDepot
-# adb shell touch /sdcard/TestImagesDepot/.nomedia
+adb shell touch /sdcard/TestImagesDepot/.nomedia
 
 # Push all images from the specified directory to the device
 for img in "$IMAGE_DIR"/*.{jpg,jpeg,png}; do
@@ -45,7 +45,6 @@ for img in "$IMAGE_DIR"/*.{jpg,jpeg,png}; do
   filename=$(basename "$img")
   echo "📤 Pushing $filename ..."
   adb push "$img" "/sdcard/TestImagesDepot/$filename"
-  adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d "file:///sdcard/TestImagesDepot/$filename" >/dev/null
 done
 
 echo "✅ All images have been copied to /sdcard/TestImagesDepot/"

@@ -1,6 +1,8 @@
 *** Settings ***
 Library    AppiumLibrary
 Library    Process
+Resource         ../resources/vegetable.robot
+
 *** Keywords ***
 Fill Field By Index
     [Arguments]    ${index}    ${value}
@@ -37,12 +39,16 @@ Page Contains Back
     Page Should Contain Element    xpath=//android.widget.Button[@content-desc="Back"]
 
 Reset State And Return Home
+    [Documentation]    Réinitialise l'état de l'application et revient à la page d'accueil.
+    Firebase.reset_firestore
     Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    automationName=UiAutomator2    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    noReset=true    dontStopAppOnReset=true
     Clear Pictures Folder
     Handle Permission Popup
     Go To Home Page
-    # Reset Data Before Test    
 
+Purge Vegetables Collection
+    [Documentation]    Supprime toutes les entrées de la collection de légumes dans Firebase.
+    Firebase.purge_vegetables_collection
 
 Remove Files From Device
     [Arguments]    ${file_pattern}
@@ -57,6 +63,7 @@ Push Test Image
     [Documentation]    Copie une image donnée depuis le dépôt /sdcard/TestImagesDepot vers /sdcard/Pictures sur l'appareil Android.
     Log    Copie de /sdcard/TestImagesDepot/${image} vers /sdcard/Pictures/${image}
     Execute Adb Shell    cp /sdcard/TestImagesDepot/${image} /sdcard/Pictures/${image}
+    Execute Adb Shell     am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d "file:///sdcard/Pictures/${image}" >/dev/null
 
 Populate Pictures Folder With Selected Images
     [Arguments]    @{images}

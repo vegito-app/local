@@ -171,7 +171,7 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                                   //         50), // tu peux même allonger temporairement à 10s pour test
                                 ),
                               );
-                              Navigator.pop(context);
+                              Navigator.pop(context, true);
                             }
                           } catch (e) {
                             if (context.mounted) {

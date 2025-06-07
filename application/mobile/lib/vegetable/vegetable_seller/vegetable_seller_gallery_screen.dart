@@ -23,13 +23,28 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Mes légumes'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Ajouter un légume',
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.vegetableUpload);
-            },
-          ),
+          Semantics(
+            label: 'add-vegetable-button',
+            button: true,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                borderRadius:
+                    BorderRadius.circular(24), // ajuster selon l’icone
+                onTap: () async {
+                  final result = await Navigator.pushNamed(
+                      context, AppRoutes.vegetableUpload);
+                  if (result == true && context.mounted) {
+                    context.read<VegetableListProvider>().reload();
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.add),
+                ),
+              ),
+            ),
+          )
         ],
       ),
       body: Consumer<VegetableListProvider>(
@@ -55,7 +70,7 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
                   veg.images.isNotEmpty ? veg.images.first.url : null;
 
               return Semantics(
-                label: 'vegetable-${veg.id}',
+                label: 'vegetable-${index + 1} ${veg.name}',
                 child: Card(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
