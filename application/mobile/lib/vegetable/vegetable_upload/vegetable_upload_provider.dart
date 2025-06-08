@@ -5,19 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class VegetableUploadProvider with ChangeNotifier {
+  Vegetable? initialVegetable;
   final VegetableService _service;
   VegetableUploadProvider({VegetableService? service})
-      : _service = service ?? VegetableService();
+    : _service = service ?? VegetableService();
 
   final List<XFile> _images = [];
   int _mainImageIndex = 0;
-  final bool _isLoading = false;
+  bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
 
   List<XFile> get images => _images;
   int get mainImageIndex => _mainImageIndex;
   XFile? get mainImage => _images.isNotEmpty ? _images[_mainImageIndex] : null;
   bool get isLoading => _isLoading;
+
+  set isLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
 
   Future<void> pickImage() async {
     // Permet d'ajouter plusieurs images successivement, les images précédentes sont conservées.
@@ -74,5 +80,17 @@ class VegetableUploadProvider with ChangeNotifier {
       createdAt: DateTime.now().toUtc(),
     );
     await _service.createVegetable(vegetable);
+  }
+
+  factory VegetableUploadProvider.fromVegetable(
+    Vegetable vegetable, {
+    VegetableService? service,
+  }) {
+    final provider = VegetableUploadProvider(service: service);
+    provider.initialVegetable = vegetable;
+    provider._images.clear();
+    provider._images.addAll(vegetable.images.map((img) => XFile(img.url)));
+    provider._mainImageIndex = 0;
+    return provider;
   }
 }

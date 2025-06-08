@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:car2go/auth/auth_provider.dart';
+import 'package:car2go/vegetable/vegetable_model.dart';
 import 'package:car2go/vegetable/vegetable_provider.dart';
 import 'package:car2go/vegetable/vegetable_service.dart';
 import 'package:car2go/vegetable/vegetable_upload/form/vegetable_photo_picker.dart';
@@ -9,14 +10,22 @@ import 'package:provider/provider.dart';
 import 'vegetable_upload_provider.dart';
 
 class VegetableUploadScreen extends StatelessWidget {
-  const VegetableUploadScreen({super.key});
+  final VegetableService? service;
 
+  const VegetableUploadScreen({super.key, this.service});
   @override
   Widget build(BuildContext context) {
+    final vegetable = ModalRoute.of(context)?.settings.arguments as Vegetable?;
+
     return ChangeNotifierProvider(
-      create: (_) => VegetableUploadProvider(),
+      create: (_) => vegetable == null
+          ? VegetableUploadProvider(service: service)
+          : VegetableUploadProvider.fromVegetable(vegetable, service: service),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Ajouter un légume')),
+        appBar: AppBar(
+            title: Text(vegetable == null
+                ? 'Ajouter un légume'
+                : 'Modifier un légume')),
         body: const _VegetableUploadForm(),
       ),
     );
@@ -40,6 +49,32 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
   int priceCents = 0;
 
   SaleType saleType = SaleType.unit;
+
+  late final TextEditingController nameController;
+  late final TextEditingController descriptionController;
+  late final TextEditingController weightController;
+  late final TextEditingController priceController;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<VegetableUploadProvider>();
+    nameController =
+        TextEditingController(text: provider.initialVegetable?.name ?? '');
+    descriptionController = TextEditingController(
+        text: provider.initialVegetable?.description ?? '');
+    weightController = TextEditingController(
+        text: provider.initialVegetable?.weightGrams != null
+            ? provider.initialVegetable!.weightGrams.toString()
+            : '');
+    priceController = TextEditingController(
+        text: provider.initialVegetable?.priceCents != null
+            ? provider.initialVegetable!.priceCents.toString()
+            : '');
+    if (provider.initialVegetable?.saleType == 'weight') {
+      saleType = SaleType.weight;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +134,8 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
               label: 'input-name',
               child: TextFormField(
                 key: const Key("nameField"),
+                controller: nameController,
                 decoration: const InputDecoration(labelText: 'Nom'),
-                onSaved: (val) => name = val ?? '',
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Obligatoire' : null,
               ),
@@ -109,8 +144,8 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
               label: 'input-description',
               child: TextFormField(
                 key: const Key("descriptionField"),
+                controller: descriptionController,
                 decoration: const InputDecoration(labelText: 'Description'),
-                onSaved: (val) => description = val ?? '',
               ),
             ),
             if (saleType == SaleType.weight)
@@ -118,18 +153,18 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                 label: 'input-weight',
                 child: TextFormField(
                   key: const Key("weightField"),
+                  controller: weightController,
                   decoration: const InputDecoration(labelText: 'Poids (g)'),
                   keyboardType: TextInputType.number,
-                  onSaved: (val) => weightGrams = int.tryParse(val ?? '') ?? 0,
                 ),
               ),
             Semantics(
               label: 'input-price',
               child: TextFormField(
                 key: const Key("priceField"),
+                controller: priceController,
                 decoration: const InputDecoration(labelText: 'Prix (centimes)'),
                 keyboardType: TextInputType.number,
-                onSaved: (val) => priceCents = int.tryParse(val ?? '') ?? 0,
               ),
             ),
             const SizedBox(height: 20),
@@ -144,6 +179,13 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                         onPressed: () async {
                           if (!_formKey.currentState!.validate()) return;
                           _formKey.currentState!.save();
+
+                          name = nameController.text;
+                          description = descriptionController.text;
+                          weightGrams =
+                              int.tryParse(weightController.text) ?? 0;
+                          priceCents = int.tryParse(priceController.text) ?? 0;
+
                           try {
                             final authProvider = context.read<AuthProvider>();
                             final vegetableProvider =
@@ -166,9 +208,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                                     child:
                                         const Text('Légume ajouté avec succès'),
                                   ),
-                                  // duration: const Duration(
-                                  //     seconds:
-                                  //         50), // tu peux même allonger temporairement à 10s pour test
                                 ),
                               );
                               Navigator.pop(context, true);

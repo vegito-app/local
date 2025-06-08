@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	nethttp "net/http"
+	"strings"
 	"time"
 
 	"github.com/7d4b9/utrade/backend/internal/http"
@@ -91,6 +92,10 @@ func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageV
 	return service, nil
 }
 
+func isAlreadyValidatedURL(url string) bool {
+	return strings.HasPrefix(url, "https://cdn.utrade.dev/")
+}
+
 func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)
@@ -108,7 +113,10 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 			ImageID:     fmt.Sprintf("%d", index),
 			ImageURL:    img.URL,
 		})
-		v.Images[index].URL = "" // Clear the URL to avoid storing it in the vegetable object before validation
+		// Only reset URLs that are not yet moderated
+		if !isAlreadyValidatedURL(img.URL) {
+			v.Images[index].URL = ""
+		}
 	}
 	err := s.storage.StoreVegetable(ctx, userID, v)
 	if err != nil {

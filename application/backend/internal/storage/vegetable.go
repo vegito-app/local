@@ -5,12 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/7d4b9/utrade/backend/firebase"
 	"github.com/7d4b9/utrade/backend/internal/http/api"
 	"google.golang.org/api/iterator"
 )
+
+func isAlreadyValidatedURL(url string) bool {
+	return strings.HasPrefix(url, "https://cdn.utrade.dev/")
+}
 
 type VegetableStorage struct {
 	firestore *firestore.Client
@@ -40,6 +45,9 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 	}
 
 	for i, img := range v.Images {
+		if isAlreadyValidatedURL(img.URL) {
+			continue
+		}
 		imageDoc := s.firestore.Collection("vegetables").
 			Doc(v.ID).
 			Collection("images").

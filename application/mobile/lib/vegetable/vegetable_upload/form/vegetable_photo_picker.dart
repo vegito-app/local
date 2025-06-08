@@ -36,10 +36,9 @@ class VegetablePhotoPicker extends StatelessWidget {
                       ),
                       child: Semantics(
                         label: 'image_${entry.value.path.split('/').last}',
-                        child: Image.file(
-                          File(entry.value.path),
-                          height: 100,
-                        ),
+                        child: entry.value.path.startsWith('http')
+                            ? Image.network(entry.value.path, height: 100)
+                            : Image.file(File(entry.value.path), height: 100),
                       ),
                     ),
                     if (entry.key != provider.mainImageIndex)
