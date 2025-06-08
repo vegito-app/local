@@ -35,7 +35,11 @@ variable "vegetable_image_created_moderator_pubsub_topic" {
   description = "Vegetable image created Pub/Sub topic for sending images to the moderator for validation"
   type        = string
 }
-variable "vegetable_image_validated_backend_pubsub_subscription" {
+variable "vegetable_images_validated_backend_pubsub_subscription" {
   description = "Vegetable image validated Pub/Sub subscription for receiving messages from the moderator"
+  type        = string
+}
+variable "cdn_images_url_prefix" {
+  description = "CDN images URL prefix for filtering messages to validate from the backend"
   type        = string
 }

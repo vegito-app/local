@@ -95,16 +95,17 @@ resource "google_project_iam_member" "application_backend_vault_access" {
 }
 
 module "application" {
-  source                                                = "../../../application/run"
-  region                                                = var.region
-  environment                                           = local.environment
-  project_name                                          = data.google_project.project.name
-  project_id                                            = var.project_id
-  application_backend_image                             = var.application_backend_image
-  google_idp_oauth_key_secret_id                        = var.google_idp_oauth_key_secret_id
-  google_idp_oauth_client_id_secret_id                  = var.google_idp_oauth_client_id_secret_id
-  vegetable_image_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_validated_backend_subscription.name
-  vegetable_image_created_moderator_pubsub_topic        = google_pubsub_topic.vegetable_created.name
+  source                                                 = "../../../application/run"
+  region                                                 = var.region
+  environment                                            = local.environment
+  project_name                                           = data.google_project.project.name
+  project_id                                             = var.project_id
+  application_backend_image                              = var.application_backend_image
+  google_idp_oauth_key_secret_id                         = var.google_idp_oauth_key_secret_id
+  google_idp_oauth_client_id_secret_id                   = var.google_idp_oauth_client_id_secret_id
+  vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_validated_backend_subscription.name
+  vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_created.name
+  cdn_images_url_prefix                                  = "http://${google_compute_global_address.public_cdn.address}/"
 }
 
 resource "google_pubsub_topic" "vegetable_created" {

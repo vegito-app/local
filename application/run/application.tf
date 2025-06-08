@@ -61,8 +61,12 @@ resource "google_cloud_run_service" "application_backend" {
           value = var.vegetable_image_created_moderator_pubsub_topic
         }
         env {
-          name  = "VEGETABLE_VALIDATED_IMAGES_PUBSUB_SUBSCRIPTION"
-          value = var.vegetable_image_validated_backend_pubsub_subscription
+          name  = "CDN_IMAGES_URL_PREFIX"
+          value = var.cdn_images_url_prefix
+        }
+        env {
+          name  = "VEGETABLE_VALIDATED_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION"
+          value = var.vegetable_images_validated_backend_pubsub_subscription
         }
       }
       service_account_name = google_service_account.application_backend_cloud_run_sa.email

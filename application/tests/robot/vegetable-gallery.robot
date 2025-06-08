@@ -42,3 +42,4 @@ Modification D’un Légume Depuis La Galerie
     Element Text Should Be              xpath=(//android.widget.EditText)[3]    400
     Element Text Should Be              xpath=(//android.widget.EditText)[4]    300
     Wait Until Page Contains Element    xpath=//android.widget.ImageView[contains(@content-desc, "poivron.jpg")]    timeout=10s
+    Swipe Until Element Is Visible      accessibility_id=Enregistrer

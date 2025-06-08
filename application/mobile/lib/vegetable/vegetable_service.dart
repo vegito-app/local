@@ -92,6 +92,9 @@ class VegetableService {
       final List<VegetableImage> vegetableImages = [];
 
       for (final imageFile in images) {
+        if (imageFile.path.startsWith('http')) {
+          continue;
+        }
         final dir = await getTemporaryDirectory();
         final targetPath =
             '${dir.path}/${DateTime.now().millisecondsSinceEpoch}_${imageFile.name}.jpg';

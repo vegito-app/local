@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 
 	"cloud.google.com/go/pubsub"
@@ -15,15 +16,19 @@ import (
 var config = viper.New()
 
 const (
-	gcloudProjectIDConfig                            = "google_cloud_projetct_id"
-	validatedImagesModeratorPubSubSubscriptionConfig = "validated_images_moderator_pubsub_subscription"
+	gcloudProjectIDConfig                            = "google_cloud_project_id"
+	validatedImagesModeratorPubSubSubscriptionConfig = "validated_images_backend_pubsub_subscription"
+	validatedImagesCDNPrefixURLConfig                = "validated_images_cdn_prefix_url"
 	createdImagesModeratorPubSubTopic                = "created_images_moderator_pubsub_topic"
 )
 
 func init() {
 	config.AutomaticEnv()
 	config.SetEnvPrefix("vegetable")
+
 	config.BindEnv(gcloudProjectIDConfig, "GCLOUD_PROJECT_ID")
+	config.BindEnv(validatedImagesCDNPrefixURLConfig, "CDN_IMAGES_URL_PREFIX")
+	config.BindEnv(createdImagesModeratorPubSubTopic, "CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC")
 }
 
 type Storage interface {
@@ -32,6 +37,7 @@ type Storage interface {
 
 type VegetableClient struct {
 	validatedImagesSubscriptionID string
+	validatedImagesCDNPrefixURL   string
 
 	storage                    Storage
 	exit                       func()
@@ -57,12 +63,16 @@ func NewVegetableClient(storage Storage) (*VegetableClient, error) {
 	}
 
 	validateImagesPublishTopic := pubSubClient.Topic(validateImagePublishTopic)
-
+	validatedImagesCDNPrefixURL := config.GetString(validatedImagesCDNPrefixURLConfig)
+	if validatedImagesCDNPrefixURL == "" {
+		log.Warn().Msgf("CDN prefix URL for validated images not set in config: %s", validatedImagesCDNPrefixURLConfig)
+	}
 	v := &VegetableClient{
 		pubSubClient:                  pubSubClient,
 		storage:                       storage,
 		validateImagesPublishTopic:    validateImagesPublishTopic,
 		validatedImagesSubscriptionID: validatedImagesTopicSubscription,
+		validatedImagesCDNPrefixURL:   validatedImagesCDNPrefixURL,
 	}
 
 	v.initialize()
@@ -159,7 +169,12 @@ func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID st
 					Msg("failed to marshal message")
 				return
 			}
-
+			if strings.Contains(images[index].ImageURL, v.validatedImagesCDNPrefixURL) {
+				log.Debug().
+					Str("image_url", images[index].ImageURL).
+					Msg("Skip Image validation in CDN")
+				return
+			}
 			res := v.validateImagesPublishTopic.Publish(ctx, &pubsub.Message{Data: payload})
 			if _, err := res.Get(ctx); err != nil {
 				log.Error().Err(err).
@@ -170,14 +185,14 @@ func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID st
 					Msg("failed to publish image validation message")
 				return
 			}
-
-			log.Debug().Fields(map[string]any{
-				"vegetable_id": vegetableID,
-				"image_id":     fmt.Sprintf("%d", index),
-			}).Msg("Published image validation message")
+			log.Debug().
+				Fields(map[string]any{
+					"vegetable_id": vegetableID,
+					"image_id":     fmt.Sprintf("%d", index),
+				}).
+				Msg("Published image validation message")
 
 		}(index, img)
 	}
-
 	return nil
 }

@@ -27,10 +27,10 @@ module "application" {
 
   application_backend_image = var.application_backend_image
 
-  google_idp_oauth_key_secret_id                        = var.google_idp_oauth_key_secret_id
-  google_idp_oauth_client_id_secret_id                  = var.google_idp_oauth_client_id_secret_id
-  vegetable_image_created_moderator_pubsub_topic        = google_pubsub_topic.vegetable_moderation_bypass.name
-  vegetable_image_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
+  google_idp_oauth_key_secret_id                         = var.google_idp_oauth_key_secret_id
+  google_idp_oauth_client_id_secret_id                   = var.google_idp_oauth_client_id_secret_id
+  vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_moderation_bypass.name
+  vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
 }
 
 # Enables required APIs.
