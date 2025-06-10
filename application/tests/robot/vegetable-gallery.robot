@@ -1,10 +1,10 @@
 *** Settings ***
-Library          AppiumLibrary
-Resource         ../resources/keywords.robot
-Resource         ../resources/vegetable.robot
 Library           AppiumLibrary
 Library           Collections
-# Suite Setup      Firebase.purge_test_vegetables
+
+Resource         ../resources/keywords.robot
+Resource         ../resources/vegetable.robot
+
 Test Setup        Reset State And Return Home
 
 *** Variables ***

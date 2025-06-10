@@ -1,12 +1,7 @@
 TERRAFORM_SECRETS_ROOT_MODULE = $(CURDIR)/infra/environments/$(INFRA_ENV)/secrets
 
-GOOGLE_IDP_OAUTH_KEY=google-idp-oauth-key
-GOOGLE_IDP_OAUTH_CLIENT_ID=google-idp-oauth-client-id
-
 SECRETS_TERRAFORM = \
 	TF_VAR_google_credentials_file=$(GOOGLE_APPLICATION_CREDENTIALS) \
-	TF_VAR_google_idp_oauth_key_secret_id=$(GOOGLE_IDP_OAUTH_KEY) \
-	TF_VAR_google_idp_oauth_client_id_secret_id=$(GOOGLE_IDP_OAUTH_CLIENT_ID) \
 	terraform -chdir=$(TERRAFORM_SECRETS_ROOT_MODULE)
 
 terraform-secrets-init: $(GOOGLE_APPLICATION_CREDENTIALS)
@@ -26,8 +21,9 @@ terraform-secrets-state-list: $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: terraform-secrets-state-list
 
 SECRETS_TF_STATE_ITEMS =  \
-	google_secret_manager_secret.google_idp_secret \
-	google_secret_manager_secret_version.google_idp_secret_version
+	google_secret_manager_secret.google_idp_oauth_client_id \
+	google_secret_manager_secret.google_idp_oauth_key \
+	google_secret_manager_secret.stripe_key
 
 $(SECRETS_TF_STATE_ITEMS:%=%-show): $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(SECRETS_TERRAFORM) state show $(@:%-show=%)
@@ -36,6 +32,10 @@ $(SECRETS_TF_STATE_ITEMS:%=%-show): $(GOOGLE_APPLICATION_CREDENTIALS)
 $(SECRETS_TF_STATE_ITEMS:%=%-taint): $(GOOGLE_APPLICATION_CREDENTIALS)
 	@$(SECRETS_TERRAFORM) taint $(@:%-taint=%)
 .PHONY: $(SECRETS_TF_STATE_ITEMS:%=%-taint)
+
+$(SECRETS_TF_STATE_ITEMS:%=%-rm): $(GOOGLE_APPLICATION_CREDENTIALS)
+	@$(SECRETS_TERRAFORM) state rm $(@:%-rm=%)
+.PHONY: $(SECRETS_TF_STATE_ITEMS:%=%-rm)
 
 terraform-secrets-state-show-all : $(SECRETS_TF_STATE_ITEMS:%=%-show)
 .PHONY: terraform-secrets-state-show-all
@@ -81,5 +81,5 @@ terraform-secrets-destroy: $(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: terraform-secrets-destroy
 
 terraform-secrets-state-backup: $(GOOGLE_APPLICATION_CREDENTIALS)
-	@$(SECRETS_TERRAFORM) state pull > $(CURDIR)/infra/secrets/backup.tfstate
+	@$(SECRETS_TERRAFORM) state pull > $(CURDIR)/infra/environments/$(INFRA_ENV)/secrets/backup.tfstate
 .PHONY: terraform-secrets-state-backup

@@ -1,4 +1,15 @@
-resource "kubernetes_cron_job" "images_cleaner" {
+resource "kubernetes_service_account" "input_images_cleaner" {
+  metadata {
+    name      = "input-images-cleaner"
+    namespace = "default"
+    annotations = {
+      "iam.gke.io/gcp-service-account" = var.input_images_cleaner_sa_email
+    }
+  }
+}
+
+
+resource "kubernetes_cron_job_v1" "images_cleaner" {
   metadata {
     name = "images-cleaner"
     labels = {
@@ -30,7 +41,7 @@ resource "kubernetes_cron_job" "images_cleaner" {
               }
             }
             restart_policy       = "OnFailure"
-            service_account_name = kubernetes_service_account.input_images_workers.metadata[0].name
+            service_account_name = kubernetes_service_account.input_images_cleaner.metadata[0].name
           }
         }
       }

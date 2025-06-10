@@ -2,10 +2,11 @@ TERRAFORM_PROJECT ?= $(CURDIR)/infra/environments/$(INFRA_ENV)
 
 TERRAFORM = \
 	TF_VAR_application_backend_image=$(APPLICATION_BACKEND_IMAGE) \
-	TF_VAR_input_images_cleaner_image=$(INPUT_IMAGES_CLEANER_IMAGE) \
-	TF_VAR_input_images_moderator_image=$(INPUT_IMAGES_MODERATOR_IMAGE) \
-	TF_VAR_google_idp_oauth_key_secret_id=$(GOOGLE_IDP_OAUTH_KEY) \
-	TF_VAR_google_idp_oauth_client_id_secret_id=$(GOOGLE_IDP_OAUTH_CLIENT_ID) \
+	TF_VAR_project_id=$(GOOGLE_CLOUD_PROJECT_ID) \
+	TF_VAR_input_images_cleaner_image=$(APPLICATION_IMAGES_CLEANER_IMAGE) \
+	TF_VAR_input_images_moderator_image=$(APPLICATION_IMAGES_MODERATOR_IMAGE) \
+	TF_VAR_google_idp_oauth_key_secret_id=$(GOOGLE_IDP_OAUTH_KEY_SECRET_ID) \
+	TF_VAR_google_idp_oauth_client_id_secret_id=$(GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID) \
 	TF_VAR_helm_vault_chart_version=$(HELM_VAULT_CHART_VERSION) \
 		terraform -chdir=$(TERRAFORM_PROJECT) 
         # -var-file=$(TERRAFORM_PROJECT)/terraform.tfvars \

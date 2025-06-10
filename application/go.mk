@@ -2,7 +2,7 @@ GO_VERSION = 1.24
 
 GO_MODULES := \
 	application/backend \
-	application/images/ \
+	application/images \
 	application/firebase/functions/auth \
 	local/proxy
 

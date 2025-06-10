@@ -17,3 +17,7 @@ output "created_images_input_bucket_name" {
   value       = google_storage_bucket.firebase_storage_bucket.name
   description = "Firebase Storage Bucket for input images"
 }
+output "private_docker_repository_name" {
+  value       = google_artifact_registry_repository.private_docker_repository.name
+  description = "Private Docker Repository Name"
+}

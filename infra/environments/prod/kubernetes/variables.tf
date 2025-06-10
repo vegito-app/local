@@ -70,7 +70,12 @@ variable "vegetable_image_validated_moderator_pubsub_topic_output" {
   type        = string
 }
 
-variable "input_images_workers_sa_email" {
+variable "input_images_moderator_sa_email" {
   description = "The email of the service account used by the input images workers."
+  type        = string
+}
+
+variable "input_images_cleaner_sa_email" {
+  description = "The email of the service account used by the input images cleaner."
   type        = string
 }

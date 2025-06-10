@@ -7,10 +7,10 @@ import (
 	"fmt"
 	nethttp "net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/7d4b9/utrade/backend/internal/http"
-	vegetableimage "github.com/7d4b9/utrade/images/vegetable"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
@@ -60,40 +60,43 @@ type VegetableStorage interface {
 }
 
 type VegetableImageValidator interface {
-	SetImageValidation(ctx context.Context, userID string, images []vegetableimage.VegetableCreatedImageMessage) error
+	SetImageValidation(ctx context.Context, userID string, image *VegetableImage) error
 }
 
 // VegetableService defines all routes handled by VegetableService
 type VegetableService struct {
-	storage        VegetableStorage
-	imageValidator VegetableImageValidator
+	storage               VegetableStorage
+	imageValidator        VegetableImageValidator
+	cdnImagesURLprefix    string
+	cdnImagesBucketPrefix string
 }
 
 func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageValidator VegetableImageValidator) (*VegetableService, error) {
+	cdnBucket := config.GetString(vegetableValidatedImagesCDNbucketConfig)
+	cdnURLPrefix := fmt.Sprintf("https://%s/", cdnBucket)
 	service := &VegetableService{
-		storage:        storage,
-		imageValidator: imageValidator,
+		storage:               storage,
+		imageValidator:        imageValidator,
+		cdnImagesURLprefix:    cdnURLPrefix,
+		cdnImagesBucketPrefix: fmt.Sprintf("gs://%s", cdnBucket),
 	}
 	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.CreateVegetable),
 		FirebaseAuthMiddleware))
-
 	mux.Handle("GET /api/vegetables", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.ListVegetables),
 		FirebaseAuthMiddleware))
-
 	mux.Handle("GET /api/vegetable", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.GetVegetable),
 		FirebaseAuthMiddleware))
-
 	mux.Handle("DELETE /api/vegetable", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.DeleteVegetable),
 		FirebaseAuthMiddleware))
 	return service, nil
 }
 
-func isAlreadyValidatedURL(url string) bool {
-	return strings.HasPrefix(url, "https://cdn.utrade.dev/")
+func (s *VegetableService) isAlreadyValidatedURL(url string) bool {
+	return strings.HasPrefix(url, s.cdnImagesURLprefix)
 }
 
 func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
@@ -106,35 +109,33 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		return
 	}
 	v.ID = uuid.NewString()
-	var createdImages []vegetableimage.VegetableCreatedImageMessage
+	// var createdImages []vegetableimage.VegetableCreatedImageMessage
+	var wg sync.WaitGroup
+	defer wg.Wait()
 	for index, img := range v.Images {
-		createdImages = append(createdImages, vegetableimage.VegetableCreatedImageMessage{
-			VegetableID: v.ID,
-			ImageID:     fmt.Sprintf("%d", index),
-			ImageURL:    img.URL,
-		})
-		// Only reset URLs that are not yet moderated
-		if !isAlreadyValidatedURL(img.URL) {
-			v.Images[index].URL = ""
+		if s.isAlreadyValidatedURL(img.URL) {
+			log.Debug().
+				Str("image_url", img.URL).
+				Msg("Skip Image validation in CDN")
+			continue
 		}
+		wg.Add(1)
+		go func(index int, img VegetableImage) {
+			defer wg.Done()
+			if err := s.imageValidator.SetImageValidation(ctx, v.ID, &img); err != nil {
+				log.Error().Err(err).Msg("failed to set image validation")
+			}
+		}(index, img)
+		v.Images[index].Status = VegetableImageStatusPending
+		v.Images[index].UploadedAt = time.Now()
+		v.Images[index].URL = ""
 	}
 	err := s.storage.StoreVegetable(ctx, userID, v)
 	if err != nil {
 		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
 		return
 	}
-
-	if err := s.imageValidator.SetImageValidation(ctx, v.ID, createdImages); err != nil {
-		nethttp.Error(w, "set image validation failed", nethttp.StatusInternalServerError)
-		return
-	}
-
 	w.WriteHeader(nethttp.StatusCreated)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		log.Error().Err(err).Msg("failed to encode vegetable response")
-		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
-		return
-	}
 }
 
 func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {
@@ -149,7 +150,19 @@ func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.R
 	if veggies == nil {
 		veggies = []*Vegetable{}
 	}
-	json.NewEncoder(w).Encode(veggies)
+	for _, veggie := range veggies {
+		for i := range veggie.Images {
+			if strings.HasPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix) {
+				veggie.Images[i].URL = s.cdnImagesURLprefix + strings.TrimPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix)
+			}
+		}
+	}
+	if err := json.NewEncoder(w).Encode(veggies); err != nil {
+		log.Error().Err(err).Msg("failed to encode vegetables response")
+		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
+		return
+	}
+	log.Debug().Int("count", len(veggies)).Msg("Listed vegetables")
 }
 
 func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
@@ -169,7 +182,17 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 		}
 		return
 	}
-	json.NewEncoder(w).Encode(veggie)
+	for i := range veggie.Images {
+		if strings.HasPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix) {
+			veggie.Images[i].URL = s.cdnImagesURLprefix + strings.TrimPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix)
+		}
+	}
+	if err := json.NewEncoder(w).Encode(veggie); err != nil {
+		log.Error().Err(err).Msg("failed to encode vegetable response")
+		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
+		return
+	}
+	log.Debug().Str("id", id).Msg("Retrieved vegetable")
 }
 
 func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {

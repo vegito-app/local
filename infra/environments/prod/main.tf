@@ -14,8 +14,10 @@ module "cdn" {
 }
 
 locals {
-  input_images_service_account_id = "input-images-workers"
-  input_images_workers_email      = "${local.input_images_service_account_id}@${var.project_id}.iam.gserviceaccount.com"
+  input_images_cleaner_service_account_id   = "input-images-cleaner"
+  input_images_moderator_service_account_id = "input-images-moderator"
+  input_images_moderator_email              = "${local.input_images_moderator_service_account_id}@${var.project_id}.iam.gserviceaccount.com"
+  input_images_cleaner_email                = "${local.input_images_cleaner_service_account_id}@${var.project_id}.iam.gserviceaccount.com"
 }
 
 module "kubernetes" {
@@ -40,10 +42,10 @@ module "kubernetes" {
   # The bucket where the images are stored after moderation
   validated_output_bucket = module.cdn.public_images_bucket_name
 
-
-  input_images_moderator_image  = var.input_images_moderator_image
-  input_images_cleaner_image    = var.input_images_cleaner_image
-  input_images_workers_sa_email = local.input_images_workers_email
+  input_images_moderator_image    = var.input_images_moderator_image
+  input_images_cleaner_image      = var.input_images_cleaner_image
+  input_images_moderator_sa_email = local.input_images_moderator_email
+  input_images_cleaner_sa_email   = local.input_images_cleaner_email
 }
 
 module "gcloud" {
@@ -95,17 +97,36 @@ resource "google_project_iam_member" "application_backend_vault_access" {
 }
 
 module "application" {
-  source                                                 = "../../../application/run"
-  region                                                 = var.region
-  environment                                            = local.environment
-  project_name                                           = data.google_project.project.name
-  project_id                                             = var.project_id
-  application_backend_image                              = var.application_backend_image
-  google_idp_oauth_key_secret_id                         = var.google_idp_oauth_key_secret_id
-  google_idp_oauth_client_id_secret_id                   = var.google_idp_oauth_client_id_secret_id
+  source       = "../../../application/run"
+  region       = var.region
+  environment  = local.environment
+  project_name = data.google_project.project.name
+  project_id   = var.project_id
+
+  application_backend_image = var.application_backend_image
+
+  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
+  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
+
   vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_validated_backend_subscription.name
   vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_created.name
-  cdn_images_url_prefix                                  = "http://${google_compute_global_address.public_cdn.address}/"
+
+  cdn_images_url_prefix = module.cdn.public_cdn_address
+  cdn_images_bucket     = module.cdn.public_images_bucket_name
+}
+
+
+output "private_docker_repository_name" {
+  value       = module.application.private_docker_repository_name
+  description = "Private Docker Repository Name"
+}
+
+resource "google_artifact_registry_repository_iam_member" "cluster_node_repo_read_member" {
+  repository = module.application.private_docker_repository_name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${module.kubernetes.cluster_node_sa_email}"
+  location   = var.region
+  project    = var.project_id
 }
 
 resource "google_pubsub_topic" "vegetable_created" {
@@ -138,57 +159,4 @@ resource "google_pubsub_subscription" "vegetable_validated_backend_subscription"
 
   ack_deadline_seconds       = 60
   message_retention_duration = "604800s" # 7 days
-}
-
-
-resource "google_service_account" "input_images_workers" {
-  account_id   = local.input_images_service_account_id
-  project      = var.project_id
-  display_name = "Input Images Workers Service Account"
-  description  = "Service account for input images workers in GKE"
-  depends_on = [
-    module.kubernetes.google_project_service
-  ]
-}
-
-resource "google_project_iam_member" "input_images_workers" {
-  for_each = toset([
-    "roles/iam.serviceAccountUser",
-    "roles/iam.workloadIdentityUser"
-  ])
-  project = var.project_id
-  role    = each.key
-  member  = "serviceAccount:${google_service_account.input_images_workers.email}"
-}
-
-resource "google_storage_bucket_iam_member" "output_validated_images_workers" {
-  for_each = toset([
-    "roles/storage.objectViewer",
-    "roles/storage.objectAdmin"
-  ])
-  bucket = module.cdn.public_images_bucket_name
-  role   = each.key
-  member = "serviceAccount:${google_service_account.input_images_workers.email}"
-}
-
-resource "google_storage_bucket_iam_member" "input_created_images_workers" {
-  for_each = toset([
-    "roles/storage.objectViewer",
-    "roles/storage.objectAdmin"
-  ])
-  bucket = module.application.created_images_input_bucket_name
-  role   = each.key
-  member = "serviceAccount:${google_service_account.input_images_workers.email}"
-}
-
-resource "google_service_account_iam_member" "bind_ksa_to_gsa" {
-  service_account_id = google_service_account.input_images_workers.name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "serviceAccount:${var.project_id}.svc.id.goog[default/input-images-workers]"
-}
-
-resource "google_project_iam_member" "input_images_workers_vision" {
-  project = var.project_id
-  role    = "roles/visionai.reader"
-  member  = "serviceAccount:${google_service_account.input_images_workers.email}"
 }

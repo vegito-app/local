@@ -49,7 +49,6 @@ resource "google_firestore_database" "default" {
   name                              = "(default)"
   location_id                       = var.region
   type                              = "FIRESTORE_NATIVE"
-  deletion_policy                   = "ABANDON"
   delete_protection_state           = "DELETE_PROTECTION_ENABLED"
   point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
 }

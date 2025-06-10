@@ -5,3 +5,12 @@
 -include application/images/images.mk
 -include application/mobile/mobile.mk
 -include application/tests/tests.mk
+
+APPLICATION_CI_IMAGES_BUILD := \
+	local-application-backend-image-ci \
+	local-application-images-moderator-image-ci \
+	local-application-images-cleaner-image-ci \
+	local-application-tests-image-ci
+
+application-images-ci: $(APPLICATION_CI_IMAGES_BUILD)
+.PHONY: application-images-ci

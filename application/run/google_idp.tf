@@ -152,7 +152,6 @@ data "google_secret_manager_secret_version" "google_idp_oauth_client_id" {
   secret = var.google_idp_oauth_client_id_secret_id
 }
 
-# Assigner les secrets
 resource "google_identity_platform_default_supported_idp_config" "google" {
   enabled = true
   idp_id  = "google.com"

@@ -43,3 +43,7 @@ variable "cdn_images_url_prefix" {
   description = "CDN images URL prefix for filtering messages to validate from the backend"
   type        = string
 }
+variable "cdn_images_bucket" {
+  description = "The name of the bucket where validated images will be stored."
+  type        = string
+}

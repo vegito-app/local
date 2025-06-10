@@ -15,7 +15,8 @@ import (
 var config = viper.New()
 
 const (
-	uiBuildDirConfig = "frontend_build_dir"
+	uiBuildDirConfig                        = "frontend_build_dir"
+	vegetableValidatedImagesCDNbucketConfig = "vegetable_validated_images_cdn_bucket"
 )
 
 func init() {

@@ -38,6 +38,12 @@ resource "google_service_account_iam_member" "name" {
   member             = "serviceAccount:${var.project_number}@cloudservices.gserviceaccount.com"
 }
 
+
+resource "google_service_account_iam_member" "cluster_node_sa_token_creator" {
+  service_account_id = google_service_account.cluster_node_sa.id
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${var.project_number}@cloudservices.gserviceaccount.com"
+}
 resource "google_container_cluster" "vault_cluster" {
   depends_on = [
     google_project_service.google_k8s_cluster_services,
@@ -87,14 +93,4 @@ resource "google_container_node_pool" "vault_cluster_nodes" {
   }
 
   initial_node_count = 3
-}
-
-resource "kubernetes_service_account" "input_images_workers" {
-  metadata {
-    name      = "input-images-workers"
-    namespace = "default"
-    annotations = {
-      "iam.gke.io/gcp-service-account" = var.input_images_workers_sa_email
-    }
-  }
 }
