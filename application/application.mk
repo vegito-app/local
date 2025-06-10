@@ -2,5 +2,6 @@
 -include application/nodejs.mk
 -include application/frontend/frontend.mk
 -include application/backend/backend.mk
+-include application/images/images.mk
 -include application/mobile/mobile.mk
 -include application/tests/tests.mk
