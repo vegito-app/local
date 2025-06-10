@@ -4,9 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
-	"time"
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
@@ -19,29 +16,25 @@ import (
 
 const (
 	// PubSubSubscriptionInputConfig is the subscription for the input topic
-	PubSubSubscriptionInputConfig = "application_images_moderator_pubsub_subscription"
+	PubSubSubscriptionInputConfig = "pubsub_subscription"
 	// PubSubTopicInputConfig is the input topic for vegetable creation messages
-	PubSubTopicInputConfig = "application_images_moderator_pubsub_topic_input"
+	PubSubTopicInputConfig = "pubsub_topic_input"
 	// PubSubTopicOutputConfig is the output topic for validated vegetable images
-	PubSubTopicOutputConfig = "application_images_moderator_pubsub_topic_output"
+	PubSubTopicOutputConfig = "pubsub_topic_output"
 	// validatedOutputBucketConfig is the bucket where validated images are stored
-	validatedOutputBucketConfig = "application_images_moderator_validated_output_bucket"
-	// firebaseUploadBucketConfig is the bucket where images are uploaded from Firebase
-	firebaseUploadBucketConfig = "application_images_moderator_input_firebase_bucket"
+	validatedOutputBucketConfig = "validated_output_bucket"
+	// createdInputBucketConfig is the bucket where images are uploaded from Firebase
+	createdInputBucketConfig = "created_input_bucket"
+
+	gcloudProjectIDConfig = "gcloud_project_id"
 )
 
 var config = viper.New()
 
 func init() {
-	config.SetConfigName("config")
-	config.SetConfigType("yaml")
-	config.AddConfigPath(".")
-	if err := config.ReadInConfig(); err != nil {
-		log.Fatal().Err(err).Msg("Failed to read config file")
-	}
 	config.AutomaticEnv() // Automatically read environment variables
 	config.SetEnvPrefix("application_images_moderator")
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	config.BindEnv(gcloudProjectIDConfig, "GCLOUD_PROJECT_ID")
 
 }
 
@@ -49,9 +42,9 @@ func init() {
 func main() {
 	ctx := context.Background()
 
-	projectID := os.Getenv("GCP_PROJECT_ID")
+	projectID := config.GetString(gcloudProjectIDConfig)
 	if projectID == "" {
-		log.Fatal().Msg("GCP_PROJECT_ID not set")
+		log.Fatal().Msg("GCLOUD_PROJECT_ID not set")
 	}
 
 	topicID := config.GetString(PubSubTopicInputConfig)
@@ -73,9 +66,9 @@ func main() {
 		log.Fatal().Msg("APPLICATION_IMAGES_MODERATOR_VALIDATED_OUTPUT_BUCKET not set")
 	}
 
-	firebaseUploadBucket := config.GetString(firebaseUploadBucketConfig)
+	firebaseUploadBucket := config.GetString(createdInputBucketConfig)
 	if firebaseUploadBucket == "" {
-		log.Fatal().Msg("APPLICATION_IMAGES_MODERATOR_INPUT_FIREBASE_BUCKET not set")
+		log.Fatal().Msg("APPLICATION_IMAGES_MODERATOR_INPUT_STORAGE_BUCKET not set")
 	}
 
 	clientImageAnnotator, err := vision.NewImageAnnotatorClient(ctx)
@@ -130,12 +123,14 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 	if img == nil {
 		return fmt.Errorf("Failed to create image from URI for %s", vegetableID)
 	}
+
 	clientImageAnnotator, err := vision.NewImageAnnotatorClient(ctx)
-	defer clientImageAnnotator.Close()
 	if err != nil {
 		return fmt.Errorf("Failed to create image annotator client: %w", err)
 	}
-	// Perform SafeSearch detection
+	defer clientImageAnnotator.Close()
+
+	// SafeSearch detection (existant)
 	annotations, err := clientImageAnnotator.DetectSafeSearch(ctx, img, nil)
 	if err != nil {
 		return fmt.Errorf("Failed to perform SafeSearch detection: %w", err)
@@ -143,13 +138,12 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 	if annotations == nil {
 		return fmt.Errorf("No SafeSearch annotations found for image %s", vegetableID)
 	}
-	// Check for unsafe content
-	if annotations.Adult == pb.Likelihood_VERY_UNLIKELY &&
-		annotations.Medical == pb.Likelihood_VERY_UNLIKELY &&
-		annotations.Violence == pb.Likelihood_VERY_UNLIKELY &&
-		annotations.Racy == pb.Likelihood_VERY_UNLIKELY {
-		log.Debug().Str("vegetable_id", vegetableID).Msg("Image is safe")
-	} else {
+
+	// Vérifie le contenu SafeSearch
+	if annotations.Adult != pb.Likelihood_VERY_UNLIKELY ||
+		annotations.Medical != pb.Likelihood_VERY_UNLIKELY ||
+		annotations.Violence != pb.Likelihood_VERY_UNLIKELY ||
+		annotations.Racy != pb.Likelihood_VERY_UNLIKELY {
 		storageClient, err := storage.NewClient(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to create storage client: %w", err)
@@ -168,6 +162,7 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 		return fmt.Errorf("Image %s contains unsafe content", vegetableID)
 	}
 
+	// Copie dans bucket validé (existant)
 	storageClient, err := storage.NewClient(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create storage client: %w", err)
@@ -191,15 +186,45 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 		return fmt.Errorf("failed to delete original image: %w", err)
 	}
 
+	// --- Nouvelle partie : détection des labels ---
+	labels, err := clientImageAnnotator.DetectLabels(ctx, img, nil, 10)
+	if err != nil {
+		return fmt.Errorf("Failed to perform Label detection: %w", err)
+	}
+
+	// Construction d'une structure simple pour la sérialisation JSON
+	type LabelData struct {
+		Description string  `json:"description"`
+		Score       float32 `json:"score"`
+	}
+
+	var labelData []LabelData
+	for _, label := range labels {
+		labelData = append(labelData, LabelData{
+			Description: label.Description,
+			Score:       label.Score,
+		})
+	}
+
+	// Message JSON enrichi envoyé sur le topic de sortie
+	messageData, err := json.Marshal(map[string]interface{}{
+		"vegetableId":  vegetableID,
+		"imageId":      imageID,
+		"validatedUrl": fmt.Sprintf("gs://%s/%s", validatedBucket, path),
+		"labels":       labelData,
+	})
+	if err != nil {
+		return fmt.Errorf("Failed to marshal output message: %w", err)
+	}
+
 	pub := client.Topic(topicOut)
 	result := pub.Publish(ctx, &pubsub.Message{
-		Data: []byte(fmt.Sprintf(`{"vegetableId":"%s","imageId":"%s","validatedUrl":"gs://%s/%s"}`, vegetableID, imageID, validatedBucket, path)),
+		Data: messageData,
 	})
 	if _, err := result.Get(ctx); err != nil {
 		return fmt.Errorf("failed to publish validated image message: %w", err)
 	}
 
-	log.Printf("Moderating vegetable %s", vegetableID)
-	time.Sleep(1 * time.Second) // simulate work
+	log.Printf("Moderated vegetable %s and published labels", vegetableID)
 	return nil
 }
