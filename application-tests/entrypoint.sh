@@ -50,4 +50,10 @@ mkdir -p ${LOCAL_APPLICATION_TESTS_DIR}
 cd ${LOCAL_APPLICATION_TESTS_DIR} && python3 -m http.server 8088 &
 bg_pids+=($!)
 
+# Start Stripe CLI listener and forward webhooks to backend
+stripe listen --forward-to ${APPLICATION_BACKEND_URL}/paiement/webhook &
+bg_pids+=($!)
+stripe listen --forward-to ${APPLICATION_BACKEND_DEBUG_URL}/paiement/webhook &
+bg_pids+=($!)
+
 exec "$@"
