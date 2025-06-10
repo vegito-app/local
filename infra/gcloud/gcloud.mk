@@ -361,7 +361,8 @@ GCLOUD_SECRETS := \
   firebase-config-web \
   google-idp-oauth-client-id \
   google-idp-oauth-key \
-  google-maps-api-key
+  google-maps-api-key \
+  stripe-key
 
 $(GCLOUD_SECRETS:%=gcloud-secret-%-show):
 	@a=$$($(GCLOUD) secrets versions access latest \
