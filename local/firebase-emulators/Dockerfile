@@ -7,6 +7,7 @@ COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 RUN apt-get update && apt-get install -y \
     curl \
     htop \
+    jq \
     make \
     netcat-openbsd \
     openjdk-17-jdk \

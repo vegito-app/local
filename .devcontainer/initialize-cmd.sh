@@ -51,15 +51,17 @@ DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/
 BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
-LOCAL_FIREBASE_EMULATORS_VEGETABLE_VALIDATED_IMAGES_CDN_PREFIX_URL=validated-images-cdn-prefix-url
-LOCAL_FIREBASE_EMULATORS_VEGETABLE_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION=validated-images-backend-subscription
-LOCAL_FIREBASE_EMULATORS_VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC=created-images-moderator-topic
+
+LOCAL_FIREBASE_EMULATORS_VEGETABLE_IMAGES_CDN_PREFIX_URL=vegetable-images-cdn-prefix-url
+LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
+LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
+
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
 UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
 
 # 
 #--------------------------------------------------------
-# ! Should not configure this section !
+# ! Should not configure this section !^
 #
 # The following variables are used for propagating the containers
 # configurations between them each others selves.
@@ -81,6 +83,7 @@ STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stri
 # 
 # ! Should not configure this section !
 #---------------------------------------------------------
+
 EOF
 
 # Vscode
@@ -198,6 +201,7 @@ cat <<'EOF' > $backendLaunchDebug
                 "GOOGLE_APPLICATION_CREDENTIALS": "../../infra/environments/dev/gcloud-credentials.json",
                 "UI_CONFIG_FIREBASE_SECRET_ID": "projects/moov-dev-439608/secrets/firebase-config-web/versions/latest",
                 "UI_CONFIG_GOOGLEMAPS_SECRET_ID": "projects/moov-dev-439608/secrets/googlemaps-web-api-key/versions/latest",
+                "STRIPE_KEY": "projects/moov-dev-439608/secrets/stripe-key/versions/latest",
                 "FIREBASE_PROJECT_ID": "moov-dev-439608",
                 "GCLOUD_PROJECT_ID": "moov-dev-439608",
                 "FRONTEND_BUILD_DIR": "../frontend/build",
@@ -208,8 +212,9 @@ cat <<'EOF' > $backendLaunchDebug
                 "VAULT_TOKEN": "root",
                 "VAULT_MIN_USER_RECOVERY_KEY_ROTATION_INTERVAL": "1s",
                 "FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
-                "VEGETABLE_VALIDATED_IMAGES_MODERATOR_PUBSUB_SUBSCRIPTION": "local-firebase-emulators-pubsub-validated-images-backend-subscription",
-                "VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC": "projects/moov-dev-439608/topics/local-firebase-emulators-pubsub-created-images-moderator-topic"
+                "VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC": "vegetable-images-created",
+                "VEGETABLE_VALIDATED_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION": "vegetable-images-validated-backend",
+                "VEGETABLE_VALIDATED_IMAGES_CDN_PREFIX_URL": "https://validated-images-cdn-prefix-url",
             },
             "envFile": "${workspaceFolder}/../../local/.env",
         }

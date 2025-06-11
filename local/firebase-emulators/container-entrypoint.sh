@@ -57,4 +57,12 @@ done
 TARGET_PORT=9150 LISTEN_PORT=39150 localproxy &
 bg_pids+=("$!") 
 
+until nc -z localhost 8085; do
+    echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9150/ ;
+    sleep 1 ;
+done
+
+make local-firebase-emulators-pubsub-init
+make local-firebase-emulators-pubsub-check
+
 sleep infinity 
