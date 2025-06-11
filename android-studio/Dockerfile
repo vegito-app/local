@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     rsync \
     socat \
     sudo \
+    tree \
     unzip \
     wget \
     xz-utils \
