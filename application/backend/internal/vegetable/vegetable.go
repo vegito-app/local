@@ -30,7 +30,7 @@ func init() {
 }
 
 type Storage interface {
-	SetVegetableImageUploaded(ctx context.Context, vegetableID, imageID, imageURL string) error
+	SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imageURL string) error
 }
 
 type VegetableClient struct {
@@ -67,7 +67,6 @@ func NewVegetableClient(storage Storage) (*VegetableClient, error) {
 		validatedImagesSubscriptionID: validatedImagesTopicSubscription,
 	}
 
-	v.initialize()
 	log.Info().Str("image_moderator_input_topic", validateImagePublishTopic).Msg("Vegetable client running")
 
 	return v, nil
@@ -87,23 +86,13 @@ func (v *VegetableClient) Close() {
 	log.Info().Msg("Vegetable client closed")
 }
 
-func (v *VegetableClient) initialize() {
-	ctx, cancel := context.WithCancel(context.Background())
-	doneMessageReceive := make(chan struct{})
-	go func() {
-		defer close(doneMessageReceive)
-		if err := v.receiveValidatedImages(ctx); err != nil {
-			log.Error().Err(err).Msg("Failed to receive validated images")
-			cancel()
-			return
-		}
-		log.Info().Msg("Vegetable client started receiving validated images")
-	}()
-	v.exit = func() {
-		cancel()
-		<-doneMessageReceive
-		log.Info().Msg("Vegetable client shutdown complete")
+// RunValidatedImagesSubscription starts the subscription to receive validated images from the pubsub topic.
+// It will block until the context is canceled or an error occurs.
+func (v *VegetableClient) RunValidatedImagesSubscription(ctx context.Context) error {
+	if err := v.receiveValidatedImages(ctx); err != nil {
+		return fmt.Errorf("failed to receive validated images: %w", err)
 	}
+	return nil
 }
 
 func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
@@ -125,10 +114,10 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 
 		// Acknowledge the message before processing to avoid reprocessing in case of errors
 		defer msg.Ack()
-		if err := v.storage.SetVegetableImageUploaded(ctx, payload.VegetableID, payload.ImageID, payload.ImageURL); err != nil {
+		if err := v.storage.SetVegetableImageUploaded(ctx, payload.VegetableID, payload.ImageIndex, payload.ImageURL); err != nil {
 			log.Error().Fields(map[string]any{
 				"vegetable_id": payload.VegetableID,
-				"image_id":     payload.ImageID,
+				"image_index":  payload.ImageIndex,
 				"data":         string(msg.Data),
 			}).Err(err).Msg("Failed to update vegetable image URL")
 			// msg.Nack()
@@ -138,13 +127,17 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 		// msg.Ack()
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create pubsub subscription: %w", err)
+		return fmt.Errorf("failed to receive pubsub subscription: %w", err)
 	}
 	return nil
 }
 
-func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID string, img *api.VegetableImage) error {
-	payload, err := json.Marshal(img)
+func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID string, img *api.VegetableImage, imageIndex int) error {
+	payload, err := json.Marshal(&vegetable.VegetableCreatedImageMessage{
+		VegetableID: vegetableID,
+		ImageIndex:  imageIndex,
+		ImageURL:    img.URL,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to marshal image validation message: %w", err)
 	}
@@ -152,6 +145,7 @@ func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID st
 	if _, err := res.Get(ctx); err != nil {
 		return fmt.Errorf("failed to publish image validation message: %w", err)
 	}
+	v.validateImagesPublishTopic.Flush()
 	log.Debug().
 		Fields(map[string]any{
 			"vegetable_id": vegetableID,

@@ -5,6 +5,7 @@ import (
 
 	"github.com/7d4b9/utrade/backend/firebase"
 	_ "github.com/7d4b9/utrade/backend/log"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/7d4b9/utrade/backend/btc"
 	"github.com/7d4b9/utrade/backend/internal/http"
@@ -51,7 +52,18 @@ func main() {
 		log.Fatal().Err(err).Msg("create api services")
 	}
 
-	if err := http.StartAPI(service); err != nil {
-		log.Fatal().Err(err).Msg("http start api")
-	}
+	group, ctx := errgroup.WithContext(ctx)
+	defer func() {
+		if err := group.Wait(); err != nil {
+			log.Error().Err(err).Msg("unexpected internal goroutine termination")
+		}
+	}()
+
+	group.Go(func() error {
+		return vegetableClient.RunValidatedImagesSubscription(ctx)
+	})
+
+	group.Go(func() error {
+		return http.StartAPI(ctx, service)
+	})
 }

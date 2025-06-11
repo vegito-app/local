@@ -2,14 +2,15 @@ package http
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
-func ListenAndServe(addr string, handler http.Handler) (err error) {
+func ListenAndServe(ctx context.Context, addr string, handler http.Handler) error {
 	server := &http.Server{
 		Addr:    addr,
 		Handler: handler,
@@ -17,11 +18,12 @@ func ListenAndServe(addr string, handler http.Handler) (err error) {
 
 	// Handle graceful shutdown
 	waitShutdown := make(chan struct{})
-	ctx, cancelWaitShutdown := context.WithCancel(context.Background())
+	shutDownCtx, cancelWaitShutdown := context.WithCancel(context.Background())
 	defer func() {
 		cancelWaitShutdown()
 		<-waitShutdown
 	}()
+	var serverError error
 	go func() {
 		defer close(waitShutdown)
 
@@ -29,26 +31,32 @@ func ListenAndServe(addr string, handler http.Handler) (err error) {
 		signal.Notify(c, os.Interrupt)
 
 		select {
-		case <-c:
-			ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second) // use a shutdown timeout
-			defer cancel()
-
-			fmt.Println("HTTP server is shutting down after receiving an OS interruption signal")
-			if err := server.Shutdown(ctx); err != nil {
-				fmt.Println("HTTP server shutdown, error:", err.Error())
-			} else {
-				fmt.Println("HTTP server has gracefully shutdown")
-			}
 		case <-ctx.Done():
+			log.Info().Msg("Context done, shutting down HTTP server")
+			shutdown(ctx, server)
+
+		case <-c:
+			log.Info().Msg("Received OS interruption signal, shutting down HTTP server")
+			shutdown(ctx, server)
+
+		case <-shutDownCtx.Done():
+			log.Error().Err(serverError).Msg("HTTP server has been stopped internally")
+
 		}
 	}()
 
-	if err := server.ListenAndServe(); err != nil {
-		switch err {
-		case http.ErrServerClosed:
-		default:
-			return fmt.Errorf("HTTP server exited: %w", err)
-		}
+	serverError = server.ListenAndServe()
+	return serverError
+}
+
+func shutdown(ctx context.Context, server *http.Server) {
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Error().Msg("HTTP server shutdown, error: " + err.Error())
+		return
 	}
-	return nil
+	log.Info().Msg("HTTP server has gracefully shutdown")
 }

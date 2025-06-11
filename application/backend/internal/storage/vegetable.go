@@ -188,11 +188,11 @@ func (f *Storage) DeleteVegetable(ctx context.Context, userID, id string) error 
 	return nil
 }
 
-func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID, imageID, imageURL string) error {
+func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imageURL string) error {
 	imageDoc := s.firestore.Collection("vegetables").
 		Doc(vegetableID).
 		Collection("images").
-		Doc(imageID)
+		Doc(strconv.Itoa(imageIndex))
 
 	data := map[string]interface{}{
 		"url":    imageURL,
@@ -201,7 +201,7 @@ func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID, im
 
 	_, err := imageDoc.Set(ctx, data, firestore.MergeAll)
 	if err != nil {
-		return fmt.Errorf("failed to set image data for vegetable %q image %q: %w", vegetableID, imageID, err)
+		return fmt.Errorf("failed to set image data for vegetable %q image %q: %w", vegetableID, imageIndex, err)
 	}
 	return nil
 }

@@ -72,10 +72,10 @@ func main() {
 	}
 
 	clientImageAnnotator, err := vision.NewImageAnnotatorClient(ctx)
-	defer clientImageAnnotator.Close()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create image annotator client")
 	}
+	defer clientImageAnnotator.Close()
 
 	client, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
@@ -102,7 +102,7 @@ func main() {
 			return
 		}
 
-		if err := moderateVegetable(ctx, client, payload.ImageURL, payload.VegetableID, payload.ImageID, topicOut, permanentBucket, firebaseUploadBucket); err != nil {
+		if err := moderateVegetable(ctx, client, payload.ImageURL, payload.VegetableID, payload.ImageIndex, topicOut, permanentBucket, firebaseUploadBucket); err != nil {
 			log.Error().Err(err).
 				Str("vegetable_id", payload.VegetableID).
 				Msg("Moderation failed")
@@ -118,25 +118,25 @@ func main() {
 	}
 }
 
-func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl string, vegetableID string, imageID string, topicOut string, validatedBucket string, firebaseBucket string) error {
+func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl string, vegetableID string, imageIndex int, topicOut string, validatedBucket string, firebaseBucket string) error {
 	img := vision.NewImageFromURI(imageUrl)
 	if img == nil {
-		return fmt.Errorf("Failed to create image from URI for %s", vegetableID)
+		return fmt.Errorf("failed to create image from URI for %s", vegetableID)
 	}
 
 	clientImageAnnotator, err := vision.NewImageAnnotatorClient(ctx)
 	if err != nil {
-		return fmt.Errorf("Failed to create image annotator client: %w", err)
+		return fmt.Errorf("failed to create image annotator client: %w", err)
 	}
 	defer clientImageAnnotator.Close()
 
 	// SafeSearch detection (existant)
 	annotations, err := clientImageAnnotator.DetectSafeSearch(ctx, img, nil)
 	if err != nil {
-		return fmt.Errorf("Failed to perform SafeSearch detection: %w", err)
+		return fmt.Errorf("failed to perform SafeSearch detection: %w", err)
 	}
 	if annotations == nil {
-		return fmt.Errorf("No SafeSearch annotations found for image %s", vegetableID)
+		return fmt.Errorf("no SafeSearch annotations found for image %s", vegetableID)
 	}
 
 	// Vérifie le contenu SafeSearch
@@ -151,7 +151,7 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 		defer storageClient.Close()
 
 		srcBucket := storageClient.Bucket(firebaseBucket)
-		path := fmt.Sprintf("vegetables/%s/%s.jpg", vegetableID, imageID)
+		path := fmt.Sprintf("vegetables/%s/%d.jpg", vegetableID, imageIndex)
 		src := srcBucket.Object(path)
 		if err := src.Delete(ctx); err != nil {
 			log.Error().Err(err).Str("vegetable_id", vegetableID).Msg("Failed to delete unsafe image")
@@ -159,7 +159,7 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 			log.Info().Str("vegetable_id", vegetableID).Msg("Unsafe image deleted successfully")
 		}
 
-		return fmt.Errorf("Image %s contains unsafe content", vegetableID)
+		return fmt.Errorf("image %s contains unsafe content", vegetableID)
 	}
 
 	// Copie dans bucket validé (existant)
@@ -172,7 +172,7 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 	srcBucket := storageClient.Bucket(firebaseBucket)
 	dstBucket := storageClient.Bucket(validatedBucket)
 
-	path := fmt.Sprintf("vegetables/%s/%s.jpg", vegetableID, imageID)
+	path := fmt.Sprintf("vegetables/%s/%d.jpg", vegetableID, imageIndex)
 
 	src := srcBucket.Object(path)
 	dst := dstBucket.Object(path)
@@ -189,7 +189,7 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 	// --- Nouvelle partie : détection des labels ---
 	labels, err := clientImageAnnotator.DetectLabels(ctx, img, nil, 10)
 	if err != nil {
-		return fmt.Errorf("Failed to perform Label detection: %w", err)
+		return fmt.Errorf("failed to perform Label detection: %w", err)
 	}
 
 	// Construction d'une structure simple pour la sérialisation JSON
@@ -208,13 +208,13 @@ func moderateVegetable(ctx context.Context, client *pubsub.Client, imageUrl stri
 
 	// Message JSON enrichi envoyé sur le topic de sortie
 	messageData, err := json.Marshal(map[string]interface{}{
-		"vegetableId":  vegetableID,
-		"imageId":      imageID,
-		"validatedUrl": fmt.Sprintf("gs://%s/%s", validatedBucket, path),
-		"labels":       labelData,
+		"vegetableId": vegetableID,
+		"imageIndex":  imageIndex,
+		"imageUrl":    fmt.Sprintf("gs://%s/%s", validatedBucket, path),
+		"labels":      labelData,
 	})
 	if err != nil {
-		return fmt.Errorf("Failed to marshal output message: %w", err)
+		return fmt.Errorf("failed to marshal output message: %w", err)
 	}
 
 	pub := client.Topic(topicOut)

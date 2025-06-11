@@ -60,7 +60,7 @@ type VegetableStorage interface {
 }
 
 type VegetableImageValidator interface {
-	SetImageValidation(ctx context.Context, userID string, image *VegetableImage) error
+	SetImageValidation(ctx context.Context, userID string, image *VegetableImage, imageIndex int) error
 }
 
 // VegetableService defines all routes handled by VegetableService
@@ -112,6 +112,7 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 	// var createdImages []vegetableimage.VegetableCreatedImageMessage
 	var wg sync.WaitGroup
 	defer wg.Wait()
+	var newImages []VegetableImage
 	for index, img := range v.Images {
 		if s.isAlreadyValidatedURL(img.URL) {
 			log.Debug().
@@ -119,23 +120,33 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 				Msg("Skip Image validation in CDN")
 			continue
 		}
-		wg.Add(1)
-		go func(index int, img VegetableImage) {
-			defer wg.Done()
-			if err := s.imageValidator.SetImageValidation(ctx, v.ID, &img); err != nil {
-				log.Error().Err(err).Msg("failed to set image validation")
-			}
-		}(index, img)
+		newImages = append(newImages, img)
 		v.Images[index].Status = VegetableImageStatusPending
 		v.Images[index].UploadedAt = time.Now()
 		v.Images[index].URL = ""
 	}
+	// Store the vegetable with images that need validation blanked out.
+	// Do this first to not blank out images that are already validated.
 	err := s.storage.StoreVegetable(ctx, userID, v)
 	if err != nil {
 		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
 		return
 	}
+	for i, img := range newImages {
+		wg.Add(1)
+		go func(index int, img VegetableImage) {
+			defer wg.Done()
+			if err := s.imageValidator.SetImageValidation(ctx, v.ID, &img, index); err != nil {
+				log.Error().Err(err).Msg("failed to set image validation")
+			}
+		}(i, img)
+	}
 	w.WriteHeader(nethttp.StatusCreated)
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		log.Error().Err(err).Msg("failed to encode vegetable response")
+		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {
@@ -177,9 +188,9 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 	if err != nil {
 		if errors.Is(err, ErrVegetableNotFound) {
 			nethttp.Error(w, "vegetable not found", nethttp.StatusNotFound)
-		} else {
-			nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
+			return
 		}
+		nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
 		return
 	}
 	for i := range veggie.Images {
@@ -206,9 +217,9 @@ func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.
 	if err := s.storage.DeleteVegetable(ctx, userID, id); err != nil {
 		if errors.Is(err, ErrVegetableNotFound) {
 			nethttp.Error(w, "vegetable not found", nethttp.StatusNotFound)
-		} else {
-			nethttp.Error(w, "delete failed", nethttp.StatusInternalServerError)
+			return
 		}
+		nethttp.Error(w, "delete failed", nethttp.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(nethttp.StatusNoContent)

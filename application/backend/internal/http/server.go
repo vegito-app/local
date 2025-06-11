@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -41,10 +42,10 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 // StartAPI creates a new instance of apiv1.Service.
-func StartAPI(mux http.Handler) error {
+func StartAPI(ctx context.Context, mux http.Handler) error {
 	port := config.GetString(portConfig)
 
-	if err := backendhttp.ListenAndServe("0.0.0.0:"+port, corsMiddleware(mux)); err != nil {
+	if err := backendhttp.ListenAndServe(ctx, "0.0.0.0:"+port, corsMiddleware(mux)); err != nil {
 		return fmt.Errorf("HTTP listenAndServe: %w", err)
 	}
 	fmt.Print("See you the next time ! Bye")
