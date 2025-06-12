@@ -184,3 +184,7 @@ import {
   to = google_service_account.github_actions
   id = "github-actions-main@${data.google_project.project.project_id}.iam.gserviceaccount.com"
 }
+import {
+  to = module.application.google_secret_manager_secret.stripe_key
+  id = "${data.google_project.project.id}/secrets/stripe-key"
+}

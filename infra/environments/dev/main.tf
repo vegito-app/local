@@ -18,8 +18,7 @@ data "google_project" "project" {
 }
 
 module "application" {
-  source = "../../../application/run"
-
+  source       = "../../../application/run"
   region       = var.region
   environment  = local.environment
   project_name = data.google_project.project.name
@@ -27,10 +26,15 @@ module "application" {
 
   application_backend_image = var.application_backend_image
 
-  google_idp_oauth_key_secret_id                         = var.google_idp_oauth_key_secret_id
-  google_idp_oauth_client_id_secret_id                   = var.google_idp_oauth_client_id_secret_id
+  google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
+  google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
+
   vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_moderation_bypass.name
   vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
+
+  # Bypasses the vegetable moderation for development purposes.
+  cdn_images_url_prefix = "https://firebasestorage.googleapis.com/v0/b/${google_storage_bucket.firebase_storage_bucket.name}/o"
+  cdn_images_bucket     = google_storage_bucket.firebase_storage_bucket.name
 }
 
 # Enables required APIs.
@@ -71,3 +75,20 @@ resource "google_pubsub_subscription" "vegetable_moderation_bypass_moderator_pul
   message_retention_duration = "604800s" # 7 days
 }
 
+output "application_firebase_storage_bucket" {
+  value       = google_storage_bucket.firebase_storage_bucket.name
+  description = "Firebase Storage Bucket Name"
+}
+
+resource "google_storage_bucket" "firebase_storage_bucket" {
+  name                        = "${var.project_id}-firebase-storage"
+  provider                    = google-beta
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+  force_destroy               = true # à retirer en prod, pour éviter des suppressions accidentelles
+
+  lifecycle {
+    prevent_destroy = false
+  }
+}

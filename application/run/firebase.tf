@@ -36,6 +36,7 @@ resource "google_project_service" "google_services_firebase" {
     "firestore.googleapis.com",
     "firebasestorage.googleapis.com",
     "fcm.googleapis.com",
+    "firebaseappcheck.googleapis.com",
   ])
   service = each.key
 
@@ -233,25 +234,26 @@ resource "google_secret_manager_secret_version" "firebase_adminsdk_secret_versio
   secret_data_wo = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
 }
 
-resource "google_storage_bucket" "firebase_storage_bucket" {
-  name                        = "${var.project_id}-firebase-storage"
-  provider                    = google-beta
-  location                    = var.region
-  project                     = var.project_id
-  uniform_bucket_level_access = true
-  force_destroy               = true # à retirer en prod, pour éviter des suppressions accidentelles
-
-  lifecycle {
-    prevent_destroy = false
-  }
-}
-
 resource "google_firebase_storage_bucket" "default" {
   project   = var.project_id
-  bucket_id = google_storage_bucket.firebase_storage_bucket.name
+  bucket_id = var.cdn_images_bucket
   provider  = google-beta
   depends_on = [
     google_firebase_project.default,
     google_project_service.google_services_firebase
   ]
+}
+
+resource "google_firebase_app_check_play_integrity_config" "android_play_integrity" {
+  provider  = google-beta
+  project   = var.project_id
+  app_id    = google_firebase_android_app.android_app.app_id
+  token_ttl = "3600s"
+}
+
+resource "google_firebase_app_check_app_attest_config" "ios_app_attest" {
+  provider  = google-beta
+  project   = var.project_id
+  app_id    = google_firebase_apple_app.ios_app.app_id
+  token_ttl = "3600s"
 }

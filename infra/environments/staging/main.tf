@@ -49,3 +49,21 @@ resource "google_project_service" "google_services_default" {
   disable_on_destroy         = false
   disable_dependent_services = true
 }
+
+output "application_firebase_storage_bucket" {
+  value       = google_storage_bucket.firebase_storage_bucket.name
+  description = "Firebase Storage Bucket Name"
+}
+
+resource "google_storage_bucket" "firebase_storage_bucket" {
+  name                        = "${var.project_id}-firebase-storage"
+  provider                    = google-beta
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+  force_destroy               = true # à retirer en prod, pour éviter des suppressions accidentelles
+
+  lifecycle {
+    prevent_destroy = false
+  }
+}

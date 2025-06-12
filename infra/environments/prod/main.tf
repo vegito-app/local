@@ -160,3 +160,21 @@ resource "google_pubsub_subscription" "vegetable_validated_backend_subscription"
   ack_deadline_seconds       = 60
   message_retention_duration = "604800s" # 7 days
 }
+
+output "application_firebase_storage_bucket" {
+  value       = google_storage_bucket.firebase_storage_bucket.name
+  description = "Firebase Storage Bucket Name"
+}
+
+resource "google_storage_bucket" "firebase_storage_bucket" {
+  name                        = "${var.project_id}-firebase-storage"
+  provider                    = google-beta
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+  force_destroy               = true # à retirer en prod, pour éviter des suppressions accidentelles
+
+  lifecycle {
+    prevent_destroy = false
+  }
+}
