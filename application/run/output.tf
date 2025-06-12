@@ -21,3 +21,7 @@ output "private_docker_repository_name" {
   value       = google_artifact_registry_repository.private_docker_repository.name
   description = "Private Docker Repository Name"
 }
+output "application_firebase_storage_bucket" {
+  value       = module.application_firebase_storage_bucket
+  description = "Firebase Storage Bucket Name"
+}
