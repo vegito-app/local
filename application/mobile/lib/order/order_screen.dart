@@ -50,14 +50,14 @@ class OrderScreen extends StatelessWidget {
               final entry = combined[index];
               final order = entry.order;
               final vegetable = entry.vegetable;
-              final imageUrl = vegetable.images.isNotEmpty
-                  ? vegetable.images.first.url
+              final imagePath = vegetable.images.isNotEmpty
+                  ? vegetable.images.first.publicUrl
                   : null;
 
               return Card(
                 child: ListTile(
-                  leading: imageUrl != null
-                      ? Image.network(imageUrl,
+                  leading: imagePath != null
+                      ? Image.network(imagePath,
                           width: 64, height: 64, fit: BoxFit.cover)
                       : const Icon(Icons.image, size: 64),
                   title: Text('${vegetable.name} x${order.quantity}'),

@@ -44,8 +44,8 @@ class VegetableBuyerPage extends StatelessWidget {
             itemCount: vegetables.length,
             itemBuilder: (context, index) {
               final veg = vegetables[index];
-              final imageUrl =
-                  veg.images.isNotEmpty ? veg.images.first.url : null;
+              final imagePath =
+                  veg.images.isNotEmpty ? veg.images.first.publicUrl : null;
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -55,8 +55,8 @@ class VegetableBuyerPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ListTile(
-                        leading: imageUrl != null
-                            ? Image.network(imageUrl,
+                        leading: imagePath != null
+                            ? Image.network(imagePath,
                                 width: 64, height: 64, fit: BoxFit.cover)
                             : const Icon(Icons.image, size: 64),
                         title: Text(veg.name),

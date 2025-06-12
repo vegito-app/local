@@ -8,7 +8,7 @@ class VegetableUploadProvider with ChangeNotifier {
   Vegetable? initialVegetable;
   final VegetableService _service;
   VegetableUploadProvider({VegetableService? service})
-    : _service = service ?? VegetableService();
+      : _service = service ?? VegetableService();
 
   final List<XFile> _images = [];
   int _mainImageIndex = 0;
@@ -89,7 +89,8 @@ class VegetableUploadProvider with ChangeNotifier {
     final provider = VegetableUploadProvider(service: service);
     provider.initialVegetable = vegetable;
     provider._images.clear();
-    provider._images.addAll(vegetable.images.map((img) => XFile(img.url)));
+    provider._images
+        .addAll(vegetable.images.map((img) => XFile(img.publicUrl)));
     provider._mainImageIndex = 0;
     return provider;
   }

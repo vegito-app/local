@@ -38,8 +38,8 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
                     context.read<VegetableListProvider>().reload();
                   }
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+                child: const Padding(
+                  padding: EdgeInsets.all(16),
                   child: Icon(Icons.add),
                 ),
               ),
@@ -66,8 +66,8 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
             itemCount: vegetables.length,
             itemBuilder: (context, index) {
               final veg = vegetables[index];
-              final imageUrl =
-                  veg.images.isNotEmpty ? veg.images.first.url : null;
+              final imagePath =
+                  veg.images.isNotEmpty ? veg.images.first.publicUrl : null;
 
               return Semantics(
                 label: 'vegetable-${index + 1} ${veg.name}',
@@ -85,9 +85,9 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
                       children: [
                         AspectRatio(
                           aspectRatio: 1.5,
-                          child: imageUrl != null && imageUrl.isNotEmpty
+                          child: imagePath != null && imagePath.isNotEmpty
                               ? Image.network(
-                                  imageUrl,
+                                  imagePath,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => const Center(
                                       child: Icon(Icons.broken_image)),

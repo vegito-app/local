@@ -9,7 +9,7 @@ sequenceDiagram
     participant Utilisateur
     participant App (Mobile)
     participant Backend (Firestore)
-    
+
     Utilisateur->>App (Mobile): Connexion
     App (Mobile)->>App (Mobile): Génère Private Key
     App (Mobile)->>App (Mobile): Génère Recovery Key
@@ -19,7 +19,7 @@ sequenceDiagram
     Utilisateur-->>App (Mobile): Stocke Recovery Key manuellement
 
     Note right of Backend (Firestore): Stocke seulement XorKey
-    
+
     Utilisateur->>App (Mobile): Tentative de récupération
     App (Mobile)->>Backend (Firestore): Récupère XorKey
     Utilisateur->>App (Mobile): Fournit Recovery Key
@@ -34,7 +34,6 @@ A few resources to get you started if this is your first Flutter project:
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
@@ -65,9 +64,9 @@ In this app, the `Vegetable` objects follow a hybrid architecture combining Fire
 
 ### 📷 Image moderation logic
 
-- The mobile app uploads images to Firebase Storage and provides the temporary `imageUrl` in the payload to the backend.
+- The mobile app uploads images to Firebase Storage and provides the temporary `imageStatus` in the payload to the backend.
 - In production, the backend:
   - Processes and filters the image,
   - Stores the filtered version in a secure CDN (GCS bucket),
-  - Updates Firestore with the final `imageUrl`.
+  - Updates Firestore with the final `imageStatus`.
 - A custom prefix filter ensures only approved images are shown in the UI.

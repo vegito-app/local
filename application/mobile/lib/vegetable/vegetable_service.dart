@@ -12,7 +12,6 @@ import 'package:path_provider/path_provider.dart';
 class VegetableService {
   final http.Client client;
   final String backendUrl;
-
   VegetableService({http.Client? client, String? backendUrl})
       : client = client ?? http.Client(),
         backendUrl = backendUrl ?? Config.backendUrl;
@@ -113,14 +112,26 @@ class VegetableService {
 
         final storageRef = FirebaseStorage.instance.ref().child(
             'vegetables/$userId/${DateTime.now().millisecondsSinceEpoch}_${imageFile.name}');
-        final uploadTask = await storageRef.putFile(File(compressedFile.path));
-        final imageUrl = await uploadTask.ref.getDownloadURL();
 
-        vegetableImages.add(VegetableImage(
-          url: imageUrl,
-          uploadedAt: DateTime.now().toUtc(),
-          status: 'pending',
-        ));
+        try {
+          await storageRef.putFile(File(compressedFile.path));
+
+          final downloadUrl = await storageRef.getDownloadURL();
+          final uri = Uri.parse(downloadUrl);
+          final downloadToken = uri.queryParameters['token'];
+
+          final relativePath = storageRef.fullPath;
+
+          vegetableImages.add(VegetableImage(
+            path: relativePath,
+            uploadedAt: DateTime.now().toUtc(),
+            status: 'pending',
+            downloadToken: downloadToken,
+          ));
+        } catch (e) {
+          throw Exception(
+              "L'upload a échoué ou le fichier n'est pas disponible : $e");
+        }
       }
       return vegetableImages;
     } catch (e) {

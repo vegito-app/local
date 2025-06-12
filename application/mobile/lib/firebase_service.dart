@@ -1,3 +1,4 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -23,8 +24,11 @@ class FirebaseService {
       return;
     }
     await Firebase.initializeApp();
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.debug,
+      appleProvider: AppleProvider.debug,
+    );
     await _initializeMessaging();
-    await FirebaseAuth.instance.signOut();
 
     if (!kReleaseMode && !FirebaseAuth.instance.isEmulator) {
       await FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);

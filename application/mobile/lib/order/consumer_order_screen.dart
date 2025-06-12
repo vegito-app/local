@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/order/order_provider.dart';
 import 'package:flutter/material.dart';
@@ -49,13 +51,13 @@ class ConsumerOrderScreen extends StatelessWidget {
               final order = orders[index];
               final veg =
                   vegetables.firstWhere((v) => v.id == order.vegetableId);
-              final imageUrl =
-                  veg.images.isNotEmpty ? veg.images.first.url : null;
+              final imagePath =
+                  veg.images.isNotEmpty ? veg.images.first.publicUrl : null;
 
               return Card(
                 child: ListTile(
-                  leading: imageUrl != null
-                      ? Image.network(imageUrl,
+                  leading: imagePath != null
+                      ? Image.network(imagePath,
                           width: 64, height: 64, fit: BoxFit.cover)
                       : const Icon(Icons.image, size: 64),
                   title: Text('${veg.name} x${order.quantity}'),

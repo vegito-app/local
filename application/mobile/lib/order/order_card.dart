@@ -78,7 +78,9 @@ class OrderCard extends StatelessWidget {
             Row(
               children: [
                 Image.network(
-                  vegetable.images.isNotEmpty ? vegetable.images.first.url : '',
+                  vegetable.images.isNotEmpty
+                      ? vegetable.images.first.publicUrl
+                      : '',
                   width: 64,
                   height: 64,
                   fit: BoxFit.cover,

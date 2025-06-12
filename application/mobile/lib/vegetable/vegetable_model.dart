@@ -1,30 +1,51 @@
+import 'package:car2go/config.dart';
+
 class VegetableImage {
-  final String url;
   final DateTime uploadedAt;
   final String status;
-
+  final String path;
+  final bool? servedByCdn;
+  final String? downloadToken;
   VegetableImage({
-    required this.url,
+    required this.path,
     required this.uploadedAt,
     required this.status,
+    this.servedByCdn,
+    this.downloadToken,
   });
 
   factory VegetableImage.fromJson(Map<String, dynamic> json) {
     return VegetableImage(
-      url: json['url'] as String,
+      path: json['path'] as String,
       uploadedAt: json['uploadedAt'] is int
           ? DateTime.fromMillisecondsSinceEpoch(json['uploadedAt'] as int)
           : DateTime.parse(json['uploadedAt'] as String),
       status: json['status'] as String,
+      servedByCdn: json['servedByCdn'] as bool,
+      downloadToken: json['downloadToken'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'url': url,
+      'path': path,
       'uploadedAt': uploadedAt.toIso8601String(),
       'status': status,
+      'servedByCdn': servedByCdn,
+      'downloadToken': downloadToken,
     };
+  }
+
+  String get publicUrl {
+    if (path.isEmpty) return '';
+    if (servedByCdn == true) {
+      return '${Config.cdnPublicPrefix}/$path';
+    } else {
+      final encodedPath =
+          Uri.encodeComponent(path); // ← c'est ici qu'il fallait corriger
+      final tokenPart = downloadToken != null ? '&token=$downloadToken' : '';
+      return '${Config.firebaseStoragePublicPrefix}/$encodedPath?alt=media$tokenPart';
+    }
   }
 }
 
