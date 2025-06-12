@@ -146,7 +146,6 @@ func NewApp(ctx context.Context) (*App, error) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create pubsub client")
 	}
-	defer client.Close()
 
 	sub := client.Subscription(subID)
 

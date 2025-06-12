@@ -4,13 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	nethttp "net/http"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/7d4b9/utrade/backend/internal/http"
+	v1 "github.com/7d4b9/utrade/backend/internal/http/api/internal/v1"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
@@ -18,16 +17,17 @@ import (
 var ErrVegetableNotFound = errors.New("vegetable not found")
 
 type VegetableImage struct {
-	URL        string               `json:"url"`
-	UploadedAt time.Time            `json:"uploadedAt"`
-	Status     VegetableImageStatus `json:"status"`
+	Path          string               `json:"path"`
+	UploadedAt    time.Time            `json:"uploadedAt"`
+	Status        VegetableImageStatus `json:"status"`
+	DownloadToken *string              `json:"downloadToken,omitempty"`
 }
 
 type VegetableImageStatus string
 
 const (
-	VegetableImageStatusPending  VegetableImageStatus = "pending"
-	VegetableImageStatusUploaded VegetableImageStatus = "uploaded"
+	VegetableImageStatusPending  = VegetableImageStatus(v1.VegetableImageStatusPending)
+	VegetableImageStatusUploaded = VegetableImageStatus(v1.VegetableImageStatusUploaded)
 )
 
 type Vegetable struct {
@@ -52,6 +52,8 @@ type VegetableStorage interface {
 	// Returns ErrVegetableNotFound if the vegetable does not exist.
 	GetVegetable(ctx context.Context, userID, id string) (*Vegetable, error)
 
+	// ListVegetables returns all vegetables for a user.
+	// If no vegetables are found, it returns an empty slice.
 	ListVegetables(ctx context.Context, userID string) ([]*Vegetable, error)
 
 	// DeleteVegetable removes a vegetable by ID.
@@ -59,26 +61,29 @@ type VegetableStorage interface {
 	DeleteVegetable(ctx context.Context, userID, id string) error
 }
 
+// VegetableImageValidator defines the interface for validating vegetable images.
 type VegetableImageValidator interface {
+	// SetImageValidation should schedules the validation of a vegetable image and immediately
+	// returns without blocking. The image will be validated asynchronously.
+	// It should return an error if the image cannot be scheduled for validation.
 	SetImageValidation(ctx context.Context, userID string, image *VegetableImage, imageIndex int) error
 }
 
 // VegetableService defines all routes handled by VegetableService
 type VegetableService struct {
-	storage               VegetableStorage
-	imageValidator        VegetableImageValidator
-	cdnImagesURLprefix    string
-	cdnImagesBucketPrefix string
+	storage                      VegetableStorage
+	imageValidator               VegetableImageValidator
+	isValidatedImagesServedByCDN bool
 }
 
+// NewVegetableService initializes the VegetableService with the provided storage and image validator.
+// It also sets up the HTTP handlers for the vegetable-related endpoints.
 func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageValidator VegetableImageValidator) (*VegetableService, error) {
-	cdnBucket := config.GetString(vegetableValidatedImagesCDNbucketConfig)
-	cdnURLPrefix := fmt.Sprintf("https://%s/", cdnBucket)
+	isValidatedImagesCDN := config.GetBool(isValidatedImagesCDNEnabled)
 	service := &VegetableService{
-		storage:               storage,
-		imageValidator:        imageValidator,
-		cdnImagesURLprefix:    cdnURLPrefix,
-		cdnImagesBucketPrefix: fmt.Sprintf("gs://%s", cdnBucket),
+		storage:                      storage,
+		imageValidator:               imageValidator,
+		isValidatedImagesServedByCDN: isValidatedImagesCDN,
 	}
 	mux.Handle("POST /api/vegetables", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.CreateVegetable),
@@ -95,60 +100,88 @@ func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageV
 	return service, nil
 }
 
-func (s *VegetableService) isAlreadyValidatedURL(url string) bool {
-	return strings.HasPrefix(url, s.cdnImagesURLprefix)
-}
-
+// CreateVegetable handles the creation of a new vegetable.
+// It decodes the request body into a VegetableRequest, validates it, and stores it in the database.
+// If the vegetable is successfully created, it returns a 201 Created response with the vegetable details.
 func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)
-	var v Vegetable
-	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+	var vegetableRequest v1.VegetableRequest
+	if err := json.NewDecoder(r.Body).Decode(&vegetableRequest); err != nil {
 		log.Error().Err(err).Msg("failed to decode vegetable payload")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}
-	v.ID = uuid.NewString()
-	// var createdImages []vegetableimage.VegetableCreatedImageMessage
+	vegetable := Vegetable{
+		ID:            uuid.NewString(),
+		Name:          vegetableRequest.Name,
+		OwnerID:       vegetableRequest.OwnerID,
+		Description:   vegetableRequest.Description,
+		SaleType:      vegetableRequest.SaleType,
+		WeightGrams:   vegetableRequest.WeightGrams,
+		PriceCents:    vegetableRequest.PriceCents,
+		CreatedAt:     time.Now().UTC(),
+		UserCreatedAt: time.Now().UTC(),
+	}
+	for _, img := range vegetableRequest.Images {
+		vegetableImage := VegetableImage{
+			Path:          img.Path,
+			UploadedAt:    time.Now().UTC(),
+			Status:        VegetableImageStatusPending,
+			DownloadToken: img.DownloadToken,
+		}
+		vegetable.Images = append(vegetable.Images, vegetableImage)
+	}
+	vegetableRequest.ID = uuid.NewString()
 	var wg sync.WaitGroup
 	defer wg.Wait()
-	var newImages []VegetableImage
-	for index, img := range v.Images {
-		if s.isAlreadyValidatedURL(img.URL) {
-			log.Debug().
-				Str("image_url", img.URL).
-				Msg("Skip Image validation in CDN")
-			continue
-		}
-		newImages = append(newImages, img)
-		v.Images[index].Status = VegetableImageStatusPending
-		v.Images[index].UploadedAt = time.Now()
-		v.Images[index].URL = ""
-	}
 	// Store the vegetable with images that need validation blanked out.
 	// Do this first to not blank out images that are already validated.
-	err := s.storage.StoreVegetable(ctx, userID, v)
+	err := s.storage.StoreVegetable(ctx, userID, vegetable)
 	if err != nil {
 		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
 		return
 	}
-	for i, img := range newImages {
+	for i, img := range vegetableRequest.Images {
 		wg.Add(1)
-		go func(index int, img VegetableImage) {
+		go func(index int, img *v1.VegetableImageRequest) {
 			defer wg.Done()
-			if err := s.imageValidator.SetImageValidation(ctx, v.ID, &img, index); err != nil {
+			vegetableImage := &VegetableImage{
+				Path:       img.Path,
+				UploadedAt: time.Now().UTC(),
+				Status:     VegetableImageStatusPending,
+			}
+			if err := s.imageValidator.SetImageValidation(ctx, vegetableRequest.ID, vegetableImage, index); err != nil {
 				log.Error().Err(err).Msg("failed to set image validation")
 			}
-		}(i, img)
+		}(i, &img)
 	}
+	createdVegetableImagesResponse := responseImages(&vegetable, userID, s.isValidatedImagesServedByCDN)
+	response := &v1.VegetableResponse{
+		ID:            vegetable.ID,
+		Name:          vegetable.Name,
+		OwnerID:       vegetable.OwnerID,
+		Description:   vegetable.Description,
+		SaleType:      vegetable.SaleType,
+		WeightGrams:   vegetable.WeightGrams,
+		PriceCents:    vegetable.PriceCents,
+		Images:        createdVegetableImagesResponse,
+		CreatedAt:     vegetable.CreatedAt,
+		UserCreatedAt: vegetable.UserCreatedAt,
+	}
+	log.Debug().Str("id", vegetable.ID).Msg("Created vegetable")
+	// Set the response status to Created (201)
 	w.WriteHeader(nethttp.StatusCreated)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Error().Err(err).Msg("failed to encode vegetable response")
 		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
 		return
 	}
 }
 
+// ListVegetables retrieves all vegetables for the authenticated user.
+// It returns a list of vegetables with their images enriched based on the user's permissions.
+// If no vegetables are found, it returns an empty slice.
 func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)
@@ -161,14 +194,24 @@ func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.R
 	if veggies == nil {
 		veggies = []*Vegetable{}
 	}
+	// Prepare response with enriched images
+	resp := []*v1.VegetableResponse{}
 	for _, veggie := range veggies {
-		for i := range veggie.Images {
-			if strings.HasPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix) {
-				veggie.Images[i].URL = s.cdnImagesURLprefix + strings.TrimPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix)
-			}
-		}
+		imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
+		resp = append(resp, &v1.VegetableResponse{
+			ID:            veggie.ID,
+			Name:          veggie.Name,
+			OwnerID:       veggie.OwnerID,
+			Description:   veggie.Description,
+			SaleType:      veggie.SaleType,
+			WeightGrams:   veggie.WeightGrams,
+			PriceCents:    veggie.PriceCents,
+			Images:        imagesResp,
+			CreatedAt:     veggie.CreatedAt,
+			UserCreatedAt: veggie.UserCreatedAt,
+		})
 	}
-	if err := json.NewEncoder(w).Encode(veggies); err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Error().Err(err).Msg("failed to encode vegetables response")
 		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
 		return
@@ -176,6 +219,31 @@ func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.R
 	log.Debug().Int("count", len(veggies)).Msg("Listed vegetables")
 }
 
+// responseImages prepares the vegetable images response, handling visibility based on user ID and CDN status.
+// If the image is pending and the user is not the owner, it will not return the path as the image is not yet validated.
+func responseImages(veggie *Vegetable, userID string, isValidatedImagesServedByCDN bool) []v1.VegetableImageResponse {
+	var imagesResp []v1.VegetableImageResponse
+	for i := range veggie.Images {
+		var path string
+		if veggie.Images[i].Status == VegetableImageStatusPending && veggie.OwnerID != userID && !isValidatedImagesServedByCDN {
+			path = ""
+		} else {
+			path = veggie.Images[i].Path
+		}
+		servedByCdn := (veggie.Images[i].Status == VegetableImageStatusUploaded) && isValidatedImagesServedByCDN
+		imagesResp = append(imagesResp, v1.VegetableImageResponse{
+			Path:          path,
+			UploadedAt:    veggie.Images[i].UploadedAt,
+			Status:        v1.VegetableImageStatus(veggie.Images[i].Status),
+			ServedByCdn:   servedByCdn,
+			DownloadToken: veggie.Images[i].DownloadToken,
+		})
+	}
+	return imagesResp
+}
+
+// GetVegetable retrieves a specific vegetable by its ID for the authenticated user.
+// It returns a 404 error if the vegetable does not exist or is not found.
 func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)
@@ -193,12 +261,21 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 		nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
 		return
 	}
-	for i := range veggie.Images {
-		if strings.HasPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix) {
-			veggie.Images[i].URL = s.cdnImagesURLprefix + strings.TrimPrefix(veggie.Images[i].URL, s.cdnImagesBucketPrefix)
-		}
+	// Prepare enriched image response
+	imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
+	resp := &v1.VegetableResponse{
+		ID:            veggie.ID,
+		Name:          veggie.Name,
+		OwnerID:       veggie.OwnerID,
+		Description:   veggie.Description,
+		SaleType:      veggie.SaleType,
+		WeightGrams:   veggie.WeightGrams,
+		PriceCents:    veggie.PriceCents,
+		Images:        imagesResp,
+		CreatedAt:     veggie.CreatedAt,
+		UserCreatedAt: veggie.UserCreatedAt,
 	}
-	if err := json.NewEncoder(w).Encode(veggie); err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Error().Err(err).Msg("failed to encode vegetable response")
 		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
 		return
@@ -206,6 +283,8 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 	log.Debug().Str("id", id).Msg("Retrieved vegetable")
 }
 
+// DeleteVegetable removes a vegetable by its ID for the authenticated user.
+// It returns a 404 error if the vegetable does not exist or is not found.
 func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)

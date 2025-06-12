@@ -75,6 +75,6 @@ graph TD
 
   subgraph Backend Update
     C4 -->|Pull Subscription| D1[🔁 Backend: listen image-validated topic]
-    D1 --> D2[🗂️ Firestore: update validated imageUrl]
+    D1 --> D2[🗂️ Firestore: update validated image status]
   end
 ```

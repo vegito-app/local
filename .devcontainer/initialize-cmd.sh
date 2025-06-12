@@ -52,13 +52,14 @@ BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 
-LOCAL_FIREBASE_EMULATORS_VEGETABLE_IMAGES_CDN_PREFIX_URL=vegetable-images-cdn-prefix-url
 LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
 LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
 UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
 
+FIREBASE_STORAGE_PUBLIC_PREFIX=https://firebasestorage.googleapis.com/v0/b/${DEV_GOOGLE_CLOUD_PROJECT_ID}.appspot.com/o
+CDN_PUBLIC_PREFIX=https://cdn.mon-backend.com  # ton CDN public GCS
 # 
 #--------------------------------------------------------
 # ! Should not configure this section !^
@@ -245,7 +246,7 @@ cat <<'EOF' > $mobileLaunchDebug
             "flutterMode": "debug",
             "args": [
               "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8888",
-            ]
+              "--dart-define=FIREBASE_STORAGE_PUBLIC_PREFIX=http://10.0.2.2:9199/v0/b/moov-dev-439608.firebasestorage.app/o",            ]
         },
         {
             "name": "mobile (profile mode)",
@@ -254,7 +255,7 @@ cat <<'EOF' > $mobileLaunchDebug
             "flutterMode": "profile",
             "args": [
               "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8080",
-            ]
+              "--dart-define=FIREBASE_STORAGE_PUBLIC_PREFIX=http://10.0.2.2:9199/v0/b/moov-dev-439608.firebasestorage.app/o",            ]
         },
         {
             "name": "mobile (release mode)",
@@ -263,7 +264,7 @@ cat <<'EOF' > $mobileLaunchDebug
             "flutterMode": "release",
             "args": [
               "--dart-define=APPLICATION_BACKEND_URL=http://10.0.2.2:8080",
-            ]
+              "--dart-define=FIREBASE_STORAGE_PUBLIC_PREFIX=http://10.0.2.2:9199/v0/b/moov-dev-439608.firebasestorage.app/o",            ]
         }
     ]
 }
