@@ -30,7 +30,7 @@ func init() {
 }
 
 type Storage interface {
-	SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imageURL string) error
+	SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imagePath string) error
 }
 
 type VegetableClient struct {
@@ -114,7 +114,7 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 
 		// Acknowledge the message before processing to avoid reprocessing in case of errors
 		defer msg.Ack()
-		if err := v.storage.SetVegetableImageUploaded(ctx, payload.VegetableID, payload.ImageIndex, payload.ImageURL); err != nil {
+		if err := v.storage.SetVegetableImageUploaded(ctx, payload.VegetableID, payload.ImageIndex, payload.ImagePath); err != nil {
 			log.Error().Fields(map[string]any{
 				"vegetable_id": payload.VegetableID,
 				"image_index":  payload.ImageIndex,
@@ -136,7 +136,7 @@ func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID st
 	payload, err := json.Marshal(&vegetable.VegetableCreatedImageMessage{
 		VegetableID: vegetableID,
 		ImageIndex:  imageIndex,
-		ImageURL:    img.URL,
+		ImagePath:   img.Path,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to marshal image validation message: %w", err)

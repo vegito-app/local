@@ -45,7 +45,7 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 	}
 
 	for i, img := range v.Images {
-		if isAlreadyValidatedURL(img.URL) {
+		if isAlreadyValidatedURL(img.Path) {
 			continue
 		}
 		imageDoc := s.firestore.Collection("vegetables").
@@ -54,8 +54,11 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 			Doc(strconv.Itoa(i))
 
 		data := map[string]interface{}{
-			"url":    img.URL,
+			"path":   img.Path,
 			"status": img.Status,
+		}
+		if img.DownloadToken != nil {
+			data["downloadToken"] = *img.DownloadToken
 		}
 		if _, err := imageDoc.Set(ctx, data, firestore.MergeAll); err != nil {
 			return fmt.Errorf("failed to store image %q for vegetable %q: %w", strconv.Itoa(i), v.ID, err)
@@ -98,6 +101,9 @@ func (f *Storage) GetVegetable(ctx context.Context, userID, id string) (*api.Veg
 		var img api.VegetableImage
 		if err := docSnap.DataTo(&img); err != nil {
 			return nil, fmt.Errorf("failed to decode vegetable image: %w", err)
+		}
+		if token, ok := docSnap.Data()["downloadToken"].(string); ok {
+			img.DownloadToken = &token
 		}
 		// img.ID = docSnap.Ref.ID
 		images = append(images, img)
@@ -144,6 +150,9 @@ func (f *Storage) ListVegetables(ctx context.Context, userID string) ([]*api.Veg
 			if err := docSnap.DataTo(&img); err != nil {
 				return nil, fmt.Errorf("failed to decode vegetable image: %w", err)
 			}
+			if token, ok := docSnap.Data()["downloadToken"].(string); ok {
+				img.DownloadToken = &token
+			}
 			// img.ID = docSnap.Ref.ID
 			images = append(images, img)
 		}
@@ -188,14 +197,13 @@ func (f *Storage) DeleteVegetable(ctx context.Context, userID, id string) error 
 	return nil
 }
 
-func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imageURL string) error {
+func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imagePath string) error {
 	imageDoc := s.firestore.Collection("vegetables").
 		Doc(vegetableID).
 		Collection("images").
 		Doc(strconv.Itoa(imageIndex))
 
 	data := map[string]interface{}{
-		"url":    imageURL,
 		"status": api.VegetableImageStatusUploaded,
 	}
 
