@@ -30,6 +30,7 @@ Modification D’un Légume Depuis La Galerie
     [Documentation]    Vérifie qu’un légume peut être modifié via sa vignette.
     Push Test Image    poivron.jpg
     Vendre Un Légume Depuis L’Interface    Poivron    Bio et rouge    400    300   2   poivron.jpg
+    Click Element    accessibility_id=🧺 Vendre mes légumes
 
     Vérifier Légume Présent    Poivron    400    300    Bio et rouge
     Click Element    accessibility_id=Poivron\n400g - 3.0€\nBio et rouge

@@ -71,56 +71,65 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
 
               return Semantics(
                 label: 'vegetable-${index + 1} ${veg.name}',
-                child: Card(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 1.5,
-                        child: imageUrl != null && imageUrl.isNotEmpty
-                            ? Image.network(
-                                imageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Center(
-                                    child: Icon(Icons.broken_image)),
-                              )
-                            : const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.hourglass_empty,
-                                        color: Colors.grey),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Image en cours de validation',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: 12),
-                                    ),
-                                  ],
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.vegetableUpload,
+                      arguments: veg,
+                    );
+                  },
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 1.5,
+                          child: imageUrl != null && imageUrl.isNotEmpty
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Center(
+                                      child: Icon(Icons.broken_image)),
+                                )
+                              : const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.hourglass_empty,
+                                          color: Colors.grey),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Image en cours de validation',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(veg.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            Text(
-                                '${veg.weightGrams}g - ${veg.priceCents / 100}€'),
-                            Text(
-                              veg.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(veg.name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                  '${veg.weightGrams}g - ${veg.priceCents / 100}€'),
+                              Text(
+                                veg.description,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
