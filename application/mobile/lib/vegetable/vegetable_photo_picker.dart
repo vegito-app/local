@@ -1,7 +1,11 @@
 import 'dart:io';
 
+import 'package:car2go/auth/auth_provider.dart';
+import 'package:car2go/vegetable/vegetable_list_provider.dart';
 import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
+import 'package:car2go/xfile_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class VegetablePhotoPicker extends StatelessWidget {
   final VegetableUploadProvider provider;
@@ -43,11 +47,16 @@ class VegetablePhotoPicker extends StatelessWidget {
                     ),
                     if (entry.key != provider.mainImageIndex)
                       Semantics(
-                        label: 'set-main-image-${entry.key + 1}',
+                        label:
+                            'set-main-image-${entry.value.imageLabel}-${entry.key + 1}',
                         button: true,
                         child: IconButton(
                           icon: const Icon(Icons.star_border),
-                          onPressed: () => provider.setMainImage(entry.key),
+                          onPressed: () => provider.setMainImage(
+                              entry.key,
+                              context.read<AuthProvider>().user!.uid,
+                              context.read<VegetableListProvider>()),
+                          // color: const Color.fromARGB(255, 244, 242, 241),
                           tooltip: "Définir comme principale",
                         ),
                       ),
@@ -55,7 +64,8 @@ class VegetablePhotoPicker extends StatelessWidget {
                       top: 0,
                       left: 0,
                       child: Semantics(
-                        label: 'delete-image-${entry.key + 1}',
+                        label:
+                            'delete-image-${entry.value.imageLabel}-${entry.key + 1}',
                         hint: 'Supprimer cette photo',
                         button: true,
                         child: IconButton(

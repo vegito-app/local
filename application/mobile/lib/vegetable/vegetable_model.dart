@@ -54,24 +54,29 @@ class Vegetable {
   final String name;
   final String description;
   final String saleType;
-  final int weightGrams;
   final int priceCents;
   final List<VegetableImage> images;
   final String ownerId;
   final DateTime createdAt;
+  final bool active;
+  final String availabilityType;
+  final DateTime? availabilityDate;
+  final int quantityAvailable;
 
   Vegetable({
     required this.id,
     required this.name,
     required this.description,
     required this.saleType,
-    required this.weightGrams,
     required this.priceCents,
     required this.images,
     required this.ownerId,
     required this.createdAt,
+    required this.active,
+    required this.availabilityType,
+    required this.availabilityDate,
+    required this.quantityAvailable,
   });
-
   factory Vegetable.fromJson(Map<String, dynamic> json) {
     return Vegetable(
       id: json['id'] as String,
@@ -84,7 +89,13 @@ class Vegetable {
       ownerId: json['ownerId'] as String,
       priceCents: json['priceCents'] as int,
       saleType: json['saleType'] as String,
-      weightGrams: json['weightGrams'] as int,
+      // weightGrams: json['weightGrams'] as int,
+      active: json['active'] as bool? ?? true,
+      availabilityType: json['availabilityType'] as String,
+      availabilityDate: json['availabilityDate'] != null
+          ? DateTime.parse(json['availabilityDate'] as String)
+          : null,
+      quantityAvailable: json['quantityAvailable'] as int,
     );
   }
 
@@ -97,7 +108,10 @@ class Vegetable {
       'ownerId': ownerId,
       'priceCents': priceCents,
       'saleType': saleType,
-      'weightGrams': weightGrams,
+      'active': active,
+      'availabilityType': availabilityType,
+      'availabilityDate': availabilityDate?.toIso8601String(),
+      'quantityAvailable': quantityAvailable,
     };
   }
 }

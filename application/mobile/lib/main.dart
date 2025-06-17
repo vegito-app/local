@@ -7,7 +7,6 @@ import 'package:car2go/order/order_provider.dart';
 import 'package:car2go/order/order_screen.dart';
 import 'package:car2go/user/user_provider.dart';
 import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_provider.dart';
 import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_entry_screen.dart';
 import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_gallery_screen.dart';
 import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
@@ -36,7 +35,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => VegetableListProvider()),
-        ChangeNotifierProvider(create: (_) => VegetableProvider()),
         ChangeNotifierProvider(create: (_) => VegetableUploadProvider()),
         ChangeNotifierProvider(create: (_) => WalletProvider()),
         // Ajoute ici tous tes autres providers si besoin
