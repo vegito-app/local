@@ -38,7 +38,7 @@ module "kubernetes" {
   vegetable_image_validated_moderator_pubsub_topic_output = google_pubsub_topic.vegetable_validated.name
 
   # The bucket where the images are stored before moderation
-  created_images_input_bucket_name = module.application.created_images_input_bucket_name
+  created_images_input_bucket_name = google_storage_bucket.firebase_storage_bucket.name
   # The bucket where the images are stored after moderation
   validated_output_bucket = module.cdn.public_images_bucket_name
 
@@ -112,7 +112,8 @@ module "application" {
   vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_created.name
 
   cdn_images_url_prefix = module.cdn.public_cdn_address
-  cdn_images_bucket     = module.cdn.public_images_bucket_name
+
+  hosting_domain = "vegito.app"
 }
 
 

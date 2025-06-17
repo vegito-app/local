@@ -24,7 +24,7 @@ resource "google_storage_bucket_iam_member" "input_created_images_cleaner" {
     "roles/storage.objectViewer",
     "roles/storage.objectAdmin"
   ])
-  bucket = module.application.created_images_input_bucket_name
+  bucket = google_storage_bucket.firebase_storage_bucket.name
   role   = each.key
   member = "serviceAccount:${google_service_account.input_images_cleaner.email}"
 }

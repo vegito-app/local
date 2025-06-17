@@ -201,6 +201,6 @@ import {
   id = "projects/${data.google_project.project.number}/secrets/firebase-config-web/versions/4"
 }
 import {
-  to = module.application.google_storage_bucket_iam_member.bucket_iam_member
-  id = "b/gcf-sources-${data.google_project.project.number}-${var.region} roles/storage.objectViewer serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  to = module.application.google_storage_bucket.firebase_storage_bucket
+  id = "${data.google_project.project.project_id}-firebase-storage"
 }

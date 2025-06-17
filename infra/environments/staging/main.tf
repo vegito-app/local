@@ -3,16 +3,22 @@ locals {
 }
 
 module "application" {
-  source                               = "../../../application/run"
-  environment                          = local.environment
-  project_name                         = data.google_project.project.name
-  project_id                           = var.project_id
-  region                               = var.region
-  application_backend_domain           = "${local.environment}-${data.google_project.project.name}-${var.region}-application-backend-203475703228.europe-west1.run.app"
+  source       = "../../../application/run"
+  environment  = local.environment
+  project_name = data.google_project.project.name
+  project_id   = var.project_id
+  region       = var.region
+
   google_idp_oauth_client_id_secret_id = var.google_idp_oauth_client_id_secret_id
   google_idp_oauth_key_secret_id       = var.google_idp_oauth_key_secret_id
 
   application_backend_image = var.application_backend_image
+
+  vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_moderation_bypass.name
+  vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
+
+  cdn_images_url_prefix = "https://firebasestorage.googleapis.com/v0/b/moov-staging-440506-firebase-storage/o"
+  hosting_domain        = "staging.vegito.app"
 }
 
 module "gcloud" {
@@ -66,4 +72,20 @@ resource "google_storage_bucket" "firebase_storage_bucket" {
   lifecycle {
     prevent_destroy = false
   }
+}
+
+resource "google_pubsub_topic" "vegetable_moderation_bypass" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  name     = "vegetable-moderation-bypass"
+}
+
+resource "google_pubsub_subscription" "vegetable_moderation_bypass_moderator_pull_subscription" {
+  provider = google-beta.no_user_project_override
+  project  = var.project_id
+  name     = "vegetable-validated-subscription"
+  topic    = google_pubsub_topic.vegetable_moderation_bypass.id
+
+  ack_deadline_seconds       = 60
+  message_retention_duration = "604800s" # 7 days
 }

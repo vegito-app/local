@@ -28,3 +28,11 @@ output "application_backend_cloud_run_sa_email" {
   value       = module.application.application_backend_cloud_run_sa_email
   description = "Application - Backend - Service Account - Email"
 }
+output "firebase_hosting_site_id" {
+  description = "Firebase Hosting Site ID"
+  value       = module.application.firebase_hosting_site_id
+}
+output "firebase_hosting_custom_domain" {
+  description = "Firebase Hosting Custom Domain"
+  value       = module.application.firebase_hosting_custom_domain
+}

@@ -32,9 +32,8 @@ module "application" {
   vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_moderation_bypass.name
   vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
 
-  # Bypasses the vegetable moderation for development purposes.
-  cdn_images_url_prefix = "https://firebasestorage.googleapis.com/v0/b/${google_storage_bucket.firebase_storage_bucket.name}/o"
-  cdn_images_bucket     = google_storage_bucket.firebase_storage_bucket.name
+  cdn_images_url_prefix = "https://firebasestorage.googleapis.com/v0/b/moov-dev-439608-firebase-storage/o"
+  hosting_domain        = "dev.vegito.app"
 }
 
 # Enables required APIs.
@@ -64,7 +63,6 @@ resource "google_pubsub_topic" "vegetable_moderation_bypass" {
   name     = "vegetable-moderation-bypass"
 }
 
-
 resource "google_pubsub_subscription" "vegetable_moderation_bypass_moderator_pull_subscription" {
   provider = google-beta.no_user_project_override
   project  = var.project_id
@@ -73,22 +71,4 @@ resource "google_pubsub_subscription" "vegetable_moderation_bypass_moderator_pul
 
   ack_deadline_seconds       = 60
   message_retention_duration = "604800s" # 7 days
-}
-
-output "application_firebase_storage_bucket" {
-  value       = google_storage_bucket.firebase_storage_bucket.name
-  description = "Firebase Storage Bucket Name"
-}
-
-resource "google_storage_bucket" "firebase_storage_bucket" {
-  name                        = "${var.project_id}-firebase-storage"
-  provider                    = google-beta
-  location                    = var.region
-  project                     = var.project_id
-  uniform_bucket_level_access = true
-  force_destroy               = true # à retirer en prod, pour éviter des suppressions accidentelles
-
-  lifecycle {
-    prevent_destroy = false
-  }
 }
