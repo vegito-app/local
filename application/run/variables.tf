@@ -43,7 +43,23 @@ variable "cdn_images_url_prefix" {
   description = "CDN images URL prefix for filtering messages to validate from the backend"
   type        = string
 }
-variable "cdn_images_bucket" {
-  description = "The name of the bucket where validated images will be stored."
+variable "hosting_domain" {
+  description = "Hosting domain"
   type        = string
+  default     = ""
+}
+variable "hosting_public_dir" {
+  description = "Hosting public directory"
+  type        = string
+  default     = ""
+}
+variable "hosting_legal_sites" {
+  description = "Hosting legal sites"
+  type        = map(map(string))
+  default     = {}
+}
+variable "hosting_site_id" {
+  description = "Hosting site ID"
+  type        = string
+  default     = ""
 }

@@ -5,6 +5,7 @@
 -include application/images/images.mk
 -include application/mobile/mobile.mk
 -include application/tests/tests.mk
+-include application/run/run.mk
 
 APPLICATION_CI_IMAGES_BUILD := \
 	local-application-backend-image-ci \

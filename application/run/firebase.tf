@@ -91,8 +91,8 @@ resource "google_firebase_android_app" "android_app" {
   provider = google-beta
   project  = var.project_id
 
-  display_name = "Utrade Android app (${var.environment})" # learn more about an app's display name
-  package_name = "${var.environment}.mobile.app.android"   # learn more about an app's package name
+  display_name = "Vegito Android app (${var.environment})" # learn more about an app's display name
+  package_name = "${var.environment}.vegito.app.android"   # learn more about an app's package name
 
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
@@ -122,8 +122,8 @@ output "android_sha1" {
 resource "google_firebase_apple_app" "ios_app" {
   provider     = google-beta
   project      = var.project_id
-  display_name = "Utrade Apple app (${var.environment})"
-  bundle_id    = "${var.environment}.mobile.app.apple"
+  display_name = "Vegito Apple app (${var.environment})"
+  bundle_id    = "${var.environment}.vegito.app.apple"
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
     google_firebase_project.default,
@@ -142,7 +142,7 @@ resource "google_firebase_web_app" "web_app" {
   provider = google-beta
   project  = var.project_id
   # display_name is used as unique ID for this resource
-  display_name = "Utrade Web app (${var.environment})"
+  display_name = "Vegito Web app (${var.environment})"
 
   # The other App types (Android and Apple) use "DELETE" by default.
   # Web apps don't use "DELETE" by default due to backward-compatibility.
@@ -234,9 +234,22 @@ resource "google_secret_manager_secret_version" "firebase_adminsdk_secret_versio
   secret_data_wo = base64decode(google_service_account_key.firebase_admin_service_account_key.private_key)
 }
 
+resource "google_storage_bucket" "firebase_storage_bucket" {
+  name                        = "${var.project_id}-firebase-storage"
+  provider                    = google-beta
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+  force_destroy               = true # à retirer en prod, pour éviter des suppressions accidentelles
+
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+
 resource "google_firebase_storage_bucket" "default" {
   project   = var.project_id
-  bucket_id = var.cdn_images_bucket
+  bucket_id = google_storage_bucket.firebase_storage_bucket.name
   provider  = google-beta
   depends_on = [
     google_firebase_project.default,

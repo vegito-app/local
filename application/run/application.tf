@@ -68,10 +68,6 @@ resource "google_cloud_run_service" "application_backend" {
           name  = "VEGETABLE_VALIDATED_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION"
           value = var.vegetable_images_validated_backend_pubsub_subscription
         }
-        env {
-          name  = "VEGETABLE_VALIDATED_IMAGES_CDN_BUCKET"
-          value = var.cdn_images_bucket
-        }
       }
       service_account_name = google_service_account.application_backend_cloud_run_sa.email
       // Ajoutez au

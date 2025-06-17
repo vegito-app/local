@@ -14,3 +14,9 @@ output "private_docker_repository_name" {
   value       = google_artifact_registry_repository.private_docker_repository.name
   description = "Private Docker Repository Name"
 }
+output "firebase_hosting_site_id" {
+  value = module.hosting.firebase_hosting_site_id
+}
+output "firebase_hosting_custom_domain" {
+  value = module.hosting.firebase_hosting_custom_domain
+}

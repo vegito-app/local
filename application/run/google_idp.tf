@@ -47,11 +47,11 @@ resource "google_identity_platform_config" "default" {
   blocking_functions {
     triggers {
       event_type   = "beforeSignIn"
-      function_uri = google_cloudfunctions_function.auth_before_sign_in.https_trigger_url
+      function_uri = google_cloudfunctions2_function.auth_before_sign_in.service_config[0].uri
     }
     triggers {
       event_type   = "beforeCreate"
-      function_uri = google_cloudfunctions_function.auth_before_create.https_trigger_url
+      function_uri = google_cloudfunctions2_function.auth_before_create.service_config[0].uri
     }
     forward_inbound_credentials {
       refresh_token = true
@@ -79,6 +79,7 @@ data "archive_file" "auth_func_src" {
   type        = "zip"
   output_path = "/tmp/auth-function-source.zip"
   source_dir  = "${path.module}/../../application/firebase/functions/auth/"
+  excludes    = ["vendor/**"]
 }
 
 resource "google_storage_bucket_object" "auth" {
@@ -87,46 +88,93 @@ resource "google_storage_bucket_object" "auth" {
   source = data.archive_file.auth_func_src.output_path # Add path to the zipped function source code
 }
 
-resource "google_cloudfunctions_function" "auth_before_sign_in" {
-  name         = "${var.project_name}-${var.region}-idp-before-signin"
-  description  = "OIDC callback before sign in"
-  runtime      = "go122"
-  entry_point  = "IDPbeforeSignIn" # Set the entry point
-  trigger_http = true
+resource "google_storage_bucket_iam_member" "gcf2_build_access" {
+  bucket = google_storage_bucket.bucket_gcf_source.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+}
 
-  source_archive_bucket = google_storage_bucket.bucket_gcf_source.name
-  source_archive_object = google_storage_bucket_object.auth.name
-  service_account_email = google_service_account.firebase_admin_service_account.email
+resource "google_project_iam_member" "cloudbuild_builder" {
+  project = var.project_id
+  role    = "roles/cloudbuild.builds.builder"
+  member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+}
+resource "google_project_iam_member" "cloudbuild_artifact_registry_writer" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+}
+resource "google_project_iam_member" "compute_object_viewer" {
+  project = var.project_id
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+resource "google_cloudfunctions2_function" "auth_before_sign_in" {
+  name     = "${var.project_name}-${var.region}-idp-before-signin"
+  location = var.region
+
+  build_config {
+    runtime     = "go122"
+    entry_point = "IDPbeforeSignIn"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket_gcf_source.name
+        object = google_storage_bucket_object.auth.name
+      }
+    }
+  }
+
+  service_config {
+    service_account_email = google_service_account.firebase_admin_service_account.email
+    ingress_settings      = "ALLOW_ALL"
+    max_instance_count    = 10
+    timeout_seconds       = 60
+  }
 }
 
 output "auth_func_utrade_before_sign_in_id" {
-  value = google_cloudfunctions_function.auth_before_sign_in.id
+  value = google_cloudfunctions2_function.auth_before_sign_in.id
 }
 
-resource "google_cloudfunctions_function" "auth_before_create" {
-  name         = "${var.project_name}-${var.region}-idp-before-create"
-  description  = "OIDC callback create user"
-  runtime      = "nodejs22"     // Change the runtime to Node.js
-  entry_point  = "beforeCreate" // Set the entry point to your function in Node.js
-  trigger_http = true
+resource "google_cloudfunctions2_function" "auth_before_create" {
+  name     = "${var.project_name}-${var.region}-idp-before-create"
+  location = var.region
 
-  source_archive_bucket = google_storage_bucket.bucket_gcf_source.name
-  source_archive_object = google_storage_bucket_object.auth.name
-  service_account_email = google_service_account.firebase_admin_service_account.email
+  build_config {
+    runtime     = "nodejs22"
+    entry_point = "beforeCreate"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket_gcf_source.name
+        object = google_storage_bucket_object.auth.name
+      }
+    }
+  }
+
+  service_config {
+    service_account_email = google_service_account.firebase_admin_service_account.email
+    ingress_settings      = "ALLOW_ALL"
+    max_instance_count    = 10
+    timeout_seconds       = 60
+  }
 }
 
 output "auth_func_utrade_before_create_id" {
-  value = google_cloudfunctions_function.auth_before_create.id
+  value = google_cloudfunctions2_function.auth_before_create.id
 }
 
-resource "google_cloudfunctions_function_iam_member" "auth_before_sign_in" {
-  cloud_function = google_cloudfunctions_function.auth_before_sign_in.id
+resource "google_cloudfunctions2_function_iam_member" "auth_before_sign_in" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.auth_before_sign_in.name
   role           = "roles/cloudfunctions.invoker"
   member         = "allUsers"
 }
 
-resource "google_cloudfunctions_function_iam_member" "auth_before_create" {
-  cloud_function = google_cloudfunctions_function.auth_before_create.id
+resource "google_cloudfunctions2_function_iam_member" "auth_before_create" {
+  project        = var.project_id
+  location       = var.region
+  cloud_function = google_cloudfunctions2_function.auth_before_create.name
   role           = "roles/cloudfunctions.invoker"
   member         = "allUsers"
 }
