@@ -118,6 +118,10 @@
             "label": "Firebase Database",
             "onAutoForward": "silent"
           },
+          "9005": {
+            "label": "Firebase CLI Login",
+            "onAutoForward": "silent"
+          },
           "9099": {
             "label": "Firebase Authentication",
             "onAutoForward": "silent"
