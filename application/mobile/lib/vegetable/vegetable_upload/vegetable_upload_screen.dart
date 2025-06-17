@@ -1,12 +1,12 @@
-import 'dart:io';
-
-import 'package:car2go/auth/auth_provider.dart';
+import 'package:car2go/vegetable/vegetable_management_actions.dart';
 import 'package:car2go/vegetable/vegetable_model.dart';
-import 'package:car2go/vegetable/vegetable_provider.dart';
+import 'package:car2go/vegetable/vegetable_photo_picker.dart';
 import 'package:car2go/vegetable/vegetable_service.dart';
-import 'package:car2go/vegetable/vegetable_upload/form/vegetable_photo_picker.dart';
+import 'package:car2go/vegetable/vegetable_submit_button.dart';
+import 'package:car2go/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'vegetable_upload_provider.dart';
 
 class VegetableUploadScreen extends StatelessWidget {
@@ -39,21 +39,24 @@ class _VegetableUploadForm extends StatefulWidget {
   State<_VegetableUploadForm> createState() => _VegetableUploadFormState();
 }
 
-enum SaleType { unit, weight }
-
 class _VegetableUploadFormState extends State<_VegetableUploadForm> {
   final _formKey = GlobalKey<FormState>();
   String name = '';
   String description = '';
-  int weightGrams = 0;
+  // int weightGrams = 0;
   int priceCents = 0;
 
   SaleType saleType = SaleType.unit;
 
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
-  late final TextEditingController weightController;
+  // late final TextEditingController weightController;
   late final TextEditingController priceController;
+
+  late final TextEditingController quantityController;
+  late final TextEditingController availabilityDateController;
+  AvailabilityType availabilityType = AvailabilityType.sameDay;
+  DateTime? availabilityDate;
 
   @override
   void initState() {
@@ -63,16 +66,32 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
         TextEditingController(text: provider.initialVegetable?.name ?? '');
     descriptionController = TextEditingController(
         text: provider.initialVegetable?.description ?? '');
-    weightController = TextEditingController(
-        text: provider.initialVegetable?.weightGrams != null
-            ? provider.initialVegetable!.weightGrams.toString()
-            : '');
+    // weightController = TextEditingController(
+    //     text: provider.initialVegetable?.weightGrams != null
+    //         ? provider.initialVegetable!.weightGrams.toString()
+    //         : '');
     priceController = TextEditingController(
         text: provider.initialVegetable?.priceCents != null
-            ? provider.initialVegetable!.priceCents.toString()
+            ? (provider.initialVegetable!.priceCents / 100).toStringAsFixed(2)
             : '');
+    quantityController = TextEditingController(
+      text: provider.initialVegetable?.quantityAvailable != null
+          ? (provider.initialVegetable!.quantityAvailable / 1000)
+              .toStringAsFixed(3)
+          : '',
+    );
+    availabilityDateController = TextEditingController();
+
     if (provider.initialVegetable?.saleType == 'weight') {
       saleType = SaleType.weight;
+    }
+    if (provider.initialVegetable?.availabilityType == 'futureDate') {
+      availabilityType = AvailabilityType.futureDate;
+    } else if (provider.initialVegetable?.availabilityType ==
+        'alreadyHarvested') {
+      availabilityType = AvailabilityType.alreadyHarvested;
+    } else {
+      availabilityType = AvailabilityType.sameDay;
     }
   }
 
@@ -86,6 +105,10 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            VegetableManagementActions(
+              provider: provider,
+            ),
+            const SizedBox(height: 12),
             Text("Informations générales",
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
@@ -107,66 +130,110 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
             Text("Détails du légume",
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            Text("Type de vente",
-                style: Theme.of(context).textTheme.titleMedium),
-            Semantics(
-              label: 'dropdown-sale-type',
-              child: DropdownButton<SaleType>(
-                key: const Key("saleTypeDropdown"),
-                value: saleType,
-                onChanged: (SaleType? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      saleType = newValue;
-                    });
-                  }
-                },
-                items: const [
-                  DropdownMenuItem(
-                      value: SaleType.unit, child: Text("À l’unité")),
-                  DropdownMenuItem(
-                      value: SaleType.weight, child: Text("Au poids (€/kg)")),
-                ],
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Type de vente",
+                          style: Theme.of(context).textTheme.titleMedium),
+                      DropdownButton<SaleType>(
+                        key: const Key("saleTypeDropdown"),
+                        value: saleType,
+                        onChanged: (SaleType? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              saleType = newValue;
+                            });
+                          }
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                              value: SaleType.unit, child: Text("À l’unité")),
+                          DropdownMenuItem(
+                              value: SaleType.weight,
+                              child: Text("Au poids (€/kg)")),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Disponibilité",
+                          style: Theme.of(context).textTheme.titleMedium),
+                      DropdownButton<AvailabilityType>(
+                        key: const Key("availabilityTypeDropdown"),
+                        value: availabilityType,
+                        onChanged: (AvailabilityType? newValue) async {
+                          if (newValue != null) {
+                            DateTime? pickedDate;
+                            final now = DateTime.now();
+                            if (newValue == AvailabilityType.futureDate) {
+                              pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: now.add(const Duration(days: 1)),
+                                firstDate: now.add(const Duration(days: 1)),
+                                lastDate: now.add(const Duration(days: 365)),
+                              );
+                            } else if (newValue ==
+                                AvailabilityType.alreadyHarvested) {
+                              pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: now,
+                                firstDate:
+                                    now.subtract(const Duration(days: 365)),
+                                lastDate: now,
+                              );
+                            }
+
+                            setState(() {
+                              availabilityType = newValue;
+                              if (newValue == AvailabilityType.sameDay ||
+                                  pickedDate == null) {
+                                availabilityDate = null;
+                                availabilityDateController.clear();
+                              } else {
+                                availabilityDate = pickedDate;
+                                availabilityDateController.text =
+                                    "${pickedDate.toLocal()}".split(' ')[0];
+                              }
+                            });
+                          }
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                              value: AvailabilityType.sameDay,
+                              child: Text("Récolté le jour même")),
+                          DropdownMenuItem(
+                              value: AvailabilityType.futureDate,
+                              child: Text("Récolte à venir")),
+                          DropdownMenuItem(
+                              value: AvailabilityType.alreadyHarvested,
+                              child: Text("Déjà récolté")),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
-            Semantics(
-              label: 'input-name',
-              child: TextFormField(
-                key: const Key("nameField"),
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nom'),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'Obligatoire' : null,
-              ),
-            ),
-            Semantics(
-              label: 'input-description',
-              child: TextFormField(
-                key: const Key("descriptionField"),
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-              ),
-            ),
-            if (saleType == SaleType.weight)
-              Semantics(
-                label: 'input-weight',
-                child: TextFormField(
-                  key: const Key("weightField"),
-                  controller: weightController,
-                  decoration: const InputDecoration(labelText: 'Poids (g)'),
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            Semantics(
-              label: 'input-price',
-              child: TextFormField(
-                key: const Key("priceField"),
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'Prix (centimes)'),
-                keyboardType: TextInputType.number,
-              ),
-            ),
+            VegetableSaleDetailsSection(
+                nameController: nameController,
+                descriptionController: descriptionController,
+                // weightController: weightController,
+                priceController: priceController,
+                quantityController: quantityController,
+                saleType: saleType,
+                availabilityType: availabilityType,
+                availabilityDate: availabilityDate),
             const SizedBox(height: 20),
             provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -174,53 +241,16 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                     child: Semantics(
                       label: 'submit-vegetable-button',
                       button: true,
-                      child: ElevatedButton(
-                        key: const Key("submitButton"),
-                        onPressed: () async {
-                          if (!_formKey.currentState!.validate()) return;
-                          _formKey.currentState!.save();
-
-                          name = nameController.text;
-                          description = descriptionController.text;
-                          weightGrams =
-                              int.tryParse(weightController.text) ?? 0;
-                          priceCents = int.tryParse(priceController.text) ?? 0;
-
-                          try {
-                            final authProvider = context.read<AuthProvider>();
-                            final vegetableProvider =
-                                context.read<VegetableProvider>();
-                            await provider.submitVegetable(
-                              userId: authProvider.user!.uid,
-                              vegetableProvider: vegetableProvider,
-                              name: name,
-                              description: description,
-                              weightGrams: weightGrams,
-                              priceCents: priceCents,
-                              saleType:
-                                  saleType == SaleType.unit ? 'unit' : 'weight',
-                            );
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Semantics(
-                                    label: 'vegetable-upload-success',
-                                    child:
-                                        const Text('Légume ajouté avec succès'),
-                                  ),
-                                ),
-                              );
-                              Navigator.pop(context, true);
-                            }
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Erreur : $e')),
-                              );
-                            }
-                          }
-                        },
-                        child: const Text('Enregistrer'),
+                      child: VegetableSubmitButton(
+                        formKey: _formKey,
+                        availabilityType: availabilityType,
+                        availabilityDate: availabilityDate,
+                        nameController: nameController,
+                        descriptionController: descriptionController,
+                        // weightController: weightController,
+                        priceController: priceController,
+                        quantityController: quantityController,
+                        saleType: saleType,
                       ),
                     ),
                   ),

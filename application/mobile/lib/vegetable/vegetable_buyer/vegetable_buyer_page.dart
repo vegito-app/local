@@ -59,9 +59,25 @@ class VegetableBuyerPage extends StatelessWidget {
                             ? Image.network(imagePath,
                                 width: 64, height: 64, fit: BoxFit.cover)
                             : const Icon(Icons.image, size: 64),
-                        title: Text(veg.name),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(veg.name),
+                            Text(
+                              veg.saleType == 'weight'
+                                  ? (veg.quantityAvailable < 1000
+                                      ? 'Quantité disponible : ${veg.quantityAvailable} g'
+                                      : 'Quantité disponible : ${(veg.quantityAvailable / 1000).toStringAsFixed(2)} Kg')
+                                  : 'Quantité disponible : ${veg.quantityAvailable.toInt()} unité(s)',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
                         subtitle: Text(
-                            '${veg.weightGrams}g - ${veg.priceCents / 100}€'),
+                          veg.saleType == 'weight'
+                              ? '${veg.priceCents / 100}€ / Kg'
+                              : '${veg.priceCents / 100}€ / unité',
+                        ),
                         trailing: ElevatedButton(
                           onPressed: () {
                             Provider.of<CartProvider>(context, listen: false)

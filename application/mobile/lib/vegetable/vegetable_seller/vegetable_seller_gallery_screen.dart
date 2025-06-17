@@ -1,4 +1,5 @@
 import 'package:car2go/config/routes.dart';
+import 'package:car2go/vegetable/vegetable_seller/vagatable_seller_gallery_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -79,57 +80,14 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
                       arguments: veg,
                     );
                   },
-                  child: Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AspectRatio(
-                          aspectRatio: 1.5,
-                          child: imagePath != null && imagePath.isNotEmpty
-                              ? Image.network(
-                                  imagePath,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Center(
-                                      child: Icon(Icons.broken_image)),
-                                )
-                              : const Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.hourglass_empty,
-                                          color: Colors.grey),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'Image en cours de validation',
-                                        style: TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(veg.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              Text(
-                                  '${veg.weightGrams}g - ${veg.priceCents / 100}€'),
-                              Text(
-                                veg.description,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: VegetableSellerGalleryCard(
+                    active: veg.active,
+                    imagePath: imagePath,
+                    name: veg.name,
+                    description: veg.description,
+                    saleType: veg.saleType,
+                    priceCents: veg.priceCents,
+                    quantityAvailable: veg.quantityAvailable,
                   ),
                 ),
               );
