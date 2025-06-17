@@ -33,6 +33,8 @@ socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-fi
 bg_pids+=("$!")
 socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4500.log 2>&1 &
 bg_pids+=("$!")
+socat TCP-LISTEN:9005,fork,reuseaddr TCP:firebase-emulators:9005 > /tmp/socat-firebase-emulators-9005.log 2>&1 &
+bg_pids+=("$!")
 socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:39150 > /tmp/socat-firebase-emulators-9150.log 2>&1 &
 bg_pids+=("$!")
 socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:39199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
