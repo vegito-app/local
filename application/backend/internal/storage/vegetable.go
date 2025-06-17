@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/7d4b9/utrade/backend/firebase"
@@ -13,8 +12,9 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func isAlreadyValidatedURL(url string) bool {
-	return strings.HasPrefix(url, "https://cdn.utrade.dev/")
+type persistentVegetable struct {
+	api.Vegetable
+	Deleted bool `firestore:"deleted,omitempty"`
 }
 
 type VegetableStorage struct {
@@ -29,14 +29,19 @@ func NewVegetableStorage(firestore *firestore.Client) *VegetableStorage {
 
 func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v api.Vegetable) error {
 	data := map[string]any{
-		"name":          v.Name,
-		"description":   v.Description,
-		"saleType":      v.SaleType,
-		"weightGrams":   v.WeightGrams,
-		"priceCents":    v.PriceCents,
-		"ownerId":       userID,
-		"createdAt":     firestore.ServerTimestamp,
-		"userCreatedAt": v.UserCreatedAt.UTC(),
+		"name":        v.Name,
+		"description": v.Description,
+		"saleType":    v.SaleType,
+		// "weightGrams":       v.WeightGrams,
+		"priceCents":        v.PriceCents,
+		"ownerId":           userID,
+		"createdAt":         firestore.ServerTimestamp,
+		"userCreatedAt":     v.UserCreatedAt.UTC(),
+		"active":            v.Active,
+		"availabilityType":  v.AvailabilityType,
+		"availabilityDate":  v.AvailabilityDate,
+		"quantityAvailable": v.QuantityAvailable,
+		"deleted":           false,
 	}
 
 	_, err := s.firestore.Collection("vegetables").Doc(v.ID).Set(ctx, data)
@@ -45,9 +50,6 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 	}
 
 	for i, img := range v.Images {
-		if isAlreadyValidatedURL(img.Path) {
-			continue
-		}
 		imageDoc := s.firestore.Collection("vegetables").
 			Doc(v.ID).
 			Collection("images").
@@ -80,9 +82,15 @@ func (f *Storage) GetVegetable(ctx context.Context, userID, id string) (*api.Veg
 	if data["ownerId"] != userID {
 		return nil, fmt.Errorf("unauthorized access to vegetable %q", id)
 	}
-	var v api.Vegetable
-	if err := doc.DataTo(&v); err != nil {
+	var pv persistentVegetable
+	if err := doc.DataTo(&pv); err != nil {
 		return nil, fmt.Errorf("failed to convert document %q to Vegetable: %w", doc.Ref.ID, err)
+	}
+	v := pv.Vegetable
+	if active, ok := data["active"].(bool); ok {
+		v.Active = active
+	} else {
+		v.Active = true // fallback pour rétrocompatibilité
 	}
 
 	imagesIter := doc.Ref.Collection("images").
@@ -105,16 +113,18 @@ func (f *Storage) GetVegetable(ctx context.Context, userID, id string) (*api.Veg
 		if token, ok := docSnap.Data()["downloadToken"].(string); ok {
 			img.DownloadToken = &token
 		}
-		// img.ID = docSnap.Ref.ID
 		images = append(images, img)
 	}
 	v.Images = images
-
+	v.ID = doc.Ref.ID // Ensure the ID is set from the document reference
 	return &v, nil
 }
 
 func (f *Storage) ListVegetables(ctx context.Context, userID string) ([]*api.Vegetable, error) {
-	iter := f.firestore.Collection("vegetables").Where("ownerId", "==", userID).Documents(ctx)
+	iter := f.firestore.Collection("vegetables").
+		Where("ownerId", "==", userID).
+		Where("deleted", "!=", true).
+		Documents(ctx)
 	defer iter.Stop()
 
 	var list []*api.Vegetable
@@ -126,10 +136,15 @@ func (f *Storage) ListVegetables(ctx context.Context, userID string) ([]*api.Veg
 			}
 			return nil, fmt.Errorf("error while listing vegetables: %w", err)
 		}
-		var v api.Vegetable
-
-		if err := doc.DataTo(&v); err != nil {
+		var pv persistentVegetable
+		if err := doc.DataTo(&pv); err != nil {
 			return nil, fmt.Errorf("failed to convert document %q to Vegetable: %w", doc.Ref.ID, err)
+		}
+		v := pv.Vegetable
+		if active, ok := doc.Data()["active"].(bool); ok {
+			v.Active = active
+		} else {
+			v.Active = true // fallback pour rétrocompatibilité
 		}
 		v.ID = doc.Ref.ID // Ensure the ID is set from the document reference
 
@@ -176,40 +191,116 @@ func (f *Storage) DeleteVegetable(ctx context.Context, userID, id string) error 
 		return fmt.Errorf("unauthorized delete attempt on vegetable %q", id)
 	}
 
-	imagesIter := doc.Collection("images").Documents(ctx)
-	for {
-		imageDoc, err := imagesIter.Next()
-		if err != nil {
-			if errors.Is(err, iterator.Done) {
-				break
-			}
-			return fmt.Errorf("failed to iterate images for deletion: %w", err)
-		}
-		if _, err := imageDoc.Ref.Delete(ctx); err != nil {
-			return fmt.Errorf("failed to delete image %q: %w", imageDoc.Ref.ID, err)
-		}
-	}
+	return f.firestore.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		orders := f.firestore.Collection("orders")
+		orderIter := orders.Where("vegetableIds", "array-contains", id).Limit(1).Documents(ctx)
+		defer orderIter.Stop()
 
-	_, err = doc.Delete(ctx)
+		exists := false
+		if _, err := orderIter.Next(); err != nil && !errors.Is(err, iterator.Done) {
+			return fmt.Errorf("failed to query orders for vegetable %q: %w", id, err)
+		} else if err == nil {
+			exists = true
+		}
+
+		if exists {
+			if err := tx.Update(doc, []firestore.Update{{Path: "deleted", Value: true}}); err != nil {
+				return fmt.Errorf("failed to soft delete vegetable %q: %w", id, err)
+			}
+			return nil
+		}
+
+		imagesIter := doc.Collection("images").Documents(ctx)
+		for {
+			imageDoc, err := imagesIter.Next()
+			if err != nil {
+				if errors.Is(err, iterator.Done) {
+					break
+				}
+				return fmt.Errorf("failed to iterate images for deletion: %w", err)
+			}
+			if err := tx.Delete(imageDoc.Ref); err != nil {
+				return fmt.Errorf("failed to delete image %q: %w", imageDoc.Ref.ID, err)
+			}
+		}
+
+		if err := tx.Delete(doc); err != nil {
+			return fmt.Errorf("failed to hard delete vegetable %q: %w", id, err)
+		}
+		return nil
+	})
+}
+
+func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imagePath string) error {
+	err := s.firestore.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		vegDoc := s.firestore.Collection("vegetables").Doc(vegetableID)
+		snap, err := tx.Get(vegDoc)
+		if err != nil {
+			if firebase.FirestoreIsNotFound(err) {
+				return fmt.Errorf("cannot update image: vegetable %q not found", vegetableID)
+			}
+			return fmt.Errorf("failed to get vegetable %q: %w", vegetableID, err)
+		}
+		if !snap.Exists() {
+			return fmt.Errorf("cannot update image: vegetable %q does not exist", vegetableID)
+		}
+
+		imageDoc := vegDoc.Collection("images").Doc(strconv.Itoa(imageIndex))
+		data := map[string]interface{}{
+			"status": api.VegetableImageStatusUploaded,
+		}
+		if err := tx.Set(imageDoc, data, firestore.MergeAll); err != nil {
+			return fmt.Errorf("failed to set image status for vegetable %q image %d: %w", vegetableID, imageIndex, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to delete vegetable %q: %w", id, err)
+		return fmt.Errorf("failed to set image data for vegetable %q image %q: %w", vegetableID, imageIndex, err)
 	}
 	return nil
 }
 
-func (s *Storage) SetVegetableImageUploaded(ctx context.Context, vegetableID string, imageIndex int, imagePath string) error {
-	imageDoc := s.firestore.Collection("vegetables").
-		Doc(vegetableID).
-		Collection("images").
-		Doc(strconv.Itoa(imageIndex))
-
-	data := map[string]interface{}{
-		"status": api.VegetableImageStatusUploaded,
-	}
-
-	_, err := imageDoc.Set(ctx, data, firestore.MergeAll)
+func (s *Storage) UpdateMainImage(ctx context.Context, userID, vegetableID string, mainImageCurrentIndex int) error {
+	err := s.firestore.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		vegDoc := s.firestore.Collection("vegetables").Doc(vegetableID)
+		snap, err := tx.Get(vegDoc)
+		if err != nil {
+			if firebase.FirestoreIsNotFound(err) {
+				return api.ErrVegetableNotFound
+			}
+			return fmt.Errorf("failed to get vegetable %q: %w", vegetableID, err)
+		}
+		if snap.Data()["ownerId"] != userID {
+			return fmt.Errorf("unauthorized main image update attempt on vegetable %q", vegetableID)
+		}
+		imagesColl := vegDoc.Collection("images")
+		imageDocs, err := imagesColl.Documents(ctx).GetAll()
+		if err != nil {
+			return fmt.Errorf("failed to fetch images for vegetable %q: %w", vegetableID, err)
+		}
+		if mainImageCurrentIndex < 0 || mainImageCurrentIndex >= len(imageDocs) {
+			return fmt.Errorf("invalid image index %d for vegetable %q", mainImageCurrentIndex, vegetableID)
+		}
+		// Reorder: selected first, rest in order
+		reordered := append([]*firestore.DocumentSnapshot{imageDocs[mainImageCurrentIndex]},
+			append(imageDocs[:mainImageCurrentIndex], imageDocs[mainImageCurrentIndex+1:]...)...)
+		// Remove all current docs
+		for _, doc := range imageDocs {
+			if err := tx.Delete(doc.Ref); err != nil {
+				return fmt.Errorf("failed to delete image doc %q: %w", doc.Ref.ID, err)
+			}
+		}
+		// Rewrite in new order
+		for i, doc := range reordered {
+			data := doc.Data()
+			if err := tx.Set(imagesColl.Doc(strconv.Itoa(i)), data); err != nil {
+				return fmt.Errorf("failed to reinsert image %d: %w", i, err)
+			}
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to set image data for vegetable %q image %q: %w", vegetableID, imageIndex, err)
+		return fmt.Errorf("failed to update main image for vegetable %q: %w", vegetableID, err)
 	}
 	return nil
 }
