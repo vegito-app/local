@@ -7,3 +7,13 @@ resource "google_secret_manager_secret" "stripe_key" {
     }
   }
 }
+
+resource "google_secret_manager_secret" "stripe_public_key" {
+  secret_id = "stripe-public-key"
+
+  replication {
+    auto {
+
+    }
+  }
+}
