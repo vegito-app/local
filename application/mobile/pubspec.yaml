@@ -72,6 +72,8 @@ dependencies:
   flutter_facebook_auth: ^7.1.2
   google_sign_in: ^6.3.0
   mockito: ^5.4.6
+  url_launcher: ^6.3.1
+  firebase_app_check: ^0.3.2+7
 
 # import 'package:google_sign_in/google_sign_in.dart';
 # package:firebase_auth/firebase_auth.dart;
