@@ -53,8 +53,3 @@ func checkAnonymousAuth(r *http.Request, token *auth.Token) *http.Request {
 	isAnonymous := token.Firebase.SignInProvider == "anonymous"
 	return r.WithContext(context.WithValue(ctx, firebaseAuthIsAnonymous, isAnonymous))
 }
-
-// func requestIsAnonymous(r *http.Request) bool {
-// 	ctx := r.Context()
-// 	return ctx.Value(firebaseAuthIsAnonymous).(bool)
-// }

@@ -11,6 +11,14 @@ const (
 	VegetableImageStatusUploaded VegetableImageStatus = "uploaded"
 )
 
+type VegetableAvailabilityType string
+
+const (
+	AvailabilitySameDay          VegetableAvailabilityType = "same_day"
+	AvailabilityFuture           VegetableAvailabilityType = "future_date"
+	AvailabilityAlreadyHarvested VegetableAvailabilityType = "already_harvested"
+)
+
 type VegetableImageResponse struct {
 	Path          string               `json:"path"`
 	UploadedAt    time.Time            `json:"uploadedAt"`
@@ -20,16 +28,20 @@ type VegetableImageResponse struct {
 }
 
 type VegetableResponse struct {
-	ID            string                   `json:"id,omitempty"`
-	Name          string                   `json:"name"`
-	OwnerID       string                   `json:"ownerId"`
-	Description   string                   `json:"description"`
-	SaleType      string                   `json:"saleType"`
-	WeightGrams   int                      `json:"weightGrams"`
-	PriceCents    int                      `json:"priceCents"`
-	Images        []VegetableImageResponse `json:"images"`
-	CreatedAt     time.Time                `json:"createdAt"`
-	UserCreatedAt time.Time                `json:"userCreatedAt,omitempty"`
+	ID          string `json:"id,omitempty"`
+	Name        string `json:"name"`
+	OwnerID     string `json:"ownerId"`
+	Description string `json:"description"`
+	SaleType    string `json:"saleType"`
+	// WeightGrams       int                       `json:"weightGrams"`
+	PriceCents        int                       `json:"priceCents"`
+	Images            []VegetableImageResponse  `json:"images"`
+	CreatedAt         time.Time                 `json:"createdAt"`
+	UserCreatedAt     time.Time                 `json:"userCreatedAt,omitempty"`
+	Active            bool                      `json:"active"`
+	AvailabilityType  VegetableAvailabilityType `json:"availabilityType"`
+	AvailabilityDate  *time.Time                `json:"availabilityDate,omitempty"`
+	QuantityAvailable int                       `json:"quantityAvailable"`
 }
 
 type VegetableImageRequest struct {
@@ -38,16 +50,20 @@ type VegetableImageRequest struct {
 }
 
 type VegetableRequest struct {
-	ID            string                  `json:"id,omitempty"`
-	Name          string                  `json:"name"`
-	OwnerID       string                  `json:"ownerId"`
-	Description   string                  `json:"description"`
-	SaleType      string                  `json:"saleType"`
-	WeightGrams   int                     `json:"weightGrams"`
-	PriceCents    int                     `json:"priceCents"`
-	Images        []VegetableImageRequest `json:"images"`
-	CreatedAt     time.Time               `json:"createdAt"`
-	UserCreatedAt time.Time               `json:"userCreatedAt,omitempty"`
+	ID          string `json:"id,omitempty"`
+	Name        string `json:"name"`
+	OwnerID     string `json:"ownerId"`
+	Description string `json:"description"`
+	SaleType    string `json:"saleType"`
+	// WeightGrams       int                       `json:"weightGrams"`
+	PriceCents        int                       `json:"priceCents"`
+	Images            []VegetableImageRequest   `json:"images"`
+	CreatedAt         time.Time                 `json:"createdAt"`
+	UserCreatedAt     time.Time                 `json:"userCreatedAt,omitempty"`
+	Active            bool                      `json:"active"`
+	AvailabilityType  VegetableAvailabilityType `json:"availabilityType"`
+	AvailabilityDate  time.Time                 `json:"availabilityDate,omitempty"`
+	QuantityAvailable int                       `json:"quantityAvailable"`
 }
 
 type VegetableImageCreatedTopicMessage struct {
@@ -58,4 +74,8 @@ type VegetableImageValidatedTopicMessage struct {
 	VegetableID string `json:"vegetableId"`
 	ImageIndex  int    `json:"imageIndex"`
 	Path        string `json:"path"`
+}
+
+type UpdateMainImageRequest struct {
+	MainImageIndex int `json:"mainImageIndex"`
 }

@@ -13,14 +13,16 @@ import (
 var ErrOrderNotFound = errors.New("order not found")
 
 type Order struct {
-	ID          string           `json:"id,omitempty"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	SaleType    string           `json:"saleType"`
-	WeightGrams int              `json:"weightGrams"`
-	PriceCents  int              `json:"priceCents"`
-	Images      []VegetableImage `json:"images"`
-	CreatedAt   int64            `json:"createdAt"`
+	ID           string           `json:"id,omitempty"`
+	Name         string           `json:"name"`
+	Description  string           `json:"description"`
+	SaleType     string           `json:"saleType"`
+	WeightGrams  int              `json:"weightGrams"`
+	PriceCents   int              `json:"priceCents"`
+	Images       []VegetableImage `json:"images"`
+	CreatedAt    int64            `json:"createdAt"`
+	Status       string           `json:"status"`
+	VegetableIds []string         `json:"vegetableIds"`
 }
 
 // OrderStorage defines persistent operations for managing orders.

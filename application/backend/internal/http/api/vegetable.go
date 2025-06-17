@@ -31,16 +31,20 @@ const (
 )
 
 type Vegetable struct {
-	ID            string           `json:"id,omitempty"`
-	Name          string           `json:"name"`
-	OwnerID       string           `json:"ownerId"`
-	Description   string           `json:"description"`
-	SaleType      string           `json:"saleType"`
-	WeightGrams   int              `json:"weightGrams"`
-	PriceCents    int              `json:"priceCents"`
-	Images        []VegetableImage `json:"images"`
-	CreatedAt     time.Time        `json:"createdAt"`
-	UserCreatedAt time.Time        `json:"userCreatedAt,omitempty"`
+	ID          string `json:"id,omitempty"`
+	Name        string `json:"name"`
+	OwnerID     string `json:"ownerId"`
+	Description string `json:"description"`
+	SaleType    string `json:"saleType"`
+	// WeightGrams       int              `json:"weightGrams"`
+	PriceCents        int              `json:"priceCents"`
+	Images            []VegetableImage `json:"images"`
+	CreatedAt         time.Time        `json:"createdAt"`
+	UserCreatedAt     time.Time        `json:"userCreatedAt,omitempty"`
+	Active            bool             `json:"active"`
+	AvailabilityType  string           `json:"availabilityType"`
+	AvailabilityDate  time.Time        `json:"availabilityDate"`
+	QuantityAvailable int              `json:"quantityAvailable"`
 }
 
 // Implementations must return ErrVegetableNotFound when a requested vegetable
@@ -59,6 +63,9 @@ type VegetableStorage interface {
 	// DeleteVegetable removes a vegetable by ID.
 	// Returns ErrVegetableNotFound if the vegetable does not exist.
 	DeleteVegetable(ctx context.Context, userID, id string) error
+
+	// UpdateMainImage updates the image order by placing the selected image at index 0.
+	UpdateMainImage(ctx context.Context, userID, vegetableID string, mainImageCurrentIndex int) error
 }
 
 // VegetableImageValidator defines the interface for validating vegetable images.
@@ -94,8 +101,14 @@ func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageV
 	mux.Handle("GET /api/vegetable", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.GetVegetable),
 		FirebaseAuthMiddleware))
-	mux.Handle("DELETE /api/vegetable", http.ApplyMiddleware(
+	mux.Handle("DELETE /api/vegetables/{id}", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.DeleteVegetable),
+		FirebaseAuthMiddleware))
+	mux.Handle("PUT /api/vegetables/{id}", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.UpdateVegetable),
+		FirebaseAuthMiddleware))
+	mux.Handle("PUT /api/vegetables/{id}/main-image", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.UpdateMainImage),
 		FirebaseAuthMiddleware))
 	return service, nil
 }
@@ -112,16 +125,24 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}
+	if vegetableRequest.ID != "" {
+		nethttp.Error(w, "ID must not be provided on create", nethttp.StatusBadRequest)
+		return
+	}
 	vegetable := Vegetable{
-		ID:            uuid.NewString(),
-		Name:          vegetableRequest.Name,
-		OwnerID:       vegetableRequest.OwnerID,
-		Description:   vegetableRequest.Description,
-		SaleType:      vegetableRequest.SaleType,
-		WeightGrams:   vegetableRequest.WeightGrams,
-		PriceCents:    vegetableRequest.PriceCents,
-		CreatedAt:     time.Now().UTC(),
-		UserCreatedAt: time.Now().UTC(),
+		ID:          uuid.NewString(),
+		Name:        vegetableRequest.Name,
+		OwnerID:     vegetableRequest.OwnerID,
+		Description: vegetableRequest.Description,
+		SaleType:    vegetableRequest.SaleType,
+		// WeightGrams:       vegetableRequest.WeightGrams,
+		PriceCents:        vegetableRequest.PriceCents,
+		CreatedAt:         time.Now().UTC(),
+		UserCreatedAt:     time.Now().UTC(),
+		Active:            true, // always active on creation
+		AvailabilityType:  string(vegetableRequest.AvailabilityType),
+		AvailabilityDate:  vegetableRequest.AvailabilityDate,
+		QuantityAvailable: vegetableRequest.QuantityAvailable,
 	}
 	for _, img := range vegetableRequest.Images {
 		vegetableImage := VegetableImage{
@@ -132,7 +153,6 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		}
 		vegetable.Images = append(vegetable.Images, vegetableImage)
 	}
-	vegetableRequest.ID = uuid.NewString()
 	var wg sync.WaitGroup
 	defer wg.Wait()
 	// Store the vegetable with images that need validation blanked out.
@@ -151,23 +171,27 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 				UploadedAt: time.Now().UTC(),
 				Status:     VegetableImageStatusPending,
 			}
-			if err := s.imageValidator.SetImageValidation(ctx, vegetableRequest.ID, vegetableImage, index); err != nil {
+			if err := s.imageValidator.SetImageValidation(ctx, vegetable.ID, vegetableImage, index); err != nil {
 				log.Error().Err(err).Msg("failed to set image validation")
 			}
 		}(i, &img)
 	}
 	createdVegetableImagesResponse := responseImages(&vegetable, userID, s.isValidatedImagesServedByCDN)
 	response := &v1.VegetableResponse{
-		ID:            vegetable.ID,
-		Name:          vegetable.Name,
-		OwnerID:       vegetable.OwnerID,
-		Description:   vegetable.Description,
-		SaleType:      vegetable.SaleType,
-		WeightGrams:   vegetable.WeightGrams,
-		PriceCents:    vegetable.PriceCents,
-		Images:        createdVegetableImagesResponse,
-		CreatedAt:     vegetable.CreatedAt,
-		UserCreatedAt: vegetable.UserCreatedAt,
+		ID:          vegetable.ID,
+		Name:        vegetable.Name,
+		OwnerID:     vegetable.OwnerID,
+		Description: vegetable.Description,
+		SaleType:    vegetable.SaleType,
+		// WeightGrams:       vegetable.WeightGrams,
+		PriceCents:        vegetable.PriceCents,
+		Images:            createdVegetableImagesResponse,
+		CreatedAt:         vegetable.CreatedAt,
+		UserCreatedAt:     vegetable.UserCreatedAt,
+		Active:            vegetable.Active,
+		AvailabilityType:  v1.VegetableAvailabilityType(vegetable.AvailabilityType),
+		AvailabilityDate:  &vegetable.AvailabilityDate,
+		QuantityAvailable: vegetable.QuantityAvailable,
 	}
 	log.Debug().Str("id", vegetable.ID).Msg("Created vegetable")
 	// Set the response status to Created (201)
@@ -199,16 +223,20 @@ func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.R
 	for _, veggie := range veggies {
 		imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
 		resp = append(resp, &v1.VegetableResponse{
-			ID:            veggie.ID,
-			Name:          veggie.Name,
-			OwnerID:       veggie.OwnerID,
-			Description:   veggie.Description,
-			SaleType:      veggie.SaleType,
-			WeightGrams:   veggie.WeightGrams,
-			PriceCents:    veggie.PriceCents,
-			Images:        imagesResp,
-			CreatedAt:     veggie.CreatedAt,
-			UserCreatedAt: veggie.UserCreatedAt,
+			ID:          veggie.ID,
+			Name:        veggie.Name,
+			OwnerID:     veggie.OwnerID,
+			Description: veggie.Description,
+			SaleType:    veggie.SaleType,
+			// WeightGrams:       veggie.WeightGrams,
+			PriceCents:        veggie.PriceCents,
+			Images:            imagesResp,
+			CreatedAt:         veggie.CreatedAt,
+			UserCreatedAt:     veggie.UserCreatedAt,
+			Active:            veggie.Active,
+			AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
+			AvailabilityDate:  &veggie.AvailabilityDate,
+			QuantityAvailable: veggie.QuantityAvailable,
 		})
 	}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
@@ -264,16 +292,20 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 	// Prepare enriched image response
 	imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
 	resp := &v1.VegetableResponse{
-		ID:            veggie.ID,
-		Name:          veggie.Name,
-		OwnerID:       veggie.OwnerID,
-		Description:   veggie.Description,
-		SaleType:      veggie.SaleType,
-		WeightGrams:   veggie.WeightGrams,
-		PriceCents:    veggie.PriceCents,
-		Images:        imagesResp,
-		CreatedAt:     veggie.CreatedAt,
-		UserCreatedAt: veggie.UserCreatedAt,
+		ID:          veggie.ID,
+		Name:        veggie.Name,
+		OwnerID:     veggie.OwnerID,
+		Description: veggie.Description,
+		SaleType:    veggie.SaleType,
+		// WeightGrams:       veggie.WeightGrams,
+		PriceCents:        veggie.PriceCents,
+		Images:            imagesResp,
+		CreatedAt:         veggie.CreatedAt,
+		UserCreatedAt:     veggie.UserCreatedAt,
+		Active:            veggie.Active,
+		AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
+		AvailabilityDate:  &veggie.AvailabilityDate,
+		QuantityAvailable: veggie.QuantityAvailable,
 	}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Error().Err(err).Msg("failed to encode vegetable response")
@@ -288,7 +320,7 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	if id == "" {
 		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
 		return
@@ -299,6 +331,112 @@ func (s *VegetableService) DeleteVegetable(w nethttp.ResponseWriter, r *nethttp.
 			return
 		}
 		nethttp.Error(w, "delete failed", nethttp.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(nethttp.StatusNoContent)
+}
+
+// UpdateVegetable handles updating an existing vegetable.
+func (s *VegetableService) UpdateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
+	ctx := r.Context()
+	userID := requestUserID(r)
+	id := r.PathValue("id")
+	if id == "" {
+		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
+		return
+	}
+	var vegetableRequest v1.VegetableRequest
+	if err := json.NewDecoder(r.Body).Decode(&vegetableRequest); err != nil {
+		log.Error().Err(err).Msg("failed to decode vegetable payload")
+		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
+		return
+	}
+
+	veggie, err := s.storage.GetVegetable(ctx, userID, id)
+	if err != nil {
+		if errors.Is(err, ErrVegetableNotFound) {
+			nethttp.Error(w, "vegetable not found", nethttp.StatusNotFound)
+			return
+		}
+		nethttp.Error(w, "get failed", nethttp.StatusInternalServerError)
+		return
+	}
+
+	// Update fields
+	veggie.Name = vegetableRequest.Name
+	veggie.Description = vegetableRequest.Description
+	veggie.SaleType = vegetableRequest.SaleType
+	// veggie.WeightGrams = vegetableRequest.WeightGrams
+	veggie.PriceCents = vegetableRequest.PriceCents
+	veggie.Active = vegetableRequest.Active
+	veggie.AvailabilityType = string(vegetableRequest.AvailabilityType)
+	veggie.AvailabilityDate = vegetableRequest.AvailabilityDate
+	veggie.QuantityAvailable = int(vegetableRequest.QuantityAvailable)
+	veggie.Images = nil
+	for _, img := range vegetableRequest.Images {
+		vegetableImage := VegetableImage{
+			Path:          img.Path,
+			UploadedAt:    time.Now().UTC(),
+			Status:        VegetableImageStatusPending,
+			DownloadToken: img.DownloadToken,
+		}
+		veggie.Images = append(veggie.Images, vegetableImage)
+	}
+
+	err = s.storage.StoreVegetable(ctx, userID, *veggie)
+	if err != nil {
+		nethttp.Error(w, "store failed", nethttp.StatusInternalServerError)
+		return
+	}
+
+	imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
+	resp := &v1.VegetableResponse{
+		ID:          veggie.ID,
+		Name:        veggie.Name,
+		OwnerID:     veggie.OwnerID,
+		Description: veggie.Description,
+		SaleType:    veggie.SaleType,
+		// WeightGrams:       veggie.WeightGrams,
+		PriceCents:        veggie.PriceCents,
+		Images:            imagesResp,
+		CreatedAt:         veggie.CreatedAt,
+		UserCreatedAt:     veggie.UserCreatedAt,
+		Active:            veggie.Active,
+		AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
+		AvailabilityDate:  &veggie.AvailabilityDate,
+		QuantityAvailable: veggie.QuantityAvailable,
+	}
+	log.Debug().Str("id", id).Msg("Updated vegetable")
+
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Error().Err(err).Msg("failed to encode vegetable response")
+		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
+		return
+	}
+}
+
+// UpdateMainImage updates the main image of a vegetable by moving the selected image to index 0.
+// It expects the request body to contain the index of the current main image.
+func (s *VegetableService) UpdateMainImage(w nethttp.ResponseWriter, r *nethttp.Request) {
+	ctx := r.Context()
+	userID := requestUserID(r)
+	id := r.PathValue("id")
+	if id == "" {
+		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
+		return
+	}
+	var payload v1.UpdateMainImageRequest
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		log.Error().Err(err).Msg("failed to decode main image index")
+		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
+		return
+	}
+	if err := s.storage.UpdateMainImage(ctx, userID, id, payload.MainImageIndex); err != nil {
+		if errors.Is(err, ErrVegetableNotFound) {
+			nethttp.Error(w, "vegetable not found", nethttp.StatusNotFound)
+			return
+		}
+		nethttp.Error(w, "update main image failed", nethttp.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(nethttp.StatusNoContent)
