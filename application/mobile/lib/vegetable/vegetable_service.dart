@@ -23,9 +23,12 @@ class VegetableService {
     );
     if (response.statusCode == 200) {
       final List<dynamic> decoded = json.decode(response.body) as List<dynamic>;
-      return decoded
+      final vegetables = decoded
           .map((v) => Vegetable.fromJson(v as Map<String, dynamic>))
           .toList();
+      vegetables
+          .sort((a, b) => b.active.toString().compareTo(a.active.toString()));
+      return vegetables;
     } else {
       throw Exception('Failed to fetch vegetables');
     }
@@ -136,6 +139,17 @@ class VegetableService {
       return vegetableImages;
     } catch (e) {
       throw Exception('Erreur lors de l\'envoi du légume : $e');
+    }
+  }
+
+  Future<void> updateMainImage(String vegetableId, int mainImageIndex) async {
+    final response = await client.put(
+      Uri.parse('$backendUrl/api/vegetables/$vegetableId/main-image'),
+      headers: await authHeaders(),
+      body: json.encode({'mainImageIndex': mainImageIndex}),
+    );
+    if (response.statusCode != 204) {
+      throw Exception('Failed to update main image');
     }
   }
 }

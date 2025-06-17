@@ -25,15 +25,18 @@ void main() {
 
     final fakeVegetables = [
       Vegetable(
+        active: true,
         id: 'veg1',
         name: 'Carotte',
         description: '',
         saleType: 'unit',
-        weightGrams: 0,
         priceCents: 100,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'seller1',
+        availabilityType: 'sameDay',
+        availabilityDate: null,
+        quantityAvailable: 10,
       )
     ];
 

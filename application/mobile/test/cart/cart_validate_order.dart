@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/cart/cart_provider.dart';
 import 'package:car2go/order/order_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 Future<void> validateOrders(BuildContext context) async {
   final authProvider = Provider.of<AuthProvider>(context, listen: false);

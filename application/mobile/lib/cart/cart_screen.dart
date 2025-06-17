@@ -1,4 +1,5 @@
 import 'package:car2go/auth/auth_provider.dart';
+import 'package:car2go/payment/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,7 @@ class CartScreen extends StatelessWidget {
                 return ListTile(
                   leading: veg.images.isNotEmpty
                       ? Image.network(
-                          veg.images.first.url,
+                          veg.images.first.publicUrl,
                           width: 64,
                           height: 64,
                           fit: BoxFit.cover,
@@ -69,7 +70,10 @@ class CartScreen extends StatelessWidget {
                   // If the user confirmed, proceed with order validation
                   // If the user cancelled, do nothing
                   if (confirm == true) {
-                    await _validateOrders(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => PaymentScreen()),
+                    );
                   }
                 },
                 child: const Text('Valider les commandes'),
