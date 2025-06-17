@@ -19,102 +19,54 @@ Ajouter une carotte depuis l’interface
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element    accessibility_id=🧺 Vendre mes légumes
 
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Choisir une photo
-    Click Element    accessibility_id=Choisir une photo
+    Ajouter La Premiere Photo    carrotes    2
 
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Photos"]
-    Click Element                       xpath=//android.widget.TextView[@text="Photos"]
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Device folders"]
-    Wait Until Page Contains Element    xpath=(//android.widget.RelativeLayout)[1]
-    Click Element                       xpath=(//android.widget.RelativeLayout)[1]
-    Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[2]
-    Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[2]
-
-    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    xpath=(//android.widget.EditText)[1]
-
-    Click Element    accessibility_id=dropdown-sale-type\nÀ l’unité
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
-    Click Element    accessibility_id=Au poids (€/kg)
+    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Carotte
     Fill Field By Index    2    Fraîche du jardin
-    Fill Field By Index    3    500
-    Fill Field By Index    4    250
+    Fill Field By Index    3    0.500
+    Fill Field By Index    4    2.50
 
-    Swipe Until Element Is Visible    accessibility_id=Enregistrer
+    Scroll And Tap Vegetable Upload Register Button
 
     # Go Back
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
-    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Carotte\n500g - 2.5€\nFraîche du jardin
+    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Carotte\n2.5€ / Kg\nReste : 500 g\nFraîche du jardin
     Go Back
 
 Ajouter un chouchou avec plusieurs images depuis l’interface
-    Push Test Image    chouchou-coupe.jpg
-    Push Test Image    chouchou-fin.jpeg
-    Push Test Image    chouchou-macro.jpeg
-    Push Test Image    chouchou-salazie.jpeg
+    Push Test Image    chouchou.jpg
+    Push Test Image    chouchou-2.jpeg
+    Push Test Image    chouchou-3.jpeg
+    Push Test Image    chouchou-4.jpeg
 
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element    accessibility_id=🧺 Vendre mes légumes
 
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Choisir une photo
-    Click Element    accessibility_id=Choisir une photo
-
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Photos"]
-    Click Element                       xpath=//android.widget.TextView[@text="Photos"]
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Device folders"]
-    Wait Until Page Contains Element    xpath=(//android.widget.RelativeLayout)[1]
-    Click Element                       xpath=(//android.widget.RelativeLayout)[1]
-    Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[2]
-    Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[2]
-
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Ajouter une photo
-    Click Element    accessibility_id=Ajouter une photo
-
-    # Ajout deuxième image
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Photos"]
-    Click Element                       xpath=//android.widget.TextView[@text="Photos"]
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Device folders"]
-    Wait Until Page Contains Element    xpath=(//android.widget.RelativeLayout)[1]
-    Click Element                       xpath=(//android.widget.RelativeLayout)[1]
-    Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[3]
-    Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[3] 
-
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Ajouter une photo
-    Click Element    accessibility_id=Ajouter une photo
-
-    # Ajout troisième image
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Photos"]
-    Click Element                       xpath=//android.widget.TextView[@text="Photos"]
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Device folders"]
-    Wait Until Page Contains Element    xpath=(//android.widget.RelativeLayout)[1]
-    Click Element                       xpath=(//android.widget.RelativeLayout)[1]
-    Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[4]
-    Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[4]
+    Ajouter La Premiere Photo        chouchou  2
+    Ajouter Une Photo    chouchou-2  3
+    Ajouter Une Photo    chouchou-3  4
 
     # Suppression de la deuxieme image sélectionnée
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=delete-image-2, Supprimer cette photo
-    Click Element                   accessibility_id=delete-image-2, Supprimer cette photo
+    Wait Until Page Contains Element    accessibility_id=delete-image-chouchou-3-3, Supprimer cette photo
+    Click Element                   accessibility_id=delete-image-chouchou-3-3, Supprimer cette photo
 
     Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    xpath=(//android.widget.EditText)[1]
 
-    Click Element    accessibility_id=dropdown-sale-type\nÀ l’unité
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
-    Click Element    accessibility_id=Au poids (€/kg)
+    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Chouchou
     Fill Field By Index    2    Fraîche du jardin
-    Fill Field By Index    3    500
-    Fill Field By Index    4    250
+    Fill Field By Index    3    0.500
+    Fill Field By Index    4    2.50
 
-    Swipe Until Element Is Visible    accessibility_id=Enregistrer
+    Scroll And Tap Vegetable Upload Register Button
 
-    # Go Back
-    # Go Back
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
-    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Chouchou\n500g - 2.5€\nFraîche du jardin
+    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    accessibility_id=Chouchou\n2.5€ / Kg\nReste : 500 g\nFraîche du jardin
 
 Ajouter un légume vendu au poids
     Push Test Image    tomate.jpg
@@ -122,28 +74,18 @@ Ajouter un légume vendu au poids
     Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
 
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Choisir une photo
-    Click Element    accessibility_id=Choisir une photo
-
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Photos"]
-    Click Element                       xpath=//android.widget.TextView[@text="Photos"]
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Device folders"]
-    Wait Until Page Contains Element    xpath=(//android.widget.RelativeLayout)[1]
-    Click Element                       xpath=(//android.widget.RelativeLayout)[1]
-    Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[2]
-    Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[2]
+    Ajouter La Premiere Photo    tomate    2
 
     Log Source
-    Click Element    accessibility_id=dropdown-sale-type\nÀ l’unité
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
-    Click Element    accessibility_id=Au poids (€/kg)
+    
+    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Tomate
     Fill Field By Index    2    Fraîchement récoltée
-    Fill Field By Index    3    750
-    Fill Field By Index    4    450
+    Fill Field By Index    3    0.750
+    Fill Field By Index    4    4.50
 
-    Swipe Until Element Is Visible    accessibility_id=Enregistrer
+    Scroll And Tap Vegetable Upload Register Button
     Sleep    2s
 
 Ajouter un légume vendu à l’unité
@@ -152,26 +94,64 @@ Ajouter un légume vendu à l’unité
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
 
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Choisir une photo
-    Click Element    accessibility_id=Choisir une photo
-
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Photos"]
-    Click Element                       xpath=//android.widget.TextView[@text="Photos"]
-    Wait Until Page Contains Element    xpath=//android.widget.TextView[@text="Device folders"]
-    Wait Until Page Contains Element    xpath=(//android.widget.RelativeLayout)[1]
-    Click Element                       xpath=(//android.widget.RelativeLayout)[1]
-    Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[2]
-    Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[2]
+    Ajouter La Premiere Photo   citrouille  2
 
     Fill Field By Index    1    Citrouille
     Fill Field By Index    2    Belle pièce pour Halloween
 
-    Click Element    accessibility_id=dropdown-sale-type\nÀ l’unité
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
-    Click Element    accessibility_id=Au poids (€/kg)
+    Changer Type Vente Au Poids
 
-    Fill Field By Index    3    1000
-    Fill Field By Index    4    300
+    Fill Field By Index    3    1.000
+    Fill Field By Index    4    3.00
     
-    Swipe Until Element Is Visible    accessibility_id=Enregistrer
+    Scroll And Tap Vegetable Upload Register Button
     Sleep    2s
+
+Sélection d’une image principale via l’étoile
+    Push Test Image    patate-2.jpg
+    Push Test Image    patate-3.jpg
+    Push Test Image    patate-4.jpg
+
+    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
+    Click Element                   accessibility_id=🧺 Vendre mes légumes    
+
+    Ajouter La Premiere Photo   patate-2  2
+
+    Ajouter Une Photo    patate-3  3
+
+    Ajouter Une Photo    patate-4  4
+
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-4-3, Supprimer cette photo
+    Click Element    locator=accessibility_id=set-main-image-patate-4-3
+    Page Should Contain Element         accessibility_id=set-main-image-patate-2-2
+    Page Should Contain Element         accessibility_id=delete-image-patate-4-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=delete-image-patate-3-3, Supprimer cette photo
+
+    # Click Element                       accessibility_id=delete-image-patate-2-2, Supprimer cette photo
+
+
+    Fill Field By Index    1    Patate
+    Fill Field By Index    2    Fraîche et bio
+    Fill Field By Index    3    1.000
+    Fill Field By Index    4    2.00
+
+    Scroll And Tap Vegetable Upload Register Button
+
+    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
+    Click Element                       accessibility_id=🧺 Vendre mes légumes
+    Wait Until Page Contains Element    accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+    Click Element                       accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+
+    Wait Until Page Contains Element    accessibility_id=set-main-image-patate-2-2
+    Click Element    locator=accessibility_id=set-main-image-patate-2-2
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-2-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=delete-image-patate-2-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-4-2
+    Page Should Contain Element         accessibility_id=set-main-image-patate-3-3
+    Click Element    locator=accessibility_id=set-main-image-patate-3-3
+    Scroll And Tap Vegetable Upload Register Button
+    Wait Until Page Contains Element    accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+    Click Element                       accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-3-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-2-2
+    Page Should Contain Element         accessibility_id=set-main-image-patate-4-3
