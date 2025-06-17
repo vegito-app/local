@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import '../../lib/auth/auth_provider.dart';
 import '../../lib/account/account_security_section.dart';
+import '../../lib/auth/auth_provider.dart';
 
 // Mock utilisateur
 class MockUser extends Mock implements User {

@@ -4,9 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import '../test_double.dart';
-import '../../lib/auth/auth_provider.dart';
 import '../../lib/account/account_page.dart';
+import '../../lib/auth/auth_provider.dart';
+import '../test_double.dart';
 
 void main() {
   testWidgets('AccountPage affiche tous les composants attendus',

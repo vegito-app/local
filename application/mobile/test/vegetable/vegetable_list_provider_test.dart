@@ -19,15 +19,18 @@ void main() {
   test('reload should populate vegetables list', () async {
     final fakeVegetables = [
       Vegetable(
+        active: true,
         id: '1',
         name: 'Carotte',
         description: 'Orange',
         saleType: 'weight',
-        weightGrams: 500,
         priceCents: 150,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'user1',
+        availabilityType: 'sameDay',
+        availabilityDate: null,
+        quantityAvailable: 20,
       ),
     ];
 
@@ -42,26 +45,32 @@ void main() {
   test('findByIds should return matching vegetables', () async {
     final fakeVegetables = [
       Vegetable(
+        active: true,
         id: '1',
         name: 'Tomate',
         description: '',
         saleType: 'unit',
-        weightGrams: 0,
         priceCents: 200,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'user2',
+        availabilityType: 'sameDay',
+        availabilityDate: null,
+        quantityAvailable: 15,
       ),
       Vegetable(
+        active: true,
         id: '2',
         name: 'Salade',
         description: '',
         saleType: 'unit',
-        weightGrams: 0,
         priceCents: 100,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'user3',
+        availabilityType: 'sameDay',
+        availabilityDate: null,
+        quantityAvailable: 15,
       ),
     ];
 

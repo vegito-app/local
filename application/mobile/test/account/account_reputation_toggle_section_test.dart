@@ -5,9 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import '../../lib/account/account_reputation_toggle_section.dart';
 // Remplacez les imports suivants par les bons chemins si nécessaire
 import '../../lib/auth/auth_provider.dart';
-import '../../lib/account/account_reputation_toggle_section.dart';
 
 class MockUser extends Mock implements User {
   @override
