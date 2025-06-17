@@ -11,16 +11,14 @@ Fill Field By Index
     Input Text                     xpath=(//android.widget.EditText)[${index}]    ${value}
     Press Keycode                  66
 
-Swipe Until Element Is Visible
-    [Arguments]    ${locator}
-    ${MAX_SWIPES}=    Set Variable    5
-    FOR    ${index}    IN RANGE    ${MAX_SWIPES}
-        ${visible}=    Run Keyword And Return Status    Page Should Contain Element    ${locator}
-        Exit For Loop If    ${visible}
-        Swipe    500    1600    500    400    800
-    END
-    Wait Until Page Contains Element    ${locator}
-    Click Element    ${locator}
+
+Refill Field By Index
+    [Arguments]    ${index}    ${value}
+    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    xpath=(//android.widget.EditText)[${index}]
+    Click Element                  xpath=(//android.widget.EditText)[${index}]
+    Clear Text                     xpath=(//android.widget.EditText)[${index}]
+    Input Text                     xpath=(//android.widget.EditText)[${index}]    ${value}
+    Press Keycode                  66
 
 Handle Permission Popup
     Wait Until Keyword Succeeds    3x    1s    Run Keyword And Ignore Error    Click Element    id=com.android.permissioncontroller:id/permission_allow_button
@@ -40,7 +38,7 @@ Page Contains Back
 
 Reset State And Return Home
     [Documentation]    Réinitialise l'état de l'application et revient à la page d'accueil.
-    Firebase.reset_firestore
+    Reset Firestore And Storage Before Test
     Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    automationName=UiAutomator2    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    noReset=true    dontStopAppOnReset=true
     Clear Pictures Folder
     Handle Permission Popup
@@ -72,3 +70,31 @@ Populate Pictures Folder With Selected Images
         Log    Copie de /sdcard/TestImagesDepot/${image} vers /sdcard/Pictures/${image}
         Execute Adb Shell    cp /sdcard/TestImagesDepot/${image} /sdcard/Pictures/${image}
     END
+Install APK
+    [Arguments]    ${apk_path}
+    Log    Installing APK from ${apk_path}
+    Execute Adb Shell    pm install -r ${apk_path}
+
+Scroll And Tap
+    [Arguments]    ${locator}
+    Scroll To    ${locator}
+    Click Element    ${locator}
+    Sleep    2s
+
+Scroll To
+    [Arguments]    ${locator}
+    ${MAX_SWIPES}=    Set Variable    10
+    FOR    ${index}    IN RANGE    ${MAX_SWIPES}
+        ${isVisible}=    Run Keyword And Return Status    Element Should Be Visible    ${locator}
+        Exit For Loop If    ${isVisible}
+        Swipe    500    1600    500    400    800
+    END
+    Wait Until Element Is Visible    ${locator}    timeout=5s
+
+
+
+Capture Screenshot On Failure
+    Run Keyword And Ignore Error    Capture Page Screenshot
+    Run Keyword And Ignore Error    Log Source
+    Run Keyword And Ignore Error    Log Page Source
+    Close All Applications

@@ -32,18 +32,42 @@ class Firebase:
     # Robot Framework keyword wrapper
     def purge_test_vegetables(self):
         return self.purge_vegetables_collection()
+    
+    def purge_users_collection(self):
+        users = self.db.collection("users").stream()
+        batch = self.db.batch()
+        count = 0
+        for doc in users:
+            batch.delete(doc.reference)
+            count += 1
+            if count % 500 == 0:
+                batch.commit()
+                batch = self.db.batch()
+        batch.commit()
+        return f"Deleted {count} user documents"
+
+    # Robot Framework keyword wrapper
+    def purge_test_users(self):
+        return self.purge_users_collection()
 
     # --- Nouveaux mots-clés utiles pour les tests Robot Framework ---
     def reset_firestore(self):
-        collections = self.db.collections()
+        collections = list(self.db.collections())
         for collection in collections:
-            docs = collection.stream()
-            batch = self.db.batch()
-            for doc in docs:
-                batch.delete(doc.reference)
-            batch.commit()
-        return "All Firestore collections reset"
+            self._recursive_delete(collection)
+        return "All Firestore collections and subcollections reset"
 
+    def _recursive_delete(self, collection_ref, batch_size=500):
+        docs = collection_ref.limit(batch_size).stream()
+        for doc in docs:
+            # Supprimer récursivement les sous-collections
+            subcollections = doc.reference.collections()
+            for subcollection in subcollections:
+                self._recursive_delete(subcollection, batch_size)
+
+            # Supprimer le document lui-même
+            doc.reference.delete()
+        
     def create_test_user(self, email="test@example.com", password="test1234"):
         from firebase_admin import auth
         user = auth.create_user(email=email, password=password)
@@ -81,12 +105,12 @@ class Firebase:
         # Nécessite google-cloud-storage installé et l'émulateur Storage configuré dans firebase.json
         from google.cloud import storage
         if not bucket_name:
-            bucket_name = f"{os.getenv('FIREBASE_PROJECT_ID', 'demo-project-id')}.appspot.com"
+            bucket_name = f"{os.getenv('FIREBASE_PROJECT_ID', 'demo-project-id')}.firebasestorage.app"
         client = storage.Client(project=os.getenv("FIREBASE_PROJECT_ID", "demo-project-id"))
         bucket = client.bucket(bucket_name)
         blobs = list(bucket.list_blobs())
         for blob in blobs:
-            blob.delete()
+            blob.delete()       
         return f"Deleted {len(blobs)} file(s) from storage"
 
     def snapshot_firestore(self):
@@ -116,7 +140,12 @@ class Firebase:
 
     def reset_data_before_test(self):
         # Ne touche pas aux comptes utilisateurs Firebase Auth
+        self.reset_firestore_and_storage_before_test()
+
+    def reset_firestore_and_storage_before_test(self):
+        """Réinitialise complètement Firestore et Storage."""
         self.clear_storage()
         self.reset_firestore()
+
 def get_robot_library():
     return Firebase()
