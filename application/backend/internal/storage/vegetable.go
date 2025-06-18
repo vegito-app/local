@@ -281,18 +281,44 @@ func (s *Storage) UpdateMainImage(ctx context.Context, userID, vegetableID strin
 		if mainImageCurrentIndex < 0 || mainImageCurrentIndex >= len(imageDocs) {
 			return fmt.Errorf("invalid image index %d for vegetable %q", mainImageCurrentIndex, vegetableID)
 		}
-		// Reorder: selected first, rest in order
-		reordered := append([]*firestore.DocumentSnapshot{imageDocs[mainImageCurrentIndex]},
-			append(imageDocs[:mainImageCurrentIndex], imageDocs[mainImageCurrentIndex+1:]...)...)
-		// Remove all current docs
+
+		type imageData struct {
+			Path          string
+			Status        string
+			DownloadToken *string
+		}
+
+		var imageDataList []imageData
+		for _, doc := range imageDocs {
+			d := doc.Data()
+			img := imageData{
+				Path:   fmt.Sprintf("%v", d["path"]),
+				Status: fmt.Sprintf("%v", d["status"]),
+			}
+			if t, ok := d["downloadToken"].(string); ok {
+				img.DownloadToken = &t
+			}
+			imageDataList = append(imageDataList, img)
+		}
+
+		main := imageDataList[mainImageCurrentIndex]
+		others := append(imageDataList[:mainImageCurrentIndex], imageDataList[mainImageCurrentIndex+1:]...)
+		reordered := append([]imageData{main}, others...)
+
 		for _, doc := range imageDocs {
 			if err := tx.Delete(doc.Ref); err != nil {
 				return fmt.Errorf("failed to delete image doc %q: %w", doc.Ref.ID, err)
 			}
 		}
-		// Rewrite in new order
-		for i, doc := range reordered {
-			data := doc.Data()
+
+		for i, img := range reordered {
+			data := map[string]interface{}{
+				"path":   img.Path,
+				"status": img.Status,
+			}
+			if img.DownloadToken != nil {
+				data["downloadToken"] = *img.DownloadToken
+			}
 			if err := tx.Set(imagesColl.Doc(strconv.Itoa(i)), data); err != nil {
 				return fmt.Errorf("failed to reinsert image %d: %w", i, err)
 			}

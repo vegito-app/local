@@ -112,7 +112,7 @@ Verifier Gestion légumes
 
 Scroll And Tap Vegetable Upload Register Button
     Scroll And Tap    accessibility_id=Enregistrer
-    Wait Until Page Contains Element    accessibility_id=vegetable-upload-success\nLégume ajouté avec succès
+    Wait Until Page Contains Element    accessibility_id=vegetable-upload-success\nLégume enregistré avec succès
 
 Changer Type Vente Au Poids
     Changer Type Vente    À l’unité    Au poids (€/kg)

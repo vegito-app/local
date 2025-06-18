@@ -14,7 +14,6 @@ class VegetableSubmitButton extends StatelessWidget {
     required this.formKey,
     required this.nameController,
     required this.descriptionController,
-    // required this.weightController,
     required this.quantityController,
     required this.priceController,
     required this.saleType,
@@ -27,68 +26,71 @@ class VegetableSubmitButton extends StatelessWidget {
   final TextEditingController quantityController;
   final TextEditingController nameController;
   final TextEditingController descriptionController;
-  // final TextEditingController weightController;
   final TextEditingController priceController;
 
   final SaleType saleType;
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<VegetableUploadProvider>();
+    // final provider = context.watch<VegetableUploadProvider>();
 
     return Semantics(
       label: 'submit-vegetable-button',
       button: true,
-      child: ElevatedButton(
-        key: const Key("submitButton"),
-        onPressed: () async {
-          if (!formKey.currentState!.validate()) return;
-          formKey.currentState!.save();
+      child: Consumer<VegetableUploadProvider>(builder: (context, provider, _) {
+        return ElevatedButton(
+          key: const Key("submitButton"),
+          onPressed: provider.isReadyToSubmit
+              ? () async {
+                  if (!formKey.currentState!.validate()) return;
+                  formKey.currentState!.save();
 
-          // final weightGrams = int.tryParse(weightController.text) ?? 0;
-          final quantity = int.tryParse(quantityController.text) ?? 0;
-          final priceCents = int.tryParse(priceController.text) ?? 0;
+                  final quantity = int.tryParse(quantityController.text) ?? 0;
+                  final priceCents = int.tryParse(priceController.text) ?? 0;
 
-          try {
-            final authProvider = context.read<AuthProvider>();
-            final vegetableListProvider = context.read<VegetableListProvider>();
-            provider.priceEuros = double.tryParse(priceController.text) ?? 0.0;
-            provider.quantityAvailableKg =
-                double.tryParse(quantityController.text) ?? 0.0;
-            provider.availabilityType = availabilityType;
-            provider.availabilityDate = availabilityDate;
-            await provider.submitVegetable(
-              userId: authProvider.user!.uid,
-              vegetableListProvider: vegetableListProvider,
-              name: nameController.text,
-              description: descriptionController.text,
-              // weightGrams: weightGrams,
-              quantityAvailable: quantity,
-              priceCents: priceCents,
-              availabilityType: availabilityType,
-              availabilityDate: availabilityDate,
-              saleType: saleType.name,
-            );
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Semantics(
-                    label: 'vegetable-upload-success',
-                    child: const Text('Légume ajouté avec succès'),
-                  ),
-                ),
-              );
-              Navigator.pop(context, true);
-            }
-          } catch (e) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Erreur : $e')),
-              );
-            }
-          }
-        },
-        child: const Text('Enregistrer'),
-      ),
+                  try {
+                    final authProvider = context.read<AuthProvider>();
+                    final vegetableListProvider =
+                        context.read<VegetableListProvider>();
+                    provider.priceEuros =
+                        double.tryParse(priceController.text) ?? 0.0;
+                    provider.quantityAvailableKg =
+                        double.tryParse(quantityController.text) ?? 0.0;
+                    provider.availabilityType = availabilityType;
+                    provider.availabilityDate = availabilityDate;
+                    await provider.submitVegetable(
+                      userId: authProvider.user!.uid,
+                      vegetableListProvider: vegetableListProvider,
+                      name: nameController.text,
+                      description: descriptionController.text,
+                      quantityAvailable: quantity,
+                      priceCents: priceCents,
+                      availabilityType: availabilityType,
+                      availabilityDate: availabilityDate,
+                      saleType: saleType.name,
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Semantics(
+                            label: 'vegetable-upload-success',
+                            child: const Text('Légume enregistré avec succès'),
+                          ),
+                        ),
+                      );
+                      Navigator.pop(context, true);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Erreur : $e')),
+                      );
+                    }
+                  }
+                }
+              : null,
+          child: const Text('Enregistrer'),
+        );
+      }),
     );
   }
 }

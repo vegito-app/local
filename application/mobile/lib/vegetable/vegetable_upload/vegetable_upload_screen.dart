@@ -66,10 +66,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
         TextEditingController(text: provider.initialVegetable?.name ?? '');
     descriptionController = TextEditingController(
         text: provider.initialVegetable?.description ?? '');
-    // weightController = TextEditingController(
-    //     text: provider.initialVegetable?.weightGrams != null
-    //         ? provider.initialVegetable!.weightGrams.toString()
-    //         : '');
     priceController = TextEditingController(
         text: provider.initialVegetable?.priceCents != null
             ? (provider.initialVegetable!.priceCents / 100).toStringAsFixed(2)
@@ -81,6 +77,23 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
           : '',
     );
     availabilityDateController = TextEditingController();
+
+    priceController.addListener(() {
+      final provider = context.read<VegetableUploadProvider>();
+      final parsed = double.tryParse(priceController.text.replaceAll(',', '.'));
+      if (parsed != null) {
+        provider.priceEuros = parsed;
+      }
+    });
+
+    quantityController.addListener(() {
+      final provider = context.read<VegetableUploadProvider>();
+      final parsed =
+          double.tryParse(quantityController.text.replaceAll(',', '.'));
+      if (parsed != null) {
+        provider.quantityAvailableKg = parsed;
+      }
+    });
 
     if (provider.initialVegetable?.saleType == 'weight') {
       saleType = SaleType.weight;
@@ -147,6 +160,7 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                             setState(() {
                               saleType = newValue;
                             });
+                            provider.markChanged();
                           }
                         },
                         items: const [
@@ -228,7 +242,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
             VegetableSaleDetailsSection(
                 nameController: nameController,
                 descriptionController: descriptionController,
-                // weightController: weightController,
                 priceController: priceController,
                 quantityController: quantityController,
                 saleType: saleType,
@@ -247,7 +260,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                         availabilityDate: availabilityDate,
                         nameController: nameController,
                         descriptionController: descriptionController,
-                        // weightController: weightController,
                         priceController: priceController,
                         quantityController: quantityController,
                         saleType: saleType,

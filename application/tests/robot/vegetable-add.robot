@@ -88,7 +88,7 @@ Ajouter un chouchou avec plusieurs images depuis l’interface
 
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
-    Page Should Contain Element    accessibility_id=Chouchou\n2.5€ / Kg\nReste : 500 g\nBien vert et bio
+    Wait Until Page Contains Element    accessibility_id=Chouchou\n2.5€ / Kg\nReste : 500 g\nBien vert et bio
 
 Ajouter un légume vendu au poids
     Push Test Image    tomate.jpg
@@ -184,3 +184,64 @@ Sélection d’une image principale via l’étoile
     Wait Until Page Contains Element    accessibility_id=delete-image-patate-3-1, Supprimer cette photo
     Page Should Contain Element         accessibility_id=set-main-image-patate-2
     Page Should Contain Element         accessibility_id=set-main-image-patate-4
+
+Sélection d’une image principale via l’étoile sans enregister
+    Push Test Image    patate-2.jpg
+    Push Test Image    patate-3.jpg
+    Push Test Image    patate-4.jpg
+
+    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
+    Click Element                   accessibility_id=🧺 Vendre mes légumes    
+
+    Ajouter La Première Photo   2
+    Ajouter Une Photo    3
+    Ajouter Une Photo    4
+
+    Set Image As Main If Possible    image=patate-3
+
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-3-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-2
+    Page Should Contain Element         accessibility_id=set-main-image-patate-4
+    
+    Click Element                       locator=accessibility_id=set-main-image-patate-2
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-2-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-3
+
+    Click Element                       locator=accessibility_id=set-main-image-patate-4
+    Page Should Contain Element         accessibility_id=delete-image-patate-4-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=delete-image-patate-2-2, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=delete-image-patate-3-3, Supprimer cette photo
+
+    Fill Field By Index    1    Patate
+    Fill Field By Index    2    Fraîche et bio
+    Fill Field By Index    3    1.000
+    Fill Field By Index    4    2.00
+
+    Scroll And Tap Vegetable Upload Register Button
+    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
+
+    Click Element                       accessibility_id=🧺 Vendre mes légumes
+    Wait Until Page Contains Element    accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+
+    Click Element                       accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-4-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=delete-image-patate-2-2, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=delete-image-patate-3-3, Supprimer cette photo
+
+    Click Element    locator=accessibility_id=set-main-image-patate-2
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-2-1, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-4
+    Page Should Contain Element         accessibility_id=set-main-image-patate-3
+    
+    Click Element    locator=accessibility_id=set-main-image-patate-4
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-4-1, Supprimer cette photo
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-2-2, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-3
+
+    Click Element    locator=accessibility_id=Back
+    Wait Until Page Contains Element    accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+    Click Element                       accessibility_id=Patate\n2.0€ / unité\nReste : 1000 pièces\nFraîche et bio
+
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-4-1, Supprimer cette photo
+    Wait Until Page Contains Element    accessibility_id=delete-image-patate-2-2, Supprimer cette photo
+    Page Should Contain Element         accessibility_id=set-main-image-patate-3

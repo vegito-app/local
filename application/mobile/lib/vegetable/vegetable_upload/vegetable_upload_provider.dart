@@ -1,8 +1,6 @@
 import 'package:car2go/vegetable/vegetable_list_provider.dart';
 import 'package:car2go/vegetable/vegetable_model.dart';
-// ignore: unused_import
 import 'package:car2go/vegetable/vegetable_service.dart';
-import 'package:car2go/vegetable/vegetable_string_format.dart';
 import 'package:car2go/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,7 +14,6 @@ class VegetableUploadProvider with ChangeNotifier {
   final List<XFile> _images = [];
   int _mainImageIndex = 0;
   bool _isLoading = false;
-  bool _isEditing = false;
   bool _isActive = true;
   final ImagePicker _picker = ImagePicker();
 
@@ -74,6 +71,25 @@ class VegetableUploadProvider with ChangeNotifier {
     }
   }
 
+  bool get hasChanges {
+    if (initialVegetable == null) return true;
+
+    return _quantityGrams != initialVegetable!.quantityAvailable ||
+        _priceCents != initialVegetable!.priceCents ||
+        _availabilityType.name != initialVegetable!.availabilityType ||
+        _availabilityDate != initialVegetable!.availabilityDate ||
+        _isActive != initialVegetable!.active ||
+        !_sameImages(initialVegetable!.images, _images);
+  }
+
+  bool _sameImages(List<VegetableImage> a, List<XFile> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (!b[i].path.contains(a[i].publicUrl.split('/').last)) return false;
+    }
+    return true;
+  }
+
   Future<void> setMainImage(
     int index,
     String userId,
@@ -115,12 +131,15 @@ class VegetableUploadProvider with ChangeNotifier {
     }
   }
 
+  bool get isReadyToSubmit {
+    return _quantityGrams > 0 && _priceCents > 0 && _images.isNotEmpty;
+  }
+
   Future<void> submitVegetable({
     required String userId,
     required VegetableListProvider vegetableListProvider,
     required String name,
     required String description,
-    // required int weightGrams,
     required int quantityAvailable,
     required AvailabilityType availabilityType,
     DateTime? availabilityDate,
@@ -157,7 +176,6 @@ class VegetableUploadProvider with ChangeNotifier {
       name: name,
       description: description,
       saleType: saleType,
-      // weightGrams: weightGrams,
       priceCents: _priceCents,
       images: vegetableImages,
       ownerId: userId,
@@ -212,7 +230,6 @@ class VegetableUploadProvider with ChangeNotifier {
       name: initialVegetable!.name,
       description: initialVegetable!.description,
       saleType: initialVegetable!.saleType,
-      // weightGrams: initialVegetable!.weightGrams,
       priceCents: _priceCents,
       images: initialVegetable!.images,
       ownerId: initialVegetable!.ownerId,
@@ -235,7 +252,6 @@ class VegetableUploadProvider with ChangeNotifier {
       name: initialVegetable!.name,
       description: initialVegetable!.description,
       saleType: initialVegetable!.saleType,
-      // weightGrams: initialVegetable!.weightGrams,
       priceCents: _priceCents,
       images: initialVegetable!.images,
       ownerId: initialVegetable!.ownerId,
@@ -245,5 +261,9 @@ class VegetableUploadProvider with ChangeNotifier {
       availabilityDate: _availabilityDate,
       quantityAvailable: _quantityGrams,
     );
+  }
+
+  void markChanged() {
+    notifyListeners();
   }
 }
