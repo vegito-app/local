@@ -47,8 +47,7 @@ class VegetablePhotoPicker extends StatelessWidget {
                     ),
                     if (entry.key != provider.mainImageIndex)
                       Semantics(
-                        label:
-                            'set-main-image-${entry.value.imageLabel}-${entry.key + 1}',
+                        label: 'set-main-image-${entry.value.imageLabel}',
                         button: true,
                         child: IconButton(
                           icon: const Icon(Icons.star_border),
