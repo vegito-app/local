@@ -1,10 +1,7 @@
-// ignore_for_file: unused_import
-
 import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/vegetable/vegetable_list_provider.dart';
 import 'package:car2go/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -53,8 +50,8 @@ class VegetableSubmitButton extends StatelessWidget {
                         context.read<VegetableListProvider>();
                     provider.priceEuros =
                         double.tryParse(priceController.text) ?? 0.0;
-                    provider.quantityAvailableKg =
-                        double.tryParse(quantityController.text) ?? 0.0;
+                    provider.quantityAvailableGrams =
+                        int.tryParse(quantityController.text) ?? 0;
                     provider.availabilityType = availabilityType;
                     provider.availabilityDate = availabilityDate;
                     await provider.submitVegetable(

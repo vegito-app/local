@@ -1,3 +1,4 @@
+import 'package:car2go/vegetable/vegetable_upload/quantity_input_field.dart';
 import 'package:flutter/material.dart';
 
 enum SaleType { unit, weight }
@@ -12,6 +13,7 @@ class VegetableSaleDetailsSection extends StatelessWidget {
   final SaleType saleType;
   final AvailabilityType availabilityType;
   final DateTime? availabilityDate;
+  final bool isNewVegetable;
 
   const VegetableSaleDetailsSection({
     super.key,
@@ -22,6 +24,7 @@ class VegetableSaleDetailsSection extends StatelessWidget {
     required this.saleType,
     required this.availabilityType,
     required this.availabilityDate,
+    this.isNewVegetable = false, // nouveau paramètre
   });
 
   @override
@@ -81,27 +84,10 @@ class VegetableSaleDetailsSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text('Quantité mise en vente'),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  key: const Key("quantityField"),
-                  controller: quantityController,
-                  decoration: const InputDecoration(
-                    hintText: '0',
-                  ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Obligatoire' : null,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                saleType == SaleType.unit ? "unité(s)" : "Kg",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
+          QuantityInputField(
+            controller: quantityController,
+            saleType: saleType,
+            isNewVegetable: isNewVegetable,
           ),
           const SizedBox(height: 12),
           TextFormField(

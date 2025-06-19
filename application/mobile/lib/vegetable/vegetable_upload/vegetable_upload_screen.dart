@@ -72,8 +72,7 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
             : '');
     quantityController = TextEditingController(
       text: provider.initialVegetable?.quantityAvailable != null
-          ? (provider.initialVegetable!.quantityAvailable / 1000)
-              .toStringAsFixed(3)
+          ? provider.initialVegetable!.quantityAvailable.toString()
           : '',
     );
     availabilityDateController = TextEditingController();
@@ -91,7 +90,7 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
       final parsed =
           double.tryParse(quantityController.text.replaceAll(',', '.'));
       if (parsed != null) {
-        provider.quantityAvailableKg = parsed;
+        provider.quantityAvailableGrams = parsed.round();
       }
     });
 
@@ -246,7 +245,8 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                 quantityController: quantityController,
                 saleType: saleType,
                 availabilityType: availabilityType,
-                availabilityDate: availabilityDate),
+                availabilityDate: availabilityDate,
+                isNewVegetable: provider.initialVegetable == null),
             const SizedBox(height: 20),
             provider.isLoading
                 ? const Center(child: CircularProgressIndicator())

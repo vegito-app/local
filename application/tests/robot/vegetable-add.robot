@@ -245,3 +245,28 @@ Sélection d’une image principale via l’étoile sans enregister
     Wait Until Page Contains Element    accessibility_id=delete-image-patate-4-1, Supprimer cette photo
     Wait Until Page Contains Element    accessibility_id=delete-image-patate-2-2, Supprimer cette photo
     Page Should Contain Element         accessibility_id=set-main-image-patate-3
+    
+Vérifie cohérence champs quantité g/Kg
+    Push Test Image    patate.jpg
+    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
+    Click Element    accessibility_id=🧺 Vendre mes légumes
+
+    Ajouter La Première Photo    2
+    Changer Type Vente Au Poids
+
+    Fill Field By Index    1    Patate
+    Fill Field By Index    2    Bien ferme
+    Fill Field By Index    3    400000
+    Fill Field By Index    5    1.80
+    Scroll And Tap Vegetable Upload Register Button
+
+    Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
+    Click Element                       accessibility_id=🧺 Vendre mes légumes
+    Wait Until Page Contains Element    accessibility_id=Patate\n1.8€ / Kg\nReste : 400 Kg\nBien ferme
+    Click Element                       accessibility_id=Patate\n1.8€ / Kg\nReste : 400 Kg\nBien ferme
+
+    # Le champ grammes doit contenir 400000
+    Scroll To    xpath=(//android.widget.EditText)[3]  
+    Element Text Should Be              xpath=(//android.widget.EditText)[3]    400000
+    # Le champ Kg doit afficher 400
+    Element Text Should Be              xpath=(//android.widget.EditText)[4]    400

@@ -43,9 +43,10 @@ Modification D’un Légume Depuis La Galerie
     Scroll To    xpath=(//android.widget.EditText)[2]
     Element Text Should Be              xpath=(//android.widget.EditText)[2]    Bio et rouge
     Scroll To    xpath=(//android.widget.EditText)[3]
-    Element Text Should Be              xpath=(//android.widget.EditText)[3]    400
-    Scroll To    xpath=(//android.widget.EditText)[4]
-    Element Text Should Be              xpath=(//android.widget.EditText)[4]    300
+    Element Text Should Be              xpath=(//android.widget.EditText)[3]    400000
+    Element Text Should Be              xpath=(//android.widget.EditText)[4]    400
+    Scroll To    xpath=(//android.widget.EditText)[5]
+    Element Text Should Be              xpath=(//android.widget.EditText)[5]    3.00
     Scroll To    accessibility_id=Enregistrer
 
 Changement De Type De Vente D’un Légume Après Enregistrement

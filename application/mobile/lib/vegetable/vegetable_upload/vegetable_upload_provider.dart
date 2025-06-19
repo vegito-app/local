@@ -40,9 +40,9 @@ class VegetableUploadProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  double get quantityAvailableKg => _quantityGrams / 1000.0;
-  set quantityAvailableKg(double value) {
-    _quantityGrams = (value * 1000).round();
+  int get quantityAvailableGr => _quantityGrams;
+  set quantityAvailableGrams(int grams) {
+    _quantityGrams = grams;
     notifyListeners();
   }
 

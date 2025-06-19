@@ -87,8 +87,8 @@ Vendre Un Légume Depuis La Page D'Enregistrement
     
     Fill Field By Index    1            ${nom}
     Fill Field By Index    2            ${description}
-    Fill Field By Index    3            ${poids}
-    Fill Field By Index    4            ${prix}
+    Fill Field By Index    4            ${poids}
+    Fill Field By Index    5            ${prix}
 
     Scroll And Tap Vegetable Upload Register Button
     Sleep    2s
