@@ -87,13 +87,22 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
 
     quantityController.addListener(() {
       final provider = context.read<VegetableUploadProvider>();
-      final parsed =
-          double.tryParse(quantityController.text.replaceAll(',', '.'));
-      if (parsed != null) {
-        provider.quantityAvailableGrams = parsed.round();
+      final text = quantityController.text.trim();
+      final parsed = int.tryParse(text);
+      if (text.isEmpty || parsed == null || parsed <= 0) {
+        if (saleType == SaleType.unit) {
+          provider.quantityAvailableUnits = 0;
+        } else {
+          provider.quantityAvailableGrams = 0;
+        }
+      } else {
+        if (saleType == SaleType.unit) {
+          provider.quantityAvailableUnits = parsed;
+        } else {
+          provider.quantityAvailableGrams = parsed;
+        }
       }
     });
-
     if (provider.initialVegetable?.saleType == 'weight') {
       saleType = SaleType.weight;
     }
@@ -105,6 +114,26 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
     } else {
       availabilityType = AvailabilityType.sameDay;
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<VegetableUploadProvider>();
+
+      final parsedQty = int.tryParse(quantityController.text.trim());
+      if (parsedQty != null && parsedQty > 0) {
+        if (saleType == SaleType.unit) {
+          provider.quantityAvailableUnits = parsedQty;
+        } else {
+          provider.quantityAvailableGrams = parsedQty;
+        }
+      }
+
+      final parsedPrice =
+          double.tryParse(priceController.text.replaceAll(',', '.'));
+      if (parsedPrice != null) {
+        provider.priceEuros = parsedPrice;
+      }
+
+      provider.saleType = saleType.name;
+    });
   }
 
   @override
@@ -153,13 +182,15 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                           style: Theme.of(context).textTheme.titleMedium),
                       DropdownButton<SaleType>(
                         key: const Key("saleTypeDropdown"),
-                        value: saleType,
+                        value: provider.saleType.toString() == 'weight'
+                            ? SaleType.weight
+                            : SaleType.unit,
                         onChanged: (SaleType? newValue) {
                           if (newValue != null) {
                             setState(() {
                               saleType = newValue;
                             });
-                            provider.markChanged();
+                            provider.saleType = newValue.name;
                           }
                         },
                         items: const [

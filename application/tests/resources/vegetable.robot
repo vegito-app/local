@@ -101,8 +101,8 @@ Vérifier Légume Vendu Au Poids Présent
 
 Vérifier Légume Vendu À L’Unité Présent
     [Arguments]    ${nom}    ${prix}    ${description}
-    ${prix_euro}=    Evaluate    str(${prix} / 100) + "€"
-    ${texte}=    Set Variable    ${nom}\n${prix_euro} à l'unité\n${description}
+    ${prix_euro}=    Evaluate    str(${prix}) + "€"
+    ${texte}=    Set Variable    ${nom}\n${prix_euro} / unité\n${description}
     Wait Until Page Contains Element    accessibility_id=${texte}
 
 Verifier Gestion légumes

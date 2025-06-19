@@ -28,7 +28,11 @@ class VegetableSubmitButton extends StatelessWidget {
   final SaleType saleType;
   @override
   Widget build(BuildContext context) {
-    // final provider = context.watch<VegetableUploadProvider>();
+    // Planifie la mise à jour du saleType après le build pour éviter les erreurs setState pendant le build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<VegetableUploadProvider>();
+      provider.saleType = saleType.name;
+    });
 
     return Semantics(
       label: 'submit-vegetable-button',
@@ -54,6 +58,8 @@ class VegetableSubmitButton extends StatelessWidget {
                         int.tryParse(quantityController.text) ?? 0;
                     provider.availabilityType = availabilityType;
                     provider.availabilityDate = availabilityDate;
+                    provider.saleType = saleType
+                        .toString(); // Ensure saleType is set in provider
                     await provider.submitVegetable(
                       userId: authProvider.user!.uid,
                       vegetableListProvider: vegetableListProvider,

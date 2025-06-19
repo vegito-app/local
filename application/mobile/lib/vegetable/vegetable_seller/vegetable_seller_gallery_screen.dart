@@ -55,7 +55,6 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
           if (vegetables.isEmpty) {
             return const Center(child: Text('Aucun légume trouvé.'));
           }
-
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -85,7 +84,7 @@ class VegetableSellerGalleryScreen extends StatelessWidget {
                     imagePath: imagePath,
                     name: veg.name,
                     description: veg.description,
-                    saleType: veg.saleType,
+                    saleType: veg.saleType.toString().split('.').last,
                     priceCents: veg.priceCents,
                     quantityAvailable: veg.quantityAvailable,
                   ),

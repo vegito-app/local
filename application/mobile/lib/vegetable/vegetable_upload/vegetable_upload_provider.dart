@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class VegetableUploadProvider with ChangeNotifier {
+  String _saleType = 'weight';
+
   Vegetable? initialVegetable;
   final VegetableService _service;
   VegetableUploadProvider({VegetableService? service})
@@ -19,7 +21,7 @@ class VegetableUploadProvider with ChangeNotifier {
 
   AvailabilityType _availabilityType = AvailabilityType.sameDay;
   DateTime? _availabilityDate;
-  int _quantityGrams = 0;
+  int _quantity = 0;
   int _priceCents = 0;
 
   List<XFile> get images => _images;
@@ -40,16 +42,33 @@ class VegetableUploadProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  int get quantityAvailableGr => _quantityGrams;
+  int get quantityAvailableGr => _quantity;
   set quantityAvailableGrams(int grams) {
-    _quantityGrams = grams;
-    notifyListeners();
+    if (_quantity != grams) {
+      _quantity = grams;
+      notifyListeners();
+    }
+  }
+
+  set quantityAvailableUnits(int units) {
+    if (_quantity != units) {
+      _quantity = units;
+      notifyListeners();
+    }
   }
 
   double get priceEuros => _priceCents / 100.0;
   set priceEuros(double value) {
     _priceCents = (value * 100).round();
     notifyListeners();
+  }
+
+  String get saleType => _saleType;
+  set saleType(String value) {
+    if (_saleType != value) {
+      _saleType = value;
+      notifyListeners();
+    }
   }
 
   set isLoading(bool value) {
@@ -74,11 +93,12 @@ class VegetableUploadProvider with ChangeNotifier {
   bool get hasChanges {
     if (initialVegetable == null) return true;
 
-    return _quantityGrams != initialVegetable!.quantityAvailable ||
+    return _quantity != initialVegetable!.quantityAvailable ||
         _priceCents != initialVegetable!.priceCents ||
         _availabilityType.name != initialVegetable!.availabilityType ||
         _availabilityDate != initialVegetable!.availabilityDate ||
         _isActive != initialVegetable!.active ||
+        _saleType != initialVegetable!.saleType ||
         !_sameImages(initialVegetable!.images, _images);
   }
 
@@ -132,7 +152,10 @@ class VegetableUploadProvider with ChangeNotifier {
   }
 
   bool get isReadyToSubmit {
-    return _quantityGrams > 0 && _priceCents > 0 && _images.isNotEmpty;
+    final hasValidQuantity = _quantity > 0;
+    final hasValidPrice = _priceCents > 0;
+    final hasImage = _images.isNotEmpty;
+    return hasValidQuantity && hasValidPrice && hasImage;
   }
 
   Future<void> submitVegetable({
@@ -175,7 +198,7 @@ class VegetableUploadProvider with ChangeNotifier {
       id: initialVegetable?.id ?? '', // conserve l'id existant
       name: name,
       description: description,
-      saleType: saleType,
+      saleType: _saleType,
       priceCents: _priceCents,
       images: vegetableImages,
       ownerId: userId,
@@ -183,7 +206,7 @@ class VegetableUploadProvider with ChangeNotifier {
       active: _isActive,
       availabilityType: _availabilityType.name,
       availabilityDate: _availabilityDate,
-      quantityAvailable: _quantityGrams,
+      quantityAvailable: _quantity,
     );
 
     if (initialVegetable == null) {
@@ -211,8 +234,9 @@ class VegetableUploadProvider with ChangeNotifier {
       orElse: () => AvailabilityType.sameDay,
     );
     provider._priceCents = vegetable.priceCents;
-    provider._quantityGrams = vegetable.quantityAvailable;
+    provider._quantity = vegetable.quantityAvailable;
     provider._availabilityDate = vegetable.availabilityDate;
+    provider._saleType = vegetable.saleType;
     return provider;
   }
 
@@ -229,7 +253,7 @@ class VegetableUploadProvider with ChangeNotifier {
       id: initialVegetable!.id,
       name: initialVegetable!.name,
       description: initialVegetable!.description,
-      saleType: initialVegetable!.saleType,
+      saleType: _saleType,
       priceCents: _priceCents,
       images: initialVegetable!.images,
       ownerId: initialVegetable!.ownerId,
@@ -237,7 +261,7 @@ class VegetableUploadProvider with ChangeNotifier {
       active: _isActive,
       availabilityType: _availabilityType.name,
       availabilityDate: _availabilityDate,
-      quantityAvailable: _quantityGrams,
+      quantityAvailable: _quantity,
     );
 
     await _service.updateVegetable(initialVegetable!.id, updatedVegetable);
@@ -251,7 +275,7 @@ class VegetableUploadProvider with ChangeNotifier {
       id: initialVegetable!.id,
       name: initialVegetable!.name,
       description: initialVegetable!.description,
-      saleType: initialVegetable!.saleType,
+      saleType: _saleType,
       priceCents: _priceCents,
       images: initialVegetable!.images,
       ownerId: initialVegetable!.ownerId,
@@ -259,7 +283,7 @@ class VegetableUploadProvider with ChangeNotifier {
       active: _isActive,
       availabilityType: _availabilityType.name,
       availabilityDate: _availabilityDate,
-      quantityAvailable: _quantityGrams,
+      quantityAvailable: _quantity,
     );
   }
 

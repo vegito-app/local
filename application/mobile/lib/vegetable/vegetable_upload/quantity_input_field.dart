@@ -106,6 +106,14 @@ class _QuantityInputFieldState extends State<QuantityInputField> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.saleType == SaleType.unit && !_isSyncing) {
+      final current = int.tryParse(widget.controller.text.trim()) ?? 0;
+      if (current > 9999 && !widget.isNewVegetable) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.controller.text = '0';
+        });
+      }
+    }
     if (widget.saleType == SaleType.unit) {
       return TextFormField(
         key: const Key("quantityFieldUnits"),

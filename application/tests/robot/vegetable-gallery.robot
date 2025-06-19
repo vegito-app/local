@@ -53,19 +53,23 @@ Changement De Type De Vente D’un Légume Après Enregistrement
     [Documentation]    Vérifie qu’un légume peut être édité après avoir été enregistré.
     Push Test Image    concombre.jpg
     Push Test Image    concombre-2.jpg
-    Vendre Un Légume Depuis La Page D'Enregistrement     Concombre    Croquant    600    400   2   concombre.jpg
+    Vendre Un Légume Depuis La Page D'Enregistrement     Concombre    Croquant    600    4.0   2   concombre.jpg
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element    accessibility_id=🧺 Vendre mes légumes
 
-    Vérifier Légume Vendu Au Poids Présent    Concombre    600    400    Croquant
-    Click Element    accessibility_id=Concombre\n600g - 4.0€\nCroquant
-    Ajouter Une Photo Depuis     3  concombre-2.jpg
+    Vérifier Légume Vendu Au Poids Présent    Concombre    600    4.0    Croquant
+    Click Element    accessibility_id=Concombre\n4.0€ / Kg\nReste : 600 Kg\nCroquant
+    Ajouter Une Photo    3
 
-    Click Element    accessibility_id=dropdown-sale-type\nAu poids (€/kg)
-    Wait Until Keyword Succeeds    10x    1s    Wait Until Page Contains Element    accessibility_id=À l’unité
+    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
+    Click Element    accessibility_id=Au poids (€/kg)
+    Wait Until Page Contains Element    accessibility_id=À l’unité
     Click Element    accessibility_id=À l’unité
 
+    Scroll To    xpath=(//android.widget.EditText)[2]
     Refill Field By Index    2            Très croquant
-    Refill Field By Index    3            230   
+    Scroll To    xpath=(//android.widget.EditText)[3]
+    Refill Field By Index    3            300   
+    Refill Field By Index    4            2.30   
     Scroll And Tap        accessibility_id=Enregistrer
-    Vérifier Légume Vendu À L’Unité Présent    Concombre    230    Très croquant
+    Vérifier Légume Vendu À L’Unité Présent    Concombre    2.3    Reste : 300 pièces\nTrès croquant
