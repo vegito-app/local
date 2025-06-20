@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/7d4b9/utrade/backend/firebase"
@@ -42,6 +44,10 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 		"availabilityDate":  v.AvailabilityDate,
 		"quantityAvailable": v.QuantityAvailable,
 		"deleted":           false,
+
+		"latitude":         v.Latitude,
+		"longitude":        v.Longitude,
+		"deliveryRadiusKm": v.DeliveryRadiusKm,
 	}
 
 	_, err := s.firestore.Collection("vegetables").Doc(v.ID).Set(ctx, data)
@@ -329,4 +335,75 @@ func (s *Storage) UpdateMainImage(ctx context.Context, userID, vegetableID strin
 		return fmt.Errorf("failed to update main image for vegetable %q: %w", vegetableID, err)
 	}
 	return nil
+}
+
+func (s *Storage) ListAvailableVegetables(ctx context.Context, lat float64, lon float64, radiusKm float64, keyword *string) ([]*api.Vegetable, error) {
+	radiusDeg := radiusKm / 111.0
+
+	iter := s.firestore.Collection("vegetables").
+		Where("availabilityType", "==", "available").
+		Where("deleted", "!=", true).
+		Where("latitude", ">=", lat-radiusDeg).
+		Where("latitude", "<=", lat+radiusDeg).
+		Where("longitude", ">=", lon-radiusDeg).
+		Where("longitude", "<=", lon+radiusDeg).
+		Documents(ctx)
+	defer iter.Stop()
+
+	var vegetables []*api.Vegetable
+	for {
+		doc, err := iter.Next()
+		if err != nil {
+			if errors.Is(err, iterator.Done) {
+				break
+			}
+			return nil, fmt.Errorf("failed to iterate available vegetables: %w", err)
+		}
+
+		var veg api.Vegetable
+		if err := doc.DataTo(&veg); err != nil {
+			return nil, fmt.Errorf("failed to decode vegetable %q: %w", doc.Ref.ID, err)
+		}
+
+		// Vérification par distance
+		dist := distanceKm(lat, lon, veg.Latitude, veg.Longitude)
+		if dist > veg.DeliveryRadiusKm {
+			continue
+		}
+		if veg.DeliveryRadiusKm < radiusKm {
+			continue
+		}
+
+		// Vérification par mot-clé (dans le nom ou la description)
+		if keyword != nil {
+			kw := *keyword
+			if !containsIgnoreCase(veg.Name, kw) && !containsIgnoreCase(veg.Description, kw) {
+				continue
+			}
+		}
+
+		vegetables = append(vegetables, &veg)
+	}
+	return vegetables, nil
+}
+
+func containsIgnoreCase(text, substr string) bool {
+	return strings.Contains(strings.ToLower(text), strings.ToLower(substr))
+}
+
+func distanceKm(lat1, lon1, lat2, lon2 float64) float64 {
+	const R = 6371 // Earth radius in km
+	dLat := degreesToRadians(lat2 - lat1)
+	dLon := degreesToRadians(lon2 - lon1)
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(degreesToRadians(lat1))*math.Cos(degreesToRadians(lat2))*
+			math.Sin(dLon/2)*math.Sin(dLon/2)
+
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	return R * c
+}
+
+func degreesToRadians(d float64) float64 {
+	return d * math.Pi / 180
 }

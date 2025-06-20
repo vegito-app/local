@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	nethttp "net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -31,12 +32,11 @@ const (
 )
 
 type Vegetable struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name"`
-	OwnerID     string `json:"ownerId"`
-	Description string `json:"description"`
-	SaleType    string `json:"saleType"`
-	// WeightGrams       int              `json:"weightGrams"`
+	ID                string           `json:"id,omitempty"`
+	Name              string           `json:"name"`
+	OwnerID           string           `json:"ownerId"`
+	Description       string           `json:"description"`
+	SaleType          string           `json:"saleType"`
 	PriceCents        int              `json:"priceCents"`
 	Images            []VegetableImage `json:"images"`
 	CreatedAt         time.Time        `json:"createdAt"`
@@ -45,6 +45,11 @@ type Vegetable struct {
 	AvailabilityType  string           `json:"availabilityType"`
 	AvailabilityDate  time.Time        `json:"availabilityDate"`
 	QuantityAvailable int              `json:"quantityAvailable"`
+
+	// 🆕 Champs de géolocalisation
+	Latitude         float64 `json:"latitude"`
+	Longitude        float64 `json:"longitude"`
+	DeliveryRadiusKm float64 `json:"deliveryRadiusKm"`
 }
 
 // Implementations must return ErrVegetableNotFound when a requested vegetable
@@ -59,6 +64,9 @@ type VegetableStorage interface {
 	// ListVegetables returns all vegetables for a user.
 	// If no vegetables are found, it returns an empty slice.
 	ListVegetables(ctx context.Context, userID string) ([]*Vegetable, error)
+
+	// ListAvailableVegetables returns the vegetables that can be delivered to a given location.
+	ListAvailableVegetables(ctx context.Context, deliveryRadiusKm float64, lat float64, lon float64, keyword *string) ([]*Vegetable, error)
 
 	// DeleteVegetable removes a vegetable by ID.
 	// Returns ErrVegetableNotFound if the vegetable does not exist.
@@ -98,6 +106,9 @@ func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageV
 	mux.Handle("GET /api/vegetables", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.ListVegetables),
 		FirebaseAuthMiddleware))
+	mux.Handle("GET /api/vegetables/available", http.ApplyMiddleware(
+		nethttp.HandlerFunc(service.ListAvailableVegetables),
+		FirebaseAuthMiddleware))
 	mux.Handle("GET /api/vegetable", http.ApplyMiddleware(
 		nethttp.HandlerFunc(service.GetVegetable),
 		FirebaseAuthMiddleware))
@@ -130,12 +141,11 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		return
 	}
 	vegetable := Vegetable{
-		ID:          uuid.NewString(),
-		Name:        vegetableRequest.Name,
-		OwnerID:     vegetableRequest.OwnerID,
-		Description: vegetableRequest.Description,
-		SaleType:    vegetableRequest.SaleType,
-		// WeightGrams:       vegetableRequest.WeightGrams,
+		ID:                uuid.NewString(),
+		Name:              vegetableRequest.Name,
+		OwnerID:           vegetableRequest.OwnerID,
+		Description:       vegetableRequest.Description,
+		SaleType:          vegetableRequest.SaleType,
 		PriceCents:        vegetableRequest.PriceCents,
 		CreatedAt:         time.Now().UTC(),
 		UserCreatedAt:     time.Now().UTC(),
@@ -143,6 +153,9 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		AvailabilityType:  string(vegetableRequest.AvailabilityType),
 		AvailabilityDate:  vegetableRequest.AvailabilityDate,
 		QuantityAvailable: vegetableRequest.QuantityAvailable,
+		Latitude:          vegetableRequest.Latitude,
+		Longitude:         vegetableRequest.Longitude,
+		DeliveryRadiusKm:  vegetableRequest.DeliveryRadiusKm,
 	}
 	for _, img := range vegetableRequest.Images {
 		vegetableImage := VegetableImage{
@@ -440,4 +453,76 @@ func (s *VegetableService) UpdateMainImage(w nethttp.ResponseWriter, r *nethttp.
 		return
 	}
 	w.WriteHeader(nethttp.StatusNoContent)
+}
+
+// ListAvailableVegetables returns vegetables available for a given location and optional keyword.
+func (s *VegetableService) ListAvailableVegetables(w nethttp.ResponseWriter, r *nethttp.Request) {
+	ctx := r.Context()
+	userID := requestUserID(r)
+
+	latStr := r.URL.Query().Get("lat")
+	lonStr := r.URL.Query().Get("lon")
+	radiusStr := r.URL.Query().Get("radiusKm")
+	keyword := r.URL.Query().Get("keyword")
+
+	if latStr == "" || lonStr == "" || radiusStr == "" {
+		nethttp.Error(w, "missing required parameters: lat, lon, radiusKm", nethttp.StatusBadRequest)
+		return
+	}
+
+	lat, err := strconv.ParseFloat(latStr, 64)
+	if err != nil {
+		nethttp.Error(w, "invalid lat", nethttp.StatusBadRequest)
+		return
+	}
+	lon, err := strconv.ParseFloat(lonStr, 64)
+	if err != nil {
+		nethttp.Error(w, "invalid lon", nethttp.StatusBadRequest)
+		return
+	}
+	radiusKm, err := strconv.ParseFloat(radiusStr, 64)
+	if err != nil {
+		nethttp.Error(w, "invalid radiusKm", nethttp.StatusBadRequest)
+		return
+	}
+
+	var kw *string
+	if keyword != "" {
+		kw = &keyword
+	}
+
+	veggies, err := s.storage.ListAvailableVegetables(ctx, radiusKm, lat, lon, kw)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to list available vegetables")
+		nethttp.Error(w, "internal error", nethttp.StatusInternalServerError)
+		return
+	}
+	if veggies == nil {
+		veggies = []*Vegetable{}
+	}
+
+	resp := []*v1.VegetableResponse{}
+	for _, veggie := range veggies {
+		imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
+		resp = append(resp, &v1.VegetableResponse{
+			ID:                veggie.ID,
+			Name:              veggie.Name,
+			OwnerID:           veggie.OwnerID,
+			Description:       veggie.Description,
+			SaleType:          veggie.SaleType,
+			PriceCents:        veggie.PriceCents,
+			Images:            imagesResp,
+			CreatedAt:         veggie.CreatedAt,
+			UserCreatedAt:     veggie.UserCreatedAt,
+			Active:            veggie.Active,
+			AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
+			AvailabilityDate:  &veggie.AvailabilityDate,
+			QuantityAvailable: veggie.QuantityAvailable,
+		})
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Error().Err(err).Msg("failed to encode response")
+		nethttp.Error(w, "failed to encode response", nethttp.StatusInternalServerError)
+		return
+	}
 }

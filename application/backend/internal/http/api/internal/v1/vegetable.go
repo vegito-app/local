@@ -50,12 +50,11 @@ type VegetableImageRequest struct {
 }
 
 type VegetableRequest struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name"`
-	OwnerID     string `json:"ownerId"`
-	Description string `json:"description"`
-	SaleType    string `json:"saleType"`
-	// WeightGrams       int                       `json:"weightGrams"`
+	ID                string                    `json:"id,omitempty"`
+	Name              string                    `json:"name"`
+	OwnerID           string                    `json:"ownerId"`
+	Description       string                    `json:"description"`
+	SaleType          string                    `json:"saleType"`
 	PriceCents        int                       `json:"priceCents"`
 	Images            []VegetableImageRequest   `json:"images"`
 	CreatedAt         time.Time                 `json:"createdAt"`
@@ -64,6 +63,10 @@ type VegetableRequest struct {
 	AvailabilityType  VegetableAvailabilityType `json:"availabilityType"`
 	AvailabilityDate  time.Time                 `json:"availabilityDate,omitempty"`
 	QuantityAvailable int                       `json:"quantityAvailable"`
+
+	Latitude         float64 `json:"latitude"`
+	Longitude        float64 `json:"longitude"`
+	DeliveryRadiusKm float64 `json:"deliveryRadiusKm"`
 }
 
 type VegetableImageCreatedTopicMessage struct {
