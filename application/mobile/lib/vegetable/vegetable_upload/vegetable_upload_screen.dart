@@ -50,10 +50,8 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
 
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
-  // late final TextEditingController weightController;
   late final TextEditingController priceController;
 
-  late final TextEditingController quantityController;
   late final TextEditingController availabilityDateController;
   AvailabilityType availabilityType = AvailabilityType.sameDay;
   DateTime? availabilityDate;
@@ -70,11 +68,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
         text: provider.initialVegetable?.priceCents != null
             ? (provider.initialVegetable!.priceCents / 100).toStringAsFixed(2)
             : '');
-    quantityController = TextEditingController(
-      text: provider.initialVegetable?.quantityAvailable != null
-          ? provider.initialVegetable!.quantityAvailable.toString()
-          : '',
-    );
     availabilityDateController = TextEditingController();
 
     priceController.addListener(() {
@@ -85,24 +78,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
       }
     });
 
-    quantityController.addListener(() {
-      final provider = context.read<VegetableUploadProvider>();
-      final text = quantityController.text.trim();
-      final parsed = int.tryParse(text);
-      if (text.isEmpty || parsed == null || parsed <= 0) {
-        if (saleType == SaleType.unit) {
-          provider.quantityAvailableUnits = 0;
-        } else {
-          provider.quantityAvailableGrams = 0;
-        }
-      } else {
-        if (saleType == SaleType.unit) {
-          provider.quantityAvailableUnits = parsed;
-        } else {
-          provider.quantityAvailableGrams = parsed;
-        }
-      }
-    });
     if (provider.initialVegetable?.saleType == 'weight') {
       saleType = SaleType.weight;
     }
@@ -116,15 +91,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<VegetableUploadProvider>();
-
-      final parsedQty = int.tryParse(quantityController.text.trim());
-      if (parsedQty != null && parsedQty > 0) {
-        if (saleType == SaleType.unit) {
-          provider.quantityAvailableUnits = parsedQty;
-        } else {
-          provider.quantityAvailableGrams = parsedQty;
-        }
-      }
 
       final parsedPrice =
           double.tryParse(priceController.text.replaceAll(',', '.'));
@@ -273,7 +239,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                 nameController: nameController,
                 descriptionController: descriptionController,
                 priceController: priceController,
-                quantityController: quantityController,
                 saleType: saleType,
                 availabilityType: availabilityType,
                 availabilityDate: availabilityDate,
@@ -292,7 +257,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                         nameController: nameController,
                         descriptionController: descriptionController,
                         priceController: priceController,
-                        quantityController: quantityController,
                         saleType: saleType,
                       ),
                     ),

@@ -11,7 +11,6 @@ class VegetableSubmitButton extends StatelessWidget {
     required this.formKey,
     required this.nameController,
     required this.descriptionController,
-    required this.quantityController,
     required this.priceController,
     required this.saleType,
     required this.availabilityType,
@@ -20,7 +19,6 @@ class VegetableSubmitButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final AvailabilityType availabilityType;
   final DateTime? availabilityDate;
-  final TextEditingController quantityController;
   final TextEditingController nameController;
   final TextEditingController descriptionController;
   final TextEditingController priceController;
@@ -45,17 +43,14 @@ class VegetableSubmitButton extends StatelessWidget {
                   if (!formKey.currentState!.validate()) return;
                   formKey.currentState!.save();
 
-                  final quantity = int.tryParse(quantityController.text) ?? 0;
                   final priceCents = int.tryParse(priceController.text) ?? 0;
-
+                  final quantity = provider.quantityAvailable;
                   try {
                     final authProvider = context.read<AuthProvider>();
                     final vegetableListProvider =
                         context.read<VegetableListProvider>();
                     provider.priceEuros =
                         double.tryParse(priceController.text) ?? 0.0;
-                    provider.quantityAvailableGrams =
-                        int.tryParse(quantityController.text) ?? 0;
                     provider.availabilityType = availabilityType;
                     provider.availabilityDate = availabilityDate;
                     provider.saleType = saleType

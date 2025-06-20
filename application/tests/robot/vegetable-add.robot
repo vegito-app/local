@@ -3,7 +3,6 @@ Library          AppiumLibrary
 Resource         ../resources/keywords.robot
 Library           AppiumLibrary
 Library           Collections
-# Suite Setup      Firebase.purge_test_vegetables
 Test Setup        Reset State And Return Home
 
 *** Variables ***

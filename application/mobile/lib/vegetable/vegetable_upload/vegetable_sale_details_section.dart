@@ -9,7 +9,6 @@ class VegetableSaleDetailsSection extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController descriptionController;
   final TextEditingController priceController;
-  final TextEditingController quantityController;
   final SaleType saleType;
   final AvailabilityType availabilityType;
   final DateTime? availabilityDate;
@@ -20,7 +19,6 @@ class VegetableSaleDetailsSection extends StatelessWidget {
     required this.nameController,
     required this.descriptionController,
     required this.priceController,
-    required this.quantityController,
     required this.saleType,
     required this.availabilityType,
     required this.availabilityDate,
@@ -85,7 +83,6 @@ class VegetableSaleDetailsSection extends StatelessWidget {
           const SizedBox(height: 12),
           const Text('Quantité mise en vente'),
           QuantityInputField(
-            controller: quantityController,
             saleType: saleType,
             isNewVegetable: isNewVegetable,
           ),

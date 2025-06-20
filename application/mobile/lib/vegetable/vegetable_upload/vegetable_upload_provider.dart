@@ -42,7 +42,7 @@ class VegetableUploadProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  int get quantityAvailableGr => _quantity;
+  int get quantityAvailable => _quantity;
   set quantityAvailableGrams(int grams) {
     if (_quantity != grams) {
       _quantity = grams;
@@ -288,6 +288,28 @@ class VegetableUploadProvider with ChangeNotifier {
   }
 
   void markChanged() {
+    notifyListeners();
+  }
+
+  void setQuantityFromKgString(String raw) {
+    final cleaned = raw.trim().replaceAll(',', '.');
+    final parsed = double.tryParse(cleaned);
+    if (parsed == null) return;
+    const maxKg = 1000000.0;
+    final clamped = parsed.clamp(0, maxKg);
+    _quantity = (clamped * 1000).round();
+    notifyListeners();
+  }
+
+  void setQuantityFromGramsString(String raw) {
+    final parsed = int.tryParse(raw.trim()) ?? 0;
+    _quantity = parsed;
+    notifyListeners();
+  }
+
+  void setQuantityFromUnitsString(String raw) {
+    final parsed = int.tryParse(raw.trim()) ?? 0;
+    _quantity = parsed;
     notifyListeners();
   }
 }
