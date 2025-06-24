@@ -110,14 +110,14 @@ import {
   id = "${data.google_project.project.id}/config"
   to = module.application.google_identity_platform_config.default
 }
-import {
-  id = "${data.google_project.project.name}-${var.region}-idp-before-create"
-  to = module.application.google_cloudfunctions_function.auth_before_create
-}
-import {
-  id = "${data.google_project.project.name}-${var.region}-idp-before-signin"
-  to = module.application.google_cloudfunctions_function.auth_before_sign_in
-}
+# import {
+#   id = "${data.google_project.project.name}-${var.region}-idp-before-create"
+#   to = module.application.google_cloudfunctions_function.auth_before_create
+# }
+# import {
+#   id = "${data.google_project.project.name}-${var.region}-idp-before-signin"
+#   to = module.application.google_cloudfunctions_function.auth_before_sign_in
+# }
 import {
   to = module.application.google_artifact_registry_repository_iam_member.application_backend_repo_read_member
   id = "${data.google_project.project.id}/locations/${var.region}/repositories/docker-repository-private roles/artifactregistry.reader serviceAccount:production-application-backend@${data.google_project.project.project_id}.iam.gserviceaccount.com"

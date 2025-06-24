@@ -34,6 +34,7 @@ module "application" {
 
   cdn_images_url_prefix = "https://firebasestorage.googleapis.com/v0/b/moov-dev-439608-firebase-storage/o"
   hosting_domain        = "dev.vegito.app"
+  android_app_emulator_users = var.android_app_emulator_users
 }
 
 # Enables required APIs.

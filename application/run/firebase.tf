@@ -85,6 +85,20 @@ output "firebase_database_state" {
   value       = google_firebase_database_instance.default.state
 }
 
+locals {
+  # The Firebase project ID is the same as the Google Cloud project ID.
+  # This is the project ID that Firebase uses to identify the project.
+  firebase_project_id = google_firebase_project.default.project
+
+  # The Firebase project number is the same as the Google Cloud project number.
+  # This is the project number that Firebase uses to identify the project.
+  firebase_project_number = google_firebase_project.default.project_number
+
+  google_firebase_android_app_sha_certificates = [
+    for user in var.android_app_emulator_users : user.google_firebase_android_app_sha_certificate
+  ]
+}
+
 # Creates a Firebase Android App in the new project created above.
 # Learn more about the relationship between Firebase Apps and Firebase projects.
 resource "google_firebase_android_app" "android_app" {
@@ -94,6 +108,7 @@ resource "google_firebase_android_app" "android_app" {
   display_name = "Vegito Android app (${var.environment})" # learn more about an app's display name
   package_name = "${var.environment}.vegito.app.android"   # learn more about an app's package name
 
+  sha1_hashes = local.google_firebase_android_app_sha_certificates
   # Wait for Firebase to be enabled in the Google Cloud project before creating this App.
   depends_on = [
     google_firebase_project.default,

@@ -133,6 +133,7 @@ services:
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
+      ANDROID_STUDIO_ENV_SETUP: ${ANDROID_STUDIO_ENV_SETUP:-0}
       IMAGE_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests/mobile_images
     # deploy:
     #   resources:
@@ -158,6 +159,10 @@ services:
       bash -c '
 
       set -eu
+      
+      if [ "$${ANDROID_STUDIO_ENV_SETUP}" -eq 1 ]; then
+        studio-caches-refresh.sh
+      fi
 
       # For using Android Studio with emulator in a graphical session
       [ "$${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ] && \

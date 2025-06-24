@@ -34,3 +34,10 @@ variable "google_idp_oauth_client_id_secret_id" {
   description = "google.com IDP oauth client ID cloud secret"
   type        = string
 }
+
+variable "android_app_emulator_users" {
+  description = "Android app emulator users"
+  type = map(object({
+    google_firebase_android_app_sha_certificate = string
+  }))
+}

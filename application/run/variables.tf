@@ -63,3 +63,10 @@ variable "hosting_site_id" {
   type        = string
   default     = ""
 }
+variable "android_app_emulator_users" {
+  description = "Android app emulator users"
+  type = map(object({
+    google_firebase_android_app_sha_certificate = string
+  }))
+  default = {}
+}

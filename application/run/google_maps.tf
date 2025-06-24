@@ -63,15 +63,16 @@ output "google_maps_api_key_web" {
 
 # Clé API pour Android
 resource "google_apikeys_key" "google_maps_android_api_key" {
+  for_each     = var.android_app_emulator_users
   display_name = "Google Maps Android API Key"
-  name         = "googlemaps-android-api-key"
+  name         = "${each.key}-googlemaps-android-api-key"
   restrictions {
-    # android_key_restrictions {
-    #   allowed_applications {
-    #     # sha1_fingerprint = var.google_firebase_android_app_sha1_fingerprint
-    #     # package_name     = var.google_firebase_android_app_package_name
-    #   }
-    # }
+    android_key_restrictions {
+      allowed_applications {
+        sha1_fingerprint = each.value.google_firebase_android_app_sha_certificate
+        package_name     = google_firebase_android_app.android_app.package_name
+      }
+    }
     api_targets {
       service = "maps.googleapis.com"
       methods = ["*"]

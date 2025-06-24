@@ -18,10 +18,10 @@ import {
   id = "${data.google_project.project.id}/locations/${var.region}/repositories/docker-repository-public"
   to = module.application.google_artifact_registry_repository.public_docker_repository
 }
-import {
-  id = "${data.google_project.project.id}/locations/global/keys/googlemaps-android-api-key"
-  to = module.application.google_apikeys_key.google_maps_android_api_key
-}
+# import {
+#   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-android-api-key"
+#   to = module.application.google_apikeys_key.google_maps_android_api_key
+# }
 import {
   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-ios-api-key"
   to = module.application.google_apikeys_key.google_maps_ios_api_key
@@ -42,14 +42,14 @@ import {
   id = "dev-${data.google_project.project.name}-${var.region}-gcf-source"
   to = module.application.google_storage_bucket.bucket_gcf_source
 }
-import {
-  id = "${data.google_project.project.id}/locations/${var.region}/functions/${data.google_project.project.name}-${var.region}-idp-before-signin roles/cloudfunctions.invoker allUsers"
-  to = module.application.google_cloudfunctions_function_iam_member.auth_before_sign_in
-}
-import {
-  id = "${data.google_project.project.id}/locations/${var.region}/functions/${data.google_project.project.name}-${var.region}-idp-before-create roles/cloudfunctions.invoker allUsers"
-  to = module.application.google_cloudfunctions_function_iam_member.auth_before_create
-}
+# import {
+#   id = "${data.google_project.project.id}/locations/${var.region}/functions/${data.google_project.project.name}-${var.region}-idp-before-signin roles/cloudfunctions.invoker allUsers"
+#   to = module.application.google_cloudfunctions2_function_iam_member.auth_before_sign_in
+# }
+# import {
+#   id = "${data.google_project.project.id}/locations/${var.region}/functions/${data.google_project.project.name}-${var.region}-idp-before-create roles/cloudfunctions.invoker allUsers"
+#   to = module.application.google_cloudfunctions2_function_iam_member.auth_before_create
+# }
 import {
   to = module.application.google_cloud_run_service_iam_member.allow_unauthenticated
   id = "${data.google_project.project.id}/locations/${var.region}/services/dev-${data.google_project.project.name}-${var.region}-application-backend roles/run.invoker allUsers"
@@ -74,14 +74,14 @@ import {
   id = "${data.google_project.project.id}/config"
   to = module.application.google_identity_platform_config.default
 }
-import {
-  id = "${data.google_project.project.name}-${var.region}-idp-before-create"
-  to = module.application.google_cloudfunctions_function.auth_before_create
-}
-import {
-  id = "${data.google_project.project.name}-${var.region}-idp-before-signin"
-  to = module.application.google_cloudfunctions_function.auth_before_sign_in
-}
+# import {
+#   id = "${data.google_project.project.name}-${var.region}-idp-before-create"
+#   to = module.application.google_cloudfunctions2_function.auth_before_create
+# }
+# import {
+#   id = "${data.google_project.project.name}-${var.region}-idp-before-signin"
+#   to = module.application.google_cloudfunctions2_function.auth_before_sign_in
+# }
 import {
   to = module.application.google_artifact_registry_repository_iam_member.application_backend_repo_read_member
   id = "${data.google_project.project.id}/locations/${var.region}/repositories/docker-repository-private roles/artifactregistry.reader serviceAccount:production-application-backend@${data.google_project.project.project_id}.iam.gserviceaccount.com"
