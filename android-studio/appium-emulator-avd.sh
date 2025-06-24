@@ -7,24 +7,12 @@ if ! pgrep -x "adb" >/dev/null; then
   adb start-server
 fi
 
-# Lancement de l’émulateur selon architecture
-if [ "$(uname -m)" = "x86_64" ]; then
-  echo "Lancement AVD Intel"
-  emulator -avd Pixel_8_Intel \
-    -gpu swiftshader_indirect \
-    -noaudio -no-snapshot-load \
-    -no-boot-anim \
-    -qemu &
-  # emulator -avd Pixel_8_Intel -no-snapshot-load -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -emulator-window-metrics auto &
-else
-  echo "Lancement AVD ARM64"
-  emulator -avd Pixel_8_ARM64 \
-    -gpu swiftshader_indirect \
-    -noaudio -no-snapshot-load \
-    -no-boot-anim \
-    -qemu &
-  # emulator -avd Pixel_8_ARM64 -no-snapshot-load -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -emulator-window-metrics auto &
-fi
+echo "Lancement de l’AVD nommé : ${ANDROID_AVD_NAME:-Pixel_8_Intel}"
+emulator -avd "${ANDROID_AVD_NAME:-Pixel_8_Intel}" \
+  -gpu swiftshader_indirect \
+  -noaudio -no-snapshot-load \
+  -no-boot-anim \
+  -qemu &
 
 until adb devices | grep -w "device$"; do
   echo "En attente qu'un appareil ADB soit connecté..."
