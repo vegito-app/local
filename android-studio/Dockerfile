@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     tree \
     unzip \
+    vim \
     wget \
     xz-utils \
     # display
@@ -23,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     xinit openbox xorg \
     xdg-utils \
     menu-xdg \
+    xpra \
     #Flutter
     clang \
     cmake \
@@ -35,6 +37,12 @@ RUN apt-get update && apt-get install -y \
     libpulse0 \
     libasound2 \
     && rm -rf /var/lib/apt/lists/*
+    
+RUN \
+  export DEBIAN_FRONTEND=noninteractive ; \
+  sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y xserver-xorg-video-nvidia nvidia-driver
 
 # Install Nodejs for Appium
 RUN apt-get update && \
@@ -127,6 +135,7 @@ RUN flutter doctor --android-licenses && flutter doctor
 
 ENV DISPLAY=":1"
 COPY display-start.sh /usr/local/bin/
+COPY display-start-xpra.sh /usr/local/bin/
 
 COPY docker-caches-refresh.sh /usr/local/bin/studio-caches-refresh.sh
 COPY entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh

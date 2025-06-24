@@ -18,6 +18,30 @@ local-android-studio-docker-compose-up: local-android-studio-docker-compose-rm
 
 LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC = $(LOCAL_DOCKER_COMPOSE) exec android-studio
 
+LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME ?= Pixel_6_Playstore
+LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE ?= swiftshader_indirect
+
+local-android-studio-appium-emulator-avd-restart:
+	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) bash -c ' \
+	  echo "[*] Killing emulator & adb..." ; \
+	  pkill -9 emulator ; \
+	  pkill -9 qemu-system ; \
+	  adb kill-server ; \
+	  echo "[*] Cleaning up locks..." ; \
+	  rm -rf ~/.android/avd/*/*.lock ; \
+	  rm -f ~/.android/*.lock ; \
+	  rm -f ~/.android/adb*.ini.lock ; \
+	  echo "[*] Restarting ADB..." ; \
+	  adb start-server ; \
+	  echo "[*] Launching emulator..." ; \
+	  echo "Starting android-studio emulator..." ; \
+	  ANDROID_AVD_NAME=$(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) \
+	  ANDROID_GPU_MODE=$(LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE) \
+	  	appium-emulator-avd.sh ; \
+	  sleep infinity ; \
+	'
+.PHONY: local-android-studio-appium-emulator-avd-restart
+
 local-android-studio-emulator-logs:
 	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) adb logcat -T 10
 .PHONY: local-android-studio-emulator-logs
