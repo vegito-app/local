@@ -1,7 +1,7 @@
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
 
 import '../user/user_provider.dart';
 

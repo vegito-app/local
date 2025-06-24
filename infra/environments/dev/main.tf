@@ -32,8 +32,8 @@ module "application" {
   vegetable_image_created_moderator_pubsub_topic         = google_pubsub_topic.vegetable_moderation_bypass.name
   vegetable_images_validated_backend_pubsub_subscription = google_pubsub_subscription.vegetable_moderation_bypass_moderator_pull_subscription.name
 
-  cdn_images_url_prefix = "https://firebasestorage.googleapis.com/v0/b/moov-dev-439608-firebase-storage/o"
-  hosting_domain        = "dev.vegito.app"
+  cdn_images_url_prefix      = "https://firebasestorage.googleapis.com/v0/b/moov-dev-439608-firebase-storage/o"
+  hosting_domain             = "dev.vegito.app"
   android_app_emulator_users = var.android_app_emulator_users
 }
 

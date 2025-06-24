@@ -1,7 +1,7 @@
-import 'package:car2go/client/client_detail_screen.dart';
-import 'package:car2go/client/client_location_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:vegito/client/client_detail_screen.dart';
+import 'package:vegito/client/client_location_model.dart';
 
 class DeliveryMapScreen extends StatefulWidget {
   final List<ClientLocation> clients;

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:car2go/config.dart';
-import 'package:car2go/http/auth_headers.dart';
 import 'package:http/http.dart' as http;
+import 'package:vegito/config.dart';
+import 'package:vegito/http/auth_headers.dart';
 
 class StripeService {
   final http.Client client;

@@ -105,8 +105,6 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     "build-tools;35.0.0" \
     "build-tools;36.0.0" \
     "ndk;${android_ndk_version}" \
-    "system-images;android-34;google_apis_playstore;x86_64" \
-    "system-images;android-34;google_apis;x86_64" \
     && case "$TARGETPLATFORM" in \
     "linux/amd64") \
     sudo npm install -g appium \
@@ -115,9 +113,7 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     && sdkmanager --install "system-images;android-33;google_apis;x86_64" \
     && sdkmanager --install "system-images;android-33;google_apis;arm64-v8a" \
     && echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel" \
-    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel" \
-    && echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" \
-    && echo "no" | avdmanager create avd -n Pixel_6_ApiOnly -k "system-images;android-34;google_apis;x86_64" -d "pixel_6" ;; \
+    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel" ;; \
     "linux/arm64") \
     echo "Skipping emulator install on $TARGETPLATFORM (not supported)" ;; \
     esac

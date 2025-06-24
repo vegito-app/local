@@ -1,7 +1,7 @@
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
 
 import '../client/client_location_model.dart';
 import '../order/order_card.dart';

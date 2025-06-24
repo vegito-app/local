@@ -1,7 +1,7 @@
-import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 
 class VegetableGalleryScreen extends StatelessWidget {
   const VegetableGalleryScreen({super.key});

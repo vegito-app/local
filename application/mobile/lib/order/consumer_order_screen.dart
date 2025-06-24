@@ -1,9 +1,9 @@
 // ignore_for_file: unused_import
 
-import 'package:car2go/auth/auth_provider.dart';
-import 'package:car2go/order/order_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
+import 'package:vegito/order/order_provider.dart';
 
 import '../vegetable/vegetable_list_provider.dart';
 import '../vegetable/vegetable_model.dart';

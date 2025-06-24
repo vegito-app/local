@@ -1,6 +1,7 @@
-import 'package:car2go/order/order_provider.dart' show OrderProvider, User;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:vegito/order/order_provider.dart' show OrderProvider, User;
+
 import '../mocks.mocks.dart';
 
 void main() {

@@ -1,6 +1,6 @@
-import 'package:car2go/xfile_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vegito/xfile_extension.dart';
 
 class FakeXFile extends XFile {
   FakeXFile(super.path);

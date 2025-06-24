@@ -1,7 +1,7 @@
-import 'package:car2go/wallet/wallet_backend.dart';
-import 'package:car2go/wallet/wallet_service.dart';
-import 'package:car2go/wallet/wallet_store.dart';
 import 'package:flutter/material.dart';
+import 'package:vegito/wallet/wallet_backend.dart';
+import 'package:vegito/wallet/wallet_service.dart';
+import 'package:vegito/wallet/wallet_store.dart';
 
 class WalletProvider extends ChangeNotifier {
   WalletState? _walletState;

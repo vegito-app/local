@@ -2,6 +2,8 @@ import 'package:car2go/config.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/config.dart';
+import 'package:vegito/user/user_model.dart';
 
 import '../../cart/cart_screen.dart';
 import '../../delivery/delivery_address_modal.dart';

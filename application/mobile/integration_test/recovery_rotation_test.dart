@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:car2go/config.dart'; // adapte ce chemin
-import 'package:car2go/firebase_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:vegito/config.dart'; // adapte ce chemin
+import 'package:vegito/firebase_config.dart';
 
 String generateKey() {
   final random = Random.secure();

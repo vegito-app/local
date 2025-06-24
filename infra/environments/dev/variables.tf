@@ -39,5 +39,6 @@ variable "android_app_emulator_users" {
   description = "Android app emulator users"
   type = map(object({
     google_firebase_android_app_sha_certificate = string
+    google_firebase_app_check_debug_token = optional(string)
   }))
 }

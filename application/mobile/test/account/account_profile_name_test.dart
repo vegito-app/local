@@ -1,9 +1,10 @@
-import 'package:car2go/auth/auth_provider.dart' as auth_provider;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart' as auth_provider;
+
 import '../../lib/account/account_profile_name.dart';
 import '../test_double.dart';
 

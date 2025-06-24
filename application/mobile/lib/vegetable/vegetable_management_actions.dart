@@ -1,9 +1,9 @@
-// ignore: unused_import
-import 'package:car2go/auth/auth_provider.dart';
-import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+// ignore: unused_import
+import 'package:vegito/auth/auth_provider.dart';
+import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 
 class VegetableManagementActions extends StatelessWidget {
   final VegetableUploadProvider provider;

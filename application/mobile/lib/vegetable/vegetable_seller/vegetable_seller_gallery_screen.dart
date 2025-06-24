@@ -1,7 +1,7 @@
-import 'package:car2go/config/routes.dart';
-import 'package:car2go/vegetable/vegetable_seller/vagatable_seller_gallery_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/config/routes.dart';
+import 'package:vegito/vegetable/vegetable_seller/vagatable_seller_gallery_card.dart';
 
 import '../../auth/auth_provider.dart';
 import '../vegetable_list_provider.dart';

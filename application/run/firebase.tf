@@ -97,6 +97,8 @@ locals {
   google_firebase_android_app_sha_certificates = [
     for user in var.android_app_emulator_users : user.google_firebase_android_app_sha_certificate
   ]
+
+  google_firebase_android_app_debug_tokens = { for idx, token in var.android_app_emulator_users : idx => token.google_firebase_app_check_debug_token if token.google_firebase_app_check_debug_token != "" }
 }
 
 # Creates a Firebase Android App in the new project created above.
@@ -285,3 +287,38 @@ resource "google_firebase_app_check_app_attest_config" "ios_app_attest" {
   app_id    = google_firebase_apple_app.ios_app.app_id
   token_ttl = "3600s"
 }
+
+# App Check Debug Token pour Android (emulateur/dev)
+resource "google_firebase_app_check_debug_token" "developer_debug_token" {
+  provider     = google-beta
+  project      = var.project_id
+  for_each     = local.google_firebase_android_app_debug_tokens
+  app_id       = google_firebase_android_app.android_app.app_id
+  display_name = "${each.key}-debug-token"
+  token        = each.value
+}
+
+
+# App Check Service Config for Firebase Authentication
+resource "google_firebase_app_check_service_config" "firebase_auth_appcheck" {
+  provider         = google-beta
+  project          = var.project_id
+  service_id       = "identitytoolkit.googleapis.com"
+  enforcement_mode = "ENFORCED"
+}
+
+# App Check Service Config for Firebase Storage
+resource "google_firebase_app_check_service_config" "firebase_storage_appcheck" {
+  provider         = google-beta
+  project          = var.project_id
+  service_id       = "firebasestorage.googleapis.com"
+  enforcement_mode = "ENFORCED"
+}
+
+# # App Check DeviceCheck pour iOS
+# resource "google_firebase_app_check_device_check_config" "ios_device_check_config" {
+#   provider  = google-beta
+#   project   = var.project_id
+#   app-id       = google_firebase_apple_app.ios_app.app_id
+#   token_ttl = "3600s"
+# }

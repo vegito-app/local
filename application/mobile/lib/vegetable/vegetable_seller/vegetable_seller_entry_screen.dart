@@ -1,9 +1,9 @@
-import 'package:car2go/auth/auth_provider.dart';
-import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_gallery_screen.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
+import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_seller/vegetable_seller_gallery_screen.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 
 class VegetableSellerEntryScreen extends StatefulWidget {
   const VegetableSellerEntryScreen({super.key});

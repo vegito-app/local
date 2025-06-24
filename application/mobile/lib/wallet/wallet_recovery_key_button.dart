@@ -1,8 +1,8 @@
-import 'package:car2go/wallet/wallet_service.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:vegito/wallet/wallet_service.dart';
 
 class ShowRecoveryKeyButton extends StatefulWidget {
   const ShowRecoveryKeyButton({super.key});

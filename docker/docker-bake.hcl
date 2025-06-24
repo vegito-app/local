@@ -66,7 +66,7 @@ variable "PRIVATE_IMAGES_BASE" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    "linux/arm64"
+   // "linux/arm64"
   ]
 }
 

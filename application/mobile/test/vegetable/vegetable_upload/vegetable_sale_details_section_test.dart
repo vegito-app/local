@@ -1,7 +1,7 @@
-import 'package:car2go/vegetable/vegetable_upload/quantity_input_field.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vegito/vegetable/vegetable_upload/quantity_input_field.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 
 void main() {
   group('QuantityInputField widget tests', () {

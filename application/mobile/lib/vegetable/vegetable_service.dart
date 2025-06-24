@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:car2go/config.dart';
-import 'package:car2go/http/auth_headers.dart';
-import 'package:car2go/vegetable/vegetable_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:vegito/config.dart';
+import 'package:vegito/http/auth_headers.dart';
+import 'package:vegito/vegetable/vegetable_model.dart';
 
 class VegetableService {
   final http.Client client;

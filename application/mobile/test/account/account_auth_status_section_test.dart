@@ -1,8 +1,8 @@
-import 'package:car2go/account/account_auth_status_section.dart';
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/account/account_auth_status_section.dart';
+import 'package:vegito/auth/auth_provider.dart';
 
 import '../test_double.dart';
 

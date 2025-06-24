@@ -1,6 +1,6 @@
-import 'package:car2go/wallet/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/wallet/wallet_provider.dart';
 
 import '../auth/auth_provider.dart';
 import '../home_page/home_page_actions.dart';

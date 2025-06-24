@@ -1,6 +1,6 @@
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
 
 import '../auth/auth_security_banner.dart';
 import 'account_auth_status_section.dart';

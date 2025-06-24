@@ -8,7 +8,7 @@ Test Setup        Reset State And Return Home
 *** Variables ***
 ${REMOTE_URL}     http://android-studio:4723
 ${PLATFORM_NAME}  Android
-${APP_PACKAGE}    dev.mobile.app.android
+${APP_PACKAGE}    dev.vegito.app.android
 ${APP_ACTIVITY}   .MainActivity
 
 *** Test Cases ***

@@ -1,11 +1,11 @@
-import 'package:car2go/wallet/crypto/clarity.dart';
-import 'package:car2go/wallet/crypto/stacks.dart';
-import 'package:car2go/wallet/crypto/wif.dart';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:pointycastle/ecc/api.dart';
+import 'package:vegito/wallet/crypto/clarity.dart';
+import 'package:vegito/wallet/crypto/stacks.dart';
+import 'package:vegito/wallet/crypto/wif.dart';
 
 import 'wallet_backend.dart';
 import 'wallet_store.dart';

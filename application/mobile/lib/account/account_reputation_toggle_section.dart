@@ -1,6 +1,6 @@
-import 'package:car2go/user/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/user/user_model.dart';
 
 import '../auth/auth_provider.dart';
 import '../user/user_provider.dart';

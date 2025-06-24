@@ -2,11 +2,11 @@
 import 'dart:typed_data' show Uint8List;
 
 import 'package:bs58/bs58.dart' show base58;
-import 'package:car2go/wallet/crypto/typed_data.dart';
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:hex/hex.dart' show HEX;
 import 'package:pointycastle/ecc/api.dart' show ECPrivateKey;
 import 'package:pointycastle/ecc/curves/secp256k1.dart' show ECCurve_secp256k1;
+import 'package:vegito/wallet/crypto/typed_data.dart';
 
 ECPrivateKey wifToPrivateKey(String wif) {
   final decoded = base58.decode(wif);

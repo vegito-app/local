@@ -90,7 +90,7 @@ make application-mobile-flutter-pub-get
 ### Compiler
 
 ```bash
-make application-mobile-build
+make application-mobile-flutter-build
 ```
 
 ### Config Firebase

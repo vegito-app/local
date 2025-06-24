@@ -29,6 +29,11 @@ services:
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
         if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+          [ "$${LOCAL_ANDROID_STUDIO_BUILD_APK_ON_START}" = "true" ] && \
+            make -j \
+              application-mobile-flutter-build-apk \
+              android-studio-emulator-restart
+          make application-mobile-apk-run &
           until make local-application-tests-check-env ; do
             echo "[application-tests] Waiting for environment to be ready..."
             sleep 5
@@ -130,10 +135,14 @@ services:
       - .env
     environment:
       PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
+      APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
+      FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
       ANDROID_STUDIO_ENV_SETUP: ${ANDROID_STUDIO_ENV_SETUP:-0}
+      ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
+      ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
       IMAGE_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests/mobile_images
     # deploy:
     #   resources:
@@ -147,6 +156,8 @@ services:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
     devices:
       - /dev/kvm
+      - /dev/nvidia0
+    runtime: nvidia
     shm_size: "8gb"
     group_add:
       - render
@@ -160,18 +171,14 @@ services:
 
       set -eu
       
-      if [ "$${ANDROID_STUDIO_ENV_SETUP}" -eq 1 ]; then
+      [ "$${ANDROID_STUDIO_ENV_SETUP}" -eq 1 ] && \
         studio-caches-refresh.sh
-      fi
 
-      # For using Android Studio with emulator in a graphical session
       [ "$${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ] && \
         android-studio.sh &
 
-      # For automatic e2e application/tests 
       [ "$${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ] && \
         appium-emulator-avd.sh &
-
 
       sleep infinity
       '

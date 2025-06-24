@@ -1,6 +1,7 @@
-import 'package:car2go/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
+
 import 'vegetable_upload_provider.dart';
 
 class QuantityInputField extends StatefulWidget {

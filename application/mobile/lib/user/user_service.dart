@@ -1,6 +1,8 @@
 import 'dart:convert';
-import 'package:car2go/http/auth_headers.dart';
+
 import 'package:http/http.dart' as http;
+import 'package:vegito/http/auth_headers.dart';
+
 import '../config.dart';
 import 'user_model.dart';
 

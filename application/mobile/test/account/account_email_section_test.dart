@@ -1,7 +1,7 @@
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
 
 import '../../lib/account/account_email_section.dart';
 import '../test_double.dart';

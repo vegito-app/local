@@ -1,8 +1,9 @@
 // Fonction pour récupérer la recoveryKey depuis le backend
 import 'dart:convert';
-import 'package:car2go/config.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http show get, post;
+import 'package:vegito/config.dart';
 
 Future<String> fetchRecoveryKeyXorComponent(String userId) async {
   final response = await http.get(

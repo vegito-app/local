@@ -1,5 +1,5 @@
-import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_entry_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:vegito/vegetable/vegetable_seller/vegetable_seller_entry_screen.dart';
 
 import '../account/account_page.dart';
 import '../vegetable/vegetable_buyer/vegetable_buyer_page.dart';

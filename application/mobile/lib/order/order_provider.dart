@@ -1,6 +1,6 @@
-import 'package:car2go/order/order_model.dart';
-import 'package:car2go/order/order_service.dart';
 import 'package:flutter/material.dart';
+import 'package:vegito/order/order_model.dart';
+import 'package:vegito/order/order_service.dart';
 
 class OrderProvider extends ChangeNotifier {
   final OrderService _service;

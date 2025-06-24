@@ -1,7 +1,8 @@
-import 'package:car2go/account/account_balance_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/account/account_balance_section.dart';
+
 import '../../lib/auth/auth_provider.dart';
 
 class FakeAuthProvider extends ChangeNotifier implements AuthProvider {

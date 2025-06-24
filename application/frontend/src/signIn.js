@@ -52,7 +52,7 @@ export const SignInScreen = ({ auth, currentUser }) => {
       aria-describedby="modal-modal-description"
     >
       <div>
-        <h1>Car2Go</h1>
+        <h1>Vegito</h1>
         <p>Version {process.env.REACT_APP_VERSION}</p>
         <p>Please sign-in:</p>
         <StyledFirebaseAuth

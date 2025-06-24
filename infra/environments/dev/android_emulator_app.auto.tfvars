@@ -5,11 +5,12 @@ android_app_emulator_users = {
   }
 
   "david-berichon-pixel-6-playstore" = {
-    "google_firebase_android_app_sha_certificate" = "45:28:90:01:62:A9:12:2F:FF:11:8C:85:9E:29:86:1D:17:C9:AA:FA"
+    "google_firebase_android_app_sha_certificate" = "A9:F0:B4:2A:3F:A2:94:E7:0E:93:F9:67:43:98:39:EA:76:28:08:C8"
+    "google_firebase_app_check_debug_token" = "9027e86e-4996-45cb-bbdc-17288670dd85"
   }
 
-  "david-berichon-xpeeria-10-firebase" = {
-    "google_firebase_android_app_sha_certificate" = "FB:29:93:69:24:8B:F3:38:1C:14:82:B2:69:EC:C1:F0:A2:AD:CF:7A"
+  "david-berichon-pixel-9-pro-fold" = {
+    "google_firebase_android_app_sha_certificate" = "C2:C2:3C:BC:92:00:93:4F:54:CC:CF:C0:81:51:51:CD:D5:79:CA:F1"
+    "google_firebase_app_check_debug_token" = "21bfc6d7-d184-45ae-bad2-746acdf99776"
   }
-
 }

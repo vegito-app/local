@@ -1,6 +1,6 @@
 // ignore_for_file: directives_ordering
 
-import 'package:car2go/wallet/wallet_provider.dart';
+import 'package:vegito/wallet/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../account/account_validate.dart';

@@ -76,5 +76,8 @@ xpra start "${display}" \
   --daemon=yes \
   --env=DISPLAY="${display}"
 
+sudo apt install mesa-utils
+DISPLAY=:1 glxinfo | grep -E "renderer|OpenGL"
+
 echo "✅ Xpra running on ${display} → http://localhost:5900/ 🖥️"
 sleep infinity

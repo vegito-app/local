@@ -1,11 +1,10 @@
-import 'package:car2go/auth/auth_provider.dart';
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
 
 class MockUser implements User {
   @override

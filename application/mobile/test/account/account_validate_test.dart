@@ -1,10 +1,11 @@
-import 'package:car2go/account/account_validate.dart';
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/account/account_validate.dart';
+import 'package:vegito/auth/auth_provider.dart';
+
 import '../mocks.mocks.dart';
 
 void main() {

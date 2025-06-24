@@ -1,9 +1,9 @@
-import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_model.dart';
-import 'package:car2go/vegetable/vegetable_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_model.dart';
+import 'package:vegito/vegetable/vegetable_service.dart';
 
 import '../mocks.mocks.dart';
 

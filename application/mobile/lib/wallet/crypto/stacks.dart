@@ -3,9 +3,6 @@
 import 'dart:typed_data';
 
 import 'package:bs58/bs58.dart' show base58;
-import 'package:car2go/wallet/crypto/c32check.dart';
-import 'package:car2go/wallet/crypto/typed_data.dart';
-import 'package:car2go/wallet/crypto/wif.dart';
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:dartsv/dartsv.dart'
     show
@@ -17,6 +14,9 @@ import 'package:dartsv/dartsv.dart'
         ripemd160;
 import 'package:hex/hex.dart';
 import 'package:pointycastle/export.dart';
+import 'package:vegito/wallet/crypto/c32check.dart';
+import 'package:vegito/wallet/crypto/typed_data.dart';
+import 'package:vegito/wallet/crypto/wif.dart';
 
 // ----------- Génère une clé privée secp256k1 -----------
 ECPrivateKey generatePrivateKey() {

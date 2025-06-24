@@ -1,6 +1,8 @@
 import 'package:car2go/payment/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
+import 'package:vegito/payment/payment_screen.dart';
 
 import '../cart/cart_provider.dart';
 import '../order/order_service.dart';

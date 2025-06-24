@@ -1,4 +1,4 @@
-import 'package:car2go/config.dart';
+import 'package:vegito/config.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class VegetableImage {
