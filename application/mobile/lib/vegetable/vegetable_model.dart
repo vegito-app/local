@@ -1,4 +1,5 @@
 import 'package:car2go/config.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class VegetableImage {
   final DateTime uploadedAt;
@@ -21,7 +22,7 @@ class VegetableImage {
           ? DateTime.fromMillisecondsSinceEpoch(json['uploadedAt'] as int)
           : DateTime.parse(json['uploadedAt'] as String),
       status: json['status'] as String,
-      servedByCdn: json['servedByCdn'] as bool,
+      servedByCdn: json['servedByCdn'] as bool?,
       downloadToken: json['downloadToken'] as String?,
     );
   }
@@ -62,6 +63,9 @@ class Vegetable {
   final String availabilityType;
   final DateTime? availabilityDate;
   final int quantityAvailable;
+  final double? latitude;
+  final double? longitude;
+  final double? deliveryRadiusKm;
 
   Vegetable({
     required this.id,
@@ -76,6 +80,9 @@ class Vegetable {
     required this.availabilityType,
     required this.availabilityDate,
     required this.quantityAvailable,
+    this.latitude,
+    this.longitude,
+    this.deliveryRadiusKm,
   });
   factory Vegetable.fromJson(Map<String, dynamic> json) {
     return Vegetable(
@@ -89,13 +96,15 @@ class Vegetable {
       ownerId: json['ownerId'] as String,
       priceCents: json['priceCents'] as int,
       saleType: json['saleType'] as String,
-      // weightGrams: json['weightGrams'] as int,
       active: json['active'] as bool? ?? true,
       availabilityType: json['availabilityType'] as String,
       availabilityDate: json['availabilityDate'] != null
           ? DateTime.parse(json['availabilityDate'] as String)
           : null,
       quantityAvailable: json['quantityAvailable'] as int,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      deliveryRadiusKm: (json['radiusKm'] as num?)?.toDouble(),
     );
   }
 
@@ -112,6 +121,14 @@ class Vegetable {
       'availabilityType': availabilityType,
       'availabilityDate': availabilityDate?.toIso8601String(),
       'quantityAvailable': quantityAvailable,
+      'latitude': latitude,
+      'longitude': longitude,
+      'radiusKm': deliveryRadiusKm,
     };
+  }
+
+  LatLng? get deliveryLocation {
+    if (latitude == null || longitude == null) return null;
+    return LatLng(latitude!, longitude!);
   }
 }

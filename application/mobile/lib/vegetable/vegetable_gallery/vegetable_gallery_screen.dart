@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class VegetableGalleryScreen extends StatelessWidget {
-  const VegetableGalleryScreen({Key? key}) : super(key: key);
+  const VegetableGalleryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -34,6 +34,33 @@ class VegetableService {
     }
   }
 
+  Future<List<Vegetable>> listAvailableVegetables({
+    double? lat,
+    double? lon,
+    double? radiusKm,
+    String? keyword,
+  }) async {
+    final uri = Uri.parse('$backendUrl/api/vegetables/available').replace(
+      queryParameters: {
+        if (lat != null) 'lat': lat.toString(),
+        if (lon != null) 'lon': lon.toString(),
+        if (radiusKm != null) 'radiusKm': radiusKm.toString(),
+        if (keyword != null && keyword.isNotEmpty) 'keyword': keyword,
+      },
+    );
+
+    final response = await client.get(uri, headers: await authHeaders());
+
+    if (response.statusCode == 200) {
+      final List<dynamic> decoded = json.decode(response.body) as List<dynamic>;
+      return decoded
+          .map((v) => Vegetable.fromJson(v as Map<String, dynamic>))
+          .toList();
+    } else {
+      throw Exception('Failed to fetch available vegetables');
+    }
+  }
+
   Future<Vegetable> getVegetable(String id) async {
     final response = await client.get(
       Uri.parse('$backendUrl/api/vegetables/$id'),
@@ -48,10 +75,21 @@ class VegetableService {
   }
 
   Future<Vegetable> createVegetable(Vegetable vegetable) async {
+    final bodyMap = vegetable.toJson();
+    if (vegetable.deliveryLocation != null) {
+      bodyMap['deliveryLocation'] = {
+        'latitude': vegetable.deliveryLocation!.latitude,
+        'longitude': vegetable.deliveryLocation!.longitude,
+      };
+    } else {
+      bodyMap['deliveryLocation'] = null;
+    }
+    bodyMap['deliveryRadiusKm'] = vegetable.deliveryRadiusKm;
+
     final response = await client.post(
       Uri.parse('$backendUrl/api/vegetables'),
       headers: await authHeaders(),
-      body: json.encode(vegetable.toJson()),
+      body: json.encode(bodyMap),
     );
     if (response.statusCode == 201) {
       return Vegetable.fromJson(
@@ -62,10 +100,21 @@ class VegetableService {
   }
 
   Future<void> updateVegetable(String id, Vegetable vegetable) async {
+    final bodyMap = vegetable.toJson();
+    if (vegetable.deliveryLocation != null) {
+      bodyMap['deliveryLocation'] = {
+        'latitude': vegetable.deliveryLocation!.latitude,
+        'longitude': vegetable.deliveryLocation!.longitude,
+      };
+    } else {
+      bodyMap['deliveryLocation'] = null;
+    }
+    bodyMap['deliveryRadiusKm'] = vegetable.deliveryRadiusKm;
+
     final response = await client.put(
       Uri.parse('$backendUrl/api/vegetables/$id'),
       headers: await authHeaders(),
-      body: json.encode(vegetable.toJson()),
+      body: json.encode(bodyMap),
     );
     if (response.statusCode != 200) {
       throw Exception('Failed to update vegetable');

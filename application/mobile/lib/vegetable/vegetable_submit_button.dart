@@ -15,6 +15,9 @@ class VegetableSubmitButton extends StatelessWidget {
     required this.saleType,
     required this.availabilityType,
     required this.availabilityDate,
+    required this.latitude,
+    required this.longitude,
+    required this.deliveryRadiusKm,
   });
   final GlobalKey<FormState> formKey;
   final AvailabilityType availabilityType;
@@ -24,6 +27,11 @@ class VegetableSubmitButton extends StatelessWidget {
   final TextEditingController priceController;
 
   final SaleType saleType;
+
+  final double? latitude;
+  final double? longitude;
+  final double? deliveryRadiusKm;
+
   @override
   Widget build(BuildContext context) {
     // Planifie la mise à jour du saleType après le build pour éviter les erreurs setState pendant le build.
@@ -65,6 +73,9 @@ class VegetableSubmitButton extends StatelessWidget {
                       availabilityType: availabilityType,
                       availabilityDate: availabilityDate,
                       saleType: saleType.name,
+                      latitude: latitude,
+                      longitude: longitude,
+                      deliveryRadiusKm: deliveryRadiusKm,
                     );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

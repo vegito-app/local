@@ -14,11 +14,13 @@ import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'account/account_page.dart';
 import 'auth/auth_guard.dart';
 import 'home_page/home_page.dart';
+import 'location/location_provider.dart';
 import 'wallet/wallet_provider.dart';
 import 'wallet/wallet_screen.dart';
 
@@ -37,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => VegetableListProvider()),
         ChangeNotifierProvider(create: (_) => VegetableUploadProvider()),
         ChangeNotifierProvider(create: (_) => WalletProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
         // Ajoute ici tous tes autres providers si besoin
       ],
       child: const MyApp(),
@@ -49,8 +52,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // return const MaterialApp(home: SimpleMapScreen());
     return MaterialApp(
-      localizationsDelegates: [
+      localizationsDelegates: const [
         FirebaseUILocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

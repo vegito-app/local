@@ -70,7 +70,7 @@ class VegetableSellerGalleryCard extends StatelessWidget {
                     Text(
                       saleType == 'weight'
                           ? (quantityAvailable < 1000
-                              ? 'Reste : ${quantityAvailable} g'
+                              ? 'Reste : $quantityAvailable g'
                               : 'Reste : ${(quantityAvailable / 1000).toStringAsFixed((quantityAvailable % 1000 == 0) ? 0 : ((quantityAvailable % 100 == 0) ? 1 : ((quantityAvailable % 10 == 0) ? 2 : 3)))} Kg')
                           : 'Reste : ${quantityAvailable.toInt()} pièces',
                       style: const TextStyle(fontSize: 12),

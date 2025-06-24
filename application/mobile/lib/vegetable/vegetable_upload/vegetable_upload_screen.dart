@@ -1,3 +1,4 @@
+import 'package:car2go/vegetable/vegetable_location_picker.dart';
 import 'package:car2go/vegetable/vegetable_management_actions.dart';
 import 'package:car2go/vegetable/vegetable_model.dart';
 import 'package:car2go/vegetable/vegetable_photo_picker.dart';
@@ -119,129 +120,68 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
             Text("Informations générales",
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            if (provider.images.isNotEmpty)
-              VegetablePhotoPicker(provider: provider),
-            Semantics(
-              label: 'image-picker-button',
-              button: true,
-              child: TextButton.icon(
-                key: const Key("chooseImage"),
-                onPressed: provider.pickImage,
-                icon: const Icon(Icons.photo),
-                label: Text(provider.images.isEmpty
-                    ? 'Choisir une photo'
-                    : 'Ajouter une photo'),
-              ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth * 0.5;
+                return Row(
+                  children: [
+                    SizedBox(
+                      width: width,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          VegetablePhotoPicker(
+                              provider: provider, maxImages: 3),
+                          if (provider.images.length < 3)
+                            Semantics(
+                              label: 'image-picker-button',
+                              button: true,
+                              child: TextButton.icon(
+                                key: const Key("chooseImage"),
+                                onPressed: provider.pickImage,
+                                icon: const Icon(Icons.photo),
+                                label: Text(provider.images.isEmpty
+                                    ? 'Choisir une photo'
+                                    : 'Ajouter une photo'),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: width,
+                      child: VegetableLocationPicker(provider: provider),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 20),
             Text("Détails du légume",
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Type de vente",
-                          style: Theme.of(context).textTheme.titleMedium),
-                      DropdownButton<SaleType>(
-                        key: const Key("saleTypeDropdown"),
-                        value: provider.saleType.toString() == 'weight'
-                            ? SaleType.weight
-                            : SaleType.unit,
-                        onChanged: (SaleType? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              saleType = newValue;
-                            });
-                            provider.saleType = newValue.name;
-                          }
-                        },
-                        items: const [
-                          DropdownMenuItem(
-                              value: SaleType.unit, child: Text("À l’unité")),
-                          DropdownMenuItem(
-                              value: SaleType.weight,
-                              child: Text("Au poids (€/kg)")),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Disponibilité",
-                          style: Theme.of(context).textTheme.titleMedium),
-                      DropdownButton<AvailabilityType>(
-                        key: const Key("availabilityTypeDropdown"),
-                        value: availabilityType,
-                        onChanged: (AvailabilityType? newValue) async {
-                          if (newValue != null) {
-                            DateTime? pickedDate;
-                            final now = DateTime.now();
-                            if (newValue == AvailabilityType.futureDate) {
-                              pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: now.add(const Duration(days: 1)),
-                                firstDate: now.add(const Duration(days: 1)),
-                                lastDate: now.add(const Duration(days: 365)),
-                              );
-                            } else if (newValue ==
-                                AvailabilityType.alreadyHarvested) {
-                              pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: now,
-                                firstDate:
-                                    now.subtract(const Duration(days: 365)),
-                                lastDate: now,
-                              );
-                            }
-
-                            setState(() {
-                              availabilityType = newValue;
-                              if (newValue == AvailabilityType.sameDay ||
-                                  pickedDate == null) {
-                                availabilityDate = null;
-                                availabilityDateController.clear();
-                              } else {
-                                availabilityDate = pickedDate;
-                                availabilityDateController.text =
-                                    "${pickedDate.toLocal()}".split(' ')[0];
-                              }
-                            });
-                          }
-                        },
-                        items: const [
-                          DropdownMenuItem(
-                              value: AvailabilityType.sameDay,
-                              child: Text("Récolté le jour même")),
-                          DropdownMenuItem(
-                              value: AvailabilityType.futureDate,
-                              child: Text("Récolte à venir")),
-                          DropdownMenuItem(
-                              value: AvailabilityType.alreadyHarvested,
-                              child: Text("Déjà récolté")),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
             VegetableSaleDetailsSection(
                 nameController: nameController,
                 descriptionController: descriptionController,
                 priceController: priceController,
-                saleType: saleType,
-                availabilityType: availabilityType,
-                availabilityDate: availabilityDate,
+                initialSaleType: saleType,
+                initialAvailabilityType: availabilityType,
+                initialAvailabilityDate: availabilityDate,
+                availabilityDateController: availabilityDateController,
+                onSaleTypeChanged: (type) {
+                  setState(() {
+                    saleType = type;
+                    provider.saleType = type.name;
+                  });
+                },
+                onAvailabilityChanged: (type, date) {
+                  setState(() {
+                    availabilityType = type;
+                    availabilityDate = date;
+                    provider.availabilityType = type;
+                    provider.availabilityDate = date;
+                  });
+                },
                 isNewVegetable: provider.initialVegetable == null),
             const SizedBox(height: 20),
             provider.isLoading
@@ -258,6 +198,9 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                         descriptionController: descriptionController,
                         priceController: priceController,
                         saleType: saleType,
+                        latitude: provider.deliveryLocation?.latitude,
+                        longitude: provider.deliveryLocation?.longitude,
+                        deliveryRadiusKm: provider.deliveryRadiusKm,
                       ),
                     ),
                   ),

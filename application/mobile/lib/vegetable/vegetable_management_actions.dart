@@ -12,7 +12,7 @@ class VegetableManagementActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (provider.initialVegetable == null) return SizedBox.shrink();
+    if (provider.initialVegetable == null) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

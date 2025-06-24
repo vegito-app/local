@@ -37,7 +37,6 @@ class _AuthSecurityBannerState extends State<AuthSecurityBanner> {
         case AuthContext.account:
           return "⚠️ Compte temporaire : sécurisez-le pour accéder à vos données durablement.";
         case AuthContext.general:
-        default:
           return "Vous êtes connecté anonymement. Pensez à valider votre identité.";
       }
     }

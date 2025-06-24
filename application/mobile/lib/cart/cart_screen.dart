@@ -1,4 +1,3 @@
-import 'package:car2go/auth/auth_provider.dart';
 import 'package:car2go/payment/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
