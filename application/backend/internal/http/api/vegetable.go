@@ -132,7 +132,7 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 	userID := requestUserID(r)
 	var vegetableRequest v1.VegetableRequest
 	if err := json.NewDecoder(r.Body).Decode(&vegetableRequest); err != nil {
-		log.Error().Err(err).Msg("failed to decode vegetable payload")
+		log.Error().Err(err).Msg("create vegetable failed to decode vegetable payload")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}
@@ -305,12 +305,11 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 	// Prepare enriched image response
 	imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
 	resp := &v1.VegetableResponse{
-		ID:          veggie.ID,
-		Name:        veggie.Name,
-		OwnerID:     veggie.OwnerID,
-		Description: veggie.Description,
-		SaleType:    veggie.SaleType,
-		// WeightGrams:       veggie.WeightGrams,
+		ID:                veggie.ID,
+		Name:              veggie.Name,
+		OwnerID:           veggie.OwnerID,
+		Description:       veggie.Description,
+		SaleType:          veggie.SaleType,
 		PriceCents:        veggie.PriceCents,
 		Images:            imagesResp,
 		CreatedAt:         veggie.CreatedAt,
@@ -360,7 +359,7 @@ func (s *VegetableService) UpdateVegetable(w nethttp.ResponseWriter, r *nethttp.
 	}
 	var vegetableRequest v1.VegetableRequest
 	if err := json.NewDecoder(r.Body).Decode(&vegetableRequest); err != nil {
-		log.Error().Err(err).Msg("failed to decode vegetable payload")
+		log.Error().Err(err).Msg("update vegetable failed to decode vegetable payload")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}

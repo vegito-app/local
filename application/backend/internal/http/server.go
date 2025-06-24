@@ -45,7 +45,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 func StartAPI(ctx context.Context, mux http.Handler) error {
 	port := config.GetString(portConfig)
 
-	if err := backendhttp.ListenAndServe(ctx, "0.0.0.0:"+port, corsMiddleware(mux)); err != nil {
+	if err := backendhttp.ListenAndServe(ctx, "0.0.0.0:"+port, ApplyMiddleware(corsMiddleware(mux), AuditMiddleware)); err != nil {
 		return fmt.Errorf("HTTP listenAndServe: %w", err)
 	}
 	fmt.Print("See you the next time ! Bye")
