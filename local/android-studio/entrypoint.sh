@@ -4,7 +4,14 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-display-start.sh
+case "${ANDROID_GPU_MODE}" in
+    "host")
+        display-start-xpra.sh 
+        ;;
+    *)
+        display-start.sh
+        ;;
+esac
 
 # List to hold background job PIDs
 bg_pids=()

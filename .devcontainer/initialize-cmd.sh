@@ -35,6 +35,7 @@ LOCAL_ANDROID_STUDIO_ON_START=true
 #
 # Required if runnind E2E tests (application/tests)
 LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
+LOCAL_ANDROID_STUDIO_APK_PATH=application/mobile/build/app/outputs/flutter-apk/app-release.apk
 #
 # Wether to currently run the local application tests on start.
 # If set to 'true', the local application tests will be run on start.
@@ -55,6 +56,13 @@ FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
 LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
+# Set this value tu 'host' to use accelerated GPU rendering in Android Studio.
+# Set to 'swiftshader_indirect' to use software rendering if you are not using a GPU.
+LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE=swiftshader_indirect
+
+# Set this value to 'Pixel_8_Intel' or 'Pixel_6_Playstore' to use the corresponding AVD.
+LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_6_Playstore
+
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
 UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
 
@@ -62,7 +70,7 @@ FIREBASE_STORAGE_PUBLIC_PREFIX=https://firebasestorage.googleapis.com/v0/b/${DEV
 CDN_PUBLIC_PREFIX=https://cdn.mon-backend.com  # ton CDN public GCS
 # 
 #--------------------------------------------------------
-# ! Should not configure this section !^
+# ! Should not configure this section !
 #
 # The following variables are used for propagating the containers
 # configurations between them each others selves.

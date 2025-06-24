@@ -9,7 +9,7 @@ fi
 
 echo "Lancement de l’AVD nommé : ${ANDROID_AVD_NAME:-Pixel_8_Intel}"
 emulator -avd "${ANDROID_AVD_NAME:-Pixel_8_Intel}" \
-  -gpu ${ANDROID_GPU_MODE:-swiftshader_indirect} \
+  -gpu swiftshader_indirect \
   -noaudio -no-snapshot-load \
   -no-boot-anim \
   -qemu &
