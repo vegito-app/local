@@ -138,6 +138,18 @@ class Firebase:
         doc = self.db.collection("vegetables").document(doc_id).get()
         return doc.to_dict() if doc.exists else None
 
+    def create_test_vegetable(self, name="Carotte", doc_id="carotte-id", lat=48.8, lng=2.3, radius=5):
+        data = {
+            "name": name,
+            "description": f"{name} test",
+            "location": {"lat": lat, "lng": lng},
+            "deliveryRadiusKm": radius,
+            "imageUrl": "https://fake.url/carotte.jpg",
+            "quantity": 10,
+            "price": 3.5,
+        }
+        return self.insert_test_data("vegetables", doc_id, data)
+
     def reset_data_before_test(self):
         # Ne touche pas aux comptes utilisateurs Firebase Auth
         self.reset_firestore_and_storage_before_test()
@@ -149,3 +161,8 @@ class Firebase:
 
 def get_robot_library():
     return Firebase()
+
+def create_test_cart(self, user_id, items):
+    cart_ref = self.db.collection("carts").document(user_id)
+    cart_ref.set({"items": items})
+    return f"Inserted cart for user {user_id}"

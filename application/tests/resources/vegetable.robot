@@ -30,6 +30,9 @@ Ajouter La Première Photo
     Wait Until Page Contains Element    accessibility_id=Choisir une photo
     Click Element                       accessibility_id=Choisir une photo
     Choisir une photo dans la galerie    ${clickable_index}
+    # ${value}=    Evaluate    ${clickable_index} - 1
+    # Wait Until Page Contains Element    xpath=(//android.view.View[@long-clickable="true"])[${value}]
+    # Click Element                       xpath=(//android.view.View[@long-clickable="true"])[${value}]
 
 Choisir une photo dans la galerie
     [Arguments]    ${clickable_index}
@@ -40,6 +43,9 @@ Choisir une photo dans la galerie
     Click Element                       xpath=(//android.widget.RelativeLayout)[1]
     Wait Until Page Contains Element    xpath=(//android.view.ViewGroup[@clickable="true"])[${clickable_index}]
     Click Element                       xpath=(//android.view.ViewGroup[@clickable="true"])[${clickable_index}]
+    # ${value}=    Evaluate    ${clickable_index} - 1
+    # Wait Until Page Contains Element    xpath=(//android.view.View[@long-clickable="true"])[${value}]
+    # Click Element                       xpath=(//android.view.View[@long-clickable="true"])[${value}]
 
 Ajouter La Premiere Photo
     [Arguments]    ${image}        ${clickable_index}
