@@ -2,31 +2,31 @@
 
 set -eu
 
-trap "echo Exited with code $?." EXIT
-
-case "${ANDROID_GPU_MODE}" in
-    "host")
-        display-start-xpra.sh 
-        ;;
-    *)
-        display-start.sh
-        ;;
-esac
-
-# List to hold background job PIDs
+# 📌 List of PIDs of background processes
 bg_pids=()
 
-# Function to kill background jobs when script ends
+# 🧹 Function called at the end of the script to kill background processes
 kill_jobs() {
-    echo "Killing background jobs"
-    for pid in "$${bg_pids[@]}"; do
-        kill "$$pid"
-        wait "$$pid" 2>/dev/null
+    echo "🧼 Cleaning up background processes..."
+    for pid in "${bg_pids[@]}"; do
+        kill "$pid" || true
+        wait "$pid" 2>/dev/null || true
     done
 }
 
-# Trap to call kill_jobs on script exit
+# 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
+
+case "${ANDROID_GPU_MODE}" in
+    "host")
+        display-start-xpra.sh &
+        bg_pids+=("$!")
+        ;;
+    *)
+        display-start.sh &
+        bg_pids+=("$!")
+        ;;
+esac
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
