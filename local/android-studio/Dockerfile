@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     xinit openbox xorg \
     xdg-utils \
     menu-xdg \
+    net-tools \
     xpra \
     #Flutter
     clang \
@@ -40,9 +41,9 @@ RUN apt-get update && apt-get install -y \
     
 RUN \
   export DEBIAN_FRONTEND=noninteractive ; \
-  sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list && \
+  sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && \
-    apt-get install -y xserver-xorg-video-nvidia nvidia-driver
+    apt-get install -y xserver-xorg-video-nvidia nvidia-driver mesa-utils
 
 # Install Nodejs for Appium
 RUN apt-get update && \
@@ -105,6 +106,8 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     "build-tools;35.0.0" \
     "build-tools;36.0.0" \
     "ndk;${android_ndk_version}" \
+    "system-images;android-34;google_apis_playstore;x86_64" \
+    "system-images;android-34;google_apis;x86_64" \
     && case "$TARGETPLATFORM" in \
     "linux/amd64") \
     sudo npm install -g appium \
@@ -113,7 +116,9 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     && sdkmanager --install "system-images;android-33;google_apis;x86_64" \
     && sdkmanager --install "system-images;android-33;google_apis;arm64-v8a" \
     && echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel" \
-    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel" ;; \
+    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel" \
+    && echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" \
+    && echo "no" | avdmanager create avd -n Pixel_6_ApiOnly -k "system-images;android-34;google_apis;x86_64" -d "pixel_6" ;; \
     "linux/arm64") \
     echo "Skipping emulator install on $TARGETPLATFORM (not supported)" ;; \
     esac
@@ -128,6 +133,8 @@ RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zip
     rm /tmp/android-studio.tar.gz
 
 RUN flutter doctor --android-licenses && flutter doctor
+
+RUN sudo apt-get update && sudo apt-get install -y locales && sudo dpkg-reconfigure locales
 
 ENV DISPLAY=":1"
 COPY display-start.sh /usr/local/bin/

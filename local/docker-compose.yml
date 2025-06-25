@@ -137,6 +137,8 @@ services:
       PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
       APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
+      DISPLAY_NUMBER: "${DISPLAY_NUMBER:-:20}"
+      DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
@@ -144,13 +146,6 @@ services:
       ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
       ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
       IMAGE_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests/mobile_images
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
     privileged: true
     volumes:
       - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
