@@ -43,6 +43,6 @@ appium --address 0.0.0.0 --port 4723 \
 bg_pids+=($!)
 echo "Appium est prêt à accepter les connexions sur le port 4723."
 
-load_tests_data.sh ${IMAGE_DIR:-./images}
+emulator-data-load.sh ${IMAGE_DIR:-./images}
 
 sleep infinity
