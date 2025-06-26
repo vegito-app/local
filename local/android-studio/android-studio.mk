@@ -82,7 +82,7 @@ local-android-studio-emulator-data-load-mobile-images:
 	@bash -c ' \
 	set -e ; \
 	echo "Load android-studio emulator data, inputs folder : $$(pwd)" ; \
-	$(CURDIR)/local/android-studio/load_tests_data.sh \
+	$(CURDIR)/local/android-studio/emulator-data-load.sh \
 		$(CURDIR)/application/tests/mobile_images ; \
 	'
 .PHONY: local-android-studio-emulator-data-load-mobile-images

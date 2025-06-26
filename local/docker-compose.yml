@@ -136,7 +136,8 @@ services:
     environment:
       PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
       APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
-      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
+      # DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
+      DISPLAY_RESOLUTION: 1920x1080
       DISPLAY_NUMBER: "${DISPLAY_NUMBER:-:20}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
