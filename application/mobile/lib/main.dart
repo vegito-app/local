@@ -1,21 +1,20 @@
-import 'package:car2go/auth/auth_provider.dart';
-import 'package:car2go/cart/cart_provider.dart';
-import 'package:car2go/config/routes.dart';
-import 'package:car2go/firebase_service.dart';
-import 'package:car2go/order/consumer_order_screen.dart';
-import 'package:car2go/order/order_provider.dart';
-import 'package:car2go/order/order_screen.dart';
-import 'package:car2go/user/user_provider.dart';
-import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_entry_screen.dart';
-import 'package:car2go/vegetable/vegetable_seller/vegetable_seller_gallery_screen.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/auth/auth_provider.dart';
+import 'package:vegito/cart/cart_provider.dart';
+import 'package:vegito/config/routes.dart';
+import 'package:vegito/firebase_service.dart';
+import 'package:vegito/order/consumer_order_screen.dart';
+import 'package:vegito/order/order_provider.dart';
+import 'package:vegito/order/order_screen.dart';
+import 'package:vegito/user/user_provider.dart';
+import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_seller/vegetable_seller_entry_screen.dart';
+import 'package:vegito/vegetable/vegetable_seller/vegetable_seller_gallery_screen.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_screen.dart';
 
 import 'account/account_page.dart';
 import 'auth/auth_guard.dart';
@@ -86,7 +85,25 @@ class MyApp extends StatelessWidget {
             const AuthGuard(child: OrderScreen()),
         AppRoutes.clientOrders: (context) =>
             const AuthGuard(child: ConsumerOrderScreen()),
+        "/test": (context) => const AuthGuard(child: SimpleMapScreen()),
       },
+    );
+  }
+}
+
+class SimpleMapScreen extends StatelessWidget {
+  const SimpleMapScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(48.8566, 2.3522),
+          zoom: 12,
+        ),
+        mapType: MapType.normal,
+      ),
     );
   }
 }

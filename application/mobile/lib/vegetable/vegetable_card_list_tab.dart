@@ -1,6 +1,6 @@
-import 'package:car2go/user/user_model.dart';
-import 'package:car2go/vegetable/vegetable_list_provider.dart';
-import 'package:car2go/vegetable/vegetable_model.dart';
+import 'package:vegito/user/user_model.dart';
+import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

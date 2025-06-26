@@ -1,4 +1,4 @@
-import 'package:car2go/config.dart';
+import 'package:vegito/config.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';

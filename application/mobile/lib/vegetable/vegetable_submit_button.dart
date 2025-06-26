@@ -73,9 +73,6 @@ class VegetableSubmitButton extends StatelessWidget {
                       availabilityType: availabilityType,
                       availabilityDate: availabilityDate,
                       saleType: saleType.name,
-                      latitude: latitude,
-                      longitude: longitude,
-                      deliveryRadiusKm: deliveryRadiusKm,
                     );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

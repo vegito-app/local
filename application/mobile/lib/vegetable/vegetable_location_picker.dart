@@ -1,5 +1,5 @@
-import 'package:car2go/vegetable/vegetable_map/vegetable_map_location_picker.dart';
-import 'package:car2go/vegetable/vegetable_upload/vegetable_upload_provider.dart';
+import 'package:vegito/vegetable/vegetable_map/vegetable_map_location_picker.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 import 'package:flutter/material.dart';
 
 class VegetableLocationPicker extends StatelessWidget {

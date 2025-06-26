@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vegito/vegetable/vegetable_list_provider.dart';
 import 'package:vegito/vegetable/vegetable_model.dart';
 import 'package:vegito/vegetable/vegetable_service.dart';
 import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 
 class VegetableUploadProvider with ChangeNotifier {
   String _saleType = 'weight';
@@ -25,6 +24,23 @@ class VegetableUploadProvider with ChangeNotifier {
   DateTime? _availabilityDate;
   int _quantity = 0;
   int _priceCents = 0;
+
+  LatLng? _deliveryLocation;
+  LatLng? get deliveryLocation => _deliveryLocation;
+  set deliveryLocation(LatLng? location) {
+    _deliveryLocation = location;
+    notifyListeners();
+  }
+
+  double _deliveryRadiusKm = 5.0; // Valeur par défaut 5 km
+
+  double get deliveryRadiusKm => _deliveryRadiusKm;
+  set deliveryRadiusKm(double value) {
+    if (_deliveryRadiusKm != value) {
+      _deliveryRadiusKm = value;
+      notifyListeners();
+    }
+  }
 
   List<XFile> get images => _images;
   int get mainImageIndex => _mainImageIndex;
@@ -59,8 +75,6 @@ class VegetableUploadProvider with ChangeNotifier {
     }
   }
 
-  int get quantityAvailableUnits => _quantity;
-
   double get priceEuros => _priceCents / 100.0;
   set priceEuros(double value) {
     _priceCents = (value * 100).round();
@@ -85,8 +99,9 @@ class VegetableUploadProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Limite à 3 images max
   Future<void> pickImage() async {
-    // Permet d'ajouter plusieurs images successivement, les images précédentes sont conservées.
+    if (_images.length >= 3) return;
     final image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       _images.add(image);
@@ -172,9 +187,6 @@ class VegetableUploadProvider with ChangeNotifier {
     DateTime? availabilityDate,
     required int priceCents,
     required String saleType,
-    required double? latitude,
-    required double? longitude,
-    required double? deliveryRadiusKm,
   }) async {
     if (initialVegetable == null && _images.isEmpty) {
       throw Exception('No images selected');
@@ -201,6 +213,7 @@ class VegetableUploadProvider with ChangeNotifier {
       vegetableImages.removeAt(_mainImageIndex);
       vegetableImages.insert(0, mainImage);
     }
+
     final vegetable = Vegetable(
       id: initialVegetable?.id ?? '', // conserve l'id existant
       name: name,
@@ -214,9 +227,9 @@ class VegetableUploadProvider with ChangeNotifier {
       availabilityType: _availabilityType.name,
       availabilityDate: _availabilityDate,
       quantityAvailable: _quantity,
-      latitude: latitude,
-      longitude: longitude,
-      deliveryRadiusKm: deliveryRadiusKm,
+      latitude: _deliveryLocation?.latitude,
+      longitude: _deliveryLocation?.longitude,
+      deliveryRadiusKm: _deliveryRadiusKm,
     );
 
     if (initialVegetable == null) {
@@ -247,6 +260,11 @@ class VegetableUploadProvider with ChangeNotifier {
     provider._quantity = vegetable.quantityAvailable;
     provider._availabilityDate = vegetable.availabilityDate;
     provider._saleType = vegetable.saleType;
+
+    // Ajout des champs
+    provider._deliveryLocation = vegetable.deliveryLocation;
+    provider._deliveryRadiusKm = vegetable.deliveryRadiusKm ?? 5.0;
+
     return provider;
   }
 
