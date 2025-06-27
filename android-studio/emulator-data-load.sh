@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-IMAGE_DIR="${1:-./images}"
+IMAGE_DIR="${1:-${IMAGE_DIR:-./images}}"
 
 # Vérifie si un appareil est connecté
 if ! adb devices | grep -w "device" >/dev/null; then

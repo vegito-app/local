@@ -23,8 +23,26 @@ if ! pgrep -x "adb" >/dev/null; then
   adb start-server
 fi
 
-echo "Lancement de l’AVD nommé : ${ANDROID_AVD_NAME:-Pixel_8_Intel}"
-emulator -avd "${ANDROID_AVD_NAME:-Pixel_8_Intel}" \
+echo "Liste des AVD disponibles :"
+emulator -list-avds
+
+avd_to_use="${ANDROID_AVD_NAME:-Pixel_8_Pro}"
+echo "AVD à utiliser : ${avd_to_use}"
+
+# 🧹 Nettoyage de l'AVD existant si nécessaire
+if emulator -list-avds | grep -q "${avd_to_use}"; then
+  echo "Nettoyage de l'AVD existant nommé ${avd_to_use}..."
+  emulator -avd "${avd_to_use}" -no-snapshot-save -wipe-data || true
+else
+  echo "Aucun AVD nommé ${avd_to_use} trouvé, création d'un nouvel AVD..."
+  # Création d'un nouvel AVD si il n'existe pas
+  avdmanager create avd -n "${avd_to_use}" \
+    -k "system-images;android-34;google_apis;x86" \
+    --device "pixel_8" --force --abi "x86" || true
+fi
+
+echo "Lancement de l’AVD nommé : ${avd_to_use}"
+emulator -avd "${avd_to_use}" \
   -gpu ${ANDROID_GPU_MODE:-swiftshader_indirect} \
   -noaudio -no-snapshot-load \
   -no-boot-anim \

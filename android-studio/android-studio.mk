@@ -21,6 +21,11 @@ LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC = $(LOCAL_DOCKER_COMPOSE) exec android-
 LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME ?= Pixel_6_Playstore
 LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE ?= swiftshader_indirect
 
+local-android-studio-appium-emulator-avd-wipe-data:
+	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) bash -c ' \
+		emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data \
+.PHONY: local-android-studio-appium-emulator-avd-wipe-data
+
 local-android-studio-appium-emulator-avd-restart:
 	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) bash -c ' \
 	  echo "[*] Killing emulator & adb..." ; \
@@ -46,6 +51,14 @@ local-android-studio-appium-emulator-avd-restart:
 local-android-studio-emulator-logs:
 	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) adb logcat -T 10
 .PHONY: local-android-studio-emulator-logs
+
+local-android-studio-emulator-kernel:
+	$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) bash -c ' \
+	  echo "[*] Showing emulator kernel..." ; \
+	  emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
+	  echo "[*] Emulator kernel shown." ; \
+	'
+.PHONY: local-android-studio-emulator-kernel
 
 local-android-studio-appium-emulator-avd:
 	@$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) appium-emulator-avd.sh
@@ -86,3 +99,9 @@ local-android-studio-emulator-data-load-mobile-images:
 		$(CURDIR)/application/tests/mobile_images ; \
 	'
 .PHONY: local-android-studio-emulator-data-load-mobile-images
+
+local-android-studio-emulator-app-sha1-fingerprint:
+	@echo "Android Studio Emulator SHA1 fingerprint:" 
+	$(LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC) \
+	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+.PHONY: local-android-studio-emulator-app-sha1-fingerprint
