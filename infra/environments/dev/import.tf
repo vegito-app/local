@@ -18,10 +18,10 @@ import {
   id = "${data.google_project.project.id}/locations/${var.region}/repositories/docker-repository-public"
   to = module.application.google_artifact_registry_repository.public_docker_repository
 }
-# import {
-#   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-android-api-key"
-#   to = module.application.google_apikeys_key.google_maps_android_api_key
-# }
+import {
+  id = "${data.google_project.project.id}/locations/global/keys/googlemaps-android-api-key"
+  to = module.application.google_apikeys_key.google_maps_android_api_key
+}
 import {
   id = "${data.google_project.project.id}/locations/global/keys/googlemaps-ios-api-key"
   to = module.application.google_apikeys_key.google_maps_ios_api_key
