@@ -1,3 +1,6 @@
+permissions:
+  id-token: write
+  contents: read
 name: Build and Push Git Commit Tagged Docker Images To Dev environment
 on:
   push:
@@ -21,7 +24,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v1
         with:
-          workload_identity_provider: projects/moov-dev-439608/locations/global/workloadIdentityPools/github-pool/providers/github
+          workload_identity_provider: projects/203475703228/locations/global/workloadIdentityPools/github-pool/providers/github
           service_account: github-actions-main@moov-dev-439608.iam.gserviceaccount.com
           token_format: "access_token"
       - name: Set up Cloud SDK
