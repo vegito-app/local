@@ -74,7 +74,7 @@ Section "Monitor"
     ModeLine "1280x720" 74.25 1280 1390 1430 1650 720 725 730 750 +hsync +vsync
     ModeLine "1024x768" 65.00 1024 1048 1184 1344 768 771 777 806 -hsync -vsync
     ModeLine "800x600" 40.00 800 840 968 1056 600 601 605 628 +hsync +vsync
-    
+
     # 🎯 ModeLine dynamique (priorité maximale - écrase les précédentes si collision)
     # Pour ${resolution} à ${framerate}Hz
     # Custom ModeLine for requested resolution

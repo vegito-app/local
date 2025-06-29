@@ -16,6 +16,12 @@
       "settings": {
         "dart.flutterSdkPath": "${localWorkspaceFolder}/local/.containers/android-studio/flutter"
       },
+      "containers.environment": {
+        "DOCKER_HOST": "tcp://localhost:23750"
+      },
+      "docker.dockerodeOptions": {
+        "host": "tcp://localhost:23750"
+      },
       "env": {
         "FLUTTER_ROOT": "${localWorkspaceFolder}/local/.containers/android-studio/flutter"
       },

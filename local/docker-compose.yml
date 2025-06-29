@@ -143,7 +143,7 @@ services:
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      ANDROID_STUDIO_ENV_SETUP: ${ANDROID_STUDIO_ENV_SETUP:-0}
+      ANDROID_STUDIO_ENV_SETUP: ${ANDROID_STUDIO_ENV_SETUP:-false}
       ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
       ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
       IMAGE_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests/mobile_images
@@ -167,7 +167,7 @@ services:
 
       set -eu
       
-      [ "$${ANDROID_STUDIO_ENV_SETUP}" -eq 1 ] && \
+      [ "$${ANDROID_STUDIO_ENV_SETUP}" = "true" ] && \
         studio-caches-refresh.sh
 
       [ "$${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ] && \

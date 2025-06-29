@@ -39,3 +39,25 @@ jobs:
       - name: Build and load local project images
         run: |
           make images-ci
+
+      - name: Build mobile APK
+        run: |
+          make application-mobile-flutter-build-apk
+
+      - name: Run end-to-end tests
+        run: |
+          make application-tests
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: application-apk
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-test-results
+          path: |
+            application/tests/robot/results/*
