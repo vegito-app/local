@@ -6,16 +6,14 @@ Resource         ../resources/vegetable.robot
 *** Keywords ***
 Fill Field By Index
     [Arguments]    ${index}    ${value}
-    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    xpath=(//android.widget.EditText)[${index}]
-    Click Element                  xpath=(//android.widget.EditText)[${index}]
-    Input Text                     xpath=(//android.widget.EditText)[${index}]    ${value}
+    Scroll And Tap    xpath=(//android.widget.EditText)[${index}]
+    Wait Until Keyword Succeeds    10x    1s    Input Text                     xpath=(//android.widget.EditText)[${index}]    ${value}
     Press Keycode                  66
 
 
 Refill Field By Index
     [Arguments]    ${index}    ${value}
-    Wait Until Keyword Succeeds    10x    1s    Page Should Contain Element    xpath=(//android.widget.EditText)[${index}]
-    Click Element                  xpath=(//android.widget.EditText)[${index}]
+    Scroll And Tap    $locatorxpath=(//android.widget.EditText)[${index}]
     Clear Text                     xpath=(//android.widget.EditText)[${index}]
     Input Text                     xpath=(//android.widget.EditText)[${index}]    ${value}
     Press Keycode                  66
@@ -98,3 +96,11 @@ Capture Screenshot On Failure
     Run Keyword And Ignore Error    Log Source
     Run Keyword And Ignore Error    Log Page Source
     Close All Applications
+
+Select Combobox Option By Index
+    [Arguments]    ${combobox_index}    ${option_index}
+    [Documentation]    Sélectionne une option dans une combobox par index
+    Wait Until Page Contains Element    xpath=(//android.widget.Button)[${combobox_index}]
+    Click Element    xpath=(//android.widget.Button)[${combobox_index}]
+    Wait Until Page Contains Element    xpath=(//android.widget.Button)[${option_index}]
+    Click Element    xpath=(//android.widget.Button)[${option_index}]

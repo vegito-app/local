@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:vegito/config.dart';
@@ -35,16 +36,15 @@ class VegetableService {
   }
 
   Future<List<Vegetable>> listAvailableVegetables({
-    double? lat,
-    double? lon,
-    double? radiusKm,
+    required LatLng position,
+    double? deliveryRadiusKm = 1,
     String? keyword,
   }) async {
     final uri = Uri.parse('$backendUrl/api/vegetables/available').replace(
       queryParameters: {
-        if (lat != null) 'lat': lat.toString(),
-        if (lon != null) 'lon': lon.toString(),
-        if (radiusKm != null) 'radiusKm': radiusKm.toString(),
+        'lat': position.latitude.toString(),
+        'lon': position.longitude.toString(),
+        'deliveryRadiusKm': deliveryRadiusKm.toString(),
         if (keyword != null && keyword.isNotEmpty) 'keyword': keyword,
       },
     );

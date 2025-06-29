@@ -75,6 +75,7 @@ dependencies:
   url_launcher: ^6.3.1
   firebase_app_check: ^0.3.2+7
   location: ^8.0.1
+  intl: ^0.19.0
 
 # import 'package:google_sign_in/google_sign_in.dart';
 # package:firebase_auth/firebase_auth.dart;

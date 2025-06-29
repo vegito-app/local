@@ -22,12 +22,12 @@ class _BuyerMapTabState extends State<BuyerMapTab> {
   }
 
   void _loadMarkers() {
-    final markers = widget.vegetables
-        .where((v) => v.latitude != null && v.longitude != null)
-        .map((veg) {
+    final markers =
+        widget.vegetables.where((v) => v.deliveryLocation != null).map((veg) {
       return Marker(
         markerId: MarkerId(veg.id),
-        position: LatLng(veg.latitude!, veg.longitude!),
+        position: LatLng(
+            veg.deliveryLocation!.latitude, veg.deliveryLocation!.longitude),
         infoWindow: InfoWindow(
           title: veg.name,
           snippet: '${veg.priceCents / 100.0} € / kg',

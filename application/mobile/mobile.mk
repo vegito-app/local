@@ -27,6 +27,8 @@ application-mobile-flutter-analyze:
 APPLICATION_MOBILE_BUILDS = apk ios
 
 $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%):
+	@$(FLUTTER) clean
+	@$(FLUTTER) pub get
 	@$(FLUTTER) build $(@:application-mobile-flutter-build-%=%) --verbose
 	@echo "Build for $(@:application-mobile-flutter-build-%=%) completed successfully"
 .PHONY: $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%)

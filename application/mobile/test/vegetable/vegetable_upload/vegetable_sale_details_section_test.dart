@@ -12,11 +12,12 @@ void main() {
     });
 
     testWidgets('initializes controllers with correct values', (tester) async {
-      await tester.pumpWidget(const MaterialApp(
+      await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: QuantityInputField(
             saleType: SaleType.weight,
             isNewVegetable: true,
+            quantityController: quantityController,
           ),
         ),
       ));
@@ -31,9 +32,10 @@ void main() {
     });
 
     testWidgets('syncs grams to kg correctly on input', (tester) async {
-      await tester.pumpWidget(const MaterialApp(
+      await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: QuantityInputField(
+            quantityController: quantityController,
             saleType: SaleType.weight,
             isNewVegetable: true,
           ),
@@ -58,11 +60,12 @@ void main() {
     });
 
     testWidgets('clears 0 value on tap', (tester) async {
-      await tester.pumpWidget(const MaterialApp(
+      await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: QuantityInputField(
             saleType: SaleType.weight,
             isNewVegetable: true,
+            quantityController: quantityController,
           ),
         ),
       ));
@@ -82,9 +85,10 @@ void main() {
     });
 
     testWidgets('limits kg input decimals to 3', (tester) async {
-      await tester.pumpWidget(const MaterialApp(
+      await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: QuantityInputField(
+            quantityController: quantityController,
             saleType: SaleType.weight,
             isNewVegetable: true,
           ),

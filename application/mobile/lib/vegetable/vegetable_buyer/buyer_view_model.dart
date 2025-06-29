@@ -1,4 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:vegito/location/location_provider.dart';
+
 import '../vegetable_model.dart';
 import '../vegetable_service.dart';
 import 'buyer_filter.dart';
@@ -10,10 +14,16 @@ class BuyerViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  Position? get userDeliveryLocation => LocationProvider().currentPosition;
   BuyerViewModel({
     required this.vegetableService,
     BuyerFilter? initialFilter,
-  }) : _filter = initialFilter ?? BuyerFilter(searchRadiusKm: 10.0) {
+  }) : _filter = initialFilter ??
+            BuyerFilter(
+              userLocation: const LatLng(
+                  48.8566, 2.3522), // Paris, France (commonly used default)
+              searchRadiusKm: 0.500,
+            ) {
     fetchVegetables(_filter);
   }
 
@@ -28,11 +38,17 @@ class BuyerViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    if (filter.userLocation == null) {
+      _error = 'Veuillez activer la localisation pour rechercher des légumes.';
+      _vegetables = [];
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
     try {
       _vegetables = await vegetableService.listAvailableVegetables(
-        lat: filter.userLat,
-        lon: filter.userLon,
-        radiusKm: filter.searchRadiusKm,
+        position: filter.userLocation!,
+        deliveryRadiusKm: filter.searchRadiusKm,
         keyword: filter.searchText,
       );
     } catch (e) {

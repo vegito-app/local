@@ -1,9 +1,8 @@
-import 'package:vegito/config.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vegito/config.dart';
-import 'package:vegito/user/user_model.dart';
 
 import '../../cart/cart_screen.dart';
 import '../../delivery/delivery_address_modal.dart';
@@ -42,12 +41,10 @@ class _VegetableBuyerPageState extends State<VegetableBuyerPage> {
       _isLocating = true;
     });
     try {
-      final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      final position = await Geolocator.getCurrentPosition();
       viewModel.updateFilter(BuyerFilter(
         searchText: _searchController.text,
-        userLat: position.latitude,
-        userLon: position.longitude,
+        userLocation: LatLng(position.latitude, position.longitude),
         onlyDeliverable: true,
       ));
       setState(() {
@@ -82,8 +79,7 @@ class _VegetableBuyerPageState extends State<VegetableBuyerPage> {
           });
           viewModel.updateFilter(BuyerFilter(
             searchText: _searchController.text,
-            userLat: lat,
-            userLon: lon,
+            userLocation: LatLng(lat, lon),
             onlyDeliverable: true,
           ));
         },
@@ -122,8 +118,7 @@ class _VegetableBuyerPageState extends State<VegetableBuyerPage> {
                 onChanged: (text) {
                   viewModel.updateFilter(BuyerFilter(
                     searchText: text,
-                    userLat: viewModel.currentFilter.userLat,
-                    userLon: viewModel.currentFilter.userLon,
+                    userLocation: viewModel.currentFilter.userLocation,
                     onlyDeliverable: true,
                   ));
                 },

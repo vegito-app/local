@@ -1,12 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:vegito/vegetable/vegetable_buyer/vegetable_buyer_page.dart'
+    as Config;
 
 class AuthService {
+  final http.Client client;
+  final String backendUrl;
   final FirebaseAuth _auth;
 
-  AuthService({FirebaseAuth? firebaseAuth})
-      : _auth = firebaseAuth ?? FirebaseAuth.instance;
+  AuthService(
+      {FirebaseAuth? firebaseAuth, http.Client? client, String? backendUrl})
+      : _auth = firebaseAuth ?? FirebaseAuth.instance,
+        backendUrl = backendUrl ?? Config.backendUrl,
+        client = client ?? http.Client();
 
   /// Connecte anonymement l'utilisateur s'il n'y en a pas déjà un.
   Future<User?> ensureSignedIn() async {
@@ -51,5 +59,21 @@ class AuthService {
     final credential =
         FacebookAuthProvider.credential(result.accessToken!.tokenString);
     return await _auth.signInWithCredential(credential);
+  }
+
+  Future<bool> verifyBackendAuth(String? idToken) async {
+    if (idToken == null || idToken.isEmpty) return false;
+    try {
+      final response = await http.get(
+        Uri.parse('$backendUrl/api/auth-check'),
+        headers: {
+          'Authorization': 'Bearer $idToken',
+        },
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      // Log error or handle accordingly
+      throw Exception('Backend auth check failed: $e');
+    }
   }
 }

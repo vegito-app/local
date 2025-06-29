@@ -9,7 +9,8 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   late final Stream<User?> _authStream;
   late final StreamSubscription<User?> _authSubscription;
-
+  bool _backendAuthOk = false;
+  bool get backendAuthOk => _backendAuthOk;
   BuildContext? _context;
   final AuthService _authService;
 
@@ -21,25 +22,31 @@ class AuthProvider extends ChangeNotifier {
     _authStream = FirebaseAuth.instance.authStateChanges();
     _authSubscription = _authStream.listen((user) async {
       _user = user;
-      // Délègue la logique d'auth anonyme à AuthService
-      if (_user == null) {
-        try {
-          _user = await _authService.ensureSignedIn();
-        } catch (e) {
-          _showSnackBar(
-            "Erreur de connexion anonyme : $e",
-            backgroundColor: Colors.orange,
-          );
+      try {
+        _user = await _authService.ensureSignedIn();
+      } catch (e) {
+        _showSnackBar("Erreur de connexion anonyme : $e",
+            backgroundColor: Colors.orange);
+      }
+
+      if (_user != null) {
+        final idToken = await _user!.getIdToken();
+        final backendOk = await _authService.verifyBackendAuth(idToken);
+        if (!backendOk) {
+          _showSnackBar("Vérification backend en cours ou échouée",
+              backgroundColor: Colors.orange);
+          _backendAuthOk = false;
+        } else {
+          _backendAuthOk = true;
         }
       }
 
-      if (_user != null && _user!.isAnonymous) {
+      if (_user!.isAnonymous) {
         _showSnackBar(
           "Connecté anonymement. Pensez à sécuriser votre compte plus tard.",
           backgroundColor: Colors.red,
         );
       }
-
       notifyListeners();
     });
   }

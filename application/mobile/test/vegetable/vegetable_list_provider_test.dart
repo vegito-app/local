@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:vegito/vegetable/vegetable_list_provider.dart';
 import 'package:vegito/vegetable/vegetable_model.dart';
-import 'package:vegito/vegetable/vegetable_service.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 
 import '../mocks.mocks.dart';
 
@@ -23,12 +22,12 @@ void main() {
         id: '1',
         name: 'Carotte',
         description: 'Orange',
-        saleType: 'weight',
+        saleType: SaleType.weight,
         priceCents: 150,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'user1',
-        availabilityType: 'sameDay',
+        availabilityType: AvailabilityType.sameDay,
         availabilityDate: null,
         quantityAvailable: 20,
       ),
@@ -49,12 +48,12 @@ void main() {
         id: '1',
         name: 'Tomate',
         description: '',
-        saleType: 'unit',
+        saleType: SaleType.unit,
         priceCents: 200,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'user2',
-        availabilityType: 'sameDay',
+        availabilityType: AvailabilityType.sameDay,
         availabilityDate: null,
         quantityAvailable: 15,
       ),
@@ -63,12 +62,12 @@ void main() {
         id: '2',
         name: 'Salade',
         description: '',
-        saleType: 'unit',
+        saleType: SaleType.unit,
         priceCents: 100,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'user3',
-        availabilityType: 'sameDay',
+        availabilityType: AvailabilityType.sameDay,
         availabilityDate: null,
         quantityAvailable: 15,
       ),

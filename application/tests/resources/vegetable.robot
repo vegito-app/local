@@ -73,7 +73,7 @@ Ajouter Une Photo De Légume
 
 Set Image As Main If Possible
     [Arguments]    ${image} 
-    Wait Until Page Contains Element    accessibility_id=Ajouter une photo
+    Wait Until Page Contains Element    accessibility_id=Photos sélectionnées :
     ${set_main_image_button}=    Run Keyword And Return Status    Wait Until Page Contains Element    accessibility_id=set-main-image-${image}    timeout=3s
     Run Keyword If    ${set_main_image_button}    Click Element    accessibility_id=set-main-image-${image}
 
@@ -121,14 +121,17 @@ Scroll And Tap Vegetable Upload Register Button
     Wait Until Page Contains Element    accessibility_id=vegetable-upload-success\nLégume enregistré avec succès
 
 Changer Type Vente Au Poids
-    Changer Type Vente    À l’unité    Au poids (€/kg)
+    # Clic sur le premier bouton (À l'unité) pour ouvrir la combobox
+    Wait Until Page Contains Element    accessibility_id=À l'unité
+    Click Element   accessibility_id=À l'unité
+    # Clic sur le deuxième bouton (Au poids) dans la liste ouverte
+    Wait Until Page Contains Element    xpath=//android.widget.Button[2]
+    Click Element    xpath=//android.widget.Button[2]
 
-Changer Type Vente À L’Unité
-    Changer Type Vente    Au poids (€/kg)    À l’unité
-
-Changer Type Vente
-    [Arguments]    ${type_vente}  ${type_vente_suivant}
-    Wait Until Page Contains Element    accessibility_id=${type_vente}
-    Click Element    accessibility_id=${type_vente}
-    Wait Until Page Contains Element    accessibility_id=${type_vente_suivant}
-    Click Element    accessibility_id=${type_vente_suivant}
+Changer Type Vente À L'Unité
+    # Clic sur le premier bouton (Au poids) pour ouvrir la combobox
+    Wait Until Page Contains Element    accessibility_id=Au poids (€/kg)
+    Click Element    accessibility_id=Au poids (€/kg)
+    # Clic sur le premier bouton (À l'unité) dans la liste ouverte
+    Wait Until Page Contains Element    xpath=//android.widget.Button[1]
+    Click Element    xpath=//android.widget.Button[1]

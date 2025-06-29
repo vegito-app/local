@@ -7,7 +7,7 @@ import 'package:vegito/vegetable/vegetable_service.dart';
 import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 
 class VegetableUploadProvider with ChangeNotifier {
-  String _saleType = 'weight';
+  SaleType _saleType = SaleType.weight;
 
   Vegetable? initialVegetable;
   final VegetableService _service;
@@ -19,6 +19,9 @@ class VegetableUploadProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _isActive = true;
   final ImagePicker _picker = ImagePicker();
+
+  String _description = '';
+  String _name = '';
 
   AvailabilityType _availabilityType = AvailabilityType.sameDay;
   DateTime? _availabilityDate;
@@ -61,16 +64,9 @@ class VegetableUploadProvider with ChangeNotifier {
   }
 
   int get quantityAvailable => _quantity;
-  set quantityAvailableGrams(int grams) {
-    if (_quantity != grams) {
-      _quantity = grams;
-      notifyListeners();
-    }
-  }
-
-  set quantityAvailableUnits(int units) {
-    if (_quantity != units) {
-      _quantity = units;
+  set quantityAvailable(int quantity) {
+    if (_quantity != quantity) {
+      _quantity = quantity;
       notifyListeners();
     }
   }
@@ -81,8 +77,20 @@ class VegetableUploadProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String get saleType => _saleType;
-  set saleType(String value) {
+  String get description => _description;
+  set description(String value) {
+    _description = value;
+    notifyListeners();
+  }
+
+  String get name => _name;
+  set name(String value) {
+    _name = value;
+    notifyListeners();
+  }
+
+  SaleType get saleType => _saleType;
+  set saleType(SaleType value) {
     if (_saleType != value) {
       _saleType = value;
       notifyListeners();
@@ -118,6 +126,13 @@ class VegetableUploadProvider with ChangeNotifier {
         _availabilityDate != initialVegetable!.availabilityDate ||
         _isActive != initialVegetable!.active ||
         _saleType != initialVegetable!.saleType ||
+        _description != initialVegetable!.description ||
+        _name != initialVegetable!.name ||
+        _deliveryLocation?.latitude !=
+            initialVegetable!.deliveryLocation?.latitude ||
+        _deliveryLocation?.longitude !=
+            initialVegetable!.deliveryLocation?.longitude ||
+        _deliveryRadiusKm != initialVegetable!.deliveryRadiusKm ||
         !_sameImages(initialVegetable!.images, _images);
   }
 
@@ -180,13 +195,6 @@ class VegetableUploadProvider with ChangeNotifier {
   Future<void> submitVegetable({
     required String userId,
     required VegetableListProvider vegetableListProvider,
-    required String name,
-    required String description,
-    required int quantityAvailable,
-    required AvailabilityType availabilityType,
-    DateTime? availabilityDate,
-    required int priceCents,
-    required String saleType,
   }) async {
     if (initialVegetable == null && _images.isEmpty) {
       throw Exception('No images selected');
@@ -217,18 +225,17 @@ class VegetableUploadProvider with ChangeNotifier {
     final vegetable = Vegetable(
       id: initialVegetable?.id ?? '', // conserve l'id existant
       name: name,
-      description: description,
+      description: _description,
       saleType: _saleType,
       priceCents: _priceCents,
       images: vegetableImages,
       ownerId: userId,
       createdAt: DateTime.now().toUtc(),
       active: _isActive,
-      availabilityType: _availabilityType.name,
+      availabilityType: _availabilityType,
       availabilityDate: _availabilityDate,
       quantityAvailable: _quantity,
-      latitude: _deliveryLocation?.latitude,
-      longitude: _deliveryLocation?.longitude,
+      deliveryLocation: _deliveryLocation,
       deliveryRadiusKm: _deliveryRadiusKm,
     );
 
@@ -287,11 +294,10 @@ class VegetableUploadProvider with ChangeNotifier {
       ownerId: initialVegetable!.ownerId,
       createdAt: initialVegetable!.createdAt,
       active: _isActive,
-      availabilityType: _availabilityType.name,
+      availabilityType: _availabilityType,
       availabilityDate: _availabilityDate,
       quantityAvailable: _quantity,
-      latitude: _deliveryLocation?.latitude,
-      longitude: _deliveryLocation?.longitude,
+      deliveryLocation: _deliveryLocation,
       deliveryRadiusKm: _deliveryRadiusKm,
     );
 
@@ -312,11 +318,10 @@ class VegetableUploadProvider with ChangeNotifier {
       ownerId: initialVegetable!.ownerId,
       createdAt: initialVegetable!.createdAt,
       active: _isActive,
-      availabilityType: _availabilityType.name,
+      availabilityType: _availabilityType,
       availabilityDate: _availabilityDate,
       quantityAvailable: _quantity,
-      latitude: _deliveryLocation?.latitude,
-      longitude: _deliveryLocation?.longitude,
+      deliveryLocation: _deliveryLocation,
       deliveryRadiusKm: _deliveryRadiusKm,
     );
   }

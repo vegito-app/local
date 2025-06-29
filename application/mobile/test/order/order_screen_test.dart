@@ -9,6 +9,7 @@ import 'package:vegito/order/order_screen.dart';
 import 'package:vegito/vegetable/vegetable_list_provider.dart'
     show VegetableListProvider;
 import 'package:vegito/vegetable/vegetable_model.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 
 import '../mocks.mocks.dart';
 
@@ -29,12 +30,12 @@ void main() {
         id: 'veg1',
         name: 'Carotte',
         description: '',
-        saleType: 'unit',
+        saleType: SaleType.unit,
         priceCents: 100,
         images: [],
         createdAt: DateTime.now(),
         ownerId: 'seller1',
-        availabilityType: 'sameDay',
+        availabilityType: AvailabilityType.sameDay,
         availabilityDate: null,
         quantityAvailable: 10,
       )

@@ -1,5 +1,6 @@
-import 'package:vegito/config.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:vegito/config.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section.dart';
 
 class VegetableImage {
   final DateTime uploadedAt;
@@ -54,18 +55,17 @@ class Vegetable {
   final String id;
   final String name;
   final String description;
-  final String saleType;
+  final SaleType saleType;
   final int priceCents;
   final List<VegetableImage> images;
   final String ownerId;
   final DateTime createdAt;
   final bool active;
-  final String availabilityType;
+  final AvailabilityType availabilityType;
   final DateTime? availabilityDate;
   final int quantityAvailable;
-  final double? latitude;
-  final double? longitude;
-  final double? deliveryRadiusKm;
+  final LatLng? deliveryLocation;
+  final double deliveryRadiusKm;
 
   Vegetable({
     required this.id,
@@ -80,9 +80,8 @@ class Vegetable {
     required this.availabilityType,
     required this.availabilityDate,
     required this.quantityAvailable,
-    this.latitude,
-    this.longitude,
-    this.deliveryRadiusKm,
+    this.deliveryLocation,
+    this.deliveryRadiusKm = 0.0,
   });
   factory Vegetable.fromJson(Map<String, dynamic> json) {
     return Vegetable(
@@ -95,40 +94,71 @@ class Vegetable {
       name: json['name'] as String,
       ownerId: json['ownerId'] as String,
       priceCents: json['priceCents'] as int,
-      saleType: json['saleType'] as String,
+      saleType: json['saleType'] == 'weight' ? SaleType.weight : SaleType.unit,
       active: json['active'] as bool? ?? true,
-      availabilityType: json['availabilityType'] as String,
+      availabilityType: json['availabilityType'] == 'futureDate'
+          ? AvailabilityType.futureDate
+          : json['availabilityType'] == 'alreadyHarvested'
+              ? AvailabilityType.alreadyHarvested
+              : AvailabilityType.sameDay,
       availabilityDate: json['availabilityDate'] != null
           ? DateTime.parse(json['availabilityDate'] as String)
           : null,
       quantityAvailable: json['quantityAvailable'] as int,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
-      deliveryRadiusKm: (json['radiusKm'] as num?)?.toDouble(),
+      deliveryLocation: json['latitude'] != null && json['longitude'] != null
+          ? LatLng(
+              (json['latitude'] as num).toDouble(),
+              (json['longitude'] as num).toDouble(),
+            )
+          : null,
+      deliveryRadiusKm: (json['deliveryRadiusKm'] as num?)!.toDouble(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
-      'createdAt': createdAt.toIso8601String(),
+      'id': id,
       'description': description,
       'images': images.map((e) => e.toJson()).toList(),
       'name': name,
       'ownerId': ownerId,
       'priceCents': priceCents,
-      'saleType': saleType,
+      'saleType': saleType.name,
       'active': active,
-      'availabilityType': availabilityType,
-      'availabilityDate': availabilityDate?.toIso8601String(),
+      'availabilityType': availabilityType.name,
+      'availabilityDate': availabilityDate?.toUtc().toIso8601String(),
       'quantityAvailable': quantityAvailable,
-      'latitude': latitude,
-      'longitude': longitude,
-      'radiusKm': deliveryRadiusKm,
+      'latitude': deliveryLocation?.latitude,
+      'longitude': deliveryLocation?.longitude,
+      'deliveryRadiusKm': deliveryRadiusKm,
     };
   }
 
-  LatLng? get deliveryLocation {
-    if (latitude == null || longitude == null) return null;
-    return LatLng(latitude!, longitude!);
+  bool get isAvailableNow {
+    if (availabilityType == AvailabilityType.sameDay) return true;
+    if (availabilityType == AvailabilityType.futureDate &&
+        availabilityDate != null) {
+      return DateTime.now().isAfter(availabilityDate!);
+    }
+    return false;
+  }
+
+  bool get isAvailableForDelivery {
+    return deliveryLocation != null && deliveryRadiusKm != null;
+  }
+
+  String get formattedPrice {
+    final price = priceCents / 100;
+    return '${price.toStringAsFixed(2)} €';
+  }
+
+  String get formattedAvailability {
+    if (availabilityType == AvailabilityType.sameDay) {
+      return 'Disponible aujourd’hui';
+    } else if (availabilityType == AvailabilityType.futureDate &&
+        availabilityDate != null) {
+      return 'Disponible le ${availabilityDate!.toLocal().toIso8601String().split('T')[0]}';
+    } else {
+      return 'Disponible en stock';
+    }
   }
 }

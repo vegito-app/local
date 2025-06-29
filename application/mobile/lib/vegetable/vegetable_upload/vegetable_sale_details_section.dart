@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vegito/vegetable/vegetable_upload/quantity_input_field.dart';
+import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 
 enum SaleType { unit, weight }
 
@@ -9,25 +11,17 @@ class VegetableSaleDetailsSection extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController descriptionController;
   final TextEditingController priceController;
-  final SaleType initialSaleType;
-  final AvailabilityType initialAvailabilityType;
-  final DateTime? initialAvailabilityDate;
+  final TextEditingController quantityController;
   final TextEditingController availabilityDateController;
   final bool isNewVegetable;
-  final void Function(SaleType) onSaleTypeChanged;
-  final void Function(AvailabilityType, DateTime?) onAvailabilityChanged;
 
   const VegetableSaleDetailsSection({
     super.key,
     required this.nameController,
     required this.descriptionController,
     required this.priceController,
-    required this.initialSaleType,
-    required this.initialAvailabilityType,
-    required this.initialAvailabilityDate,
     required this.availabilityDateController,
-    required this.onSaleTypeChanged,
-    required this.onAvailabilityChanged,
+    required this.quantityController,
     this.isNewVegetable = false,
   });
 
@@ -38,20 +32,10 @@ class VegetableSaleDetailsSection extends StatefulWidget {
 
 class _VegetableSaleDetailsSectionState
     extends State<VegetableSaleDetailsSection> {
-  late SaleType saleType;
-  late AvailabilityType availabilityType;
-  DateTime? availabilityDate;
-
-  @override
-  void initState() {
-    super.initState();
-    saleType = widget.initialSaleType;
-    availabilityType = widget.initialAvailabilityType;
-    availabilityDate = widget.initialAvailabilityDate;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<VegetableUploadProvider>();
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -66,18 +50,15 @@ class _VegetableSaleDetailsSectionState
                       style: Theme.of(context).textTheme.titleMedium),
                   DropdownButton<SaleType>(
                     key: const Key("saleTypeDropdown"),
-                    value: saleType,
+                    value: provider.saleType,
                     onChanged: (SaleType? newValue) {
                       if (newValue != null) {
-                        setState(() {
-                          saleType = newValue;
-                        });
-                        widget.onSaleTypeChanged(newValue);
+                        provider.saleType = newValue;
                       }
                     },
                     items: const [
                       DropdownMenuItem(
-                          value: SaleType.unit, child: Text("À l’unité")),
+                          value: SaleType.unit, child: Text("À l'unité")),
                       DropdownMenuItem(
                           value: SaleType.weight,
                           child: Text("Au poids (€/kg)")),
@@ -95,7 +76,7 @@ class _VegetableSaleDetailsSectionState
                       style: Theme.of(context).textTheme.titleMedium),
                   DropdownButton<AvailabilityType>(
                     key: const Key("availabilityTypeDropdown"),
-                    value: availabilityType,
+                    value: provider.availabilityType,
                     onChanged: (AvailabilityType? newValue) async {
                       if (newValue != null) {
                         DateTime? pickedDate;
@@ -117,20 +98,16 @@ class _VegetableSaleDetailsSectionState
                           );
                         }
 
-                        setState(() {
-                          availabilityType = newValue;
-                          if (newValue == AvailabilityType.sameDay ||
-                              pickedDate == null) {
-                            availabilityDate = null;
-                            widget.availabilityDateController.clear();
-                          } else {
-                            availabilityDate = pickedDate;
-                            widget.availabilityDateController.text =
-                                "${pickedDate.toLocal()}".split(' ')[0];
-                          }
-                        });
-
-                        widget.onAvailabilityChanged(newValue, pickedDate);
+                        provider.availabilityType = newValue;
+                        if (newValue == AvailabilityType.sameDay ||
+                            pickedDate == null) {
+                          provider.availabilityDate = null;
+                          widget.availabilityDateController.clear();
+                        } else {
+                          provider.availabilityDate = pickedDate;
+                          widget.availabilityDateController.text =
+                              "${pickedDate.toLocal()}".split(' ')[0];
+                        }
                       }
                     },
                     items: const [
@@ -159,7 +136,7 @@ class _VegetableSaleDetailsSectionState
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: () {
-                    if (availabilityType == AvailabilityType.sameDay) {
+                    if (provider.availabilityType == AvailabilityType.sameDay) {
                       return Text(
                         'Récolté le jour de la livraison',
                         style: Theme.of(context)
@@ -168,20 +145,22 @@ class _VegetableSaleDetailsSectionState
                             ?.copyWith(fontStyle: FontStyle.italic),
                       );
                     }
-                    if (availabilityType == AvailabilityType.futureDate &&
-                        availabilityDate != null) {
+                    if (provider.availabilityType ==
+                            AvailabilityType.futureDate &&
+                        provider.availabilityDate != null) {
                       return Text(
-                        'Récolte prévue le ${availabilityDate!.toLocal().toString().split(' ')[0]}',
+                        'Récolte prévue le ${provider.availabilityDate!.toLocal().toString().split(' ')[0]}',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
                             ?.copyWith(fontStyle: FontStyle.italic),
                       );
                     }
-                    if (availabilityType == AvailabilityType.alreadyHarvested &&
-                        availabilityDate != null) {
+                    if (provider.availabilityType ==
+                            AvailabilityType.alreadyHarvested &&
+                        provider.availabilityDate != null) {
                       return Text(
-                        'Récolté le ${availabilityDate!.toLocal().toString().split(' ')[0]}',
+                        'Récolté le ${provider.availabilityDate!.toLocal().toString().split(' ')[0]}',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -207,7 +186,8 @@ class _VegetableSaleDetailsSectionState
                 const SizedBox(height: 12),
                 const Text('Quantité mise en vente'),
                 QuantityInputField(
-                  saleType: saleType,
+                  quantityController: widget.quantityController,
+                  saleType: provider.saleType,
                   isNewVegetable: widget.isNewVegetable,
                 ),
                 const SizedBox(height: 12),
@@ -215,7 +195,7 @@ class _VegetableSaleDetailsSectionState
                   key: const Key("priceField"),
                   controller: widget.priceController,
                   decoration: InputDecoration(
-                    labelText: saleType == SaleType.unit
+                    labelText: provider.saleType == SaleType.unit
                         ? 'Prix (€/unité)'
                         : 'Prix (€/Kg)',
                   ),

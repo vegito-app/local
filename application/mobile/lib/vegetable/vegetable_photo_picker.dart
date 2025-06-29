@@ -1,18 +1,18 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:vegito/auth/auth_provider.dart';
 import 'package:vegito/vegetable/vegetable_list_provider.dart';
+import 'package:vegito/vegetable/vegetable_map/vegetable_map_location_picker.dart';
 import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 import 'package:vegito/xfile_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class VegetablePhotoPicker extends StatelessWidget {
   final VegetableUploadProvider provider;
-  final int maxImages;
 
-  const VegetablePhotoPicker(
-      {super.key, required this.provider, this.maxImages = 3});
+  const VegetablePhotoPicker({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +76,38 @@ class VegetablePhotoPicker extends StatelessWidget {
                     ],
                   ),
                 ),
+            if (provider.images.length < 3)
+              GestureDetector(
+                onTap: () async {
+                  final selectedPosition = await Navigator.push<LatLng>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => VegetableMapLocationPicker(
+                        onLocationSelected: (position) =>
+                            Navigator.pop(context, position),
+                      ),
+                    ),
+                  );
+
+                  if (selectedPosition != null) {
+                    provider.deliveryLocation = selectedPosition;
+                  }
+                },
+                child: Container(
+                  height: 100,
+                  width: 100,
+                  color: Colors.blueGrey[100],
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.location_on, color: Colors.blue),
+                        Text("Position"),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ],

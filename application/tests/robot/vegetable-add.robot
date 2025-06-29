@@ -35,7 +35,6 @@ Ajouter une carotte depuis l’interface
 
     Ajouter La Première Photo    2
 
-    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Carotte
     Fill Field By Index    2    Fraîche du jardin
@@ -76,7 +75,6 @@ Ajouter un chouchou avec plusieurs images depuis l’interface
     
     Click Element                   accessibility_id=delete-image-chouchou-3-2, Supprimer cette photo
     Wait Until Page Contains Element    accessibility_id=delete-image-chouchou-2, Supprimer cette photo
-    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Chouchou
     Fill Field By Index    2    Bien vert et bio
@@ -97,7 +95,6 @@ Ajouter un légume vendu au poids
 
     Ajouter La Première Photo    2
 
-    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Tomate
     Fill Field By Index    2    Fraîchement récoltée
@@ -119,10 +116,10 @@ Ajouter un légume vendu à l’unité
     Fill Field By Index    1    Citrouille
     Fill Field By Index    2    Belle pièce pour Halloween
 
-    Changer Type Vente Au Poids
+    Changer Type Vente À L'Unité
 
-    Fill Field By Index    4    1.000
-    Fill Field By Index    5    3.00
+    Fill Field By Index    3    1000
+    Fill Field By Index    4    3.00
     
     Scroll And Tap Vegetable Upload Register Button
     Sleep    2s
@@ -154,8 +151,8 @@ Sélection d’une image principale via l’étoile
     Page Should Contain Element         accessibility_id=delete-image-patate-2-2, Supprimer cette photo
     Page Should Contain Element         accessibility_id=delete-image-patate-3-3, Supprimer cette photo
 
-    Changer Type Vente Au Poids
-    Changer Type Vente À L’Unité
+    
+    Changer Type Vente À L'Unité
     Fill Field By Index    1    Patate
     Fill Field By Index    2    Fraîche et bio
     Fill Field By Index    3    1000
@@ -213,6 +210,7 @@ Sélection d’une image principale via l’étoile sans enregister
     Page Should Contain Element         accessibility_id=delete-image-patate-2-2, Supprimer cette photo
     Page Should Contain Element         accessibility_id=delete-image-patate-3-3, Supprimer cette photo
 
+    Changer Type Vente À L'Unité
     Fill Field By Index    1    Patate
     Fill Field By Index    2    Fraîche et bio
     Fill Field By Index    3    1000
@@ -253,7 +251,6 @@ Vérifie cohérence champs quantité g/Kg
     Click Element    accessibility_id=🧺 Vendre mes légumes
 
     Ajouter La Première Photo    2
-    Changer Type Vente Au Poids
 
     Fill Field By Index    1    Patate
     Fill Field By Index    2    Bien ferme
@@ -285,8 +282,6 @@ Vérifie activation bouton enregistrer selon quantité
 
     Element Attribute Should Match                accessibility_id=submit-vegetable-button    clickable    false
 
-    Changer Type Vente Au Poids
-
     # Remplit 0.000 Kg → bouton toujours désactivé
     Fill Field By Index    4    0.000
     Element Attribute Should Match            accessibility_id=submit-vegetable-button    clickable    false
@@ -301,7 +296,7 @@ Vérifie activation bouton enregistrer selon quantité
     Element Attribute Should Match            accessibility_id=submit-vegetable-button    enabled    true
 
     # Bascule en mode vente à l'unité
-    Changer Type Vente À L’Unité
+    Changer Type Vente À L'Unité
 
     # Champ quantité remis à vide → bouton désactivé
     Scroll And Tap         xpath=(//android.widget.EditText)[3]

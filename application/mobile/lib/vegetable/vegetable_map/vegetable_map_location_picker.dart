@@ -98,19 +98,19 @@ class _VegetableMapLocationPickerState
                     onTap: _onMapTap,
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.all(16),
-                //   child: ElevatedButton.icon(
-                //     onPressed: _selectedPosition != null
-                //         ? () {
-                //             widget.onLocationSelected(_selectedPosition!);
-                //             Navigator.pop(context);
-                //           }
-                //         : null,
-                //     icon: const Icon(Icons.check),
-                //     label: const Text('Valider la position'),
-                //   ),
-                // )
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton.icon(
+                    onPressed: _selectedPosition != null
+                        ? () {
+                            widget.onLocationSelected(_selectedPosition!);
+                            Navigator.pop(context);
+                          }
+                        : null,
+                    icon: const Icon(Icons.check),
+                    label: const Text('Valider la position'),
+                  ),
+                )
               ],
             ),
     );
