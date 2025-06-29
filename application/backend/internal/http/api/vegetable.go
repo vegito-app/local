@@ -32,24 +32,24 @@ const (
 )
 
 type Vegetable struct {
+	Active            bool             `json:"active"`
+	AvailabilityDate  time.Time        `json:"availabilityDate"`
+	AvailabilityType  string           `json:"availabilityType"`
+	CreatedAt         time.Time        `json:"createdAt"`
+	Description       string           `json:"description"`
 	ID                string           `json:"id,omitempty"`
+	Images            []VegetableImage `json:"images"`
 	Name              string           `json:"name"`
 	OwnerID           string           `json:"ownerId"`
-	Description       string           `json:"description"`
-	SaleType          string           `json:"saleType"`
 	PriceCents        int              `json:"priceCents"`
-	Images            []VegetableImage `json:"images"`
-	CreatedAt         time.Time        `json:"createdAt"`
-	UserCreatedAt     time.Time        `json:"userCreatedAt,omitempty"`
-	Active            bool             `json:"active"`
-	AvailabilityType  string           `json:"availabilityType"`
-	AvailabilityDate  time.Time        `json:"availabilityDate"`
 	QuantityAvailable int              `json:"quantityAvailable"`
+	SaleType          string           `json:"saleType"`
+	UserCreatedAt     time.Time        `json:"userCreatedAt,omitempty"`
 
 	// 🆕 Champs de géolocalisation
+	DeliveryRadiusKm float64 `json:"deliveryRadiusKm"`
 	Latitude         float64 `json:"latitude"`
 	Longitude        float64 `json:"longitude"`
-	DeliveryRadiusKm float64 `json:"deliveryRadiusKm"`
 }
 
 // Implementations must return ErrVegetableNotFound when a requested vegetable
@@ -86,9 +86,9 @@ type VegetableImageValidator interface {
 
 // VegetableService defines all routes handled by VegetableService
 type VegetableService struct {
-	storage                      VegetableStorage
 	imageValidator               VegetableImageValidator
 	isValidatedImagesServedByCDN bool
+	storage                      VegetableStorage
 }
 
 // NewVegetableService initializes the VegetableService with the provided storage and image validator.
@@ -130,8 +130,20 @@ func NewVegetableService(mux *nethttp.ServeMux, storage VegetableStorage, imageV
 func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.Request) {
 	ctx := r.Context()
 	userID := requestUserID(r)
+	requestBody, ok := http.RequestBodyFromContext(r)
+	if !ok {
+		log.Error().Msg("create vegetable failed to get request body from context")
+		nethttp.Error(w, "failed to read request body", nethttp.StatusInternalServerError)
+		return
+	}
+	if len(requestBody) == 0 {
+		log.Error().Msg("create vegetable failed: empty request body")
+		nethttp.Error(w, "empty request body", nethttp.StatusBadRequest)
+		return
+	}
 	var vegetableRequest v1.VegetableRequest
-	if err := json.NewDecoder(r.Body).Decode(&vegetableRequest); err != nil {
+	// Decode the request body into VegetableRequest
+	if err := json.Unmarshal(requestBody, &vegetableRequest); err != nil {
 		log.Error().Err(err).Msg("create vegetable failed to decode vegetable payload")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
@@ -141,21 +153,21 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		return
 	}
 	vegetable := Vegetable{
-		ID:                uuid.NewString(),
-		Name:              vegetableRequest.Name,
-		OwnerID:           vegetableRequest.OwnerID,
-		Description:       vegetableRequest.Description,
-		SaleType:          vegetableRequest.SaleType,
-		PriceCents:        vegetableRequest.PriceCents,
-		CreatedAt:         time.Now().UTC(),
-		UserCreatedAt:     time.Now().UTC(),
 		Active:            true, // always active on creation
-		AvailabilityType:  string(vegetableRequest.AvailabilityType),
 		AvailabilityDate:  vegetableRequest.AvailabilityDate,
-		QuantityAvailable: vegetableRequest.QuantityAvailable,
+		AvailabilityType:  string(vegetableRequest.AvailabilityType),
+		CreatedAt:         time.Now().UTC(),
+		DeliveryRadiusKm:  vegetableRequest.DeliveryRadiusKm,
+		Description:       vegetableRequest.Description,
+		ID:                uuid.NewString(),
 		Latitude:          vegetableRequest.Latitude,
 		Longitude:         vegetableRequest.Longitude,
-		DeliveryRadiusKm:  vegetableRequest.DeliveryRadiusKm,
+		Name:              vegetableRequest.Name,
+		OwnerID:           vegetableRequest.OwnerID,
+		PriceCents:        vegetableRequest.PriceCents,
+		QuantityAvailable: vegetableRequest.QuantityAvailable,
+		SaleType:          vegetableRequest.SaleType,
+		UserCreatedAt:     time.Now().UTC(),
 	}
 	for _, img := range vegetableRequest.Images {
 		vegetableImage := VegetableImage{
@@ -191,20 +203,23 @@ func (s *VegetableService) CreateVegetable(w nethttp.ResponseWriter, r *nethttp.
 	}
 	createdVegetableImagesResponse := responseImages(&vegetable, userID, s.isValidatedImagesServedByCDN)
 	response := &v1.VegetableResponse{
-		ID:          vegetable.ID,
-		Name:        vegetable.Name,
-		OwnerID:     vegetable.OwnerID,
-		Description: vegetable.Description,
-		SaleType:    vegetable.SaleType,
 		// WeightGrams:       vegetable.WeightGrams,
-		PriceCents:        vegetable.PriceCents,
-		Images:            createdVegetableImagesResponse,
-		CreatedAt:         vegetable.CreatedAt,
-		UserCreatedAt:     vegetable.UserCreatedAt,
 		Active:            vegetable.Active,
-		AvailabilityType:  v1.VegetableAvailabilityType(vegetable.AvailabilityType),
 		AvailabilityDate:  &vegetable.AvailabilityDate,
+		AvailabilityType:  v1.VegetableAvailabilityType(vegetable.AvailabilityType),
+		CreatedAt:         vegetable.CreatedAt,
+		DeliveryRadiusKm:  vegetable.DeliveryRadiusKm,
+		Description:       vegetable.Description,
+		ID:                vegetable.ID,
+		Images:            createdVegetableImagesResponse,
+		Latitude:          vegetable.Latitude,
+		Longitude:         vegetable.Longitude,
+		Name:              vegetable.Name,
+		OwnerID:           vegetable.OwnerID,
+		PriceCents:        vegetable.PriceCents,
 		QuantityAvailable: vegetable.QuantityAvailable,
+		SaleType:          vegetable.SaleType,
+		UserCreatedAt:     vegetable.UserCreatedAt,
 	}
 	log.Debug().Str("id", vegetable.ID).Msg("Created vegetable")
 	// Set the response status to Created (201)
@@ -236,20 +251,23 @@ func (s *VegetableService) ListVegetables(w nethttp.ResponseWriter, r *nethttp.R
 	for _, veggie := range veggies {
 		imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
 		resp = append(resp, &v1.VegetableResponse{
-			ID:          veggie.ID,
-			Name:        veggie.Name,
-			OwnerID:     veggie.OwnerID,
-			Description: veggie.Description,
-			SaleType:    veggie.SaleType,
 			// WeightGrams:       veggie.WeightGrams,
-			PriceCents:        veggie.PriceCents,
-			Images:            imagesResp,
-			CreatedAt:         veggie.CreatedAt,
-			UserCreatedAt:     veggie.UserCreatedAt,
 			Active:            veggie.Active,
-			AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
 			AvailabilityDate:  &veggie.AvailabilityDate,
+			AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
+			CreatedAt:         veggie.CreatedAt,
+			DeliveryRadiusKm:  veggie.DeliveryRadiusKm,
+			Description:       veggie.Description,
+			ID:                veggie.ID,
+			Images:            imagesResp,
+			Latitude:          veggie.Latitude,
+			Longitude:         veggie.Longitude,
+			Name:              veggie.Name,
+			OwnerID:           veggie.OwnerID,
+			PriceCents:        veggie.PriceCents,
 			QuantityAvailable: veggie.QuantityAvailable,
+			SaleType:          veggie.SaleType,
+			UserCreatedAt:     veggie.UserCreatedAt,
 		})
 	}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
@@ -305,19 +323,22 @@ func (s *VegetableService) GetVegetable(w nethttp.ResponseWriter, r *nethttp.Req
 	// Prepare enriched image response
 	imagesResp := responseImages(veggie, userID, s.isValidatedImagesServedByCDN)
 	resp := &v1.VegetableResponse{
+		Active:            veggie.Active,
+		AvailabilityDate:  &veggie.AvailabilityDate,
+		AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
+		CreatedAt:         veggie.CreatedAt,
+		DeliveryRadiusKm:  veggie.DeliveryRadiusKm,
+		Description:       veggie.Description,
 		ID:                veggie.ID,
+		Images:            imagesResp,
+		Latitude:          veggie.Latitude,
+		Longitude:         veggie.Longitude,
 		Name:              veggie.Name,
 		OwnerID:           veggie.OwnerID,
-		Description:       veggie.Description,
-		SaleType:          veggie.SaleType,
 		PriceCents:        veggie.PriceCents,
-		Images:            imagesResp,
-		CreatedAt:         veggie.CreatedAt,
-		UserCreatedAt:     veggie.UserCreatedAt,
-		Active:            veggie.Active,
-		AvailabilityType:  v1.VegetableAvailabilityType(veggie.AvailabilityType),
-		AvailabilityDate:  &veggie.AvailabilityDate,
 		QuantityAvailable: veggie.QuantityAvailable,
+		SaleType:          veggie.SaleType,
+		UserCreatedAt:     veggie.UserCreatedAt,
 	}
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Error().Err(err).Msg("failed to encode vegetable response")
@@ -357,13 +378,23 @@ func (s *VegetableService) UpdateVegetable(w nethttp.ResponseWriter, r *nethttp.
 		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
 		return
 	}
+	requestBody, ok := http.RequestBodyFromContext(r)
+	if !ok {
+		log.Error().Msg("create vegetable failed to get request body from context")
+		nethttp.Error(w, "failed to read request body", nethttp.StatusInternalServerError)
+		return
+	}
+	if len(requestBody) == 0 {
+		log.Error().Msg("create vegetable failed: empty request body")
+		nethttp.Error(w, "empty request body", nethttp.StatusBadRequest)
+		return
+	}
 	var vegetableRequest v1.VegetableRequest
-	if err := json.NewDecoder(r.Body).Decode(&vegetableRequest); err != nil {
+	if err := json.Unmarshal(requestBody, &vegetableRequest); err != nil {
 		log.Error().Err(err).Msg("update vegetable failed to decode vegetable payload")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return
 	}
-
 	veggie, err := s.storage.GetVegetable(ctx, userID, id)
 	if err != nil {
 		if errors.Is(err, ErrVegetableNotFound) {
@@ -437,8 +468,13 @@ func (s *VegetableService) UpdateMainImage(w nethttp.ResponseWriter, r *nethttp.
 		nethttp.Error(w, "missing id", nethttp.StatusBadRequest)
 		return
 	}
+	requestBody, ok := http.RequestBodyFromContext(r)
+	if !ok {
+		nethttp.Error(w, "failed to get request body", nethttp.StatusInternalServerError)
+		return
+	}
 	var payload v1.UpdateMainImageRequest
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+	if err := json.Unmarshal(requestBody, &payload); err != nil {
 		log.Error().Err(err).Msg("failed to decode main image index")
 		nethttp.Error(w, "invalid payload", nethttp.StatusBadRequest)
 		return

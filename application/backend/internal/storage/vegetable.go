@@ -45,6 +45,7 @@ func (s *VegetableStorage) StoreVegetable(ctx context.Context, userID string, v 
 		"quantityAvailable": v.QuantityAvailable,
 		"deleted":           false,
 
+		// Champs de géolocalisation
 		"latitude":         v.Latitude,
 		"longitude":        v.Longitude,
 		"deliveryRadiusKm": v.DeliveryRadiusKm,

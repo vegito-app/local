@@ -48,6 +48,7 @@ func AuditMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
+		r = setRequestBodyInContext(r, requestBody)
 		// Logique d'audit ici, par exemple enregistrer l'URL et la méthode
 		auditedFields := map[string]any{
 			"method":      r.Method,
@@ -63,4 +64,20 @@ func AuditMiddleware(next http.Handler) http.Handler {
 		// Appel du handler suivant
 		next.ServeHTTP(w, r)
 	})
+}
+
+const requestBodyKey = "requestBody"
+
+func setRequestBodyInContext(r *http.Request, body []byte) *http.Request {
+	ctx := r.Context()
+	return r.WithContext(context.WithValue(ctx, requestBodyKey, body))
+}
+
+func RequestBodyFromContext(r *http.Request) ([]byte, bool) {
+	ctx := r.Context()
+	body, ok := ctx.Value(requestBodyKey).([]byte)
+	if !ok {
+		return nil, false
+	}
+	return body, true
 }

@@ -34,19 +34,30 @@ type VegetableResponse struct {
 	Description string `json:"description"`
 	SaleType    string `json:"saleType"`
 	// WeightGrams       int                       `json:"weightGrams"`
-	PriceCents        int                       `json:"priceCents"`
-	Images            []VegetableImageResponse  `json:"images"`
-	CreatedAt         time.Time                 `json:"createdAt"`
-	UserCreatedAt     time.Time                 `json:"userCreatedAt,omitempty"`
-	Active            bool                      `json:"active"`
-	AvailabilityType  VegetableAvailabilityType `json:"availabilityType"`
-	AvailabilityDate  *time.Time                `json:"availabilityDate,omitempty"`
-	QuantityAvailable int                       `json:"quantityAvailable"`
+	PriceCents       int                       `json:"priceCents"`
+	Images           []VegetableImageResponse  `json:"images"`
+	CreatedAt        time.Time                 `json:"createdAt"`
+	UserCreatedAt    time.Time                 `json:"userCreatedAt,omitempty"`
+	Active           bool                      `json:"active"`
+	AvailabilityType VegetableAvailabilityType `json:"availabilityType"`
+	AvailabilityDate *time.Time                `json:"availabilityDate,omitempty"`
+
+	Latitude          float64 `json:"latitude"`
+	Longitude         float64 `json:"longitude"`
+	DeliveryRadiusKm  float64 `json:"deliveryRadiusKm"`
+	QuantityAvailable int     `json:"quantityAvailable"`
 }
 
 type VegetableImageRequest struct {
 	Path          string  `json:"path"`
 	DownloadToken *string `json:"downloadToken,omitempty"`
+}
+
+// TODO: Extract DeliveryLocation as a reusable entity linked to owner (farmer) to avoid redundancy across Vegetable records.
+type DeliveryLocationRequest struct {
+	Latitude         float64 `json:"latitude"`
+	Longitude        float64 `json:"longitude"`
+	DeliveryRadiusKm float64 `json:"deliveryRadiusKm"`
 }
 
 type VegetableRequest struct {
@@ -61,12 +72,13 @@ type VegetableRequest struct {
 	UserCreatedAt     time.Time                 `json:"userCreatedAt,omitempty"`
 	Active            bool                      `json:"active"`
 	AvailabilityType  VegetableAvailabilityType `json:"availabilityType"`
-	AvailabilityDate  time.Time                 `json:"availabilityDate,omitempty"`
+	AvailabilityDate  time.Time                 `json:"availabilityDate"`
 	QuantityAvailable int                       `json:"quantityAvailable"`
 
 	Latitude         float64 `json:"latitude"`
 	Longitude        float64 `json:"longitude"`
 	DeliveryRadiusKm float64 `json:"deliveryRadiusKm"`
+	// DeliveryLocation DeliveryLocationRequest `json:"deliveryLocation"`
 }
 
 type VegetableImageCreatedTopicMessage struct {
