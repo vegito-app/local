@@ -160,10 +160,19 @@ class _VegetableMapLocationPickerState
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.agriculture,
-                                    size: 40, color: Color(0xFF00C853)),
+                                const Text(
+                                  '🫛𐫰👨‍🌾',
+                                  style: TextStyle(fontSize: 40),
+                                ),
+                                // Icon(Icons.filter_vintage_outlined,
+                                // size: 40,
+                                // color: Color(0xFF00C853)),
+                                // Icon(Icons.filter_vintage,
+                                // Icon(Icons.nature_rounded,
+                                // Icon(Icons.agriculture,
+                                // Icon(Icons.local_florist,
                                 Text(
-                                  'Position du légume',
+                                  'Définir la position de récolte',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Color(0xFF00C853),
@@ -192,7 +201,7 @@ class _VegetableMapLocationPickerState
                               SizedBox(width: 8),
                               Flexible(
                                 child: Text(
-                                  'Définir la position de récolte du légume (origine du légume pour le consommateur)',
+                                  'Position de récolte du légume : origine du légume pour le consommateur et point de départ pour le calcul de votre tournée en cas de livraison.',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.white,
@@ -252,6 +261,7 @@ class _VegetableMapLocationPickerState
                     onPressed: _selectedPosition != null
                         ? () {
                             widget.onLocationSelected(_selectedPosition!);
+                            Navigator.of(context).pop();
                           }
                         : null,
                     icon: const Icon(Icons.check),

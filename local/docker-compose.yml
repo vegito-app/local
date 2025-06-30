@@ -149,7 +149,7 @@ services:
       IMAGE_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests/mobile_images
     privileged: true
     volumes:
-      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
     devices:
       - /dev/kvm
       - /dev/nvidia0
@@ -209,13 +209,13 @@ services:
     image: ${APPLICATION_TESTS_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/moov-dev-439608:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
-      STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST}
+      STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
       PROJECT_DIR: ${PWD:-/workspaces/refactored-winner}
       LOCAL_APPLICATION_TESTS_DIR: ${PWD:-/workspaces/refactored-winner}/application/tests
     env_file:
       - .env
     volumes:
-      - ${PWD:-/workspaces/refactored-winner}:${PWD:-/workspaces/refactored-winner}:cached
+      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
     networks:
       dev:
     working_dir: ${PWD:-/workspaces/refactored-winner}/application/tests

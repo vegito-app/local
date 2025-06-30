@@ -41,6 +41,8 @@ Ajouter une carotte depuis l’interface
 
     Ajouter La Première Photo    2
 
+    Ajouter La Zone De Livraison
+
     Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Carotte
     Fill Field By Index    2    Fraîche du jardin
@@ -69,6 +71,8 @@ Ajouter un chouchou avec plusieurs images depuis l’interface
     Ajouter La Première Photo  2
     Ajouter Une Photo  3
     Ajouter Une Photo  4
+
+    Ajouter La Zone De Livraison
 
     Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Set Image As Main If Possible    image=chouchou
@@ -106,6 +110,8 @@ Ajouter un légume vendu au poids
 
     Ajouter La Première Photo    2
 
+    Ajouter La Zone De Livraison
+
     Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Tomate
     Fill Field By Index    2    Fraîchement récoltée
@@ -124,6 +130,9 @@ Ajouter un légume vendu à l’unité
     Click Element                       accessibility_id=🧺 Vendre mes légumes
 
     Ajouter La Première Photo   3
+
+    Ajouter La Zone De Livraison
+
     Ajouter Une Photo    2
 
     Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
@@ -147,6 +156,9 @@ Sélection d’une image principale via l’étoile
     Click Element                   accessibility_id=🧺 Vendre mes légumes    
 
     Ajouter La Première Photo   2
+
+    Ajouter La Zone De Livraison
+
     Ajouter Une Photo    3
     Ajouter Une Photo    4
 
@@ -207,6 +219,9 @@ Sélection d’une image principale via l’étoile sans enregister
     Click Element                   accessibility_id=🧺 Vendre mes légumes    
 
     Ajouter La Première Photo   2
+
+    Ajouter La Zone De Livraison
+
     Ajouter Une Photo    3
     Ajouter Une Photo    4
 
@@ -268,6 +283,8 @@ Vérifie cohérence champs quantité g/Kg
 
     Ajouter La Première Photo    2
 
+    Ajouter La Zone De Livraison
+
     Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Patate
     Fill Field By Index    2    Bien ferme
@@ -293,6 +310,8 @@ Vérifie activation bouton enregistrer selon quantité
     Wait Until Page Contains Element    accessibility_id=🧺 Vendre mes légumes
     Click Element                       accessibility_id=🧺 Vendre mes légumes
     Ajouter La Première Photo          2
+
+    Ajouter La Zone De Livraison
 
     Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index                1    Test légume

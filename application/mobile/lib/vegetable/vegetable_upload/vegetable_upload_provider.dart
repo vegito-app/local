@@ -186,7 +186,8 @@ class VegetableUploadProvider with ChangeNotifier {
     final hasValidQuantity = _quantity > 0;
     final hasValidPrice = _priceCents > 0;
     final hasImage = _images.isNotEmpty;
-    return hasValidQuantity && hasValidPrice && hasImage;
+    final hasDeliveryLocation = _deliveryLocation != null;
+    return hasValidQuantity && hasValidPrice && hasImage && hasDeliveryLocation;
   }
 
   Future<void> submitVegetable({

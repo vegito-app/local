@@ -77,6 +77,12 @@ Set Image As Main If Possible
     ${set_main_image_button}=    Run Keyword And Return Status    Wait Until Page Contains Element    accessibility_id=set-main-image-${image}    timeout=3s
     Run Keyword If    ${set_main_image_button}    Click Element    accessibility_id=set-main-image-${image}
 
+Ajouter La Zone De Livraison
+    Wait Until Keyword Succeeds    3s    1s        Page Should Contain Element    accessibility_id=Définir position
+    Click Element   accessibility_id=Définir position
+    Wait Until Keyword Succeeds    20s    1s        Page Should Contain Element    accessibility_id=Valider la position
+    Click Element   accessibility_id=Valider la position
+
 Vendre Un Légume Depuis La Page D'Enregistrement
     [Arguments]    ${nom}    ${description}    ${poids}    ${prix}    ${clickable_index}    ${image}
     Click Element    accessibility_id=🧺 Vendre mes légumes

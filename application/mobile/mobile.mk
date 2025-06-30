@@ -1,6 +1,6 @@
 -include $(CURDIR)/application/mobile/android/android.mk
 
-FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
+FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) run --entrypoint=bash --rm android-studio flutter
 
 application-mobile-flutter-clean:
 	@$(FLUTTER) clean
@@ -27,9 +27,9 @@ application-mobile-flutter-analyze:
 APPLICATION_MOBILE_BUILDS = apk ios
 
 $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%):
-	@$(FLUTTER) clean
-	@$(FLUTTER) pub get
-	@$(FLUTTER) build $(@:application-mobile-flutter-build-%=%) --verbose
+	# @$(FLUTTER) clean
+	# @$(FLUTTER) pub get
+	$(FLUTTER) build $(@:application-mobile-flutter-build-%=%) --verbose
 	@echo "Build for $(@:application-mobile-flutter-build-%=%) completed successfully"
 .PHONY: $(APPLICATION_MOBILE_BUILDS:%=application-mobile-flutter-build-%)
 
