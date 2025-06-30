@@ -1,0 +1,10 @@
+.containers
+vendor
+node_modules
+dist
+coverage
+build
+*.log
+*.tmp
+_*
+.env
