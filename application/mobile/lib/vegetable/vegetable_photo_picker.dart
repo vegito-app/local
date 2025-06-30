@@ -19,7 +19,8 @@ class VegetablePhotoPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Photos sélectionnées :"),
+        Text("Photos sélectionnées",
+            style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -76,38 +77,6 @@ class VegetablePhotoPicker extends StatelessWidget {
                     ],
                   ),
                 ),
-            if (provider.images.length < 3)
-              GestureDetector(
-                onTap: () async {
-                  final selectedPosition = await Navigator.push<LatLng>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => VegetableMapLocationPicker(
-                        onLocationSelected: (position) =>
-                            Navigator.pop(context, position),
-                      ),
-                    ),
-                  );
-
-                  if (selectedPosition != null) {
-                    provider.deliveryLocation = selectedPosition;
-                  }
-                },
-                child: Container(
-                  height: 100,
-                  width: 100,
-                  color: Colors.blueGrey[100],
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.location_on, color: Colors.blue),
-                        Text("Position"),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ],

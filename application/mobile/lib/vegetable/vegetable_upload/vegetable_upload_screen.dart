@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:vegito/vegetable/vegetable_location_picker.dart';
 import 'package:vegito/vegetable/vegetable_management_actions.dart';
 import 'package:vegito/vegetable/vegetable_map/vegetable_map_location_picker.dart';
 import 'package:vegito/vegetable/vegetable_model.dart';
@@ -51,8 +52,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
   late final TextEditingController priceController;
   late final TextEditingController availableQuantityController;
   late final TextEditingController availabilityDateController;
-  late final TextEditingController deliveryRadiusKmController;
-  late final TextEditingController deliveryLocationController;
 
   @override
   void initState() {
@@ -73,15 +72,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
     );
     availabilityDateController = TextEditingController(
       text: initial?.availabilityDate?.toIso8601String().split('T').first ?? '',
-    );
-
-    deliveryRadiusKmController = TextEditingController(
-      text: initial?.deliveryRadiusKm?.toStringAsFixed(1) ?? '0.0',
-    );
-    deliveryLocationController = TextEditingController(
-      text: initial?.deliveryLocation != null
-          ? '${initial!.deliveryLocation!.latitude.toString()}, ${initial.deliveryLocation!.longitude.toString()}'
-          : '',
     );
 
     // IMPORTANT: Synchroniser les valeurs initiales avec le provider
@@ -157,8 +147,6 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
     priceController.dispose();
     availableQuantityController.dispose();
     availabilityDateController.dispose();
-    deliveryRadiusKmController.dispose();
-    deliveryLocationController.dispose();
     super.dispose();
   }
 
@@ -200,30 +188,7 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
                 const SizedBox(width: 20),
                 Expanded(
                   flex: 1,
-                  child: TextButton.icon(
-                    key: const Key("chooseLocation"),
-                    onPressed: () async {
-                      final selected = await Navigator.push<LatLng>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => VegetableMapLocationPicker(
-                            initialLocation: provider.deliveryLocation,
-                            onLocationSelected: (pos) =>
-                                Navigator.pop(context, pos),
-                          ),
-                        ),
-                      );
-                      if (!mounted) return;
-                      if (selected != null) {
-                        provider.deliveryLocation = selected;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Position définie')),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.location_on),
-                    label: const Text('Définir la position de livraison'),
-                  ),
+                  child: VegetableLocationPicker(provider: provider),
                 )
               ],
             ),
@@ -235,31 +200,8 @@ class _VegetableUploadFormState extends State<_VegetableUploadForm> {
               nameController: nameController,
               descriptionController: descriptionController,
               priceController: priceController,
-              // initialSaleType: provider.saleType,
-              // initialAvailabilityType: provider.availabilityType,
               availabilityDateController: availabilityDateController,
               quantityController: availableQuantityController,
-              // initialQuantity:
-              //     provider.initialVegetable?.quantityAvailable ?? 0,
-              // availabilityDateController: availabilityDateController,
-              // onSaleTypeChanged: (type) {
-              //   setState(() {
-              //     provider.saleType = type;
-              //     provider.saleType = type;
-              //   });
-              // },
-              // onAvailabilityChanged: (type, date) {
-              //   setState(() {
-              //     provider.availabilityType = type;
-              //     provider.availabilityDate = date;
-              //     provider.availabilityType = type;
-              //     provider.availabilityDate = date;
-              //   });
-              // },
-              // onQuantityChanged: (quantity) {
-              //   provider.quantityAvailable = quantity;
-              //   availableQuantityController.text = quantity.toString();
-              // },
               isNewVegetable: provider.initialVegetable == null,
             ),
             const SizedBox(height: 20),

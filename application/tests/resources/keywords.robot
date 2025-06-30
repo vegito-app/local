@@ -104,3 +104,20 @@ Select Combobox Option By Index
     Click Element    xpath=(//android.widget.Button)[${combobox_index}]
     Wait Until Page Contains Element    xpath=(//android.widget.Button)[${option_index}]
     Click Element    xpath=(//android.widget.Button)[${option_index}]
+
+
+# --- Ajout : Set Delivery Location pour Google Maps widget ---
+Set Delivery Location
+    [Arguments]    ${latitude}    ${longitude}    ${radius}
+    [Documentation]    Définit la localisation de livraison via l'UI de la carte Google Maps.
+    # Exemple d'implémentation : cliquer sur la carte ou remplir les champs si disponibles
+    # TODO: Adapter au widget spécifique de ta carte
+    Log    Sélection de la localisation latitude=${latitude}, longitude=${longitude}, radius=${radius}
+    # Exemple : cliquer sur le widget carte pour positionner un marker
+    # Click Element    xpath=//android.view.View[@content-desc="Map"]
+    # Input Text ou set value selon UI
+    # Simuler remplissage champs si exposés :
+    # Fill Field By Index    7    ${latitude}
+    # Fill Field By Index    8    ${longitude}
+    # Fill Field By Index    9    ${radius}
+    Sleep    1s

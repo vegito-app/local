@@ -1,6 +1,7 @@
 import 'package:vegito/vegetable/vegetable_map/vegetable_map_location_picker.dart';
 import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:vegito/vegetable/vehetable_map_location_mini_preview.dart';
 
 class VegetableLocationPicker extends StatelessWidget {
   final VegetableUploadProvider provider;
@@ -19,81 +20,135 @@ class VegetableLocationPicker extends StatelessWidget {
   /// The widget is designed to be used in a [Column], and takes up a fixed height
   /// of 250 pixels.
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Ensure the delivery radius is set to a default value if not already set
+      if (provider.deliveryRadiusKm == 0.0 &&
+          provider.deliveryLocation == null) {
+        provider.deliveryRadiusKm = 5.0;
+      }
+    });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Livraison", style: Theme.of(context).textTheme.titleLarge),
+        Text("Livraison/Emport", style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => Scaffold(
-                  appBar: AppBar(title: const Text("Définir la livraison")),
-                  body: Column(
-                    children: [
-                      Expanded(
-                        child: VegetableMapLocationPicker(
-                          center: provider.deliveryLocation,
-                          radiusInKm: provider.deliveryRadiusKm,
-                          onLocationSelected: (position) {
-                            provider.deliveryLocation = position;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                "Rayon de livraison : ${provider.deliveryRadiusKm.toStringAsFixed(1)} km"),
-                            Slider(
-                              value: provider.deliveryRadiusKm,
-                              min: 1.0,
-                              max: 20.0,
-                              label:
-                                  "${provider.deliveryRadiusKm.toStringAsFixed(1)} km",
-                              onChanged: (value) {
-                                provider.deliveryRadiusKm = value;
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+        if (provider.deliveryLocation == null)
+          GestureDetector(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VegetableMapLocationPicker(
+                    center: provider.deliveryLocation,
+                    radiusInKm: provider.deliveryRadiusKm,
+                    onLocationSelected: (position) {
+                      provider.deliveryLocation = position;
+                      // Do not pop here, let the picker handle its pop when user clicks "Valider la position"
+                    },
+                    infoMessage:
+                        "Sélectionnez un emplacement pour activer les options de livraison.",
                   ),
                 ),
+              );
+            },
+            child: Container(
+              height: 100,
+              width: 100,
+              color: Colors.blueGrey[100],
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_on, color: Colors.blue),
+                    Text("Définir position"),
+                  ],
+                ),
               ),
-            );
-          },
-          child: SizedBox(
-            height: 150,
-            child: VegetableMapLocationPicker(
-              center: provider.deliveryLocation,
-              radiusInKm: provider.deliveryRadiusKm,
-              onLocationSelected: (pos) {
-                provider.deliveryLocation = pos;
-              },
+            ),
+          )
+        else
+          GestureDetector(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VegetableMapLocationPicker(
+                    center: provider.deliveryLocation,
+                    radiusInKm: provider.deliveryRadiusKm,
+                    onLocationSelected: (pos) {
+                      provider.deliveryLocation = pos;
+                      // Do not pop here, let the picker handle its pop when user clicks "Valider la position"
+                    },
+                    infoMessage:
+                        "Sélectionnez un emplacement pour activer les options de livraison.",
+                  ),
+                ),
+              );
+            },
+            child: SizedBox(
+              height: 150,
+              child: VegetableMapLocationMiniPreview(
+                center: provider.deliveryLocation!,
+                zoom: 15.0,
+                radiusInKm: provider.deliveryRadiusKm,
+              ),
             ),
           ),
-        ),
         const SizedBox(height: 8),
-        const Text("Rayon de livraison"),
+        Text(
+          provider.deliveryRadiusKm == 0.0
+              ? "Récupération sur site"
+              : "Rayon de livraison",
+          style: TextStyle(
+            color:
+                provider.deliveryRadiusKm == 0.0 ? Colors.grey : Colors.black,
+            fontStyle: provider.deliveryRadiusKm == 0.0
+                ? FontStyle.italic
+                : FontStyle.normal,
+          ),
+        ),
         DropdownButton<double>(
           value: provider.deliveryRadiusKm,
-          onChanged: (value) {
-            if (value != null) {
+          onChanged: (value) async {
+            if (provider.deliveryLocation == null) {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VegetableMapLocationPicker(
+                    center: provider.deliveryLocation,
+                    radiusInKm: provider.deliveryRadiusKm,
+                    onLocationSelected: (pos) {
+                      provider.deliveryLocation = pos;
+                      // Do not pop here, let the picker handle its pop
+                    },
+                    infoMessage:
+                        "Sélectionnez un emplacement pour activer les options de livraison.",
+                  ),
+                ),
+              );
+            } else if (value != null) {
               provider.deliveryRadiusKm = value;
             }
           },
-          items: [1.0, 2.0, 5.0, 10.0, 20.0]
-              .map((radius) => DropdownMenuItem(
-                    value: radius,
-                    child: Text("${radius.toStringAsFixed(1)} km"),
-                  ))
-              .toList(),
+          items: () {
+            final radiusValues = [0.0, 1.0, 2.0, 5.0, 10.0, 20.0];
+            final dropdownItems = [...radiusValues];
+            if (!radiusValues.contains(provider.deliveryRadiusKm)) {
+              dropdownItems.insert(0, provider.deliveryRadiusKm);
+            }
+            return dropdownItems
+                .map((radius) => DropdownMenuItem(
+                      value: radius,
+                      child: Text(
+                        "${radius.toStringAsFixed(1)} km",
+                        style: TextStyle(
+                          color: radius == 0.0 ? Colors.grey : Colors.black,
+                        ),
+                      ),
+                    ))
+                .toList();
+          }(),
         ),
       ],
     );

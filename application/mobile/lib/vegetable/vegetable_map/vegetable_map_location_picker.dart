@@ -1,12 +1,15 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:vegito/info_snackbar.dart';
 
 class VegetableMapLocationPicker extends StatefulWidget {
   final void Function(LatLng) onLocationSelected;
   final LatLng? initialLocation;
   final LatLng? center;
   final double? radiusInKm;
+  final String? infoMessage;
 
   const VegetableMapLocationPicker({
     super.key,
@@ -14,6 +17,7 @@ class VegetableMapLocationPicker extends StatefulWidget {
     this.initialLocation,
     this.center,
     this.radiusInKm,
+    this.infoMessage,
   });
 
   @override
@@ -26,6 +30,10 @@ class _VegetableMapLocationPickerState
   LatLng? _selectedPosition;
   GoogleMapController? _mapController;
   LocationData? _currentLocation;
+  bool _userInteracted = false;
+
+  bool _initialRadiusSet = false;
+  double? _currentRadiusKm;
 
   @override
 
@@ -36,11 +44,29 @@ class _VegetableMapLocationPickerState
   /// `_initLocation` to determine the current location.
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.infoMessage != null) {
+        InfoSnackBar.show(context, widget.infoMessage!);
+      }
+    });
     if (widget.initialLocation != null) {
       _selectedPosition = widget.initialLocation;
     } else {
       _initLocation();
     }
+    if (_selectedPosition == null) {
+      _currentRadiusKm = 1.0;
+      _initialRadiusSet = true;
+    } else {
+      _currentRadiusKm = widget.radiusInKm;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_mapController != null && _selectedPosition != null) {
+        _mapController!.moveCamera(
+          CameraUpdate.newLatLngZoom(_selectedPosition!, 14),
+        );
+      }
+    });
   }
 
   Future<void> _initLocation() async {
@@ -67,6 +93,28 @@ class _VegetableMapLocationPickerState
   void _onMapTap(LatLng position) {
     setState(() {
       _selectedPosition = position;
+      _userInteracted = true;
+    });
+    _mapController?.animateCamera(CameraUpdate.newLatLng(position));
+  }
+
+  void _updateRadiusFromZoom() async {
+    if (_mapController == null) return;
+    final bounds = await _mapController!.getVisibleRegion();
+    final sw = bounds.southwest;
+    final ne = bounds.northeast;
+
+    final distanceLng = (ne.longitude - sw.longitude).abs();
+    // Ajustement selon la latitude moyenne
+    final midLat = (ne.latitude + sw.latitude) / 2;
+    final kmPerDegreeLng = 111.320 * math.cos(midLat * math.pi / 180);
+
+    final widthKm = distanceLng * kmPerDegreeLng;
+    final radiusKm =
+        widthKm * 0.5 * 0.8; // 0.8 reste visible pour ajustement plus tard
+
+    setState(() {
+      _currentRadiusKm = radiusKm;
     });
   }
 
@@ -79,23 +127,123 @@ class _VegetableMapLocationPickerState
           : Column(
               children: [
                 Expanded(
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: _selectedPosition!,
-                      zoom: 14,
-                    ),
-                    onMapCreated: (controller) => _mapController = controller,
-                    markers: _selectedPosition != null
-                        ? {
-                            Marker(
-                              markerId: const MarkerId('selected'),
-                              position: _selectedPosition!,
-                              draggable: true,
-                              onDragEnd: _onMapTap,
-                            )
-                          }
-                        : {},
-                    onTap: _onMapTap,
+                  child: Stack(
+                    children: [
+                      GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: _selectedPosition!,
+                          zoom: 14,
+                        ),
+                        onMapCreated: (controller) =>
+                            _mapController = controller,
+                        markers: {},
+                        circles: _selectedPosition != null &&
+                                widget.radiusInKm != null
+                            ? {
+                                Circle(
+                                  circleId: const CircleId('delivery_area'),
+                                  center: _selectedPosition!,
+                                  radius: (_currentRadiusKm ?? 1.0) *
+                                      1000, // km to meters
+                                  fillColor: const Color(0x2200C853),
+                                  strokeColor: const Color(0xFF00C853),
+                                  strokeWidth: 2,
+                                )
+                              }
+                            : {},
+                        onTap: _onMapTap,
+                        onCameraIdle: _updateRadiusFromZoom,
+                      ),
+                      const Positioned.fill(
+                        child: IgnorePointer(
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.agriculture,
+                                    size: 40, color: Color(0xFF00C853)),
+                                Text(
+                                  'Position du légume',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF00C853),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 60,
+                        left: 16,
+                        right: 16,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.agriculture, color: Color(0xFF00C853)),
+                              SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'Définir la position de récolte du légume (origine du légume pour le consommateur)',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 16,
+                        left: 16,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          color: Colors.black.withOpacity(0.5),
+                          child: Stack(
+                            children: [
+                              Text(
+                                'Zone de couverture livraison',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  foreground: Paint()
+                                    ..style = PaintingStyle.stroke
+                                    ..strokeWidth = 4
+                                    ..color = Colors.black,
+                                ),
+                              ),
+                              const Text(
+                                'Zone de couverture livraison',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF00C853),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        left: 16,
+                        right: 16,
+                        child: _FlashingRadiusMessage(
+                          radiusInKm: _currentRadiusKm,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -104,7 +252,6 @@ class _VegetableMapLocationPickerState
                     onPressed: _selectedPosition != null
                         ? () {
                             widget.onLocationSelected(_selectedPosition!);
-                            Navigator.pop(context);
                           }
                         : null,
                     icon: const Icon(Icons.check),
@@ -113,6 +260,78 @@ class _VegetableMapLocationPickerState
                 )
               ],
             ),
+    );
+  }
+}
+
+class _FlashingRadiusMessage extends StatefulWidget {
+  final double? radiusInKm;
+  const _FlashingRadiusMessage({Key? key, this.radiusInKm}) : super(key: key);
+
+  @override
+  State<_FlashingRadiusMessage> createState() => _FlashingRadiusMessageState();
+}
+
+class _FlashingRadiusMessageState extends State<_FlashingRadiusMessage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _opacity = Tween<double>(begin: 1.0, end: 0.3).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _controller.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) => Opacity(
+        opacity: _opacity.value,
+        child: child,
+      ),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 48),
+        padding: const EdgeInsets.all(8),
+        color: Colors.black.withOpacity(0.5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Vous couvrez une zone de livraison de :',
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF00C853),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              '${widget.radiusInKm?.toStringAsFixed(2) ?? '0.00'} km',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF00C853),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -17,6 +17,8 @@ Pas de boutons de Gestion de légumes avant le premier ajout
     Page Should Not Contain Element    accessibility_id=Supprimer l’annonce
     Page Should Not Contain Element    accessibility_id=Rendre invisible
 
+# TODO: Implement Set Delivery Location keyword in ../resources/keywords.robot
+# It should interact with the delivery picker widget to input latitude, longitude, and radius.
 Ajouter La Première Photo de Légume
     Push Test Image    carrotes.jpeg
 
@@ -24,9 +26,13 @@ Ajouter La Première Photo de Légume
     Click Element    accessibility_id=🧺 Vendre mes légumes
 
     Ajouter La Première Photo    2
+
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Wait Until Page Contains Element    accessibility_id=delete-image-carrotes-1, Supprimer cette photo
     
 
+# TODO: Implement Set Delivery Location keyword in ../resources/keywords.robot
+# It should interact with the delivery picker widget to input latitude, longitude, and radius.
 Ajouter une carotte depuis l’interface
     Push Test Image    carrotes-couleur.jpeg
 
@@ -35,7 +41,7 @@ Ajouter une carotte depuis l’interface
 
     Ajouter La Première Photo    2
 
-
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Carotte
     Fill Field By Index    2    Fraîche du jardin
     Fill Field By Index    4    0.500
@@ -50,6 +56,8 @@ Ajouter une carotte depuis l’interface
     Page Should Contain Element    accessibility_id=Carotte\n2.5€ / Kg\nReste : 500 g\nFraîche du jardin
     Go Back
 
+# TODO: Implement Set Delivery Location keyword in ../resources/keywords.robot
+# It should interact with the delivery picker widget to input latitude, longitude, and radius.
 Ajouter un chouchou avec plusieurs images depuis l’interface
     Push Test Image    chouchou.jpeg
     Push Test Image    chouchou-2.jpeg
@@ -62,6 +70,7 @@ Ajouter un chouchou avec plusieurs images depuis l’interface
     Ajouter Une Photo  3
     Ajouter Une Photo  4
 
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Set Image As Main If Possible    image=chouchou
 
     Wait Until Page Contains Element    accessibility_id=set-main-image-chouchou-3
@@ -87,6 +96,8 @@ Ajouter un chouchou avec plusieurs images depuis l’interface
     Click Element                       accessibility_id=🧺 Vendre mes légumes
     Wait Until Page Contains Element    accessibility_id=Chouchou\n2.5€ / Kg\nReste : 500 g\nBien vert et bio
 
+# TODO: Implement Set Delivery Location keyword in ../resources/keywords.robot
+# It should interact with the delivery picker widget to input latitude, longitude, and radius.
 Ajouter un légume vendu au poids
     Push Test Image    tomate.jpg
     Push Test Image    tomate-2.jpg
@@ -95,7 +106,7 @@ Ajouter un légume vendu au poids
 
     Ajouter La Première Photo    2
 
-
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Tomate
     Fill Field By Index    2    Fraîchement récoltée
     Fill Field By Index    4    0.750
@@ -104,6 +115,8 @@ Ajouter un légume vendu au poids
     Scroll And Tap Vegetable Upload Register Button
     Sleep    2s
 
+# TODO: Implement Set Delivery Location keyword in ../resources/keywords.robot
+# It should interact with the delivery picker widget to input latitude, longitude, and radius.
 Ajouter un légume vendu à l’unité
     Push Test Image    citrouille.jpg
     Push Test Image    citrouille-2.jpg
@@ -113,6 +126,7 @@ Ajouter un légume vendu à l’unité
     Ajouter La Première Photo   3
     Ajouter Une Photo    2
 
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Citrouille
     Fill Field By Index    2    Belle pièce pour Halloween
 
@@ -136,6 +150,7 @@ Sélection d’une image principale via l’étoile
     Ajouter Une Photo    3
     Ajouter Une Photo    4
 
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Set Image As Main If Possible    image=patate-3
 
     Wait Until Page Contains Element    accessibility_id=delete-image-patate-3-1, Supprimer cette photo
@@ -195,6 +210,7 @@ Sélection d’une image principale via l’étoile sans enregister
     Ajouter Une Photo    3
     Ajouter Une Photo    4
 
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Set Image As Main If Possible    image=patate-3
 
     Wait Until Page Contains Element    accessibility_id=delete-image-patate-3-1, Supprimer cette photo
@@ -252,6 +268,7 @@ Vérifie cohérence champs quantité g/Kg
 
     Ajouter La Première Photo    2
 
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index    1    Patate
     Fill Field By Index    2    Bien ferme
     Fill Field By Index    3    400000
@@ -277,6 +294,7 @@ Vérifie activation bouton enregistrer selon quantité
     Click Element                       accessibility_id=🧺 Vendre mes légumes
     Ajouter La Première Photo          2
 
+    Set Delivery Location    latitude=48.8566    longitude=2.3522    radius=10
     Fill Field By Index                1    Test légume
     Fill Field By Index                2    Vérification bouton
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vegito/auth/auth_provider.dart';
+import 'package:vegito/info_snackbar.dart';
 import 'package:vegito/vegetable/vegetable_list_provider.dart';
 import 'package:vegito/vegetable/vegetable_upload/vegetable_upload_provider.dart';
 
@@ -35,20 +36,18 @@ class VegetableSubmitButton extends StatelessWidget {
                       vegetableListProvider: vegetableListProvider,
                     );
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Semantics(
-                            label: 'vegetable-upload-success',
-                            child: const Text('Légume enregistré avec succès'),
-                          ),
-                        ),
+                      InfoSnackBar.show(
+                        context,
+                        'Légume enregistré avec succès',
+                        semanticsLabel: 'vegetable-upload-success',
                       );
                       Navigator.pop(context, true);
                     }
                   } catch (e) {
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Erreur : $e')),
+                      InfoSnackBar.show(
+                        context,
+                        'Erreur : $e',
                       );
                     }
                   }

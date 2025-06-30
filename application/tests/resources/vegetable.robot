@@ -73,7 +73,7 @@ Ajouter Une Photo De Légume
 
 Set Image As Main If Possible
     [Arguments]    ${image} 
-    Wait Until Page Contains Element    accessibility_id=Photos sélectionnées :
+    Wait Until Page Contains Element    accessibility_id=Photos sélectionnées
     ${set_main_image_button}=    Run Keyword And Return Status    Wait Until Page Contains Element    accessibility_id=set-main-image-${image}    timeout=3s
     Run Keyword If    ${set_main_image_button}    Click Element    accessibility_id=set-main-image-${image}
 

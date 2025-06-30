@@ -8,6 +8,20 @@ import 'package:vegito/vegetable/vegetable_upload/vegetable_sale_details_section
 
 class VegetableUploadProvider with ChangeNotifier {
   SaleType _saleType = SaleType.weight;
+  LatLng? _deliveryLocation;
+  double _deliveryRadiusKm = 5.0;
+
+  LatLng? get deliveryLocation => _deliveryLocation;
+  set deliveryLocation(LatLng? value) {
+    _deliveryLocation = value;
+    notifyListeners();
+  }
+
+  double get deliveryRadiusKm => _deliveryRadiusKm;
+  set deliveryRadiusKm(double value) {
+    _deliveryRadiusKm = value;
+    notifyListeners();
+  }
 
   Vegetable? initialVegetable;
   final VegetableService _service;
@@ -27,23 +41,6 @@ class VegetableUploadProvider with ChangeNotifier {
   DateTime? _availabilityDate;
   int _quantity = 0;
   int _priceCents = 0;
-
-  LatLng? _deliveryLocation;
-  LatLng? get deliveryLocation => _deliveryLocation;
-  set deliveryLocation(LatLng? location) {
-    _deliveryLocation = location;
-    notifyListeners();
-  }
-
-  double _deliveryRadiusKm = 5.0; // Valeur par défaut 5 km
-
-  double get deliveryRadiusKm => _deliveryRadiusKm;
-  set deliveryRadiusKm(double value) {
-    if (_deliveryRadiusKm != value) {
-      _deliveryRadiusKm = value;
-      notifyListeners();
-    }
-  }
 
   List<XFile> get images => _images;
   int get mainImageIndex => _mainImageIndex;
