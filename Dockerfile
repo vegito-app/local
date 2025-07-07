@@ -1,13 +1,13 @@
 FROM golang:alpine AS go-build
 
-COPY local/proxy proxy
+COPY proxy proxy
 
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
 FROM debian:bookworm
 
-COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy 
+COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
@@ -225,5 +225,5 @@ ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
-COPY local/entrypoint.sh /usr/local/bin/dev-entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

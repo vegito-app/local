@@ -4,7 +4,7 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-APPLICATION_TESTS_CONTAINER_CACHE=${PROJECT_DIR}/local/.containers/e2e-tests
+APPLICATION_TESTS_CONTAINER_CACHE=${PROJECT_DIR}/.containers/e2e-tests
 mkdir -p $APPLICATION_TESTS_CONTAINER_CACHE
 
 # Bash history

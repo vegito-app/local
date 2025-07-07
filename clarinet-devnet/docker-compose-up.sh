@@ -20,4 +20,4 @@ trap kill_jobs EXIT
 socat TCP-LISTEN:2376,fork,reuseaddr TCP:clarinet-devnet:2376 > /tmp/socat-clarinet-devnet-2376.log 2>&1 &
 bg_pids+=("$!")
 
-docker compose -f local/docker-compose.yml up clarinet-devnet 2>&1
+docker compose -f ${LOCAL_DIR}/docker-compose.yml up clarinet-devnet 2>&1

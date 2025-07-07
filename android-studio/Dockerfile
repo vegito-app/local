@@ -37,7 +37,9 @@ RUN apt-get update && apt-get install -y \
     libvulkan1 \
     libpulse0 \
     libasound2 \
-    && rm -rf /var/lib/apt/lists/*
+    locales \
+    && rm -rf /var/lib/apt/lists/* \
+    &&  dpkg-reconfigure locales
     
 RUN \
   export DEBIAN_FRONTEND=noninteractive ; \
@@ -99,26 +101,17 @@ RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comma
     yes | sdkmanager --licenses && \
     sdkmanager \
     "platform-tools" \
-    "platforms;android-30" \
-    "platforms;android-36" \
-    "sources;android-36" \
-    "build-tools;30.0.1" \
-    "build-tools;35.0.0" \
-    "build-tools;36.0.0" \
+    "platforms;android-34" \
+    "sources;android-34" \
+    "build-tools;34.0.0" \
     "ndk;${android_ndk_version}" \
-    "system-images;android-34;google_apis_playstore;x86_64" \
-    "system-images;android-34;google_apis;x86_64" \
     && case "$TARGETPLATFORM" in \
     "linux/amd64") \
     sudo npm install -g appium \
     && appium driver install uiautomator2 \
     && sdkmanager "emulator" \
-    && sdkmanager --install "system-images;android-33;google_apis;x86_64" \
-    && sdkmanager --install "system-images;android-33;google_apis;arm64-v8a" \
-    && echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel" \
-    && echo "no" | avdmanager create avd -n Pixel_8_ARM64 -k "system-images;android-33;google_apis;arm64-v8a" -d "pixel" \
-    && echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" \
-    && echo "no" | avdmanager create avd -n Pixel_6_ApiOnly -k "system-images;android-34;google_apis;x86_64" -d "pixel_6" ;; \
+    "system-images;android-34;google_apis_playstore;x86_64" \
+    && echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" ;; \
     "linux/arm64") \
     echo "Skipping emulator install on $TARGETPLATFORM (not supported)" ;; \
     esac
@@ -133,9 +126,6 @@ RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zip
     rm /tmp/android-studio.tar.gz
 
 RUN flutter doctor --android-licenses && flutter doctor
-
-RUN sudo apt-get update && sudo apt-get install -y locales && sudo dpkg-reconfigure locales
-
 ENV DISPLAY=":1"
 COPY display-start.sh /usr/local/bin/
 COPY display-start-xpra.sh /usr/local/bin/

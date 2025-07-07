@@ -5,6 +5,9 @@ variable "BUILDER_IMAGE_VERSION" {
 variable "LATEST_BUILDER_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:builder-latest"
 }
+variable "LOCAL_DIR" {
+  default = "."
+}
 
 target "builder-ci" {
   args = {
@@ -16,7 +19,8 @@ target "builder-ci" {
     node_version           = NODE_VERSION
     nvm_version            = NVM_VERSION
   }
-  dockerfile = "local/Dockerfile"
+  context = LOCAL_DIR
+  dockerfile = "Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
     notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
@@ -44,7 +48,8 @@ target "builder" {
     node_version           = NODE_VERSION
     nvm_version            = NVM_VERSION
   }
-  dockerfile = "local/Dockerfile"
+  context = LOCAL_DIR
+  dockerfile = "Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
     notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",

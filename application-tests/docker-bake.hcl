@@ -1,9 +1,9 @@
 variable "APPLICATION_TESTS_IMAGES_BASE" {
-  default = "${PRIVATE_IMAGES_BASE}:application-tests"
+  default = "${PUBLIC_IMAGES_BASE}:application-tests"
 }
 
 variable "APPLICATION_TESTS_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:application-tests-${VERSION}" : ""
+  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:application-tests-${VERSION}" : ""
 }
 
 variable "LATEST_APPLICATION_TESTS_IMAGE" {
@@ -14,7 +14,7 @@ target "application-tests-ci" {
   args = {
     builder_image = LATEST_BUILDER_IMAGE
   }
-  context    = "local/application-tests"
+  context    = "${LOCAL_DIR}/application-tests"
   dockerfile = "Dockerfile"
   tags = [
     notequal("", VERSION) ? APPLICATION_TESTS_IMAGE_VERSION : "",
@@ -38,7 +38,7 @@ variable "APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "application-tests" {
-  context    = "local/application-tests"
+  context    = "${LOCAL_DIR}/application-tests"
   dockerfile = "Dockerfile"
   args = {
     builder_image = LATEST_BUILDER_IMAGE
