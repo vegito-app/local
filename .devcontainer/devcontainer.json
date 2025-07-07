@@ -1,8 +1,8 @@
 {
   "name": "Go Dev Container",
   "dockerComposeFile": [
-    "../local/docker-compose.yml",
-    "./docker-compose.yml"
+    "../docker-compose.yml",
+    // "./docker-compose.yml"
   ],
   "service": "dev",
   "runServices": [
@@ -14,16 +14,10 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "dart.flutterSdkPath": "${localWorkspaceFolder}/local/.containers/android-studio/flutter"
-      },
-      "containers.environment": {
-        "DOCKER_HOST": "tcp://localhost:23750"
-      },
-      "docker.dockerodeOptions": {
-        "host": "tcp://localhost:23750"
+        "dart.flutterSdkPath": "${localWorkspaceFolder}/.containers/android-studio/flutter"
       },
       "env": {
-        "FLUTTER_ROOT": "${localWorkspaceFolder}/local/.containers/android-studio/flutter"
+        "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter"
       },
       "editor.fontLigatures": false,
       "editor.formatOnSave": true,

@@ -1,4 +1,5 @@
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
 INFRA_PROJECT_NAME ?= moov
 VERSION ?= $(GIT_HEAD_VERSION)
 ifeq ($(VERSION),)
@@ -7,40 +8,9 @@ endif
 
 export
 
--include local/local.mk
+-include local.mk
 
-DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES = \
-  application-images-cleaner  \
-  application-images-moderator 
-
-DOCKER_BUILDX_BAKE_APPLICATION_IMAGES = \
-  application-backend
-
-DOCKER_BUILDX_BAKE_LOCAL_IMAGES = \
-  android-studio \
-  clarinet-devnet \
-  application-tests \
-  firebase-emulators \
-  vault-dev 
-
-DOCKER_BUILDX_BAKE_IMAGES = \
-  $(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES) \
-  $(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES) \
-  $(DOCKER_BUILDX_BAKE_LOCAL_IMAGES) 
-
-DOCKER_BUILDX_BAKE = docker buildx bake \
-	-f docker-bake.hcl \
-	-f local/docker-bake.hcl \
-	$(DOCKER_BUILDX_BAKE_LOCAL_IMAGES:%=-f local/%/docker-bake.hcl) \
-	$(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES:application-images-%=-f application/images/%/docker-bake.hcl) \
-	$(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES:application-%=-f application/%/docker-bake.hcl) \
-	-f local/github/docker-bake.hcl
-
--include docker/docker.mk
--include infra/infra.mk 
--include application/application.mk
-
-images: 
+images:
 	@$(MAKE) -j docker-images-local-arch
 .PHONY: images
 
@@ -66,5 +36,5 @@ dev-rm:
 logs: local-docker-compose-dev-logs-f
 .PHONY: logs
 
-tests-all: application-tests-all
+tests-all: e2e-tests-bdd-all
 .PHONY: tests-all

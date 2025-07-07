@@ -1,97 +1,64 @@
-variable "VERSION" {
-  description = "current git tag or commit version"
-  default     = "dev"
+variable "BUILDER_IMAGE_VERSION" {
+  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
 }
 
-variable "NODE_VERSION" {
-  description = "current Node version"
-  default     = "22.14.0"
+variable "LATEST_BUILDER_IMAGE" {
+  default = "${PUBLIC_IMAGES_BASE}:builder-latest"
+}
+variable "LOCAL_DIR" {
+  default = "."
 }
 
-variable "NVM_VERSION" {
-  description = "current NVM version"
-  default     = "0.40.1"
-}
-
-variable "DOCKER_VERSION" {
-  description = "current Docker version"
-  default     = "28.0.2"
-}
-
-variable "DOCKER_COMPOSE_VERSION" {
-  description = "current Docker Compose version"
-  default     = "2.34.0"
-}
-
-variable "DOCKER_BUILDX_VERSION" {
-  description = "current Docker Buildx version"
-  default     = "0.22.0"
-}
-
-variable "TERRAFORM_VERSION" {
-  description = "current Terraform version"
-  default     = "1.11.2"
-}
-
-variable "KUBECTL_VERSION" {
-  description = "current Terraform version"
-  default     = "1.32"
-}
-
-variable "INFRA_ENV" {
-  description = "production, staging or dev"
-  default     = "dev"
-}
-
-variable "REPOSITORY" {
-  default = "${INFRA_ENV}-docker-repository"
-}
-
-variable "PUBLIC_REPOSITORY" {
-  default = "${INFRA_ENV}-docker-repository-public"
-}
-
-variable "GOOGLE_CLOUD_PROJECT_ID" {
-  default = "default"
-}
-
-variable "PUBLIC_IMAGES_BASE" {
-  default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
-}
-
-variable "PRIVATE_IMAGES_BASE" {
-  default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
-}
-
-variable "platforms" {
-  default = [
-    "linux/amd64",
-   // "linux/arm64"
+target "builder-ci" {
+  args = {
+    docker_version         = DOCKER_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    terraform_version      = TERRAFORM_VERSION
+    kubectl_version        = KUBECTL_VERSION
+    node_version           = NODE_VERSION
+    nvm_version            = NVM_VERSION
+  }
+  context = LOCAL_DIR
+  dockerfile = "Dockerfile"
+  tags = [
+    LATEST_BUILDER_IMAGE,
+    notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
+  cache-from = [LATEST_BUILDER_IMAGE]
+  cache-to   = ["type=inline"]
+  platforms  = platforms
 }
 
-group "services-load-local-arch" {
-  targets = [
-    "android-studio",
-    "application-backend",
-    "clarinet-devnet",
-    "firebase-emulators",
-    "github-action-runner",
-    "vault-dev",
-    "application-tests",
+variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  description = "local write cache for builder image build"
+}
+
+variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for builder image build (cannot be used before first write)"
+}
+
+target "builder" {
+  args = {
+    docker_version         = DOCKER_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    terraform_version      = TERRAFORM_VERSION
+    kubectl_version        = KUBECTL_VERSION
+    node_version           = NODE_VERSION
+    nvm_version            = NVM_VERSION
+  }
+  context = LOCAL_DIR
+  dockerfile = "Dockerfile"
+  tags = [
+    LATEST_BUILDER_IMAGE,
+    notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
-}
-
-group "services-push-multi-arch" {
-  targets = [
-    "android-studio-ci",
-    "application-backend-ci",
-    "clarinet-devnet-ci",
-    "firebase-emulators-ci",
-    "github-action-runner-ci",
-    "vault-dev-ci",
-    "application-tests-ci",
-    "application-images-cleaner-ci",
-    "application-images-moderator-ci",
+  cache-from = [
+    LATEST_BUILDER_IMAGE,
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to = [
+    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
 }

@@ -1,207 +1,191 @@
-# 🚗 Refactored Winner (aka CAR2GO)
+## Local Docker Based Development Environment + GPU features 
 
-Welcome aboard! This project is a vehicle-based mobility service (backend + mobile/web) powered by modern Google Cloud architecture, secured with Vault, and designed to be pleasant to develop on.
+![image](https://github.com/user-attachments/assets/2b24c0b6-d77d-45d1-a16d-e8b2b134601b)
 
-📘 This README is also available in [🇫🇷 French](README.fr.md)
+Integrate this repository into your project as a folder *local* or *.local* or *dev*, etc ... 
 
-## ✨ What's inside
+Example using git subtree:
 
-- **A Go backend** running on Cloud Run
-- **A Flutter frontend** (mobile/web)
-- **Secrets secured via Vault (GCP Auth)**
-- **Infrastructure declared using Terraform**
-- **A full-featured local dev environment with DevContainer**
+```bash
+git subtree add --prefix local https://github.com/vegito-app/devlocal-docker-gpu.git main --squash
+```
+
+Depending on other assets of a current project, `tree` should now show something like:
+
+```
+dev@94476426acc6:/workspaces/my-project$ tree -L 1 .
+.
+|-- CHANGELOG.md
+|-- Makefile
+|-- README.md
+|-- application
+|-- docs
+|-- infra
+|-- local  <----- your project now embeds a git subtree folder of this repository
+```
+
+Makefile targets are available by including `local.mk` from the top level Makefile:
+
+```Makefile
+include local/local.mk
+```
+
 
 ---
 
-## ⚙️ Getting started locally
+## ✨ Features
 
-> 💡 Prerequisites: Docker, Git, a GCP token (`GOOGLE_APPLICATION_CREDENTIALS`), and `make`.
+- ⚡ **GPU-accelerated Android Emulator** (e.g. Google Maps, camera, media)
+- 🧠 **AI/ML-compatible GPU runtime** (CUDA, OpenGL, Vulkan-ready)
+- 🐋 **Headless container** powered by Docker + Xorg + Xpra
+- 🎯 **OpenGL via NVIDIA GPU passthrough**
+- 🧪 **Emulator testing & CI pipeline-ready**
+- 🪄 **Devcontainers compatible** (VS Code, GitHub Codespaces)
+- 🌐 **Web-based GUI access** via Xpra HTML5
+- 🔄 **Composable Docker build system** with Makefile targets
 
-### 1. Clone the project
+---
+
+## 🧭 Vision
+
+This project serves as the foundation for a powerful dev experience:
+
+- As a **portable open-source kit** for Android/GPU developers
+- As a **base layer** for building SaaS platforms:
+  - Provision remote GPU-powered Android workspaces
+  - Run ephemeral builds/tests with GPU emulation
+  - Power SSR previews for design+QA workflows
+
+---
+
+## 🧪 Use Cases
+
+- 🚀 Mobile emulator testing with real OpenGL (no CPU lag)
+- 🎥 Flutter + Maps integration preview
+- 🧠 ML inferencing with shared GPU
+- 🧪 CI pipelines with rendering tests
+- ☁️ Remote dev with full graphical support
+
+---
+
+# 🧱 DevLocal Docker GPU Stack
+
+Welcome to **DevLocal-Docker**, a fully portable, GPU-accelerated local development stack designed for high-performance Flutter + Android + GPU projects. This stack provides a complete development environment, including Android Studio with emulator support, GPU rendering, server-side rendering with V8Go, and full headless compatibility via Xpra + Xorg.
+
+---
+
+## 📦 Components
+
+| Layer              | Stack                                                      |
+|-------------------|------------------------------------------------------------|
+| 🧰 Base            | Debian 12 + Docker + NVIDIA Container Toolkit              |
+| 🧠 GPU             | NVIDIA RTX / CUDA-enabled environment                      |
+| 📱 Mobile Dev      | Android SDK, Emulator, Flutter SDK                        |
+| 🧠 SSR             | V8Go + React SSR                                           |
+| 🎮 GUI Headless    | Xorg + Openbox + Xpra with web VNC support                 |
+| 🧪 Testing         | Automated emulator testing via `glxinfo`, `adb`, etc.      |
+
+---
+
+## 🔧 Setup
 
 ```bash
-git clone git@github.com:<your-org>/refactored-winner.git
-cd refactored-winner
+# 1. Build and run the container
+make local-android-studio-image-pull
+make local-android-studio-docker-compose-sh
+
+# 2. Inside the container, start the display
+display-start-xpra.sh
+
+# 3. Access the desktop via browser
+http://localhost:5900/
 ```
 
-### 2. Start the local dev environment
+## 🖥️ GPU Acceleration (Success Example)
+
+To use GPU acceleration in Docker containers, installation steps are available here: [NVIDIA GPU Docker Setup for Debian Bookworm](docker/gpu)
+
+```bash
+DISPLAY=:1 glxinfo | grep -E "renderer|OpenGL"
+
+OpenGL vendor string: NVIDIA Corporation
+OpenGL renderer string: NVIDIA GeForce RTX 2080 Ti/PCIe/SSE2
+OpenGL core profile version string: 4.6.0 NVIDIA 535.247.01
+...
+```
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 make dev
 ```
 
-This will either:
+This command starts all services defined in `docker-compose.yml`, including:
 
-- Start the main `dev` container which will **automatically** run `make dev` **unless** `MAKE_DEV_ON_START=false` is set in `local/.env`.
-- Or run `make dev` directly from the host, which transparently invokes the same orchestration logic in the same environment as the container.
+- the main `dev` container (your shell and workspace),
+- the application backend,
+- Firebase emulators,
+- Clarinet (smart contracts),
+- Android Studio,
+- Vault (dev mode).
 
-🧰 The `dev` container is the project's main toolbox. It contains Docker CLI, `make`, `gcloud`, and other dev tools, and shares its filesystem with the host. You can develop locally with or without Codespaces—your experience remains consistent.
+Once the `dev` container is running, you can execute all usual `make` commands **from inside the container**, or use automatic integration if you are in a **VSCode DevContainer**.
 
-Here's a simplified view of the local architecture:
-
-```mermaid
-graph TD
-  Host[Host with Docker] -->|mount volume| Dev[Dev container]
-  Dev --> Firebase[firebase-emulators]
-  Dev --> Clarinet[clarinet-devnet]
-  Dev --> Backend[application-backend]
-  Dev --> AndroidStudio[android-studio]
-  Dev --> Vault[vault-dev]
-  Dev --> Tests[application-tests-e2e]
-```
-
-### 🛠️ Additional details about the local environment
-
-The `dev` container is the main entry point for any developer. It is assumed to be launched automatically (via Codespaces or Devcontainer) and provides a unified dev experience. **It is never started or destroyed by any `Makefile`**.
-
-Once inside the `dev` container, you can:
-
-- launch any service individually:
-  ```bash
-  make firebase-emulators
-  make application-backend
-  make vault-dev
-  make android-studio
-  ```
-- or run:
-  ```bash
-  make dev
-  ```
-  This simply chains the individual service targets in a defined order.
-
-> 💡 `make dev` never creates or removes the `dev` container itself. It is always meant to be run **inside** the container, not from the host.
-
-And the corresponding sequence diagram:
-
-```mermaid
-sequenceDiagram
-  participant Host
-  participant DevContainer as dev
-  participant Firebase
-  participant Clarinet
-  participant Backend
-  participant AndroidStudio
-  participant Vault
-  participant E2E Tests
-
-  Host->>dev: start dev container
-  activate dev
-  dev->>dev: [optional] MAKE_DEV_ON_START ? make dev : interactive shell
-  dev->>Firebase: make firebase-emulators
-  dev->>Clarinet: make clarinet-devnet
-  dev->>Backend: make application-backend
-  dev->>AndroidStudio: make android-studio (optional)
-  dev->>Vault: make vault-dev
-  dev->>E2E Tests: make application-tests
-  deactivate dev
-```
-
-## 🔐 Vault Authentication
-
-Locally: Vault token or AppRole auto-generated
-
-- Config directory: `local/vault/`
-- Use `make vault-dev` to start it
-- Vault UI available at: http://127.0.0.1:8200/
-
-In production (Cloud Run): authentication is done via GCP IAM (Workload Identity) using the `backend-application` role.
+> 💡 Tip: You can also launch the project via the "Open in Container" interface in VSCode, which automatically uses `make dev`.
 
 ---
 
-## 🔥 Firebase & Emulators
+## 🔐 GCP Authentication
 
-The local setup includes Firebase emulators for:
+To interact with cloud infrastructure (Firebase, Terraform, etc.), you need to authenticate.
 
-- Authentication (`auth`)
-- Cloud functions (`functions`)
-- Firestore database (`firestore`)
-
-This allows safe local development without touching production Firebase.
-
-- Config lives in: `local/firebase-emulators/`
-- Launched automatically via: `make firebase-emulators`
-- Emulator UI: http://127.0.0.1:4000/
-
-📘 Learn more: [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite)
-
----
-
-## 🚀 Deployment
+Use:
 
 ```bash
-make infra-deploy-prod
+make gcloud-auth-login-sa
 ```
-
-This orchestrates:
-
-- Terraform initialization
-- Infrastructure apply to GCP
-- Firebase config deployment (mobile)
-
 ---
 
-## 🧪 Useful Make commands
+## 🧰 Local Services: Available Commands
 
-| Action                        | Command                                              |
-| ----------------------------- | ---------------------------------------------------- |
-| Show dev container logs       | `make logsf`                                         |
-| Rebuild Docker builder images | `make local-builder-image`                           |
-| Apply production Terraform    | `make production-vault-terraform-apply-auto-approve` |
-| Restart Vault in dev mode     | `make vault-dev`                                     |
-
----
-
-## 📱 Android Studio Environment
-
-The local dev environment provides a full-featured Android Studio setup inside a container with:
-
-- Flutter SDK (with Dart) preinstalled
-- Android SDK + NDK + selected build-tools
-- Optional Chrome or Chromium
-- VNC + X11 display (via xvfb, openbox, and x11vnc)
-- Automatic history and cache persistence
-
-Launch it via:
+Each service started via `docker-compose` has **dedicated `make` commands**. From inside the `dev` container, for example:
 
 ```bash
-make android-studio
+make android-studio-docker-compose-start     # Start Android Studio
+make android-studio-docker-compose-logs      # View logs
+make android-studio-docker-compose-sh        # Shell into the container
+make android-studio-docker-compose-stop      # Stop the service
 ```
 
-> Runs on both `linux/amd64` and `linux/arm64`. The Android emulator is available only on `amd64`.
+The same logic applies to:
 
-If running inside DevContainer, connect via VNC at `localhost:5901`. Default resolution: 1440x900.
+- Clarinet (Clarity contracts)
+- Vault (secret storage)
+- Firebase Emulators
+- The Go backend, etc.
+
+#### Next steps
+
+* Add a VPN and/or SSH container to the container set to provide an integrated entrypoint usable from the internet with minimal configuration.
 
 ---
 
-## 📁 Project structure
+## 💡 Best Practices
 
-- `application/` – Go backend code
-- `mobile/` – Flutter mobile/web app
-- `infra/` – all infra-as-code (Terraform, Vault, GKE, etc.)
-- `local/` – Docker-based development environment
+- The environment is designed to be **reproducible**, **shared**, and **modular**.
+- Feel free to create your own `make` commands or `.mk` files in `` as needed.
+- If you have any questions or suggestions for improvement: open an issue or contact the infra team.
 
 ---
 
-## 🤝 Need help?
+## 📜 License
 
-Helpful links for this stack:
+MIT — use freely, contribute openly, and stay sharp.
 
-- 📦 [DevContainer](https://containers.dev) – portable dev environments
-- 🔐 [Vault](https://developer.hashicorp.com/vault) – secret management
-- ☁️ [Terraform](https://www.terraform.io/) – infrastructure as code
-- 🔄 [Cloud Run](https://cloud.google.com/run) – backend deployment
-- 📱 [Flutter](https://flutter.dev) – multiplatform frontend
+---
 
-You can discover all available Make targets via tab completion in the DevContainer shell:
+## 🙌 Special Thanks
 
-```bash
-make <TAB>
-```
-
-Working on smart contracts for STX/Clarity?
-
-- 🧱 [Clarinet](https://www.hiro.so/clarinet) – CLI for testing, simulating, and deploying Stacks smart contracts
-- 📚 [Clarity Lang](https://docs.stacks.co/concepts/clarity/overview) – the smart contract language
-
-You're in the right place. Happy hacking! ✨
+To all GPU warriors, DevOps tinkerers, and caffeine-driven dreamers 🚀
