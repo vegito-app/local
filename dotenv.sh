@@ -8,9 +8,9 @@ set -eu
 trap "echo Exited with code $?." EXIT
 
 # Create default local .env file with minimum required values to start.
-localDotenvFile=${PWD}/.env
+localDotenvFile=${LOCAL_DIR}/.env
 
-[ -f $localDotenvFile ] || cat <<'EOF' > $localDotenvFile
+[ -f $localDotenvFile ] || cat <<EOF > $localDotenvFile
 ######################################################################## 
 # After setting up values in this file, rebuild the local containers.  #
 ########################################################################
@@ -22,7 +22,7 @@ localDotenvFile=${PWD}/.env
 COMPOSE_PROJECT_NAME=moov-dev-local
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-PROJECT_USER=user-to-setup
+PROJECT_USER=${PROJECT_USER:-project-user-is-not-set}
 # 
 # Can set 'MAKE_DEV_ON_START=false' to restart only the 'dev' container (skip 'make dev' in container 'dev' docker-compose command).
 MAKE_DEV_ON_START=true
@@ -44,7 +44,7 @@ MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START=true
 #------------------------------------------------------- 
 # The following variables are used with the local development environment.
 # 
-DEV_GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
+GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
