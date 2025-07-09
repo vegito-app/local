@@ -1,3 +1,32 @@
+# local
+
+![Logo](./images/logo-1.png)
+
+**Portable DevContainer Environment for Vegito**
+
+This repository offers a GPU-accelerated, containerized development environment tailored for the Vegito project.  
+It includes ready-to-use setups for Android Studio, Firebase emulators, smart contracts with Clarinet, Vault (in dev mode), and GPU tools — all optimized for use inside DevContainers (VS Code, Codespaces, etc.).
+
+> 🔧 Currently supports **NVIDIA GPUs**.  
+> 💡 **AMD GPU support is welcome** — your PR could make the difference!  
+> 🧠 Built for reproducibility, portability, and extensibility.
+
+It includes support for:
+
+- Android Studio with emulated devices
+- Vault in dev mode
+- Firebase emulators
+- Clarinet devnet (Stacks smart contracts)
+- Robot Framework integration tests
+- GCloud tools and builder containers
+
+Installation instructions for Debian + NVIDIA drivers on your host are provided [here for NVIDIA](docker/gpu/README.md).
+
+## Usage
+
+Clone this repo and launch the devcontainer in VSCode.  
+Run `make help` for available targets.
+
 ## Local Docker Based Development Environment + GPU features 
 
 ![image](https://github.com/user-attachments/assets/2b24c0b6-d77d-45d1-a16d-e8b2b134601b)
@@ -7,7 +36,7 @@ Integrate this repository into your project as a folder *local* or *.local* or *
 Example using git subtree:
 
 ```bash
-git subtree add --prefix local https://github.com/vegito-app/devlocal-docker-gpu.git main --squash
+git subtree add --prefix local https://github.com/vegito-app/local.git main --squash
 ```
 
 Depending on other assets of a current project, `tree` should now show something like:
@@ -29,7 +58,6 @@ Makefile targets are available by including `local.mk` from the top level Makefi
 ```Makefile
 include local/local.mk
 ```
-
 
 ---
 
@@ -77,10 +105,10 @@ Welcome to **DevLocal-Docker**, a fully portable, GPU-accelerated local developm
 ## 📦 Components
 
 | Layer              | Stack                                                      |
-|-------------------|------------------------------------------------------------|
+|--------------------|------------------------------------------------------------|
 | 🧰 Base            | Debian 12 + Docker + NVIDIA Container Toolkit              |
 | 🧠 GPU             | NVIDIA RTX / CUDA-enabled environment                      |
-| 📱 Mobile Dev      | Android SDK, Emulator, Flutter SDK                        |
+| 📱 Mobile Dev      | Android SDK, Emulator, Flutter SDK                         |
 | 🧠 SSR             | V8Go + React SSR                                           |
 | 🎮 GUI Headless    | Xorg + Openbox + Xpra with web VNC support                 |
 | 🧪 Testing         | Automated emulator testing via `glxinfo`, `adb`, etc.      |
@@ -182,7 +210,7 @@ The same logic applies to:
 
 ## 📜 License
 
-MIT — use freely, contribute openly, and stay sharp.
+MIT — use freely, contribute openly, and stay sharp – see the [LICENSE](./LICENSE) file. 
 
 ---
 
