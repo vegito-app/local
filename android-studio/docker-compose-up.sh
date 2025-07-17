@@ -17,7 +17,9 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
-socat TCP-LISTEN:5901,fork,reuseaddr TCP:android-studio:5900 >> /tmp/socat-android-studio-5900.log 2>&1 &
+socat TCP-LISTEN:6900,fork,reuseaddr TCP:android-studio:5900 >> /tmp/socat-android-studio-5900.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:6901,fork,reuseaddr TCP:android-studio:5901 >> /tmp/socat-android-studio-5901.log 2>&1 &
 bg_pids+=("$!")
 socat TCP-LISTEN:5037,fork,reuseaddr TCP:android-studio:5037 >> /tmp/socat-android-studio-5037.log 2>&1 &
 bg_pids+=("$!")

@@ -90,7 +90,7 @@ RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/
     && helm repo add hashicorp https://helm.releases.hashicorp.com \
     && helm repo update 
 
-ARG go_version=1.24.1
+ARG go_version
 RUN case "$TARGETPLATFORM" in \
     "linux/amd64") \
     archive="go${go_version}.linux-amd64.tar.gz" ; \
@@ -216,6 +216,7 @@ RUN set -x; \
     npm-check-updates \
     npm-check \
     npm \
+    @devcontainers/cli \
     && rm -rf ${HOME}/.npm 
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
@@ -225,5 +226,15 @@ ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
+ENV PATH=${HOME}/bin:$PATH
+
+RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
+    go install -v golang.org/x/tools/gopls@latest \
+    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
+    && go install -v github.com/josharian/impl@v1.4.0 \
+    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
+    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
+    && go install -v honnef.co/go/tools/cmd/staticcheck@latest"
+    
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

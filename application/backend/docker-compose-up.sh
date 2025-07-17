@@ -20,4 +20,6 @@ trap kill_jobs EXIT
 socat TCP-LISTEN:8080,fork,reuseaddr TCP:application-backend:8080 > /tmp/socat-application-backend-8080.log 2>&1 &
 bg_pids+=("$!")
 
-docker compose -f local/docker-compose.yml up application-backend 2>&1
+docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_DIR}/docker-compose.yml}
+
+$docker_compose up application-backend 2>&1

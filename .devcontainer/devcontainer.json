@@ -8,8 +8,8 @@
   "runServices": [
     "dev"
   ],
-  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
-  "workspaceFolder": "/workspaces/refactored-winner",
+  "initializeCommand": "CONTAINERS_CACHE_DIR=${localWorkspaceFolder}/.containers WORKING_DIR=${localWorkspaceFolder} DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608 PROJECT_USER=david-berichon ${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
+  "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
       "settings": {

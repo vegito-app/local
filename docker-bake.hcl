@@ -14,6 +14,7 @@ target "builder-ci" {
     docker_version         = DOCKER_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
+    go_version             = GO_VERSION
     terraform_version      = TERRAFORM_VERSION
     kubectl_version        = KUBECTL_VERSION
     node_version           = NODE_VERSION
@@ -43,6 +44,7 @@ target "builder" {
     docker_version         = DOCKER_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
+    go_version             = GO_VERSION
     terraform_version      = TERRAFORM_VERSION
     kubectl_version        = KUBECTL_VERSION
     node_version           = NODE_VERSION
