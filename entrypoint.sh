@@ -10,7 +10,7 @@ export HISTSIZE=50000
 export HISTFILESIZE=100000
 EOF
 
-local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/dev}
+local_container_cache=${LOCAL_DEV_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/dev}
 mkdir -p $local_container_cache
 
 # GO

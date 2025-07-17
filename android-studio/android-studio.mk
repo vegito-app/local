@@ -34,7 +34,7 @@ local-android-studio-appium-emulator-avd-restart:
 	  rm -rf ~/.android/avd/*/*.lock ; \
 	  rm -f ~/.android/*.lock ; \
 	  rm -f ~/.android/adb*.ini.lock ; \
-	  rm -f /tmp/.X1-lock ; \
+	  rm -f /tmp/.X20-lock ; \
 	  echo "[*] Restarting ADB..." ; \
 	  adb start-server ; \
 	  echo "[*] Launching emulator..." ; \

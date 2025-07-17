@@ -2,19 +2,20 @@
 
 set -eu
 
-# List to hold background job PIDs
+
+# 📌 List of PIDs of background processes
 bg_pids=()
 
-# Function to kill background jobs when script ends
+# 🧹 Function called at the end of the script to kill background processes
 kill_jobs() {
-    echo "Killing clarinet background jobs"
+    echo "🧼 Cleaning up background processes..."
     for pid in "${bg_pids[@]}"; do
-        kill "$pid"
-        wait "$pid" 2>/dev/null
+        kill "$pid" || true
+        wait "$pid" 2>/dev/null || true
     done
 }
 
-# Trap to call kill_jobs on script exit
+# 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
 # Local Container Cache

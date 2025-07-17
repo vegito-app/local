@@ -29,11 +29,6 @@ services:
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
         if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-          [ "$${LOCAL_LOCAL_ANDROID_STUDIO_BUILD_APK_ON_START}" = "true" ] && \
-            make -j \
-              application-mobile-flutter-build-apk \
-              # android-studio-emulator-restart
-          make application-mobile-apk-run &
           until make local-application-tests-check-env ; do
             echo "[application-tests] Waiting for environment to be ready..."
             sleep 5
@@ -152,8 +147,7 @@ services:
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
       ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
-      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${PWD}/application/tests/mobile_images
-
+      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images} 
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached

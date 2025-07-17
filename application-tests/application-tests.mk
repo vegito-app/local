@@ -1,3 +1,5 @@
+LOCAL_APPLICATION_TESTS_DIR = $(LOCAL_DIR)/application/tests
+
 APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(LOCAL_DIR)/.containers/docker-buildx-cache/application-tests
 $(APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
@@ -19,5 +21,5 @@ local-application-tests-docker-compose-run:
 
 local-application-tests-check-env:
 	@echo Checking application tests environment validity	
-	$(LOCAL_DOCKER_COMPOSE) exec application-tests bash $(LOCAL_DIR)/application/tests/check_env.sh
+	$(LOCAL_DOCKER_COMPOSE) exec application-tests bash $(LOCAL_APPLICATION_TESTS_DIR)/check_env.sh
 .PHONY: local-application-tests-check-env

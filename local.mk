@@ -82,6 +82,18 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-sh):
 	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-docker-compose-sh=%) bash
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-sh)
 
+local-dev-container:
+	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+.PHONY: local-dev-container
+
+local-dev-container-rm:
+	@$(LOCAL_DOCKER_COMPOSE) rm -s -f dev
+.PHONY: local-dev-container-rm
+
+local-dev-container-sh:
+	@$(LOCAL_DOCKER_COMPOSE) exec -it dev bash
+.PHONY: local-dev-container-sh
+
 -include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android-studio/android-studio.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
