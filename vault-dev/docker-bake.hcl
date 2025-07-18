@@ -20,11 +20,11 @@ target "vault-dev-ci" {
   platforms = platforms
 }
 
-variable "VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   description = "local write cache for builder image build"
 }
 
-variable "VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for builder image build (cannot be used before first write)"
 }
 
@@ -37,9 +37,9 @@ target "vault-dev" {
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE,
-    VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
 }

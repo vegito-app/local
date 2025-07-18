@@ -1,12 +1,13 @@
-VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(LOCAL_DIR)/.containers/docker-buildx-cache/vault-dev
-$(VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
-VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+VAULT_DEV_DIR ?= $(CURDIR)/vault-dev
+LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(VAULT_DEV_DIR)/.containers/docker-buildx-cache/vault-dev
+$(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
+LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
-VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
 local-vault-dev-docker-compose-up: local-vault-dev-docker-compose-rm
-	@VERSION=latest $(LOCAL_DIR)/vault-dev/docker-compose-up.sh &
+	@VERSION=latest $(VAULT_DEV_DIR)/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs vault-dev
 	@echo
 	@echo Started Androïd studio display: 

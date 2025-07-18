@@ -22,7 +22,7 @@ localDotenvFile=${LOCAL_DIR}/.env
 COMPOSE_PROJECT_NAME=moov-dev-local
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-PROJECT_USER=${PROJECT_USER:-project-user-is-not-set}
+VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-project-user-is-not-set}
 # 
 # Can set 'MAKE_DEV_ON_START=false' to restart only the 'dev' container (skip 'make dev' in container 'dev' docker-compose command).
 MAKE_DEV_ON_START=true
@@ -64,7 +64,7 @@ LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE=swiftshader_indirect
 LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_6_Playstore
 
 UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${PROJECT_USER}-googlemaps-web-api-key/versions/latest
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/${VEGITO_PROJECT_USER}-googlemaps-web-api-key/versions/latest
 
 FIREBASE_STORAGE_PUBLIC_PREFIX=https://firebasestorage.googleapis.com/v0/b/${DEV_GOOGLE_CLOUD_PROJECT_ID}.appspot.com/o
 CDN_PUBLIC_PREFIX=https://cdn.mon-backend.com  # ton CDN public GCS

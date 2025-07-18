@@ -9,7 +9,7 @@ trap "echo Exited with code $?." EXIT
 
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
 export GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID}}
-export PROJECT_USER=${PROJECT_USER:-project-user-not-set}
+export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-project-user-not-set}
 
 echo "Initializing .env file"
 export WORKING_DIR=${PWD}
