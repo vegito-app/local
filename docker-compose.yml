@@ -1,6 +1,3 @@
-networks:
-  dev:
-    driver: bridge
 volumes:
   firebase-emulators-cache:
   clarinet_var_lib_docker:
@@ -38,10 +35,6 @@ services:
       fi
       sleep infinity
       '
-    networks:
-      dev:
-        aliases:
-          - devcontainer
 
   application-backend:
     restart: unless-stopped
@@ -69,8 +62,6 @@ services:
       VAULT_TOKEN: root
     volumes:
       - ${PWD}:${PWD}:cached
-    networks:
-      - dev
 
   firebase-emulators:
     container_name: firebase-emulators
@@ -93,8 +84,6 @@ services:
       set -eu
       sleep infinity
       '
-    networks:
-      dev:
 
   clarinet-devnet:
     container_name: clarinet-devnet
@@ -123,8 +112,7 @@ services:
       make local-clarinet-devnet-start
       sleep infinity
       '
-    networks:
-      dev:
+
   android-studio:
     container_name: android-studio
     cap_add:
@@ -151,18 +139,12 @@ services:
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
-    devices:
-      - /dev/kvm
-      - /dev/nvidia0
-    runtime: nvidia
-    shm_size: "8gb"
     group_add:
       - render
       - kvm
-      - sgx
+    devices:
+      - /dev/kvm
     working_dir: ${PWD}/application/mobile
-    networks:
-      dev:
     command: |
       bash -c '
       set -eu
@@ -191,9 +173,6 @@ services:
       ./vault-init.sh
       sleep infinity
       '
-    networks:
-      dev:
-
   application-tests:
     container_name: application-tests
     image: ${LOCAL_APPLICATION_TESTS_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-private/${GOOGLE_CLOUD_PROJECT_ID}:application-tests-latest}
@@ -206,8 +185,6 @@ services:
       - .env
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
-    networks:
-      dev:
     working_dir: ${PWD}/application/tests
     tty: true
     command: |

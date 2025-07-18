@@ -2,7 +2,10 @@
   "name": "Go Dev Container",
   "dockerComposeFile": [
     "../docker-compose.yml",
+    "../.docker-compose-override.yml",
     // "./docker-compose.yml"
+    "../.docker-compose-networks-override.yml",
+    "../.docker-compose-gpu-override.yml"
   ],
   "service": "dev",
   "runServices": [
