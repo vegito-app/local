@@ -3,13 +3,17 @@ LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_DOCKER_COMPOSE ?= docker compose -f $(LOCAL_DIR)/docker-compose.yml
+LOCAL_DOCKER_COMPOSE ?= docker compose \
+  -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
 local-docker-compose-config-show:
 	@$(LOCAL_DOCKER_COMPOSE) config
 .PHONY: local-docker-compose-config-show
 
 local-application-install: application-frontend-build application-frontend-bundle backend-install 
+
 .PHONY: local-application-install
 
 local-application-backend-install: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)

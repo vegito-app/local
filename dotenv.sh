@@ -9,7 +9,6 @@ trap "echo Exited with code $?." EXIT
 
 # Create default local .env file with minimum required values to start.
 localDotenvFile=${LOCAL_DIR}/.env
-
 [ -f $localDotenvFile ] || cat <<EOF > $localDotenvFile
 ######################################################################## 
 # After setting up values in this file, rebuild the local containers.  #
@@ -19,7 +18,7 @@ localDotenvFile=${LOCAL_DIR}/.env
 # Please set the values in this section according to your personnal settings.
 # 
 # Trigger the local project display name in Docker Compose.
-COMPOSE_PROJECT_NAME=moov-dev-local
+COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-dev-${VEGITO_PROJECT_USER:-local}}
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-project-user-is-not-set}
@@ -93,4 +92,59 @@ STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stri
 # ! Should not configure this section !
 #---------------------------------------------------------
 
+EOF
+
+dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
+dockerComposeNetworksOverride=${WORKING_DIR:-${PWD}}/.docker-compose-networks-override.yml
+[ -f $dockerComposeNetworksOverride ] || cat <<EOF > $dockerComposeNetworksOverride
+networks:
+  ${dockerNetworkName}:
+    driver: bridge
+services:
+  dev:
+    networks:
+      ${dockerNetworkName}:
+        aliases:
+          - devcontainer
+
+  application-backend:
+    networks:
+      ${dockerNetworkName}:
+
+  firebase-emulators:
+    networks:
+      ${dockerNetworkName}:
+
+  clarinet-devnet:
+    networks:
+      ${dockerNetworkName}:
+
+  android-studio:
+    networks:
+      ${dockerNetworkName}:
+
+  vault-dev:
+    networks:
+      ${dockerNetworkName}:
+
+  application-tests:
+    networks:
+      ${dockerNetworkName}:
+EOF
+
+# Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
+# The file is created in the current working directory or the specified WORKING_DIR environment variable.
+dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
+[ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
+services:
+  android-studio:
+    environment:
+      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-host}
+    devices:
+      - /dev/nvidia0
+    # runtime: nvidia # Uncomment this line if you are using the nvidia runtime.
+    runtime: runc
+    shm_size: "8gb"
+    group_add:
+      - sgx 
 EOF
