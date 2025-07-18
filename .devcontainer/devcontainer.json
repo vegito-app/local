@@ -8,7 +8,7 @@
   "runServices": [
     "dev"
   ],
-  "initializeCommand": "CONTAINERS_CACHE_DIR=${localWorkspaceFolder}/.containers WORKING_DIR=${localWorkspaceFolder} DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608 VEGITO_PROJECT_USER=david-berichon ${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
+  "initializeCommand": "CONTAINERS_CACHE_DIR=${localWorkspaceFolder}/.containers WORKING_DIR=${localWorkspaceFolder} DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608 ${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
