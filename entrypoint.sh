@@ -4,7 +4,7 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-# Bash history
+# Bashrc
 cat <<'EOF' >> ~/.bashrc
 export HISTSIZE=50000
 export HISTFILESIZE=100000
@@ -12,6 +12,11 @@ EOF
 
 local_container_cache=${LOCAL_DEV_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/dev}
 mkdir -p $local_container_cache
+
+# Bash history
+BASH_HISTORY_PATH=${HOME}/.bash_history
+rm -f $BASH_HISTORY_PATH
+ln -s ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
 # GO
 GOPATH=${HOME}/go
