@@ -1,11 +1,12 @@
-FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(LOCAL_DIR)/.containers/docker-buildx-cache/firebase-emulators
+FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
+
+FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(FIREBASE_EMULATORS_DIR)/.containers/docker-buildx-cache/firebase-emulators
 $(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
 FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
 FIREBASE_EMULATORS = cd $(FIREBASE_EMULATORS_DIR) && firebase
 # This is a comma separated list of emulator names.# Valid options are:
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]

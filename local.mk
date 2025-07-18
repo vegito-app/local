@@ -16,7 +16,7 @@ local-application-backend-install: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND
 	@$(APPLICATION_BACKEND_INSTALL_BIN)
 .PHONY: local-application-backend-install
 
-BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
+BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
 $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
