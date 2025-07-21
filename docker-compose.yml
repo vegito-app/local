@@ -3,8 +3,7 @@ volumes:
   clarinet_var_lib_docker:
 services:
   dev:
-    container_name: dev
-    image: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest}
     env_file:
       - .env
     environment:
@@ -22,11 +21,12 @@ services:
     working_dir: ${PWD}
     command: |
       bash -c '
-
       # chsh -s $(which zsh) ${USER:-$(whoami)}
-
       make docker-sock
-
+      until docker info; do
+        echo "Waiting for Docker to be ready..."
+        sleep 1
+      done
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
       fi
@@ -49,7 +49,7 @@ services:
       context: ${APPLICATION_DIR}
       dockerfile: backend/Dockerfile
       args:
-        builder_image: ${BUILDER_IMAGE}
+        builder_image: ${LOCAL_BUILDER_IMAGE}
 
     env_file:
       - .env
@@ -70,10 +70,7 @@ services:
       - ${PWD}:${PWD}:cached
 
   firebase-emulators:
-    container_name: firebase-emulators
-    image: ${FIREBASE_EMULATORS_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:firebase-emulators-latest}
-    # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
-    # build: NOT
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -83,7 +80,6 @@ services:
       FIRESTORE_EMULATOR_HOST: http://localhost:8090
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
-      # - firebase-emulators-cache:/home/devuser/.cache/firebase/emulators
     working_dir: ${PWD}
     command: |
       bash -c '
@@ -92,12 +88,9 @@ services:
       '
 
   clarinet-devnet:
-    container_name: clarinet-devnet
     privileged: true
     tty: true
-    image: ${CLARINET_DEVNET_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:clarinet-latest}
-    # Cannot build while Dockerfile base image (see FROM ...) is using new local builder image (for conveniance and accuracy) that could not be pulled yet.
-    # build: NOT
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -120,17 +113,16 @@ services:
       '
 
   android-studio:
-    container_name: android-studio
     cap_add:
       - SYS_ADMIN
-    image: ${ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:android-studio-latest}
     env_file:
       - .env
     environment:
       HOST_PWD: ${PWD}
       APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
-      # DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
-      DISPLAY_RESOLUTION: 1920x1080
+      # LOCAL_DISPLAY_RESOLUTION: "${LOCAL_DISPLAY_RESOLUTION:-1920x1080}"
+      LOCAL_DISPLAY_RESOLUTION: 1920x1080
       DISPLAY_NUMBER: "${DISPLAY_NUMBER:-:20}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
@@ -157,8 +149,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    container_name: vault-dev
-    image: ${VAULT_DEV_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:vault-dev-latest}
 
     cap_add:
       - IPC_LOCK
@@ -180,8 +171,7 @@ services:
       sleep infinity
       '
   application-tests:
-    container_name: application-tests
-    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-private/${GOOGLE_CLOUD_PROJECT_ID}:application-tests-latest}
+    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       HOST_PWD: ${PWD}

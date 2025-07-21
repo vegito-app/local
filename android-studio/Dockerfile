@@ -92,7 +92,7 @@ ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/emulator:${ANDROID_SDK}/tools:${ANDROID_SDK}/tools/bin:${ANDROID_SDK}/platform-tools
 ENV ANDROID_HOME=${ANDROID_SDK}
 ARG android_ndk_version
-RUN  ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip; \
+RUN ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip; \
     mkdir -p $ANDROID_SDK/cmdline-tools/ && \
     cd $ANDROID_SDK/cmdline-tools/ && \
     curl -o sdk.zip -L $ANDROID_COMMANDLINETOOLS_URL && \
@@ -127,7 +127,8 @@ RUN ANDROID_STUDIO_URL=https://redirector.gvt1.com/edgedl/android/studio/ide-zip
     rm /tmp/android-studio.tar.gz
 
 RUN flutter doctor --android-licenses && flutter doctor
-ENV DISPLAY=":1"
+
+ENV DISPLAY=":20"
 COPY display-start.sh /usr/local/bin/
 COPY display-start-xpra.sh /usr/local/bin/
 
