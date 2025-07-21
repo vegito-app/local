@@ -22,7 +22,7 @@ localDotenvFile=${LOCAL_DIR}/.env
 COMPOSE_PROJECT_NAME=moov-dev-local
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-PROJECT_USER=${PROJECT_USER:-project-user-is-not-set}
+VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-project-user-is-not-set}
 # 
 # Can set 'MAKE_DEV_ON_START=false' to restart only the 'dev' container (skip 'make dev' in container 'dev' docker-compose command).
 MAKE_DEV_ON_START=true
