@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     #Flutter
     clang \
     cmake \
+    # libxcb-cursor0 \
     ninja-build \
     openjdk-17-jdk \
     libgtk-3-dev \

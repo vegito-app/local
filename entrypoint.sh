@@ -27,12 +27,49 @@ cat <<'EOF' >> ~/.bashrc
 export GOARCH=$(dpkg --print-architecture)
 EOF
 
-cat <<'EOF' >> ~/.bashrc
-alias hi="docker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest sudo chroot /host iftop -i eno1"
-alias hh="docker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest sudo chroot /host htop"
-alias h="docker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest sudo chroot /host htop"
-alias r="docker run --rm -it --privileged -v /:/host --network=host europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest sudo chroot /host"
+local_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-app:builder-latest
+
+cat <<EOF >>  ~/.config/shell
+alias hi="docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c 'sudo chroot /host iftop -i eno1'"
+alias hh="docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c 'sudo chroot /host htop'"
+alias h="docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c 'sudo chroot /host htop'"
+alias b="docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c 'sudo chroot /host btop'"
+alias r='docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c "sudo chroot /host"'
+
+alias clarinet-docker='docker --host=tcp://localhost:2376'
+alias clarinet-lazydocker='DOCKER_HOST=tcp://localhost:2376 lazydocker'
+
+alias ll='ls -la'
+alias l='ls -l'
+alias la='ls -la'
+alias lla='ls -la'
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias em='emacs -nw'
+alias vi='vim'
+alias vim='vim'
+alias v='vim'
+alias ld='lazydocker'
+alias k='k9s'
+
+export HISTSIZE=50000
+export HISTFILESIZE=100000
 EOF
+
+cat <<EOF >> ~/.bashrc
+if [ -f ~/.config/shell ]; then
+    . ~/.config/shell
+fi
+
+EOF
+cat <<EOF >> ~/.zshrc
+if [ -f ~/.config/shell ]; then
+    . ~/.config/shell
+fi
+EOF
+
 
 # NPM
 NPM_DIR=${HOME}/.npm

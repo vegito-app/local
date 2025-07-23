@@ -12,6 +12,7 @@ COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
     bash-completion \
+    btop \
     build-essential \
     ca-certificates \
     curl \
@@ -52,7 +53,17 @@ RUN apt-get update && apt-get install -y \
     wget \
     xz-utils \
     zip \
+    zsh \
     && rm -rf /var/lib/apt/lists/*
+
+ARG oh_my_zsh_version=1.2.1
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
+
+RUN emacs --batch --eval "(require 'package)" \
+    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
+    --eval "(package-initialize)" \
+    --eval "(unless package-archive-contents (package-refresh-contents))" \
+    --eval "(package-install 'magit)"
 
 ARG TARGETPLATFORM
 
@@ -80,6 +91,20 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://p
     && apt-get update \
     && apt-get install -y kubectl \
     && rm -rf /var/lib/apt/lists/* 
+
+# k9s
+ARG k9s_version=0.50.9
+RUN case "$TARGETPLATFORM" in \
+    "linux/amd64") \
+    url="https://github.com/derailed/k9s/releases/download/v${k9s_version}/k9s_linux_amd64.deb" ; \
+    ;; \
+    "linux/arm64") \
+    url="https://github.com/derailed/k9s/releases/download/v${k9s_version}/k9s_linux_arm64.deb" ; \
+    ;; \
+    *) echo >&2 "error: unsupported 'k9s' architecture ($TARGETPLATFORM)"; exit 1 ;; \
+    esac; \
+    curl -Lo /tmp/k9s.deb $url && apt install /tmp/k9s.deb && rm /tmp/k9s.deb; \
+    k9s version
 
 # helm
 RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null \
@@ -222,11 +247,6 @@ RUN set -x; \
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-# Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
-USER ${non_root_user}
-
-ENV PATH=${HOME}/bin:$PATH
 
 RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
@@ -234,7 +254,19 @@ RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     && go install -v github.com/josharian/impl@v1.4.0 \
     && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
     && go install -v github.com/go-delve/delve/cmd/dlv@latest \
-    && go install -v honnef.co/go/tools/cmd/staticcheck@latest"
-    
+    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
+    && go install -v github.com/jesseduffield/lazydocker@latest \
+    "
+
+# Replace /bin/sh with bash
+RUN ln -sf /usr/bin/bash /bin/sh
+
+# Set the default shell to zsh
+# RUN chsh -s /bin/zsh ${non_root_user}
+
+USER ${non_root_user}
+
+ENV PATH=${HOME}/bin:$PATH
+
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

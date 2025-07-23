@@ -8,7 +8,7 @@ PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(IMAGES_BASE)
 PRIVATE_REPOSITORY ?= $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 PRIVATE_IMAGES_BASE ?= $(PRIVATE_REPOSITORY)/$(IMAGES_BASE)
 
-DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES = \
+LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES = \
   application-images-cleaner  \
   application-images-moderator 
 
@@ -28,17 +28,17 @@ docker-local-images-pull: $(DOCKER_BUILDX_BAKE_LOCAL_IMAGES:%=local-%-image-pull
 docker-local-images-push: $(DOCKER_BUILDX_BAKE_LOCAL_IMAGES:%=local-%-image-push) local-builder-image-push
 .PHONY: docker-local-images-push
 
-DOCKER_BUILDX_BAKE_IMAGES ?= \
-  $(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES) \
-  $(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES) \
-  $(DOCKER_BUILDX_BAKE_LOCAL_IMAGES) 
+LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
+  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES) \
+  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES) \
+  $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES) 
 
 DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
-	$(DOCKER_BUILDX_BAKE_LOCAL_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	$(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES:application-images-%=-f $(LOCAL_DIR)/application/images/%/docker-bake.hcl) \
-	$(DOCKER_BUILDX_BAKE_APPLICATION_IMAGES:application-%=-f $(LOCAL_DIR)/application/%/docker-bake.hcl) \
+	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
+	$(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES:application-images-%=-f $(LOCAL_DIR)/application/images/%/docker-bake.hcl) \
+	$(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES:application-%=-f $(LOCAL_DIR)/application/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
 docker-images-ci-multi-arch: docker-buildx-setup local-builder-image-ci

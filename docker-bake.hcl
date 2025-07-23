@@ -11,14 +11,16 @@ variable "LOCAL_DIR" {
 
 target "builder-ci" {
   args = {
-    docker_version         = DOCKER_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
     go_version             = GO_VERSION
-    terraform_version      = TERRAFORM_VERSION
+    k9s_version            = K9S_VERSION
     kubectl_version        = KUBECTL_VERSION
     node_version           = NODE_VERSION
     nvm_version            = NVM_VERSION
+    oh_my_zsh_version      = OH_MY_ZSH_VERSION
+    terraform_version      = TERRAFORM_VERSION
   }
   context = LOCAL_DIR
   dockerfile = "Dockerfile"
@@ -41,14 +43,16 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "builder" {
   args = {
-    docker_version         = DOCKER_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
     go_version             = GO_VERSION
-    terraform_version      = TERRAFORM_VERSION
+    k9s_version            = K9S_VERSION
     kubectl_version        = KUBECTL_VERSION
+    oh_my_zsh_version      = OH_MY_ZSH_VERSION
     node_version           = NODE_VERSION
     nvm_version            = NVM_VERSION
+    terraform_version      = TERRAFORM_VERSION
   }
   context = LOCAL_DIR
   dockerfile = "Dockerfile"

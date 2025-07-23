@@ -102,6 +102,7 @@ RUN \
 RUN apt-get update && apt-get install -y \
     iproute2 \
     iptables \
+    procps \
     uidmap 
 
 ARG non_root_user=clarinet

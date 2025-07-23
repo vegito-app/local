@@ -13,6 +13,10 @@ variable "NODE_VERSION" {
   description = "current Node version"
   default     = "22.14.0"
 }
+variable "OH_MY_ZSH_VERSION" {
+  description = "current Oh My Zsh version"
+  default     = "1.2.1"
+}
 variable "NVM_VERSION" {
   description = "current NVM version"
   default     = "0.40.1"
@@ -36,6 +40,10 @@ variable "TERRAFORM_VERSION" {
 variable "KUBECTL_VERSION" {
   description = "current Kubernetes version"
   default     = "1.32"
+}
+variable "K9S_VERSION" {
+  description = "current K9S version"
+  default     = "0.50.9"
 }
 variable "INFRA_ENV" {
   description = "production, staging or dev"
