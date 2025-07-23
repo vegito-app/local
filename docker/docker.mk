@@ -12,26 +12,23 @@ LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES = \
   application-images-cleaner  \
   application-images-moderator 
 
-DOCKER_BUILDX_BAKE_APPLICATION_IMAGES = \
+LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES = \
   application-backend
 
-DOCKER_BUILDX_BAKE_LOCAL_IMAGES = \
+LOCAL_DOCKER_BUILDX_BAKE_IMAGES = \
+  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES) \
+  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES) \
   android-studio \
   clarinet-devnet \
   application-tests \
   firebase-emulators \
   vault-dev 
 
-docker-local-images-pull: $(DOCKER_BUILDX_BAKE_LOCAL_IMAGES:%=local-%-image-pull) local-docker-compose-dev-image-pull
+docker-local-images-pull: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull) local-container-dev-image-pull
 .PHONY: docker-local-images-pull
 
-docker-local-images-push: $(DOCKER_BUILDX_BAKE_LOCAL_IMAGES:%=local-%-image-push) local-builder-image-push
+docker-local-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
 .PHONY: docker-local-images-push
-
-LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
-  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES) \
-  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES) \
-  $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES) 
 
 DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \

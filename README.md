@@ -120,7 +120,7 @@ Welcome to **DevLocal-Docker**, a fully portable, GPU-accelerated local developm
 ```bash
 # 1. Build and run the container
 make local-android-studio-image-pull
-make local-android-studio-docker-compose-sh
+make local-android-studio-container-sh
 
 # 2. Inside the container, start the display
 display-start-xpra.sh
@@ -181,10 +181,10 @@ make gcloud-auth-login-sa
 Each service started via `docker-compose` has **dedicated `make` commands**. From inside the `dev` container, for example:
 
 ```bash
-make android-studio-docker-compose-start     # Start Android Studio
-make android-studio-docker-compose-logs      # View logs
-make android-studio-docker-compose-sh        # Shell into the container
-make android-studio-docker-compose-stop      # Stop the service
+make android-studio-container-start     # Start Android Studio
+make android-studio-container-logs      # View logs
+make android-studio-container-sh        # Shell into the container
+make android-studio-container-stop      # Stop the service
 ```
 
 The same logic applies to:

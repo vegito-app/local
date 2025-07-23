@@ -18,10 +18,10 @@ localDotenvFile=${LOCAL_DIR}/.env
 # Please set the values in this section according to your personnal settings.
 # 
 # Trigger the local project display name in Docker Compose.
-COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-dev-${VEGITO_PROJECT_USER:-local}}
+COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-dev-${VEGITO_PROJECT_USER:-local-user}}
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-project-user-is-not-set}
+VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-user}
 # 
 # Can set 'MAKE_DEV_ON_START=false' to restart only the 'dev' container (skip 'make dev' in container 'dev' docker-compose command).
 MAKE_DEV_ON_START=true

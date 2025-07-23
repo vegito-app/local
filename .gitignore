@@ -10,4 +10,4 @@ _*
 .env
 .vscode/
 vscode.code-workspace
-.docker-compose-override*
+.docker-compose*override*

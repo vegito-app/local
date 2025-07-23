@@ -50,10 +50,10 @@ local-clarinet-devnet-start:
 	@cd $(CLARINET_DIR) && clarinet devnet start --no-dashboard
 .PHONY: local-clarinet-devnet-start
 
-local-clarinet-devnet-docker-compose-up: local-clarinet-devnet-docker-compose-rm
+local-clarinet-devnet-container-up: local-clarinet-devnet-container-rm
 	@$(CLARINET_DIR)/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs clarinet-devnet
 	@echo
 	@echo Started Clarinet Devnet: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-clarinet-devnet-docker-compose-up
+.PHONY: local-clarinet-devnet-container-up

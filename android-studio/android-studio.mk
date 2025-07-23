@@ -8,13 +8,13 @@ endif
 ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 ANDROID_STUDIO_IMAGE = $(PUBLIC_IMAGES_BASE):android-studio-latest
 
-local-android-studio-docker-compose-up: local-android-studio-docker-compose-rm
+local-android-studio-container-up: local-android-studio-container-rm
 	LOCAL_VERSION=latest $(LOCAL_ANDROID_STUDIO_DIR)/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs android-studio
 	@echo
 	@echo Started Androïd studio display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-android-studio-docker-compose-up
+.PHONY: local-android-studio-container-up
 
 LOCAL_ANDROID_STUDIO_DOCKER_COMPOSE_EXEC = $(LOCAL_DOCKER_COMPOSE) exec android-studio
 

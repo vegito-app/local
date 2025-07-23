@@ -26,16 +26,16 @@ images-push:
 .PHONY: images-push
 
 dev: 
-	@$(MAKE) -j local-docker-compose-up
+	@$(MAKE) -j local-containers-up
 .PHONY: dev
 
 dev-rm: 
-	@$(MAKE) -j local-docker-compose-rm-all
+	@$(MAKE) -j local-containers-rm-all
 .PHONY: dev-rm
 
-logs: local-docker-compose-dev-logs-f
+logs: local-containers-dev-logs-f
 .PHONY: logs
 
-application-tests: local-application-tests-docker-compose-run
+application-tests: local-application-tests-container-run
 	@echo "Application tests completed successfully."
 .PHONY: application-tests

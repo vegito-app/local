@@ -47,7 +47,7 @@ LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCA
 endif
 LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,dest=$(LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE)
 
-local-application-backend-docker-compose-up: local-application-backend-docker-compose-rm
+local-application-backend-container-up: local-application-backend-container-rm
 	$(LOCAL_APPLICATION_BACKEND_DIR)/docker-compose-up.sh &
 	until nc -z application-backend 8080 ; do \
 		sleep 1 ; \
@@ -57,4 +57,4 @@ local-application-backend-docker-compose-up: local-application-backend-docker-co
 	@echo Started Application Backend: 
 	@echo View UI at http://127.0.0.1:8080/ui
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-application-backend-docker-compose-up
+.PHONY: local-application-backend-container-up

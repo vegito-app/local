@@ -54,10 +54,10 @@ local-firebase-emulators-start: local-firebase-emulators-install local-firebase-
 	    --only $(FIREBASE_EMULATORS_SERVICES)
 .PHONY: local-firebase-emulators-start
 
-local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-docker-compose-up local-firebase-emulators-docker-compose-logs
+local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-container-up local-firebase-emulators-container-logs
 .PHONY: local-firebase-emulators-docker-compose
 
-local-firebase-emulators-docker-compose-up: local-firebase-emulators-docker-compose-rm
+local-firebase-emulators-container-up: local-firebase-emulators-container-rm
 	@$(LOCAL_DIR)/firebase-emulators/docker-compose-up.sh &
 	@until nc -z firebase-emulators 4000 ; do \
 		sleep 1 ; \
@@ -68,7 +68,7 @@ local-firebase-emulators-docker-compose-up: local-firebase-emulators-docker-comp
 	@echo Started Firebase Emulator: 
 	@echo View Emulator UI at http://127.0.0.1:4000/
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-firebase-emulators-docker-compose-up
+.PHONY: local-firebase-emulators-container-up
 
 local-firebase-emulators-pubsub-wait:
 	@echo "⏳ Waiting for Pub/Sub emulator..."

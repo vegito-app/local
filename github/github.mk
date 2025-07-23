@@ -37,16 +37,16 @@ github-action-runner-token-exist:
 	fi
 .PHONY: local-github-action-runner-token-exist
 
-local-github-action-runner-docker-compose-up: local-github-action-runner-docker-compose-rm local-github-action-runner-token-exist
+local-github-action-runner-container-up: local-github-action-runner-container-rm local-github-action-runner-token-exist
 	@$(GITHUB_DOCKER_COMPOSE) up -d github-action-runner
-.PHONY: local-github-action-runner-docker-compose-up
+.PHONY: local-github-action-runner-container-up
 
 # This avoids github dangling offline containers on github.com side.
 # It uses './config.sh remove' from github-action-runner containers entrypoint
 # before exit (see ./entrypoint.sh)
-local-github-action-runner-docker-compose-rm:
+local-github-action-runner-container-rm:
 	@-$(GITHUB_DOCKER_COMPOSE) rm -s -f github-action-runner
-.PHONY: local-github-action-runner-docker-compose-rm
+.PHONY: local-github-action-runner-container-rm
 
 LOCAL_GITHUB_WORKFLOWS_DIR := $(LOCAL_DIR)/.github/workflows/
 LOCAL_GITHUB_ACT_SECRET_FILE := $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret

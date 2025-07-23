@@ -40,11 +40,11 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   application-backend \
   application-tests
 
-local-container-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
-.PHONY: local-container-up
+local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
+.PHONY: local-containers-up
 
-local-container-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
-.PHONY: local-container-rm-all
+local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
+.PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
 	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
