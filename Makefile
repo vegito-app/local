@@ -1,10 +1,14 @@
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
-GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
-INFRA_PROJECT_NAME ?= moov
+
 LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
 ifeq ($(LOCAL_VERSION),)
 LOCAL_VERSION := latest
 endif
+
+GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
+INFRA_PROJECT_NAME ?= moov
+
+LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
 
 export
 

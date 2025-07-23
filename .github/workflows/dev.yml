@@ -22,7 +22,7 @@ jobs:
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
       - name: Refresh local/.env file
         run: |
-          ./local/dotenv.sh
+          ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
       - name: Authenticate to Google Cloud via Workload Identity Federation

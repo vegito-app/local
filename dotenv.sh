@@ -141,7 +141,7 @@ services:
   vault-dev:
     working_dir: ${PWD}
   clarinet-devnet:
-    working_dir: ${PWD}/local/clarinet-devnet
+    working_dir: ${PWD}/clarinet-devnet
     command: |
       bash -c '
       set -eu
