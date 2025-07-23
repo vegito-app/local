@@ -1,25 +1,25 @@
-REACT_APP_VERSION = $(VERSION)
+LOCAL_REACT_APP_VERSION = $(LOCAL_VERSION)
 
-FRONTEND_BUILD_DIR = $(CURDIR)/application/frontend/build
+LOCAL_APPLICATION_FRONTEND_BUILD_DIR = $(CURDIR)/application/frontend/build
 
-application-frontend-build: application/frontend/node_modules
+local-example-application-frontend-build: application/frontend/node_modules
 	@cd $(CURDIR)/application/frontend && npm --loglevel=verbose run build
-.PHONY: application-frontend-build
+.PHONY: local-example-application-frontend-build
 
-$(FRONTEND_BUILD_DIR): application-frontend-build
+$(LOCAL_APPLICATION_FRONTEND_BUILD_DIR): local-example-application-frontend-build
 
-UI_JAVASCRIPT_SOURCE_FILE = $(CURDIR)/application/frontend/build/bundle.js
+LOCAL_APPLICATION_FRONTEND_BUILD_BUNDLE_JS = $(CURDIR)/application/frontend/build/bundle.js
 
-application-frontend-bundle: 
+local-example-application-frontend-bundle: $(LOCAL_APPLICATION_FRONTEND_BUILD_DIR)
 	@cd $(CURDIR)/application/frontend && npm run dev:server
-.PHONY: application-frontend-bundle
+.PHONY: local-example-application-frontend-bundle
 
-$(UI_JAVASCRIPT_SOURCE_FILE): application-frontend-bundle
+$(LOCAL_APPLICATION_FRONTEND_BUILD_BUNDLE_JS): local-example-application-frontend-bundle
 
-application-frontend-start:
+local-application-frontend-start:
 	@cd $(CURDIR)/application/frontend && npm start
-.PHONY: application-frontend-start
+.PHONY: local-application-frontend-start
 
-application-frontend-npm-ci:
+local-application-frontend-npm-ci:
 	@cd $(CURDIR)/application/frontend && npm ci
-.PHONY: application-frontend-npm-ci
+.PHONY: local-application-frontend-npm-ci

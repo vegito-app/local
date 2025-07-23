@@ -7,7 +7,7 @@ endif
 LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
 local-vault-dev-docker-compose-up: local-vault-dev-docker-compose-rm
-	@VERSION=latest $(VAULT_DEV_DIR)/docker-compose-up.sh &
+	@LOCAL_VERSION=latest $(VAULT_DEV_DIR)/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs vault-dev
 	@echo
 	@echo Started Androïd studio display: 

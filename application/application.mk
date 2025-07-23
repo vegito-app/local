@@ -5,11 +5,15 @@
 -include application/images/images.mk
 -include application/tests/tests.mk
 
-APPLICATION_CI_IMAGES_BUILD := \
-	local-application-backend-image-ci \
-	local-application-images-moderator-image-ci \
-	local-application-images-cleaner-image-ci \
+LOCAL_EXAMPLE_APPLICATION_CI_IMAGES_BUILD := \
+	local-example-application-backend-image-ci \
 	local-application-tests-image-ci
 
-application-images-ci: $(APPLICATION_CI_IMAGES_BUILD)
-.PHONY: application-images-ci
+local-example-application-images-ci: $(LOCAL_EXAMPLE_APPLICATION_CI_IMAGES_BUILD)
+.PHONY: local-example-application-images-ci
+
+local-example-application-install: \
+local-example-application-frontend-build \
+local-example-application-frontend-bundle \
+local-example-application-backend-install
+.PHONY: local-example-application-install

@@ -91,6 +91,65 @@ STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stri
 # 
 # ! Should not configure this section !
 #---------------------------------------------------------
+EOF
+
+# Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
+# The file is created in the current working directory or the specified WORKING_DIR environment variable.
+dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-override.yml
+[ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
+services:
+  dev:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-app:builder-latest
+    command: |
+      bash -c '
+      make docker-sock
+      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        make dev
+      fi
+      if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+        until make local-application-tests-check-env ; do
+          echo "[application-tests] Waiting for environment to be ready..."
+          sleep 5
+        done
+        make application-tests
+      fi
+      sleep infinity
+      '
+      # "ndk;${android_ndk_version}" \
+  android-studio:
+    working_dir: ${PWD}/mobile
+    command: |
+      bash -c '
+
+      # sdkmanager \
+      # "platforms;android-30" \
+      # "platforms;android-36" \
+      # "sources;android-36" \
+      # "build-tools;30.0.1" \
+      # "build-tools;35.0.0" \
+      # "build-tools;36.0.0" \
+      # "system-images;android-34;google_apis;x86_64"
+
+      # sdkmanager --install "system-images;android-33;google_apis;x86_64"
+
+      # echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel"
+      # echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6"
+      # echo "no" | avdmanager create avd -n Pixel_6_ApiOnly -k "system-images;android-34;google_apis;x86_64" -d "pixel_6"
+      
+      sleep infinity
+      '
+  vault-dev:
+    working_dir: ${PWD}
+  clarinet-devnet:
+    working_dir: ${PWD}/local/clarinet-devnet
+    command: |
+      bash -c '
+      set -eu
+      make -C ../.. local-clarinet-devnet-start
+      sleep infinity
+      '
+  application-tests:
+    working_dir: ${PWD}/tests
 
 EOF
 

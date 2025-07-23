@@ -9,7 +9,7 @@ LOCAL_LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,
 LOCAL_APPLICATION_TESTS_IMAGE = ${PRIVATE_IMAGES_BASE}:application-tests-latest
 
 local-application-tests-docker-compose-up: local-application-tests-docker-compose-rm
-	@VERSION=latest $(LOCAL_DIR)/application-tests/docker-compose-up.sh &
+	@LOCAL_VERSION=latest $(LOCAL_DIR)/application-tests/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs application-tests
 	@echo
 	@echo Started Application tests display: 

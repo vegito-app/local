@@ -84,7 +84,7 @@ $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
 .PHONY: $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-builder-image: $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
+local-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
 	$(DOCKER_BUILDX_BAKE) --print builder
 	$(DOCKER_BUILDX_BAKE) --load builder
 .PHONY: local-builder-image

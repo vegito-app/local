@@ -12,39 +12,43 @@ ifeq ($(UNAME_M), aarch64)
   GOARCH = arm64
 endif
 
-APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
-APPLICATION_BACKEND_VENDOR = $(CURDIR)/backend/vendor
+LOCAL_APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
+LOCAL_APPLICATION_BACKEND_VENDOR = $(CURDIR)/backend/vendor
 
-$(APPLICATION_BACKEND_VENDOR):
+$(LOCAL_APPLICATION_BACKEND_VENDOR):
 	@$(MAKE) go-application/backend-mod-vendor
 
-application-backend-run: $(APPLICATION_BACKEND_INSTALL_BIN)
-	@$(APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: application-backend-run
+local-application-backend-run: $(LOCAL_APPLICATION_FRONTEND_BUILD_BUNDLE_JS) $(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
+	@$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
+.PHONY: local-application-backend-run
 
-$(APPLICATION_BACKEND_INSTALL_BIN): application-backend-install
+$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN): local-application-local-example-application-backend-install
 
-APPLICATION_BACKEND_DIR ?= $(CURDIR)/application/backend
+LOCAL_APPLICATION_BACKEND_DIR ?= $(CURDIR)/application/backend
 
-application-backend-install:
+local-application-local-example-application-backend-install:
 	@echo Installing backend...
-	@cd $(APPLICATION_BACKEND_DIR) \
+	@cd $(LOCAL_APPLICATION_BACKEND_DIR) \
 	  && go install -a -ldflags "-linkmode external -extldflags -static"
 	#   && go install -a -ldflags "-linkmode external"
 	@echo Installed backend.
-.PHONY: application-backend-install
+.PHONY: local-application-local-example-application-backend-install
+
+local-application-local-example-application-backend-install: $(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
+	@$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
+.PHONY: local-application-local-example-application-backend-install
 
 # Handle buildx cache in local folder
-APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):application-backend-$(VERSION)
-APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/application-backend
-$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
-APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):application-backend-$(LOCAL_VERSION)
+LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/application-backend
+$(LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
+LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE)
 endif
-APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,dest=$(LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE)
 
 local-application-backend-docker-compose-up: local-application-backend-docker-compose-rm
-	$(APPLICATION_BACKEND_DIR)/docker-compose-up.sh &
+	$(LOCAL_APPLICATION_BACKEND_DIR)/docker-compose-up.sh &
 	until nc -z application-backend 8080 ; do \
 		sleep 1 ; \
 	done

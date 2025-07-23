@@ -1,5 +1,5 @@
 variable "GITHUB_RUNNER_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${VERSION}" : ""
+  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_GITHUB_RUNNER_IMAGE" {
@@ -34,7 +34,7 @@ target "github-action-runner-ci" {
   context    = "${LOCAL_DIR}/github"
   tags = [
     LATEST_GITHUB_RUNNER_IMAGE,
-    notequal("", VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_BUILDER_IMAGE,
@@ -44,11 +44,11 @@ target "github-action-runner-ci" {
   platforms = platforms
 }
 
-variable "GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for github-actions-runner image build"
 }
 
-variable "GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ" {
   description = "local read cache for github-actions-runner image build (cannot be used before first write)"
 }
 
@@ -67,13 +67,13 @@ target "github-action-runner" {
   context    = "${LOCAL_DIR}/github"
   tags = [
     LATEST_GITHUB_RUNNER_IMAGE,
-    notequal("", VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
 }

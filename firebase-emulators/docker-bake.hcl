@@ -1,5 +1,5 @@
 variable "FIREBASE_EMULATORS_IMAGE_TAG" {
-  default = notequal("", VERSION) ? "${PUBLIC_IMAGES_BASE}:firebase-emulators-${VERSION}" : ""
+  default = notequal("", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:firebase-emulators-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_FIREBASE_EMULATORS_IMAGE" {
@@ -42,7 +42,7 @@ target "firebase-emulators" {
   ]
   cache-from = [
     FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
     FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE

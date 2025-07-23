@@ -53,7 +53,7 @@ export const SignInScreen = ({ auth, currentUser }) => {
     >
       <div>
         <h1>Vegito</h1>
-        <p>Version {process.env.REACT_APP_VERSION}</p>
+        <p>Version {process.env.LOCAL_REACT_APP_VERSION}</p>
         <p>Please sign-in:</p>
         <StyledFirebaseAuth
           uiCallback={(ui) => ui.disableAutoSignIn()}

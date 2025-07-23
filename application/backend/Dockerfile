@@ -21,14 +21,14 @@ COPY application/frontend/package-lock.json application/frontend/
 COPY application/frontend/frontend.mk application/frontend/
 COPY application/application.mk application/
 
-RUN make application-frontend-npm-ci
+RUN make local-application-frontend-npm-ci
 
 COPY application/frontend/README.md application/frontend/
 COPY application/frontend/public application/frontend/public
 COPY application/frontend/src application/frontend/src
 COPY application/frontend/webpack.server.js application/frontend/
 
-RUN make -j application-frontend-build application-frontend-bundle
+RUN make -j local-example-application-frontend-build local-example-application-frontend-bundle
 
 # backend
 RUN mkdir -p application/backend
@@ -52,7 +52,7 @@ COPY application/backend/main.go application/backend/
 COPY .git .git
 RUN \
     git config --global --add safe.directory ${HOME}/src && \
-    make application-backend-install
+    make local-application-local-example-application-backend-install
 
 # artefacts
 
@@ -89,8 +89,8 @@ COPY --from=build ${builder_home}/src/application/frontend/build/ /frontend/buil
 COPY --from=build ${builder_home}/src/application/frontend/public/ /frontend/public
 COPY --from=build ${builder_home}/go/bin/backend /backend
 
-ENV FRONTEND_BUILD_DIR=/frontend/build \
+ENV LOCAL_APPLICATION_FRONTEND_BUILD_DIR=/frontend/build \
     FRONTEND_PUBLIC_DIR=/frontend/public \
-    UI_JAVASCRIPT_SOURCE_FILE=/frontend/build/bundle.js
+    LOCAL_APPLICATION_FRONTEND_BUILD_BUNDLE_JS=/frontend/build/bundle.js
 
 ENTRYPOINT ["/backend"]

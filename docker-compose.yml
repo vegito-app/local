@@ -22,23 +22,29 @@ services:
     working_dir: ${PWD}
     command: |
       bash -c '
+
+      # chsh -s $(which zsh) ${USER:-$(whoami)}
+
       make docker-sock
+
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
-        if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-          until make local-application-tests-check-env ; do
-            echo "[application-tests] Waiting for environment to be ready..."
-            sleep 5
-          done
-          make application-tests-robot-framework-all-run
-        fi
       fi
+      if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+        until make local-application-tests-check-env ; do
+          echo "[application-tests] Waiting for environment to be ready..."
+          sleep 5
+        done
+        make application-tests
+      fi
+
+
       sleep infinity
       '
 
   application-backend:
     restart: unless-stopped
-    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:application-backend-latest}
+    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:application-backend-latest}
     build:
       context: ${APPLICATION_DIR}
       dockerfile: backend/Dockerfile

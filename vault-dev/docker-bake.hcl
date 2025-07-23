@@ -1,5 +1,5 @@
 variable "VAULT_DEV_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${VERSION}" : ""
+  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_VAULT_DEV_IMAGE" {
@@ -11,7 +11,7 @@ target "vault-dev-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
-    notequal("", VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE
@@ -33,7 +33,7 @@ target "vault-dev" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
-    notequal("", VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE,

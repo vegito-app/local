@@ -1,5 +1,5 @@
 variable "BUILDER_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
+  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_BUILDER_IMAGE" {
@@ -24,18 +24,18 @@ target "builder-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
-    notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [LATEST_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
   platforms  = platforms
 }
 
-variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   description = "local write cache for builder image build"
 }
 
-variable "BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for builder image build (cannot be used before first write)"
 }
 
@@ -54,13 +54,13 @@ target "builder" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_BUILDER_IMAGE,
-    notequal("", VERSION) ? BUILDER_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_BUILDER_IMAGE,
-    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
 }

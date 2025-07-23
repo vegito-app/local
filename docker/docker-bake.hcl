@@ -1,4 +1,4 @@
-variable "VERSION" {
+variable "LOCAL_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }

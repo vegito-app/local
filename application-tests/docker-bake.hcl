@@ -3,7 +3,7 @@ variable "LOCAL_APPLICATION_TESTS_IMAGES_BASE" {
 }
 
 variable "LOCAL_APPLICATION_TESTS_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:application-tests-${VERSION}" : ""
+  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:application-tests-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_LOCAL_APPLICATION_TESTS_IMAGE" {
@@ -17,7 +17,7 @@ target "application-tests-ci" {
   context    = "${LOCAL_DIR}/application-tests"
   dockerfile = "Dockerfile"
   tags = [
-    notequal("", VERSION) ? LOCAL_APPLICATION_TESTS_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? LOCAL_APPLICATION_TESTS_IMAGE_VERSION : "",
     LATEST_LOCAL_APPLICATION_TESTS_IMAGE,
   ]
   cache-from = [
@@ -44,12 +44,12 @@ target "application-tests" {
     builder_image = LATEST_BUILDER_IMAGE
   }
   tags = [
-    notequal("", VERSION) ? LOCAL_APPLICATION_TESTS_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? LOCAL_APPLICATION_TESTS_IMAGE_VERSION : "",
     LATEST_LOCAL_APPLICATION_TESTS_IMAGE,
   ]
   cache-from = [
     LOCAL_LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
     LOCAL_LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,

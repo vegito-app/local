@@ -5,9 +5,9 @@ GITHUB_ACTIONS_RUNNER_IMAGE = $(PUBLIC_IMAGES_BASE):github-action-runner-latest
 GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/infra-github
 $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
-GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
-GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,dest=$(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
 # Build image for local run. This target will not push an image to the distant registry.
 github-action-runner-image: $(GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
@@ -46,7 +46,7 @@ local-github-action-runner-docker-compose-up: local-github-action-runner-docker-
 # before exit (see ./entrypoint.sh)
 local-github-action-runner-docker-compose-rm:
 	@-$(GITHUB_DOCKER_COMPOSE) rm -s -f github-action-runner
-.PHONY: local-local-github-action-runner-docker-compose-rm
+.PHONY: local-github-action-runner-docker-compose-rm
 
 LOCAL_GITHUB_WORKFLOWS_DIR := $(LOCAL_DIR)/.github/workflows/
 LOCAL_GITHUB_ACT_SECRET_FILE := $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret
