@@ -28,7 +28,7 @@ export GOARCH=$(dpkg --print-architecture)
 EOF
 
 local_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-app:builder-latest
-
+mkdir -p ~/.config
 cat <<EOF >>  ~/.config/shell
 alias hi="docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c 'sudo chroot /host iftop -i eno1'"
 alias hh="docker run --rm -it --privileged -v /:/host --entrypoint bash --network=host ${local_builder_image} -c 'sudo chroot /host htop'"
