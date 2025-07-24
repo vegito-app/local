@@ -28,7 +28,7 @@ COPY application/frontend/public application/frontend/public
 COPY application/frontend/src application/frontend/src
 COPY application/frontend/webpack.server.js application/frontend/
 
-RUN make -j local-example-application-frontend-build local-example-application-frontend-bundle
+RUN make -j local-application-example-frontend-build local-application-example-frontend-bundle
 
 # backend
 RUN mkdir -p application/backend
@@ -52,7 +52,7 @@ COPY application/backend/main.go application/backend/
 COPY .git .git
 RUN \
     git config --global --add safe.directory ${HOME}/src && \
-    make local-application-local-example-application-backend-install
+    make local-application-example-backend-install
 
 # artefacts
 

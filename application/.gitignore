@@ -1,0 +1,14 @@
+.containers
+vendor
+node_modules
+dist
+coverage
+build/
+*.log
+*.tmp
+_*
+.env
+.vscode/
+vscode.code-workspace
+.docker-compose*override*
+.idea/

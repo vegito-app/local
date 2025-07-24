@@ -7,7 +7,6 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/7d4b9/utrade/backend/internal/http/api"
-	"github.com/7d4b9/utrade/images/vegetable"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -104,20 +103,20 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 
 	err := validatedImagesSub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 		log.Printf("Received message: %s", string(msg.Data))
-		var payload vegetable.VegetableValidatedImageMessage
+		payload := map[string]any{}
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			log.Error().Err(err).Msg("Invalid message payload")
 			msg.Nack()
 			return
 		}
-		log.Debug().Str("vegetable_id", payload.VegetableID).Msg("Processing validated image")
+		log.Debug().Str("vegetable_id", payload["vegetable_id"].(string)).Msg("Processing validated image")
 
 		// Acknowledge the message before processing to avoid reprocessing in case of errors
 		defer msg.Ack()
-		if err := v.storage.SetVegetableImageUploaded(ctx, payload.VegetableID, payload.ImageIndex, payload.ImagePath); err != nil {
+		if err := v.storage.SetVegetableImageUploaded(ctx, payload["vegetable_id"].(string), payload["image_index"].(int), payload["image_path"].(string)); err != nil {
 			log.Error().Fields(map[string]any{
-				"vegetable_id": payload.VegetableID,
-				"image_index":  payload.ImageIndex,
+				"vegetable_id": payload["vegetable_id"],
+				"image_index":  payload["image_index"],
 				"data":         string(msg.Data),
 			}).Err(err).Msg("Failed to update vegetable image URL")
 			// msg.Nack()
@@ -133,10 +132,10 @@ func (v *VegetableClient) receiveValidatedImages(ctx context.Context) error {
 }
 
 func (v *VegetableClient) SetImageValidation(ctx context.Context, vegetableID string, img *api.VegetableImage, imageIndex int) error {
-	payload, err := json.Marshal(&vegetable.VegetableCreatedImageMessage{
-		VegetableID: vegetableID,
-		ImageIndex:  imageIndex,
-		ImagePath:   img.Path,
+	payload, err := json.Marshal(&map[string]any{
+		"vegetable_id": vegetableID,
+		"image_index":  imageIndex,
+		"image_path":   img.Path,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to marshal image validation message: %w", err)

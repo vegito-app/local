@@ -18,25 +18,21 @@ LOCAL_APPLICATION_BACKEND_VENDOR = $(CURDIR)/backend/vendor
 $(LOCAL_APPLICATION_BACKEND_VENDOR):
 	@$(MAKE) go-application/backend-mod-vendor
 
-local-application-backend-run: $(LOCAL_APPLICATION_FRONTEND_BUILD_BUNDLE_JS) $(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
+local-application-example-backend-run: $(LOCAL_APPLICATION_FRONTEND_BUILD_BUNDLE_JS) $(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
 	@$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: local-application-backend-run
+.PHONY: local-application-example-backend-run
 
-$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN): local-application-local-example-application-backend-install
+$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN): local-application-example-backend-install
 
 LOCAL_APPLICATION_BACKEND_DIR ?= $(CURDIR)/application/backend
 
-local-application-local-example-application-backend-install:
+local-application-example-backend-install:
 	@echo Installing backend...
 	@cd $(LOCAL_APPLICATION_BACKEND_DIR) \
 	  && go install -a -ldflags "-linkmode external -extldflags -static"
-	#   && go install -a -ldflags "-linkmode external"
 	@echo Installed backend.
-.PHONY: local-application-local-example-application-backend-install
-
-local-application-local-example-application-backend-install: $(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
-	@$(LOCAL_APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: local-application-local-example-application-backend-install
+.PHONY: local-application-example-backend-install
+#   && go install -a -ldflags "-linkmode external"
 
 # Handle buildx cache in local folder
 LOCAL_APPLICATION_BACKEND_IMAGE = $(IMAGES_BASE):application-backend-$(LOCAL_VERSION)
@@ -47,7 +43,7 @@ LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCA
 endif
 LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,dest=$(LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE)
 
-local-application-backend-container-up: local-application-backend-container-rm
+local-application-example-backend-container-up: local-application-example-backend-container-rm
 	$(LOCAL_APPLICATION_BACKEND_DIR)/docker-compose-up.sh &
 	until nc -z application-backend 8080 ; do \
 		sleep 1 ; \
@@ -57,4 +53,4 @@ local-application-backend-container-up: local-application-backend-container-rm
 	@echo Started Application Backend: 
 	@echo View UI at http://127.0.0.1:8080/ui
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: local-application-backend-container-up
+.PHONY: local-application-example-backend-container-up

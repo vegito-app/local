@@ -4,14 +4,11 @@ go 1.24
 
 toolchain go1.24.1
 
-replace github.com/7d4b9/utrade/images => ../images
-
 require (
 	cloud.google.com/go/firestore v1.18.0
 	cloud.google.com/go/pubsub v1.49.0
 	cloud.google.com/go/secretmanager v1.14.7
 	firebase.google.com/go/v4 v4.15.2
-	github.com/7d4b9/utrade/images v0.0.0-00010101000000-000000000000
 	github.com/GoogleCloudPlatform/functions-framework-go v1.9.2
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.16.0
