@@ -8,16 +8,11 @@ PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(IMAGES_BASE)
 PRIVATE_REPOSITORY ?= $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 PRIVATE_IMAGES_BASE ?= $(PRIVATE_REPOSITORY)/$(IMAGES_BASE)
 
-LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES = \
+LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_WORKERS_IMAGES = \
   application-images-cleaner  \
-  application-images-moderator 
+  application-images-moderator
 
-LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES = \
-  application-backend
-
-LOCAL_DOCKER_BUILDX_BAKE_IMAGES = \
-  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES) \
-  $(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES) \
+LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   android-studio \
   clarinet-devnet \
   application-tests \
@@ -34,8 +29,8 @@ DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	$(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES_WORKERS_IMAGES:application-images-%=-f $(LOCAL_DIR)/application/images/%/docker-bake.hcl) \
-	$(LOCAL_DOCKER_BUILDX_BAKE_APPLICATION_IMAGES:application-%=-f $(LOCAL_DIR)/application/%/docker-bake.hcl) \
+	$(LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_WORKERS_IMAGES:application-images-%=-f $(LOCAL_DIR)/application/images/%/docker-bake.hcl) \
+	$(LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:application-%=-f $(LOCAL_DIR)/application/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
 docker-images-ci-multi-arch: docker-buildx-setup local-builder-image-ci
@@ -61,25 +56,25 @@ docker-sock:
 	sudo chmod o+rw /var/run/docker.sock
 .PHONY: docker-sock
 
-$(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image=%)
 	@$(DOCKER_BUILDX_BAKE) --load $(@:local-%-image=%)
-.PHONY: $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
+.PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
-$(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push):
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push):
 	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image-push=%)
 	@$(DOCKER_BUILDX_BAKE) --push $(@:local-%-image-push=%)
-.PHONY: $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
+.PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
 
-# $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull):
+# $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull):
 # 	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image-pull=%)
 # 	@$(DOCKER_BUILDX_BAKE) --pull $(@:local-%-image-pull=%)
-# .PHONY: $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull)
+# .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull)
 
-$(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --print $(@:local-%-image-ci=%-ci)
 	@$(DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
-.PHONY: $(DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
+.PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
 local-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
 	$(DOCKER_BUILDX_BAKE) --print builder

@@ -41,6 +41,6 @@ dev-rm:
 logs: local-containers-dev-logs-f
 .PHONY: logs
 
-application-tests: local-application-tests-container-run
-	@echo "Application tests completed successfully."
-.PHONY: application-tests
+end-to-end-tests: local-application-tests-container-run
+	@echo "End-to-end tests completed successfully."
+.PHONY: end-to-end-tests
