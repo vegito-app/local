@@ -60,10 +60,10 @@ This will:
 Each service launched via `docker-compose` has **dedicated `make` commands**. From inside the `dev` container, you can for example run:
 
 ```bash
-make android-studio-docker-compose-start     # Start Android Studio
-make android-studio-docker-compose-logs      # View logs
-make android-studio-docker-compose-sh        # Shell into the container
-make android-studio-docker-compose-stop      # Stop the service
+make android-studio-container-start     # Start Android Studio
+make android-studio-container-logs      # View logs
+make android-studio-container-sh        # Shell into the container
+make android-studio-container-stop      # Stop the service
 ```
 
 The same logic applies to:

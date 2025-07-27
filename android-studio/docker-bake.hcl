@@ -1,5 +1,5 @@
 variable "ANDROID_STUDIO_IMAGE_TAG" {
-  default = notequal("", VERSION) ? "${PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
+  default = notequal("", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:android-studio-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_ANDROID_STUDIO_IMAGE" {

@@ -1,5 +1,5 @@
 variable "VAULT_DEV_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${VERSION}" : ""
+  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_VAULT_DEV_IMAGE" {
@@ -11,7 +11,7 @@ target "vault-dev-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
-    notequal("", VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE
@@ -20,11 +20,11 @@ target "vault-dev-ci" {
   platforms = platforms
 }
 
-variable "VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   description = "local write cache for builder image build"
 }
 
-variable "VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for builder image build (cannot be used before first write)"
 }
 
@@ -33,13 +33,13 @@ target "vault-dev" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
-    notequal("", VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
+    notequal("", LOCAL_VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE,
-    VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
 }

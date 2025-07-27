@@ -9,3 +9,5 @@ build/
 _*
 .env
 .vscode/
+vscode.code-workspace
+.docker-compose*override*

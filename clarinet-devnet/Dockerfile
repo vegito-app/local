@@ -102,6 +102,7 @@ RUN \
 RUN apt-get update && apt-get install -y \
     iproute2 \
     iptables \
+    procps \
     uidmap 
 
 ARG non_root_user=clarinet
@@ -117,5 +118,5 @@ RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_use
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
-COPY devnet-entrypoint.sh /usr/local/bin/clarinet-devnet-entrypoint.sh
-ENTRYPOINT [ "clarinet-devnet-entrypoint.sh" ]
+COPY entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
+ENTRYPOINT [ "clarinet-entrypoint.sh" ]

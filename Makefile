@@ -1,10 +1,15 @@
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+
+LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
+ifeq ($(LOCAL_VERSION),)
+LOCAL_VERSION := latest
+endif
+
 GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
 INFRA_PROJECT_NAME ?= moov
-VERSION ?= $(GIT_HEAD_VERSION)
-ifeq ($(VERSION),)
-VERSION := latest
-endif
+
+LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
+LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
 
 export
 
@@ -26,15 +31,16 @@ images-push:
 .PHONY: images-push
 
 dev: 
-	@$(MAKE) -j local-docker-compose-up
+	@$(MAKE) -j local-containers-up
 .PHONY: dev
 
 dev-rm: 
-	@$(MAKE) -j local-docker-compose-rm-all
+	@$(MAKE) -j local-containers-rm-all
 .PHONY: dev-rm
 
-logs: local-docker-compose-dev-logs-f
+logs: local-containers-dev-logs-f
 .PHONY: logs
 
-tests-all: e2e-tests-bdd-all
-.PHONY: tests-all
+end-to-end-tests: local-application-tests-container-run
+	@echo "End-to-end tests completed successfully."
+.PHONY: end-to-end-tests

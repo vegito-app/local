@@ -21,7 +21,8 @@ services:
     working_dir: ${PWD}
     command: |
       bash -c '
-      sudo chmod o+rw /var/run/docker.sock
+      # chsh -s $(which zsh) ${USER:-$(whoami)}
+      make docker-sock
       until docker info; do
         echo "Waiting for Docker to be ready..."
         sleep 1
@@ -29,6 +30,15 @@ services:
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
       fi
+      if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+        until make local-application-tests-check-env ; do
+          echo "[application-tests] Waiting for environment to be ready..."
+          sleep 5
+        done
+        make application-tests
+      fi
+
+
       sleep infinity
       '
 
@@ -86,7 +96,7 @@ services:
     environment:
       HOST_PWD: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
-      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/local/.containers/clarinet-devnet}
+      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
@@ -119,7 +129,7 @@ services:
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_ENV_SETUP: ${LOCAL_ANDROID_STUDIO_ENV_SETUP:-false}
-      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/local/.containers/android-studio}
+      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
       ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}

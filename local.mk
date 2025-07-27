@@ -1,37 +1,38 @@
 
-LATEST_BUILDER_IMAGE = $(PUBLIC_IMAGES_BASE):builder-latest
+LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_DOCKER_COMPOSE = docker compose -f $(LOCAL_DIR)/docker-compose.yml
+LOCAL_DOCKER_COMPOSE ?= docker compose \
+  -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/.docker-compose-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
-local-application-install: application-frontend-build application-frontend-bundle backend-install 
-.PHONY: local-application-install
+local-container-config-show:
+	@$(LOCAL_DOCKER_COMPOSE) config
+.PHONY: local-container-config-show
 
-local-application-backend-install: $(APPLICATION_BACKEND_INSTALL_BIN) $(FRONTEND_BUILD_DIR) $(UI_JAVASCRIPT_SOURCE_FILE)
-	@$(APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: local-application-backend-install
-
-BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
-$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
-BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
+$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
-BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-local-docker-compose-dev-image-pull:
-	$(LOCAL_DOCKER_COMPOSE) pull dev
-.PHONY: local-docker-compose-dev-image-pull
+local-dev-container-image-pull:
+	@$(LOCAL_DOCKER_COMPOSE) pull dev
+.PHONY: local-dev-container-image-pull
 
-local-docker-compose-dev-logs:
+local-dev-container-logs:
 	@$(LOCAL_DOCKER_COMPOSE) logs dev
-.PHONY: local-docker-compose-dev-logs
+.PHONY: local-dev-container-logs
 
-local-docker-compose-dev-logs-f:
+local-dev-container-logs-f:
 	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
-.PHONY: local-docker-compose-dev-logs-f
+.PHONY: local-dev-container-logs-f
 
-LOCAL_DOCKER_COMPOSE_SERVICES = \
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   android-studio \
   vault-dev \
   firebase-emulators \
@@ -39,44 +40,56 @@ LOCAL_DOCKER_COMPOSE_SERVICES = \
   application-backend \
   application-tests
 
-local-docker-compose-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
-.PHONY: local-docker-compose-up
+local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
+.PHONY: local-containers-up
 
-local-docker-compose-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-rm)
-.PHONY: local-docker-compose-rm-all
+local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
+.PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):
-	@$(MAKE) $(@:%=local-%-docker-compose-up)
+	@$(MAKE) $(@:%=local-%-container-up)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-rm): 
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm): 
 	@$(MAKE) $(@:%-rm=%-stop)
-	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-docker-compose-rm=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-rm)
+	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-start):
-	@-$(LOCAL_DOCKER_COMPOSE) start $(@:local-%-docker-compose-start=%) 2>/dev/null
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-start)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-start):
+	@-$(LOCAL_DOCKER_COMPOSE) start $(@:local-%-container-start=%) 2>/dev/null
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-start)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-stop):
-	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-docker-compose-stop=%) 2>/dev/null
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-stop)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-stop):
+	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-container-stop=%) 2>/dev/null
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-stop)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs):
-	@$(LOCAL_DOCKER_COMPOSE) logs $(@:local-%-docker-compose-logs=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs):
+	@$(LOCAL_DOCKER_COMPOSE) logs $(@:local-%-container-logs=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs-f):
-	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:local-%-docker-compose-logs-f=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-logs-f)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs-f):
+	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:local-%-container-logs-f=%)
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs-f)
 
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-sh):
-	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-docker-compose-sh=%) bash
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-docker-compose-sh)
+$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
+	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-container-sh=%) bash
+.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
+
+local-dev-container:
+	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+.PHONY: local-dev-container
+
+local-dev-container-rm:
+	@$(LOCAL_DOCKER_COMPOSE) rm -s -f dev
+.PHONY: local-dev-container-rm
+
+local-dev-container-sh:
+	@$(LOCAL_DOCKER_COMPOSE) exec -it dev bash
+.PHONY: local-dev-container-sh
 
 -include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android-studio/android-studio.mk

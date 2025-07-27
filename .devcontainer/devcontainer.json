@@ -2,15 +2,17 @@
   "name": "Go Dev Container",
   "dockerComposeFile": [
     "../docker-compose.yml",
+    "../.docker-compose-override.yml",
     // "./docker-compose.yml"
+    "../.docker-compose-networks-override.yml",
+    "../.docker-compose-gpu-override.yml"
   ],
   "service": "dev",
   "runServices": [
     "dev"
   ],
-  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
-  "postCreateCommand": "${localWorkspaceFolder}/.devcontainer/post-create-cmd.sh",
-  "workspaceFolder": "/workspaces/refactored-winner",
+  "initializeCommand": "LOCAL_DIR=${localWorkspaceFolder} CONTAINERS_CACHE_DIR=${localWorkspaceFolder}/.containers WORKING_DIR=${localWorkspaceFolder} DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608 ${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
+  "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
       "settings": {
