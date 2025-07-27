@@ -212,8 +212,6 @@ The same logic applies to:
 
 MIT — use freely, contribute openly, and stay sharp – see the [LICENSE](./LICENSE) file. 
 
-<!-- MIT – see the [LICENSE](./LICENSE) file. -->
-
 ---
 
 ## 🙌 Special Thanks

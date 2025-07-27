@@ -27,7 +27,7 @@ images-pull:
 .PHONY: images-fast-pull
 
 images-push: 
-	@$(MAKE) -j docker-local-images-push
+	@$(MAKE) -j local-docker-images-push
 .PHONY: images-push
 
 dev: 

@@ -26,7 +26,6 @@ bg_pids+=("$!")
 socat TCP-LISTEN:9100,fork,reuseaddr TCP:android-studio:9100 >> /tmp/socat-android-studio-9100.log 2>&1 &
 bg_pids+=("$!")
 
-
 docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_DIR}/docker-compose.yml}
 
 ${docker_compose} up android-studio 2>&1

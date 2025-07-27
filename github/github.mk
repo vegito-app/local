@@ -27,7 +27,7 @@ github-action-runner-image-ci: docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --push github-action-runner-ci
 .PHONY: local-github-action-runner-image-ci
 
-GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(GOOGLE_CLOUD_PROJECT_ID)-github-actions \
+GITHUB_DOCKER_COMPOSE ?= COMPOSE_PROJECT_NAME=$(GOOGLE_CLOUD_PROJECT_ID)-github-actions \
   docker compose -f $(LOCAL_DIR)/github/docker-compose.yml
 
 github-action-runner-token-exist:
