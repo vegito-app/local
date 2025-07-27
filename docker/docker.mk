@@ -19,12 +19,6 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   firebase-emulators \
   vault-dev 
 
-docker-local-images-pull: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull) local-container-dev-image-pull
-.PHONY: docker-local-images-pull
-
-docker-local-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
-.PHONY: docker-local-images-push
-
 DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
@@ -39,8 +33,8 @@ docker-images-ci-multi-arch: docker-buildx-setup local-builder-image-ci
 .PHONY: docker-images-ci-multi-arch
 
 docker-images-local-arch: local-builder-image
-	$(DOCKER_BUILDX_BAKE) --print services-load-local-arch
-	$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
+	@$(DOCKER_BUILDX_BAKE) --print services-load-local-arch
+	@$(DOCKER_BUILDX_BAKE) --load services-load-local-arch
 .PHONY: docker-images-local-arch
 
 docker-buildx-setup: 
@@ -76,9 +70,9 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE) docker-buildx-setup
-	$(DOCKER_BUILDX_BAKE) --print builder
-	$(DOCKER_BUILDX_BAKE) --load builder
+local-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+	@$(DOCKER_BUILDX_BAKE) --print builder
+	@$(DOCKER_BUILDX_BAKE) --load builder
 .PHONY: local-builder-image
 
 local-builder-image-push: docker-buildx-setup
