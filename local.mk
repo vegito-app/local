@@ -1,4 +1,3 @@
-
 LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
@@ -24,6 +23,12 @@ local-dev-container-image-pull:
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
 
+local-docker-images-pull: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull)
+.PHONY: local-images-pull
+
+local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
+.PHONY: local-images-push
+
 local-dev-container-logs:
 	@$(LOCAL_DOCKER_COMPOSE) logs dev
 .PHONY: local-dev-container-logs
@@ -34,11 +39,11 @@ local-dev-container-logs-f:
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   android-studio \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
   application-backend \
-  application-tests
+  application-tests \
+  clarinet-devnet \
+  firebase-emulators \
+  vault-dev
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
@@ -47,7 +52,7 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):

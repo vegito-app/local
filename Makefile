@@ -9,7 +9,7 @@ GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
 INFRA_PROJECT_NAME ?= moov
 
 LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
-LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
 
 export
 

@@ -14,16 +14,16 @@ FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub
 
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators-prepare
+# /workspaces/refactored-winner/firebase/functions/auth
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/application/firebase/functions
 
-LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR ?= application/firebase/functions
-
-local-firebase-emulators-install: gcloud-infra-auth-npm-install
-	@cd $(LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR) && npm install
+local-firebase-emulators-install: local-firebase-emulators-auth-functions-npm-install
+	@cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR) && npm install
 .PHONY: local-firebase-emulators-install
 
-gcloud-infra-auth-npm-install:
-	cd $(LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR)/auth && npm install
-.PHONY: gcloud-infra-auth-npm-install
+local-firebase-emulators-auth-functions-npm-install:
+	cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR)/auth && npm install
+.PHONY: local-firebase-emulators-auth-functions-npm-install
 
 local-firebase-emulators-init:
 	@$(FIREBASE_EMULATORS) init emulators 

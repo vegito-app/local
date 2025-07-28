@@ -68,6 +68,4 @@ localFirebaseEmulatorsConfigJson=${LOCAL_FIREBASE_EMULATORS_CONFIG_JSON:-${LOCAL
     "providers": ["password", "google.com", "facebook.com", "anonymous"]
   }
 }
-
-
 EOF
