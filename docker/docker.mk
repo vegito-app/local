@@ -8,7 +8,7 @@ PUBLIC_IMAGES_BASE ?= $(PUBLIC_REPOSITORY)/$(LOCAL_IMAGES_BASE)
 PRIVATE_REPOSITORY ?= $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 PRIVATE_IMAGES_BASE ?= $(PRIVATE_REPOSITORY)/$(LOCAL_IMAGES_BASE)
 
-LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_WORKERS_IMAGES = \
+LOCAL_APPLICATION_IMAGES_WORKERS_DOCKER_BUILDX_BAKE_IMAGES = \
   application-images-cleaner  \
   application-images-moderator
 
@@ -23,14 +23,14 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	$(LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_WORKERS_IMAGES:application-images-%=-f $(LOCAL_DIR)/application/images/%/docker-bake.hcl) \
+	$(LOCAL_APPLICATION_IMAGES_WORKERS_DOCKER_BUILDX_BAKE_IMAGES:application-images-%=-f $(LOCAL_DIR)/application/images/%/docker-bake.hcl) \
 	$(LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:application-%=-f $(LOCAL_DIR)/application/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
-docker-images-ci-multi-arch: docker-buildx-setup local-builder-image-ci
+local-services-push-multi-arch-images: docker-buildx-setup local-builder-image-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print services-push-multi-arch
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push services-push-multi-arch
-.PHONY: docker-images-ci-multi-arch
+.PHONY: local-services-push-multi-arch-images
 
 docker-images-local-arch: local-builder-image
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print services-load-local-arch
@@ -47,6 +47,7 @@ docker-login: gcloud-auth-docker
 .PHONY: docker-login
 
 docker-sock:
+	@echo "Setting permissions for Docker socket..."
 	sudo chmod o+rw /var/run/docker.sock
 .PHONY: docker-sock
 
@@ -82,6 +83,6 @@ local-builder-image-push: docker-buildx-setup
 
 local-builder-image-ci: docker-buildx-setup
 	env | grep -i local_images_base
-	$(LOCAL_DOCKER_BUILDX_BAKE) --print builder-ci
-# 	$(LOCAL_DOCKER_BUILDX_BAKE) --push builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push builder-ci
 .PHONY: local-builder-image-ci
