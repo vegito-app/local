@@ -59,12 +59,6 @@ RUN apt-get update && apt-get install -y \
 ARG oh_my_zsh_version=1.2.1
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
 
-RUN emacs --batch --eval "(require 'package)" \
-    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
-    --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" \
-    --eval "(package-install 'magit)"
-
 ARG TARGETPLATFORM
 
 # GCP CLI
@@ -246,8 +240,18 @@ RUN set -x; \
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+RUN apt-get update && apt-get install -y \
+emacs-nox \
+&& apt-get clean && rm -rf /var/lib/apt/lists/*
 
+USER ${non_root_user}
 
+RUN emacs --batch --eval "(require 'package)" \
+    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
+    --eval "(package-initialize)" \
+    --eval "(unless package-archive-contents (package-refresh-contents))" \
+    --eval "(package-install 'magit)"
+    
 RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
     && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
@@ -258,15 +262,18 @@ RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     && go install -v github.com/jesseduffield/lazydocker@latest \
     "
 
-# Replace /bin/sh with bash
-RUN ln -sf /usr/bin/bash /bin/sh
+ENV PATH=${HOME}/bin:$PATH
 
+USER root
+
+# Replace /bin/sh with bash
+# RUN ln -sf /usr/bin/bash /bin/sh
+RUN ln -sf /usr/bin/bash /bin/sh
 # Set the default shell to zsh
-# RUN chsh -s /bin/zsh ${non_root_user}
+RUN chsh -s /bin/zsh ${non_root_user}
 
 USER ${non_root_user}
 
-ENV PATH=${HOME}/bin:$PATH
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
