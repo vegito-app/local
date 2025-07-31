@@ -71,7 +71,7 @@ variable "platforms" {
     "linux/arm64"
   ]
 }
-group "services-load-local-arch" {
+group "local-services-host-arch-load" {
   targets = [
     "android-studio",
     "clarinet-devnet",
@@ -81,7 +81,7 @@ group "services-load-local-arch" {
     "application-tests",
   ]
 }
-group "services-push-multi-arch" {
+group "local-services-multi-arch-push" {
   targets = [
     "android-studio-ci",
     "clarinet-devnet-ci",

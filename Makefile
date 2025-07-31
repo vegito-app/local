@@ -19,7 +19,7 @@ images:
 	@$(MAKE) -j docker-images-local-arch
 .PHONY: images
 
-images-ci: local-services-push-multi-arch-images
+images-ci: local-local-services-multi-arch-push-images
 .PHONY: images-ci
 
 images-pull: 
