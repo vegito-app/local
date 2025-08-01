@@ -1,4 +1,3 @@
-
 LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
@@ -13,16 +12,22 @@ local-container-config-show:
 	@$(LOCAL_DOCKER_COMPOSE) config
 .PHONY: local-container-config-show
 
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
-$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
+$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 endif
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 
 local-dev-container-image-pull:
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
+
+local-docker-images-pull: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull)
+.PHONY: local-images-pull
+
+local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
+.PHONY: local-images-push
 
 local-dev-container-logs:
 	@$(LOCAL_DOCKER_COMPOSE) logs dev
@@ -34,11 +39,11 @@ local-dev-container-logs-f:
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   android-studio \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
   application-backend \
-  application-tests
+  application-tests \
+  clarinet-devnet \
+  firebase-emulators \
+  vault-dev
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
@@ -47,7 +52,7 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):

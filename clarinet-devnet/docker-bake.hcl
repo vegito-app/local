@@ -6,11 +6,11 @@ variable "LATEST_CLARINET_DEVNET_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:clarinet-latest"
 }
 
-variable "CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for clarinet image build"
 }
 
-variable "CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ" {
   description = "local read cache for clarinet image build (cannot be used before first write)"
 }
 
@@ -51,9 +51,9 @@ target "clarinet-devnet" {
     CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to = [
-    CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
 }
