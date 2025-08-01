@@ -33,13 +33,13 @@ fi
 # VSCODE User data
 VSCODE_REMOTE_USER_DATA=${VSCODE_REMOTE}/data/User
 if [ -d $VSCODE_REMOTE_USER_DATA ] ; then 
-mv $VSCODE_REMOTE_USER_DATA ${VSCODE_REMOTE_USER_DATA}_back
-LOCAL_VSCODE_USER_GLOBAL_STORAGE=${local_container_cache}/vscode/userData/globalStorage
-mkdir -p ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}
-# persist locally (gitignored)
-ln -sf ${local_container_cache}/vscode/userData $VSCODE_REMOTE_USER_DATA
-# versionned folder for gpt chat logging (folder ${local_container_cache}/genieai.chatgpt-vscode)
-ln -sf ${local_container_cache}/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
+    mv $VSCODE_REMOTE_USER_DATA ${VSCODE_REMOTE_USER_DATA}_back
+    LOCAL_VSCODE_USER_GLOBAL_STORAGE=${local_container_cache}/vscode/userData/globalStorage
+    mkdir -p ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}
+    # persist locally (gitignored)
+    ln -sf ${local_container_cache}/vscode/userData $VSCODE_REMOTE_USER_DATA
+    # versionned folder for gpt chat logging (folder ${local_container_cache}/genieai.chatgpt-vscode)
+    ln -sf ${local_container_cache}/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
 fi
 
 dev-entrypoint.sh "$@"

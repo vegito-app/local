@@ -9,7 +9,7 @@ GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
 INFRA_PROJECT_NAME ?= moov
 
 LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
-LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
 
 export
 
@@ -19,7 +19,7 @@ images:
 	@$(MAKE) -j docker-images-local-arch
 .PHONY: images
 
-images-ci: docker-images-ci-multi-arch
+images-ci: local-services-multi-arch-push-images
 .PHONY: images-ci
 
 images-pull: 
@@ -27,7 +27,7 @@ images-pull:
 .PHONY: images-fast-pull
 
 images-push: 
-	@$(MAKE) -j docker-local-images-push
+	@$(MAKE) -j local-docker-images-push
 .PHONY: images-push
 
 dev: 

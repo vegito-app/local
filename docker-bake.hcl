@@ -33,11 +33,11 @@ target "builder-ci" {
   platforms  = platforms
 }
 
-variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for builder image build"
 }
 
-variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ" {
   description = "local read cache for builder image build (cannot be used before first write)"
 }
 
@@ -62,9 +62,9 @@ target "builder" {
   ]
   cache-from = [
     LATEST_BUILDER_IMAGE,
-    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to = [
-    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
 }

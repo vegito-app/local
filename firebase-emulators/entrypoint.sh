@@ -8,9 +8,9 @@ bg_pids=()
 # Function to kill background jobs when script ends
 kill_jobs() {
     echo "Killing background jobs"
-    for pid in "$${bg_pids[@]}"; do
-        kill "$$pid"
-        wait "$$pid" 2>/dev/null
+    for pid in "${bg_pids[@]}"; do
+        kill "$pid"
+        wait "$pid" 2>/dev/null
     done
 }
 
@@ -61,8 +61,5 @@ until nc -z localhost 8085; do
     echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9150/ ;
     sleep 1 ;
 done
-
-make local-firebase-emulators-pubsub-init
-make local-firebase-emulators-pubsub-check
 
 exec "$@"
