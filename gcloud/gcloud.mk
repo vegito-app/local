@@ -119,7 +119,7 @@ gcloud-info:
 
 gcloud-auth-docker:
 	@echo "🐳 Authenticating Docker with Google Artifact Registry..."
-	@$(GCLOUD) --quiet auth configure-docker $(REGISTRY)
+	@$(GCLOUD) --quiet auth configure-docker $(GOOGLE_CLOUD_DOCKER_REGISTRY)
 .PHONY: gcloud-auth-docker
 
 gcloud-config-set-project:
@@ -241,7 +241,7 @@ gcloud-services-list:
 # Use this target to configure the Docker pluggin of Vscode if credential-helper cannot help.
 gcloud-docker-registry-temporary-token:
 	@echo Getting $(GCLOUD) docker registry temporary access token:
-	@echo  registry: $(REGISTRY)
+	@echo  registry: $(GOOGLE_CLOUD_DOCKER_REGISTRY)
 	@echo  username: oauth2accesstoken
 	@echo  password: `$(GCLOUD) auth print-access-token`
 .PHONY: gcloud-docker-registry-temporary-token
