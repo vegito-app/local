@@ -58,7 +58,7 @@ local-builder-image-ci: docker-buildx-setup
 
 LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES = \
 	application-backend \
-#   application-mobile
+  	application-mobile
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   android-studio \
