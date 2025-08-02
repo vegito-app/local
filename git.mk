@@ -24,7 +24,7 @@ git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-r
 .PHONY: git-subtree-remote-branch-rm
 
 # ------------------------------------------
-# Subtree /gcloud
+# Subtree ./gcloud
 # ------------------------------------------
 git-subtree-gcloud-pull:
 	@echo "⬇︎ Pulling the gcloud subtree..."
@@ -41,5 +41,26 @@ git-subtree-gcloud-push:
 .PHONY: git-subtree-gcloud-push
 
 GCLOUD_DIR := $(CURDIR)/gcloud
--include $(CURDIR)/gcloud/gcloud.mk
+-include $(GCLOUD_DIR)/gcloud.mk
+# ------------------------------------------
+
+# ------------------------------------------
+# Subtree ./application
+# ------------------------------------------
+git-subtree-application-pull:
+	@echo "⬇︎ Pulling the application subtree..."
+	@git subtree pull --prefix application \
+	  git@github.com:vegito-app/application.git main --squash
+	@echo "Application subtree pulled successfully."
+.PHONY: git-subtree-application-pull
+
+git-subtree-application-push:
+	@echo "⬆︎ Pushing changes from the application subtree..."
+	@git subtree push --prefix application \
+	  git@github.com:vegito-app/application.git $(GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "Application subtree pushed successfully."
+.PHONY: git-subtree-application-push
+
+APPLICATION_DIR := $(CURDIR)/application
+-include $(APPLICATION_DIR)/application.mk
 # ------------------------------------------

@@ -8,11 +8,14 @@ endif
 GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
 INFRA_PROJECT_NAME ?= moov
 
+LOCAL_IMAGES_BASE := vegito-local
+
 LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
 LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
 
 export
 
+-include git.mk
 -include local.mk
 
 images:
@@ -23,7 +26,7 @@ images-ci: local-services-multi-arch-push-images
 .PHONY: images-ci
 
 images-pull: 
-	@$(MAKE) -j docker-local-images-pull
+	@$(MAKE) -j local-docker-images-pull
 .PHONY: images-fast-pull
 
 images-push: 

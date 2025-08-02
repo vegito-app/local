@@ -7,6 +7,10 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
+projectName=${VEGITO_PROJECT_NAME:-vegito-local}
+projectUser=${VEGITO_PROJECT_USER:-local-developer-id}
+localDockerComposeProjectName=${VEGITO_COMPOSE_PROJECT_NAME:-$projectName-$projectUser}
+
 # Create default local .env file with minimum required values to start.
 localDotenvFile=${LOCAL_DIR}/.env
 [ -f $localDotenvFile ] || cat <<EOF > $localDotenvFile
@@ -18,7 +22,7 @@ localDotenvFile=${LOCAL_DIR}/.env
 # Please set the values in this section according to your personnal settings.
 # 
 # Trigger the local project display name in Docker Compose.
-COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-local-${VEGITO_PROJECT_USER:-local-developer-id}}
+COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-developer-id}
@@ -48,7 +52,7 @@ DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secre
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
+LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 
@@ -102,20 +106,21 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-app:builder-latest
     command: |
       bash -c '
-      make docker-sock
-      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
-        make dev
-      fi
-      if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-        until make local-application-tests-check-env ; do
-          echo "[application-tests] Waiting for environment to be ready..."
-          sleep 5
-        done
-        make application-tests
-      fi
-      sleep infinity
+        make docker-sock
+        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+          make dev
+        fi
+        if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+          until make local-application-tests-check-env ; do
+            echo "[application-tests] Waiting for environment to be ready..."
+            sleep 5
+          done
+          make application-tests
+        fi
+        sudo chsh -s /usr/bin/zsh root
+        sudo chsh -s /usr/bin/zsh vegito
+        sleep infinity
       '
-      # "ndk;${android_ndk_version}" \
   android-studio:
     working_dir: ${PWD}/mobile
     command: |
@@ -146,7 +151,7 @@ services:
     command: |
       bash -c '
       set -eu
-      make -C ../.. local-clarinet-devnet-start
+      make -C .. local-clarinet-devnet-start
       sleep infinity
       '
   application-tests:

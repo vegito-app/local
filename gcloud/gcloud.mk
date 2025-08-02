@@ -173,8 +173,8 @@ gcloud-backend-image-delete:
 .PHONY: gcloud-backend-image-delete
 
 gcloud-builder-image-delete:
-	@echo "🗑️  Deleting builder image $(BUILDER_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(BUILDER_IMAGE)
+	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
 .PHONY: gcloud-builder-image-delete
 
 gcloud-auth-func-logs:

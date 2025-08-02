@@ -37,7 +37,7 @@ target "github-action-runner-ci" {
     notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
+    LOCAL_BUILDER_IMAGE,
     LATEST_GITHUB_RUNNER_IMAGE
   ]
   cache-to  = ["type=inline"]

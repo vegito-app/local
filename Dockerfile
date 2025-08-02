@@ -202,7 +202,7 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-ARG non_root_user=dev
+ARG non_root_user=vegito
 
 RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
@@ -266,14 +266,9 @@ ENV PATH=${HOME}/bin:$PATH
 
 USER root
 
-# Replace /bin/sh with bash
-# RUN ln -sf /usr/bin/bash /bin/sh
 RUN ln -sf /usr/bin/bash /bin/sh
-# Set the default shell to zsh
-RUN chsh -s /bin/zsh ${non_root_user}
-
+    
 USER ${non_root_user}
-
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

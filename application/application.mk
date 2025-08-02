@@ -1,8 +1,12 @@
--include application/frontend/frontend.mk
--include application/backend/backend.mk
--include application/mobile/flutter.mk
+APPLICATION_DIR ?= $(CURDIR)/application
+APPLICATION_MOBILE_DIR = $(APPLICATION_DIR)/mobile
 
-APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST = $(CURDIR)/application/mobile/ios/GoogleService-Info.plist
+-include $(APPLICATION_DIR)/frontend/frontend.mk
+-include $(APPLICATION_DIR)/backend/backend.mk
+-include $(APPLICATION_MOBILE_DIR)/flutter.mk
+
+
+APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST = $(APPLICATION_MOBILE_DIR)/ios/GoogleService-Info.plist
 
 $(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST): 
 	@$(MAKE) application-ios-config-plist
@@ -12,7 +16,7 @@ application-ios-config-plist: $(FIREBASE_IOS_CONFIG_PLIST)
 	@ln -sf $< $(APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST)
 .PHONY:application-ios-config-plist
 
-APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(CURDIR)/application/mobile/android/app/google-services.json
+APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(APPLICATION_MOBILE_DIR)/android/app/google-services.json
 
 $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON): 
 	@$(MAKE) application-android-config-json

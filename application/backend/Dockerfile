@@ -1,19 +1,22 @@
-ARG builder_image=europe-west1-docker.pkg.dev/moov-438615/docker-repository-public/moov-438615:builder
+ARG builder_image
 FROM ${builder_image} AS build
 
 RUN mkdir ${HOME}/src
 WORKDIR ${HOME}/src
 
 COPY Makefile .
-COPY go.mk .
+COPY local.mk .
 COPY nodejs.mk .
+COPY go.mk .
+
+RUN mkdir -p application/ 
+COPY application/application.mk application/
 
 # frontend
 RUN mkdir -p application/frontend 
 COPY application/frontend/package.json application/frontend/
 COPY application/frontend/package-lock.json application/frontend/
 COPY application/frontend/frontend.mk application/frontend/
-COPY application/application.mk application/
 
 RUN make application-frontend-npm-ci
 
@@ -44,7 +47,7 @@ COPY .git .git
 USER root
 RUN git config --global --add safe.directory ${HOME}/src
 
-ARG non_root_user=devuser
+ARG non_root_user=vegito
 
 USER ${non_root_user}
 

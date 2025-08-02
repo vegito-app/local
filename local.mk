@@ -1,4 +1,4 @@
-LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
+LOCAL_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
@@ -39,11 +39,11 @@ local-dev-container-logs-f:
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   android-studio \
-  application-backend \
   application-tests \
   clarinet-devnet \
   firebase-emulators \
   vault-dev
+#   application-backend \
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
@@ -96,6 +96,8 @@ local-dev-container-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec -it dev bash
 .PHONY: local-dev-container-sh
 
+-include $(LOCAL_DIR)/go.mk
+-include $(LOCAL_DIR)/nodejs.mk
 -include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android-studio/android-studio.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
