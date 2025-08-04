@@ -29,7 +29,7 @@ fi
 echo "Liste des AVD disponibles :"
 emulator -list-avds
 
-avd_to_use="${ANDROID_AVD_NAME:-Pixel_8_Pro}"
+avd_to_use="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
 echo "AVD à utiliser : ${avd_to_use}"
 
 echo "Lancement de l’AVD nommé : ${avd_to_use}"
