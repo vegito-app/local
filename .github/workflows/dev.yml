@@ -5,4 +5,4 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
-      - run: echo "Le runner fonctionne !"
+      - run: echo "Le rpjpsrfunner fonctionne !"
