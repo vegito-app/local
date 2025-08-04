@@ -41,7 +41,7 @@ local-android-studio-appium-emulator-avd-restart:
 	  adb start-server ; \
 	  echo "[*] Launching emulator..." ; \
 	  echo "Starting android-studio emulator..." ; \
-	  ANDROID_AVD_NAME=$(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) \
+	  LOCAL_ANDROID_AVD_NAME=$(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) \
 	  LOCAL_ANDROID_GPU_MODE=$(LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE) \
 	  	appium-emulator-avd.sh ; \
 	  sleep infinity ; \
