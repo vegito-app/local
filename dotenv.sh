@@ -11,6 +11,8 @@ projectName=${VEGITO_PROJECT_NAME:-vegito-local}
 projectUser=${VEGITO_PROJECT_USER:-local-developer-id}
 localDockerComposeProjectName=${VEGITO_COMPOSE_PROJECT_NAME:-$projectName-$projectUser}
 
+currentWorkingDir=${WORKING_DIR:-${PWD}}
+# Ensure the current working directory exists.
 # Create default local .env file with minimum required values to start.
 localDotenvFile=${currentWorkingDir}/.env
 
@@ -114,12 +116,6 @@ services:
       LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
       LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE=host
       LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_8_Intel
-  firebase-emulators:
-    environment:
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
-
 
     working_dir: ${PWD}/mobile
     command: |
@@ -156,8 +152,11 @@ services:
   application-tests:
     working_dir: ${PWD}/tests
 
-
   firebase-emulators:
+    environment:
+      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
+      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
+      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
     command: |
       bash -c '
       set -eu
