@@ -51,6 +51,18 @@
       "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
       },
+      "vsicons.dontShowNewVersionMessage": true,
+      "files.autoSave": "onFocusChange",
+      "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+          80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off"
+      },
       "remote.portsAttributes": {
         "2375": {
           "label": "Devcontainer - Host - Docker Socket",
@@ -149,18 +161,6 @@
           "label": "Firebase (triggers)",
           "onAutoForward": "silent"
         }
-      },
-      "vsicons.dontShowNewVersionMessage": true,
-      "files.autoSave": "onFocusChange",
-      "[dart]": {
-        "editor.formatOnSave": true,
-        "editor.formatOnType": true,
-        "editor.rulers": [
-          80
-        ],
-        "editor.selectionHighlight": false,
-        "editor.tabCompletion": "onlySnippets",
-        "editor.wordBasedSuggestions": "off"
       }
     },
     "extensions": [
