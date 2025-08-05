@@ -7,6 +7,7 @@ endif
 
 export
 
+-include git.mk
 -include local/local.mk
 -include docker/docker.mk
 -include infra/infra.mk 
