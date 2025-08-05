@@ -172,11 +172,6 @@ gcloud-backend-image-delete:
 	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
 .PHONY: gcloud-backend-image-delete
 
-gcloud-builder-image-delete:
-	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
-.PHONY: gcloud-builder-image-delete
-
 gcloud-auth-func-logs:
 	@echo "📜 Reading logs for Cloud Function: utrade-us-central1-identity-platform..."
 	@$(GCLOUD) logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform"

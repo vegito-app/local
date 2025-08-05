@@ -18,6 +18,9 @@ export
 -include git.mk
 -include local.mk
 
+node-modules: local-node-modules
+.PHONY: node-modules
+
 images:
 	@$(MAKE) -j local-docker-images-host-arch
 .PHONY: images
