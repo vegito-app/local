@@ -38,7 +38,6 @@ target "github-action-runner-ci" {
   ]
   cache-from = [
     LATEST_GITHUB_RUNNER_IMAGE
-    LOCAL_BUILDER_IMAGE,
   ]
   cache-to  = ["type=inline"]
   platforms = platforms

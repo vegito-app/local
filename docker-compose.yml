@@ -84,6 +84,9 @@ services:
     command: |
       bash -c '
       set -eu
+
+      make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
+
       sleep infinity
       '
 
@@ -121,9 +124,7 @@ services:
     environment:
       HOST_PWD: ${PWD}
       APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
-      # LOCAL_DISPLAY_RESOLUTION: "${LOCAL_DISPLAY_RESOLUTION:-1920x1080}"
-      LOCAL_DISPLAY_RESOLUTION: 1920x1080
-      DISPLAY_NUMBER: "${DISPLAY_NUMBER:-:20}"
+      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
@@ -132,8 +133,8 @@ services:
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
-      ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
-      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images} 
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
+      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
@@ -186,6 +187,6 @@ services:
     command: |
       bash -c '
       set -eu
-      
+
       sleep infinity
       '
