@@ -12,12 +12,21 @@ local-container-config-show:
 	@$(LOCAL_DOCKER_COMPOSE) config
 .PHONY: local-container-config-show
 
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
-$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
-endif
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
+local-images: 
+	@$(MAKE) -j local-docker-images-host-arch
+.PHONY: local-images
+
+local-images-pull: 
+	@$(MAKE) -j local-docker-images-pull
+.PHONY: local-images-pull
+
+local-images-push: 
+	@$(MAKE) -j local-docker-images-push
+.PHONY: local-images-push
+
+local-images-ci:
+	@$(MAKE) -j local-services-multi-arch-push-images
+.PHONY: local-images-ci
 
 local-dev-container-image-pull:
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
@@ -52,7 +61,7 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):
@@ -83,6 +92,29 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs-f):
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-container-sh=%) bash
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
+
+
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
+$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
+endif
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
+local-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load builder
+.PHONY: local-builder-image
+
+local-builder-image-push: docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push builder
+.PHONY: local-builder-image-push
+
+local-builder-image-ci: docker-buildx-setup
+	env | grep -i local_images_base
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push builder-ci
+.PHONY: local-builder-image-ci
 
 local-dev-container:
 	@$(LOCAL_DOCKER_COMPOSE) up -d dev

@@ -19,7 +19,7 @@ export
 -include local.mk
 
 images:
-	@$(MAKE) -j docker-images-local-arch
+	@$(MAKE) -j local-docker-images-host-arch
 .PHONY: images
 
 images-ci: local-services-multi-arch-push-images
