@@ -1,8 +1,8 @@
 module github.com/7d4b9/utrade/backend
 
-go 1.23
+go 1.24
 
-toolchain go1.23.2
+toolchain go1.24.5
 
 require (
 	cloud.google.com/go/firestore v1.17.0
@@ -78,7 +78,6 @@ require (
 	go.opentelemetry.io/otel/sdk v1.31.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.31.0 // indirect
 	go.opentelemetry.io/otel/trace v1.31.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
