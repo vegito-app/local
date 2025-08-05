@@ -1,9 +1,0 @@
-moderation:
-  filters:
-    - type: SafeSearch
-      description: Reject images with adult, racy, medical or violent content rated above VERY_UNLIKELY
-      severity: strict
-    - type: LabelDetection
-      description: (optional future) Validate that image matches expected vegetable content
-    - type: FaceDetection
-      description: (optional future) Reject images with faces in vegetable listing
