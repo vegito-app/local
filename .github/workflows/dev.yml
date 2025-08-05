@@ -11,6 +11,7 @@ jobs:
     runs-on: self-hosted
     env:
       INFRA_ENV: dev
+      LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -19,6 +20,9 @@ jobs:
       - name: Define VERSION
         run: |
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
       - name: Authenticate to Google Cloud via Workload Identity Federation
@@ -42,21 +46,21 @@ jobs:
 
       - name: Build mobile APK
         run: |
-          make application-mobile-flutter-build-apk
+          make application-mobile-flutter-pub-get application-mobile-flutter-build-apk
 
       - name: Run end-to-end tests
         run: |
           make application-tests
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: application-apk
           path: |
             build/app/outputs/flutter-apk/*.apk
 
       - name: Upload E2E test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-test-results
           path: |

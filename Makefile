@@ -1,43 +1,49 @@
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
-INFRA_PROJECT_NAME ?= moov
-VERSION ?= $(GIT_HEAD_VERSION)
-ifeq ($(VERSION),)
-VERSION := latest
+
+LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
+ifeq ($(LOCAL_VERSION),)
+LOCAL_VERSION := latest
 endif
+
+GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
+INFRA_PROJECT_NAME ?= moov
+
+LOCAL_IMAGES_BASE := vegito-local
+
+LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
 
 export
 
 -include git.mk
--include local/local.mk
--include docker/docker.mk
--include infra/infra.mk 
--include application/application.mk
+-include local.mk
 
-images: 
+images:
 	@$(MAKE) -j docker-images-local-arch
 .PHONY: images
 
-images-ci: docker-images-ci-multi-arch
+images-ci: local-services-multi-arch-push-images
 .PHONY: images-ci
 
 images-pull: 
-	@$(MAKE) -j docker-local-images-pull
+	@$(MAKE) -j local-docker-images-pull
 .PHONY: images-fast-pull
 
 images-push: 
-	@$(MAKE) -j docker-local-images-push
+	@$(MAKE) -j local-docker-images-push
 .PHONY: images-push
 
 dev: 
-	@$(MAKE) -j local-docker-compose-up
+	@$(MAKE) -j local-containers-up
 .PHONY: dev
 
 dev-rm: 
-	@$(MAKE) -j local-docker-compose-rm-all
+	@$(MAKE) -j local-containers-rm-all
 .PHONY: dev-rm
 
-logs: local-docker-compose-dev-logs-f
+logs: local-containers-dev-logs-f
 .PHONY: logs
 
-tests-all: application-tests-all
-.PHONY: tests-all
+end-to-end-tests: local-application-tests-container-run
+	@echo "End-to-end tests completed successfully."
+.PHONY: end-to-end-tests

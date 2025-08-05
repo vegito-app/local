@@ -1,5 +1,3 @@
-local/.containers
-.github/
-gcloud/.terraform
-.android-studio/
-.docker-buildx-cache/
+.docker-buildx-cache
+.containers
+node_modules
