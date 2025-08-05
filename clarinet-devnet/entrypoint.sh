@@ -57,10 +57,16 @@ export DOCKER_CONFIG=${local_container_cache}/.docker
 export DOCKER_BUILDKIT=1
 EOF
 
-exec "$@"
-
 # Set inotify watches limit
 echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 # Set inotify watches limit for rootless dockerd
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /run/user/$LOCAL_USER_ID/sysctl.conf
 sudo sysctl -p /run/user/$LOCAL_USER_ID/sysctl.conf
+
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  wait "${bg_pids[@]}" &
+  sleep infinity
+else
+  exec "$@"
+fi

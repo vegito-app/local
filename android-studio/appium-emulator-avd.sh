@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 set -eu
@@ -29,7 +28,7 @@ fi
 echo "List of available AVDs:"
 emulator -list-avds
 
-avd_to_use="${ANDROID_AVD_NAME:-Pixel_8_Pro}"
+avd_to_use="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
 echo "AVD to use: ${avd_to_use}"
 
 echo "Starting AVD named: ${avd_to_use}"
