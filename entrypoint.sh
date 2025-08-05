@@ -14,9 +14,33 @@ local_container_cache=${LOCAL_DEV_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.contain
 mkdir -p $local_container_cache
 
 # Bash history
-BASH_HISTORY_PATH=${HOME}/.bash_history
-rm -f $BASH_HISTORY_PATH
-ln -s ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
+ln -sfn ${local_container_cache}/bash_history ~/.bash_history
+
+# EMACS local configuration persistence
+# This allows you to persist your emacs configuration across container rebuilds.
+EMACS_DIR=${HOME}/.emacs.d
+[ -d $EMACS_DIR ] && mv $EMACS_DIR ${EMACS_DIR}_back
+mkdir -p ${local_container_cache}/emacs
+ln -sf ${local_container_cache}/emacs $EMACS_DIR
+
+
+# Vscode server/remote
+VSCODE_REMOTE=${HOME}/.vscode-server
+
+# Github Codespaces
+if [ -v  CODESPACES ] ; then
+    VSCODE_REMOTE=${HOME}/.vscode-remote
+fi
+
+# VSCODE User data
+VSCODE_REMOTE_USER_DATA=${VSCODE_REMOTE}/data/User
+if [ -d $VSCODE_REMOTE_USER_DATA ] ; then 
+  mv $VSCODE_REMOTE_USER_DATA ${VSCODE_REMOTE_USER_DATA}_back
+  LOCAL_VSCODE_USER_GLOBAL_STORAGE=${local_container_cache}/vscode/userData/globalStorage
+  mkdir -p ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}
+  ln -sf ${local_container_cache}/vscode/userData $VSCODE_REMOTE_USER_DATA
+  ln -sf ${local_container_cache}/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
+fi
 
 # GO
 GOPATH=${HOME}/go
@@ -93,4 +117,10 @@ if [ "$current_workspace" != "$HOST_PWD" ] ; then
     echo "Linked current workspace $current_workspace to $HOST_PWD"
 fi
 
-exec "$@"
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  wait "${bg_pids[@]}" &
+  sleep infinity
+else
+  exec "$@"
+fi

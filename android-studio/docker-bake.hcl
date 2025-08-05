@@ -18,11 +18,11 @@ variable "FLUTTER_VERSION" {
   default = "3.32.8"
 }
 
-variable "ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for android-studio image build"
 }
 
-variable "ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_READ" {
   description = "local read cache for android-studio image build (cannot be used before first write)"
 }
 
@@ -58,9 +58,9 @@ target "android-studio" {
     ANDROID_STUDIO_IMAGE_TAG,
   ]
   cache-from = [
-    ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to = [
-    ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
 }

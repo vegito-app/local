@@ -1,5 +1,5 @@
 variable "GITHUB_RUNNER_IMAGE_VERSION" {
-  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${LOCAL_VERSION}" : ""
+  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_GITHUB_RUNNER_IMAGE" {
@@ -37,7 +37,6 @@ target "github-action-runner-ci" {
     notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    LOCAL_BUILDER_IMAGE,
     LATEST_GITHUB_RUNNER_IMAGE
   ]
   cache-to  = ["type=inline"]

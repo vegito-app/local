@@ -180,7 +180,7 @@ xpra start-desktop "$display" \
   --no-mdns   \
   --notifications=no \
   --resize-display=yes \
-  --webcam=no
+  --webcam=no &
 
 xpra_pid=$!
 

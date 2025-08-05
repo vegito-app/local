@@ -3,7 +3,7 @@ variable "LOCAL_APPLICATION_TESTS_IMAGES_BASE" {
 }
 
 variable "LOCAL_APPLICATION_TESTS_IMAGE_VERSION" {
-  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:application-tests-${LOCAL_VERSION}" : ""
+  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:application-tests-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_LOCAL_APPLICATION_TESTS_IMAGE" {
@@ -49,7 +49,6 @@ target "application-tests" {
   ]
   cache-from = [
     LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to = [
     LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,

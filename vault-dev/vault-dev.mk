@@ -1,4 +1,4 @@
-VAULT_DEV_DIR ?= $(CURDIR)/vault-dev
+VAULT_DEV_DIR ?= $(LOCAL_DIR)/vault-dev
 LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(VAULT_DEV_DIR)/.containers/docker-buildx-cache/vault-dev
 $(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)

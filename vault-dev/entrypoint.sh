@@ -26,5 +26,10 @@ listener "tcp" {
 }
 EOF
 
-
-exec "$@"
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  wait "${bg_pids[@]}" &
+  sleep infinity
+else
+  exec "$@"
+fi
