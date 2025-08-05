@@ -1,5 +1,5 @@
 variable "VAULT_DEV_IMAGE_VERSION" {
-  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${LOCAL_VERSION}" : ""
+  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${LOCAL_VERSION}" : ""
 }
 
 variable "LATEST_VAULT_DEV_IMAGE" {
