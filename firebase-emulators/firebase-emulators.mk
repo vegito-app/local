@@ -8,13 +8,14 @@ endif
 FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,mode=max,dest=$(FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
 FIREBASE_EMULATORS = cd $(FIREBASE_EMULATORS_DIR) && firebase
+
 # This is a comma separated list of emulator names.# Valid options are:
 # ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
 FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub
 
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators-prepare
-# /workspaces/refactored-winner/firebase/functions/auth
+
 LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/application/firebase/functions
 
 local-firebase-emulators-install: local-firebase-emulators-auth-functions-npm-install
