@@ -1,5 +1,5 @@
-APPLICATION_MOBILE_DIR ?= $(APPLICATION_DIR)/mobile
-APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE ?= $(APPLICATION_DIR)/.containers/docker-buildx-cache/application-mobile
+APPLICATION_MOBILE_DIR ?= $(LOCAL_APPLICATION_DIR)/mobile
+APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_APPLICATION_DIR)/.containers/docker-buildx-cache/application-mobile
 $(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
 APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE)
@@ -88,7 +88,7 @@ application-mobile-flutter-debug: application-mobile-flutter-run-prepare
 	$(FLUTTER) run --verbose --flavor $(INFRA_ENV) --debug lib/main.dart
 .PHONY: application-mobile-flutter-debug
 
-APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST = $(APPLICATION_DIR)/mobile/ios/GoogleService-Info.plist
+APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST = $(LOCAL_APPLICATION_DIR)/mobile/ios/GoogleService-Info.plist
 
 application-mobile-ios-config-plist: $(APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST)
 .PHONY:application-mobile-ios-config-plist
@@ -97,7 +97,7 @@ $(APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST): $(INFRA_FIREBASE_IOS_CO
 	@echo Creating local ios config copy "'$@'"
 	@cp -f $< $@ 
 
-APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON = $(APPLICATION_DIR)/mobile/android/app/google-services.json
+APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_DIR)/mobile/android/app/google-services.json
 
 $(APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
 	@echo Creating local android config copy "'$@'"
@@ -106,7 +106,7 @@ $(APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_AND
 application-mobile-default-android-config-json: $(APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON)
 .PHONY: application-mobile-default-android-config-json
 
-APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(APPLICATION_DIR)/mobile/android/app/src/$(INFRA_ENV)/google-services.json
+APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_DIR)/mobile/android/app/src/$(INFRA_ENV)/google-services.json
 
 application-mobile-android-config-json: $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
 .PHONY: application-mobile-android-config-json

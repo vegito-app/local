@@ -6,7 +6,7 @@ ifneq ($(wildcard $(LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.
 LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
 LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-LOCAL_ANDROID_STUDIO_IMAGE = $(PUBLIC_IMAGES_BASE):android-studio-latest
+LOCAL_ANDROID_STUDIO_IMAGE ?= $(PUBLIC_IMAGES_BASE):android-studio-latest
 
 local-android-studio-container-up: local-android-studio-container-rm
 	LOCAL_VERSION=latest $(LOCAL_ANDROID_STUDIO_DIR)/docker-compose-up.sh &
@@ -102,7 +102,7 @@ local-android-studio-emulator-data-load-mobile-images:
 	set -e ; \
 	echo "Load android-studio emulator data, inputs folder : $$(pwd)" ; \
 	$(LOCAL_ANDROID_STUDIO_DIR)/emulator-data-load.sh \
-		$(APPLICATION_DIR)/tests/mobile_images ; \
+		$(LOCAL_APPLICATION_DIR)/tests/mobile_images ; \
 	'
 .PHONY: local-android-studio-emulator-data-load-mobile-images
 

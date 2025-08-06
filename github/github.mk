@@ -1,5 +1,5 @@
-GITHUB_ACTIONS_RUNNER_STACK_ID = $(shell echo $$RANDOM)
-GITHUB_ACTIONS_RUNNER_STACK = github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
+GITHUB_ACTIONS_RUNNER_STACK_ID ?= $(shell echo $$RANDOM)
+GITHUB_ACTIONS_RUNNER_STACK ?= github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
 
 LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE = $(PUBLIC_IMAGES_BASE):github-action-runner-latest
 LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/infra-github
@@ -27,7 +27,8 @@ local-github-action-runner-image-ci: docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push github-action-runner-ci
 .PHONY: local-github-action-runner-image-ci
 
-LOCAL_GITHUB_DOCKER_COMPOSE := COMPOSE_PROJECT_NAME=$(GOOGLE_CLOUD_PROJECT_ID)-github-actions \
+LOCAL_GITHUB_DOCKER_COMPOSE_PROJECT_NAME ?= $(LOCAL_PROJECT_NAME)-github-actions
+LOCAL_GITHUB_DOCKER_COMPOSE ?= COMPOSE_PROJECT_NAME=$(LOCAL_GITHUB_DOCKER_COMPOSE_PROJECT_NAME) \
   docker compose -f $(LOCAL_DIR)/github/docker-compose.yml
 
 local-github-action-runner-token-exist:
@@ -37,9 +38,9 @@ local-github-action-runner-token-exist:
 	fi
 .PHONY: local-github-action-runner-token-exist
 
-local-github-action-runner-docker-compose-up: local-github-action-runner-docker-compose-rm local-github-action-runner-token-exist
+local-github-action-runner-container-up: local-github-action-runner-container-rm local-github-action-runner-token-exist
 	@$(LOCAL_GITHUB_DOCKER_COMPOSE) up -d github-action-runner
-.PHONY: local-github-action-runner-docker-compose-up
+.PHONY: local-github-action-runner-container-up
 
 # This avoids github dangling offline containers on github.com side.
 # It uses './config.sh remove' from github-action-runner containers entrypoint
