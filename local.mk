@@ -18,6 +18,7 @@ local-images-push:
 local-images-ci:
 	@$(MAKE) -j local-services-multi-arch-push-images
 .PHONY: local-images-ci
+
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   android-studio \
   clarinet-devnet \
