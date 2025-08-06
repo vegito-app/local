@@ -24,7 +24,7 @@ target "application-mobile" {
     android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
     environment          = INFRA_ENV
   }
-  context    = "${APPLICATION_DIR}"
+  context    = "${LOCAL_APPLICATION_DIR}"
   dockerfile = "mobile/Dockerfile"
   tags = [
     APPLICATION_MOBILE_IMAGE_LATEST,
@@ -45,7 +45,7 @@ target "application-mobile-ci" {
     android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
     environment          = INFRA_ENV
   }
-  context    = "${APPLICATION_DIR}"
+  context    = "${LOCAL_APPLICATION_DIR}"
   dockerfile = "mobile/Dockerfile"
   tags = [
     APPLICATION_MOBILE_IMAGE_LATEST,

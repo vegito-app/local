@@ -1,4 +1,3 @@
-ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
@@ -155,7 +154,10 @@ RUN set -x; \
     && npm install -g \
     standard-version \
     npm \
-    && rm -rf ${HOME}/.npm 
+    && rm -rf ${HOME}/.npm
+
+ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
 WORKDIR /runner
 

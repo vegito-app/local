@@ -2,7 +2,7 @@ variable "LOCAL_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
-variable "APPLICATION_DIR" {
+variable "LOCAL_APPLICATION_DIR" {
   default = "application"
 }
 variable "GO_VERSION" {

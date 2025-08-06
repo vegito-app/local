@@ -1,5 +1,5 @@
 NODE_MODULES := \
-	$(APPLICATION_DIR)/frontend \
+	$(LOCAL_APPLICATION_DIR)/frontend \
 	$(FIREBASE_EMULATORS_DIR)/functions \
 	$(FIREBASE_EMULATORS_DIR)/functions/auth
 
