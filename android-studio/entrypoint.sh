@@ -46,8 +46,6 @@ socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:9150 > /tmp/socat-fi
 bg_pids+=("$!")
 socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:9199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
 bg_pids+=("$!")
-socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9299 > /tmp/socat-firebase-emulators-9299.log 2>&1 &
-bg_pids+=("$!")
 socat TCP-LISTEN:8085,fork,reuseaddr TCP:firebase-emulators:8085 > /tmp/socat-firebase-emulators-8085.log 2>&1 &
 bg_pids+=("$!")
 socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
@@ -89,4 +87,10 @@ if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
     bg_pids+=("$!")
 fi
 
-exec "$@"
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  wait "${bg_pids[@]}" &
+  sleep infinity
+else
+  exec "$@"
+fi

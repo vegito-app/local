@@ -67,7 +67,3 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
-
-firebase.json
-storage.rules
-firestore.rules

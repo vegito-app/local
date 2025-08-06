@@ -2,7 +2,7 @@ variable "LOCAL_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
-variable "APPLICATION_DIR" {
+variable "LOCAL_APPLICATION_DIR" {
   default = "application"
 }
 variable "GO_VERSION" {
@@ -68,7 +68,7 @@ variable "PRIVATE_IMAGES_BASE" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    "linux/arm64"
+ //   "linux/arm64"
   ]
 }
 group "local-services-host-arch-load" {

@@ -211,9 +211,3 @@ The same logic applies to:
 ## 📜 License
 
 MIT — use freely, contribute openly, and stay sharp – see the [LICENSE](./LICENSE) file. 
-
----
-
-## 🙌 Special Thanks
-
-To all GPU warriors, DevOps tinkerers, and caffeine-driven dreamers 🚀

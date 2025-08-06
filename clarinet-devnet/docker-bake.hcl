@@ -20,7 +20,7 @@ variable "CLARINET_VERSION" {
 
 target "clarinet-devnet-ci" {
   args = {
-    builder_image    = LATEST_BUILDER_IMAGE
+    builder_image    = LOCAL_BUILDER_IMAGE
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }
@@ -31,7 +31,7 @@ target "clarinet-devnet-ci" {
     CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    # LATEST_BUILDER_IMAGE,
+    # LOCAL_BUILDER_IMAGE,
     LATEST_CLARINET_DEVNET_IMAGE
   ]
   cache-to  = ["type=inline"]
@@ -40,7 +40,7 @@ target "clarinet-devnet-ci" {
 
 target "clarinet-devnet" {
   args = {
-    builder_image    = LATEST_BUILDER_IMAGE
+    builder_image    = LOCAL_BUILDER_IMAGE
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }

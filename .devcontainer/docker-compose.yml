@@ -1,20 +1,18 @@
 services:
   dev:
-    container_name: dev
     # image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
     build:
-      context: ..
+      context: .
       dockerfile: .devcontainer/Dockerfile
       args:
-        builder_image: ${BUILDER_IMAGE}
+        builder_image: ${LOCAL_BUILDER_IMAGE}
     env_file:
       - .env
     environment:
       HOST_PWD: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
 
   nestor:
-    container_name: nestor
-    image: ${BUILDER_IMAGE}
+    image: ${LOCAL_BUILDER_IMAGE}
     ports:
       - ${NESTOR_DEV_DOCKER_SOCK_PORT:-2375}:2375
       - ${NESTOR_CLARINET_DEVNET_DOCKER_ROOTLESS_SOCK_PORT:-2376}:2376

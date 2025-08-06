@@ -202,7 +202,7 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-ARG non_root_user=dev
+ARG non_root_user=vegito
 
 RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
@@ -224,7 +224,7 @@ RUN set -x; \
     # 
     mkdir -p ${NVM_DIR} \
     # 
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash - \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - \
     && . ${NVM_DIR}/nvm.sh \
     && nvm install ${node_version} \
     && nvm alias default ${node_version} \
@@ -240,9 +240,10 @@ RUN set -x; \
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+
 RUN apt-get update && apt-get install -y \
-emacs-nox \
-&& apt-get clean && rm -rf /var/lib/apt/lists/*
+    emacs-nox \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 USER ${non_root_user}
 
@@ -251,7 +252,7 @@ RUN emacs --batch --eval "(require 'package)" \
     --eval "(package-initialize)" \
     --eval "(unless package-archive-contents (package-refresh-contents))" \
     --eval "(package-install 'magit)"
-    
+
 RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
     && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
@@ -266,14 +267,9 @@ ENV PATH=${HOME}/bin:$PATH
 
 USER root
 
-# Replace /bin/sh with bash
-# RUN ln -sf /usr/bin/bash /bin/sh
 RUN ln -sf /usr/bin/bash /bin/sh
-# Set the default shell to zsh
-RUN chsh -s /bin/zsh ${non_root_user}
 
 USER ${non_root_user}
-
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

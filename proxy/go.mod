@@ -1,4 +1,4 @@
-module github.com/7d4b9/utrade/proxy
+module github.com/vegito-app/local/proxy
 
 go 1.24
 
