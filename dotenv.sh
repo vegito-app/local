@@ -55,7 +55,7 @@ CDN_PUBLIC_PREFIX=https://cdn.mon-backend.com  # ton CDN public GCS
 STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app/vegito
+GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 #----------------------------------------------------------------|
 #----------------------------------------------------------------|
 # The following variables are used for propagating the containers|
