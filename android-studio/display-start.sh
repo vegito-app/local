@@ -14,6 +14,9 @@ kill_jobs() {
     done
 }
 
+# Register cleanup function to run on script exit
+trap kill_jobs EXIT
+
 default_resolution=1440x900
 
 # Utiliser la variable d'environnement si elle existe, sinon utiliser la valeur par défaut
@@ -30,8 +33,19 @@ until xdpyinfo -display ${DISPLAY} > /dev/null 2>&1; do
     sleep 1
 done
 
+openbox-setup.sh
+
 # x11vnc -display ${DISPLAY} -nopw -noxdamage -shared -forever -repeat -ncache 10 -ncache_cr &
 x11vnc -display ${DISPLAY} -nopw -noxdamage -shared -forever -repeat &
 bg_pids+=("$!")
 
-openbox
+
+# Lancer openbox en arrière-plan avec gestion d'erreur
+echo "🚀 Starting Openbox window manager..."
+openbox &
+openbox_pid=$!
+bg_pids+=("$openbox_pid")
+
+# Garder le script en vie
+echo "🖥️  Display server is ready"
+wait

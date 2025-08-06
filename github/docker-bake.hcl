@@ -8,7 +8,7 @@ variable "LATEST_GITHUB_RUNNER_IMAGE" {
 
 variable "GITHUB_ACTION_RUNNER_VERSION" {
   description = "current Github Actions Runner version"
-  default     = "2.323.0"
+  default     = "2.327.1"
 }
 
 group "service" {
