@@ -138,6 +138,7 @@ services:
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
+      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
       - kvm
