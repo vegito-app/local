@@ -1,5 +1,7 @@
 # local
 
+![Logo](./images/logo-1.png)
+
 **Portable DevContainer Environment for Vegito**
 
 This repository offers a GPU-accelerated, containerized development environment tailored for the Vegito project.  
@@ -34,7 +36,7 @@ Integrate this repository into your project as a folder *local* or *.local* or *
 Example using git subtree:
 
 ```bash
-git subtree add --prefix local https://github.com/vegito-app/devlocal-docker-gpu.git main --squash
+git subtree add --prefix local https://github.com/vegito-app/local.git main --squash
 ```
 
 Depending on other assets of a current project, `tree` should now show something like:
@@ -208,12 +210,4 @@ The same logic applies to:
 
 ## 📜 License
 
-MIT — use freely, contribute openly, and stay sharp.
-
-<!-- MIT – see the [LICENSE](./LICENSE) file. -->
-
----
-
-## 🙌 Special Thanks
-
-To all GPU warriors, DevOps tinkerers, and caffeine-driven dreamers 🚀
+MIT — use freely, contribute openly, and stay sharp – see the [LICENSE](./LICENSE) file. 

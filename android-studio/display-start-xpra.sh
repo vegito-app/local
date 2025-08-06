@@ -29,10 +29,10 @@ default_depth="24"
 default_dpi="96"
 default_display_number=":1"
 
-resolution="${LOCAL_DISPLAY_RESOLUTION:-$default_resolution}"
+resolution="${DISPLAY_RESOLUTION:-$default_resolution}"
 depth="${DISPLAY_DEPTH:-$default_depth}"
 dpi="${DISPLAY_DPI:-$default_dpi}"
-display="${DISPLAY_NUMBER:-$default_display_number}"
+display="${DISPLAY:-$default_display_number}"
 framerate="${DISPLAY_FRAMERATE:-$default_framerate}"
 
 # 🖥️ ModeLine personnalisé

@@ -16,7 +16,7 @@ variable "FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "firebase-emulators-ci" {
   args = {
-    builder_image = LATEST_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -24,7 +24,7 @@ target "firebase-emulators-ci" {
     FIREBASE_EMULATORS_IMAGE_TAG,
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
+    LOCAL_BUILDER_IMAGE,
     LATEST_FIREBASE_EMULATORS_IMAGE
   ]
   cache-to  = ["type=inline"]
@@ -33,7 +33,7 @@ target "firebase-emulators-ci" {
 
 target "firebase-emulators" {
   args = {
-    builder_image = LATEST_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [

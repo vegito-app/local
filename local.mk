@@ -16,15 +16,8 @@ local-images-push:
 .PHONY: local-images-push
 
 local-images-ci:
-	@$(MAKE) -j local-docker-images-ci-multi-arch
+	@$(MAKE) -j local-services-multi-arch-push-images
 .PHONY: local-images-ci
-
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
-$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
-endif
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   android-studio \
@@ -49,14 +42,14 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
-local-docker-images-ci-multi-arch: docker-buildx-setup local-builder-image-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print services-push-multi-arch
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push services-push-multi-arch
-.PHONY: local-docker-images-ci-multi-arch
+local-services-multi-arch-push-images: docker-buildx-setup local-builder-image-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-services-multi-arch-push
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-services-multi-arch-push
+.PHONY: local-services-multi-arch-push-images
 
 local-docker-images-host-arch: local-builder-image
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print services-load-local-arch
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load services-load-local-arch
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-services-host-arch-load
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-services-host-arch-load
 .PHONY: local-docker-images-host-arch
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
@@ -94,10 +87,10 @@ local-builder-image-ci: docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push builder-ci
 .PHONY: local-builder-image-ci
 
-gcloud-builder-image-delete:
+local-gcloud-builder-image-delete:
 	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."
 	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
-.PHONY: gcloud-builder-image-delete
+.PHONY: local-gcloud-builder-image-delete
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
@@ -180,6 +173,8 @@ local-dev-container-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec -it dev bash
 .PHONY: local-dev-container-sh
 
+-include $(LOCAL_DIR)/nodejs.mk
+-include $(LOCAL_DIR)/go.mk
 -include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android-studio/android-studio.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk

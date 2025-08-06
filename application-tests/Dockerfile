@@ -47,4 +47,6 @@ RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 COPY entrypoint.sh /usr/local/bin/tests-entrypoint.sh
 
+ENV LOCAL_APPLICATION_TESTS_DIR=${HOME}/application-tests
+
 ENTRYPOINT [ "tests-entrypoint.sh" ]

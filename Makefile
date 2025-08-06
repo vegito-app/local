@@ -5,21 +5,26 @@ ifeq ($(LOCAL_VERSION),)
 LOCAL_VERSION := latest
 endif
 
-GOOGLE_CLOUD_PROJECT_ID ?= moov-dev-439608
-INFRA_PROJECT_NAME ?= moov
-
-LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application-tests
-LOCAL_APPLICATION_FIREBASE_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
+GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
+INFRA_PROJECT_NAME := moov
+LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR := $(LOCAL_DIR)/firebase-emulators/functions
+LOCAL_IMAGES_BASE := vegito-local
+LOCAL_PROJECT_NAME := vegito-local
 
 export
 
+-include git.mk
 -include local.mk
+
+node-modules: local-node-modules
+.PHONY: node-modules
 
 images:
 	@$(MAKE) -j local-docker-images-host-arch
 .PHONY: images
 
-images-ci: local-docker-images-ci-multi-arch
+images-ci: local-services-multi-arch-push-images
 .PHONY: images-ci
 
 images-pull: 

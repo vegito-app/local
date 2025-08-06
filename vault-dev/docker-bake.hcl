@@ -11,7 +11,7 @@ target "vault-dev-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
-    VAULT_DEV_IMAGE_VERSION,
+    notequal("", LOCAL_VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE
@@ -33,7 +33,7 @@ target "vault-dev" {
   dockerfile = "Dockerfile"
   tags = [
     LATEST_VAULT_DEV_IMAGE,
-    VAULT_DEV_IMAGE_VERSION,
+    notequal("", LOCAL_VERSION) ? VAULT_DEV_IMAGE_VERSION : "",
   ]
   cache-from = [
     LATEST_VAULT_DEV_IMAGE,

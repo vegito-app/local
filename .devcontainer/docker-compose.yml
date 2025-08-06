@@ -1,9 +1,8 @@
 services:
   dev:
-    container_name: dev
     # image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
     build:
-      context: ..
+      context: .
       dockerfile: .devcontainer/Dockerfile
       args:
         builder_image: ${LOCAL_BUILDER_IMAGE}
@@ -13,7 +12,6 @@ services:
       HOST_PWD: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
 
   nestor:
-    container_name: nestor
     image: ${LOCAL_BUILDER_IMAGE}
     ports:
       - ${NESTOR_DEV_DOCKER_SOCK_PORT:-2375}:2375

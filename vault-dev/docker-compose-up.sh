@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux
+set -eu
 
 # List to hold background job PIDs
 bg_pids=()

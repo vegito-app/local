@@ -14,11 +14,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
-      - name: Define LOCAL_VERSION
+      - name: Define VERSION
         run: |
-          echo "LOCAL_VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
-      - name: Use LOCAL_VERSION
-        run: echo "Current version is ${{ env.LOCAL_VERSION }}"
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:

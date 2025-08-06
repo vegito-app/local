@@ -11,20 +11,20 @@ jobs:
     runs-on: self-hosted
     env:
       INFRA_ENV: dev
-      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}
+      LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
-      - name: Define LOCAL_VERSION
+      - name: Define VERSION
         run: |
-          echo "LOCAL_VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
       - name: Refresh local/.env file
         run: |
           ./dotenv.sh
-      - name: Use LOCAL_VERSION
-        run: echo "Current version is ${{ env.LOCAL_VERSION }}"
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v1
         with:

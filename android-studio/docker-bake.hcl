@@ -15,7 +15,7 @@ variable "ANDROID_NDK_VERSION" {
 }
 
 variable "FLUTTER_VERSION" {
-  default = "3.29.2"
+  default = "3.32.8"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {

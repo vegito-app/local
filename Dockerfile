@@ -17,7 +17,6 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     dnsutils \
-    emacs-nox \
     file \
     g++ \
     gcc \
@@ -59,12 +58,6 @@ RUN apt-get update && apt-get install -y \
 
 ARG oh_my_zsh_version=1.2.1
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
-
-RUN emacs --batch --eval "(require 'package)" \
-    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
-    --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" \
-    --eval "(package-install 'magit)"
 
 ARG TARGETPLATFORM
 
@@ -209,7 +202,7 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-ARG non_root_user=dev
+ARG non_root_user=vegito
 
 RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
@@ -231,7 +224,7 @@ RUN set -x; \
     # 
     mkdir -p ${NVM_DIR} \
     # 
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash - \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - \
     && . ${NVM_DIR}/nvm.sh \
     && nvm install ${node_version} \
     && nvm alias default ${node_version} \
@@ -248,6 +241,18 @@ RUN set -x; \
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
+RUN apt-get update && apt-get install -y \
+    emacs-nox \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+USER ${non_root_user}
+
+RUN emacs --batch --eval "(require 'package)" \
+    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
+    --eval "(package-initialize)" \
+    --eval "(unless package-archive-contents (package-refresh-contents))" \
+    --eval "(package-install 'magit)"
+
 RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
     && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
@@ -258,18 +263,13 @@ RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     && go install -v github.com/jesseduffield/lazydocker@latest \
     "
 
+ENV PATH=${HOME}/bin:$PATH
 
-# Replace /bin/sh with bash
+USER root
+
 RUN ln -sf /usr/bin/bash /bin/sh
 
-# Set the default shell to zsh
-# RUN chsh -s /bin/zsh ${non_root_user}
-
-RUN chown ${non_root_user}:${non_root_user} /home/${non_root_user}/.config
-
 USER ${non_root_user}
-
-ENV PATH=${HOME}/bin:$PATH
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
