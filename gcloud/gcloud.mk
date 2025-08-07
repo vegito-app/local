@@ -168,8 +168,8 @@ gcloud-images-delete-all-public:
 .PHONY: gcloud-images-delete-all-public
 
 gcloud-backend-image-delete:
-	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
+	@echo "🗑️  Deleting backend image $(APPLICATION_LATEST_BACKEND_IMAGE)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_LATEST_BACKEND_IMAGE)
 .PHONY: gcloud-backend-image-delete
 
 gcloud-auth-func-logs:

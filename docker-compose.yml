@@ -70,7 +70,7 @@ services:
       - ${PWD}:${PWD}:cached
 
   firebase-emulators:
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_LATEST_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -93,7 +93,7 @@ services:
   clarinet-devnet:
     privileged: true
     tty: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_LATEST_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -151,7 +151,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_LATEST_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
 
     cap_add:
       - IPC_LOCK
@@ -173,7 +173,7 @@ services:
       sleep infinity
       '
   application-tests:
-    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
+    image: ${LOCAL_APPLICATION_TESTS_LATEST_IMAGE:-${PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       HOST_PWD: ${PWD}

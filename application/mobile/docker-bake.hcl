@@ -14,14 +14,14 @@ variable "APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_READ" {
   description = "local read cache for application-mobile image build (cannot be used before first write)"
 }
 
-variable "APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE" {
+variable "APPLICATION_MOBILE_ANDROID_STUDIO_LATEST_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${PUBLIC_IMAGES_BASE}:android-studio-latest"
 }
 
 target "application-mobile" {
   args = {
-    android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
+    android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_LATEST_IMAGE
     environment          = INFRA_ENV
   }
   context    = "${LOCAL_APPLICATION_DIR}"
@@ -42,7 +42,7 @@ target "application-mobile" {
 
 target "application-mobile-ci" {
   args = {
-    android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
+    android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_LATEST_IMAGE
     environment          = INFRA_ENV
   }
   context    = "${LOCAL_APPLICATION_DIR}"
