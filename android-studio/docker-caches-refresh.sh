@@ -97,3 +97,20 @@ ln -sf ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
 #   rm -rf "$VSCODE_SETTINGS"
 # fi
 # ln -sf $LOCAL_ANDROID_STUDIO/vscode/Code $VSCODE_SETTINGS
+
+android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}/android-studio
+
+# Create symlinks for scripts
+for script in \
+openbox-setup.sh \
+display-start-xpra.sh \
+display-start.sh \
+appium-emulator-avd.sh \
+emulator-data-load.sh ; \
+do
+    filename=${android_studio_dir}/${script}
+    if [ -f "${filename}" ]; then
+        echo "Linking ${script} to /usr/local/bin/${script} for easy access"
+        ln -sf ${filename} /usr/local/bin/${script}
+    fi
+done
