@@ -40,27 +40,6 @@ APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPL
 endif
 APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 
-# application-backend-image: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-# 	@$(DOCKER_BUILDX_BAKE) --print application-backend
-# 	@$(DOCKER_BUILDX_BAKE) --load application-backend
-# .PHONY: application-backend-image
-
-# # 
-# application-backend-image-push: $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-# 	@$(DOCKER_BUILDX_BAKE) --print application-backend
-# 	@$(DOCKER_BUILDX_BAKE) --push application-backend
-# .PHONY: application-backend-image-push
-
-# Push application-backend images on each environments
-# $(INFRA_ENV:%=application-backend-%-image-push):
-# 	@INFRA_ENV=$(@:application-backend-%-image-push=%) $(MAKE) application-backend-image-push
-# .PHONY: $(INFRA_ENV:%=application-backend-%-image-push)
-
-# application-backend-image-push-ci: docker-buildx-setup
-# 	@$(DOCKER_BUILDX_BAKE) --print backend-ci
-# 	@$(DOCKER_BUILDX_BAKE) backend-ci
-# .PHONY: application-backend-image-push-ci
-
 application-backend-container-up: application-backend-container-rm
 	@$(CURDIR)/application/backend/docker-start.sh &
 	@until nc -z backend 8080 ; do \
