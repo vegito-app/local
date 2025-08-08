@@ -115,7 +115,6 @@ services:
       LOCAL_ANDROID_STUDIO_ENV_SETUP=true
       LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
       LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
-      LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE=host
       LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_8_Intel
 
     working_dir: ${PWD}/mobile
@@ -227,14 +226,14 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
   android-studio:
-    environment:
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-host}
-    devices:
-      - /dev/nvidia0
-    # runtime: nvidia # Uncomment this line if you are using the nvidia runtime.
-    runtime: runc
-    shm_size: "8gb"
-    group_add:
-      - sgx
+    # environment:
+    #   LOCAL_ANDROID_ANDROID_GPU_MODE=host
+    # devices:
+    #   - /dev/nvidia0
+    # # runtime: nvidia # Uncomment this line if you are using the nvidia runtime.
+    # runtime: runc
+    # shm_size: "8gb"
+    # group_add:
+    #   - sgx
 EOF
 
