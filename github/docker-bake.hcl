@@ -1,9 +1,9 @@
 variable "LOCAL_GITHUB_RUNNER_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${LOCAL_VERSION}" : ""
+  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-actions-runner-${LOCAL_VERSION}" : ""
 }
 
 variable "LOCAL_GITHUB_RUNNER_LATEST_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:github-action-runner-latest"
+  default = "${PUBLIC_IMAGES_BASE}:github-actions-runner-latest"
 }
 
 variable "GITHUB_ACTION_RUNNER_VERSION" {
@@ -12,14 +12,14 @@ variable "GITHUB_ACTION_RUNNER_VERSION" {
 }
 
 group "service" {
-  targets = ["github-action-runner"]
+  targets = ["github-actions-runner"]
 }
 
 group "local-service" {
-  targets = ["github-action-runner-local"]
+  targets = ["github-actions-runner-local"]
 }
 
-target "github-action-runner-ci" {
+target "github-actions-runner-ci" {
   args = {
     docker_version         = DOCKER_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
@@ -51,7 +51,7 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ" {
   description = "local read cache for github-actions-runner image build (cannot be used before first write)"
 }
 
-target "github-action-runner" {
+target "github-actions-runner" {
   args = {
     docker_version         = DOCKER_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION

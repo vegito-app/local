@@ -76,7 +76,7 @@ group "local-services-host-arch-load" {
     "android-studio",
     "clarinet-devnet",
     "firebase-emulators",
-    "github-action-runner",
+    "github-actions-runner",
     "vault-dev",
     "application-tests",
   ]
@@ -86,7 +86,7 @@ group "local-services-multi-arch-push" {
     "android-studio-ci",
     "clarinet-devnet-ci",
     "firebase-emulators-ci",
-    "github-action-runner-ci",
+    "github-actions-runner-ci",
     "vault-dev-ci",
     "application-tests-ci",
   ]
