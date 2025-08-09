@@ -37,7 +37,7 @@ gcloud-application-credentials:
 
 gcloud-auth-login:
 	@echo "🔐 Logging in to gcloud..."
-	@$(GCLOUD) auth login
+	@$(GCLOUD) auth login --no-launch-browser
 .PHONY: gcloud-auth-login
 
 gcloud-auth-reset:
