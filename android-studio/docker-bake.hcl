@@ -39,7 +39,8 @@ target "android-studio-ci" {
     ANDROID_STUDIO_IMAGE_TAG,
   ]
   cache-from = [
-    LOCAL_ANDROID_STUDIO_IMAGE
+    LOCAL_ANDROID_STUDIO_IMAGE,
+    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to  = ["type=inline"]
   platforms = platforms

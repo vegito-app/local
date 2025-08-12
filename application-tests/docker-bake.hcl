@@ -21,8 +21,8 @@ target "application-tests-ci" {
     LOCAL_APPLICATION_TESTS_LATEST_IMAGE,
   ]
   cache-from = [
-    # LOCAL_BUILDER_IMAGE,
     LOCAL_APPLICATION_TESTS_LATEST_IMAGE,
+    LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
   ]
   cache-to = [
     "type=inline",

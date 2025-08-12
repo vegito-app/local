@@ -14,7 +14,8 @@ target "vault-dev-ci" {
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    LOCAL_VAULT_DEV_LATEST_IMAGE
+    LOCAL_VAULT_DEV_LATEST_IMAGE,
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
   ]
   cache-to  = ["type=inline"]
   platforms = platforms

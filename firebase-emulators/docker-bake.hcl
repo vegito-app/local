@@ -25,7 +25,8 @@ target "firebase-emulators-ci" {
   ]
   cache-from = [
     LOCAL_BUILDER_IMAGE,
-    LOCAL_FIREBASE_EMULATORS_LATEST_IMAGE
+    LOCAL_FIREBASE_EMULATORS_LATEST_IMAGE,
+    LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to  = ["type=inline"]
   platforms = platforms
