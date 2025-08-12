@@ -31,8 +31,8 @@ target "clarinet-devnet-ci" {
     LOCAL_CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    # LOCAL_BUILDER_IMAGE,
-    LOCAL_CLARINET_DEVNET_LATEST_IMAGE
+    LOCAL_CLARINET_DEVNET_LATEST_IMAGE,
+    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ
   ]
   cache-to  = ["type=inline"]
   platforms = platforms

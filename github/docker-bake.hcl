@@ -30,14 +30,14 @@ target "github-actions-runner-ci" {
     nvm_version            = NVM_VERSION
     github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
   }
-  depends_on = [builder]
   context    = "${LOCAL_DIR}/github"
   tags = [
     LOCAL_GITHUB_RUNNER_LATEST_IMAGE,
     LOCAL_GITHUB_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
-    LOCAL_GITHUB_RUNNER_LATEST_IMAGE
+    LOCAL_GITHUB_RUNNER_LATEST_IMAGE,
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to  = ["type=inline"]
   platforms = platforms
@@ -62,7 +62,6 @@ target "github-actions-runner" {
     nvm_version            = NVM_VERSION
     github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
   }
-  depends_on = [builder-local]
   context    = "${LOCAL_DIR}/github"
   tags = [
     LOCAL_GITHUB_RUNNER_LATEST_IMAGE,
