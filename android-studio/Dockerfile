@@ -87,8 +87,8 @@ RUN touch $HISTFILE && echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> ${
 # Section 10 : Entrypoints & scripts
 COPY --chown=android:android display-start.sh /usr/local/bin/
 COPY --chown=android:android display-start-xpra.sh /usr/local/bin/
-COPY --chown=android:android docker-caches-refresh.sh /usr/local/bin/studio-caches-refresh.sh
-COPY --chown=android:android entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+COPY --chown=android:android caches-refresh.sh /usr/local/bin/
+COPY --chown=android:android entrypoint.sh /usr/local/bin/
 COPY --chown=android:android appium-emulator-avd.sh /usr/local/bin/
 COPY --chown=android:android android-studio.sh /usr/local/bin/
 COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
@@ -96,16 +96,21 @@ COPY --chown=android:android openbox-setup.sh /usr/local/bin/
 
 # Rendre les scripts exécutables
 RUN chmod +x /usr/local/bin/display-start.sh \
-    /usr/local/bin/display-start-xpra.sh \
-    /usr/local/bin/studio-caches-refresh.sh \
-    /usr/local/bin/android-studio-entrypoint.sh \
-    /usr/local/bin/appium-emulator-avd.sh \
-    /usr/local/bin/android-studio.sh \
-    /usr/local/bin/emulator-data-load.sh \
-    /usr/local/bin/openbox-setup.sh
+  /usr/local/bin/display-start-xpra.sh \
+  /usr/local/bin/caches-refresh.sh \
+  /usr/local/bin/entrypoint.sh \
+  /usr/local/bin/appium-emulator-avd.sh \
+  /usr/local/bin/android-studio.sh \
+  /usr/local/bin/emulator-data-load.sh \
+  /usr/local/bin/openbox-setup.sh
 
 ARG default_display=20
 ENV DISPLAY=:${default_display}
 
-ENTRYPOINT ["android-studio-entrypoint.sh"]
+# Section 11 : Application mobile default
+# If a current APK is available, it will be automatically launched by 'appium-emulator-avd.sh'.
+ARG default_apk_path=/build/output/app.apk
+ENV LOCAL_APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["studio"]

@@ -19,7 +19,7 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 [ "${LOCAL_ANDROID_STUDIO_ENV_SETUP}" = "true" ] && \
-    studio-caches-refresh.sh
+    caches-refresh.sh
 
 case "${LOCAL_ANDROID_GPU_MODE}" in
     "host")

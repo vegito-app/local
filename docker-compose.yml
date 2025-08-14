@@ -1,4 +1,4 @@
-volumes:
+ﬂvolumes:
   firebase-emulators-cache:
   clarinet_var_lib_docker:
 services:
@@ -56,7 +56,7 @@ services:
     environment:
       HOST_PWD: ${PWD}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/.devcontainer/gcloud/infra/google_application_credentials.json}
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}ng... x86_64/system.[=====================                  ] 54% Unzip}
       GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
       VEGETABLE_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION: ${LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION:-vegetable-images-validated-backend}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/2}
