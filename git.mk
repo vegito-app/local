@@ -26,7 +26,7 @@ git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-r
 # ------------------------------------------
 # Subtree ./gcloud
 # ------------------------------------------
-git-subtree-gcloud-pull:
+git-subtree-gcloud-pull: git-subtree-gcloud-check
 	@echo "⬇︎ Pulling the gcloud subtree..."
 	@git subtree pull --prefix gcloud \
 	  git@github.com:vegito-app/gcloud.git main --squash
@@ -39,6 +39,10 @@ git-subtree-gcloud-push:
 	  git@github.com:vegito-app/gcloud.git $(GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "Gcloud subtree pushed successfully."
 .PHONY: git-subtree-gcloud-push
+
+git-subtree-gcloud-check:
+	@git log --grep="git-subtree-dir: gcloud" -n 1 --format=fuller || true
+.PHONY: git-subtree-gcloud-check
 
 GCLOUD_DIR := $(CURDIR)/gcloud
 -include $(GCLOUD_DIR)/gcloud.mk
