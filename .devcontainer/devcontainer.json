@@ -2,8 +2,8 @@
   "name": "Go Dev Container",
   "dockerComposeFile": [
     "../docker-compose.yml",
+    // "./docker-compose.yml",
     "../.docker-compose-override.yml",
-    "./docker-compose.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml"
   ],
@@ -15,11 +15,20 @@
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
-      "env": {
-        "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter"
-      },
       "settings": {
-        "dart.flutterSdkPath": "${localWorkspaceFolder}/.containers/android-studio/flutter""editor.fontLigatures": false,
+        "containers.environment": {
+          // "DOCKER_HOST": "tcp://localhost:23750",
+          "GOOGLE_CLOUD_REGION": "europe-west1"
+        },
+        "docker.dockerodeOptions": {
+          // "host": "tcp://localhost:23750"
+        },
+        "env": {
+          "FLUTTER_ROOT": "${localWorkspaceFolder}/local/.containers/android-studio/flutter",
+          "BUILDER_IMAGE": "${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}",
+          "LOCAL_DIR": "${localWorkspaceFolder}/local",
+        },
+        "editor.fontLigatures": false,
         "editor.formatOnSave": true,
         "editor.inlineSuggest.enabled": true,
         "explorer.confirmDelete": false,
@@ -59,7 +68,9 @@
           ],
           "editor.selectionHighlight": false,
           "editor.tabCompletion": "onlySnippets",
-          "editor.wordBasedSuggestions": "off"
+          "editor.wordBasedSuggestions": "off",
+          "dart.flutterSdkPath": "${localWorkspaceFolder}/local/.containers/android-studio/flutter",
+          "workbench.activityBar.location": "top"
         },
         "remote.portsAttributes": {
           "2375": {
@@ -107,12 +118,16 @@
             "label": "Firebase Functions",
             "onAutoForward": "silent"
           },
-          "5900": {
-            "label": "VNC - dev X server",
+          "5037": {
+            "label": "ADB - Android Debug Bridge - Android Studio",
             "onAutoForward": "silent"
           },
-          "5901": {
-            "label": "VNC - Androïd Studio X server",
+          "6900": {
+            "label": "VNC - X server - Android Studio",
+            "onAutoForward": "silent"
+          },
+          "6901": {
+            "label": "Xpra - X server - Android Studio",
             "onAutoForward": "silent"
           },
           "8200": {
@@ -192,6 +207,7 @@
       "msjsdiag.vscode-react-native",
       "Nash.awesome-flutter-snippets",
       "pjmiravalle.terraform-advanced-syntax-highlighting",
+      "4ops.terraform",
       "pkief.material-icon-theme",
       "redhat.vscode-xml",
       "redhat.vscode-yaml",
