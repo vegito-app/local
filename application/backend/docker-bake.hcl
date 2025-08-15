@@ -11,7 +11,7 @@ variable "APPLICATION_BACKEND_IMAGE_VERSION" {
   default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:application-backend-${VERSION}" : ""
 }
 
-variable "LATEST_APPLICATION_BACKEND_IMAGE" {
+variable "APPLICATION_LATEST_BACKEND_IMAGE" {
   default = "${APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
@@ -22,11 +22,11 @@ target "application-backend-ci" {
   }
   tags = [
     notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
-    LATEST_APPLICATION_BACKEND_IMAGE,
+    APPLICATION_LATEST_BACKEND_IMAGE,
   ]
   cache-from = [
     LOCAL_BUILDER_IMAGE,
-    LATEST_APPLICATION_BACKEND_IMAGE,
+    APPLICATION_LATEST_BACKEND_IMAGE,
   ]
   cache-to = [
     "type=inline",
@@ -52,7 +52,7 @@ target "application-backend" {
   }
   tags = [
     notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
-    LATEST_APPLICATION_BACKEND_IMAGE,
+    APPLICATION_LATEST_BACKEND_IMAGE,
   ]
   cache-from = [
     APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,

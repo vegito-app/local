@@ -1,8 +1,8 @@
-variable "CLARINET_DEVNET_IMAGE_TAG" {
+variable "LOCAL_CLARINET_DEVNET_IMAGE_TAG" {
   default = notequal("", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:clarinet-${LOCAL_VERSION}" : ""
 }
 
-variable "LATEST_CLARINET_DEVNET_IMAGE" {
+variable "LOCAL_CLARINET_DEVNET_LATEST_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:clarinet-latest"
 }
 
@@ -27,12 +27,12 @@ target "clarinet-devnet-ci" {
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_CLARINET_DEVNET_IMAGE,
-    CLARINET_DEVNET_IMAGE_TAG,
+    LOCAL_CLARINET_DEVNET_LATEST_IMAGE,
+    LOCAL_CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    # LOCAL_BUILDER_IMAGE,
-    LATEST_CLARINET_DEVNET_IMAGE
+    LOCAL_CLARINET_DEVNET_LATEST_IMAGE,
+    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ
   ]
   cache-to  = ["type=inline"]
   platforms = platforms
@@ -47,8 +47,8 @@ target "clarinet-devnet" {
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_CLARINET_DEVNET_IMAGE,
-    CLARINET_DEVNET_IMAGE_TAG,
+    LOCAL_CLARINET_DEVNET_LATEST_IMAGE,
+    LOCAL_CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
     LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ,
