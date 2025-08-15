@@ -4,5 +4,40 @@ on: [push]
 jobs:
   test:
     runs-on: self-hosted
+    environment: dev
+    env:
+      DEV_GOOGLE_CLOUD_PROJECT_ID: ${{ vars.DEV_GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: dev
+      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest}
     steps:
-      - run: echo "Le rpjpsrfunner fonctionne !"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+      - name: Define VERSION
+        run: |
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/203475703228/locations/global/workloadIdentityPools/github-pool/providers/github"
+          service_account: "github-actions-main@moov-dev-439608.iam.gserviceaccount.com"
+          project_id: "moov-dev-439608"
+          token_format: "access_token"
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Set up Docker Buildx
+        run: |
+          make docker-buildx-setup
+      - name: Build and load local project images
+        run: |
+          make images
