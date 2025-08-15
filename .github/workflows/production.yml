@@ -24,10 +24,13 @@ jobs:
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.PRODUCTION_GCLOUD_SERVICE_KEY }}
+          workload_identity_provider: "projects/203475703228/locations/global/workloadIdentityPools/github-pool/providers/github"
+          service_account: "github-actions-main@moov-dev-439608.iam.gserviceaccount.com"
+          project_id: "moov-dev-439608"
+          token_format: "access_token"
       - name: Set up Cloud SDK
         run: |
           make gcloud-config-set-project
