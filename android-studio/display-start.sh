@@ -33,7 +33,7 @@ until xdpyinfo -display ${DISPLAY} > /dev/null 2>&1; do
     sleep 1
 done
 
-openbox-setup.sh
+# openbox-setup.sh
 
 # x11vnc -display ${DISPLAY} -nopw -noxdamage -shared -forever -repeat -ncache 10 -ncache_cr &
 x11vnc -display ${DISPLAY} -nopw -noxdamage -shared -forever -repeat &
