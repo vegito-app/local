@@ -37,7 +37,7 @@ gcloud-application-credentials:
 
 gcloud-auth-login:
 	@echo "🔐 Logging in to gcloud..."
-	@$(GCLOUD) auth login
+	@$(GCLOUD) auth login --no-launch-browser
 .PHONY: gcloud-auth-login
 
 gcloud-auth-reset:
@@ -168,8 +168,8 @@ gcloud-images-delete-all-public:
 .PHONY: gcloud-images-delete-all-public
 
 gcloud-backend-image-delete:
-	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
+	@echo "🗑️  Deleting backend image $(APPLICATION_LATEST_BACKEND_IMAGE)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_LATEST_BACKEND_IMAGE)
 .PHONY: gcloud-backend-image-delete
 
 gcloud-auth-func-logs:

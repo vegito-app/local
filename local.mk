@@ -1,10 +1,9 @@
 # Local Docker Compose configuration
-LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
+LOCAL_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
-local-images: 
-	@$(MAKE) -j local-docker-images-host-arch
+local-images: local-docker-images-host-arch
 .PHONY: local-images
 
 local-images-pull: 
@@ -15,8 +14,7 @@ local-images-push:
 	@$(MAKE) -j local-docker-images-push
 .PHONY: local-images-push
 
-local-images-ci:
-	@$(MAKE) -j local-services-multi-arch-push-images
+local-images-ci: local-services-multi-arch-push-images
 .PHONY: local-images-ci
 
 LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
