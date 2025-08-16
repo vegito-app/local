@@ -1,4 +1,4 @@
-ﬂvolumes:
+volumes:
   firebase-emulators-cache:
   clarinet_var_lib_docker:
 services:
