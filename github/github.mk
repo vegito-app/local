@@ -1,14 +1,15 @@
 GITHUB_ACTIONS_RUNNER_STACK_ID ?= $(shell echo $$RANDOM)
 GITHUB_ACTIONS_RUNNER_STACK ?= github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
 
-LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE = $(PUBLIC_IMAGES_BASE):github-actions-runner-latest
-LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/infra-github
+LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github/
+LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_GITHUB_ACTIONS_DIR)/.containers/docker-buildx-cache/infra-github
 $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
 LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE)
 endif
 LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE)
 
+LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE ?= $(PUBLIC_IMAGES_BASE):github-actions-runner-latest
 
 # Build image for local run. This target will not push an image to the distant registry.
 local-github-actions-runner-image: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
@@ -30,7 +31,7 @@ local-github-actions-runner-image-ci: docker-buildx-setup
 
 LOCAL_GITHUB_DOCKER_COMPOSE_PROJECT_NAME ?= $(LOCAL_PROJECT_NAME)-github-actions
 LOCAL_GITHUB_DOCKER_COMPOSE ?= COMPOSE_PROJECT_NAME=$(LOCAL_GITHUB_DOCKER_COMPOSE_PROJECT_NAME) \
-  docker compose -f $(LOCAL_DIR)/github/docker-compose.yml
+  docker compose -f $(LOCAL_GITHUB_ACTIONS_DIR)/docker-compose.yml
 
 local-github-actions-runner-token-exist:
 	@if [ ! -v GITHUB_ACTIONS_RUNNER_TOKEN ] ; then \

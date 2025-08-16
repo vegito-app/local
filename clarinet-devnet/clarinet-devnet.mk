@@ -1,4 +1,6 @@
-LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/clarinet-devnet
+LOCAL_CLARINET_DEVNET_DIR ?= $(LOCAL_DIR)/clarinet-devnet
+
+LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_CLARINET_DEVNET_DIR)/.containers/docker-buildx-cache/clarinet-devnet
 $(LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
 LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE)
@@ -12,10 +14,8 @@ CONTRACTS := \
 BITCOIND_DOCKER_NETWORK_NAME = my-first-contract.devnet
 BITCOIND_DOCKER_CONTAINER_NAME = bitcoin-node.$(BITCOIND_DOCKER_NETWORK_NAME)
 
-# Variables
 LOCAL_CLARITY_CONTRACTS_DIR   = $(LOCAL_DIR)/application/contracts
 LOCAL_CLARITY_CONTRACTS_DEPLOYMENT_DIR = $(LOCAL_CLARITY_CONTRACTS_DIR)/deployment
-LOCAL_CLARINET_DEVNET_DIR   = $(LOCAL_DIR)/clarinet-devnet
 LOCAL_CLARINET       = clarinet 
 
 local-clarinet-check: ## Vérifie la validité des contrats
