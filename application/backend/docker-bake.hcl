@@ -25,11 +25,12 @@ target "application-backend-ci" {
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
     LOCAL_BUILDER_IMAGE_LATEST,
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-to = [
-    "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline",
   ]
   platforms = [
     "linux/amd64",
@@ -56,8 +57,10 @@ target "application-backend" {
   ]
   cache-from = [
     APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
   ]
   cache-to = [
     APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "",
   ]
 }
