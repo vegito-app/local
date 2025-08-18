@@ -44,7 +44,7 @@ services:
 
   application-backend:
     restart: unless-stopped
-    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-repository/utrade:application-backend-latest}
+    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-public-repository/vegito-local:application-backend-latest}
     build:
       context: ${LOCAL_APPLICATION_DIR:-${PWD}}
       dockerfile: backend/Dockerfile
