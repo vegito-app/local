@@ -36,8 +36,7 @@ target "application-mobile" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : ""
   ]
   cache-to = [
-    APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : ""
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = ["linux/amd64"]
 }
