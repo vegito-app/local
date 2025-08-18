@@ -1,12 +1,25 @@
-variable "BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION}" : ""
+variable "LOCAL_BUILDER_IMAGE_VERSION" {
+  default = notequal("latest", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION}" : ""
 }
 
-variable "LOCAL_BUILDER_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:builder-latest"
+variable "LOCAL_BUILDER_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-latest"
 }
+
 variable "LOCAL_DIR" {
   default = "."
+}
+
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+  description = "local write cache for builder image build"
+}
+
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for builder image build (cannot be used before first write)"
+}
+
+variable "LOCAL_BUILDER_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder"
 }
 
 target "builder-ci" {
@@ -25,20 +38,18 @@ target "builder-ci" {
   context = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_BUILDER_IMAGE,
-    notequal("", LOCAL_VERSION) ? BUILDER_IMAGE_VERSION : "",
+    LOCAL_BUILDER_IMAGE_LATEST,
+    notequal("", LOCAL_VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
-  cache-from = [LOCAL_BUILDER_IMAGE]
-  cache-to   = ["type=inline"]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE}" : LOCAL_BUILDER_IMAGE_LATEST,
+    LOCAL_BUILDER_IMAGE_LATEST,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+  ]
   platforms  = platforms
-}
-
-variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for builder image build"
-}
-
-variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ" {
-  description = "local read cache for builder image build (cannot be used before first write)"
 }
 
 target "builder" {
@@ -57,12 +68,12 @@ target "builder" {
   context = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_BUILDER_IMAGE,
-    notequal("", LOCAL_VERSION) ? BUILDER_IMAGE_VERSION : "",
+    LOCAL_BUILDER_IMAGE_LATEST,
+    notequal("", LOCAL_VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    LOCAL_BUILDER_IMAGE,
-    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ,
+    LOCAL_BUILDER_IMAGE_LATEST,
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
     LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE

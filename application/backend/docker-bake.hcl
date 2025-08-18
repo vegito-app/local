@@ -1,32 +1,32 @@
-variable "VERSION" {
+variable "LOCAL_APPLICATION_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
 
-variable "APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${PRIVATE_IMAGES_BASE}:application-backend"
+variable "LOCAL_APPLICATION_BACKEND_IMAGES_BASE" {
+  default = "${VEGITO_PUBLIC_IMAGES_BASE}:application-backend"
 }
 
-variable "APPLICATION_BACKEND_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:application-backend-${VERSION}" : ""
+variable "LOCAL_APPLICATION_BACKEND_IMAGE" {
+  default = notequal("dev", LOCAL_APPLICATION_VERSION) ? "${VEGITO_PUBLIC_IMAGES_BASE}:application-backend-${LOCAL_APPLICATION_VERSION}" : ""
 }
 
-variable "APPLICATION_LATEST_BACKEND_IMAGE" {
-  default = "${APPLICATION_BACKEND_IMAGES_BASE}-latest"
+variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
+  default = "${LOCAL_APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
 target "application-backend-ci" {
   dockerfile = "application/backend/Dockerfile"
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
-    APPLICATION_LATEST_BACKEND_IMAGE,
+    LOCAL_APPLICATION_BACKEND_IMAGE,
+    LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
-    LOCAL_BUILDER_IMAGE,
-    APPLICATION_LATEST_BACKEND_IMAGE,
+    LOCAL_BUILDER_IMAGE_LATEST,
+    LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-to = [
     "type=inline",
@@ -48,11 +48,11 @@ variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 target "application-backend" {
   dockerfile = "application/backend/Dockerfile"
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
-    APPLICATION_LATEST_BACKEND_IMAGE,
+    LOCAL_APPLICATION_BACKEND_IMAGE,
+    LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
     APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
