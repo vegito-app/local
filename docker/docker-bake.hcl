@@ -1,3 +1,6 @@
+variable "USE_REGISTRY_CACHE" {
+  default = false
+}
 variable "LOCAL_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
@@ -52,17 +55,17 @@ variable "INFRA_ENV" {
 variable "REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository"
 }
-variable "PUBLIC_REPOSITORY" {
+variable "VEGITO_PUBLIC_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository-public"
 }
 variable "GOOGLE_CLOUD_PROJECT_ID" {
   description = "Google Cloud Project ID"
   default     = "moov-dev-439608"
 }
-variable "PUBLIC_IMAGES_BASE" {
-  default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
-variable "PRIVATE_IMAGES_BASE" {
+variable "VEGITO_APPLICATION_PRIVATE_IMAGES_BASE" {
   default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 variable "platforms" {
