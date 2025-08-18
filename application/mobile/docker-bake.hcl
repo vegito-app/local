@@ -32,10 +32,12 @@ target "application-mobile" {
   ]
   cache-from = [
     APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    APPLICATION_MOBILE_IMAGE_LATEST
+    APPLICATION_MOBILE_IMAGE_LATEST,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : ""
   ]
   cache-to = [
     APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : ""
   ]
   platforms = ["linux/amd64"]
 }
@@ -52,9 +54,12 @@ target "application-mobile-ci" {
     APPLICATION_MOBILE_IMAGE_TAG,
   ]
   cache-from = [
-    APPLICATION_MOBILE_IMAGE_LATEST
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : "",
+    APPLICATION_MOBILE_IMAGE_LATEST,
   ]
-  cache-to  = ["type=inline"]
+  cache-to  = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+  ]
   platforms = ["linux/amd64"]
 }
 
