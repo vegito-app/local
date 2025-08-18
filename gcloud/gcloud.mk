@@ -131,43 +131,43 @@ gcloud-images-list:
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(PUBLIC_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(PUBLIC_REPOSITORY)
+	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
+	$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:
-	@echo "🏷️  Listing tags for image base $(PRIVATE_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(PRIVATE_IMAGES_BASE)
+	@echo "🏷️  Listing tags for image base $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
+	@$(GCLOUD) container images list-tags $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)
 .PHONY: gcloud-images-list-tags
 
 gcloud-images-list-tags-public:
-	@echo "🏷️  Listing tags for public image base $(PUBLIC_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(PUBLIC_IMAGES_BASE)
+	@echo "🏷️  Listing tags for public image base $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
+	@$(GCLOUD) container images list-tags $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)
 .PHONY: gcloud-images-list-tags-public
 
 gcloud-images-delete-all:
-	@echo "🗑️  Deleting all images from repository $(PRIVATE_IMAGES_BASE)..."
+	@echo "🗑️  Deleting all images from repository $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
 	$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
-    $(PRIVATE_IMAGES_BASE) \
+    $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE) \
     | uniq \
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all
 
 gcloud-images-delete-all-public:
-	@echo "🗑️  Deleting all images from public repository $(PUBLIC_IMAGES_BASE)..."
+	@echo "🗑️  Deleting all images from public repository $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
 	@$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
-    $(PUBLIC_IMAGES_BASE) \
+    $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE) \
     | uniq \
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all-public
 
 gcloud-backend-image-delete:
-	@echo "🗑️  Deleting backend image $(APPLICATION_LATEST_BACKEND_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_LATEST_BACKEND_IMAGE)
+	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE_LATEST)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE_LATEST)
 .PHONY: gcloud-backend-image-delete
 
 gcloud-auth-func-logs:

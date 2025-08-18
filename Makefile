@@ -8,7 +8,6 @@ endif
 GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
 INFRA_PROJECT_NAME := moov
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
-LOCAL_IMAGES_BASE := vegito-local
 LOCAL_PROJECT_NAME := vegito-local
 
 export
