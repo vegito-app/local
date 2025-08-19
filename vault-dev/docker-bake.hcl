@@ -1,5 +1,5 @@
 variable "LOCAL_VAULT_DEV_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-${LOCAL_VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-${VERSION}" : ""
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_LATEST" {

@@ -1,5 +1,5 @@
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_TAG" {
-  default = notequal("", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-${LOCAL_VERSION}" : ""
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-${VERSION}" : ""
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST" {

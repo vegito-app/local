@@ -1,7 +1,7 @@
 variable "USE_REGISTRY_CACHE" {
   default = false
 }
-variable "LOCAL_VERSION" {
+variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }

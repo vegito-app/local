@@ -1,5 +1,5 @@
 variable "LOCAL_CLARINET_DEVNET_IMAGE_TAG" {
-  default = notequal("", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${LOCAL_VERSION}" : ""
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}" : ""
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
