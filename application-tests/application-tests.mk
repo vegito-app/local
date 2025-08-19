@@ -9,7 +9,7 @@ LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,mode=m
 LOCAL_APPLICATION_TESTS_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-tests-latest
 
 local-application-tests-container-up: local-application-tests-container-rm
-	@LOCAL_VERSION=latest $(LOCAL_DIR)/application-tests/docker-compose-up.sh &
+	@VERSION=latest $(LOCAL_DIR)/application-tests/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs application-tests
 	@echo
 	@echo Started Application tests display: 
