@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_STUDIO_VERSION" {
-  default = notequal("", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${LOCAL_VERSION}" : ""
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {

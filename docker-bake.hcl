@@ -1,5 +1,5 @@
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
 }
 
 variable "LOCAL_BUILDER_IMAGE_LATEST" {
@@ -39,7 +39,7 @@ target "builder-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
-    notequal("", LOCAL_VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
+    notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE}" : "",
@@ -69,7 +69,7 @@ target "builder" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
-    notequal("", LOCAL_VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
+    notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE}" : "",

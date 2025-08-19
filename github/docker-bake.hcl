@@ -1,5 +1,5 @@
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-${LOCAL_VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-${VERSION}" : ""
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {

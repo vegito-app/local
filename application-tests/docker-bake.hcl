@@ -3,7 +3,7 @@ variable "LOCAL_APPLICATION_TESTS_IMAGES_BASE" {
 }
 
 variable "LOCAL_APPLICATION_TESTS_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-tests-${LOCAL_VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-tests-${VERSION}" : ""
 }
 
 variable "LOCAL_APPLICATION_TESTS_IMAGE_LATEST" {
