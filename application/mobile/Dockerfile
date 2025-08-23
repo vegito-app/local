@@ -11,7 +11,10 @@ RUN mkdir -p ${HOME}/app/mobile ${HOME}/app/infra
 
 WORKDIR ${HOME}/app
 
-COPY --chown=android:android mobile mobile/
+COPY --chown=android:android pubspec.yaml mobile/
+COPY --chown=android:android pubspec.lock mobile/
+COPY --chown=android:android android mobile/
+COPY --chown=android:android lib mobile/
 
 RUN cd mobile && flutter build apk --release
 

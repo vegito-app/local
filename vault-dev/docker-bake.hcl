@@ -19,7 +19,7 @@ target "vault-dev-ci" {
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE}" : "",
-    LOCAL_VAULT_DEV_IMAGE_LATEST,
+    "type=inline, ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
@@ -44,9 +44,9 @@ target "vault-dev" {
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    LOCAL_VAULT_DEV_IMAGE_LATEST,
-    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE}" : "",
+    "type=inline, ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
