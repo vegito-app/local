@@ -24,16 +24,18 @@ target "application-mobile" {
     android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
     environment          = INFRA_ENV
   }
-  context    = "${LOCAL_APPLICATION_DIR}"
-  dockerfile = "mobile/Dockerfile"
+  context = "${APPLICATION_DIR}/mobile"
+  contexts = {
+    "approot" : APPLICATION_DIR
+  }
   tags = [
     APPLICATION_MOBILE_IMAGE_LATEST,
     APPLICATION_MOBILE_IMAGE_TAG,
   ]
   cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : "",
     APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    APPLICATION_MOBILE_IMAGE_LATEST,
-    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : ""
+    "type=inline, ref=${APPLICATION_MOBILE_IMAGE_LATEST}",
   ]
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
@@ -46,19 +48,21 @@ target "application-mobile-ci" {
     android_studio_image = APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
     environment          = INFRA_ENV
   }
-  context    = "${LOCAL_APPLICATION_DIR}"
-  dockerfile = "mobile/Dockerfile"
+  context = "${APPLICATION_DIR}/mobile"
+  contexts = {
+    "approot" : APPLICATION_DIR
+  }
   tags = [
     APPLICATION_MOBILE_IMAGE_LATEST,
     APPLICATION_MOBILE_IMAGE_TAG,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : "",
-    APPLICATION_MOBILE_IMAGE_LATEST,
+    "type=inline, ref=${APPLICATION_MOBILE_IMAGE_LATEST}",
+    APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to  = [
+  cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
   ]
   platforms = ["linux/amd64"]
 }
-

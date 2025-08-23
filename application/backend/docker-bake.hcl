@@ -16,7 +16,10 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 target "application-backend-ci" {
-  dockerfile = "application/backend/Dockerfile"
+  context = "application/backend"
+  contexts = {
+    "approot" : application
+  }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
@@ -26,8 +29,8 @@ target "application-backend-ci" {
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
-    LOCAL_BUILDER_IMAGE_LATEST,
-    LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
+    "type=inline, ref=${LOCAL_APPLICATION_BACKEND_IMAGE_LATEST}",
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline",
@@ -47,7 +50,10 @@ variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "application-backend" {
-  dockerfile = "application/backend/Dockerfile"
+  context = "application/backend"
+  contexts = {
+    "approot" : application
+  }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
@@ -56,8 +62,9 @@ target "application-backend" {
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
-    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline, ref=${LOCAL_APPLICATION_BACKEND_IMAGE_LATEST}",
   ]
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,

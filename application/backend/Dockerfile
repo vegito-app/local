@@ -4,6 +4,9 @@ FROM ${builder_image} AS build
 RUN mkdir ${HOME}/src
 WORKDIR ${HOME}/src
 
+ARG application_directory="."
+ENV APPLICATION_DIR=${application_directory}
+
 COPY Makefile .
 COPY local.mk .
 COPY nodejs.mk .
