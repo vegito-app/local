@@ -35,9 +35,6 @@ local-docker-compose-dev-config-pull:
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-docker-compose-dev-image-pull
 
-local-docker-images-pull: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull) local-dev-container-image-pull
-.PHONY: local-docker-images-pull
-
 local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
 .PHONY: local-docker-images-push
 
@@ -124,8 +121,12 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-backend \
   application-tests
+#   application-backend \
+#   application-mobile \
+
+local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
+.PHONY: local-docker-images-pull
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
@@ -134,7 +135,7 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):
