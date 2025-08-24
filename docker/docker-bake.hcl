@@ -5,9 +5,6 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
-variable "LOCAL_APPLICATION_DIR" {
-  default = "application"
-}
 variable "GO_VERSION" {
   description = "current Go version"
   default     = "1.24.5"
@@ -52,7 +49,7 @@ variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
 }
-variable "REPOSITORY" {
+variable "VEGITO_PRIVATE_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository"
 }
 variable "VEGITO_PUBLIC_REPOSITORY" {
@@ -63,10 +60,10 @@ variable "GOOGLE_CLOUD_PROJECT_ID" {
   default     = "moov-dev-439608"
 }
 variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
 }
-variable "VEGITO_APPLICATION_PRIVATE_IMAGES_BASE" {
-  default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
 }
 variable "platforms" {
   default = [
