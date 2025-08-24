@@ -62,7 +62,7 @@ RUN ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comman
 
 ARG TARGETPLATFORM
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-  sudo npm install -g appium && \
+  sudo npm install -g appium@3.0.0-rc.2 && \
   appium driver install uiautomator2 && \
   sdkmanager "emulator" "system-images;android-34;google_apis_playstore;x86_64" && \
   echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" ; \
