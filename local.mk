@@ -14,8 +14,8 @@ local-images-push:
 	@$(MAKE) -j local-docker-images-push
 .PHONY: local-images-push
 
-local-images-ci: local-services-multi-arch-push-images
-.PHONY: local-images-ci
+local-docker-images-ci: local-services-multi-arch-push-images
+.PHONY: local-docker-images-ci
 
 LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
 $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
@@ -38,7 +38,7 @@ local-docker-compose-dev-config-pull:
 local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
 .PHONY: local-docker-images-push
 
-LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
+LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
