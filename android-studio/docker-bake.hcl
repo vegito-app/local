@@ -1,9 +1,13 @@
-variable "ANDROID_STUDIO_IMAGE_TAG" {
-  default = notequal("", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:android-studio-${LOCAL_VERSION}" : ""
+variable "LOCAL_ANDROID_STUDIO_VERSION" {
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
 }
 
-variable "LATEST_ANDROID_STUDIO_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:android-studio-latest"
+variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest"
+}
+
+variable "LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio"
 }
 
 variable "ANDROID_STUDIO_VERSION" {
@@ -22,7 +26,7 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for android-studio image build"
 }
 
-variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_READ" {
+variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for android-studio image build (cannot be used before first write)"
 }
 
@@ -35,13 +39,17 @@ target "android-studio-ci" {
   context    = "${LOCAL_DIR}/android-studio"
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_ANDROID_STUDIO_IMAGE,
-    ANDROID_STUDIO_IMAGE_TAG,
+    LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
+    LOCAL_ANDROID_STUDIO_VERSION,
   ]
   cache-from = [
-    LATEST_ANDROID_STUDIO_IMAGE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE}" : "",
+    "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to  = ["type=inline"]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+  ]
   platforms = platforms
 }
 
@@ -54,13 +62,15 @@ target "android-studio" {
   context    = "${LOCAL_DIR}/android-studio"
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_ANDROID_STUDIO_IMAGE,
-    ANDROID_STUDIO_IMAGE_TAG,
+    LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
+    LOCAL_ANDROID_STUDIO_VERSION,
   ]
   cache-from = [
-    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_READ,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE}" : "",
+    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
   ]
   cache-to = [
-    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE}" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
 }

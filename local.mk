@@ -1,5 +1,5 @@
 # Local Docker Compose configuration
-LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
+LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
@@ -15,9 +15,16 @@ local-images-push:
 	@$(MAKE) -j local-docker-images-push
 .PHONY: local-images-push
 
-local-images-ci:
+local-docker-images-ci:
 	@$(MAKE) -j local-services-multi-arch-push-images
-.PHONY: local-images-ci
+.PHONY: local-docker-images-ci
+
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
+$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
+ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
+endif
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   android-studio \
@@ -129,7 +136,7 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):

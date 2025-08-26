@@ -1,16 +1,20 @@
-variable "CLARINET_DEVNET_IMAGE_TAG" {
-  default = notequal("", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:clarinet-${LOCAL_VERSION}" : ""
+variable "LOCAL_CLARINET_DEVNET_IMAGE_TAG" {
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}" : ""
 }
 
-variable "LATEST_CLARINET_DEVNET_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:clarinet-latest"
+variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-latest"
+}
+
+variable "LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/clarinet-devnet"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for clarinet image build"
 }
 
-variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ" {
+variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for clarinet image build (cannot be used before first write)"
 }
 
@@ -20,40 +24,45 @@ variable "CLARINET_VERSION" {
 
 target "clarinet-devnet-ci" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE
+    builder_image    = LOCAL_BUILDER_IMAGE_LATEST
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_CLARINET_DEVNET_IMAGE,
-    CLARINET_DEVNET_IMAGE_TAG,
+    LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
+    LOCAL_CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    # LOCAL_BUILDER_IMAGE,
-    LATEST_CLARINET_DEVNET_IMAGE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE}" : LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
+    "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to  = ["type=inline"]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+  ]
   platforms = platforms
 }
 
 target "clarinet-devnet" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE
+    builder_image    = LOCAL_BUILDER_IMAGE_LATEST
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_CLARINET_DEVNET_IMAGE,
-    CLARINET_DEVNET_IMAGE_TAG,
+    LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
+    LOCAL_CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_READ,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE}" : "",
+    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
   ]
   cache-to = [
-    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
 }

@@ -15,6 +15,7 @@ mkdir -p $local_container_cache
 
 # Bash history
 ln -sfn ${local_container_cache}/bash_history ~/.bash_history
+touch ~/.bash_history
 
 # EMACS local configuration persistence
 # This allows you to persist your emacs configuration across container rebuilds.
