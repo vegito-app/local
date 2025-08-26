@@ -29,7 +29,7 @@ case "${LOCAL_ANDROID_GPU_MODE}" in
 esac
 
 [ "${LOCAL_ANDROID_STUDIO_ENV_SETUP}" = "true" ] && \
-    studio-caches-refresh.sh
+    caches-refresh.sh
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &

@@ -1,5 +1,5 @@
 services:
-  github-action-runner:
+  github-actions-runner:
     restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
@@ -7,7 +7,7 @@ services:
     environment:
       - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
-      - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-action-stack}
+      - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
     deploy:
       replicas: 3
       update_config:

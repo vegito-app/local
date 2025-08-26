@@ -1,4 +1,4 @@
-variable "LOCAL_VERSION" {
+variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
@@ -52,17 +52,17 @@ variable "INFRA_ENV" {
 variable "REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository"
 }
-variable "PUBLIC_REPOSITORY" {
+variable "VEGITO_PUBLIC_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository-public"
 }
 variable "GOOGLE_CLOUD_PROJECT_ID" {
   description = "Google Cloud Project ID"
   default     = "moov-dev-439608"
 }
-variable "PUBLIC_IMAGES_BASE" {
-  default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
-variable "PRIVATE_IMAGES_BASE" {
+variable "VEGITO_APPLICATION_PRIVATE_IMAGES_BASE" {
   default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 variable "platforms" {
@@ -76,7 +76,7 @@ group "local-services-host-arch-load" {
     "android-studio",
     "clarinet-devnet",
     "firebase-emulators",
-    "github-action-runner",
+    "github-actions-runner",
     "vault-dev",
     "application-tests",
   ]
@@ -86,7 +86,7 @@ group "local-services-multi-arch-push" {
     "android-studio-ci",
     "clarinet-devnet-ci",
     "firebase-emulators-ci",
-    "github-action-runner-ci",
+    "github-actions-runner-ci",
     "vault-dev-ci",
     "application-tests-ci",
   ]

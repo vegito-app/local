@@ -11,7 +11,7 @@ jobs:
     runs-on: self-hosted
     env:
       INFRA_ENV: dev
-      LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}
+      LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

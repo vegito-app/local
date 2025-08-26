@@ -1,31 +1,36 @@
 variable "LOCAL_APPLICATION_TESTS_IMAGES_BASE" {
-  default = "${PUBLIC_IMAGES_BASE}:application-tests"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-tests"
 }
 
 variable "LOCAL_APPLICATION_TESTS_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:application-tests-${LOCAL_VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-tests-${VERSION}" : ""
 }
 
-variable "LATEST_LOCAL_APPLICATION_TESTS_IMAGE" {
+variable "LOCAL_APPLICATION_TESTS_IMAGE_LATEST" {
   default = "${LOCAL_APPLICATION_TESTS_IMAGES_BASE}-latest"
+}
+
+variable "LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-tests"
 }
 
 target "application-tests-ci" {
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   context    = "${LOCAL_DIR}/application-tests"
   dockerfile = "Dockerfile"
   tags = [
-    notequal("", LOCAL_VERSION) ? LOCAL_APPLICATION_TESTS_IMAGE_VERSION : "",
-    LATEST_LOCAL_APPLICATION_TESTS_IMAGE,
+    LOCAL_APPLICATION_TESTS_IMAGE_VERSION,
+    LOCAL_APPLICATION_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
-    # LOCAL_BUILDER_IMAGE,
-    LATEST_LOCAL_APPLICATION_TESTS_IMAGE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE}" : "",
+    "type=inline,ref=${LOCAL_APPLICATION_TESTS_IMAGE_LATEST}",
+    LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
   ]
 }
 
@@ -41,16 +46,18 @@ target "application-tests" {
   context    = "${LOCAL_DIR}/application-tests"
   dockerfile = "Dockerfile"
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", LOCAL_VERSION) ? LOCAL_APPLICATION_TESTS_IMAGE_VERSION : "",
-    LATEST_LOCAL_APPLICATION_TESTS_IMAGE,
+    LOCAL_APPLICATION_TESTS_IMAGE_VERSION,
+    LOCAL_APPLICATION_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE}" : "",
     LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_APPLICATION_TESTS_IMAGE_LATEST}",
   ]
   cache-to = [
-    LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE}" : LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
 }

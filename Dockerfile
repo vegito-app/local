@@ -240,6 +240,9 @@ RUN set -x; \
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+RUN apt-get update && apt-get install -y \
+emacs-nox \
+&& apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y \
     emacs-nox \
@@ -252,7 +255,7 @@ RUN emacs --batch --eval "(require 'package)" \
     --eval "(package-initialize)" \
     --eval "(unless package-archive-contents (package-refresh-contents))" \
     --eval "(package-install 'magit)"
-
+    
 RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
     && go install -v github.com/cweill/gotests/gotests@v1.6.0 \

@@ -1,9 +1,13 @@
-variable "GITHUB_RUNNER_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${LOCAL_VERSION}" : ""
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION" {
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-${VERSION}" : ""
 }
 
-variable "LATEST_GITHUB_RUNNER_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:github-action-runner-latest"
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-latest"
+}
+
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
 }
 
 variable "GITHUB_ACTION_RUNNER_VERSION" {
@@ -12,14 +16,14 @@ variable "GITHUB_ACTION_RUNNER_VERSION" {
 }
 
 group "service" {
-  targets = ["github-action-runner"]
+  targets = ["github-actions-runner"]
 }
 
 group "local-service" {
-  targets = ["github-action-runner-local"]
+  targets = ["github-actions-runner-local"]
 }
 
-target "github-action-runner-ci" {
+target "github-actions-runner-ci" {
   args = {
     docker_version         = DOCKER_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
@@ -30,16 +34,19 @@ target "github-action-runner-ci" {
     nvm_version            = NVM_VERSION
     github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
   }
-  depends_on = [builder]
   context    = "${LOCAL_DIR}/github"
   tags = [
-    LATEST_GITHUB_RUNNER_IMAGE,
-    notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
-    LATEST_GITHUB_RUNNER_IMAGE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE}" : "",
+    "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to  = ["type=inline"]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max" : "type=inline"
+  ]
   platforms = platforms
 }
 
@@ -47,11 +54,11 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for github-actions-runner image build"
 }
 
-variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ" {
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for github-actions-runner image build (cannot be used before first write)"
 }
 
-target "github-action-runner" {
+target "github-actions-runner" {
   args = {
     docker_version         = DOCKER_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
@@ -62,17 +69,17 @@ target "github-action-runner" {
     nvm_version            = NVM_VERSION
     github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
   }
-  depends_on = [builder-local]
   context    = "${LOCAL_DIR}/github"
   tags = [
-    LATEST_GITHUB_RUNNER_IMAGE,
-    notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
-    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ,
-    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE}" : "",
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
   ]
   cache-to = [
-    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max" : LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
 }

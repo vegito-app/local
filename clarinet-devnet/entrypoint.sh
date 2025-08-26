@@ -49,6 +49,8 @@ ln -s /run/user/$LOCAL_USER_ID/docker.sock ${HOME}/.docker/run/docker.sock
 # Bash history
 rm -f ~/.bash_history
 ln -sfn ${local_container_cache}/bash_history ~/.bash_history
+touch ${local_container_cache}/bash_history
+
 cat <<EOF >> ~/.bashrc
 export HISTSIZE=50000
 export HISTFILESIZE=100000
