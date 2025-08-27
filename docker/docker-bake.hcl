@@ -49,7 +49,7 @@ variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
 }
-variable "REPOSITORY" {
+variable "VEGITO_PRIVATE_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository"
 }
 variable "VEGITO_PUBLIC_REPOSITORY" {
@@ -63,7 +63,7 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 variable "VEGITO_APPLICATION_PRIVATE_IMAGES_BASE" {
-  default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+  default = "${VEGITO_PRIVATE_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
 }
 variable "platforms" {
   default = [

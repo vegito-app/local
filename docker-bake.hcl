@@ -1,3 +1,6 @@
+variable "USE_REGISTRY_CACHE" {
+  default = false
+}
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
 }
