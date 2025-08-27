@@ -62,7 +62,7 @@ RUN ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/comman
 
 ARG TARGETPLATFORM
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-  sudo npm install -g appium && \
+  sudo npm install -g appium@3.0.0-rc.2 && \
   appium driver install uiautomator2 && \
   sdkmanager "emulator" "system-images;android-34;google_apis_playstore;x86_64" && \
   echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" ; \
@@ -87,8 +87,8 @@ RUN touch $HISTFILE && echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> ${
 # Section 10 : Entrypoints & scripts
 COPY --chown=android:android display-start.sh /usr/local/bin/
 COPY --chown=android:android display-start-xpra.sh /usr/local/bin/
-COPY --chown=android:android caches-refresh.sh /usr/local/bin/caches-refresh.sh
-COPY --chown=android:android entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chown=android:android caches-refresh.sh /usr/local/bin/
+COPY --chown=android:android entrypoint.sh /usr/local/bin/
 COPY --chown=android:android appium-emulator-avd.sh /usr/local/bin/
 COPY --chown=android:android android-studio.sh /usr/local/bin/
 COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
@@ -106,6 +106,11 @@ RUN chmod +x /usr/local/bin/display-start.sh \
 
 ARG default_display=20
 ENV DISPLAY=:${default_display}
-ENV LOCAL_APPLICATION_MOBILE_APK_PATH=/home/android/Android/Sdk/applications/mobile/apk
+
+# Section 11 : Application mobile default
+# If a current APK is available, it will be automatically launched by 'appium-emulator-avd.sh'.
+ARG default_apk_path=/build/output/app.apk
+ENV LOCAL_APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["studio"]
