@@ -9,7 +9,7 @@ trap "echo Exited with code $?." EXIT
 localFirebaseEmulatorsStorageBucket=${FIREBASE_EMULATORS_STORAGE_BUCKET:-${GOOGLE_CLOUD_PROJECT_ID}.appspot.com}
 localFirebaseEmulatorsStorageRules=${LOCAL_FIREBASE_EMULATORS_STORAGE_RULES:-./storage.rules}
 localFirebaseEmulatorsFirestoreRules=${LOCAL_FIREBASE_EMULATORS_FIRESTORE_RULES:-./firestore.rules}
-localFirebaseEmulatorsAuthFunctionsDirectory=${LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR:-../../application/firebase/functions}
+localFirebaseEmulatorsAuthFunctionsDirectory=${LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR:-../../vegito/firebase/functions}
 
 # Create default local .env file with minimum required values to start.
 localFirebaseEmulatorsConfigJson=${LOCAL_FIREBASE_EMULATORS_CONFIG_JSON:-${LOCAL_DIR}/firebase.json}

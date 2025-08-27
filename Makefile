@@ -13,6 +13,15 @@ LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR := $(LOCAL_DIR)/firebase-emulators/functions
 LOCAL_PROJECT_NAME := vegito-local
 
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+  android-studio \
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet \
+  application-tests \
+  application-backend \
+  application-mobile
+
 export
 
 -include git.mk

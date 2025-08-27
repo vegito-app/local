@@ -16,7 +16,7 @@ FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators-prepare
 
-LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/application/firebase/functions
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/vegito/firebase/functions
 
 local-firebase-emulators-install: local-firebase-emulators-auth-functions-npm-install
 	@cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR) && npm install
