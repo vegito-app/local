@@ -71,20 +71,20 @@ appium --address 0.0.0.0 --port 4723 \
 bg_pids+=($!)
 echo "Appium is ready to accept connections on port 4723."
 
-emulator-data-load.sh ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}
+emulator-data-load.sh ${APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}
 
 echo "Checking if an APK is present and installing..."
-if [ -f ${LOCAL_APPLICATION_MOBILE_APK_PATH} ]; then
+if [ -f ${APPLICATION_MOBILE_APK_PATH} ]; then
   echo "APK found, attempting installation..."
-  if adb install -r ${LOCAL_APPLICATION_MOBILE_APK_PATH}; then
+  if adb install -r ${APPLICATION_MOBILE_APK_PATH}; then
     echo "✅ APK installed successfully."
     echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p ${LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME} -c android.intent.category.LAUNCHER 1
+    adb shell monkey -p ${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME} -c android.intent.category.LAUNCHER 1
   else
     echo "❌ APK installation failed."
   fi
 else
-  echo "⚠️ No APK found at ${LOCAL_APPLICATION_MOBILE_APK_PATH}; skipping installation."
+  echo "⚠️ No APK found at ${APPLICATION_MOBILE_APK_PATH}; skipping installation."
 fi
 echo "The emulator is ready and running."
 echo "You can now run your Appium tests."
