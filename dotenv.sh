@@ -37,23 +37,23 @@ COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-repo-${VEGITO_PROJECT
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 #
-DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
-DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
-DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
+DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
+DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
+DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
+LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
 #
-FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
-FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
+FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
+FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
 # 
-UI_CONFIG_FIREBASE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
-UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/david-berichon-googlemaps-web-api-key/versions/latest
+UI_CONFIG_FIREBASE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest
+UI_CONFIG_GOOGLEMAPS_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/david-berichon-googlemaps-web-api-key/versions/latest
 # 
-FIREBASE_STORAGE_PUBLIC_PREFIX=https://firebasestorage.googleapis.com/v0/b/${DEV_GOOGLE_CLOUD_PROJECT_ID}.appspot.com/o
+FIREBASE_STORAGE_PUBLIC_PREFIX=https://firebasestorage.googleapis.com/v0/b/${GOOGLE_CLOUD_PROJECT_ID}.appspot.com/o
 CDN_PUBLIC_PREFIX=https://cdn.mon-backend.com  # ton CDN public GCS
 # 
-STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
-STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
+STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
+STRIPE_KEY_SECRET_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 #
@@ -86,7 +86,7 @@ services:
   application-backend:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
-      LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
+      LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
       MAKE_DEV_ON_START=true
       APPLICATION_TESTS_RUN_ON_START=true
 
