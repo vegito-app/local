@@ -44,37 +44,6 @@ USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-# # Section 6 : Flutter
-# ENV PATH=${PATH}:${HOME}/flutter/bin
-# ARG flutter_version
-# RUN git clone -b ${flutter_version} https://github.com/flutter/flutter.git && flutter doctor
-
-# # Section 7 : Android SDK & Appium
-# ENV ANDROID_SDK=${HOME}/Android/Sdk
-# ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/emulator:${ANDROID_SDK}/tools:${ANDROID_SDK}/tools/bin:${ANDROID_SDK}/platform-tools
-# ENV ANDROID_HOME=${ANDROID_SDK}
-# ARG android_ndk_version
-# RUN ANDROID_COMMANDLINETOOLS_URL=https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip; \
-#   mkdir -p $ANDROID_SDK/cmdline-tools/ && \
-#   cd $ANDROID_SDK/cmdline-tools/ && \
-#   curl -o sdk.zip -L $ANDROID_COMMANDLINETOOLS_URL && \
-#   unzip sdk.zip && rm sdk.zip && \
-#   mv cmdline-tools latest && \
-#   yes | sdkmanager --licenses && \
-#   sdkmanager "platform-tools" "platforms;android-34" "sources;android-34" \
-#   "build-tools;34.0.0" "ndk;${android_ndk_version}"
-
-# ARG TARGETPLATFORM
-# RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-#   sudo npm install -g appium@3.0.0-rc.2 && \
-#   appium driver install uiautomator2 && \
-#   # sdkmanager "emulator" "system-images;android-34;google_apis_playstore;x86_64" && \
-#   # echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" && \
-#   sdkmanager --install "system-images;android-33;google_apis;x86_64" && \
-#   echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel_8" ; \
-#   else \
-#   echo "Skipping emulator install on $TARGETPLATFORM" ; \
-#   fi
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash - && \
   sudo apt-get install -y nodejs && \
   sudo npm install -g appium@3.0.0-rc.2 && \

@@ -29,8 +29,6 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 target "local-android-studio-ci" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    # android_ndk_version    = ANDROID_NDK_VERSION
-    # flutter_version        = FLUTTER_VERSION
     android_apk_builder_image   = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
   context = "${LOCAL_DIR}/android"
@@ -53,8 +51,6 @@ target "local-android-studio-ci" {
 target "local-android-studio" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    # android_ndk_version    = ANDROID_NDK_VERSION
-    # flutter_version        = FLUTTER_VERSION
     android_apk_builder_image   = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
   context = "${LOCAL_DIR}/android"
