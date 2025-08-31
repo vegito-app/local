@@ -56,6 +56,7 @@ STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets
 STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
+#
 #----------------------------------------------------------------|
 #----------------------------------------------------------------|
 # The following variables are used for propagating the containers|
@@ -87,7 +88,7 @@ services:
       GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
       LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${DEV_GOOGLE_CLOUD_PROJECT_ID}:builder-latest
       MAKE_DEV_ON_START=true
-      LOCAL_APPLICATION_TESTS_RUN_ON_START=true
+      APPLICATION_TESTS_RUN_ON_START=true
 
   dev:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-app:builder-latest
@@ -97,7 +98,7 @@ services:
         if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
           make dev
         fi
-        if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
+        if [ "$${APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
           until make local-application-tests-check-env ; do
             echo "[application-tests] Waiting for environment to be ready..."
             sleep 5
@@ -110,7 +111,7 @@ services:
       '
   android-studio:
     environment:
-      - LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=${PWD}/application/tests/mobile_images
+      - APPLICATION_TESTS_MOBILE_IMAGES_DIR=${PWD}/application/tests/mobile_images
       - LOCAL_ANDROID_STUDIO_ON_START=true
       - LOCAL_ANDROID_STUDIO_ENV_SETUP=true
       - LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
@@ -141,18 +142,10 @@ services:
   vault-dev:
     working_dir: ${PWD}
     
-  clarinet-devnet:
-    working_dir: ${PWD}/local/clarinet-devnet
-    command: |
-      bash -c '
-      set -eu
-      make -C .. local-clarinet-devnet-start
-      sleep infinity
-      '
   application-tests:
     working_dir: ${PWD}/tests
     environment:
-      LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
+      APPLICATION_TESTS_DIR: ${PWD}/tests
 
   firebase-emulators:
     environment:

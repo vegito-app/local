@@ -5,25 +5,57 @@ ifeq ($(LOCAL_VERSION),)
 LOCAL_VERSION := latest
 endif
 
+VERSION ?= $(LOCAL_VERSION)
+
 GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
 INFRA_PROJECT_NAME := moov
-LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
-LOCAL_IMAGES_BASE := vegito-local
-LOCAL_PROJECT_NAME := vegito-local
 
 export
 
 -include git.mk
 -include local.mk
 
+APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
+LOCAL_PROJECT_NAME := vegito-local
+
+LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES := \
+  local-android-appium \
+  local-android-emulator \
+  local-android-flutter \
+  local-android-studio
+
+LOCAL_DOCKER_COMPOSE_SERVICES := \
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet \
+  application-tests \
+  application-backend \
+  application-mobile
+#   android-studio \
+
+LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
+	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
+	-f $(LOCAL_DIR)/docker-bake.hcl \
+	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
+	-f $(LOCAL_DIR)/android/docker-bake.hcl \
+	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+	-f $(APPLICATION_DIR)/docker-bake.hcl \
+	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:local-application-%=-f $(APPLICATION_DIR)/%/docker-bake.hcl) \
+	-f $(LOCAL_DIR)/github/docker-bake.hcl
+
+LOCAL_DOCKER_COMPOSE = docker compose \
+    -f $(CURDIR)/docker-compose.yml \
+    -f $(CURDIR)/.docker-compose-override.yml \
+    -f $(CURDIR)/.docker-compose-networks-override.yml \
+    -f $(CURDIR)/.docker-compose-gpu-override.yml
+
 node-modules: local-node-modules
 .PHONY: node-modules
 
-images:
-	@$(MAKE) -j local-docker-images-host-arch
+images: local-images local-android-images local-application-images
 .PHONY: images
 
-images-ci: local-services-multi-arch-push-images
+images-ci: local-images-ci local-android-images-ci local-application-images-ci
 .PHONY: images-ci
 
 images-pull: 
