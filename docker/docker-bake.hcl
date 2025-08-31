@@ -1,9 +1,9 @@
-variable "LOCAL_VERSION" {
+variable "USE_REGISTRY_CACHE" {
+  default = false
+}
+variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
-}
-variable "LOCAL_APPLICATION_DIR" {
-  default = "application"
 }
 variable "GO_VERSION" {
   description = "current Go version"
@@ -49,21 +49,21 @@ variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
 }
-variable "REPOSITORY" {
+variable "VEGITO_LOCAL_PRIVATE_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository"
 }
-variable "PUBLIC_REPOSITORY" {
+variable "VEGITO_LOCAL_PUBLIC_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository-public"
 }
 variable "GOOGLE_CLOUD_PROJECT_ID" {
   description = "Google Cloud Project ID"
   default     = "moov-dev-439608"
 }
-variable "PUBLIC_IMAGES_BASE" {
-  default = "${PUBLIC_REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
+  default = "${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local"
 }
-variable "PRIVATE_IMAGES_BASE" {
-  default = "${REPOSITORY}/${GOOGLE_CLOUD_PROJECT_ID}"
+variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
+  default = "${VEGITO_LOCAL_PRIVATE_REPOSITORY}/vegito-local"
 }
 variable "platforms" {
   default = [
@@ -73,7 +73,7 @@ variable "platforms" {
 }
 group "local-services-host-arch-load" {
   targets = [
-    "android-studio",
+    # "android-studio",
     "clarinet-devnet",
     "firebase-emulators",
     "github-actions-runner",
@@ -83,7 +83,7 @@ group "local-services-host-arch-load" {
 }
 group "local-services-multi-arch-push" {
   targets = [
-    "android-studio-ci",
+    # "android-studio-ci",
     "clarinet-devnet-ci",
     "firebase-emulators-ci",
     "github-actions-runner-ci",
