@@ -6,13 +6,13 @@ LOCAL_DIR ?= $(CURDIR)
 local-images: local-docker-images-host-arch
 .PHONY: local-images
 
-local-images-pull: 
+local-docker-images-pull: 
 	@$(MAKE) -j local-docker-images-pull
-.PHONY: local-images-pull
+.PHONY: local-docker-images-pull
 
-local-images-push: 
+local-docker-images-push: 
 	@$(MAKE) -j local-docker-images-push
-.PHONY: local-images-push
+.PHONY: local-docker-images-push
 
 local-docker-images-ci: local-services-multi-arch-push-images
 .PHONY: local-docker-images-ci

@@ -55,10 +55,7 @@ node-modules: local-node-modules
 images: local-images local-android-images local-application-docker-images
 .PHONY: images
 
-images-ci: \
-local-docker-images-ci \
-local-android-docker-images-ci \
-local-application-docker-images-ci
+images-ci: local-docker-images-ci local-android-docker-images-ci local-application-docker-images-ci
 .PHONY: images-ci
 
 images-pull: 

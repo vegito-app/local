@@ -6,13 +6,13 @@ local-android-builder-host-arch-load \
 local-android-services-host-arch-load 
 .PHONY: local-android-images
 
-local-android-images-pull: 
+local-android-docker-images-pull: 
 	@$(MAKE) -j local-android-docker-images-pull
-.PHONY: local-android-images-pull
+.PHONY: local-android-docker-images-pull
 
-local-android-images-push: 
+local-android-docker-images-push: 
 	@$(MAKE) -j local-android-docker-images-push
-.PHONY: local-android-images-push
+.PHONY: local-android-docker-images-push
 
 local-android-docker-images-ci: \
 local-android-builder-multi-arch-push \
