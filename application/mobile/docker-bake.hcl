@@ -33,9 +33,9 @@ target "local-application-mobile" {
     apk_builder_image = APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
   }
-  context = "${APPLICATION_DIR}/mobile"
+  context = "${LOCAL_APPLICATION_DIR}/mobile"
   contexts = {
-    "approot" : APPLICATION_DIR
+    "approot" : LOCAL_APPLICATION_DIR
     "project": "."
   }
   tags = [
@@ -58,9 +58,9 @@ target "local-application-mobile-ci" {
     apk_builder_image = APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
   }
-  context = "${APPLICATION_DIR}/mobile"
+  context = "${LOCAL_APPLICATION_DIR}/mobile"
   contexts = {
-    "approot" : APPLICATION_DIR
+    "approot" : LOCAL_APPLICATION_DIR
   }
   tags = [
     APPLICATION_MOBILE_IMAGE_LATEST,

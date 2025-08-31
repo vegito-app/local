@@ -71,7 +71,7 @@ appium --address 0.0.0.0 --port 4723 \
 bg_pids+=($!)
 echo "Appium is ready to accept connections on port 4723."
 
-emulator-data-load.sh ${APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}
+emulator-data-load.sh ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}
 
 echo "Checking if an APK is present and installing..."
 if [ -f ${APPLICATION_MOBILE_APK_PATH} ]; then

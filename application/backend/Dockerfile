@@ -5,7 +5,7 @@ RUN mkdir ${HOME}/src
 WORKDIR ${HOME}/src
 
 ARG application_directory="application"
-ENV APPLICATION_DIR=${application_directory}
+ENV LOCAL_APPLICATION_DIR=${application_directory}
 
 COPY --from=project Makefile .
 COPY --from=project local.mk .

@@ -1,5 +1,5 @@
 # Local Docker Compose configuration
-LOCAL_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
+LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
@@ -14,36 +14,38 @@ local-images-push:
 	@$(MAKE) -j local-docker-images-push
 .PHONY: local-images-push
 
-local-images-ci: local-services-multi-arch-push-images
-.PHONY: local-images-ci
+local-docker-images-ci: local-services-multi-arch-push-images
+.PHONY: local-docker-images-ci
 
 LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
 $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
+LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 endif
 LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
-  android-studio \
   clarinet-devnet \
   application-tests \
   firebase-emulators \
-  vault-dev
+  vault-dev \
+#   android-studio
 
 local-docker-compose-dev-config-pull:
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-docker-compose-dev-image-pull
 
-local-docker-images-pull: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull) local-dev-container-image-pull
-.PHONY: local-docker-images-pull
-
 local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
 .PHONY: local-docker-images-push
 
-LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
+LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
+	-f $(LOCAL_DIR)/android/docker-bake.hcl \
+	-f $(LOCAL_DIR)/android/studio/docker-bake.hcl \
+	-f $(LOCAL_DIR)/android/emulator/docker-bake.hcl \
+	-f $(LOCAL_DIR)/android/flutter/docker-bake.hcl \
+	-f $(LOCAL_DIR)/android/appium/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
@@ -52,7 +54,7 @@ local-services-multi-arch-push-images: docker-buildx-setup local-builder-image-c
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-services-multi-arch-push
 .PHONY: local-services-multi-arch-push-images
 
-local-docker-images-host-arch: local-builder-image
+local-docker-images-host-arch: local-builder-image-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-services-host-arch-load
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-services-host-arch-load
 .PHONY: local-docker-images-host-arch
@@ -124,8 +126,10 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-backend \
   application-tests
+
+local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
+.PHONY: local-docker-images-pull
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
@@ -134,7 +138,7 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):
@@ -181,7 +185,7 @@ local-dev-container-sh:
 -include $(LOCAL_DIR)/nodejs.mk
 -include $(LOCAL_DIR)/go.mk
 -include $(LOCAL_DIR)/docker/docker.mk
--include $(LOCAL_DIR)/android-studio/android-studio.mk
+-include $(LOCAL_DIR)/android/android.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github/github.mk
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk

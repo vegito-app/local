@@ -56,6 +56,7 @@ STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets
 STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
+#
 #----------------------------------------------------------------|
 #----------------------------------------------------------------|
 # The following variables are used for propagating the containers|
@@ -141,14 +142,6 @@ services:
   vault-dev:
     working_dir: ${PWD}
     
-  clarinet-devnet:
-    working_dir: ${PWD}/local/clarinet-devnet
-    command: |
-      bash -c '
-      set -eu
-      make -C .. local-clarinet-devnet-start
-      sleep infinity
-      '
   application-tests:
     working_dir: ${PWD}/tests
     environment:

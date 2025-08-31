@@ -2,7 +2,7 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "local"
 }
-variable "APPLICATION_DIR" {
+variable "LOCAL_APPLICATION_DIR" {
   default = "."
 }
 variable "INFRA_ENV" {
