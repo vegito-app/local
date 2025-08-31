@@ -1,23 +1,30 @@
 variable "LOCAL_VAULT_DEV_IMAGE_VERSION" {
-  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:vault-dev-${LOCAL_VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-${VERSION}" : ""
 }
 
-variable "LOCAL_VAULT_DEV_LATEST_IMAGE" {
-  default = "${PUBLIC_IMAGES_BASE}:vault-dev-latest"
+variable "LOCAL_VAULT_DEV_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-latest"
+}
+
+variable "LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/vault-dev"
 }
 
 target "vault-dev-ci" {
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_VAULT_DEV_LATEST_IMAGE,
+    LOCAL_VAULT_DEV_IMAGE_LATEST,
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    LOCAL_VAULT_DEV_LATEST_IMAGE,
-    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE}" : "",
+    "type=inline, ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
+    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to  = ["type=inline"]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+  ]
   platforms = platforms
 }
 
@@ -33,14 +40,15 @@ target "vault-dev" {
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_VAULT_DEV_LATEST_IMAGE,
+    LOCAL_VAULT_DEV_IMAGE_LATEST,
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    LOCAL_VAULT_DEV_LATEST_IMAGE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE}" : "",
+    "type=inline, ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
 }

@@ -1,35 +1,43 @@
-variable "VERSION" {
+variable "APPLICATION_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
 
 variable "APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${PRIVATE_IMAGES_BASE}:application-backend"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend"
 }
 
-variable "APPLICATION_BACKEND_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${PRIVATE_IMAGES_BASE}:application-backend-${VERSION}" : ""
+variable "APPLICATION_BACKEND_IMAGE" {
+  default = notequal("dev", APPLICATION_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend-${APPLICATION_VERSION}" : ""
 }
 
-variable "APPLICATION_LATEST_BACKEND_IMAGE" {
+variable "APPLICATION_BACKEND_IMAGE_LATEST" {
   default = "${APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
-target "application-backend-ci" {
-  dockerfile = "application/backend/Dockerfile"
+variable "APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/local-application-backend"
+}
+
+target "local-application-backend-ci" {
+  context = "application/backend"
+  contexts = {
+    "approot" : "application"
+  }
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
-    APPLICATION_LATEST_BACKEND_IMAGE,
+    APPLICATION_BACKEND_IMAGE,
+    APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
-    LOCAL_BUILDER_IMAGE,
-    APPLICATION_LATEST_BACKEND_IMAGE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
+    "type=inline, ref=${APPLICATION_BACKEND_IMAGE_LATEST}",
+    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline",
   ]
   platforms = [
     "linux/amd64",
@@ -45,19 +53,26 @@ variable "APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for backend image build (cannot be used before first write)"
 }
 
-target "application-backend" {
-  dockerfile = "application/backend/Dockerfile"
+target "local-application-backend" {
+  context = "application/backend"
+  contexts = {
+    "approot" : "application"
+    "appfrontend" : "application/frontend"
+    "project" : "."
+  }
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE
+    builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", VERSION) ? APPLICATION_BACKEND_IMAGE_VERSION : "",
-    APPLICATION_LATEST_BACKEND_IMAGE,
+    APPLICATION_BACKEND_IMAGE,
+    APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
     APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline, ref=${APPLICATION_BACKEND_IMAGE_LATEST}",
   ]
   cache-to = [
-    APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
 }
