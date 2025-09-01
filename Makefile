@@ -18,12 +18,6 @@ export
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
 
-LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES := \
-  local-android-appium \
-  local-android-emulator \
-  local-android-flutter \
-  local-android-studio
-
 LOCAL_DOCKER_COMPOSE_SERVICES := \
   vault-dev \
   firebase-emulators \
@@ -31,13 +25,12 @@ LOCAL_DOCKER_COMPOSE_SERVICES := \
   application-tests \
   application-backend \
   application-mobile
-#   android-studio \
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/android/docker-bake.hcl \
+	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_APPLICATION_DIR)/docker-bake.hcl \
 	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:local-application-%=-f $(LOCAL_APPLICATION_DIR)/%/docker-bake.hcl) \

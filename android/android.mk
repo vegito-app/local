@@ -19,13 +19,13 @@ local-android-builder-multi-arch-push \
 local-android-services-multi-arch-push 
 .PHONY: local-android-docker-images-ci
 
-LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES := \
+LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
   local-android-appium \
   local-android-emulator \
   local-android-flutter \
   local-android-studio
 
-LOCAL_ANDROID_DOCKER_BAKE_GROUPS := \
+LOCAL_ANDROID_DOCKER_BAKE_GROUPS ?= \
   builder \
   services
 
