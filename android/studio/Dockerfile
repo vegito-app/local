@@ -33,21 +33,19 @@ RUN ARCH="$(dpkg --print-architecture)" && \
   apt-get update && apt-get install -y chromium ; \
   fi
 
-# # Section 5 : User non-root
-# ARG non_root_user=android
-# RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo && \
-#   echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && chmod 0440 /etc/sudoers.d/${non_root_user}
-
 RUN ln -sf /usr/bin/bash /bin/sh
 ARG non_root_user=android
 USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash - && \
-  sudo apt-get install -y nodejs && \
-  sudo npm install -g appium@3.0.0-rc.2 && \
+USER root
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+  apt-get install -y nodejs && \
+  npm install -g appium@3.0.0-rc.2 && \
   appium driver install uiautomator2
+
+USER ${non_root_user}
 
 # Section 8 : Android Studio
 ENV STUDIO_PATH=${HOME}/android-studio

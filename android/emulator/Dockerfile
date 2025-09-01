@@ -35,12 +35,17 @@ RUN mkdir -p $ANDROID_SDK/cmdline-tools && \
     yes | sdkmanager --licenses && \
     sdkmanager \
     "platform-tools" \
-    "platforms;android-34" \
-    "system-images;android-34;google_apis_playstore;x86_64" \
-    "emulator"
+    "platforms;android-34"
 
 # 🧪 Créer un AVD
-RUN echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6"
+RUN ARCH="$(dpkg --print-architecture)" && \
+    if [ "$ARCH" = "amd64" ]; then \
+    sdkmanager \
+    "system-images;android-34;google_apis_playstore;x86_64" \
+    "emulator" ; \
+    echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" ; \
+    fi
+
 
 # 🖥️ Variables d'affichage
 ENV DISPLAY=:20

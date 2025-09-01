@@ -3,20 +3,6 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
-local-docker-images: local-builder-image local-services-docker-images
-.PHONY: local-docker-images
-
-local-docker-images-pull: 
-	@$(MAKE) -j local-docker-images-pull
-.PHONY: local-docker-images-pull
-
-local-docker-images-push: 
-	@$(MAKE) -j local-docker-images-push
-.PHONY: local-docker-images-push
-
-local-docker-images-ci: local-builder-image-ci local-services-docker-images-ci
-.PHONY: local-docker-images-ci
-
 LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
 $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
@@ -35,8 +21,16 @@ local-docker-compose-dev-config-pull:
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-docker-compose-dev-image-pull
 
-local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
-.PHONY: local-docker-images-push
+local-dockercompose-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
+.PHONY: local-dockercompose-images-push
+
+# local-dockercompose-images-pull: 
+# 	@$(MAKE) -j local-dockercompose-images-pull
+# .PHONY: local-dockercompose-images-pull
+
+# local-dockercompose-images-push: 
+# 	@$(MAKE) -j local-dockercompose-images-push
+# .PHONY: local-dockercompose-images-push
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -108,8 +102,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   application-tests
 
-local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
-.PHONY: local-docker-images-pull
+local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
+.PHONY: local-dev-images-pull
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up

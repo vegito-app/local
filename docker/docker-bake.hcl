@@ -125,6 +125,7 @@ group "local-applications" {
     "local-application",
   ]
 }
+
 group "local-applications-ci" {
   targets = [
     "local-android-studio-ci",

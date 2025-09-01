@@ -45,18 +45,18 @@ LOCAL_DOCKER_COMPOSE = docker compose \
 node-modules: local-node-modules
 .PHONY: node-modules
 
-images: local-docker-images
+images: docker-images
 .PHONY: images
 
-images-ci: local-docker-images-ci
+images-ci: docker-images-ci
 .PHONY: images-ci
 
 images-pull: 
-	@$(MAKE) -j local-docker-images-pull
+	@$(MAKE) -j local-dockercompose-images-pull
 .PHONY: images-fast-pull
 
 images-push: 
-	@$(MAKE) -j local-docker-images-push
+	@$(MAKE) -j local-dockercompose-images-push
 .PHONY: images-push
 
 dev: 
