@@ -17,7 +17,7 @@ variable "VEGITO_APP_PUBLIC_IMAGES_BASE" {
 variable "VEGITO_APP_PRIVATE_IMAGES_BASE" {
   default = "${VEGITO_LOCAL_PRIVATE_REPOSITORY}/vegito-app"
 }
-group "local-application-services-host-arch-load" {
+group "local-application" {
   targets = [
     "local-application-backend",
     "local-application-mobile",
@@ -25,7 +25,7 @@ group "local-application-services-host-arch-load" {
     # "application-images-vision-moderator",
   ]
 }
-group "local-application-services-multi-arch-push" {
+group "local-application-ci" {
   targets = [
     "local-application-backend",
     "local-application-mobile",

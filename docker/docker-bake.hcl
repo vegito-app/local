@@ -68,12 +68,39 @@ variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
 variable "platforms" {
   default = [
     "linux/amd64",
- //   "linux/arm64"
+    "linux/arm64"
   ]
 }
-group "local-services-host-arch-load" {
+
+group "local-runners" {
   targets = [
-    # "android-studio",
+    "local-android-runner",
+  ]
+}
+
+group "local-runners-ci" {
+  targets = [
+    "local-android-runner-ci",
+  ]
+}
+
+group "local-builders" {
+  targets = [
+    "local-project-builder",
+    "local-android-builder",
+  ]
+}
+
+group "local-builders-ci" {
+  targets = [
+    "local-project-builder-ci",
+    "local-android-builder-ci",
+  ]
+}
+
+group "local-services" {
+  targets = [
+    "local-android-services",
     "clarinet-devnet",
     "firebase-emulators",
     "github-actions-runner",
@@ -81,13 +108,26 @@ group "local-services-host-arch-load" {
     "application-tests",
   ]
 }
-group "local-services-multi-arch-push" {
+group "local-services-ci" {
   targets = [
-    # "android-studio-ci",
+    "local-android-services-ci",
     "clarinet-devnet-ci",
     "firebase-emulators-ci",
     "github-actions-runner-ci",
     "vault-dev-ci",
     "application-tests-ci",
+  ]
+}
+
+group "local-applications" {
+  targets = [
+    "local-android-studio",
+    "local-application",
+  ]
+}
+group "local-applications-ci" {
+  targets = [
+    "local-android-studio-ci",
+    "local-application-ci",
   ]
 }

@@ -19,6 +19,22 @@ docker-clean:
 	@docker system prune --all --force
 .PHONY: docker-clean
 
+LOCAL_DOCKER_BUILDX_GROUPS := \
+  runners \
+  builders \
+  services \
+  applications
+
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-images): $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-images=local-%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-images=local-%)
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-images)
+
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-images-ci): docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-images-ci=local-%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-images-ci=local-%-ci)
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-images-ci)
+
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST ?= container.mac-m1.local
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-m1
