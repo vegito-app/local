@@ -77,7 +77,7 @@ alias run-android='flutter run -d android'
 sudo chown root:kvm /dev/kvm
 sudo chmod 660 /dev/kvm
 
-echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 if [ "${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
     appium-emulator-avd.sh &

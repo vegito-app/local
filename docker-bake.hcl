@@ -22,7 +22,7 @@ variable "LOCAL_BUILDER_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder"
 }
 
-target "builder-ci" {
+target "local-project-builder-ci" {
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
@@ -52,7 +52,7 @@ target "builder-ci" {
   platforms  = platforms
 }
 
-target "builder" {
+target "local-project-builder" {
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION

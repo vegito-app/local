@@ -3,7 +3,7 @@ volumes:
   clarinet_var_lib_docker:
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
     env_file:
       - .env
     environment:
@@ -70,7 +70,7 @@ services:
       - ${PWD}:${PWD}:cached
 
   firebase-emulators:
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -93,7 +93,7 @@ services:
   clarinet-devnet:
     privileged: true
     tty: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -118,7 +118,7 @@ services:
   android-studio:
     cap_add:
       - SYS_ADMIN
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
     env_file:
       - .env
     environment:
@@ -133,7 +133,7 @@ services:
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
@@ -151,7 +151,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
 
     cap_add:
       - IPC_LOCK
@@ -173,7 +173,7 @@ services:
       sleep infinity
       '
   application-tests:
-    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
+    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       HOST_PWD: ${PWD}

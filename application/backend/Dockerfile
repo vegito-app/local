@@ -1,60 +1,52 @@
-ARG builder_image
+ARG builder_image="vegito-app:local-builder-latest"
 FROM ${builder_image} AS build
 
 RUN mkdir ${HOME}/src
 WORKDIR ${HOME}/src
 
-ARG application_directory="."
-ENV APPLICATION_DIR=${application_directory}
+ARG application_directory="application"
+ENV LOCAL_APPLICATION_DIR=${application_directory}
 
-COPY Makefile .
-COPY local.mk .
-COPY nodejs.mk .
-COPY go.mk .
+COPY --from=project Makefile .
+COPY --from=project local.mk .
+COPY --from=project git.mk .
+COPY --from=project nodejs.mk .
+COPY --from=project go.mk .
 
 RUN mkdir -p application/ 
-COPY application/application.mk application/
+COPY --from=approot application.mk application/
 
 # frontend
 RUN mkdir -p application/frontend 
-COPY application/frontend/package.json application/frontend/
-COPY application/frontend/package-lock.json application/frontend/
-COPY application/frontend/frontend.mk application/frontend/
+COPY --from=appfrontend package.json application/frontend/
+COPY --from=appfrontend package-lock.json application/frontend/
+COPY --from=appfrontend frontend.mk application/frontend/
 
-RUN make application-frontend-npm-ci
+RUN make local-application-frontend-npm-ci
 
-COPY application/frontend/README.md application/frontend/
-COPY application/frontend/public application/frontend/public
-COPY application/frontend/src application/frontend/src
-COPY application/frontend/webpack.server.js application/frontend/
+COPY --from=appfrontend public application/frontend/public
+COPY --from=appfrontend src application/frontend/src
+COPY --from=appfrontend webpack.server.js application/frontend/
 
-RUN make -j application-frontend-build application-frontend-bundle
+RUN make -j local-application-frontend-build local-application-frontend-bundle
 
 # backend
 RUN mkdir -p application/backend
 
-COPY application/backend/backend.mk application/backend/
-COPY application/backend/go.sum application/backend/
-COPY application/backend/go.mod application/backend/
+COPY backend.mk application/backend/
+COPY go.sum application/backend/
+COPY go.mod application/backend/
 
-RUN make go-application/backend-mod-download
+RUN make local-go-application/backend-mod-download
 
-COPY application/backend/internal application/backend/internal
-COPY application/backend/http application/backend/http
-COPY application/backend/log application/backend/log
-COPY application/backend/track application/backend/track
-COPY application/backend/firebase application/backend/firebase
-COPY application/backend/main.go application/backend/
+COPY internal application/backend/internal
+COPY http application/backend/http
+COPY log application/backend/log
+COPY track application/backend/track
+COPY firebase application/backend/firebase
+COPY main.go application/backend/
 
-COPY .git .git
-USER root
-RUN git config --global --add safe.directory ${HOME}/src
-
-ARG non_root_user=vegito
-
-USER ${non_root_user}
-
-RUN make application-backend-install 
+RUN make local-application-backend-install 
 
 # artefacts
 
@@ -83,13 +75,14 @@ RUN make application-backend-install
 # FROM final-${TARGETARCH} AS final
 
 FROM scratch
-ARG builder_home=/home/devuser
-# Actions supplémentaires à réaliser après la copie des bibliothèques
+ARG non_root_user=vegito
+ARG builder_home=/home/${non_root_user}
+
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /home/devuser/src/application/frontend/build/ /frontend/build
-COPY --from=build /home/devuser/src/application/frontend/public/ /frontend/public
-COPY --from=build /home/devuser/go/bin/backend /backend
+COPY --from=build /home/${non_root_user}/src/application/frontend/build/ /frontend/build
+COPY --from=build /home/${non_root_user}/src/application/frontend/public/ /frontend/public
+COPY --from=build /home/${non_root_user}/go/bin/backend /backend
 
 ENV FRONTEND_BUILD_DIR=/frontend/build \
     FRONTEND_PUBLIC_DIR=/frontend/public \

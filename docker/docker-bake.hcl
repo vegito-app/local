@@ -49,10 +49,10 @@ variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
 }
-variable "VEGITO_PRIVATE_REPOSITORY" {
+variable "VEGITO_LOCAL_PRIVATE_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository"
 }
-variable "VEGITO_PUBLIC_REPOSITORY" {
+variable "VEGITO_LOCAL_PUBLIC_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository-public"
 }
 variable "GOOGLE_CLOUD_PROJECT_ID" {
@@ -60,20 +60,47 @@ variable "GOOGLE_CLOUD_PROJECT_ID" {
   default     = "moov-dev-439608"
 }
 variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
+  default = "${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local"
 }
 variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
+  default = "${VEGITO_LOCAL_PRIVATE_REPOSITORY}/vegito-local"
 }
 variable "platforms" {
   default = [
     "linux/amd64",
- //   "linux/arm64"
+    "linux/arm64"
   ]
 }
-group "local-services-host-arch-load" {
+
+group "local-runners" {
   targets = [
-    "android-studio",
+    "local-android-runner",
+  ]
+}
+
+group "local-runners-ci" {
+  targets = [
+    "local-android-runner-ci",
+  ]
+}
+
+group "local-builders" {
+  targets = [
+    "local-project-builder",
+    "local-android-builder",
+  ]
+}
+
+group "local-builders-ci" {
+  targets = [
+    "local-project-builder-ci",
+    "local-android-builder-ci",
+  ]
+}
+
+group "local-services" {
+  targets = [
+    "local-android-services",
     "clarinet-devnet",
     "firebase-emulators",
     "github-actions-runner",
@@ -81,13 +108,27 @@ group "local-services-host-arch-load" {
     "application-tests",
   ]
 }
-group "local-services-multi-arch-push" {
+group "local-services-ci" {
   targets = [
-    "android-studio-ci",
+    "local-android-services-ci",
     "clarinet-devnet-ci",
     "firebase-emulators-ci",
     "github-actions-runner-ci",
     "vault-dev-ci",
     "application-tests-ci",
+  ]
+}
+
+group "local-applications" {
+  targets = [
+    "local-android-studio",
+    "local-application",
+  ]
+}
+
+group "local-applications-ci" {
+  targets = [
+    "local-android-studio-ci",
+    "local-application-ci",
   ]
 }

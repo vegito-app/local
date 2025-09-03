@@ -1,26 +1,35 @@
-ARG android_studio_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-studio-latest
-FROM ${android_studio_image} AS builder
+ARG apk_runner_appium_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-appium-latest
+ARG apk_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-flutter-latest
+FROM ${apk_builder_image} AS builder
 
-USER android
+ARG non_root_user=android
+ARG builder_home=/home/${non_root_user}
 
-ENV HOME=/home/android
+USER ${non_root_user}
 
-WORKDIR ${HOME}
+ENV HOME=${builder_home}
 
-RUN mkdir -p ${HOME}/app/mobile ${HOME}/app/infra
+RUN mkdir -p ${HOME}/src/application/mobile ${HOME}/src/application/infra
 
-WORKDIR ${HOME}/app
+WORKDIR ${HOME}/src
 
-COPY --chown=android:android pubspec.yaml mobile/
-COPY --chown=android:android pubspec.lock mobile/
-COPY --chown=android:android android mobile/
-COPY --chown=android:android lib mobile/
+COPY --from=project Makefile .
+COPY --from=project local.mk .
+COPY --from=project git.mk .
 
-RUN cd mobile && flutter build apk --release
+COPY --from=approot application.mk application/
 
-FROM ${android_studio_image} AS android_studio
+COPY --chown=${non_root_user}:${non_root_user} pubspec.yaml application/mobile/
+COPY --chown=${non_root_user}:${non_root_user} pubspec.lock application/mobile/
+COPY --chown=${non_root_user}:${non_root_user} mobile.mk application/mobile/
+COPY --chown=${non_root_user}:${non_root_user} android application/mobile/android/
+COPY --chown=${non_root_user}:${non_root_user} lib application/mobile/lib/
 
-COPY --from=builder /home/android/app/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app.apk
+RUN cd application/mobile && flutter build apk --release
+
+FROM ${apk_runner_appium_image} AS android_studio
+
+COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app.apk
 
 ARG android_package_name=dev.vegito.app.android
-ENV LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME=${android_package_name}
+ENV APPLICATION_MOBILE_ANDROID_PACKAGE_NAME=${android_package_name}

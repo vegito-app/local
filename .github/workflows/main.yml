@@ -1,27 +1,32 @@
 permissions:
   id-token: write
-  contents: read
-name: Build and Push Git Commit Tagged Docker Images To Dev environment
+  contents: write
+name: Build and Push Git Commit Tagged Docker Images To All Environments
 on:
   push:
     branches:
-      - dev
+      - main
 jobs:
-  dev-build-local-images:
+  deploy-dev:
+    name: Build & Deploy Dev
     runs-on: self-hosted
     environment: dev
     env:
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: dev
+      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
-      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegigto-local:builder-latest}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+          fetch-depth: 0
       - name: Define VERSION
         run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+          # Bump the version based on commit messages (default patch bump)
+          standard-version
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
       - name: Refresh local/.env file
         run: |
@@ -45,9 +50,6 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
-      # - name: Restore project images configuration
-      #   run: |
-      #     make -C vegito terraform-init vegito-mobile-android-config-json
-      - name: Build and load local project images
+      - name: Build and push up to date project images to dev registries
         run: |
-          make images
+          make images-ci
