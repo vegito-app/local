@@ -65,7 +65,7 @@ RUN touch $HISTFILE && echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> ${
 COPY --chown=${non_root_user}:${non_root_user} display-start.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} display-start-xpra.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} studio/caches-refresh.sh /usr/local/bin/
-COPY --chown=${non_root_user}:${non_root_user} studio/entrypoint.sh /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} studio/entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
 COPY --chown=${non_root_user}:${non_root_user} appium-emulator-avd.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} android-studio.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} emulator-data-load.sh /usr/local/bin/
@@ -75,7 +75,7 @@ COPY --chown=${non_root_user}:${non_root_user} openbox-setup.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/display-start.sh \
   /usr/local/bin/display-start-xpra.sh \
   /usr/local/bin/caches-refresh.sh \
-  /usr/local/bin/entrypoint.sh \
+  /usr/local/bin/android-studio-entrypoint.sh \
   /usr/local/bin/appium-emulator-avd.sh \
   /usr/local/bin/android-studio.sh \
   /usr/local/bin/emulator-data-load.sh \
@@ -89,5 +89,5 @@ ENV DISPLAY=:${default_display}
 ARG default_apk_path=/build/output/app.apk
 ENV APPLICATION_MOBILE_APK_PATH=${default_apk_path}
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]

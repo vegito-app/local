@@ -126,13 +126,13 @@ gcloud-config-set-project:
 .PHONY:gcloud-config-set-project
 
 gcloud-images-list:
-	@echo "📦 Listing all images in repository $(REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(REPOSITORY)
+	@echo "📦 Listing all images in repository $(VEGITO_PRIVATE_REPOSITORY)..."
+	$(GCLOUD) container images list --repository=$(VEGITO_PRIVATE_REPOSITORY)
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
 	@echo "📦 Listing all images in public repository $(VEGITO_LOCAL_PUBLIC_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(VEGITO_LOCAL_PUBLIC_REPOSITORY)
+	@$(GCLOUD) container images list --repository=$(VEGITO_LOCAL_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:

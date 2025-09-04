@@ -10,6 +10,14 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
 }
 
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
+}
+
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner/ci"
+}
+
 variable "GITHUB_ACTION_RUNNER_VERSION" {
   description = "current Github Actions Runner version"
   default     = "2.327.1"
@@ -40,12 +48,12 @@ target "github-actions-runner-ci" {
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}" : "",
     "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }

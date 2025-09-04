@@ -18,7 +18,7 @@ local-application-docker-images-push:
 .PHONY: local-application-docker-images-push
 
 local-application-docker-images-ci: 
-	@$(MAKE) -j local-application-ci-images
+	@$(MAKE) -j local-application-ci
 .PHONY: local-application-docker-images-ci
 
 APPLICATION_DOCKER_BUILDX_BAKE_IMAGES := \
@@ -35,10 +35,10 @@ $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:local-application-%=local-application-%-
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-application-%-image-push=local-application-%)
 .PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:local-application-%=local-application-%-image-push)
 
-local-application-ci-images: docker-buildx-setup
+local-application-ci: docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-application-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-application-ci
-.PHONY: local-application-ci-images
+.PHONY: local-application-ci
 
 local-application-docker-images-host-arch:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-application

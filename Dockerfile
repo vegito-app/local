@@ -100,14 +100,10 @@ RUN case "$TARGETPLATFORM" in \
     curl -Lo /tmp/k9s.deb $url && apt install /tmp/k9s.deb && rm /tmp/k9s.deb; \
     k9s version
 
-# helm
-RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list > /dev/null \
-    && apt-get update \
-    && apt-get install helm \ 
-    && rm -rf /var/lib/apt/lists/* \
-    && helm repo add hashicorp https://helm.releases.hashicorp.com \
-    && helm repo update 
+# Install Helm
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
+    && chmod 700 get_helm.sh \
+    && ./get_helm.sh
 
 ARG go_version
 RUN case "$TARGETPLATFORM" in \
@@ -220,31 +216,32 @@ ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version
 ARG node_version
-RUN set -x; \
+RUN set -e ; \
     # 
-    mkdir -p ${NVM_DIR} \
+    mkdir -p ${NVM_DIR} ; \
+    #
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
+    . ${NVM_DIR}/nvm.sh ; \
+    nvm install ${node_version} ; \
+    nvm alias default ${node_version} ; \
+    nvm use default ;  \
     # 
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - \
-    && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${node_version} \
-    && nvm alias default ${node_version} \
-    && nvm use default \
-    # 
-    && npm install -g \
+    npm install -g \
     depcheck \
     npm-check-updates \
     npm-check \
     npm \
-    @devcontainers/cli \
-    && rm -rf ${HOME}/.npm 
+    @devcontainers/cli ; \
+    rm -rf ${HOME}/.npm 
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-RUN apt-get update && apt-get install -y \
-    emacs-nox \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
+RUN rm -f /etc/apt/sources.list.d/helm-stable-debian.list \
+    && apt-get update \
+    && apt-get install -y emacs-nox \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 USER ${non_root_user}
 
 RUN emacs --batch --eval "(require 'package)" \

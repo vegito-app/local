@@ -6,6 +6,10 @@ variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-android-emulator"
 }
 
+variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_REGISTRY_CACHE_IMAGE_CI" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-android-emulator/ci"
+}
+
 variable "FLUTTER_VERSION" {
   default = "3.32.8"
 }
@@ -19,31 +23,23 @@ variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
 }
 
 target "local-android-emulator-ci" {
-  # args = {
-  #   flutter_version        = FLUTTER_VERSION
-  # }
   context = "${LOCAL_DIR}/android/emulator"
   tags = [
     LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST,
     LOCAL_ANDROID_APK_RUNNER_EMULATOR_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_RUNNER_EMULATOR_REGISTRY_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_RUNNER_EMULATOR_REGISTRY_CACHE_IMAGE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST}",
     LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_RUNNER_EMULATOR_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_RUNNER_EMULATOR_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
 target "local-android-emulator" {
-  # args = {
-  #   android_apk-runner-emulator_version = ANDROID_STUDIO_VERSION
-  #   # android_ndk_version    = ANDROID_NDK_VERSION
-  #   flutter_version        = FLUTTER_VERSION
-  # }
   context = "${LOCAL_DIR}/android/emulator"
   tags = [
     LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST,
