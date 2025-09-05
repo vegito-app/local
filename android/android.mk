@@ -63,16 +63,16 @@ $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=local-android-%-image-
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-android-%-image-ci=local-android-%-ci)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=local-android-%-image-ci)
 
-LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
-  local-android-studio \
-  local-android-appium
+# LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
+#   local-android-studio \
+#   local-android-appium
 
-$(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:local-android-%=local-android-%-image-pull):
-	@$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
-.PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
+# $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:local-android-%=local-android-%-image-pull):
+# 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
+# .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
 
-local-android-dockercompose-images-pull: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
-.PHONY: local-android-dockercompose-images-pull
+# local-android-dockercompose-images-pull: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
+# .PHONY: local-android-dockercompose-images-pull
 
 local-android-appium-emulator-avd-wipe-data:
 	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
