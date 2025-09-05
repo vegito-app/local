@@ -11,6 +11,8 @@ projectName=${VEGITO_PROJECT_NAME:-vegito-local}
 projectUser=${VEGITO_PROJECT_USER:-local-developer-id}
 localDockerComposeProjectName=${VEGITO_COMPOSE_PROJECT_NAME:-$projectName-$projectUser}
 
+GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}}
+
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 # Ensure the current working directory exists.
 # Create default local .env file with minimum required values to start.
@@ -113,10 +115,9 @@ services:
     environment:
       - LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=${PWD}/application/tests/mobile_images
       - LOCAL_ANDROID_STUDIO_ON_START=true
-      - LOCAL_ANDROID_STUDIO_ENV_SETUP=true
+      - LOCAL_ANDROID_STUDIO_CACHES_REFRESH=true
       - LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
       - LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
-      - LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_8_Intel
 
     working_dir: ${PWD}/mobile
     command: |
@@ -220,11 +221,10 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 services:
   android-studio:
     # environment:
-    #   LOCAL_ANDROID_ANDROID_GPU_MODE=host
+    #  LOCAL_ANDROID_GPU_MODE=host
+    # runtime: nvidia
     # devices:
     #   - /dev/nvidia0
-    # # runtime: nvidia # Uncomment this line if you are using the nvidia runtime.
-    # runtime: runc
     # shm_size: "8gb"
     # group_add:
     #   - sgx

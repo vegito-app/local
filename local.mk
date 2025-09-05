@@ -17,20 +17,23 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   vault-dev \
 #   android-studio
 
-local-docker-compose-dev-config-pull:
-	@$(LOCAL_DOCKER_COMPOSE) pull dev
-.PHONY: local-docker-compose-dev-image-pull
+local-docker-images: \
+local-builders \
+local-services 
+.PHONY: local-docker-images
 
-local-dockercompose-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
+local-docker-images-pull: 
+	@$(MAKE) -j local-dockercompose-images-pull
+.PHONY: local-docker-images-pull
+
+local-docker-images-ci: \
+local-builder-ci \
+local-services-ci 
+.PHONY: local-docker-images-ci
+
+local-dockercompose-images-push: 
+	@$(MAKE) -j local-dockercompose-images-push
 .PHONY: local-dockercompose-images-push
-
-# local-dockercompose-images-pull: 
-# 	@$(MAKE) -j local-dockercompose-images-pull
-# .PHONY: local-dockercompose-images-pull
-
-# local-dockercompose-images-push: 
-# 	@$(MAKE) -j local-dockercompose-images-push
-# .PHONY: local-dockercompose-images-push
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -58,15 +61,15 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-builder
-.PHONY: local-builder-image
+local-project-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
+.PHONY: local-project-builder-image
 
-local-builder-image-ci: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-builder-ci
-.PHONY: local-builder-image-ci
+local-project-builder-image-ci: docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
+.PHONY: local-project-builder-image-ci
 
 local-gcloud-builder-image-delete:
 	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."
@@ -100,7 +103,12 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests
+  application-tests \
+  application-backend \
+  application-mobile \
+
+local-dockercompose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
+.PHONY: local-dockercompose-images-pull
 
 local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-dev-images-pull

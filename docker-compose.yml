@@ -3,7 +3,7 @@ volumes:
   clarinet_var_lib_docker:
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
     env_file:
       - .env
     environment:
@@ -44,7 +44,7 @@ services:
 
   application-backend:
     restart: unless-stopped
-    image: ${APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-public-repository/vegito-local:application-backend-latest}
+    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-438615/docker-public-repository/vegito-local:application-backend-latest}
     build:
       context: ${LOCAL_APPLICATION_DIR:-${PWD}}
       dockerfile: backend/Dockerfile
@@ -70,7 +70,7 @@ services:
       - ${PWD}:${PWD}:cached
 
   firebase-emulators:
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -93,7 +93,7 @@ services:
   clarinet-devnet:
     privileged: true
     tty: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -118,7 +118,7 @@ services:
   android-studio:
     cap_add:
       - SYS_ADMIN
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
     env_file:
       - .env
     environment:
@@ -129,7 +129,7 @@ services:
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_ENV_SETUP: ${LOCAL_ANDROID_STUDIO_ENV_SETUP:-false}
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
@@ -150,8 +150,39 @@ services:
       set -eu
       sleep infinity
       '
+  android-appium:
+    cap_add:
+      - SYS_ADMIN
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
+    env_file:
+      - .env
+    environment:
+      HOST_PWD: ${PWD}
+      APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
+      DISPLAY: "${DISPLAY:-:20}"
+      LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
+      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
+      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
+      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
+    privileged: true
+    volumes:
+      - ${HOST_PWD:-${PWD}}:${PWD}:cached
+      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+    group_add:
+      - render
+      - kvm
+    devices:
+      - /dev/kvm
+    working_dir: ${PWD}/application/mobile
+    command: |
+      bash -c '
+      set -eu
+      sleep infinity
+      '
   vault-dev:
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
 
     cap_add:
       - IPC_LOCK
@@ -173,7 +204,7 @@ services:
       sleep infinity
       '
   application-tests:
-    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
+    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       HOST_PWD: ${PWD}
