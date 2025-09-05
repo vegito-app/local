@@ -19,11 +19,6 @@ variable "LOCAL_APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE" {
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest"
 }
 
-variable "APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
-  description = "Android Studio image to use for mobile application builds"
-  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
-}
-
 variable "LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile"
 }
@@ -32,6 +27,14 @@ variable "LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile-ci"
 }
 
+variable "LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
+  description = "Android Studio image to use for mobile application builds"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
+}
+variable "LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
+  description = "Android Studio image to use for mobile application builds"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
+}
 target "local-application-mobile" {
   args = {
     apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
@@ -49,11 +52,11 @@ target "local-application-mobile" {
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : "",
-    APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline, ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
+    LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = ["linux/amd64"]
 }
@@ -73,7 +76,7 @@ target "local-application-mobile-ci" {
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI}" : "",
-    "type=inline, ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
+    "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
     LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [

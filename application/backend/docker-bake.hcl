@@ -16,11 +16,11 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE" {
-  default = "${LOCAL_APPLICATION_BACKEND_PRIVATE_IMAGES_BASE}/cache/application-backend"
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend"
 }
 
 variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE_CI" {
-  default = "${LOCAL_APPLICATION_BACKEND_PRIVATE_IMAGES_BASE}/cache/application-backend/ci"
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend/ci"
 }
 
 target "local-application-backend-ci" {
@@ -41,7 +41,7 @@ target "local-application-backend-ci" {
     LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline",
   ]
   platforms = [
     "linux/amd64",
