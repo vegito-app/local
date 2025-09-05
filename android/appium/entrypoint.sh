@@ -21,13 +21,10 @@ trap kill_jobs EXIT
 emulator-entrypoint.sh &
 bg_pids+=("$!")
 
-if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ]; then
-    caches-refresh.sh &
-    bg_pids+=("$!")
-fi
+# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
-if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
-    android-studio.sh &
+if [ "${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
+    appium-emulator-avd.sh &
     bg_pids+=("$!")
 fi
 

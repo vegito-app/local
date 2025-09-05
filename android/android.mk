@@ -1,4 +1,8 @@
 LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
+
+-include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
+-include $(LOCAL_ANDROID_DIR)/flutter/flutter.mk
+-include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/studio/studio.mk
 
 local-android-docker-images: \
@@ -60,8 +64,8 @@ $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=local-android-%-image-
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=local-android-%-image-ci)
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
-  local-android-backend \
-  local-android-mobile
+  local-android-studio \
+  local-android-appium
 
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:local-android-%=local-android-%-image-pull):
 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
@@ -69,3 +73,10 @@ $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:local-android-%=local-android-%-image-pu
 
 local-android-dockercompose-images-pull: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
 .PHONY: local-android-dockercompose-images-pull
+
+local-android-appium-emulator-avd-wipe-data:
+	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+		emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data \
+		--gpu $(LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE) ; \
+	'
+.PHONY: local-android-appium-emulator-avd-wipe-data

@@ -1,3 +1,7 @@
+variable "LOCAL_ANDROID_STUDIO_DIR" {
+  default = "android/studio"
+}
+
 variable "LOCAL_ANDROID_STUDIO_VERSION" {
   default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
 }
@@ -37,10 +41,9 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 target "local-android-studio-ci" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    android_apk_builder_image   = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
+    android_apk_builder_image = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
-  context = "${LOCAL_DIR}/android"
-  dockerfile = "studio/Dockerfile"
+  context = LOCAL_ANDROID_STUDIO_DIR
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
@@ -59,10 +62,9 @@ target "local-android-studio-ci" {
 target "local-android-studio" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    android_apk_builder_image   = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
+    android_apk_builder_image = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
-  context = "${LOCAL_DIR}/android"
-  dockerfile = "studio/Dockerfile"
+  context = LOCAL_ANDROID_STUDIO_DIR
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,

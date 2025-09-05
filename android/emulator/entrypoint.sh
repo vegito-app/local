@@ -1,29 +1,89 @@
 #!/bin/bash
-set -e
 
-echo "📦 Lancement de l'émulateur Android AVD..."
+set -eu
 
-# Démarre l’émulateur en headless mode avec Xvfb
-Xvfb :20 -screen 0 1280x720x16 &
+# 📌 List of PIDs of background processes
+bg_pids=()
 
-# Démarre openbox (léger) pour GUI éventuel
-openbox &
+# 🧹 Function called at the end of the script to kill background processes
+kill_jobs() {
+    echo "🧼 Cleaning up background processes..."
+    for pid in "${bg_pids[@]}"; do
+        kill "$pid" || true
+        wait "$pid" 2>/dev/null || true
+    done
+}
 
-# Lance l’émulateur
-$ANDROID_SDK/emulator/emulator -avd Pixel_8_Intel -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect &
+# 🚨 Register cleanup function to run on script exit
 
-# Attend que l’émulateur soit prêt
-echo "⌛ Attente du démarrage de l’émulateur..."
-adb wait-for-device
+trap kill_jobs EXIT
 
-# Installe l’APK si dispo
-if [ -f "$APPLICATION_MOBILE_APK_PATH" ]; then
-    echo "📱 Installation de l'APK : $APPLICATION_MOBILE_APK_PATH"
-    adb install -r "$APPLICATION_MOBILE_APK_PATH"
-else
-    echo "⚠️ APK non trouvé à $APPLICATION_MOBILE_APK_PATH"
+[ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ] && \
+    caches-refresh.sh
+
+if [ "${LOCAL_ANDROID_APPIUM_DISPLAY_START}" = "true" ]; then
+case "${LOCAL_ANDROID_GPU_MODE}" in
+    "host")
+        display-start-xpra.sh &
+        bg_pids+=("$!")
+        ;;
+    *)
+        display-start.sh &
+        bg_pids+=("$!")
+        ;;
+esac
 fi
 
-# Garde le conteneur ouvert (évite l'exit immédiat)
-echo "✅ Émulateur prêt. Vous pouvez vous connecter en VNC ou debugger via adb."
-tail -f /dev/null
+# Forward firebase-emulators to container as localhost
+socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4501.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4401.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-firebase-emulators-9000.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:9099,fork,reuseaddr TCP:firebase-emulators:9099 > /tmp/socat-firebase-emulators-9099.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:9150 > /tmp/socat-firebase-emulators-9150.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:9199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:8085,fork,reuseaddr TCP:firebase-emulators:8085 > /tmp/socat-firebase-emulators-8085.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:5001,fork,reuseaddr TCP:firebase-emulators:5001 > /tmp/socat-firebase-emulators-5001.log 2>&1 &
+bg_pids+=("$!")
+socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-firebase-emulators-4000.log 2>&1 &
+bg_pids+=("$!")
+
+# access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
+socat TCP-LISTEN:8080,fork,reuseaddr TCP:application-backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
+bg_pids+=("$!")
+
+# access to debug backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
+socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
+bg_pids+=("$!")
+
+# Developer-friendly aliases
+alias gs='git status'
+alias gb='git branch'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate'
+alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
+alias run-android='flutter run -d android'
+
+# Some linux distibution like Codespaces are requiring this additionnaly to the docker group addition.
+sudo chown root:kvm /dev/kvm
+sudo chmod 660 /dev/kvm
+
+# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  wait "${bg_pids[@]}" &
+  sleep infinity
+else
+  exec "$@"
+fi
