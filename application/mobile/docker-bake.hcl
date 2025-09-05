@@ -19,13 +19,33 @@ variable "LOCAL_APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE" {
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest"
 }
 
-target "application-mobile" {
+variable "LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile"
+}
+
+variable "LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile-ci"
+}
+
+variable "LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
+  description = "Android Studio image to use for mobile application builds"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
+}
+variable "LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
+  description = "Android Studio image to use for mobile application builds"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
+}
+target "local-application-mobile" {
   args = {
-    android_studio_image = LOCAL_APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
+    apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
+    apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
     environment          = INFRA_ENV
   }
-  context    = LOCAL_APPLICATION_DIR
-  dockerfile = "mobile/Dockerfile"
+  context = "${LOCAL_APPLICATION_DIR}/mobile"
+  contexts = {
+    "approot" : LOCAL_APPLICATION_DIR
+    "project": "."
+  }
   tags = [
     LOCAL_APPLICATION_MOBILE_IMAGE_LATEST,
     LOCAL_APPLICATION_MOBILE_IMAGE_TAG,
@@ -33,33 +53,34 @@ target "application-mobile" {
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : "",
     LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}"
+    "type=inline, ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
   ]
   cache-to = [
-    LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = ["linux/amd64"]
 }
 
-target "application-mobile-ci" {
+target "local-application-mobile-ci" {
   args = {
-    android_studio_image = LOCAL_APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE
-    environment          = INFRA_ENV
+    apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
+    apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
   }
-  context    = LOCAL_APPLICATION_DIR
-  dockerfile = "mobile/Dockerfile"
+  context = "${LOCAL_APPLICATION_DIR}/mobile"
+  contexts = {
+    "approot" : LOCAL_APPLICATION_DIR
+  }
   tags = [
     LOCAL_APPLICATION_MOBILE_IMAGE_LATEST,
     LOCAL_APPLICATION_MOBILE_IMAGE_TAG,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ},mode=max" : "",
-    "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI}" : "",
+    "type=inline, ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
     LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
   ]
   platforms = ["linux/amd64"]
 }
-

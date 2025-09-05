@@ -56,7 +56,7 @@ services:
     environment:
       HOST_PWD: ${PWD}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/workspaces/refactored-winner/.devcontainer/gcloud/infra/google_application_credentials.json}
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}ng... x86_64/system.[=====================                  ] 54% Unzip}
       GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
       VEGETABLE_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION: ${LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION:-vegetable-images-validated-backend}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/2}
@@ -129,11 +129,42 @@ services:
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_ENV_SETUP: ${LOCAL_ANDROID_STUDIO_ENV_SETUP:-false}
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_6_Playstore}
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
+      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
+    privileged: true
+    volumes:
+      - ${HOST_PWD:-${PWD}}:${PWD}:cached
+      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+    group_add:
+      - render
+      - kvm
+    devices:
+      - /dev/kvm
+    working_dir: ${PWD}/application/mobile
+    command: |
+      bash -c '
+      set -eu
+      sleep infinity
+      '
+  android-appium:
+    cap_add:
+      - SYS_ADMIN
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
+    env_file:
+      - .env
+    environment:
+      HOST_PWD: ${PWD}
+      APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
+      DISPLAY: "${DISPLAY:-:20}"
+      LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
+      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
+      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:

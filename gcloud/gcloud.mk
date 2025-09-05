@@ -6,9 +6,7 @@ GCLOUD_DEVELOPER_SERVICE_ACCOUNT ?= $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOG
 
 GCLOUD_DIR ?= $(CURDIR)
 
-ifeq ($(GOOGLE_APPLICATION_CREDENTIALS),)
 GOOGLE_APPLICATION_CREDENTIALS ?= $(GCLOUD_DIR)/gcloud-credentials.json
-endif
 
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
@@ -37,7 +35,7 @@ gcloud-application-credentials:
 
 gcloud-auth-login:
 	@echo "🔐 Logging in to gcloud..."
-	$(GCLOUD) auth login --no-launch-browser
+	@$(GCLOUD) auth login --no-launch-browser
 .PHONY: gcloud-auth-login
 
 gcloud-auth-reset:
@@ -133,8 +131,8 @@ gcloud-images-list:
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
+	@echo "📦 Listing all images in public repository $(VEGITO_LOCAL_PUBLIC_REPOSITORY)..."
+	@$(GCLOUD) container images list --repository=$(VEGITO_LOCAL_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:

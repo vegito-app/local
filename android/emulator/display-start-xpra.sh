@@ -112,6 +112,7 @@ done
 echo "✅ Xorg started successfully on $display."
 
 # Start openbox session
+# openbox-setup.sh
 openbox-session &
 bg_pids+=("$!")
 
