@@ -4,24 +4,35 @@ variable "LOCAL_APPLICATION_VERSION" {
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE}:application-backend"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend"
 }
 
-variable "LOCAL_APPLICATION_BACKEND_IMAGE_VERSION" {
-  default = notequal("dev", VERSION) ? "${VEGITO_PUBLIC_IMAGES_BASE}:application-backend-${VERSION}" : ""
+variable "LOCAL_APPLICATION_BACKEND_IMAGE" {
+  default = notequal("dev", LOCAL_APPLICATION_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend-${LOCAL_APPLICATION_VERSION}" : ""
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
   default = "${LOCAL_APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
-target "application-backend-ci" {
-  dockerfile = "application/backend/Dockerfile"
+variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend"
+}
+
+variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE_CI" {
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend/ci"
+}
+
+target "local-application-backend-ci" {
+  context = "application/backend"
+  contexts = {
+    "approot" : "application"
+  }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", LOCAL_APPLICATION_VERSION) ? LOCAL_APPLICATION_BACKEND_IMAGE_VERSION : "",
+    LOCAL_APPLICATION_BACKEND_IMAGE,
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
@@ -30,7 +41,7 @@ target "application-backend-ci" {
     LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline",
   ]
   platforms = [
     "linux/amd64",
@@ -46,13 +57,18 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for backend image build (cannot be used before first write)"
 }
 
-target "application-backend" {
-  dockerfile = "application/backend/Dockerfile"
+target "local-application-backend" {
+  context = "application/backend"
+  contexts = {
+    "approot" : "application"
+    "appfrontend" : "application/frontend"
+    "project" : "."
+  }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    notequal("", LOCAL_APPLICATION_VERSION) ? LOCAL_APPLICATION_BACKEND_IMAGE_VERSION : "",
+    LOCAL_APPLICATION_BACKEND_IMAGE,
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [

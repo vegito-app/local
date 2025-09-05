@@ -11,7 +11,6 @@ LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max
 
 LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):github-actions-runner-latest
 
-
 # Build image for local run. This target will not push an image to the distant registry.
 local-github-actions-runner-image: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print github-actions-runner
@@ -32,7 +31,7 @@ local-github-actions-runner-image-ci: docker-buildx-setup
 
 LOCAL_GITHUB_DOCKER_COMPOSE_PROJECT_NAME ?= $(LOCAL_PROJECT_NAME)-github-actions
 LOCAL_GITHUB_DOCKER_COMPOSE ?= COMPOSE_PROJECT_NAME=$(LOCAL_GITHUB_DOCKER_COMPOSE_PROJECT_NAME) \
-  docker compose -f $(LOCAL_DIR)/github/docker-compose.yml
+  docker compose -f $(LOCAL_GITHUB_ACTIONS_DIR)/docker-compose.yml
 
 local-github-actions-runner-token-exist:
 	@if [ ! -v GITHUB_ACTIONS_RUNNER_TOKEN ] ; then \

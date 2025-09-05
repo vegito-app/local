@@ -1,3 +1,7 @@
+variable "LOCAL_ANDROID_STUDIO_DIR" {
+  default = "android/studio"
+}
+
 variable "LOCAL_ANDROID_STUDIO_VERSION" {
   default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
 }
@@ -8,6 +12,10 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {
 
 variable "LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio"
+}
+
+variable "LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE_CI" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio/ci"
 }
 
 variable "ANDROID_STUDIO_VERSION" {
@@ -30,37 +38,33 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for android-studio image build (cannot be used before first write)"
 }
 
-target "android-studio-ci" {
+target "local-android-studio-ci" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    android_ndk_version    = ANDROID_NDK_VERSION
-    flutter_version        = FLUTTER_VERSION
+    android_apk_builder_image   = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
-  context    = "${LOCAL_DIR}/android-studio"
-  dockerfile = "Dockerfile"
+  context = LOCAL_ANDROID_STUDIO_DIR
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
     LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
-target "android-studio" {
+target "local-android-studio" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    android_ndk_version    = ANDROID_NDK_VERSION
-    flutter_version        = FLUTTER_VERSION
+    android_apk_builder_image   = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
-  context    = "${LOCAL_DIR}/android-studio"
-  dockerfile = "Dockerfile"
+  context = LOCAL_ANDROID_STUDIO_DIR
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
@@ -71,6 +75,6 @@ target "android-studio" {
     "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE}" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
 }

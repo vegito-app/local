@@ -15,8 +15,10 @@ kill_jobs() {
 }
 
 # 🚨 Register cleanup function to run on script exit
+
 trap kill_jobs EXIT
 
+if [ "${LOCAL_ANDROID_APPIUM_DISPLAY_START}" = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE}" in
     "host")
         display-start-xpra.sh &
@@ -27,9 +29,6 @@ case "${LOCAL_ANDROID_GPU_MODE}" in
         bg_pids+=("$!")
         ;;
 esac
-
-[ "${LOCAL_ANDROID_STUDIO_ENV_SETUP}" = "true" ] && \
-    caches-refresh.sh
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
@@ -75,17 +74,7 @@ alias run-android='flutter run -d android'
 sudo chown root:kvm /dev/kvm
 sudo chmod 660 /dev/kvm
 
-echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
-
-if [ "${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
-    appium-emulator-avd.sh &
-    bg_pids+=("$!")
-fi
-
-if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
-    android-studio.sh &
-    bg_pids+=("$!")
-fi
+# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
