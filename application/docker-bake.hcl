@@ -11,11 +11,11 @@ variable "INFRA_ENV" {
 }
 
 variable "VEGITO_APP_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PUBLIC_REPOSITORY}/vegito-app"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-app"
 }
 
 variable "VEGITO_APP_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PRIVATE_REPOSITORY}/vegito-app"
+  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-app"
 }
 group "local-application" {
   targets = [

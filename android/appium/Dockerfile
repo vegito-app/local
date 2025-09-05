@@ -10,3 +10,18 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
 
 ARG non_root_user=android
 USER ${non_root_user}
+
+# 📥 Entrypoint pour lancer émulateur + APK
+COPY --chown=android:android appium-emulator-avd.sh /usr/local/bin/
+COPY --chown=android:android entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
+
+# Rendre les scripts exécutables
+RUN chmod +x \
+    /usr/local/bin/appium-emulator-avd.sh \
+    /usr/local/bin/android-appium-entrypoint.sh
+
+# 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
+ARG default_apk_path=/apk/app.apk
+ENV APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+
+ENTRYPOINT ["android-appium-entrypoint.sh"]

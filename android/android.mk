@@ -1,13 +1,17 @@
 LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
+
+-include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
+-include $(LOCAL_ANDROID_DIR)/flutter/flutter.mk
+-include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/studio/studio.mk
 
-local-android-images: \
+local-android-docker-images: \
 local-android-builder \
 local-android-services 
-.PHONY: local-android-images
+.PHONY: local-android-docker-images
 
 local-android-docker-images-pull: 
-	@$(MAKE) -j local-android-docker-images-pull
+	@$(MAKE) -j local-android-dockercompose-images-pull
 .PHONY: local-android-docker-images-pull
 
 local-android-docker-images-push: 
@@ -28,10 +32,6 @@ LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
 LOCAL_ANDROID_DOCKER_BAKE_GROUPS ?= \
   builder \
   services
-
-local-android-docker-images-pull:
-	@$(MAKE) -j $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-pull)
-.PHONY: local-android-docker-images-pull
 
 # $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-%=local-%-image-pull):
 # 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-android-%-image-pull=local-android-%)
@@ -64,12 +64,19 @@ $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=local-android-%-image-
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:local-android-%=local-android-%-image-ci)
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
-  local-android-backend \
-  local-android-mobile
+  local-android-studio \
+  local-android-appium
 
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:local-android-%=local-android-%-image-pull):
 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
 
-local-android-docker-images-pull: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
-.PHONY: local-android-docker-images-pull
+local-android-dockercompose-images-pull: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
+.PHONY: local-android-dockercompose-images-pull
+
+local-android-appium-emulator-avd-wipe-data:
+	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+		emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data \
+		--gpu $(LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE) ; \
+	'
+.PHONY: local-android-appium-emulator-avd-wipe-data
