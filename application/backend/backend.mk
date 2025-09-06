@@ -51,15 +51,3 @@ local-application-backend-container-up: local-application-backend-container-rm
 	@echo View UI at http://127.0.0.1:8080/ui
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: local-application-backend-container-up
-
-local-application-backend-container-stop:
-	@-$(LOCAL_DOCKER_COMPOSE) stop backend 2>/dev/null
-.PHONY: local-application-backend-container-stop
-
-local-application-backend-container-rm: local-application-backend-container-stop
-	@$(LOCAL_DOCKER_COMPOSE) rm -f -s backend
-.PHONY: local-application-backend-container-rm
-
-local-application-backend-container-logs:
-	@$(LOCAL_DOCKER_COMPOSE) logs --follow backend
-.PHONY: local-application-backend-container-logs

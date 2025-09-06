@@ -29,23 +29,13 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   vault-dev \
 #   android-studio
 
-local-docker-images: \
-local-builders \
-local-services 
-.PHONY: local-docker-images
-
-local-docker-images-ci: \
-local-builder-ci \
-local-services-ci 
-.PHONY: local-docker-images-ci
-
 local-docker-images-pull: 
-	@$(MAKE) -j local-docker-compose-images-pull
+	@$(MAKE) -j local-dockercompose-images-pull
 .PHONY: local-docker-images-pull
 
-local-docker-images-push: 
-	@$(MAKE) -j local-docker-compose-images-push
-.PHONY: local-docker-images-push
+local-dockercompose-images-push: 
+	@$(MAKE) -j local-dockercompose-images-push
+.PHONY: local-dockercompose-images-push
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \

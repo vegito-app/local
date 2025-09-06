@@ -53,3 +53,7 @@ jobs:
       - name: Build and push up to date project images to dev registries
         run: |
           make images-ci
+      - name: Bump version and push tags
+        run: |
+          # Push the new commit and the new tag
+          git push --follow-tags origin main
