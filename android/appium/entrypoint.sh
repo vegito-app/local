@@ -18,7 +18,7 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-emulator-entrypoint.sh &
+android-emulator-entrypoint.sh &
 bg_pids+=("$!")
 
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p

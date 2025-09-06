@@ -53,7 +53,7 @@ target "local-application-mobile" {
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE}" : "",
     LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline, ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
+    "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
   ]
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
@@ -76,7 +76,7 @@ target "local-application-mobile-ci" {
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI}" : "",
-    "type=inline, ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
+    "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
     LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [

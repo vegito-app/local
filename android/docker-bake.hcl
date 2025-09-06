@@ -2,21 +2,21 @@ variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-emulator-latest"
 }
 
-group "local-android-runner" {
+group "local-android-runners" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator",
   ]
 }
 
-group "local-android-runner-ci" {
+group "local-android-runners-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator-ci",
   ]
 }
 
-group "local-android-builder" {
+group "local-android-builders" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-flutter",
@@ -24,7 +24,7 @@ group "local-android-builder" {
   ]
 }
 
-group "local-android-builder-ci" {
+group "local-android-builders-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-flutter-ci",
