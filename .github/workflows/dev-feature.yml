@@ -1,3 +1,6 @@
+permissions:
+  id-token: write
+  contents: read
 name: Build and Load Branches Local Docker Images
 on:
   push:
@@ -7,8 +10,13 @@ on:
 jobs:
   dev-build-local-feature-images:
     runs-on: self-hosted
+    environment: dev
     env:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: dev
+      USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
+      BUILDER_IMAGE: ${{ vars.BUILDER_IMAGE || format('europe-west1-docker.pkg.dev/{0}/docker-repository-public/vegito-local:builder-latest', vars.GOOGLE_CLOUD_PROJECT_ID) }}
+      # BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -17,23 +25,26 @@ jobs:
       - name: Define VERSION
         run: |
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.DEV_GCLOUD_SERVICE_KEY }}
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
       - name: Set up Cloud SDK
-        run: |
-          make gcloud-config-set-project
-      - name: Configure Docker for GCR
         run: |
           make gcloud-config-set-project
       - name: Configure Docker for GCR
         run: |
           make gcloud-auth-docker
       - name: Set up Docker Buildx
-        # uses: docker/setup-buildx-action@v3
         run: |
           make docker-buildx-setup
       - name: Build and load local project images

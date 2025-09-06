@@ -83,27 +83,27 @@ variable "platforms" {
 
 group "local-runners" {
   targets = [
-    "local-android-runner",
+    "local-android-runners",
   ]
 }
 
 group "local-runners-ci" {
   targets = [
-    "local-android-runner-ci",
+    "local-android-runners-ci",
   ]
 }
 
 group "local-builders" {
   targets = [
     "local-project-builder",
-    "local-android-builder",
+    "local-android-builders",
   ]
 }
 
 group "local-builders-ci" {
   targets = [
     "local-project-builder-ci",
-    "local-android-builder-ci",
+    "local-android-builders-ci",
   ]
 }
 
