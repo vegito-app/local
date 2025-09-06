@@ -18,7 +18,7 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-emulator-entrypoint.sh &
+android-emulator-entrypoint.sh &
 bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ]; then

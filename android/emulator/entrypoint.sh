@@ -18,7 +18,7 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-if [ "${LOCAL_ANDROID_APPIUM_DISPLAY_START}" = "true" ]; then
+if [ "${LOCAL_ANDROID_DISPLAY_START}" = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE}" in
     "host")
         display-start-xpra.sh &
