@@ -17,19 +17,9 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   vault-dev \
 #   android-studio
 
-local-docker-images: \
-local-builders \
-local-services 
-.PHONY: local-docker-images
-
 local-docker-images-pull: 
 	@$(MAKE) -j local-dockercompose-images-pull
 .PHONY: local-docker-images-pull
-
-local-docker-images-ci: \
-local-builder-ci \
-local-services-ci 
-.PHONY: local-docker-images-ci
 
 local-dockercompose-images-push: 
 	@$(MAKE) -j local-dockercompose-images-push
