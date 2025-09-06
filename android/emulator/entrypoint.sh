@@ -18,9 +18,6 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-[ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ] && \
-    caches-refresh.sh
-
 if [ "${LOCAL_ANDROID_APPIUM_DISPLAY_START}" = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE}" in
     "host")
