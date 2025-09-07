@@ -33,18 +33,20 @@ LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   mobile
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-pull):
-	@echo Pulling the image for $(@:local-%-image-pull=local-%)
-	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=local-%)
+	@echo Pulling the image for $(@:local-application-%-image-pull=application-%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-application-%-image-pull=application-%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-pull)
 
 local-application-dockercompose-images-pull: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-pull)
 .PHONY: local-application-dockercompose-images-pull
 
-local-application-docker-images-pull: 
+local-application-docker-images-pull-parallel: 
+	@echo Pulling all application images in parallel...
 	@$(MAKE) -j local-application-dockercompose-images-pull
 .PHONY: local-application-docker-images-pull
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-push):
+	@echo Pushing the image for $(@:local-%-image-push=%)
 	@$(LOCAL_DOCKER_COMPOSE) push $(@:local-%-image-push=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-push)
 
@@ -54,3 +56,8 @@ local-application-dockercompose-images-push: $(LOCAL_APPLICATION_DOCKER_COMPOSE_
 local-application-docker-images-push: 
 	@$(MAKE) -j local-application-dockercompose-images-push
 .PHONY: local-application-docker-images-push
+
+local-application-docker-images-push-parallel: 
+	@echo Pushing all application images in parallel...
+	@$(MAKE) -j local-application-docker-images-push
+.PHONY: local-application-docker-images-push-parallel
