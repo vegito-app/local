@@ -64,12 +64,11 @@ images: docker-images
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: 
-	@$(MAKE) -j local-dockercompose-images-pull
-.PHONY: images-fast-pull
+images-pull: local-docker-images-pull-parallel
+.PHONY: images-pull
 
 images-push: 
-	@$(MAKE) -j local-dockercompose-images-push
+	@$(MAKE) -j local-docker-images-push
 .PHONY: images-push
 
 dev: 
