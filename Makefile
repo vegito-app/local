@@ -14,13 +14,11 @@ INFRA_PROJECT_NAME := moov
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
 
-LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+LOCAL_DOCKER_COMPOSE_SERVICES := \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests \
-  application-backend \
-  application-mobile
+  application-tests
 
 export
 
@@ -29,14 +27,6 @@ export
 
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
-
-LOCAL_DOCKER_COMPOSE_SERVICES := \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
-  application-tests \
-  application-backend \
-  application-mobile
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -65,11 +55,15 @@ images-ci: docker-images-ci
 .PHONY: images-ci
 
 images-pull: 
-	@$(MAKE) -j local-dockercompose-images-pull
-.PHONY: images-fast-pull
+	@$(MAKE) -j \
+	  local-docker-images-pull-parallel \
+	  local-application-docker-images-pull-parallel
+.PHONY: images-pull
 
 images-push: 
-	@$(MAKE) -j local-dockercompose-images-push
+	@$(MAKE) -j \
+	  local-android-docker-images-push-parallel \
+	  local-application-docker-images-push-parallel
 .PHONY: images-push
 
 dev: 

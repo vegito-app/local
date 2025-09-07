@@ -237,11 +237,10 @@ RUN set -e ; \
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-RUN rm -f /etc/apt/sources.list.d/helm-stable-debian.list \
-    && apt-get update \
-    && apt-get install -y emacs-nox \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    emacs-nox \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 USER ${non_root_user}
 
 RUN emacs --batch --eval "(require 'package)" \

@@ -63,11 +63,16 @@ RUN touch $HISTFILE && echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> ${
 
 # Section 10 : Entrypoints & scripts
 COPY --chown=${non_root_user}:${non_root_user} caches-refresh.sh /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} android-studio.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+
+COPY --from=appium --chown=${non_root_user}:${non_root_user} appium-emulator-avd.sh /usr/local/bin/
 
 # Rendre les scripts exécutables
 RUN chmod +x \
   /usr/local/bin/caches-refresh.sh \
+  /usr/local/bin/android-studio.sh \
+  /usr/local/bin/appium-emulator-avd.sh \
   /usr/local/bin/android-studio-entrypoint.sh
 
 ARG default_display=20
