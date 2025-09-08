@@ -65,7 +65,6 @@ services:
 
   clarinet-devnet:
     privileged: true
-    tty: true
     image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
     env_file:
       - .env
@@ -96,7 +95,7 @@ services:
       - .env
     environment:
       HOST_PWD: ${PWD}
-      APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
@@ -108,7 +107,7 @@ services:
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
 
       LOCAL_ANDROID_CONTAINER_DISPLAY_START: ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-true}
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
+      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
       LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
@@ -129,18 +128,19 @@ services:
   android-appium:
     cap_add:
       - SYS_ADMIN
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
+    image: ${LOCAL_ANDROID_APPIUM_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
     env_file:
       - .env
     environment:
       HOST_PWD: ${PWD}
-      APK_PATH: ${LOCAL_ANDROID_STUDIO_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      APK_PATH: ${LOCAL_ANDROID_APK_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
-      LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
+      LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
+      LOCAL_ANDROID_APPIUM_LOG_LEVEL: DEBUG
+      LOCAL_ANDROID_APPIUM_CONTAINER_CACHE: ${LOCAL_ANDROID_APPIUM_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
+      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_APPIUM_ANDROID_GPU_MODE:-swiftshader_indirect}
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_APPIUM_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
@@ -151,7 +151,7 @@ services:
       - kvm
     devices:
       - /dev/kvm
-    working_dir: ${PWD}/application/mobile
+    working_dir: ${PWD}/application/mobile/android
     command: |
       bash -c '
       set -eu
@@ -191,7 +191,6 @@ services:
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/application/tests
-    tty: true
     command: |
       bash -c '
       set -eu

@@ -74,7 +74,7 @@ local-gcloud-builder-image-delete:
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
-  -f $(LOCAL_DIR)/.docker-compose-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-local-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
@@ -160,7 +160,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
 
 local-dev-container:
-	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+	$(LOCAL_DOCKER_COMPOSE) up -d dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:

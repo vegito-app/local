@@ -43,7 +43,7 @@ DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/g
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
+LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -81,7 +81,7 @@ EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
 # The file is created in the current working directory or the specified WORKING_DIR environment variable.
-dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-override.yml
+dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-local-override.yml
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   application-backend:
@@ -115,8 +115,8 @@ services:
       - LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=${PWD}/application/tests/mobile_images
       - LOCAL_ANDROID_STUDIO_ON_START=true
       - LOCAL_ANDROID_STUDIO_CACHES_REFRESH=true
-      - LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
-      - LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
+      - LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
+      - LOCAL_ANDROID_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
 
     working_dir: ${PWD}/mobile
     command: |

@@ -14,7 +14,7 @@ local-android-docker-images:
 	@$(MAKE) -j $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
 .PHONY: local-android-docker-images
 
-$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): 
+$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-group=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
@@ -22,7 +22,7 @@ $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group):
 local-android-docker-images-ci: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci)
 .PHONY: local-android-docker-images-ci
 
-$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci):
+$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): docker-buildx-setup
 	@echo Build configuration for $(@:%-group-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group-ci=%-ci)
 	@echo Building and pushing the image for $(@:%-group-ci=%-ci)
@@ -35,14 +35,14 @@ LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
   flutter \
   studio
 
-$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image):
+$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): docker-buildx-setup
 	@echo Build configuration for $(@:%-image=%)
 	$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@echo Building and loading the image for $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image)
 
-$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci):
+$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): docker-buildx-setup
 	@echo Build configuration for $(@:%-image-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
 	@echo Building and pushing the image for $(@:%-image-ci=%-ci)
@@ -52,6 +52,10 @@ $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci):
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio \
   appium
+
+$(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%):
+	@$(MAKE) $(@:%=local-%-container-up)
+.PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%)
 
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm): 
 	@$(MAKE) $(@:%-rm=%-stop)
@@ -107,6 +111,6 @@ local-android-docker-images-push-parallel:
 local-android-appium-emulator-avd-wipe-data:
 	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
 		emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data \
-		--gpu $(LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE) ; \
+		--gpu $(LOCAL_ANDROID_CONTAINER_GPU_MODE) ; \
 	'
 .PHONY: local-android-appium-emulator-avd-wipe-data

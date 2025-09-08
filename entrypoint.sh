@@ -96,7 +96,6 @@ if [ -f ~/.config/shell ]; then
 fi
 EOF
 
-
 # NPM
 NPM_DIR=${HOME}/.npm
 [ -d $NPM_DIR ] && mv $NPM_DIR ${NPM_DIR}_back

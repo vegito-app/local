@@ -22,6 +22,8 @@ RUN chmod +x \
 
 # 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+ENV APK_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
+ENV LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=tests/mobile_images
 
 ENTRYPOINT ["android-appium-entrypoint.sh"]
