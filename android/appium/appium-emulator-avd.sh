@@ -1,8 +1,6 @@
 #!/bin/bash
+set -eux
 
-set -eu
-
-# Headless by default; if DISPLAY is not set, run emulator with -no-window
 HEADLESS_ARGS="-no-window"
 if xdpyinfo >/dev/null 2>&1; then
   HEADLESS_ARGS=""
@@ -71,23 +69,36 @@ appium --address 0.0.0.0 --port 4723 \
 bg_pids+=($!)
 echo "Appium is ready to accept connections on port 4723."
 
-emulator-data-load.sh ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}
+emulator-data-load.sh "${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}"
 
 echo "Checking if an APK is present and installing..."
-if [ -f ${APK_PATH} ]; then
-  echo "APK found, attempting installation..."
-  if adb install -r ${APK_PATH}; then
+if [ -f "${APK_PATH}" ]; then
+  echo "APK found at ${APK_PATH}, attempting installation..."
+  if adb install -r "${APK_PATH}"; then
     echo "✅ APK installed successfully."
+
     echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p ${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME} -c android.intent.category.LAUNCHER 1
+    adb shell monkey -p "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+
+    sleep 2
+
+    if adb shell pidof "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" >/dev/null; then
+      echo "✅ App is running."
+    else
+      echo "⚠️ App did not launch. Trying again..."
+      adb shell monkey -p "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" -c android.intent.category.LAUNCHER 1
+    fi
+
   else
     echo "❌ APK installation failed."
   fi
 else
   echo "⚠️ No APK found at ${APK_PATH}; skipping installation."
 fi
+
 echo "The emulator is ready and running."
 echo "You can now run your Appium tests."
+
 echo "📜 Kernel & system log tails (Ctrl+C to stop):"
 adb logcat -v time | sed -n '1,200p' || true
 adb logcat --pid=$(adb shell pidof -s com.android.systemui) -v threadtime &
