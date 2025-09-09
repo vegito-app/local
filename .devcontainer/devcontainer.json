@@ -2,17 +2,18 @@
   "name": "Go Dev Container",
   "dockerComposeFile": [
     "../docker-compose.yml",
+    "../local/docker-compose.yml",
     // "./docker-compose.yml",
-    "../.docker-compose-local-override.yml",
+    "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml"
   ],
-  "service": "dev",
   "runServices": [
     "dev"
   ],
+  "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
-  "workspaceFolder": "${localWorkspaceFolder}",
+  "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {
     "vscode": {
       "settings": {
@@ -122,12 +123,36 @@
             "label": "ADB - Android Debug Bridge - Android Studio",
             "onAutoForward": "silent"
           },
+          "6037": {
+            "label": "ADB - Android Debug Bridge - Android Appium",
+            "onAutoForward": "silent"
+          },
+          "7037": {
+            "label": "ADB - Vegito - Android Appium",
+            "onAutoForward": "silent"
+          },
           "6900": {
             "label": "VNC - X server - Android Studio",
             "onAutoForward": "silent"
           },
+          "7900": {
+            "label": "VNC - X server - Android Appium",
+            "onAutoForward": "silent"
+          },
+          "8900": {
+            "label": "VNC - X server - Vegito Mobile",
+            "onAutoForward": "silent"
+          },
           "6901": {
             "label": "Xpra - X server - Android Studio",
+            "onAutoForward": "silent"
+          },
+          "7901": {
+            "label": "Xpra - X server - Android Appium",
+            "onAutoForward": "silent"
+          },
+          "8901": {
+            "label": "Xpra - X server - Vegito Mobile",
             "onAutoForward": "silent"
           },
           "8200": {

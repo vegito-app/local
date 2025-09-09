@@ -3,7 +3,7 @@ FROM ${android_apk_emulator_image} AS builder
 
 USER root
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g appium@3.0.0-rc.2 \
     appium driver install uiautomator2

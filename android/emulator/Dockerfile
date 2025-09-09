@@ -68,7 +68,6 @@ RUN chmod +x /usr/local/bin/display-start.sh \
 ARG default_apk_path=/apk/app.apk
 ENV APK_PATH=${default_apk_path}
 ENV LOCAL_ANDROID_GPU_MODE=swiftshader_indirect
-ENV LOCAL_ANDROID_CONTAINER_DISPLAY_START=true
 ENV LOCAL_ANDROID_AVD_NAME=Pixel_8_Intel
 
 ENTRYPOINT ["android-emulator-entrypoint.sh"]

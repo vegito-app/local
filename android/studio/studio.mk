@@ -16,7 +16,7 @@ local-android-studio-container-up: local-android-studio-container-rm
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: local-android-studio-container-up
 
-LOCAL_ANDROID_STUDIO = $(LOCAL_DOCKER_COMPOSE) exec android-studio
+LOCAL_ANDROID_STUDIO ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio
 
 LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME ?= Pixel_8_Intel
 LOCAL_ANDROID_CONTAINER_GPU_MODE ?= swiftshader_indirect

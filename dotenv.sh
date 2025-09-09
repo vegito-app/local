@@ -81,7 +81,7 @@ EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
 # The file is created in the current working directory or the specified WORKING_DIR environment variable.
-dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-local-override.yml
+dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.yml
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   application-backend:

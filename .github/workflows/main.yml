@@ -18,7 +18,7 @@ jobs:
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Define VERSION
@@ -50,10 +50,51 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
+      - name: Restore project images configuration
+        run: |
+          make terraform-init vegito-mobile-android-config-json
+
+      - name: Decode Android release keystore from secret
+        run: |
+          echo "${{ secrets.ANDROID_RELEASE_KEYSTORE}}" | base64 -d > ~/.android/release.${{ vars.INFRA_ENV }}.keystore
+
+
+      - name: Restore ADB keys and debug.keystore
+        run: |
+          mkdir -p ~/.android
+          echo "${{ secrets.ANDROID_ADBKEY }}" | base64 -d > ~/.android/adbkey
+          echo "${{ secrets.ANDROID_ADBKEY_PUB }}" | base64 -d > ~/.android/adbkey.pub
+          echo "${{ secrets.ANDROID_DEBUG_KEYSTORE }}" | base64 -d > ~/.android/debug.keystore
+          chmod 600 ~/.android/adbkey
       - name: Build and push up to date project images to dev registries
         run: |
-          make images-ci
+          make images-ci      
       - name: Bump version and push tags
         run: |
           # Push the new commit and the new tag
           git push --follow-tags origin main
+      - name: Upload signed APK and AAB 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts-${{ env.INFRA_ENV }}
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-${{ env.INFRA_ENV }}-release.apk
+            mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
+          body: |
+            Android artifacts for `${{ env.INFRA_ENV }}`:
+            - Signed APK and AAB generated
+            - Keystore: release.${{ env.INFRA_ENV }}.keystore
+          files: |
+            mobile/build/app/outputs/flutter-apk/app-${{ env.INFRA_ENV }}-release.apk
+            mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deployment of last changes to dev environment
+        run: |
+          make infra-deploy-dev
+
