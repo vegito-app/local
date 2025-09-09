@@ -90,10 +90,10 @@ docker-buildx-clean:
 docker-local-buildx-cache-clean: 
 	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@bash -c '\
-	  for i in `find . -name "docker-local-buildx-cache" -type d` ; do \
+	  for i in $$(find . -name "docker-buildx-cache" -type d) ; do \
 	    echo $$i ; \
 	    echo Removing $$(du -sh $$i) ; \
-		rm -rf $$i
+		rm -rf $$i ; \
 	  done \
 	'
 .PHONY: docker-local-buildx-cache-clean

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 # 📌 List of PIDs of background processes
 bg_pids=()
