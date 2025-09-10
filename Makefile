@@ -14,12 +14,6 @@ INFRA_PROJECT_NAME := moov
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
 
-LOCAL_DOCKER_COMPOSE_SERVICES := \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
-  application-tests
-
 export
 
 -include git.mk
@@ -28,6 +22,12 @@ export
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
 
+LOCAL_DOCKER_COMPOSE_SERVICES := \
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet \
+  application-tests
+
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
@@ -35,13 +35,13 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:local-application-%=-f $(LOCAL_APPLICATION_DIR)/%/docker-bake.hcl) \
+	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(LOCAL_APPLICATION_DIR)/docker-compose.yml \
-    -f $(CURDIR)/.docker-compose-override.yml \
+    -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
 
@@ -54,16 +54,11 @@ images: docker-images
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: 
-	@$(MAKE) -j \
-	  local-docker-images-pull-parallel \
-	  local-application-docker-images-pull-parallel
+images-pull: local-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: 
-	@$(MAKE) -j \
-	  local-android-docker-images-push-parallel \
-	  local-application-docker-images-push-parallel
+	@$(MAKE) -j local-docker-images-push
 .PHONY: images-push
 
 dev: 
