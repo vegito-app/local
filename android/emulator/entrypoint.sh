@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -18,7 +18,6 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-if [ "${LOCAL_ANDROID_CONTAINER_DISPLAY_START}" = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE}" in
     "host")
         display-start-xpra.sh &
@@ -29,7 +28,6 @@ case "${LOCAL_ANDROID_GPU_MODE}" in
         bg_pids+=("$!")
         ;;
 esac
-fi
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
