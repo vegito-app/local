@@ -62,9 +62,9 @@ variable "INFRA_ENV" {
   default     = "dev"
 }
 
-variable "VEGITO_PRIVATE_REPOSITORY" {
-  default = "${INFRA_ENV}-docker-repository"
-}
+# variable "VEGITO_PRIVATE_REPOSITORY" {
+#   default = "${INFRA_ENV}-docker-repository"
+# }
 
 variable "VEGITO_PUBLIC_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository-public"

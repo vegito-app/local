@@ -20,8 +20,11 @@ RUN\
   xserver-xorg-video-nvidia nvidia-driver mesa-utils
 
 # Section 3 : NodeJS pour Appium
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-  apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+  apt-get install -y nodejs && \
+  npm install -g appium@3.0.0-rc.2 && \
+  appium driver install uiautomator2
+
 
 # Section 4 : Google Chrome ou Chromium selon arch
 RUN ARCH="$(dpkg --print-architecture)" && \
@@ -39,12 +42,6 @@ USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-USER root
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-  apt-get install -y nodejs && \
-  npm install -g appium@3.0.0-rc.2 && \
-  appium driver install uiautomator2
-
 USER ${non_root_user}
 
 # Section 8 : Android Studio
@@ -57,9 +54,6 @@ RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/an
 
 RUN flutter doctor --android-licenses && flutter doctor
 
-# Section 9 : Bash tweaks
-ENV HISTFILE=${HOME}/.bash_history
-RUN touch $HISTFILE && echo 'PROMPT_COMMAND="history -a; $PROMPT_COMMAND"' >> ${HOME}/.bashrc
 
 # Section 10 : Entrypoints & scripts
 COPY --chown=${non_root_user}:${non_root_user} caches-refresh.sh /usr/local/bin/
@@ -81,7 +75,7 @@ ENV DISPLAY=:${default_display}
 # Section 11 : Application mobile default
 # If a current APK is available, it will be automatically launched by 'appium-emulator-avd.sh'.
 ARG default_apk_path=/build/output/app.apk
-ENV APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+ENV APK_PATH=${default_apk_path}
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]
