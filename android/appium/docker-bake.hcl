@@ -10,7 +10,7 @@ variable "LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-appium"
 }
 
-variable "LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-appium/ci"
 }
 
@@ -44,12 +44,12 @@ target "local-android-appium-ci" {
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
     LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }

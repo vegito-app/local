@@ -23,7 +23,7 @@ variable "LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile"
 }
 
-variable "LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile-ci"
 }
 
@@ -65,22 +65,24 @@ target "local-application-mobile-ci" {
   args = {
     apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
+    environment          = INFRA_ENV
   }
   context = "${LOCAL_APPLICATION_DIR}/mobile"
   contexts = {
     "approot" : LOCAL_APPLICATION_DIR
+    "project": "."
   }
   tags = [
     LOCAL_APPLICATION_MOBILE_IMAGE_LATEST,
     LOCAL_APPLICATION_MOBILE_IMAGE_TAG,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_LATEST}",
     LOCAL_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = ["linux/amd64"]
 }

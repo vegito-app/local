@@ -16,17 +16,19 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-backend"
 }
 
-variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE_CI" {
-  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend/ci"
+variable "LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE_CI" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-backend/ci"
 }
 
 target "local-application-backend-ci" {
   context = "application/backend"
   contexts = {
     "approot" : "application"
+    "appfrontend" : "application/frontend"
+    "project" : "."
   }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_LATEST

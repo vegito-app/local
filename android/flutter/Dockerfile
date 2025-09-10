@@ -1,4 +1,4 @@
-ARG android_apk_emulator_image=vegito-app/vegito-local:android-apk-emulator-latest
+ARG android_apk_emulator_image=vegito-local/vegito-local:android-apk-emulator-latest
 FROM debian:bookworm
 FROM ${android_apk_emulator_image} AS apk-builder
 

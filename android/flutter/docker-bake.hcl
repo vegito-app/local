@@ -10,7 +10,7 @@ variable "LOCAL_ANDROID_APK_BUILDER_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-flutter"
 }
 
-variable "LOCAL_ANDROID_APK_BUILDER_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_ANDROID_APK_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-flutter/ci"
 }
 
@@ -50,12 +50,12 @@ target "local-android-flutter-ci" {
     LOCAL_ANDROID_APK_BUILDER_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_BUILDER_REGISTRY_CACHE_IMAGE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST}",
     LOCAL_ANDROID_APK_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_BUILDER_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APK_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }

@@ -5,9 +5,9 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
 }
 
-variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
-}
+# variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
+#   default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
+# }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
@@ -21,7 +21,7 @@ variable "LOCAL_BUILDER_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder"
 }
 
-variable "LOCAL_BUILDER_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder/ci"
 }
 
@@ -57,12 +57,12 @@ target "local-project-builder-ci" {
     notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
     LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms  = platforms
 }

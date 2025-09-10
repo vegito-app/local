@@ -1,4 +1,4 @@
-ARG builder_image="vegito-app:local-builder-latest"
+ARG builder_image="vegito-local:local-builder-latest"
 FROM ${builder_image} AS build
 
 RUN mkdir ${HOME}/src
