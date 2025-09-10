@@ -44,6 +44,9 @@ target "local-android-studio-ci" {
     android_apk_builder_image = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
   context = LOCAL_ANDROID_STUDIO_DIR
+  contexts = {
+    "appium": "${LOCAL_DIR}/android/appium",
+  }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
@@ -65,6 +68,9 @@ target "local-android-studio" {
     android_apk_builder_image = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
   }
   context = LOCAL_ANDROID_STUDIO_DIR
+  contexts = {
+    "appium": "${LOCAL_DIR}/android/appium",
+  }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
