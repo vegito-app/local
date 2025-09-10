@@ -18,7 +18,6 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-if [ "${LOCAL_ANDROID_CONTAINER_DISPLAY_START}" = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE}" in
     "host")
         display-start-xpra.sh &

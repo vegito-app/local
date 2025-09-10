@@ -30,6 +30,3 @@ RUN cd application/mobile && flutter build apk --release
 FROM ${apk_runner_appium_image} AS android_studio
 
 COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app.apk
-
-ARG android_package_name=dev.vegito.app.android
-ENV APPLICATION_MOBILE_ANDROID_PACKAGE_NAME=${android_package_name}
