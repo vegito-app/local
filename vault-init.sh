@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -euo pipefail
 
 vault server -dev -dev-root-token-id ${VAULT_DEV_ROOT_TOKEN_ID} &
 
