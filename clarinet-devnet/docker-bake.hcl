@@ -10,7 +10,7 @@ variable "LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/clarinet-devnet"
 }
 
-variable "LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/clarinet-devnet/ci"
 }
 
@@ -39,12 +39,12 @@ target "clarinet-devnet-ci" {
     LOCAL_CLARINET_DEVNET_IMAGE_TAG,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE_CI}" : LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI}" : LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
     "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
     LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }

@@ -14,7 +14,7 @@ variable "LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-tests"
 }
 
-variable "LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-tests/ci"
 }
 
@@ -29,12 +29,12 @@ target "application-tests-ci" {
     LOCAL_APPLICATION_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_APPLICATION_TESTS_IMAGE_LATEST}",
     LOCAL_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
 }
 

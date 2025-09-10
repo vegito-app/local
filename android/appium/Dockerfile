@@ -3,7 +3,7 @@ FROM ${android_apk_emulator_image} AS builder
 
 USER root
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g appium@3.0.0-rc.2 \
     appium driver install uiautomator2
@@ -22,6 +22,8 @@ RUN chmod +x \
 
 # 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+ENV APK_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
+ENV LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=tests/mobile_images
 
 ENTRYPOINT ["android-appium-entrypoint.sh"]

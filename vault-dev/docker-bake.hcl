@@ -10,7 +10,7 @@ variable "LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/vault-dev"
 }
 
-variable "LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE_CI" {
+variable "LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/vault-dev/ci"
 }
 
@@ -22,12 +22,12 @@ target "vault-dev-ci" {
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
