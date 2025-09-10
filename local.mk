@@ -8,18 +8,8 @@ local-images:
 .PHONY: local-images
 
 local-images-push: 
-	@$(MAKE) -j \
-	  local-docker-compose-images-push \
-	  local-android-docker-images-push-parallel \
-	  local-application-docker-images-push-parallel
+	@$(MAKE) -j local-docker-images-push local-android-docker-images-push-parallel
 .PHONY: local-images-push
-
-local-images-pull: 
-	@$(MAKE) -j \
-	  local-docker-compose-images-pull \
-	  local-android-docker-images-pull-parallel \
-	  local-application-docker-images-pull-parallel
-.PHONY: local-images-pull
 
 LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
 $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
@@ -57,6 +47,11 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-image=%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image-push=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-push=%)
+.PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
+
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
@@ -79,7 +74,7 @@ local-gcloud-builder-image-delete:
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
-  -f $(LOCAL_DIR)/.docker-compose-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
@@ -87,15 +82,27 @@ local-container-config-show:
 	@$(LOCAL_DOCKER_COMPOSE) config
 .PHONY: local-container-config-show
 
+local-dev-container-image-pull:
+	docker pull $(LOCAL_BUILDER_IMAGE)
+.PHONY: local-dev-container-image-pull
+
+local-dev-container-image-push:
+	@docker push $(LOCAL_BUILDER_IMAGE)
+.PHONY: local-dev-container-image-push
+
+local-dev-container-logs:
+	@$(LOCAL_DOCKER_COMPOSE) logs dev
+.PHONY: local-dev-container-logs
+
+local-dev-container-logs-f:
+	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
+.PHONY: local-dev-container-logs-f
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
-  dev \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests \
-  application-backend \
-  application-mobile \
+  application-tests
 
 local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-docker-compose-images-pull
@@ -103,9 +110,12 @@ local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-imag
 local-docker-compose-images-pull-parallel: 
 	@echo "⬇︎ Pulling all local docker compose images..."
 	@$(MAKE) -j local-docker-compose-images-pull
-.PHONY: local-docker-compose-images-pull-parallelapp
+.PHONY: local-docker-compose-images-pull-parallel
 
-local-docker-compose-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push) # local-dev-container-image-push
+local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
+.PHONY: local-docker-compose-images-pull
+
+local-docker-compose-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push) local-dev-container-image-push
 .PHONY: local-docker-compose-images-push
 
 local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
@@ -120,19 +130,6 @@ local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
-
-$(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push):
-	@echo Pushing the image for $(@:local-%-image-push=%)
-	@$(LOCAL_DOCKER_COMPOSE) push $(@:local-%-image-push=%)
-.PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push)
-
-local-docker-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push)
-.PHONY: local-docker-images-push
-
-local-docker-images-push-parallel: 
-	@echo Pushing all images in parallel...
-	@$(MAKE) -j local-docker-images-push
-.PHONY: local-docker-images-push-parallel
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES):
 	@$(MAKE) $(@:%=local-%-container-up)
@@ -164,6 +161,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
 
 local-dev-container:
+	@echo "🔧 Starting local development container..."
 	@$(LOCAL_DOCKER_COMPOSE) up -d dev
 .PHONY: local-dev-container
 
@@ -174,18 +172,6 @@ local-dev-container-rm:
 local-dev-container-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec -it dev bash
 .PHONY: local-dev-container-sh
-
-local-dev-container-image-pull:
-	@$(LOCAL_DOCKER_COMPOSE) pull dev
-.PHONY: local-dev-container-image-pull
-
-local-dev-container-logs:
-	@$(LOCAL_DOCKER_COMPOSE) logs dev
-.PHONY: local-dev-container-logs
-
-local-dev-container-logs-f:
-	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
-.PHONY: local-dev-container-logs-f
 
 -include $(LOCAL_DIR)/nodejs.mk
 -include $(LOCAL_DIR)/go.mk
