@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 
 caches_refresh_success=false
@@ -100,14 +100,15 @@ BASH_HISTORY_PATH=${HOME}/.bash_history
 mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sf ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
+
 # Git config (optional but useful)
 GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
-mkdir -p ${local_container_cache}/git
 if [ -f "$GIT_CONFIG_GLOBAL" ]; then
+  mkdir -p ${local_container_cache}/git
   rsync -av "$GIT_CONFIG_GLOBAL" ${local_container_cache}/git/
   rm -f "$GIT_CONFIG_GLOBAL"
+  ln -s ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
 fi
-ln -sf ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
 
 # CAUSES UNFORTUNATE START WITH INCONSISTENT ALREADY RUNNING STATE
 # # Persist VS Code settings (optional)

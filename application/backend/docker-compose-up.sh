@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # List to hold background job PIDs
 bg_pids=()
@@ -17,7 +17,10 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
-socat TCP-LISTEN:8080,fork,reuseaddr TCP:backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
+socat TCP-LISTEN:8080,fork,reuseaddr TCP:application-backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
 bg_pids+=("$!")
 
-docker compose up application-backend 2>&1
+
+docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_APPLICATION_BACKEND_DIR}/docker-compose.yml}
+
+${docker_compose} up application-backend 2>&1
