@@ -5,8 +5,6 @@ VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
-VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
-
 docker-login: gcloud-auth-docker
 	@docker login $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: docker-login
@@ -90,10 +88,10 @@ docker-buildx-clean:
 docker-local-buildx-cache-clean: 
 	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@bash -c '\
-	  for i in `find . -name "docker-local-buildx-cache" -type d` ; do \
+	  for i in $$(find . -name "docker-buildx-cache" -type d) ; do \
 	    echo $$i ; \
 	    echo Removing $$(du -sh $$i) ; \
-		rm -rf $$i
+		rm -rf $$i ; \
 	  done \
 	'
 .PHONY: docker-local-buildx-cache-clean
