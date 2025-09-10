@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -23,7 +23,7 @@ bg_pids+=("$!")
 
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
-if [ "${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
+if [ "${LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
     appium-emulator-avd.sh &
     bg_pids+=("$!")
 fi

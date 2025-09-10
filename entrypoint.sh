@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
@@ -95,7 +95,6 @@ if [ -f ~/.config/shell ]; then
     . ~/.config/shell
 fi
 EOF
-
 
 # NPM
 NPM_DIR=${HOME}/.npm
