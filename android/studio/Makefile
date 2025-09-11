@@ -1,0 +1,1 @@
+-include $(ANDROID_STUDIO_DIR)/studio.mk

@@ -380,13 +380,16 @@ gcloud-compute-quotas:
 .PHONY: gcloud-compute-quotas
 
 gcloud-user-compute-instance-suspend:
-	$(GCLOUD) compute instances suspend dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
+	@echo "⏸️  Suspending compute instance dev-$(PROJECT_USER)..."
+	@$(GCLOUD) compute instances suspend dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
 .PHONY: gcloud-user-suspend
 
 gcloud-user-compute-instance-start:
-	$(GCLOUD) compute instances start dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
+	@echo "▶️  Starting compute instance dev-$(PROJECT_USER)..."
+	@$(GCLOUD) compute instances start dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
 .PHONY: gcloud-user-start
 
 gcloud-user-compute-instance-status:
-	$(GCLOUD) compute instances describe dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b --format='get(status)'
+	@echo "ℹ️  Status of compute instance dev-$(PROJECT_USER)..."
+	@$(GCLOUD) compute instances describe dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b --format='get(status)'
 .PHONY: gcloud-user-status

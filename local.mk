@@ -99,13 +99,10 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
-  dev \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests \
-  application-backend \
-  application-mobile \
+  application-tests
 
 local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-docker-compose-images-pull
@@ -164,7 +161,8 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
 
 local-dev-container:
-	$(LOCAL_DOCKER_COMPOSE) up -d dev
+	@echo "🔧 Starting local development container..."
+	@$(LOCAL_DOCKER_COMPOSE) up -d dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:

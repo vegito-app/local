@@ -7,7 +7,8 @@ local-android-emulator-adb-devices-list:
 .PHONY: local-android-emulator-adb-devices-list
 
 local-android-emulator-kernel:
-	$(LOCAL_ANDROID_STUDIO) bash -c ' \
+	@echo "Showing emulator kernel..."
+	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
 	  echo "[*] Showing emulator kernel..." ; \
 	  emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
 	  echo "[*] Emulator kernel shown." ; \

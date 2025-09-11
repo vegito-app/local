@@ -3,6 +3,7 @@ volumes:
   clarinet_var_lib_docker:
 services:
   dev:
+    tty: true
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
     env_file:
       - .env
@@ -43,6 +44,7 @@ services:
       '
 
   firebase-emulators:
+    tty: true
     image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
     env_file:
       - .env
@@ -64,6 +66,7 @@ services:
       '
 
   clarinet-devnet:
+    tty: true
     privileged: true
     image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
     env_file:
@@ -88,6 +91,7 @@ services:
       '
 
   android-studio:
+    tty: true
     cap_add:
       - SYS_ADMIN
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
@@ -108,6 +112,7 @@ services:
       LOCAL_ANDROID_STUDIO: ""
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
       LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
+      LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
       LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
@@ -118,13 +123,14 @@ services:
       - kvm
     devices:
       - /dev/kvm
-    working_dir: ${PWD}/application/mobile
+    working_dir: ${PWD}/android/studio
     command: |
       bash -c '
       set -eu
       sleep infinity
       '
   android-appium:
+    tty: true
     cap_add:
       - SYS_ADMIN
     image: ${LOCAL_ANDROID_APPIUM_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
@@ -179,6 +185,7 @@ services:
       sleep infinity
       '
   application-tests:
+    tty: true
     image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888

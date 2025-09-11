@@ -5,9 +5,9 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
 }
 
-variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
-}
+# variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
+#   default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
+# }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""

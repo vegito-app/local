@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -44,7 +44,7 @@ fi
 
 if [ ! -f ~/.android/release.keystore ]; then
     echo "[entrypoint] No release.keystore found, generating via Makefile..."
-    LOCAL_ANDROID_STUDIO="" make -C .. local-android-release-keystore
+    LOCAL_ANDROID_STUDIO="" make -C ../.. local-android-release-keystore
 else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi

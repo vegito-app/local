@@ -61,6 +61,5 @@ git-subtree-application-push:
 	@echo "Application subtree pushed successfully."
 .PHONY: git-subtree-application-push
 
-LOCAL_APPLICATION_DIR := $(CURDIR)/application
--include $(LOCAL_APPLICATION_DIR)/application.mk
+-include $(CURDIR)/application/application.mk
 # ------------------------------------------

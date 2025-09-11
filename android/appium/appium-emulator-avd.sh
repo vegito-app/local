@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -euo pipefail
 
 HEADLESS_ARGS="-no-window"
 if xdpyinfo >/dev/null 2>&1; then

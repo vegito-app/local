@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
@@ -52,7 +52,7 @@ cat <<'EOF' >> ~/.bashrc
 export GOARCH=$(dpkg --print-architecture)
 EOF
 
-local_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-app:builder-latest
+local_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest
 
 mkdir -p ~/.config
 cat <<EOF >>  ~/.config/shell

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 local_container_cache=${LOCAL_FIREBASE_EMULATORS_CACHE:-${LOCAL_DIR:-${PWD}}/.firebase-emulators}
 mkdir -p $local_container_cache
