@@ -67,8 +67,7 @@ sudo sysctl -p /run/user/$LOCAL_USER_ID/sysctl.conf
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}" &
-  sleep infinity
+  wait "${bg_pids[@]}"
 else
   exec "$@"
 fi

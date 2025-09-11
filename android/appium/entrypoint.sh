@@ -24,14 +24,12 @@ bg_pids+=("$!")
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 if [ "${LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
-    appium-emulator-avd.sh &
-    bg_pids+=("$!")
+    (appium-emulator-avd.sh) &
 fi
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}" &
-  sleep infinity
+  wait "${bg_pids[@]}"
 else
   exec "$@"
 fi

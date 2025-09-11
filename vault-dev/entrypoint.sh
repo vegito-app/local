@@ -1,35 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 
 set -euo pipefail
 
-trap "echo Exited with code $?." EXIT
+# 📌 List of PIDs of background processes
+bg_pids=()
 
-mkdir -p ${VAULT_DATA}
+# 🧹 Function called at the end of the script to kill background processes
+kill_jobs() {
+    echo "🧼 Cleaning up background processes..."
+    for pid in "${bg_pids[@]}"; do
+        kill "$pid" || true
+        wait "$pid" 2>/dev/null || true
+    done
+}
+
+trap kill_jobs EXIT
+
+vault server -dev -dev-root-token-id=${VAULT_DEV_ROOT_TOKEN_ID} 2>&1 | tee /tmp/vault.log &
+bg_pids+=($!)
+
+until curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq -r '.sealed' | grep -q 'false'; do
+  curl -s "$VAULT_ADDR/v1/sys/seal-status" || true
+  echo "Vault is sealed, waiting..."
+  sleep 1
+done
+
+echo "✅ Vault is unsealed and ready."
+
+VAULT_AUDIT=${VAULT_AUDIT:-${PWD:-/workspaces}/.containers/vault/audit}
+
 mkdir -p ${VAULT_AUDIT}
-mkdir -p ${VAULT_CONFIG}
 
-tee ${VAULT_CONFIG}/vault.hcl <<EOF
-ui            = true
-cluster_addr  = "http://127.0.0.1:8201"
-api_addr      = "https://127.0.0.1:8200"
-disable_mlock = true
-
-storage "raft" {
-  path    = "${PWD}/.vault"
-  node_id = "127.0.0.1"
-}
-
-listener "tcp" {
-  address         = "0.0.0.0:8200"
-  cluster_address = "0.0.0.0:8201"
-  tls_disable     = 1
-}
-EOF
+vault audit enable file file_path=${VAULT_AUDIT}/vault_audit.log
 
 if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}" &
-  sleep infinity
+  wait "${bg_pids[@]}"
 else
   exec "$@"
 fi
