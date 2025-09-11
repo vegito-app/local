@@ -136,8 +136,6 @@ services:
       
       sleep infinity
       '
-  vault-dev:
-    working_dir: ${PWD}
     
   application-tests:
     working_dir: ${PWD}/tests

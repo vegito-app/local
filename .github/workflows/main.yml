@@ -50,10 +50,6 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
-      - name: Restore project images configuration
-        run: |
-          make terraform-init vegito-mobile-android-config-json
-
       - name: Decode Android release keystore from secret 🔐
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE}}" | base64 -d > ~/.android/release.${{ vars.INFRA_ENV }}.keystore
