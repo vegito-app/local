@@ -89,6 +89,32 @@ jobs:
             mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Release from Docker image
+        run: make local-application-mobile-image-tag-release
+      - name: Upload signed APK and AAB 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts-dev
+          path: |
+            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
+            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
+          body: |
+            Android artifacts for `${{ env.INFRA_ENV }}`:
+            - Signed APK and AAB generated
+            - Keystore: release.${{ env.INFRA_ENV }}.keystore
+          files: |
+            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
+            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deployment of last changes to dev environment
+        run: |
+          make infra-deploy-dev
       - name: Deployment of last changes to dev environment
         run: |
           make infra-deploy-dev
