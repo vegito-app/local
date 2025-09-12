@@ -18,34 +18,36 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio/ci"
 }
 
-variable "ANDROID_STUDIO_VERSION" {
-  default = "2025.1.1.9"
+variable "LOCAL_ANDROID_STUDIO_DIR" {
+  default = "${LOCAL_ANDROID_DIR}/studio"
 }
 
-variable "ANDROID_NDK_VERSION" {
-  default = "27.0.12077973"
-}
-
-variable "FLUTTER_VERSION" {
-  default = "3.32.8"
+variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_ANDROID_STUDIO_DIR}/.containers/android-studio/docker-buildx-cache"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for android-studio image build"
+  description = "local write cache for local-android-studio image build"
+  default = "type=local,mode=max,dest=${LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for android-studio image build (cannot be used before first write)"
+  description = "local read cache for local-android-studio image build (cannot be used before first write)"
+  default = "type=local,src=${LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "ANDROID_STUDIO_VERSION" {
+  default = "2025.1.1.9"
 }
 
 target "local-android-studio-ci" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    android_apk_builder_image = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
+    android_apk_builder_image = LOCAL_ANDROID_FLUTTER_IMAGE_LATEST
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    "appium": "${LOCAL_DIR}/android/appium",
+    "appium": "${LOCAL_ANDROID_DIR}/appium",
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
@@ -65,11 +67,11 @@ target "local-android-studio-ci" {
 target "local-android-studio" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
-    android_apk_builder_image = LOCAL_ANDROID_APK_BUILDER_IMAGE_LATEST
+    android_apk_builder_image = LOCAL_ANDROID_FLUTTER_IMAGE_LATEST
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    "appium": "${LOCAL_DIR}/android/appium",
+    "appium": "${LOCAL_ANDROID_DIR}/appium",
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,

@@ -18,16 +18,13 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-(android-emulator-entrypoint.sh) &
-bg_pids+=("$!")
-
-local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
-mkdir -p $local_container_cache
-
+if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ]; then
+    ${PWD}/../../android/studio/caches-refresh.sh
+fi
 
 android_adb_key=${LOCAL_ANDROID_ADB_KEY_PATH:-~/.android/adbkey}
 android_adb_pubkey=${LOCAL_ANDROID_ADB_KEY_PUB_PATH:-~/.android/adbkey.pub}
-mkdir -p ~/.android
+[ -d ~/.android ] || mkdir -p ~/.android
 if [ ! -f $android_adb_key ] || [ ! -f $android_adb_pubkey ]; then
     echo "[entrypoint] Generating ADB keypair at $android_adb_key and $android_adb_pubkey..."
     adb keygen -a -n $android_adb_key
@@ -36,24 +33,38 @@ else
 fi
 
 android_release_keystore=${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH:-~/.android/release.keystore}
+android_release_keystore_alias=${LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME:-vegito-release-key}
+android_release_keystore_store_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS:-android}
+android_release_keystore_key_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS:-android}
+android_release_keystore_dname=${LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME:-"CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"}
+
 if [ ! -f $android_release_keystore ]; then
     echo "[entrypoint] No release.keystore found, generating via Makefile..."
-    LOCAL_ANDROID_STUDIO="" make -C ../.. local-android-release-keystore
+    keytool -genkey -v \
+      -keystore $android_release_keystore \
+      -alias $android_release_keystore_alias \
+      -keyalg RSA \
+      -keysize 2048 \
+      -validity 10000 \
+      -storepass $android_release_keystore_store_pass \
+      -keypass $android_release_keystore_key_pass \
+      -dname "$android_release_keystore_dname"
 else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi
+
+(${PWD}/../../android/emulator/entrypoint.sh) &
+bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
     (android-studio.sh) &
 fi
 
-if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ]; then
-    caches-refresh.sh
-fi
-
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
   wait "${bg_pids[@]}"
+  echo "[entrypoint] All background processes have exited, container will stop now."
 else
+  echo "[entrypoint] Executing passed command: $*"
   exec "$@"
 fi

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -euo pipefail
 
@@ -113,12 +113,12 @@ fi
 # CAUSES UNFORTUNATE START WITH INCONSISTENT ALREADY RUNNING STATE
 # # Persist VS Code settings (optional)
 # VSCODE_SETTINGS=${HOME}/.config/Code
-# mkdir -p $LOCAL_ANDROID_STUDIO/vscode
+# mkdir -p $LOCAL_ANDROID_CONTAINER_EXEC/vscode
 # if [ -d "$VSCODE_SETTINGS" ]; then
-#   rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_STUDIO/vscode/
+#   rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_CONTAINER_EXEC/vscode/
 #   rm -rf "$VSCODE_SETTINGS"
 # fi
-# ln -sf $LOCAL_ANDROID_STUDIO/vscode/Code $VSCODE_SETTINGS
+# ln -sf $LOCAL_ANDROID_CONTAINER_EXEC/vscode/Code $VSCODE_SETTINGS
 
 android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}
 

@@ -97,6 +97,7 @@ services:
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
     env_file:
       - .env
+    entrypoint: ${PWD}/android/studio/entrypoint.sh
     environment:
       HOST_PWD: ${PWD}
       APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
@@ -106,12 +107,11 @@ services:
       CHROME_LOG_FILE: /tmp/chrome_debug.log
 
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
-      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
+      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
-      LOCAL_ANDROID_STUDIO: ""
+      LOCAL_ANDROID_CONTAINER_EXEC: ""
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME:-Pixel_8_Intel}
+      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
       LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
     privileged: true
@@ -123,7 +123,7 @@ services:
       - kvm
     devices:
       - /dev/kvm
-    working_dir: ${PWD}/android/studio
+    working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
     command: |
       bash -c '
       set -eu
