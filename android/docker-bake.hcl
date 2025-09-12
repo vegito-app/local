@@ -2,6 +2,10 @@ variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-emulator-latest"
 }
 
+variable "LOCAL_ANDROID_DIR" {
+  default = "${LOCAL_DIR}/android"
+}
+
 group "local-android-runners" {
   description = "Build and push Android Studio images"
   targets = [
