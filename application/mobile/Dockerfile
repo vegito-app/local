@@ -25,11 +25,15 @@ COPY --chown=${non_root_user}:${non_root_user} mobile.mk application/mobile/
 COPY --chown=${non_root_user}:${non_root_user} android application/mobile/android/
 COPY --chown=${non_root_user}:${non_root_user} lib application/mobile/lib/
 
-RUN cd application/mobile && flutter build apk --release
+RUN FLUTTER="cd application/mobile && flutter" make \
+    local-application-mobile-flutter-pub-get \
+    local-application-mobile-flutter-build-apk-release \
+    local-application-mobile-flutter-build-appbundle-release
 
 FROM ${apk_runner_appium_image} AS android_studio
 
-COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app.apk
+COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release.apk
+COPY --from=builder /home/android/src/application/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release.aab
 
 ARG android_package_name=dev.vegito.app.android
 ENV APPLICATION_MOBILE_ANDROID_PACKAGE_NAME=${android_package_name}

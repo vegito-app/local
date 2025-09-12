@@ -8,7 +8,7 @@ LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$
 LOCAL_ANDROID_APPIUM_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):android-appium-latest
 
 local-android-appium-emulator-avd-restart:
-	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Killing emulator & adb..." ; \
 	  pkill -9 emulator ; \
 	  pkill -9 qemu-system ; \
@@ -22,7 +22,7 @@ local-android-appium-emulator-avd-restart:
 	  adb start-server ; \
 	  echo "[*] Launching emulator..." ; \
 	  echo "Starting android-studio emulator..." ; \
-	  LOCAL_ANDROID_AVD_NAME=$(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) \
+	  LOCAL_ANDROID_AVD_NAME=$(LOCAL_ANDROID_AVD_NAME) \
 	  LOCAL_ANDROID_GPU_MODE=$(LOCAL_ANDROID_CONTAINER_GPU_MODE) \
 	  	appium-emulator-avd.sh ; \
 	  sleep infinity ; \
@@ -30,7 +30,7 @@ local-android-appium-emulator-avd-restart:
 .PHONY: local-android-appium-emulator-avd-restart
 
 local-android-appium-emulator-avd:
-	@$(LOCAL_ANDROID_STUDIO) appium-emulator-avd.sh
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) appium-emulator-avd.sh
 .PHONY: local-android-appium-emulator-avd
 
 local-android-appium-container-up: local-android-appium-container-rm
