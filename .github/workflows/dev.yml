@@ -51,3 +51,66 @@ jobs:
       - name: Build and load local project images
         run: |
           make images-ci
+  local-dev-environment:
+    name: Start dev environment containers
+    runs-on: self-hosted
+    needs: dev-build-local-images
+    steps:
+      - name: Start dev environment containers
+        run: make dev
+  run-tests:
+    name: Run tests ✅
+    runs-on: self-hosted
+    needs: local-dev-environment
+    steps:
+      - name: Run backend tests
+        run: make test-backend
+      - name: Run mobile tests
+        run: make test-mobile
+  sign-and-release-artifacts:
+    name: Sign and Release APK & AAB 📦
+    runs-on: self-hosted
+    needs: run-tests
+    steps:
+      - name: Build Release from Docker image
+        run: make local-application-mobile-image-tag-release
+      - name: Upload signed APK and AAB 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts-dev
+          path: |
+            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
+            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
+          body: |
+            Android artifacts for `${{ env.INFRA_ENV }}`:
+            - Signed APK and AAB generated
+            - Keystore: release.${{ env.INFRA_ENV }}.keystore
+          files: |
+            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
+            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  deploy-release-to-dev:
+    name: Build and Deploy to Dev environment 🚀
+    runs-on: self-hosted
+    needs: sign-and-release-artifacts
+    steps:
+      - name: Deployment of last changes to dev environment
+        run: |
+          make infra-deploy-dev
+  
+  cleanup:
+    name: Cleanup docker env 🧼
+    runs-on: self-hosted
+    needs: [dev-build-local-images, local-dev-environment, run-tests, sign-and-release-artifacts, deploy-release-to-dev]
+    if: ${{ always() }}
+    steps:
+      - name: Shutdown containers
+        run: make dev-rm
+      - name: Notify cleanup done
+        run: echo "Cleaning completed."
