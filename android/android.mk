@@ -142,6 +142,7 @@ INFRA_ENV ?= dev
 LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME ?= vegito-release-key
 LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS ?= android
 LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS ?= android
+LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME ?= "CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"
 
 LOCAL_ANDROID_CONTAINER_CACHE ?= $(LOCAL_ANDROID_STUDIO_DIR)/.containers/$(LOCAL_ANDROID_CONTAINER_NAME)
 LOCAL_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_ANDROID_CONTAINER_CACHE)/.android/release-$(INFRA_ENV).keystore
@@ -165,9 +166,9 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 	    -validity 10000 \
 	    -storepass $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS) \
 	    -keypass $(LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS) \
-	    -dname "CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"
+	    -dname $(LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME)
 
-LOCAL_ANDROID_APK_RELEASE_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-unsigned.apk
+LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-unsigned-$(VERSION).apk
 
 local-android-sign-apk:
 	@echo "📦 Signing APK with keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)..."
@@ -176,19 +177,21 @@ local-android-sign-apk:
 	    -keystore $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    -storepass $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS) \
 	    -keypass $(LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS) \
-	    $(LOCAL_ANDROID_APK_RELEASE_PATH) $(LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME)
+	    $(LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH) $(LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME)
 .PHONY: local-android-sign-apk
 
 local-android-verify-apk:
-	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_APK_RELEASE_PATH)..."
+	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH)..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  jarsigner -verify -verbose -certs $(LOCAL_ANDROID_APK_RELEASE_PATH)
+	  jarsigner -verify -verbose -certs $(LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH)
 .PHONY: local-android-verify-apk
 
+LOCAL_ANDROID_APK_SIGNED_ALIGNED_RELEASE_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-signed-aligned.apk
+
 local-android-align-apk:
-	@echo "🧰 Aligning APK: $(LOCAL_ANDROID_APK_RELEASE_PATH)..."
+	@echo "🧰 Aligning APK: $(LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH)..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  zipalign -v 4 $(LOCAL_ANDROID_APK_RELEASE_PATH) app-release-signed-aligned.apk
+	  zipalign -v 4 $(LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH) $(LOCAL_ANDROID_APK_SIGNED_ALIGNED_RELEASE_PATH)
 .PHONY: local-android-align-apk
 ################################################################################
 

@@ -150,24 +150,34 @@ local-android-build-flutter-flavor-release:
 	local-application-mobile-flutter-build-appbundle-flavor-release
 .PHONY: local-android-build-flutter-flavor-release
 
-LOCAL_ANDROID_APK_RELEASE_PATH=${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release.apk
-LOCAL_ANDROID_AAB_RELEASE_PATH=${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/bundle/release/app-release.aab
+LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release-$(VERSION).apk
+LOCAL_ANDROID_AAB_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/bundle/release/app-release-$(VERSION).aab
 
-LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH=mobile/build/app/outputs/apk/$(INFRA_ENV)/release/app-$(INFRA_ENV)-release.apk
-LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH=mobile/build/app/outputs/bundle/$(INFRA_ENV)Release/app-$(INFRA_ENV)-release.aab
+LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH ?= mobile/build/app/outputs/apk/$(INFRA_ENV)/release/app-$(INFRA_ENV)-release-$(VERSION).apk
+LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH ?= mobile/build/app/outputs/bundle/$(INFRA_ENV)Release/app-$(INFRA_ENV)-release-$(VERSION).aab
 
 local-android-build-flavor-release: local-android-build-flutter-flavor-release
 	@echo "📦 Signing flavor APK..."
-	@$(MAKE) local-android-build-release \
-	  LOCAL_ANDROID_APK_RELEASE_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
+	@$(MAKE) local-android-build-flutter-flavor-release \
+	  LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
 	  LOCAL_ANDROID_AAB_RELEASE_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH) \
 .PHONY: local-android-build-flavor-release
 
-local-application-mobile-android-release-clean: local-application-mobile-flutter-clean
+local-application-mobile-vacuum:
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/build
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/.dart_tool
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/.packages
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/ios/Pods
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/ios/Podfile.lock
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/android/.gradle
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/build
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/android/build
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/app-release-*.apk
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/app-release-*.aab
+	@echo "✅ Cleaned Flutter project and build artifacts"
+.PHONY: local-application-mobile-vacuum
 
 local-application-mobile-android-release: \
-local-application-mobile-android-release-clean \
-local-application-mobile-flutter-pub-get \
 local-application-mobile-flutter-android-release \
 local-android-sign-apk \
 local-android-verify-apk \
@@ -175,39 +185,46 @@ local-android-align-apk \
 local-android-sign-aab
 .PHONY: local-application-mobile-android-release
 
-LOCAL_APPLICATION_MOBILE_APK_RELEASE_PATH = ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release-$(VERSION).apk
+LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH = ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION).apk
 local-application-mobile-image-tag-apk-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
 	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
-	@echo "Copying APK from container $$container_id..." && \
-	@docker cp $$container_id:/build/output/app-release.apk $(LOCAL_APPLICATION_MOBILE_APK_RELEASE_PATH) && \
-	@docker rm $$container_id > /dev/null && \
-	@echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_APK_RELEASE_PATH)"
+	  echo "Copying APK from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release.apk $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH)"
 .PHONY: local-application-mobile-image-tag-apk-extract
 
-LOCAL_APPLICATION_MOBILE_AAB_RELEASE_PATH = ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release-$(VERSION).aab
+LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH = ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION).aab
 
 local-application-mobile-image-tag-aab-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
 	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
-	@echo "Copying AAB from container $$container_id..." && \
-	@docker cp $$container_id:/build/output/app-release.aab $(LOCAL_APPLICATION_MOBILE_AAB_RELEASE_PATH) && \
-	@docker rm $$container_id > /dev/null && \
-	@echo "✅ AAB extracted to $(LOCAL_APPLICATION_MOBILE_AAB_RELEASE_PATH)"
+	  echo "Copying AAB from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release.aab $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ AAB extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH)"
 .PHONY: local-application-mobile-image-tag-aab-extract
 
 local-application-mobile-flutter-android-release:
 	@echo "🏗️ Building unsigned APK and AAB for '$(INFRA_ENV)'..."
 	@$(MAKE) \
+	  local-application-mobile-android-vacuum \
+	  local-application-mobile-flutter-pub-get \
 	  local-application-mobile-flutter-build-apk-release \
 	  local-application-mobile-flutter-build-appbundle-release
 .PHONY: local-application-mobile-flutter-android-release
 
-local-application-mobile-image-tag-release-extract: local-application-mobile-flutter-clean \
-local-application-mobile-image-tag-aab-extract \
-local-application-mobile-image-tag-apk-extract \
-local-android-sign-apk \
-local-android-verify-apk \
-local-android-align-apk \
+local-application-mobile-image-tag-release: 
+	@echo "📦 Signing APK and AAB from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)..."
+	@$(MAKE) \
+	  LOCAL_ANDROID_AAB_RELEASE_PATH=$(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH) \
+	  LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH=$(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH) \
+	  LOCAL_ANDROID_APK_SIGNED_ALIGNED_RELEASE_PATH=$(LOCAL_APPLICATION_MOBILE_DIR)/app-release-$(VERSION)-signed-aligned.apk \
+	  local-application-mobile-image-tag-aab-extract \
+	  local-application-mobile-image-tag-apk-extract \
+	  local-android-sign-apk \
+	  local-android-verify-apk \
+	  local-android-align-apk \
 local-android-sign-aab
-.PHONY: local-application-mobile-image-tag-release-extract
+.PHONY: local-application-mobile-image-tag-release
