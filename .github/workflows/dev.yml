@@ -15,15 +15,18 @@ jobs:
       INFRA_ENV: dev
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    outputs:
+      version: ${{ steps.define_version.outputs.VERSION }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
       - name: Define VERSION
+        id: define_version
         run: |
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
       - name: Refresh local/.env file
         run: |
           ./dotenv.sh
@@ -59,7 +62,7 @@ jobs:
     runs-on: self-hosted
     needs: dev-build-local-images
     env:
-      VERSION: ${{ env.VERSION }}
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
       - name: Checkout repository
@@ -68,13 +71,12 @@ jobs:
           fetch-depth: 0
       - name: Start dev environment containers
         run: make dev
-        working-directory: ./local
   run-tests:
     name: Run tests ✅
     runs-on: self-hosted
-    needs: local-dev-environment
+    needs: [dev-build-local-images, local-dev-environment]
     env:
-      VERSION: ${{ env.VERSION }}
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
       - name: Checkout repository
@@ -88,9 +90,9 @@ jobs:
   sign-and-release-artifacts:
     name: Sign and Release APK & AAB 📦
     runs-on: self-hosted
-    needs: run-tests
+    needs: [dev-build-local-images, run-tests]
     env:
-      VERSION: ${{ env.VERSION }}
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
       - name: Checkout repository
@@ -104,28 +106,28 @@ jobs:
         with:
           name: android-artifacts-dev
           path: |
-            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
-            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed-aligned.apk
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed.aab
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          name: "Release ${{ env.VERSION }}"
+          tag_name: ${{ needs.dev-build-local-images.outputs.version }}
+          name: "Release ${{ needs.dev-build-local-images.outputs.version }}"
           body: |
             Android artifacts for `${{ env.INFRA_ENV }}`:
             - Signed APK and AAB generated
             - Keystore: release.${{ env.INFRA_ENV }}.keystore
           files: |
-            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
-            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed-aligned.apk
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   deploy-release-to-dev:
     name: Build and Deploy to Dev environment 🚀
     runs-on: self-hosted
-    needs: sign-and-release-artifacts
+    needs: [dev-build-local-images, sign-and-release-artifacts]
     env:
-      VERSION: ${{ env.VERSION }}
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
       - name: Checkout repository
@@ -142,7 +144,7 @@ jobs:
     needs: [dev-build-local-images, local-dev-environment, run-tests, sign-and-release-artifacts, deploy-release-to-dev]
     if: ${{ always() }}
     env:
-      VERSION: ${{ env.VERSION }}
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
       - name: Checkout repository
