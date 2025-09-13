@@ -32,17 +32,9 @@ local-application-backend-install:
 	@echo Installed backend.
 .PHONY: local-application-backend-install
 
-# Handle buildx cache in local folder
-LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE=$(APPLICATION_BACKEND_DIR)/.docker-buildx-cache/
-$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
-LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-endif
-LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE= type=local,dest=$(APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
-
 local-application-backend-container-up: local-application-backend-container-rm
-	@$(LOCAL_APPLICATION_DIR)/backend/docker-compose-up.sh &
-	@until nc -z application-backend 8080 ; do \
+	@$(CURDIR)/application/backend/docker-start.sh &
+	@until nc -z backend 8080 ; do \
 		sleep 1 ; \
 	done
 	@$(LOCAL_DOCKER_COMPOSE) logs backend

@@ -1,22 +1,22 @@
 local-android-emulator-logs:
-	@$(LOCAL_ANDROID_STUDIO) adb logcat -T 10
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) adb logcat -T 10
 .PHONY: local-android-emulator-logs
 
 local-android-emulator-adb-devices-list:
-	@$(LOCAL_ANDROID_STUDIO) adb devices -l
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) adb devices -l
 .PHONY: local-android-emulator-adb-devices-list
 
 local-android-emulator-kernel:
 	@echo "Showing emulator kernel..."
-	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Showing emulator kernel..." ; \
-	  emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
+	  emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
 	  echo "[*] Emulator kernel shown." ; \
 	'
 .PHONY: local-android-emulator-kernel
 
 local-android-emulator-dump: 
-	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  set -e ; \
 	  output_dir=$(LOCAL_ANDROID_STUDIO_DIR)/_emulator_dump ; \
 	  mkdir -p $$output_dir ; \
@@ -37,7 +37,7 @@ local-android-emulator-dump:
 .PHONY: local-android-emulator-dump
 
 local-android-emulator-data-load:
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	make -C ../.. local-android-emulator-data-load-mobile-images
 	@echo "Data loaded to android-studio emulator"
 .PHONY: local-android-emulator-data-load

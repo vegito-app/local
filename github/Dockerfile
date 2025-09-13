@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
     make \
     unzip \
     sudo \
-    wget
+    wget \
+    netcat-openbsd
 
 ARG TARGETPLATFORM
 

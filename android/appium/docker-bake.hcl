@@ -14,31 +14,33 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-appium/ci"
 }
 
-variable "LOCAL_ANDROID_STUDIO_VERSION" {
-  default = notequal("",ANDROID_STUDIO_VERSION)?ANDROID_STUDIO_VERSION:"2025.1.1.9"
+variable "LOCAL_ANDROID_APPIUM_DIR" {
+  default = "${LOCAL_ANDROID_DIR}/appium"
 }
 
-variable "LOCAL_ANDROID_NDK_VERSION" {
-  default = notequal("",ANDROID_NDK_VERSION)?ANDROID_NDK_VERSION:"27.0.12077973"
+variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_ANDROID_APPIUM_DIR}/.containers/android-appium/docker-buildx-cache"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for android-appium image build"
+  description = "local write cache for local-android-appium image build"
+  default = "type=local,mode=max,dest=${LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for android-appium image build (cannot be used before first write)"
+  description = "local read cache for local-android-appium image build (cannot be used before first write)"
+  default = "type=local,src=${LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-variable "FLUTTER_VERSION" {
-  default = "3.32.8"
+variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-appium-latest"
 }
 
 target "local-android-appium-ci" {
   args = {
     android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
   }
-  context = "${LOCAL_DIR}/android/appium"
+  context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
     LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,
@@ -58,7 +60,7 @@ target "local-android-appium" {
   args = {
     android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
   }
-  context = "${LOCAL_DIR}/android/appium"
+  context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
     LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,

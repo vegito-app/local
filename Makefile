@@ -14,6 +14,12 @@ INFRA_PROJECT_NAME := moov
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
 
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet \
+  application-tests
+
 export
 
 -include git.mk
@@ -65,6 +71,10 @@ dev:
 	@$(MAKE) -j local-containers-up
 .PHONY: dev
 
+dev-ci:
+	@$(MAKE) -j local-containers-up-ci
+.PHONY: dev-ci
+  
 dev-rm: 
 	@$(MAKE) -j local-containers-rm-all
 .PHONY: dev-rm

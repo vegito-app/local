@@ -5,9 +5,9 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
 }
 
-# variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
-#   default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
-# }
+variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
+}
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
@@ -17,7 +17,7 @@ variable "LOCAL_BUILDER_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-latest"
 }
 
-variable "LOCAL_BUILDER_REGISTRY_CACHE_IMAGE" {
+variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder"
 }
 
@@ -35,6 +35,13 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for builder image build (cannot be used before first write)"
+}
+
+variable "platforms" {
+  default = [
+    "linux/amd64",
+    # "linux/arm64"
+  ]
 }
 
 target "local-project-builder-ci" {
@@ -87,11 +94,11 @@ target "local-project-builder" {
     notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
     "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
 }

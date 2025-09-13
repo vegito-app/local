@@ -3,20 +3,12 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
-local-images: 
-	@$(MAKE) -j local-docker-images-ci
-.PHONY: local-images
+# local-images: local-docker-images-ci
+# .PHONY: local-images
 
 local-images-push: 
 	@$(MAKE) -j local-docker-images-push local-android-docker-images-push-parallel
 .PHONY: local-images-push
-
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
-$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
-endif
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
@@ -57,8 +49,8 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-project-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
+local-project-builder-image: docker-buildx-setup
+	$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
 .PHONY: local-project-builder-image
 
@@ -99,10 +91,13 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+  dev \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests
+  application-tests \
+  application-backend \
+  application-mobile \
 
 local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-docker-compose-images-pull
@@ -123,6 +118,20 @@ local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
+
+local-containers-up-ci: 
+	@$(MAKE) $(LOCAL_DOCKER_COMPOSE_SERVICES) \
+      LOCAL_ANDROID_STUDIO_ON_START=false \
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH=false \
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
+	  LOCAL_VAULT_AUDIT_INIT=false \
+	  LOCAL_ANDROID_STUDIO_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):android-studio-$(VERSION) \
+	  LOCAL_ANDROID_STUDIO_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):clarinet-devnet-$(VERSION) \
+	  LOCAL_ANDROID_STUDIO_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):firebase-emulators-$(VERSION) \
+	  LOCAL_ANDROID_STUDIO_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):vault-dev-$(VERSION) \
+	  LOCAL_ANDROID_STUDIO_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-backend-$(VERSION) \
+	  LOCAL_ANDROID_STUDIO_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-mobile-$(VERSION)
+.PHONY: local-containers-up-ci
 
 local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
@@ -161,8 +170,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
 
 local-dev-container:
-	@echo "🔧 Starting local development container..."
-	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+	$(LOCAL_DOCKER_COMPOSE) up -d dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:

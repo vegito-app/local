@@ -103,4 +103,5 @@ echo "📜 Kernel & system log tails (Ctrl+C to stop):"
 adb logcat -v time | sed -n '1,200p' || true
 adb logcat --pid=$(adb shell pidof -s com.android.systemui) -v threadtime &
 bg_pids+=($!)
-sleep infinity
+
+wait "${bg_pids[@]}"

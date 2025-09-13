@@ -76,9 +76,8 @@ sudo chmod 660 /dev/kvm
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}" &
-  sleep infinity
+  echo "[entrypoint] No command passed, waiting.   to keep container alive"
+  wait "${bg_pids[@]}"
 else
   exec "$@"
 fi
