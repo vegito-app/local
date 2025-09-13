@@ -15,6 +15,7 @@ jobs:
       INFRA_ENV: dev
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -51,18 +52,35 @@ jobs:
       - name: Build and load local project images
         run: |
           make images-ci
+      - name: Export VERSION for next jobs
+        run: echo "VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
   local-dev-environment:
     name: Start dev environment containers
     runs-on: self-hosted
     needs: dev-build-local-images
+    env:
+      VERSION: ${{ env.VERSION }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Start dev environment containers
         run: make dev
+        working-directory: ./local
   run-tests:
     name: Run tests ✅
     runs-on: self-hosted
     needs: local-dev-environment
+    env:
+      VERSION: ${{ env.VERSION }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Run backend tests
         run: make test-backend
       - name: Run mobile tests
@@ -71,7 +89,14 @@ jobs:
     name: Sign and Release APK & AAB 📦
     runs-on: self-hosted
     needs: run-tests
+    env:
+      VERSION: ${{ env.VERSION }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Build Release from Docker image
         run: make local-application-mobile-image-tag-release
       - name: Upload signed APK and AAB 📤
@@ -99,7 +124,14 @@ jobs:
     name: Build and Deploy to Dev environment 🚀
     runs-on: self-hosted
     needs: sign-and-release-artifacts
+    env:
+      VERSION: ${{ env.VERSION }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Deployment of last changes to dev environment
         run: |
           make infra-deploy-dev
@@ -109,7 +141,14 @@ jobs:
     runs-on: self-hosted
     needs: [dev-build-local-images, local-dev-environment, run-tests, sign-and-release-artifacts, deploy-release-to-dev]
     if: ${{ always() }}
+    env:
+      VERSION: ${{ env.VERSION }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Shutdown containers
         run: make dev-rm
       - name: Notify cleanup done
