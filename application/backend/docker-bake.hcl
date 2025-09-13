@@ -1,3 +1,8 @@
+variable "LOCAL_APPLICATION_BACKEND_DIR" {
+  description = "current git tag or commit version"
+  default     = "application/backend"
+}
+
 variable "LOCAL_APPLICATION_VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
@@ -16,11 +21,24 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend"
+  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/application-backend"
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend/ci"
+  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/application-backend/ci"
+}
+variable "LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_APPLICATION_BACKEND_DIR}/.containers/application-backend/docker-buildx-cache"
+}
+
+variable "LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+  description = "local write cache for local-application-backend image build"
+  default = "type=local,mode=max,dest=${LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for local-application-backend image build (cannot be used before first write)"
+  default = "type=local,src=${LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 target "local-application-backend-ci" {
@@ -49,14 +67,6 @@ target "local-application-backend-ci" {
     "linux/amd64",
   ]
   push = true
-}
-
-variable "LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
-  description = "local write cache for backend image build"
-}
-
-variable "LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for backend image build (cannot be used before first write)"
 }
 
 target "local-application-backend" {
