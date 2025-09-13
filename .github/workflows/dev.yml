@@ -69,6 +69,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
       - name: Start dev environment containers
         run: make dev
   run-tests:
@@ -83,10 +86,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Run backend tests
-        run: make test-backend
-      - name: Run mobile tests
-        run: make test-mobile
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: Run Application tests
+        run: make application-tests
   sign-and-release-artifacts:
     name: Sign and Release APK & AAB 📦
     runs-on: self-hosted
@@ -99,6 +103,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
       - name: Build Release from Docker image
         run: make local-application-mobile-image-tag-release
       - name: Upload signed APK and AAB 📤
@@ -151,6 +158,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
       - name: Shutdown containers
         run: make dev-rm
       - name: Notify cleanup done
