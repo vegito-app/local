@@ -73,6 +73,7 @@ dev:
 
 dev-ci:
 	@$(MAKE) -j local-containers-up-ci
+.PHONY: dev-ci
   
 dev-rm: 
 	@$(MAKE) -j local-containers-rm-all

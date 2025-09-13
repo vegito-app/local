@@ -29,9 +29,11 @@ echo "✅ Vault is unsealed and ready."
 
 VAULT_AUDIT=${VAULT_AUDIT:-${PWD:-/workspaces}/.containers/vault/audit}
 
-mkdir -p ${VAULT_AUDIT}
-
-vault audit enable file file_path=${VAULT_AUDIT}/vault_audit.log
+if [ "${VAULT_AUDIT_INIT:-false}" = "true" ]; then
+  echo "📁 Vault audit logs will be stored in: ${VAULT_AUDIT}/vault_audit.log"
+  mkdir -p ${VAULT_AUDIT}
+  vault audit enable file file_path=${VAULT_AUDIT}/vault_audit.log
+fi
 
 if [ $# -eq 0 ]; then
   wait "${bg_pids[@]}"
