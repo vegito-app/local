@@ -30,8 +30,7 @@ LOCAL_DOCKER_BUILDX_GROUPS := \
 # In this variant, images are built and loaded into the local Docker daemon.
 # The build does not push images to a remote registry.
 # Groups are not built sequentially, so images may not use the latest version of their base image.
-docker-images: 
-	@$(MAKE) -j $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images)
+docker-images: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images)
 .PHONY: docker-images
 
 # Build all images (CI)

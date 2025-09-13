@@ -3,20 +3,12 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
-local-images: 
-	@$(MAKE) -j local-docker-images-ci
-.PHONY: local-images
+# local-images: local-docker-images-ci
+# .PHONY: local-images
 
 local-images-push: 
 	@$(MAKE) -j local-docker-images-push local-android-docker-images-push-parallel
 .PHONY: local-images-push
-
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_DIR)/.containers/docker-buildx-cache/local-builder
-$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
-endif
-LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE)
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
@@ -57,8 +49,8 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-project-builder-image: $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
+local-project-builder-image: docker-buildx-setup
+	$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
 .PHONY: local-project-builder-image
 
