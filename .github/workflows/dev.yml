@@ -73,7 +73,7 @@ jobs:
         run: |
           ./dotenv.sh
       - name: Start dev environment containers
-        run: make dev
+        run: make dev-ci
   run-tests:
     name: Run tests ✅
     runs-on: self-hosted

@@ -119,6 +119,13 @@ local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 .PHONY: local-containers-up
 
+local-containers-up-ci: 
+	@$(MAKE) $(LOCAL_DOCKER_COMPOSE_SERVICES) \
+      LOCAL_ANDROID_STUDIO_ON_START=false \
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH=false \
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
+.PHONY: local-containers-up-ci
+
 local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm-all
 

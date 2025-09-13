@@ -32,9 +32,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES := \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests \
-  application-backend \
-  application-mobile
+  application-tests
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -73,6 +71,9 @@ dev:
 	@$(MAKE) -j local-containers-up
 .PHONY: dev
 
+dev-ci:
+	@$(MAKE) -j local-containers-up-ci
+  
 dev-rm: 
 	@$(MAKE) -j local-containers-rm-all
 .PHONY: dev-rm
