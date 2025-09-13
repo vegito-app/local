@@ -1,6 +1,6 @@
 LOCAL_ANDROID_APPIUM_DIR ?= $(LOCAL_ANDROID_DIR)/appium
 LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE ?= $(LOCAL_ANDROID_APPIUM_DIR)/.containers/docker-buildx-cache/android-appium
-$(LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
+# $(LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE):;	@mkdir -p "$@"
 ifneq ($(wildcard $(LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)/index.json),)
 LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE)
 endif
@@ -8,7 +8,7 @@ LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$
 LOCAL_ANDROID_APPIUM_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):android-appium-latest
 
 local-android-appium-emulator-avd-restart:
-	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Killing emulator & adb..." ; \
 	  pkill -9 emulator ; \
 	  pkill -9 qemu-system ; \
@@ -30,7 +30,7 @@ local-android-appium-emulator-avd-restart:
 .PHONY: local-android-appium-emulator-avd-restart
 
 local-android-appium-emulator-avd:
-	@$(LOCAL_ANDROID_STUDIO) appium-emulator-avd.sh
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) appium-emulator-avd.sh
 .PHONY: local-android-appium-emulator-avd
 
 local-android-appium-container-up: local-android-appium-container-rm

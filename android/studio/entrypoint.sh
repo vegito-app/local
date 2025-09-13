@@ -44,7 +44,7 @@ fi
 
 if [ ! -f ~/.android/release.keystore ]; then
     echo "[entrypoint] No release.keystore found, generating via Makefile..."
-    LOCAL_ANDROID_STUDIO="" make -C ../.. local-android-release-keystore
+    LOCAL_ANDROID_CONTAINER_EXEC="" make -C ../.. local-android-release-keystore
 else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi

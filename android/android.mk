@@ -116,9 +116,12 @@ local-android-docker-images-push-parallel:
 	@$(MAKE) -j local-android-docker-images-push
 .PHONY: local-android-docker-images-push-parallel
 
+LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
+LOCAL_ANDROID_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
+
 local-android-appium-emulator-avd-wipe-data:
 	@echo "Android Studio Emulator Wipe Data:"
-	@$(LOCAL_ANDROID_STUDIO) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 		emulator -avd $(LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data \
 		--gpu $(LOCAL_ANDROID_CONTAINER_GPU_MODE) ; \
 	'
@@ -126,7 +129,7 @@ local-android-appium-emulator-avd-wipe-data:
 
 local-android-app-sha1-fingerprint:
 	@echo "Android Studio Emulator SHA1 fingerprint:" 
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 .PHONY: local-android-emulator-app-sha1-fingerprint
 
@@ -146,7 +149,7 @@ local-android-release-keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)
 
 $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 	@echo "🔐 Generating release keystore at: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)";
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  keytool -genkey -v \
 	    -keystore $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    -alias $(LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME) \
@@ -161,7 +164,7 @@ LOCAL_ANDROID_APK_RELEASE_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-unsigned.apk
 
 local-android-sign-apk:
 	@echo "📦 Signing APK with keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)..."
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
 	    -keystore $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    -storepass $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS) \
@@ -171,13 +174,13 @@ local-android-sign-apk:
 
 local-android-verify-apk:
 	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_APK_RELEASE_PATH)..."
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  jarsigner -verify -verbose -certs $(LOCAL_ANDROID_APK_RELEASE_PATH)
 .PHONY: local-android-verify-apk
 
 local-android-align-apk:
 	@echo "🧰 Aligning APK: $(LOCAL_ANDROID_APK_RELEASE_PATH)..."
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  zipalign -v 4 $(LOCAL_ANDROID_APK_RELEASE_PATH) app-release-signed-aligned.apk
 .PHONY: local-android-align-apk
 ################################################################################
@@ -186,7 +189,7 @@ LOCAL_ANDROID_AAB_PATH ?= $(LOCAL_ANDROID_DIR)/app-release.aab
 
 local-android-sign-aab:
 	@echo "📦 Signing AAB with keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)..."
-	@$(LOCAL_ANDROID_STUDIO) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
 	    -keystore $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    -storepass $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS) \
@@ -196,8 +199,8 @@ local-android-sign-aab:
 
 local-android-build-release: 
 	@echo "🏗️ Building unsigned APK and AAB for '$(INFRA_ENV)'..."
-	@$(LOCAL_ANDROID_STUDIO) bash -c 'cd mobile && flutter build apk --flavor $(INFRA_ENV) --release'
-	@$(LOCAL_ANDROID_STUDIO) bash -c 'cd mobile && flutter build appbundle --flavor $(INFRA_ENV) --release'
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c 'cd mobile && flutter build apk --flavor $(INFRA_ENV) --release'
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c 'cd mobile && flutter build appbundle --flavor $(INFRA_ENV) --release'
 	@echo "📦 Signing APK..."
 # 	@$(MAKE) local-android-sign-apk LOCAL_ANDROID_APK_PATH=mobile/build/app/outputs/apk/$(INFRA_ENV)/release/app-$(INFRA_ENV)-release.apk
 # 	@$(MAKE) local-android-verify-apk LOCAL_ANDROID_APK_PATH=mobile/build/app/outputs/apk/$(INFRA_ENV)/release/app-$(INFRA_ENV)-release.apk
