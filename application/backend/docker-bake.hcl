@@ -15,12 +15,12 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {
   default = "${LOCAL_APPLICATION_BACKEND_IMAGES_BASE}-latest"
 }
 
-variable "LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-backend"
+variable "LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend"
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/application-backend/ci"
+  default = "${VEGITO_APP_PRIVATE_IMAGES_BASE}/cache/application-backend/ci"
 }
 
 target "local-application-backend-ci" {
@@ -38,12 +38,12 @@ target "local-application-backend-ci" {
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${LOCAL_APPLICATION_BACKEND_IMAGE_LATEST}",
     LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline",
   ]
   platforms = [
     "linux/amd64",
@@ -74,11 +74,11 @@ target "local-application-backend" {
     LOCAL_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
     LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
     "type=inline,ref=${LOCAL_APPLICATION_BACKEND_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
 }

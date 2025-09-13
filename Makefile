@@ -14,6 +14,14 @@ INFRA_PROJECT_NAME := moov
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
 LOCAL_PROJECT_NAME := vegito-local
 
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet \
+  application-tests \
+  application-backend \
+  application-mobile
+
 export
 
 -include git.mk
@@ -26,7 +34,9 @@ LOCAL_DOCKER_COMPOSE_SERVICES := \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests
+  application-tests \
+  application-backend \
+  application-mobile
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -35,7 +45,7 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_APPLICATION_DIR)/%/docker-bake.hcl) \
+	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:local-application-%=-f $(LOCAL_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE = docker compose \

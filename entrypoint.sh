@@ -120,7 +120,7 @@ fi
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  sleep infinity
+  wait "${bg_pids[@]}"
 else
   exec "$@"
 fi
