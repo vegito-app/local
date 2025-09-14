@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eux pipefail
 
 
 # 📌 List of PIDs of background processes
@@ -18,20 +18,15 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-# Local Container Cache
-local_container_cache=${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/clarinet-devnet}
-mkdir -p $local_container_cache
+export LOCAL_USER_ID=$(id -u)
 
-# local docker rootless cache 
-LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.share/docker
-mkdir -p $local_container_cache/dockerd
-mkdir -p ${HOME}/.share/
-ln -s $local_container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+if [ "${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}" = "true" ]; then
+    caches-refresh.sh
+fi
 
 dockerd-entrypoint.sh --dns=8.8.8.8 --dns=8.8.4.4 &
 bg_pids+=("$!")
 
-LOCAL_USER_ID=$(id -u)
 
 export DOCKER_HOST=unix:///run/user/$LOCAL_USER_ID/docker.sock
 
@@ -45,19 +40,6 @@ bg_pids+=("$!")
 mkdir -p ${HOME}/.docker/run
 ln -s /run/user/$LOCAL_USER_ID/docker.sock ${HOME}/.docker/run/docker.sock
 
-
-# Bash history
-rm -f ~/.bash_history
-ln -sfn ${local_container_cache}/bash_history ~/.bash_history
-touch ${local_container_cache}/bash_history
-
-cat <<EOF >> ~/.bashrc
-export HISTSIZE=50000
-export HISTFILESIZE=100000
-export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
-export DOCKER_CONFIG=${local_container_cache}/.docker
-export DOCKER_BUILDKIT=1
-EOF
 
 # Set inotify watches limit
 echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p

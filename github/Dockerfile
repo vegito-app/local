@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
     make \
     unzip \
     sudo \
-    wget
+    wget \
+    netcat-openbsd
 
 ARG TARGETPLATFORM
 
@@ -167,9 +168,11 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
     && chown -R ${non_root_user}:${non_root_user} .
 
 USER ${non_root_user}
-COPY docker-entrypoint.sh /github-entrypoint.sh
-ENTRYPOINT ["/github-entrypoint.sh"]
+COPY entrypoint.sh /gha-entrypoint.sh
+ENTRYPOINT ["/gha-entrypoint.sh"]
 
 ENV RUNNER_WORKDIR=/runner/_work
 RUN mkdir ${RUNNER_WORKDIR}
+RUN chown ${non_root_user}:${non_root_user} ${RUNNER_WORKDIR}
+RUN chmod o+rw ${RUNNER_WORKDIR}
 VOLUME ["${RUNNER_WORKDIR}"]
