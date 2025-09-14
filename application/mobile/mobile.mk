@@ -19,10 +19,10 @@ local-application-mobile-container-up: local-application-mobile-container-rm
 
 FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
 
-LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
+LOCAL_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
 
 local-application-mobile-flutter-create:
-	@$(FLUTTER) create . --org $(LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
+	@$(FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
 	@echo "Flutter application created successfully"
 	@echo "Please run 'make local-application-mobile-flutter-pub-get' to install dependencies"
 	@echo "You can also run 'make local-application-mobile-flutter-analyze' to analyze the code"
