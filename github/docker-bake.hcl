@@ -20,7 +20,7 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
 
 variable "GITHUB_ACTION_RUNNER_VERSION" {
   description = "current Github Actions Runner version"
-  default     = "2.327.1"
+  default     = "2.328.0"
 }
 
 group "service" {
