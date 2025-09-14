@@ -15,14 +15,18 @@ jobs:
       INFRA_ENV: dev
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+    outputs:
+      version: ${{ steps.define_version.outputs.VERSION }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
       - name: Define VERSION
+        id: define_version
         run: |
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
       - name: Refresh local/.env file
         run: |
           ./dotenv.sh
@@ -51,3 +55,204 @@ jobs:
       - name: Build and load local project images
         run: |
           make images-ci
+      - name: Export VERSION for next jobs
+        run: echo "VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
+  local-dev-environment:
+    environment: dev
+    env:
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: dev
+      USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
+      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+    
+    name: Start dev environment containers
+    runs-on: self-hosted
+    needs: dev-build-local-images
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+      - name: Define VERSION
+        id: define_version
+        run: |
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: 🔍 Debug workspace content before Make
+        run: |
+          echo "📂 Current directory: $(pwd)"
+          echo "📁 Workspace structure:"
+          tree /runner || true
+          ls -al /runner/_work/local || true
+          ls -al /runner/_work/local/local || true
+
+      - name: 🔍 Debug Git repo status
+        run: |
+          git status
+          git remote -v
+          git log --oneline -n 5
+      - name: 🔍 Verify project content before make
+        run: |
+          echo "📁 CWD content:"
+          ls -al
+          echo "📁 Expected subdirectories:"
+          find . -maxdepth 2
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Start dev environment containers
+        run: make dev-ci
+  run-tests:
+    name: Run tests ✅
+    runs-on: self-hosted
+    needs: [dev-build-local-images, local-dev-environment]
+    env:
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+      - name: Define VERSION
+        id: define_version
+        run: |
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Run Application tests
+        run: make application-tests
+  sign-and-release-artifacts:
+    name: Sign and Release APK & AAB 📦
+    runs-on: self-hosted
+    needs: [dev-build-local-images, run-tests]
+    env:
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: Build Release from Docker image
+        run: make local-application-mobile-image-tag-release
+      - name: Upload signed APK and AAB 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts-dev
+          path: |
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed-aligned.apk
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed.aab
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.dev-build-local-images.outputs.version }}
+          name: "Release ${{ needs.dev-build-local-images.outputs.version }}"
+          body: |
+            Android artifacts for `${{ env.INFRA_ENV }}`:
+            - Signed APK and AAB generated
+            - Keystore: release.${{ env.INFRA_ENV }}.keystore
+          files: |
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed-aligned.apk
+            application/mobile/app-release-${{ needs.dev-build-local-images.outputs.version }}-signed.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  deploy-release-to-dev:
+    name: Build and Deploy to Dev environment 🚀
+    runs-on: self-hosted
+    needs: [dev-build-local-images, sign-and-release-artifacts]
+    env:
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+      - name: Define VERSION
+        id: define_version
+        run: |
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Deployment of last changes to dev environment
+        run: |
+          make infra-deploy-dev
+  
+  cleanup:
+    name: Cleanup docker env 🧼
+    runs-on: self-hosted
+    needs: [dev-build-local-images, local-dev-environment, run-tests, sign-and-release-artifacts, deploy-release-to-dev]
+    if: ${{ always() }}
+    env:
+      VERSION: ${{ needs.dev-build-local-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Refresh local/.env file
+        run: |
+          ./dotenv.sh
+      - name: Shutdown containers
+        run: make dev-rm
+      - name: Notify cleanup done
+        run: echo "Cleaning completed."

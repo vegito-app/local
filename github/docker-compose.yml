@@ -3,7 +3,9 @@ services:
     restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
+      - /runner/_work:/runner/_work:cached
       - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /runner/_work
     environment:
       - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}

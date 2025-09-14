@@ -100,7 +100,7 @@ services:
     entrypoint: ${PWD}/android/studio/entrypoint.sh
     environment:
       HOST_PWD: ${PWD}
-      APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      LOCAL_ANDROID_APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
@@ -113,7 +113,7 @@ services:
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
       LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
-      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
@@ -138,7 +138,7 @@ services:
       - .env
     environment:
       HOST_PWD: ${PWD}
-      APK_PATH: ${LOCAL_ANDROID_APK_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
+      LOCAL_ANDROID_APK_PATH: ${LOCAL_ANDROID_APK_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
@@ -146,7 +146,7 @@ services:
       LOCAL_ANDROID_APPIUM_CONTAINER_CACHE: ${LOCAL_ANDROID_APPIUM_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_APPIUM_ANDROID_GPU_MODE:-swiftshader_indirect}
       LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_APPIUM_ANDROID_AVD_NAME:-Pixel_8_Intel}
-      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
@@ -173,6 +173,7 @@ services:
       VAULT_ADDR: http://0.0.0.0:8200
       VAULT_DEV_ROOT_TOKEN_ID: root
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_AUDIT_INIT: ${LOCAL_VAULT_AUDIT_INIT:-true}
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/application
