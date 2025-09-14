@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eux pipefail
 
 # List to hold background job PIDs
 bg_pids=()

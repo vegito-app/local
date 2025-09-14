@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -exuo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -18,8 +18,8 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH}" = "true" ]; then
-    ${PWD}/../../android/studio/caches-refresh.sh
+if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
+    caches-refresh.sh
 fi
 
 android_adb_key=${LOCAL_ANDROID_ADB_KEY_PATH:-~/.android/adbkey}
@@ -53,7 +53,7 @@ else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi
 
-(${PWD}/../../android/emulator/entrypoint.sh) &
+(android-emulator-entrypoint.sh) &
 bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then

@@ -11,13 +11,13 @@ cleanup() {
 trap cleanup SIGHUP SIGINT SIGTERM
 
 # Exécutez la commande en arrière-plan 
-./config.sh \
+/runner/config.sh \
     --url $GITHUB_ACTIONS_RUNNER_URL \
     --token $GITHUB_ACTIONS_RUNNER_TOKEN \
     --unattended \
     --name $GITHUB_ACTIONS_RUNNER_STACK-`hostname`
     
-./run.sh &
+/runner/run.sh &
 
 # Attendez la fin de l'exécution en arrière-plan
 wait $!

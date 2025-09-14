@@ -30,10 +30,18 @@ RUN FLUTTER="cd application/mobile && flutter" make \
     local-application-mobile-flutter-build-apk-release \
     local-application-mobile-flutter-build-appbundle-release
 
-FROM ${apk_runner_appium_image} AS android_studio
+FROM ${apk_runner_appium_image} AS runner
 
-COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release.apk
-COPY --from=builder /home/android/src/application/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release.aab
+ENV LOCAL_ANDROID_APK_PATH=/build/output/app-release.apk
+ENV LOCAL_ANDROID_AAB_PATH=/build/output/app-release.aab
+
+COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk ${LOCAL_ANDROID_APK_PATH}
+COPY --from=builder /home/android/src/application/mobile/build/app/outputs/bundle/release/app-release.aab ${LOCAL_ANDROID_AAB_PATH}
 
 ARG android_package_name=dev.vegito.app.android
-ENV APPLICATION_MOBILE_ANDROID_PACKAGE_NAME=${android_package_name}
+
+ENV LOCAL_ANDROID_PACKAGE_NAME=${android_package_name}
+
+ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
+
+ENTRYPOINT [ "android-appium-entrypoint.sh" ]
