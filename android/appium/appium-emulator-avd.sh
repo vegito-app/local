@@ -1,12 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-HEADLESS_ARGS="-no-window"
-if xdpyinfo >/dev/null 2>&1; then
-  HEADLESS_ARGS=""
-fi
-
-
 # 📌 List of PIDs of background processes
 bg_pids=()
 
@@ -32,23 +26,33 @@ fi
 echo "List of available AVDs:"
 emulator -list-avds
 
-avd_to_use="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
-echo "AVD to use: ${avd_to_use}"
+apk_path="${LOCAL_ANDROID_APK_PATH:-/build/output/app-release.apk}"
+avd_name="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
+gpu_mode="${LOCAL_ANDROID_gpu_mode:-swiftshader_indirect}"
+package_name="${LOCAL_ANDROID_PACKAGE_NAME:-vegito.example.app}"
+
+echo "Using APK path: ${apk_path}"
+echo "Using package name: ${package_name}"
+echo "Using GPU mode: ${gpu_mode}"
+echo "Using AVD name: ${avd_name}"  
 
 # Detect KVM availability
-ACCEL_ARGS="-accel on"
+accel_args="-accel on"
 if [ ! -e /dev/kvm ]; then
   echo "⚠️ /dev/kvm not present, falling back to software accel"
-  ACCEL_ARGS="-accel off"
+  accel_args="-accel off"
 fi
 
-GPU_MODE="${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}"
+headless_args="-no-window"
+if xdpyinfo >/dev/null 2>&1; then
+  headless_args=""
+fi
 
-echo "Starting AVD named: ${avd_to_use} (gpu=${GPU_MODE})"
-emulator -avd "${avd_to_use}" \
-  -gpu "${GPU_MODE}" \
-  ${HEADLESS_ARGS} \
-  ${ACCEL_ARGS} \
+echo "Starting AVD named: ${avd_name} (gpu=${gpu_mode})"
+emulator -avd "${avd_name}" \
+  -gpu "${gpu_mode}" \
+  ${headless_args} \
+  ${accel_args} \
   -noaudio -no-snapshot-load \
   -no-boot-anim \
   -wipe-data \
@@ -66,35 +70,38 @@ echo "Starting Appium server..."
 appium --address 0.0.0.0 --port 4723 \
   --session-override --log-level info \
   --allow-insecure=adb_shell &
-bg_pids+=($!)
+bg_pids+=($!)ﬂ
 echo "Appium is ready to accept connections on port 4723."
 
-emulator-data-load.sh "${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}"
+emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
+echo "Loading test data from: ${emulator_data}"
+
+emulator-data-load.sh "${emulator_data}"
 
 echo "Checking if an APK is present and installing..."
-if [ -f "${APK_PATH}" ]; then
-  echo "APK found at ${APK_PATH}, attempting installation..."
-  if adb install -r "${APK_PATH}"; then
-    echo "✅ APK installed successfully."
+if [ -f "${apk_path}" ]; then
+  echo "APK found package_name ${apk_path}, attempting installation..."
+  if adb install -r "${package_name}"; then
+    echo "✅ APK installed package_name."
 
     echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 
     sleep 2
 
-    if adb shell pidof "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" >/dev/null; then
+    if adb shell pidof "${package_name}" >/dev/null; then
       echo "✅ App is running."
     else
       echo "⚠️ App did not launch. Trying again..."
-      adb shell monkey -p "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" -c android.intent.category.LAUNCHER 1
+      adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1
     fi
 
   else
     echo "❌ APK installation failed."
   fi
 else
-  echo "⚠️ No APK found at ${APK_PATH}; skipping installation."
-fi
+  echo "⚠️ No APK found at ${apk_path}; skipping installation."
+package_name
 
 echo "The emulator is ready and running."
 echo "You can now run your Appium tests."

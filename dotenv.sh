@@ -109,9 +109,9 @@ services:
       '
   android-studio:
     environment:
-      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${PWD}/application/tests/mobile_images
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: true
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
       LOCAL_ANDROID_APK_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
 
@@ -136,7 +136,10 @@ services:
       
       sleep infinity
       '
-    
+  clarinet-devnet:
+    environment:
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
+      
   application-tests:
     working_dir: ${PWD}/tests
     environment:
