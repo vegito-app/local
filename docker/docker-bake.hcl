@@ -6,7 +6,6 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
-
 variable "GO_VERSION" {
   description = "current Go version"
   default     = "1.24.5"
@@ -62,9 +61,9 @@ variable "INFRA_ENV" {
   default     = "dev"
 }
 
-# variable "VEGITO_PRIVATE_REPOSITORY" {
-#   default = "${INFRA_ENV}-docker-repository"
-# }
+variable "VEGITO_PRIVATE_REPOSITORY" {
+  default = "${INFRA_ENV}-docker-repository"
+}
 
 variable "VEGITO_PUBLIC_REPOSITORY" {
   default = "${INFRA_ENV}-docker-repository-public"

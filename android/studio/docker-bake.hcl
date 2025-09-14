@@ -10,16 +10,12 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest"
 }
 
-variable "LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE" {
+variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio/ci"
-}
-
-variable "LOCAL_ANDROID_STUDIO_DIR" {
-  default = "${LOCAL_ANDROID_DIR}/studio"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -47,7 +43,7 @@ target "local-android-studio-ci" {
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    "appium": "${LOCAL_ANDROID_DIR}/appium",
+    "appium": "${LOCAL_DIR}/android/appium",
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
@@ -71,18 +67,18 @@ target "local-android-studio" {
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    "appium": "${LOCAL_ANDROID_DIR}/appium",
+    "appium": "${LOCAL_DIR}/android/appium",
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}" : "",
     LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
     "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
 }
