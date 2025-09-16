@@ -75,7 +75,7 @@ ENV DISPLAY=:${default_display}
 # Section 11 : Application mobile default
 # If a current APK is available, it will be automatically launched by 'appium-emulator-avd.sh'.
 ARG default_apk_path=/build/output/app.apk
-ENV LOCAL_ANDROID_APK_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]

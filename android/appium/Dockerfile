@@ -22,7 +22,7 @@ RUN chmod +x \
 
 # 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV LOCAL_ANDROID_APK_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
 ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_EMULATOR_DATA=tests/mobile_images
 

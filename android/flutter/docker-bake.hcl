@@ -37,8 +37,7 @@ variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "ANDROID_NDK_VERSION" {
-  # default = "27.0.12077973"
-  default = "25.2.9519653"
+  default = "27.0.12077973"
 }
 
 variable "FLUTTER_VERSION" {
@@ -86,4 +85,5 @@ target "local-android-flutter" {
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
+}
 }

@@ -33,7 +33,7 @@ else
 fi
 
 android_release_keystore=${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH:-~/.android/release.keystore}
-android_release_keystore_alias=${LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME:-vegito-release-key}
+android_release_keystore_alias=${LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME:-vegito-local-release}
 android_release_keystore_store_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS:-android}
 android_release_keystore_key_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS:-android}
 android_release_keystore_dname=${LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME:-"CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"}
