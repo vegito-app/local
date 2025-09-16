@@ -4,12 +4,6 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 LOCAL_DIR ?= $(CURDIR)
 
 LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github
-# local-images: local-docker-images-ci
-# .PHONY: local-images
-
-local-images-push: 
-	@$(MAKE) -j local-docker-images-push local-android-docker-images-push-parallel
-.PHONY: local-images-push
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
@@ -92,13 +86,11 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
-  dev \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests \
-  application-backend \
-  application-mobile
+  application-tests
+
 
 local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-docker-compose-images-pull

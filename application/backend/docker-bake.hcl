@@ -3,7 +3,7 @@ variable "LOCAL_APPLICATION_BACKEND_DIR" {
   default     = "application/backend"
 }
 
-variable "LOCAL_APPLICATION_VERSION" {
+variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
@@ -13,7 +13,7 @@ variable "LOCAL_APPLICATION_BACKEND_IMAGES_BASE" {
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGE" {
-  default = notequal("dev", LOCAL_APPLICATION_VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend-${LOCAL_APPLICATION_VERSION}" : ""
+  default = notequal("dev", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend-${VERSION}" : ""
 }
 
 variable "LOCAL_APPLICATION_BACKEND_IMAGE_LATEST" {

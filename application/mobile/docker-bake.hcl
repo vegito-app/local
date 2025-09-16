@@ -49,7 +49,7 @@ variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH" {
 
 variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH" {
   description = "Keystore for signing Android releases"
-  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.storepass.base64"
+  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.keystore.storepass.base64"
 }
 
 target "local-application-mobile" {
