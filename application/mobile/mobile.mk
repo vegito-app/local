@@ -4,18 +4,8 @@ LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_APPLICATION_MO
 LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
 
 local-application-mobile-container-up: local-application-mobile-container-rm
-	@$(LOCAL_APPLICATION_MOBILE_DIR)/docker-compose-up.sh &
-	@for i in 5037 5900; do \
-		until nc -z application-mobile $$i ; do \
-			echo "Waiting for application-mobile on port $$i..." ; \
-			sleep 1 ; \
-		done ; \
-	done
-	@$(LOCAL_DOCKER_COMPOSE) logs mobile
-	@echo
-	@echo Started Application Mobile: 
-	@echo Use VNC to view UI at http://127.0.0.1:5900
-	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
+	@echo "Starting mobile application container..."
+	@$(LOCAL_APPLICATION_MOBILE_DIR)/container-up.sh
 .PHONY: local-application-mobile-container-up
 
 FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
@@ -177,11 +167,11 @@ local-application-mobile-vacuum:
 	@echo "✅ Cleaned Flutter project and build artifacts"
 .PHONY: local-application-mobile-vacuum
 
-local-application-mobile-android-release: \
+local-application-mobile-android-release-build: \
 local-application-mobile-flutter-android-release \
 local-android-verify-apk \
 local-android-sign-aab
-.PHONY: local-application-mobile-android-release
+.PHONY: local-application-mobile-android-release-build
 
 LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
 
@@ -194,15 +184,15 @@ local-application-mobile-image-tag-apk-extract:
 	  echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH)"
 .PHONY: local-application-mobile-image-tag-apk-extract
 
-LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.aab
+LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.aab
 
 local-application-mobile-image-tag-aab-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
 	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
 	  echo "Copying AAB from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release-$(VERSION).aab $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH) && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).aab $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH) && \
 	  docker rm $$container_id > /dev/null && \
-	  echo "✅ AAB extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH)"
+	  echo "✅ AAB extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH)"
 .PHONY: local-application-mobile-image-tag-aab-extract
 
 local-application-mobile-flutter-android-release:
@@ -225,25 +215,22 @@ LOCAL_APPLICATION_MOBILE_RELEASE_APK_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/bui
 LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
 LOCAL_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME ?= vegito-local-release
 LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME ?= "CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"
-# LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
-# LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).storepass.base64
 
-application-android-release:
+local-application-mobile-android-release:
 	@LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_PATH=$(LOCAL_APPLICATION_MOBILE_RELEASE_AAB_PATH) \
 	LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH=$(LOCAL_APPLICATION_MOBILE_RELEASE_APK_PATH) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH) \
-	$(MAKE) local-android-release-keystore local-application-mobile-android-release 
+	$(MAKE) local-application-mobile-android-release-build
 	@echo "✅ Android Release APK built, aligned, signed and verified at: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)"
-	@echo "✅ Android Release AAB built, aligned, signed and verified at: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)"
-.PHONY: application-android-release
+	@echo "✅ Android Release AAB built, signed and verified at: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)"
+.PHONY: local-application-mobile-android-release
 
-application-android-release-keystore: 
+local-application-mobile-android-release-keystore: 
 	@LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=$(LOCAL_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
 	$(MAKE) local-android-release-keystore 
-.PHONY: application-android-release-keystore
-# 	LOCAL_ANDROID_DIR=$(LOCAL_APPLICATION_MOBILE_DIR)/android \
+.PHONY: local-application-mobile-android-release-keystore
 
 
 

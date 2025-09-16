@@ -120,8 +120,10 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   application-backend \
   application-mobile
 
+LOCAL_DEV_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm dev
+
 local-containers-up-ci: 
-	@$(MAKE) local-containers-up \
+	@$(LOCAL_DEV_CONTAINER_RUN) make local-containers-up \
 	  LOCAL_DOCKER_COMPOSE_SERVICES=$(LOCAL_DOCKER_COMPOSE_SERVICES_CI) \
       LOCAL_ANDROID_STUDIO_ON_START=false \
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH=false \
@@ -133,7 +135,7 @@ local-containers-up-ci:
 	  LOCAL_APPLICATION_TESTS_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-tests-$(VERSION)
 	  LOCAL_CLARINET_DEVNET_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):clarinet-devnet-$(VERSION) \
 	  LOCAL_FIREBASE_EMULATORS_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):firebase-emulators-$(VERSION) \
-	  LOCAL_VAULT_DEV_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):vault-dev-$(VERSION) \
+	  LOCAL_VAULT_DEV_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):vault-dev-$(VERSION)
 .PHONY: local-containers-up-ci
 
 local-containers-rm-all: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -uo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -90,7 +90,9 @@ echo "Starting Appium server..."
 appium --address 0.0.0.0 --port 4723 \
   --session-override --log-level info \
   --allow-insecure uiautomator2:adb_shell &
-bg_pids+=($!)
+appium_pid=$!
+bg_pids+=("$appium_pid")
+
 echo "Appium is ready to accept connections on port 4723."
 
 emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
@@ -125,10 +127,11 @@ fi
 
 echo "The emulator is ready and running."
 echo "You can now run your Appium tests."
+echo "Appium server is still running on port 4723 (Ctrl+C to stop / or script will auto-exit when all background jobs end)."
 
-echo "📜 Kernel & system log tails (Ctrl+C to stop):"
-adb logcat -v time | sed -n '1,200p' || true
-adb logcat --pid=$(adb shell pidof -s com.android.systemui) -v threadtime &
-bg_pids+=($!)
+# 🔍 Wait for Appium process to end, then exit
+echo "🔍 Waiting for Appium process (PID: $appium_pid) to end..."
+wait "$appium_pid"
+echo "⛔ Appium has stopped. Exiting script..."
+exit 0
 
-wait "${bg_pids[@]}"

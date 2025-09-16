@@ -3,39 +3,54 @@
 set -euo pipefail
 
 CONTAINER_NAME="application-mobile"
-PORTS_TO_WAIT_FOR=(5037 5900)
+PORTS_TO_WAIT_FOR=(4723 5900)
 
-# Function to kill background jobs when script ends
-kill_jobs() { 
-    echo "Killing background jobs" 
-    for pid in "${bg_pids[@]}"; do 
-        kill "$pid" 
-        wait "$pid" 2>/dev/null 
-    done 
-} 
+bg_pids=()
+compose_pid=
+wait_pid=
 
-# Trap to call kill_jobs on script exit
-trap kill_jobs EXIT 
+# Function to kill background jobs (waiter only)
+kill_jobs() {     
+  echo "🧹 Cleaning up background jobs..." 
+    if [[ -n "${wait_pid:-}" ]]; then
+      kill "$wait_pid" 2>/dev/null || true
+      wait "$wait_pid" 2>/dev/null || true
+    fi
+}
+trap kill_jobs EXIT
 
-# Array to hold background job PIDs
-bg_pids=() 
-
-# Start docker-compose up in the background
+echo "📱 Launching mobile compose in background..."
 ${LOCAL_APPLICATION_MOBILE_DIR}/docker-compose-up.sh &
-compose_pid=$! 
+compose_pid=$!
 
+# Start waiting for ports in a background subshell
 {
   for port in "${PORTS_TO_WAIT_FOR[@]}"; do
     until nc -z $CONTAINER_NAME $port; do
-      echo "⏳ Waiting for $CONTAINER_NAME container on port $port..."
+      echo "⏳ Waiting for $CONTAINER_NAME on port $port..."
       sleep 1
     done
   done
-  echo "✅ $CONTAINER_NAME container is healthy!"
-  echo "🧩 Connect via ADB: adb connect localhost:5037"
-  echo "🖥️  Connect via VNC: use localhost:5900"
+  echo "✅ $CONTAINER_NAME is healthy on all ports!"
 } &
-bg_pids+=($!)
+wait_pid=$!
 
-# -- Wait for docker-compose to exit --
-wait "$compose_pid"
+# 🏁 Wait for either compose or wait-loop to finish
+set +e
+exit_code=0
+while :; do
+  if ! kill -0 $compose_pid 2>/dev/null; then
+    echo "❌ Compose process exited prematurely!"
+    exit_code=1
+    break
+  fi
+  if ! kill -0 $wait_pid 2>/dev/null; then
+    echo "🥳 All ports are ready! Exiting container-up.sh"
+    exit_code=0
+    break
+  fi
+  sleep 1
+done
+
+exit $exit_code
+trap kill_jobs EXIT 

@@ -4,7 +4,7 @@ services:
       context: ${PWD}
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:local-application-backend-latest}
+    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:application-backend-latest}
     env_file:
       - .env
     environment:
@@ -30,21 +30,11 @@ services:
   application-mobile:
     cap_add:
       - SYS_ADMIN
-    image: ${LOCAL_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:local-application-mobile-latest}
+    image: ${LOCAL_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-mobile-latest}
     env_file:
       - .env
     environment:
-      HOST_PWD: ${PWD}
-      FLUTTER: flutter
-      CHROME_LOG_FILE: /tmp/chrome_debug.log
-      DISPLAY: "${DISPLAY:-:20}"
-      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
-      LOCAL_ANDROID_APK_RELEASE_PATH: ${LOCAL_ANDROID_APK_RELEASE_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
-      LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START:-true}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE:-${PWD}/mobile/android/release-dev.keystore}
     privileged: true
     volumes:
       - ${HOST_PWD:-${PWD}}:${PWD}:cached
