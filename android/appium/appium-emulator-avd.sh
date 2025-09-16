@@ -26,7 +26,7 @@ fi
 echo "List of available AVDs:"
 emulator -list-avds
 
-apk_path="${LOCAL_ANDROID_APK_PATH:-/build/output/app-release.apk}"
+apk_path="${LOCAL_ANDROID_APK_RELEASE_PATH:-/build/output/app-release.apk}"
 avd_name="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
 gpu_mode="${LOCAL_ANDROID_gpu_mode:-swiftshader_indirect}"
 package_name="${LOCAL_ANDROID_PACKAGE_NAME:-vegito.example.app}"
@@ -69,8 +69,8 @@ done
 echo "Starting Appium server..."
 appium --address 0.0.0.0 --port 4723 \
   --session-override --log-level info \
-  --allow-insecure=adb_shell &
-bg_pids+=($!)ﬂ
+  --allow-insecure uiautomator2:adb_shell &
+bg_pids+=($!)
 echo "Appium is ready to accept connections on port 4723."
 
 emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
@@ -101,7 +101,7 @@ if [ -f "${apk_path}" ]; then
   fi
 else
   echo "⚠️ No APK found at ${apk_path}; skipping installation."
-package_name
+fi
 
 echo "The emulator is ready and running."
 echo "You can now run your Appium tests."

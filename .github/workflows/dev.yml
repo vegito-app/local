@@ -11,10 +11,11 @@ jobs:
     runs-on: self-hosted
     environment: dev
     env:
-      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: dev
-      USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
+      
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
     steps:
@@ -49,9 +50,10 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
-      # - name: Restore project images configuration
-      #   run: |
-      #     make -C vegito terraform-init vegito-mobile-android-config-json
+      - name: Restore ADB keys and debug.keystore
+        run: |
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > application/mobile/android/release-${{ env.INFRA_ENV }}.keystore.base64
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > application/mobile/android/release-${{ env.INFRA_ENV }}.storepass.base64
       - name: Build and load local project images
         run: |
           make images-ci
@@ -83,25 +85,6 @@ jobs:
       - name: Refresh local/.env file
         run: |
           ./dotenv.sh
-      - name: 🔍 Debug workspace content before Make
-        run: |
-          echo "📂 Current directory: $(pwd)"
-          echo "📁 Workspace structure:"
-          tree /runner || true
-          ls -al /runner/_work/local || true
-          ls -al /runner/_work/local/local || true
-
-      - name: 🔍 Debug Git repo status
-        run: |
-          git status
-          git remote -v
-          git log --oneline -n 5
-      - name: 🔍 Verify project content before make
-        run: |
-          echo "📁 CWD content:"
-          ls -al
-          echo "📁 Expected subdirectories:"
-          find . -maxdepth 2
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
       - name: Authenticate to Google Cloud via Workload Identity Federation

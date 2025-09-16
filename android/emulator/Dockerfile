@@ -66,7 +66,7 @@ RUN chmod +x /usr/local/bin/display-start.sh \
 
 # 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV LOCAL_ANDROID_APK_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
 ENV LOCAL_ANDROID_GPU_MODE=swiftshader_indirect
 ENV LOCAL_ANDROID_AVD_NAME=Pixel_8_Intel
 
