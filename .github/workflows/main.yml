@@ -1,34 +1,47 @@
 permissions:
   id-token: write
   contents: write
-name: Build and Push Git Commit Tagged Docker Images To All Environments
+name: Build and Push Git Commit Tagged Docker Images To Dev Environments
 on:
   push:
     branches:
       - main
 jobs:
-  deploy-dev:
-    name: Build & Deploy Dev
+  build-release-images:
+    name: Build Release Images for Dev 🧱
     runs-on: self-hosted
     environment: dev
     env:
+      PROJECT_DIR: vegito-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: dev
-      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
+      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+      ANDROID_RELEASE_PACKAGE_NAME: dev.vegito.app.android
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: application/mobile/android/dev.vegito.app.android-release-key.keystore
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: application/mobile/android/dev.vegito.app.android-release-key.keystore.base64
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: application/mobile/android/dev.vegito.app.android-release-key.keystore.storepass.base64
+    outputs:
+      version: ${{ steps.define_version.outputs.VERSION }}
+      android_release_package_name: ${{ env.ANDROID_RELEASE_PACKAGE_NAME }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          path: ${{ env.PROJECT_DIR }}
       - name: Define VERSION
+        id: define_version
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
           # Bump the version based on commit messages (default patch bump)
           standard-version
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
       - name: Refresh local/.env file
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           ./dotenv.sh
       - name: Use VERSION
@@ -42,80 +55,187 @@ jobs:
           token_format: "access_token"
           export_environment_variables: true
       - name: Set up Cloud SDK
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           make gcloud-config-set-project
       - name: Configure Docker for GCR
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           make gcloud-auth-docker
       - name: Set up Docker Buildx
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           make docker-buildx-setup
-      - name: Decode Android release keystore from secret 🔐
-        run: |
-          echo "${{ secrets.ANDROID_RELEASE_KEYSTORE}}" | base64 -d > ~/.android/release.${{ vars.INFRA_ENV }}.keystore
-
       - name: Restore ADB keys and debug.keystore
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.ANDROID_ADBKEY }}" | base64 -d > ~/.android/adbkey
-          echo "${{ secrets.ANDROID_ADBKEY_PUB }}" | base64 -d > ~/.android/adbkey.pub
-          echo "${{ secrets.ANDROID_DEBUG_KEYSTORE }}" | base64 -d > ~/.android/debug.keystore
-          chmod 600 ~/.android/adbkey
-      - name: Build and push up to date project images to dev registries
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.base64
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.storepass.base64
+      - name: Build and load local project images
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           make images-ci
       - name: Bump version and push tags
         run: |
           # Push the new commit and the new tag
           git push --follow-tags origin main
-      - name: Upload signed APK and AAB 📤
-        uses: actions/upload-artifact@v4
+  local-dev-environment:
+    environment: dev
+    env:
+      PROJECT_DIR: vegito-${{ github.run_id }}
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: dev
+      USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
+      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+    name: Start local docker containers
+    runs-on: self-hosted
+    needs: build-release-images
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
-          name: android-artifacts-${{ env.INFRA_ENV }}
-          path: |
-            mobile/build/app/outputs/flutter-apk/app-${{ env.INFRA_ENV }}-release.apk
-            mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
-      - name: Create GitHub Release ✨
-        uses: softprops/action-gh-release@v2
+          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+          path: ${{ env.PROJECT_DIR }}
+      - name: Refresh local/.env file
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          name: "Release ${{ env.VERSION }}"
-          body: |
-            Android artifacts for `${{ env.INFRA_ENV }}`:
-            - Signed APK and AAB generated
-            - Keystore: release.${{ env.INFRA_ENV }}.keystore
-          files: |
-            mobile/build/app/outputs/flutter-apk/app-${{ env.INFRA_ENV }}-release.apk
-            mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Release from Docker image
-        run: make local-application-mobile-image-tag-release
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          make gcloud-auth-docker
+      - name: Start dev environment containers
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: make dev-ci
+  run-tests:
+    name: Run tests ✅
+    runs-on: self-hosted
+    needs: [build-release-images, local-dev-environment]
+    environment: dev
+    env:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      PROJECT_DIR: vegito-${{ github.run_id }}
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Maintenant, cela obtiendra tous les tags ainsi que les commits
+          path: ${{ env.PROJECT_DIR }}
+      - name: Refresh local/.env file
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          make gcloud-auth-docker
+      - name: Run Application tests
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: make application-tests
+  extract-release-artifacts:
+    name: Extract Image APK & AAB 📦
+    runs-on: self-hosted
+    needs: [build-release-images, run-tests]
+    environment: dev
+    env:
+      PROJECT_DIR: vegito-${{ github.run_id }}
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      ANDROID_PACKAGE_NAME: ${{ needs.build-release-images.outputs.android_release_package_name }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      INFRA_ENV: dev
+      LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
+      LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ${{ env.PROJECT_DIR }}
+      - name: Refresh local/.env file
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          ./dotenv.sh
+      - name: Extract signed APK & AAB releases from images
+        id: extract_apk_aab
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: make local-application-mobile-image-tag-release-exrtract
       - name: Upload signed APK and AAB 📤
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts-dev
           path: |
-            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
-            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          name: "Release ${{ env.VERSION }}"
+          tag_name: ${{ needs.build-release-images.outputs.version }}
+          name: "Release ${{ needs.build-release-images.outputs.version }}"
           body: |
-            Android artifacts for `${{ env.INFRA_ENV }}`:
+            Android artifacts for `dev`:
             - Signed APK and AAB generated
-            - Keystore: release.${{ env.INFRA_ENV }}.keystore
+            - Keystore: release.dev.keystore
           files: |
-            application/mobile/app-release-${{ env.VERSION }}-signed-aligned.apk
-            application/mobile/app-release-${{ env.VERSION }}-signed.aab
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Deployment of last changes to dev environment
+  
+  cleanup:
+    name: Cleanup docker env 🧼
+    runs-on: self-hosted
+    needs: [build-release-images, local-dev-environment, run-tests, extract-release-artifacts]
+    if: ${{ always() }}
+    env:
+      PROJECT_DIR: vegito-${{ github.run_id }}
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+    environment: dev
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ${{ env.PROJECT_DIR }}
+      - name: Refresh local/.env file
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          make infra-deploy-dev
-      - name: Deployment of last changes to dev environment
-        run: |
-          make infra-deploy-dev
+          ./dotenv.sh
+      - name: Shutdown containers
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: make dev-rm
+      - name: Notify cleanup done
+        run: echo "Cleaning completed."
 

@@ -189,18 +189,18 @@ local-application-mobile-image-tag-apk-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
 	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
 	  echo "Copying APK from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release.apk $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH) && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).apk $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH) && \
 	  docker rm $$container_id > /dev/null && \
 	  echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH)"
 .PHONY: local-application-mobile-image-tag-apk-extract
 
-LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION).aab
+LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.aab
 
 local-application-mobile-image-tag-aab-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
 	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
 	  echo "Copying AAB from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release.aab $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH) && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).aab $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH) && \
 	  docker rm $$container_id > /dev/null && \
 	  echo "✅ AAB extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH)"
 .PHONY: local-application-mobile-image-tag-aab-extract
@@ -214,16 +214,8 @@ local-application-mobile-flutter-android-release:
 	  local-application-mobile-flutter-build-appbundle-release
 .PHONY: local-application-mobile-flutter-android-release
 
-local-application-mobile-image-tag-release: 
-	@echo "📦 Signing APK and AAB from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)..."
-	@$(MAKE) \
-	  local-application-mobile-image-tag-aab-extract \
-	  local-application-mobile-image-tag-apk-extract \
-	  local-android-align-apk \
-	  local-android-sign-apk \
-	  local-android-verify-apk \
-	  local-android-sign-aab
-.PHONY: local-application-mobile-image-tag-release
+local-application-mobile-image-tag-release-exrtract: local-application-mobile-image-tag-aab-extract local-application-mobile-image-tag-apk-extract
+.PHONY: local-application-mobile-image-tag-release-exrtract
 
 ################################################################################
 ## 📦 ANDROID RELEASE FULL PIPELINE

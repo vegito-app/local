@@ -2,10 +2,6 @@
 
 set -euo pipefail
 
-SOCAT_MAPS=(
-  "8080:8080:http"  # Backend HTTP
-)
-
 # List to hold background job PIDs
 bg_pids=()
 
