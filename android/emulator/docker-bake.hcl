@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_EMULATOR_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-emulator-${VERSION}" : ""
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}" : ""
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE" {
@@ -29,7 +29,7 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-emulator-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-latest"
 }
 
 target "local-android-emulator-ci" {

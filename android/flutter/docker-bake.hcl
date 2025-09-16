@@ -86,4 +86,4 @@ target "local-android-flutter" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
 }
-}
+

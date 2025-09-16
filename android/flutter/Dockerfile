@@ -22,4 +22,8 @@ RUN git clone -b stable https://github.com/flutter/flutter.git $FLUTTER_HOME && 
 ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/34.0.0
 ARG android_ndk_version
-RUN sdkmanager "build-tools;34.0.0" "platforms;android-34" "ndk;${android_ndk_version}"
+RUN sdkmanager \
+    "build-tools;34.0.0" \
+    "platforms;android-34" \
+    "platforms;android-36" \
+    "ndk;${android_ndk_version}"

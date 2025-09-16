@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
   bash-completion git htop gnupg jq netcat-openbsd \
   make rsync socat sudo tree unzip vim wget xz-utils \
   menu-xdg net-tools xpra \
-  clang cmake ninja-build openjdk-17-jdk libgtk-3-dev \
   locales \
   && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
 

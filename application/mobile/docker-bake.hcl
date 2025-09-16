@@ -1,3 +1,8 @@
+variable "LOCAL_APPLICATION_MOBILE_DIR" {
+  description = "Local directory for the mobile application"
+  default     = "${LOCAL_APPLICATION_DIR}/mobile"
+}
+
 variable "LOCAL_APPLICATION_MOBILE_IMAGE_TAG" {
   default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}" : ""
 }
@@ -24,25 +29,49 @@ variable "LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-application-mobile-ci"
+  default = "${LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}-ci"
 }
 
 variable "LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
 }
+
 variable "LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
 }
+
+variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH" {
+  description = "Keystore for signing Android releases"
+  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.keystore.base64"
+}
+
+variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH" {
+  description = "Keystore for signing Android releases"
+  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.storepass.base64"
+}
+
 target "local-application-mobile" {
   args = {
     apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
     environment          = INFRA_ENV
+    version = VERSION
   }
-  context = "${LOCAL_APPLICATION_DIR}/mobile"
+  secret = [
+    {
+      id  = "keystore"
+      src = LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH
+    },
+    {
+      id  = "keystore_store_pass"
+      src = LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH
+    }
+  ]
+  context = LOCAL_APPLICATION_MOBILE_DIR
   contexts = {
+    "android" : LOCAL_ANDROID_DIR
     "approot" : LOCAL_APPLICATION_DIR
     "project": "."
   }
@@ -65,10 +94,23 @@ target "local-application-mobile-ci" {
   args = {
     apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
+    version = VERSION
   }
-  context = "${LOCAL_APPLICATION_DIR}/mobile"
+  secret = [
+    {
+      id  = "keystore"
+      src = LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH
+    },
+    {
+      id  = "keystore_store_pass"
+      src = LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH
+    }
+  ]
+  context = LOCAL_APPLICATION_MOBILE_DIR
   contexts = {
+    "android" : LOCAL_ANDROID_DIR
     "approot" : LOCAL_APPLICATION_DIR
+    "project": "."
   }
   tags = [
     LOCAL_APPLICATION_MOBILE_IMAGE_LATEST,

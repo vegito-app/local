@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-emulator-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-latest"
 }
 
 variable "LOCAL_ANDROID_DIR" {
