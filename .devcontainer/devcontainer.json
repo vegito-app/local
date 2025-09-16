@@ -50,7 +50,7 @@
         },
         "terminal.integrated.defaultProfile.linux": "bash",
         "window.commandCenter": false,
-        "workbench.colorTheme": "Kimbie Dark",
+        "workbench.colorTheme": "Dark Theme - JetBrains IDE",
         "workbench.iconTheme": "material-icon-theme",
         "workbench.layoutControl.enabled": false,
         "zenMode.centerLayout": false,
