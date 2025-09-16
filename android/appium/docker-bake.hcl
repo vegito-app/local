@@ -33,7 +33,7 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:local-android-appium-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
 }
 
 target "local-android-appium-ci" {

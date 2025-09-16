@@ -1,6 +1,9 @@
 LOCAL_APPLICATION_MOBILE_DIR ?= $(LOCAL_APPLICATION_DIR)/mobile
 
--include $(LOCAL_APPLICATION_MOBILE_DIR)/android/android.mk
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).keystore
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
+
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).storepass.base64
 
 local-application-mobile-container-up: local-application-mobile-container-rm
 	@$(LOCAL_APPLICATION_MOBILE_DIR)/docker-compose-up.sh &
@@ -18,8 +21,6 @@ local-application-mobile-container-up: local-application-mobile-container-rm
 .PHONY: local-application-mobile-container-up
 
 FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
-
-LOCAL_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
 
 local-application-mobile-flutter-create:
 	@$(FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
@@ -117,51 +118,52 @@ local-application-mobile-flutter-run-debug-flavor: local-application-mobile-flut
 	@echo "App is running in debug mode on the emulator with flavor $(INFRA_ENV)"
 .PHONY: local-application-mobile-flutter-run-debug-flavor
 
-LOCAL_APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST = $(LOCAL_APPLICATION_MOBILE_DIR)/ios/GoogleService-Info.plist
+LOCAL_APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST = $(LOCAL_APPLICATION_MOBILE_DIR)/ios/GoogleService-Info.plist
 
-local-application-mobile-ios-config-plist: $(LOCAL_APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST)
+local-application-mobile-ios-config-plist: $(LOCAL_APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST)
 .PHONY:local-application-mobile-ios-config-plist
 
-$(LOCAL_APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST): $(INFRA_FIREBASE_IOS_CONFIG_PLIST)
+$(LOCAL_APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST): $(INFRA_FIREBASE_IOS_CONFIG_PLIST)
 	@echo Creating local ios config copy "'$@'"
 	@cp -f $< $@ 
 
-LOCAL_APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/google-services.json
+LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/google-services.json
 
-local-application-mobile-default-android-config-json: $(LOCAL_APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON)
+local-application-mobile-default-android-config-json: $(LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
 .PHONY: local-application-mobile-default-android-config-json
-
-$(LOCAL_APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
-	@echo Creating local android config copy "'$@'"
-	@cp -f $< $@ 
-
-LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/src/$(INFRA_ENV)/google-services.json
-
-local-application-mobile-android-config-json: $(LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
-.PHONY: local-application-mobile-android-config-json
 
 $(LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
 	@echo Creating local android config copy "'$@'"
+	@cp -f $< $@ 
+
+LOCAL_APPLICATION_MOBILE_FIREBASE_FLAVOR_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/src/$(INFRA_ENV)/google-services.json
+
+local-application-mobile-flavor-android-config-json: $(LOCAL_APPLICATION_MOBILE_FIREBASE_FLAVOR_ANDROID_CONFIG_JSON)
+.PHONY: local-application-mobile-flavor-android-config-json
+
+$(LOCAL_APPLICATION_MOBILE_FIREBASE_FLAVOR_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
+	@echo Creating local android config copy "'$@'"
 	@cp -f $(INFRA_FIREBASE_ANDROID_CONFIG_JSON) $@
 
-local-android-build-flutter-flavor-release:
+local-application-mobile-flutter-flavor-release:
 	@echo "🏗️ Building flavor unsigned APK and AAB for '$(INFRA_ENV)'..."
-	@$(MAKE) local-application-mobile-flutter-build-apk-flavor-release \
-	local-application-mobile-flutter-build-appbundle-flavor-release
-.PHONY: local-android-build-flutter-flavor-release
+	@$(MAKE) \
+	  local-application-mobile-flutter-build-apk-flavor-release \
+	  local-application-mobile-flutter-build-appbundle-flavor-release
+.PHONY: local-application-mobile-flutter-flavor-release
 
-LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release-$(VERSION).apk
-LOCAL_ANDROID_AAB_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/bundle/release/app-release-$(VERSION).aab
+LOCAL_ANDROID_RELEASE_APK_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release-$(VERSION).apk
+LOCAL_ANDROID_RELEASE_AAB_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/bundle/release/app-release-$(VERSION).aab
 
 LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH ?= mobile/build/app/outputs/apk/$(INFRA_ENV)/release/app-$(INFRA_ENV)-release-$(VERSION).apk
 LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH ?= mobile/build/app/outputs/bundle/$(INFRA_ENV)Release/app-$(INFRA_ENV)-release-$(VERSION).aab
 
-local-android-build-flavor-release: local-android-build-flutter-flavor-release
+local-application-mobile-flavor-release:
 	@echo "📦 Signing flavor APK..."
-	@$(MAKE) local-android-build-flutter-flavor-release \
-	  LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
-	  LOCAL_ANDROID_AAB_RELEASE_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH) \
-.PHONY: local-android-build-flavor-release
+	@$(MAKE) local-application-mobile-flutter-flavor-release \
+	  LOCAL_ANDROID_RELEASE_APK_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
+	  LOCAL_ANDROID_RELEASE_AAB_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH) \
+.PHONY: local-application-mobile-flavor-release
 
 local-application-mobile-vacuum:
 	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/build
@@ -185,17 +187,18 @@ local-android-align-apk \
 local-android-sign-aab
 .PHONY: local-application-mobile-android-release
 
-LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH = ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION).apk
+LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
+
 local-application-mobile-image-tag-apk-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
 	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
 	  echo "Copying APK from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release.apk $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH) && \
+	  docker cp $$container_id:/build/output/app-release.apk $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH) && \
 	  docker rm $$container_id > /dev/null && \
-	  echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH)"
+	  echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH)"
 .PHONY: local-application-mobile-image-tag-apk-extract
 
-LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH = ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION).aab
+LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION).aab
 
 local-application-mobile-image-tag-aab-extract:
 	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
@@ -209,7 +212,7 @@ local-application-mobile-image-tag-aab-extract:
 local-application-mobile-flutter-android-release:
 	@echo "🏗️ Building unsigned APK and AAB for '$(INFRA_ENV)'..."
 	@$(MAKE) \
-	  local-application-mobile-android-vacuum \
+	  local-application-mobile-vacuum \
 	  local-application-mobile-flutter-pub-get \
 	  local-application-mobile-flutter-build-apk-release \
 	  local-application-mobile-flutter-build-appbundle-release
@@ -218,13 +221,10 @@ local-application-mobile-flutter-android-release:
 local-application-mobile-image-tag-release: 
 	@echo "📦 Signing APK and AAB from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)..."
 	@$(MAKE) \
-	  LOCAL_ANDROID_AAB_RELEASE_PATH=$(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_PATH) \
-	  LOCAL_ANDROID_APK_UNSIGNED_RELEASE_PATH=$(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH) \
-	  LOCAL_ANDROID_APK_SIGNED_ALIGNED_RELEASE_PATH=$(LOCAL_APPLICATION_MOBILE_DIR)/app-release-$(VERSION)-signed-aligned.apk \
 	  local-application-mobile-image-tag-aab-extract \
 	  local-application-mobile-image-tag-apk-extract \
 	  local-android-sign-apk \
 	  local-android-verify-apk \
 	  local-android-align-apk \
-local-android-sign-aab
+	  local-android-sign-aab
 .PHONY: local-application-mobile-image-tag-release
