@@ -44,7 +44,7 @@ RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/android/app-release-${version}-signed-aligned.apk \
     FLUTTER="cd application/mobile && flutter" \
     VERSION=${version} \
-    make application-android-release
+    make local-application-mobile-android-release
 
 FROM ${apk_runner_appium_image} AS runner
 
@@ -55,7 +55,8 @@ COPY --from=builder //home/android/src/android/app-release-${version}-signed.aab
 
 ARG android_package_name=dev.vegito.app.android
 
-ENV LOCAL_ANDROID_PACKAGE_NAME=${android_package_name}
+ENV LOCAL_ANDROID_APK_RELEASE_PATH=/build/output/app-release-${version}.apk
 ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
+ENV LOCAL_ANDROID_PACKAGE_NAME=${android_package_name}
 
 ENTRYPOINT [ "android-appium-entrypoint.sh" ]
