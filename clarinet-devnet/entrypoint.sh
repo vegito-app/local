@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux pipefail
+set -euo pipefail
 
 
 # 📌 List of PIDs of background processes

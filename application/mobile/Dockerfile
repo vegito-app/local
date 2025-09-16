@@ -33,10 +33,10 @@ COPY --from=android android.mk android/
 ARG keystore_alias_name=vegito-local-release
 
 RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
-    --mount=type=secret,id=keystore_store_pass,dst=/tmp/.storepass \
-    export LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore && \
-    sudo cat /tmp/release.keystore | base64 --decode > ${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
-    export LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS=$(sudo cat /tmp/.storepass|base64 --decode) && \
+    --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.storepass \
+    export LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore && \
+    sudo cat /tmp/release.keystore | base64 --decode > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH} && \
+    sudo cat /tmp/release.storepass > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
     LOCAL_ANDROID_CONTAINER_EXEC="" \
     LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name} \
     LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/application/mobile/build/app/outputs/bundle/release/app-release.aab \
@@ -44,19 +44,14 @@ RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/android/app-release-${version}-signed-aligned.apk \
     FLUTTER="cd application/mobile && flutter" \
     VERSION=${version} \
-    make \
-    local-application-mobile-flutter-android-release \
-    local-android-sign-apk \
-    local-android-verify-apk \
-    local-android-align-apk \
-    local-android-sign-aab
+    make application-android-release
 
 FROM ${apk_runner_appium_image} AS runner
 
 ARG version=dev
 
-COPY --from=builder /home/android/src/application/mobile/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
-COPY --from=builder /home/android/src/application/mobile/app-release-signed-${version}.aab /build/output/app-release-${version}.aab
+COPY --from=builder //home/android/src/android/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
+COPY --from=builder //home/android/src/android/app-release-${version}-signed.aab /build/output/app-release-${version}.aab
 
 ARG android_package_name=dev.vegito.app.android
 

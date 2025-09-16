@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -euox pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -66,6 +66,26 @@ until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do
   sleep 2
 done
 
+# 🔄 Attente que le device soit en ligne (plus offline)
+echo "🧪 Waiting for adb to become 'device' (not 'offline')..."
+while true; do
+  state=$(adb get-state 2>/dev/null || echo unknown)
+  if [[ "$state" == "device" ]]; then
+    echo "✅ ADB reports device is online."
+    break
+  fi
+  echo "⏳ Current ADB state: $state"
+  sleep 2
+done
+
+# ⏳ Vérifie que adb shell est réactif
+echo "🔍 Checking ADB shell responsiveness..."
+until adb shell echo ok | grep -q "ok"; do
+  echo "⏳ Waiting for ADB shell to respond..."
+  sleep 2
+done
+echo "✅ ADB shell is responsive."
+
 echo "Starting Appium server..."
 appium --address 0.0.0.0 --port 4723 \
   --session-override --log-level info \
@@ -81,7 +101,7 @@ emulator-data-load.sh "${emulator_data}"
 echo "Checking if an APK is present and installing..."
 if [ -f "${apk_path}" ]; then
   echo "APK found package_name ${apk_path}, attempting installation..."
-  if adb install -r "${package_name}"; then
+  if adb install -r "${apk_path}"; then
     echo "✅ APK installed package_name."
 
     echo "🚀 Attempting to launch the app..."

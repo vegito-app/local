@@ -113,7 +113,7 @@ services:
       LOCAL_ANDROID_STUDIO_ON_START: true
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
-      LOCAL_ANDROID_APK_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
+      LOCAL_ANDROID_APK_RELEASE_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
 
     working_dir: ${PWD}/application/mobile
     command: |

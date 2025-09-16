@@ -1,3 +1,4 @@
+
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
 LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
@@ -7,32 +8,14 @@ endif
 
 VERSION ?= $(LOCAL_VERSION)
 
-DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
-GOOGLE_CLOUD_PROJECT_ID ?= $(DEV_GOOGLE_CLOUD_PROJECT_ID)
-
-INFRA_PROJECT_NAME := moov
-LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
-LOCAL_PROJECT_NAME := vegito-local
-
-LOCAL_DOCKER_COMPOSE_SERVICES ?= \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
-  application-tests
-
 export
 
--include git.mk
--include local.mk
+INFRA_PROJECT_NAME := moov
 
+DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
+
+PROJECT_NAME := vegito-local
 LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
-LOCAL_PROJECT_NAME := vegito-local
-
-LOCAL_DOCKER_COMPOSE_SERVICES := \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
-  application-tests
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -50,6 +33,9 @@ LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
+
+-include git.mk
+-include local.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
@@ -76,7 +62,7 @@ dev-ci:
 .PHONY: dev-ci
   
 dev-rm: 
-	@$(MAKE) -j local-containers-rm-all
+	@$(MAKE) -j local-containers-rm-all local-application-containers-rm-all
 .PHONY: dev-rm
 
 logs: local-containers-dev-logs-f

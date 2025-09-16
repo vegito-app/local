@@ -1,9 +1,7 @@
 LOCAL_APPLICATION_MOBILE_DIR ?= $(LOCAL_APPLICATION_DIR)/mobile
 
 LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).keystore
-LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
-
-LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).storepass.base64
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
 
 local-application-mobile-container-up: local-application-mobile-container-rm
 	@$(LOCAL_APPLICATION_MOBILE_DIR)/docker-compose-up.sh &
@@ -181,9 +179,7 @@ local-application-mobile-vacuum:
 
 local-application-mobile-android-release: \
 local-application-mobile-flutter-android-release \
-local-android-sign-apk \
 local-android-verify-apk \
-local-android-align-apk \
 local-android-sign-aab
 .PHONY: local-application-mobile-android-release
 
@@ -223,8 +219,39 @@ local-application-mobile-image-tag-release:
 	@$(MAKE) \
 	  local-application-mobile-image-tag-aab-extract \
 	  local-application-mobile-image-tag-apk-extract \
+	  local-android-align-apk \
 	  local-android-sign-apk \
 	  local-android-verify-apk \
-	  local-android-align-apk \
 	  local-android-sign-aab
 .PHONY: local-application-mobile-image-tag-release
+
+################################################################################
+## 📦 ANDROID RELEASE FULL PIPELINE
+################################################################################
+LOCAL_APPLICATION_MOBILE_RELEASE_AAB_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/build/app/outputs/bundle/release/app-release.aab
+LOCAL_APPLICATION_MOBILE_RELEASE_APK_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/build/app/outputs/flutter-apk/app-release.apk
+LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
+LOCAL_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME ?= vegito-local-release
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME ?= "CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"
+# LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
+# LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).storepass.base64
+
+application-android-release:
+	@LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_PATH=$(LOCAL_APPLICATION_MOBILE_RELEASE_AAB_PATH) \
+	LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH=$(LOCAL_APPLICATION_MOBILE_RELEASE_APK_PATH) \
+	LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH) \
+	$(MAKE) local-android-release-keystore local-application-mobile-android-release 
+	@echo "✅ Android Release APK built, aligned, signed and verified at: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)"
+	@echo "✅ Android Release AAB built, aligned, signed and verified at: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)"
+.PHONY: application-android-release
+
+application-android-release-keystore: 
+	@LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=$(LOCAL_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME) \
+	LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME) \
+	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
+	$(MAKE) local-android-release-keystore 
+.PHONY: application-android-release-keystore
+# 	LOCAL_ANDROID_DIR=$(LOCAL_APPLICATION_MOBILE_DIR)/android \
+
+
+

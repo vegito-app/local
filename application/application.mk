@@ -31,6 +31,9 @@ LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   backend \
   mobile
 
+local-application-containers-rm-all: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm)
+.PHONY: local-containers-rm-all
+
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%):
 	@echo "Starting container for application service $(@:application-%=local-%-container-up)"
 	@$(MAKE) $(@:%=local-%-container-up)

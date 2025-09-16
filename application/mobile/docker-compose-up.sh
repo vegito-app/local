@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+SOCAT_MAPS=(
+  "8900:5900:x11vnc"
+  "8901:5901:xpra"
+  "7037:5037:adb"
+)
+
 # List to hold background job PIDs
 bg_pids=()
 

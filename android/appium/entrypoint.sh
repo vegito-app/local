@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux pipefail
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -24,7 +24,7 @@ android_adb_pubkey=${LOCAL_ANDROID_ADB_KEY_PUB_PATH:-~/.android/adbkey.pub}
 [ -d ~/.android ] || mkdir -p ~/.android
 if [ ! -f $android_adb_key ] || [ ! -f $android_adb_pubkey ]; then
     echo "[entrypoint] Generating ADB keypair at $android_adb_key and $android_adb_pubkey..."
-    adb keygen -a -n $android_adb_key
+    adb keygen $android_adb_key
 else
     echo "[entrypoint] Existing ADB keypair detected, skipping generation."
 fi
