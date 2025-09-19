@@ -14,7 +14,7 @@ jobs:
     env:
       PROJECT_DIR: vegito-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      INFRA_ENV: dev
+      INFRA_ENV: ${{ vars.INFRA_ENV }}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
       ANDROID_RELEASE_PACKAGE_NAME: dev.vegito.app.android
@@ -34,6 +34,7 @@ jobs:
         id: define_version
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
+          standard-version --prerelease alpha --no-verify
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
       - name: Refresh local/.env file
@@ -45,7 +46,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
           service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
@@ -71,7 +72,6 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
           make images-ci
-
   local-dev-environment:
     environment: dev
     env:
@@ -79,7 +79,7 @@ jobs:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      INFRA_ENV: dev
+      INFRA_ENV: ${{ vars.INFRA_ENV }}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
     name: Start local docker containers
@@ -100,7 +100,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
           service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
@@ -116,7 +116,6 @@ jobs:
       - name: Start dev environment containers
         working-directory: ${{ env.PROJECT_DIR }}
         run: make dev-ci
-
   run-tests:
     name: Run tests ✅
     runs-on: self-hosted
@@ -142,7 +141,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
           service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
@@ -160,7 +159,7 @@ jobs:
         run: make application-tests
 
   extract-release-artifacts:
-    name: Extract Image APK & AAB 📦
+    name: Upload Artifacts APK & AAB 📦
     runs-on: self-hosted
     needs: [build-release-images, run-tests]
     environment: dev
@@ -169,7 +168,7 @@ jobs:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       ANDROID_PACKAGE_NAME: ${{ needs.build-release-images.outputs.android_release_package_name }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      INFRA_ENV: dev
+      INFRA_ENV: ${{ vars.INFRA_ENV }}
       LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
       LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
     steps:
@@ -193,7 +192,20 @@ jobs:
           path: |
             ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
             ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
-  
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-${{ needs.build-release-images.outputs.version }}
+          name: "Release ${{ needs.build-release-images.outputs.version }}"
+          body: |
+            Android artifacts for `dev`:
+            - Signed APK and AAB generated
+            - Keystore: release.dev.keystore
+          files: |
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   cleanup:
     name: Cleanup docker env 🧼
     runs-on: self-hosted
@@ -216,6 +228,6 @@ jobs:
           ./dotenv.sh
       - name: Shutdown containers
         working-directory: ${{ env.PROJECT_DIR }}
-        run: make dev-rm
+        run: make dev-ci-rm
       - name: Notify cleanup done
         run: echo "Cleaning completed."
