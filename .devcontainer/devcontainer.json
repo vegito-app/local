@@ -19,12 +19,14 @@
       "settings": {
         "containers.environment": {
           // "DOCKER_HOST": "tcp://localhost:23750",
-          "GOOGLE_CLOUD_REGION": "europe-west1"
+          "GOOGLE_CLOUD_REGION": "europe-west1",
+          "LOCAL_CONTAINER_INSTALL": "1"
         },
         "docker.dockerodeOptions": {
           // "host": "tcp://localhost:23750"
         },
         "env": {
+          "LOCAL_CONTAINER_INSTALL": "1",
           "FLUTTER_ROOT": "${localWorkspaceFolder}/local/.containers/android-studio/flutter",
           "BUILDER_IMAGE": "${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}",
           "LOCAL_DIR": "${localWorkspaceFolder}/local",
