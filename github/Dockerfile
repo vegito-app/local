@@ -175,4 +175,3 @@ ENV RUNNER_WORKDIR=/runner/_work
 RUN mkdir ${RUNNER_WORKDIR}
 RUN chown ${non_root_user}:${non_root_user} ${RUNNER_WORKDIR}
 RUN chmod o+rw ${RUNNER_WORKDIR}
-VOLUME ["${RUNNER_WORKDIR}"]
