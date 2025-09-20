@@ -267,5 +267,7 @@ RUN ln -sf /usr/bin/bash /bin/sh
 
 USER ${non_root_user}
 
+COPY container-install.sh /usr/local/bin/local-container-install.sh
+
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

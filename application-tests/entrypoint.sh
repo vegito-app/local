@@ -4,7 +4,7 @@ set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
-LOCAL_APPLICATION_TESTS_CONTAINER_CACHE=${HOST_PWD}/.containers/e2e-tests
+LOCAL_APPLICATION_TESTS_CONTAINER_CACHE=${LOCAL_WORKSPACE}/.containers/e2e-tests
 mkdir -p $LOCAL_APPLICATION_TESTS_CONTAINER_CACHE
 
 # Bash history
@@ -54,7 +54,7 @@ exec "$@"
 
 # Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
 current_workspace=$PWD
-if [ "$current_workspace" != "$HOST_PWD" ] ; then
-    sudo ln -s $current_workspace $HOST_PWD 2>&1 || true
-    echo "Linked current workspace $current_workspace to $HOST_PWD"
+if [ "$current_workspace" != "$LOCAL_WORKSPACE" ] ; then
+    sudo ln -s $current_workspace $LOCAL_WORKSPACE 2>&1 || true
+    echo "Linked current workspace $current_workspace to $LOCAL_WORKSPACE"
 fi

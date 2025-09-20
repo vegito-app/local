@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     environment:
-      HOST_PWD: ${PWD}
+      LOCAL_WORKSPACE: ${PWD}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-${PWD}/infra/gcloud-credentials.json}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
       GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
@@ -37,7 +37,7 @@ services:
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
-      - ${HOST_PWD:-${PWD}}:${PWD}:cached
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
