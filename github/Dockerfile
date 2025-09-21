@@ -151,6 +151,7 @@ RUN set -e ; \
     npm install -g \
     standard-version \
     conventional-changelog \
+    conventional-changelog-angular \
     npm ; \
     rm -rf ${HOME}/.npm 
 
