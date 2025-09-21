@@ -1,4 +1,4 @@
-variable "LOCAL_CLARINET_DEVNET_IMAGE_TAG" {
+variable "LOCAL_CLARINET_DEVNET_IMAGE_VERSION" {
   default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}" : ""
 }
 
@@ -36,7 +36,7 @@ target "clarinet-devnet-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
-    LOCAL_CLARINET_DEVNET_IMAGE_TAG,
+    LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI}" : LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
@@ -59,7 +59,7 @@ target "clarinet-devnet" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
-    LOCAL_CLARINET_DEVNET_IMAGE_TAG,
+    LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}" : "",

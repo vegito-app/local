@@ -1,9 +1,12 @@
 LOCAL_CLARINET_DEVNET_DIR ?= $(LOCAL_DIR)/clarinet-devnet
 
+LOCAL_CLARINET_DEVNET_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):clarinet-$(VERSION)
+
 CONTRACTS := \
   my-first-contract \
   counter \
   order
+  
 BITCOIND_DOCKER_NETWORK_NAME = my-first-contract.devnet
 BITCOIND_DOCKER_CONTAINER_NAME = bitcoin-node.$(BITCOIND_DOCKER_NETWORK_NAME)
 
@@ -44,9 +47,6 @@ local-clarinet-devnet-start:
 .PHONY: local-clarinet-devnet-start
 
 local-clarinet-devnet-container-up: local-clarinet-devnet-container-rm
-	@$(LOCAL_CLARINET_DEVNET_DIR)/docker-compose-up.sh &
-	@$(LOCAL_DOCKER_COMPOSE) logs clarinet-devnet
-	@echo
-	@echo Started Clarinet Devnet: 
-	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
+	@echo "🚀 Starting container Clarinet Devnet..."
+	@$(LOCAL_CLARINET_DEVNET_DIR)/container-up.sh
 .PHONY: local-clarinet-devnet-container-up

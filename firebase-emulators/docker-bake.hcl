@@ -1,4 +1,4 @@
-variable "LOCAL_FIREBASE_EMULATORS_IMAGE_TAG" {
+variable "LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION" {
   default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-${VERSION}" : ""
 }
 
@@ -29,7 +29,7 @@ target "firebase-emulators-ci" {
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
     LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
-    LOCAL_FIREBASE_EMULATORS_IMAGE_TAG,
+    LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI}" : "",
@@ -49,7 +49,7 @@ target "firebase-emulators" {
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
     LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
-    LOCAL_FIREBASE_EMULATORS_IMAGE_TAG,
+    LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : "",
