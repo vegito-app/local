@@ -231,12 +231,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION }}
-          name: "Release ${{ env.VERSION }}"
+          tag_name: main-${{ matrix.environment }}-${{ needs.build-release-images.outputs.version }}
+          name: "[${{ matrix.environment }}] Release ${{ needs.build-release-images.outputs.version }}"
           body_path: ./CHANGELOG.md
           files: |
-            ./artifacts/**/*.apk
-            ./artifacts/**/*.aab
+            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
             CHANGELOG.md
   cleanup:
     strategy:
