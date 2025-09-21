@@ -1,15 +1,15 @@
-FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
-
-FIREBASE_EMULATORS = cd $(FIREBASE_EMULATORS_DIR) && firebase
-
-# This is a comma separated list of emulator names.# Valid options are:
-# ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
-FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub
+LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):firebase-emulators-$(VERSION)
+LOCAL_FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
+FIREBASE_EMULATORS = cd $(LOCAL_FIREBASE_EMULATORS_DIR) && firebase
+# This is a comma separated list of emulator names.
+# Valid options are: ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
+FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub,database
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
+LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
+LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
 
 local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
 .PHONY: local-firebase-emulators-prepare
-
-LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
 
 local-firebase-emulators-install: local-firebase-emulators-auth-functions-npm-install
 	@cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR) && npm install
@@ -24,20 +24,16 @@ local-firebase-emulators-init:
 .PHONY: local-firebase-emulators-init
 
 local-firebase-emulators-functions-serve:
-	@cd $(FIREBASE_EMULATORS_DIR)/functions && \
+	@cd $(LOCAL_FIREBASE_EMULATORS_DIR)/functions && \
 	unset GOOGLE_APPLICATION_CREDENTIALS && \
 	npm run serve
 .PHONY: local-firebase-emulators-functions-serve
-
-LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
-
-LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
 
 local-firebase-emulators-config-json: $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON)
 .PHONY: local-firebase-emulators-config-json	
 
 $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON):
-	@$(FIREBASE_EMULATORS_DIR)/firebase-emulators-config-create-json.sh
+	@$(LOCAL_FIREBASE_EMULATORS_DIR)/firebase-emulators-config-create-json.sh
 
 local-firebase-emulators-start: local-firebase-emulators-install local-firebase-emulators-config-json
 	@unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
@@ -52,16 +48,8 @@ local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-
 .PHONY: local-firebase-emulators-docker-compose
 
 local-firebase-emulators-container-up: local-firebase-emulators-container-rm
-	@$(LOCAL_DIR)/firebase-emulators/docker-compose-up.sh &
-	@until nc -z firebase-emulators 4000 ; do \
-		sleep 1 ; \
-	done
-	@$(MAKE) local-firebase-emulators-pubsub-init
-	@$(LOCAL_DOCKER_COMPOSE) logs firebase-emulators
-	@echo
-	@echo Started Firebase Emulator: 
-	@echo View Emulator UI at http://127.0.0.1:4000/
-	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
+	@echo "Starting mobile firebase-emulators container..."
+	@$(LOCAL_FIREBASE_EMULATORS_DIR)/container-up.sh
 .PHONY: local-firebase-emulators-container-up
 
 local-firebase-emulators-pubsub-wait:

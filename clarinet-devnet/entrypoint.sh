@@ -21,7 +21,7 @@ trap kill_jobs EXIT
 export LOCAL_USER_ID=$(id -u)
 
 if [ "${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}" = "true" ]; then
-    caches-refresh.sh
+    clarinet-caches-refresh.sh
 fi
 
 dockerd-entrypoint.sh --dns=8.8.8.8 --dns=8.8.4.4 &
