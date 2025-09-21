@@ -1,7 +1,7 @@
 permissions:
   id-token: write
   contents: write
-name: Build and Push Git Commit Tagged Docker Images To Dev Environments
+name: Build and Push Release Docker Images And Artifacts 📦
 on:
   push:
     branches:
@@ -19,7 +19,6 @@ jobs:
       VEGITO_PROJECT_USER: vegito-${{ matrix.environment }}-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.base64
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.storepass.base64
@@ -45,6 +44,12 @@ jobs:
           standard-version
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
+      - name: Generate changelog
+        run: |
+          git fetch --tags
+          echo "## Changelog for ${{ env.VERSION }}" > CHANGELOG.md
+          conventional-changelog -p angular -r 2 >> CHANGELOG.md
+          cat CHANGELOG.md
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
       - name: Refresh local/.env file
@@ -74,10 +79,6 @@ jobs:
       - name: Build and load local project images
         run: |
           make images-ci
-      - name: Cleanup checkout directory
-        run: |
-          git reset --hard
-          git clean -ffdx
   local-dev-environment:
     strategy:
       matrix:
@@ -100,7 +101,7 @@ jobs:
           fetch-depth: 0
       - name: Ensure fresh .env
         run: |
-          rm -f .env
+          rm -f .env 
           ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
@@ -124,10 +125,6 @@ jobs:
           make local-container-config-show
       - name: Start dev environment containers
         run: make dev-ci
-      - name: Cleanup checkout directory
-        run: |
-          git reset --hard
-          git clean -ffdx
   run-tests:
     strategy:
       matrix:
@@ -149,7 +146,7 @@ jobs:
           fetch-depth: 0 
       - name: Ensure fresh .env
         run: |
-          rm -f .env
+          rm -f .env 
           ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
@@ -170,10 +167,6 @@ jobs:
           make gcloud-auth-docker
       - name: Run Application tests
         run: make application-tests
-      - name: Cleanup checkout directory
-        run: |
-          git reset --hard
-          git clean -ffdx
   extract-release-artifacts:
     strategy:
       matrix:
@@ -196,7 +189,7 @@ jobs:
           fetch-depth: 0
       - name: Ensure fresh .env
         run: |
-          rm -f .env
+          rm -f .env 
           ./dotenv.sh
       - name: Extract signed APK & AAB releases from images
         id: extract_apk_aab
@@ -214,19 +207,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: main-${{ matrix.environment }}-${{ needs.build-release-images.outputs.version }}
-          name: "Release ${{ needs.build-release-images.outputs.version }}"
-          body: |
-            Android artifacts for `${{ matrix.environment }}` environment.
-            - Version: ${{ needs.build-release-images.outputs.version }}
-            - Signed APK and AAB generated
-            - Keystore: ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}
+          name: "[${{ matrix.environment }}] Release ${{ needs.build-release-images.outputs.version }}"
+          body_path: ./CHANGELOG.md
           files: |
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
-      - name: Cleanup checkout directory
-        run: |
-          git reset --hard
-          git clean -ffdx
+            CHANGELOG.md
   cleanup:
     strategy:
       matrix:
@@ -239,21 +225,34 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Ensure fresh .env
+      - name: Refresh local/.env file
         run: |
           rm -f .env
           ./dotenv.sh
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
       - name: Shutdown containers
         run: make dev-ci-rm
       - name: Notify cleanup done
         run: echo "Cleaning completed."
-      - name: Cleanup checkout directory
-        run: |
-          git reset --hard
-          git clean -ffdx

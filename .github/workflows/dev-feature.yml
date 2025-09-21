@@ -1,7 +1,7 @@
 permissions:
   id-token: write
   contents: read
-name: Build and Load Branches Local Docker Images
+name: Build and Load Feature Branch Docker Images
 on:
   push:
     branches:
