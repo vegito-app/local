@@ -228,6 +228,7 @@ RUN set -e ; \
     # 
     npm install -g \
     depcheck \
+    firebase-tools \
     npm-check-updates \
     npm-check \
     npm \
