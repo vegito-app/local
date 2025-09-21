@@ -90,7 +90,7 @@ local-github-actions-runner-container-rm: local-github-actions-runner-remove-tok
 	@containers=$$(docker ps -qf "name=github-actions-runner") ; \
 	for container in $$containers ; do \
 		echo 🔄 Unregistering runner in container $$container... ; \
-		docker exec $$container cd /runner && ./config.sh remove --token $(GITHUB_ACTIONS_RUNNER_REMOVE_TOKEN) || true ; \
+		docker exec $$container bash -c "cd /runner && ./config.sh remove --token $(GITHUB_ACTIONS_RUNNER_REMOVE_TOKEN)" || true ; \
 	done ; \
 
 	# Attente passive que les containers se ferment d'eux-mêmes

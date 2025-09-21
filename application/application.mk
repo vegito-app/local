@@ -34,9 +34,6 @@ LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
 local-application-containers-rm: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm)
 .PHONY: local-application-containers-rm
 
-# local-application-containers-rm-ci: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm-ci)
-# .PHONY: local-application-containers-rm-ci
-
 local-application-containers-up: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%)
 .PHONY: local-application-containers-up
 
@@ -45,61 +42,40 @@ $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%):
 	@$(MAKE) $(@:%=local-%-container-up)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%)
 
-LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES_CI ?= \
-  application-backend \
-  application-mobile
-
-# LOCAL_BUILDER_CONTAINER_DOCKER_COMPOSE_NAME = dev
-
-# LOCAL_BUILDER_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_BUILDER_CONTAINER_DOCKER_COMPOSE_NAME)
-
-# LOCAL_CONTAINERS_OPERATIONS_CI = up rm
-
-$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci): local-project-builder-image-pull
-	@echo "Running operation 'local-application-containers-$(@:local-application-containers-%-ci=%)' for all local containers in CI..."
-	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-	LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-	  $(LOCAL_BUILDER_CONTAINER_RUN) \
-	    make local-application-containers-$(@:local-application-containers-%-ci=%) \
-	      LOCAL_ANDROID_CONTAINER_NAME=application-mobile \
-	      LOCAL_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-backend-$(VERSION) \
-	      LOCAL_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-mobile-$(VERSION)
-.PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci)
-
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm): 
-	@echo "Removing container for $(@:local-%-container-rm=%)"
+	@echo "🗑️  Removing container for $(@:local-%-container-rm=%)..."
 	@$(MAKE) $(@:%-rm=%-stop)
-	$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm-ci): 
-	@echo "Removing container for $(@:local-%-container-rm-ci=%)"
-	echo $(MAKE) $(@:%-rm-ci=%-stop)
-	echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm-ci=%)
+	@echo "🗑️  Removing container for $(@:local-%-container-rm-ci=%)..."
+	@echo $(MAKE) $(@:%-rm-ci=%-stop)
+	@echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm-ci=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm-ci)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-start):
-	@echo "Starting container for $(@:local-%-container-start=%)"
+	@echo "▶️ Starting $(@:local-%-container-start=%)..."
 	@-$(LOCAL_DOCKER_COMPOSE) start $(@:local-%-container-start=%) 2>/dev/null
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-start)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-stop):
-	@echo "Stopping container for $(@:local-%-container-stop=%)"
+	@echo "🛑 Stopping container for $(@:local-%-container-stop=%)..."
 	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-container-stop=%) 2>/dev/null
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-stop)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-logs):
-	@echo "Viewing container logs for $(@:local-%-container-logs=%)"
+	@echo "🗒️ Showing logs for $(@:local-%-container-logs=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) logs $(@:local-%-container-logs=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-logs)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-logs-f):
-	@echo "Following container logs for $(@:local-%-container-logs-f=%)"
+	@echo "📝 Following logs for $(@:local-%-container-logs-f=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:local-%-container-logs-f=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-logs-f)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-sh):
-	@echo "Opening container shell for $(@:local-%-container-sh=%)"
+	@echo "💻 Opening bash shell for $(@:local-%-container-sh=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-container-sh=%) bash
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-sh)
 
@@ -121,6 +97,7 @@ local-application-docker-images-pull-parallel:
 .PHONY: local-application-docker-images-pull-parallel
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-push):
+	@echo Pushing the container image for $(@:local-%-image-push=%)
 	@$(LOCAL_DOCKER_COMPOSE) push $(@:local-%-image-push=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-image-push)
 
@@ -131,8 +108,22 @@ local-application-docker-images-push:
 	@$(MAKE) -j local-application-dockercompose-images-push
 .PHONY: local-application-docker-images-push
 
+LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES_CI ?= \
+  application-backend \
+  application-mobile
+
+$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci): local-project-builder-image-pull
+	@echo "Running operation 'local-application-containers-$(@:local-application-containers-%-ci=%)' for all local containers in CI..."
+	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
+	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
+	  $(LOCAL_BUILDER_CONTAINER_RUN) \
+	    make local-application-containers-$(@:local-application-containers-%-ci=%) \
+	      LOCAL_ANDROID_CONTAINER_NAME=application-mobile \
+	      LOCAL_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-backend-$(VERSION) \
+	      LOCAL_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-mobile-$(VERSION)
+.PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci)
+
 local-application-docker-images-push-parallel: 
 	@echo Pushing all application images in parallel...
 	@$(MAKE) -j local-application-docker-images-push
 .PHONY: local-application-docker-images-push-parallel
-
