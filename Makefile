@@ -34,8 +34,8 @@ LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
 
--include git.mk
 -include local.mk
+-include git.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
@@ -57,13 +57,14 @@ dev:
 	@$(MAKE) -j local-containers-up
 .PHONY: dev
 
-dev-ci:
-	@$(MAKE) -j local-containers-up-ci
+dev-rm: local-containers-rm local-application-containers-rm
+.PHONY: dev-rm
+  
+dev-ci: local-containers-up-ci local-application-containers-up-ci
 .PHONY: dev-ci
   
-dev-rm: 
-	@$(MAKE) -j local-containers-rm-all local-application-containers-rm-all
-.PHONY: dev-rm
+dev-ci-rm:  local-containers-rm-ci local-application-containers-rm-ci
+.PHONY: dev-ci-rm
 
 logs: local-containers-dev-logs-f
 .PHONY: logs

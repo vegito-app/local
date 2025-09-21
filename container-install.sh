@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -uo pipefail
 trap "echo Exited with code $?." EXIT
 
 # Bashrc enhancements for better usability

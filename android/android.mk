@@ -39,7 +39,7 @@ LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
 
 $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake target $(@:%-image=%)
-	$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@echo Building and loading the docker image for buildx bake target $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image)
