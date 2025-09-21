@@ -1,5 +1,7 @@
 LOCAL_APPLICATION_TESTS_DIR ?= $(LOCAL_DIR)/application/tests
 
+LOCAL_APPLICATION_TESTS_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-tests-$(VERSION)
+
 local-application-tests-container-up: local-application-tests-container-rm
 	@VERSION=latest $(LOCAL_DIR)/application-tests/docker-compose-up.sh &
 	@$(LOCAL_DOCKER_COMPOSE) logs application-tests

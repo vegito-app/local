@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -uo pipefail
+set -euo pipefail
 
 CONTAINER_NAME="firebase-emulators"
 PORTS_TO_WAIT_FOR=(4000 5001 8085 8090 9099 9000 9199)
@@ -53,4 +53,3 @@ while :; do
 done
 
 exit $exit_code
-trap kill_jobs EXIT 

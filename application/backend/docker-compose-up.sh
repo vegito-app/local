@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -uxo pipefail
 
 SOCAT_MAPS=(
   "8080:8080:http"  # Backend HTTP

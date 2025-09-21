@@ -68,4 +68,3 @@ while :; do
 done
 
 exit $exit_code
-trap kill_jobs EXIT 

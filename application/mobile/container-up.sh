@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -euo pipefail
+set -uo pipefail
 
 CONTAINER_NAME="application-mobile"
 PORTS_TO_WAIT_FOR=(4723 5900)
@@ -12,10 +12,10 @@ wait_pid=
 # Function to kill background jobs (waiter only)
 kill_jobs() {     
   echo "🧹 Cleaning up background jobs..." 
-    if [[ -n "${wait_pid:-}" ]]; then
-      kill "$wait_pid" 2>/dev/null || true
-      wait "$wait_pid" 2>/dev/null || true
-    fi
+  if [[ -n "${wait_pid:-}" ]]; then
+    kill "$wait_pid" 2>/dev/null || true
+    wait "$wait_pid" 2>/dev/null || true
+  fi
 }
 trap kill_jobs EXIT
 
@@ -45,7 +45,7 @@ while :; do
     break
   fi
   if ! kill -0 $wait_pid 2>/dev/null; then
-    echo "🥳 All ports are ready! Exiting container-up.sh"
+    echo "🥳 All application-mobile ports are ready!"
     exit_code=0
     break
   fi
