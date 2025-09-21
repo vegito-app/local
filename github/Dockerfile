@@ -152,7 +152,6 @@ RUN set -e ; \
     firebase-tools \
     standard-version \
     conventional-changelog \
-    conventional-changelog-angular \
     npm ; \
     rm -rf ${HOME}/.npm 
 
