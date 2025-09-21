@@ -35,5 +35,5 @@ local-application-backend-install:
 
 local-application-backend-container-up: local-application-backend-container-rm
 	@echo "Starting backend application container..."
-	@$(APPLICATION_BACKEND_DIR)/container-up.sh
+	$(APPLICATION_BACKEND_DIR)/container-up.sh
 .PHONY: local-application-backend-container-up

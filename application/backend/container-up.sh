@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -euo pipefail
+set -uxo pipefail
 
 CONTAINER_NAME="application-backend"
 PORTS_TO_WAIT_FOR=(8080)
@@ -46,7 +46,7 @@ while :; do
     break
   fi
   if ! kill -0 $wait_pid 2>/dev/null; then
-    echo "🥳 All ports are ready! Exiting container-up.sh"
+    echo "🥳 All application-backend ports are ready!"
     exit_code=0
     break
   fi

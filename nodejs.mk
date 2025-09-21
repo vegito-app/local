@@ -1,7 +1,7 @@
 NODE_MODULES := \
 	$(LOCAL_APPLICATION_DIR)/frontend \
-	$(FIREBASE_EMULATORS_DIR)/functions \
-	$(FIREBASE_EMULATORS_DIR)/functions/auth
+	$(LOCAL_FIREBASE_EMULATORS_DIR)/functions \
+	$(LOCAL_FIREBASE_EMULATORS_DIR)/functions/auth
 
 local-node-modules-npm-check-updates: 
 	@$(MAKE) -j $(NODE_MODULES:%=%-npm-check-updates)

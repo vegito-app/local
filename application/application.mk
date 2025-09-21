@@ -31,19 +31,52 @@ LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   backend \
   mobile
 
-local-application-containers-rm-all: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm)
-.PHONY: local-containers-rm-all
+local-application-containers-rm: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm)
+.PHONY: local-application-containers-rm
+
+# local-application-containers-rm-ci: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm-ci)
+# .PHONY: local-application-containers-rm-ci
+
+local-application-containers-up: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%)
+.PHONY: local-application-containers-up
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%):
 	@echo "Starting container for application service $(@:application-%=local-%-container-up)"
 	@$(MAKE) $(@:%=local-%-container-up)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=application-%)
 
+LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES_CI ?= \
+  application-backend \
+  application-mobile
+
+# LOCAL_BUILDER_CONTAINER_DOCKER_COMPOSE_NAME = dev
+
+# LOCAL_BUILDER_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_BUILDER_CONTAINER_DOCKER_COMPOSE_NAME)
+
+# LOCAL_CONTAINERS_OPERATIONS_CI = up rm
+
+$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci): local-project-builder-image-pull
+	@echo "Running operation 'local-application-containers-$(@:local-application-containers-%-ci=%)' for all local containers in CI..."
+	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
+	LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
+	  $(LOCAL_BUILDER_CONTAINER_RUN) \
+	    make local-application-containers-$(@:local-application-containers-%-ci=%) \
+	      LOCAL_ANDROID_CONTAINER_NAME=application-mobile \
+	      LOCAL_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-backend-$(VERSION) \
+	      LOCAL_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-mobile-$(VERSION)
+.PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci)
+
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm): 
 	@echo "Removing container for $(@:local-%-container-rm=%)"
 	@$(MAKE) $(@:%-rm=%-stop)
-	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
 .PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm)
+
+$(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm-ci): 
+	@echo "Removing container for $(@:local-%-container-rm-ci=%)"
+	echo $(MAKE) $(@:%-rm-ci=%-stop)
+	echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm-ci=%)
+.PHONY: $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-rm-ci)
 
 $(LOCAL_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-application-%-container-start):
 	@echo "Starting container for $(@:local-%-container-start=%)"
