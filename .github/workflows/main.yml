@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - refs/tags/v*
 jobs:
   build-release-images:
     strategy:
@@ -201,17 +202,41 @@ jobs:
           path: |
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+  create-consolidated-release:
+    name: Create Consolidated GitHub Release ✨
+    runs-on: self-hosted
+    needs: [build-release-images, extract-release-artifacts]
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        run: |
+          git fetch --tags
+          echo "## Changelog for ${{ env.VERSION }}" > CHANGELOG.md
+          conventional-changelog -p angular -r 2 >> CHANGELOG.md
+          cat CHANGELOG.md
+      - name: Download all artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      - name: List downloaded artifacts
+        run: |
+          find ./artifacts -type f -name "*.apk" -o -name "*.aab" | sort
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: main-${{ matrix.environment }}-${{ needs.build-release-images.outputs.version }}
-          name: "[${{ matrix.environment }}] Release ${{ needs.build-release-images.outputs.version }}"
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
           body_path: ./CHANGELOG.md
           files: |
-            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
-            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ./artifacts/**/*.apk
+            ./artifacts/**/*.aab
             CHANGELOG.md
   cleanup:
     strategy:
