@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      - refs/tags/v*
 jobs:
   build-release-images:
     strategy:
@@ -25,6 +24,8 @@ jobs:
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.storepass.base64
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
+      android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
+      changelog: ${{ steps.define_version.outputs.CHANGELOG }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,14 +44,19 @@ jobs:
           git config --global user.email "build-and-push-images-action@github.com"
           # Bump the version based on commit messages (default patch bump)
           standard-version
+          echo "Commit release bump and tag will be pushed after build success"
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
-      - name: Generate changelog
-        run: |
           git fetch --tags
-          echo "## Changelog for ${{ env.VERSION }}" > CHANGELOG.md
-          conventional-changelog -p angular -r 2 >> CHANGELOG.md
+          echo "## Changelog for ${{ env.VERSION }}" > CHANGELOG.new.md
+          echo "Android Keystore SHA1: ${{ env.ANDROID_KEYSTORE_SHA1 }}" >> CHANGELOG.new.md
+          conventional-changelog -p angular -r 1 >> CHANGELOG.new.md
+          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.new.md; fi
+          mv CHANGELOG.new.md CHANGELOG.md
           cat CHANGELOG.md
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
       - name: Refresh local/.env file
@@ -73,10 +79,18 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
-      - name: Restore ADB keys and debug.keystore
+      - name: Decode ADB release keystore & show SHA1 fingerprint
+        id: get_android_release_keystore
         run: |
           printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
           printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
+          echo "Listing fingerprint for keystore:"
+          export SHA1=$(keytool -list -v \
+            -keystore ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }} \
+            -storepass $(cat ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}) \
+            | grep 'SHA1:' | awk '{print $2}')
+          echo "ANDROID_KEYSTORE_SHA1=$SHA1" >> $GITHUB_OUTPUT
+          echo "SHA1 fingerprint: $SHA1"
       - name: Build and load local project images
         run: |
           make images-ci
@@ -208,17 +222,15 @@ jobs:
     needs: [build-release-images, extract-release-artifacts]
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
+      ANDROID_KEYSTORE_SHA1: ${{ needs.build-release-images.outputs.android_keystore_sha1 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Generate changelog
+      - name: Write changelog from previous step
         run: |
-          git fetch --tags
-          echo "## Changelog for ${{ env.VERSION }}" > CHANGELOG.md
-          conventional-changelog -p angular -r 2 >> CHANGELOG.md
-          cat CHANGELOG.md
+          echo "${{ needs.build-release-images.outputs.changelog }}" > CHANGELOG.md
       - name: Download all artifacts 📥
         uses: actions/download-artifact@v4
         with:
@@ -238,6 +250,34 @@ jobs:
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
             CHANGELOG.md
+
+  release-finalize:
+    name: Finalize and Push Release Tag
+    runs-on: self-hosted
+    needs:
+      - build-release-images
+      - create-consolidated-release
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reset to clean state
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Recreate version tag
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+          standard-version
+
+      - name: Push tag if all builds succeeded
+        run: |
+          git push origin HEAD --follow-tags
   cleanup:
     strategy:
       matrix:
