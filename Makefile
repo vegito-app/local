@@ -46,7 +46,11 @@ images: docker-images
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: local-docker-images-pull-parallel
+images-pull: 
+	@echo Pulling all images in parallel...
+	@$(MAKE) -j \
+	  local-docker-images-pull-parallel \
+	  local-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: 
@@ -59,11 +63,15 @@ dev:
 
 dev-rm: local-containers-rm local-application-containers-rm
 .PHONY: dev-rm
-  
-dev-ci: local-containers-up-ci local-application-containers-up-ci
+
+dev-ci: images-pull
+	@echo "Starting CI for development containers..."
+	@$(MAKE) -j \
+	  local-containers-up-ci \
+	  local-application-containers-up-ci
 .PHONY: dev-ci
   
-dev-ci-rm:  local-containers-rm-ci local-application-containers-rm-ci
+dev-ci-rm: local-containers-rm-ci local-application-containers-rm-ci
 .PHONY: dev-ci-rm
 
 logs: local-containers-dev-logs-f
