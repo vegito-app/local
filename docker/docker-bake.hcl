@@ -1,0 +1,142 @@
+variable "USE_REGISTRY_CACHE" {
+  default = false
+}
+
+variable "VERSION" {
+  description = "current git tag or commit version"
+  default     = "dev"
+}
+variable "GO_VERSION" {
+  description = "current Go version"
+  default     = "1.24.5"
+}
+
+variable "NODE_VERSION" {
+  description = "current Node version"
+  default     = "22.14.0"
+}
+
+variable "OH_MY_ZSH_VERSION" {
+  description = "current Oh My Zsh version"
+  default     = "1.2.1"
+}
+
+variable "NVM_VERSION" {
+  description = "current NVM version"
+  default     = "0.40.1"
+}
+
+variable "DOCKER_VERSION" {
+  description = "current Docker version"
+  default     = "28.0.2"
+}
+
+variable "DOCKER_COMPOSE_VERSION" {
+  description = "current Docker Compose version"
+  default     = "2.34.0"
+}
+
+variable "DOCKER_BUILDX_VERSION" {
+  description = "current Docker Buildx version"
+  default     = "0.22.0"
+}
+
+variable "TERRAFORM_VERSION" {
+  description = "current Terraform version"
+  default     = "1.11.2"
+}
+
+variable "KUBECTL_VERSION" {
+  description = "current Kubernetes version"
+  default     = "1.32"
+}
+
+variable "K9S_VERSION" {
+  description = "current K9S version"
+  default     = "0.50.9"
+}
+
+variable "INFRA_ENV" {
+  description = "production, staging or dev"
+  default     = "dev"
+}
+
+variable "VEGITO_PRIVATE_REPOSITORY" {
+  default = "${INFRA_ENV}-docker-repository"
+}
+
+variable "VEGITO_PUBLIC_REPOSITORY" {
+  default = "${INFRA_ENV}-docker-repository-public"
+}
+
+variable "GOOGLE_CLOUD_PROJECT_ID" {
+  description = "Google Cloud Project ID"
+  default     = "moov-dev-439608"
+}
+variable "platforms" {
+  default = [
+    "linux/amd64",
+    "linux/arm64"
+  ]
+}
+
+group "local-runners" {
+  targets = [
+    "local-android-runner",
+  ]
+}
+
+group "local-runners-ci" {
+  targets = [
+    "local-android-runner-ci",
+  ]
+}
+
+group "local-builders" {
+  targets = [
+    "local-project-builder",
+    "local-android-builder",
+  ]
+}
+
+group "local-builders-ci" {
+  targets = [
+    "local-project-builder-ci",
+    "local-android-builder-ci",
+  ]
+}
+
+group "local-services" {
+  targets = [
+    "local-android-services",
+    "clarinet-devnet",
+    "firebase-emulators",
+    "github-actions-runner",
+    "vault-dev",
+    "application-tests",
+  ]
+}
+group "local-services-ci" {
+  targets = [
+    "local-android-services-ci",
+    "clarinet-devnet-ci",
+    "firebase-emulators-ci",
+    "github-actions-runner-ci",
+    "vault-dev-ci",
+    "application-tests-ci",
+  ]
+}
+
+group "local-applications" {
+  targets = [
+    "local-android-studio",
+    "local-application",
+  ]
+}
+
+group "local-applications-ci" {
+  targets = [
+    "local-android-studio-ci",
+    "local-application-ci",
+  ]
+}
