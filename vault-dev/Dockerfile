@@ -32,9 +32,11 @@ RUN wget -O - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/sha
 
 WORKDIR ${HOME}
 
+RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
-# For production derivatives of this container, you should add the IPC_LOCK
-# capability so that Vault can mlock memory.
 COPY entrypoint.sh /usr/local/bin/vault-local-entrypoint.sh
+
+ENV VAULT_ADDR=http://127.0.0.1:8200
+
 ENTRYPOINT ["vault-local-entrypoint.sh"]

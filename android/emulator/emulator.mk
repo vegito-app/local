@@ -1,0 +1,52 @@
+local-android-emulator-logs:
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) adb logcat -T 10
+.PHONY: local-android-emulator-logs
+
+local-android-emulator-adb-devices-list:
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) adb devices -l
+.PHONY: local-android-emulator-adb-devices-list
+
+local-android-emulator-kernel:
+	@echo "Showing emulator kernel..."
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
+	  echo "[*] Showing emulator kernel..." ; \
+	  emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
+	  echo "[*] Emulator kernel shown." ; \
+	'
+.PHONY: local-android-emulator-kernel
+
+local-android-emulator-dump: 
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
+	  set -e ; \
+	  output_dir=$(LOCAL_ANDROID_STUDIO_DIR)/_emulator_dump ; \
+	  mkdir -p $$output_dir ; \
+	  cd $$output_dir ; \
+	  echo Capture android-studio mobile, outputs folder : $$(pwd) ; \
+	  adb shell uiautomator dump --compressed ; \
+	  adb pull /sdcard/window_dump.xml ; \
+	  adb shell rm /sdcard/window_dump.xml ; \
+	  adb shell screencap -p /sdcard/popup.png ; \
+	  adb pull /sdcard/popup.png ; \
+	  adb shell rm /sdcard/popup.png ; \
+	  adb shell uiautomator dump /sdcard/dump.xml ; \
+	  adb pull /sdcard/dump.xml ./dump.xml ; \
+	  adb shell rm /sdcard/dump.xml ; \
+	  sudo chmod o+rw -R $$(pwd) ; \
+	  echo "Capture android-studio mobile done, outputs folder : $$(pwd)" ; \
+	'
+.PHONY: local-android-emulator-dump
+
+local-android-emulator-data-load:
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
+	make -C ../.. local-android-emulator-data-load-mobile-images
+	@echo "Data loaded to android-studio emulator"
+.PHONY: local-android-emulator-data-load
+
+local-android-emulator-data-load-mobile-images:
+	@bash -c ' \
+	set -e ; \
+	echo "Load android-studio emulator data, inputs folder : $$(pwd)" ; \
+	$(LOCAL_ANDROID_STUDIO_DIR)/emulator-data-load.sh \
+		$(LOCAL_APPLICATION_DIR)/tests/mobile_images ; \
+	'
+.PHONY: local-android-emulator-data-load-mobile-images

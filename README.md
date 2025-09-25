@@ -1,6 +1,7 @@
 # local
 
-![Logo](./images/logo-1.png)
+<!-- ![Logo](./images/logo-1.png) -->
+![image](https://github.com/user-attachments/assets/2b24c0b6-d77d-45d1-a16d-e8b2b134601b)
 
 **Portable DevContainer Environment for Vegito**
 
@@ -28,8 +29,6 @@ Clone this repo and launch the devcontainer in VSCode.
 Run `make help` for available targets.
 
 ## Local Docker Based Development Environment + GPU features 
-
-![image](https://github.com/user-attachments/assets/2b24c0b6-d77d-45d1-a16d-e8b2b134601b)
 
 Integrate this repository into your project as a folder *local* or *.local* or *dev*, etc ... 
 

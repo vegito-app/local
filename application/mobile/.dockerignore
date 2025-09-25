@@ -4,3 +4,7 @@ build
 core
 .flutter-plugins*
 .containers
+Dockerfile
+docker-bake.hcl
+docker-compose-up.yml
+README.md

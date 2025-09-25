@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Configuration minimale pour openbox
 mkdir -p ~/.config/openbox
 

@@ -2,29 +2,31 @@
   "name": "Go Dev Container",
   "dockerComposeFile": [
     "../docker-compose.yml",
-    "../local/docker-compose.yml",
+    "../application/docker-compose.yml",
     // "./docker-compose.yml",
-    "../.docker-compose-override.yml",
+    "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml"
   ],
-  "service": "dev",
   "runServices": [
     "dev"
   ],
-  "initializeCommand": "LOCAL_DIR=${localWorkspaceFolder} CONTAINERS_CACHE_DIR=${localWorkspaceFolder}/.containers WORKING_DIR=${localWorkspaceFolder} DEV_GOOGLE_CLOUD_PROJECT_ID=moov-dev-439608 ${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
-  "workspaceFolder": "${localWorkspaceFolder}",
+  "service": "dev",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
+  "workspaceFolder": "/workspaces/refactored-winner",
   "customizations": {
     "vscode": {
       "settings": {
         "containers.environment": {
           // "DOCKER_HOST": "tcp://localhost:23750",
-          "GOOGLE_CLOUD_REGION": "europe-west1"
+          "GOOGLE_CLOUD_REGION": "europe-west1",
+          "LOCAL_CONTAINER_INSTALL": "1"
         },
         "docker.dockerodeOptions": {
           // "host": "tcp://localhost:23750"
         },
         "env": {
+          "LOCAL_CONTAINER_INSTALL": "1",
           "FLUTTER_ROOT": "${localWorkspaceFolder}/local/.containers/android-studio/flutter",
           "BUILDER_IMAGE": "${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest}",
           "LOCAL_DIR": "${localWorkspaceFolder}/local",
@@ -50,7 +52,7 @@
         },
         "terminal.integrated.defaultProfile.linux": "bash",
         "window.commandCenter": false,
-        "workbench.colorTheme": "Kimbie Dark",
+        "workbench.colorTheme": "Dark Theme - JetBrains IDE",
         "workbench.iconTheme": "material-icon-theme",
         "workbench.layoutControl.enabled": false,
         "zenMode.centerLayout": false,
@@ -123,12 +125,36 @@
             "label": "ADB - Android Debug Bridge - Android Studio",
             "onAutoForward": "silent"
           },
+          "6037": {
+            "label": "ADB - Android Debug Bridge - Android Appium",
+            "onAutoForward": "silent"
+          },
+          "7037": {
+            "label": "ADB - Vegito - Android Appium",
+            "onAutoForward": "silent"
+          },
           "6900": {
             "label": "VNC - X server - Android Studio",
             "onAutoForward": "silent"
           },
+          "7900": {
+            "label": "VNC - X server - Android Appium",
+            "onAutoForward": "silent"
+          },
+          "8900": {
+            "label": "VNC - X server - Application Mobile",
+            "onAutoForward": "silent"
+          },
           "6901": {
             "label": "Xpra - X server - Android Studio",
+            "onAutoForward": "silent"
+          },
+          "7901": {
+            "label": "Xpra - X server - Android Appium",
+            "onAutoForward": "silent"
+          },
+          "8901": {
+            "label": "Xpra - X server - Application Mobile",
             "onAutoForward": "silent"
           },
           "8200": {

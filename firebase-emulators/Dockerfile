@@ -31,23 +31,23 @@ ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version=0.40.1
 ARG node_version=22.14.0
-RUN set -ex; \
+RUN set -e ; \
     # 
-    mkdir -p ${NVM_DIR} \
+    mkdir -p ${NVM_DIR} ; \
+    #
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
+    . ${NVM_DIR}/nvm.sh ; \
+    nvm install ${node_version} ; \
+    nvm alias default ${node_version} ; \
+    nvm use default ;  \
     # 
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash - \
-    && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${node_version} \
-    && nvm alias default ${node_version} \
-    && nvm use default \
-    # 
-    && npm install -g \
+    npm install -g \
     firebase-tools \
     depcheck \
     npm-check-updates \
     npm-check \
-    npm \
-    && rm -rf ${HOME}/.npm 
+    npm ; \
+    rm -rf ${HOME}/.npm 
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH

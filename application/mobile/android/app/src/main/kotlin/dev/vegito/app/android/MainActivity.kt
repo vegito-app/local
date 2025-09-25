@@ -1,4 +1,4 @@
-package com.example.car2go
+package dev.vegito.app.android
 
 import io.flutter.embedding.android.FlutterActivity
 
