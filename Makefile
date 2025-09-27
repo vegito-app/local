@@ -36,6 +36,8 @@ LOCAL_DOCKER_COMPOSE = docker compose \
 
 -include local.mk
 -include git.mk
+-include nodejs.mk
+-include go.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
