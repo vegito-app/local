@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+# If the first argument is "bash", "zsh", or "sh", execute the command directly
+if [[ "${1:-}" == "bash" || "${1:-}" == "zsh" || "${1:-}" == "sh" ]]; then
+    exec "$@"
+fi
+
 # List to hold background job PIDs
 bg_pids=()
 

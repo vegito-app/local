@@ -74,10 +74,10 @@ local-application-mobile-flutter-android-release: local-application-mobile-flutt
 local-application-mobile-flutter-build-release: local-application-mobile-flutter-android-release local-application-mobile-flutter-build-ios-release
 .PHONY: local-application-mobile-flutter-build-release
 
-$(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-%):
-	@$(FLUTTER) build $(@:local-application-mobile-flutter-%=%) --debug
-	@echo "Build for $(@:local-application-mobile-flutter-%=%) completed successfully"
-.PHONY: $(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-%)
+$(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%-debug):
+	@$(FLUTTER) build $(@:local-application-mobile-flutter-build-%-debug=%) --debug
+	@echo "Build for $(@:local-application-mobile-flutter-build-%-debug=%) completed successfully"
+.PHONY: $(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%-debug)
 
 local-application-mobile-flutter-run-prepare: flutter-app-uninstall local-application-mobile-flutter-pub-get
 .PHONY: local-application-mobile-flutter-run-prepare	
