@@ -26,6 +26,13 @@ LOCAL_DOCKER_BUILDX_GROUPS := \
   services \
   applications
 
+local-docker-tags-generate-ci: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-docker-group-%-tags-ci)
+.PHONY: local-docker-tags-generate-ci
+
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-docker-group-%-tags-ci):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-group-%-tags-ci=local-%-tags-ci) 2>/dev/null | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-ci)
+
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
 # The build does not push images to a remote registry.
