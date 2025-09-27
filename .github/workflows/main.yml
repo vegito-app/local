@@ -5,7 +5,8 @@ name: Build and Push Release Docker Images And Artifacts 📦
 on:
   push:
     branches:
-      - main
+      # - main
+      - dev
 jobs:
   build-release-images:
     strategy:
@@ -18,10 +19,12 @@ jobs:
       VEGITO_PROJECT_NAME: local-${{ matrix.environment }}-${{ github.ref }}-${{ github.run_id }}
       VEGITO_PROJECT_USER: vegito-${{ matrix.environment }}-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: ${{ matrix.environment }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.base64
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.storepass.base64
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
@@ -65,7 +68,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ env.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
@@ -94,6 +97,26 @@ jobs:
       - name: Build and load local project images
         run: |
           make images-ci
+      - name: Generate docker image tag list for ${{ matrix.environment }}
+        run: |
+          echo "### 🐳 Docker Images Built for \`${{ matrix.environment }}\` (excluding :latest):" > docker-tags.txt
+          for group in runners builders services applications; do
+            echo "#### Group: \`$group\`" >> docker-tags.txt
+            make local-docker-group-$group-tags-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt
+            echo "" >> docker-tags.txt
+          done
+          cat docker-tags.txt >> CHANGELOG.md
+      - name: Upload docker tags and index as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+          path: |
+            docker-tags.txt
+            index.json
+      - name: Export image tags to documentation
+        run: |
+          mkdir -p public/docker-image-tags
+          cp docker-tags.txt public/docker-image-tags/docker-tags-${{ env.VERSION }}.md
   local-dev-environment:
     strategy:
       matrix:
@@ -106,6 +129,7 @@ jobs:
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
       BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     name: Start ${{ matrix.environment }} docker containers
     runs-on: self-hosted
     needs: build-release-images
@@ -124,7 +148,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ env.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
@@ -154,6 +178,7 @@ jobs:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -169,7 +194,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ env.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
@@ -250,6 +275,77 @@ jobs:
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
             ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
             CHANGELOG.md
+  
+  upload-docker-tags-to-gcs:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Upload Docker Tags to GCS
+    runs-on: self-hosted
+    needs: create-consolidated-release
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      INFRA_ENV: ${{ matrix.environment }}
+      GCS_BUCKET: gs://vegito-ci-artifacts-${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+      - name: Set VERSION
+        run: echo "VERSION=${{ needs.build-release-images.outputs.version }}" >> $GITHUB_ENV
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+      - name: Download docker metadata artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+      - name: Generate index.json for release root
+        run: |
+          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
+          for f in $(gsutil ls "${GCS_BUCKET}"/v*/metadata.json); do
+            version=$(basename $(dirname "$f"))
+            echo "  {\"version\": \"$version\"}," >> index.json
+          done
+          # Supprimer la dernière virgule
+          sed -i '$ s/},/}/' index.json
+          echo ']}' >> index.json
+      - name: Upload Docker Tags and Index to GCS
+        run: |
+          gsutil cp docker-tags.txt ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/docker-tags.md
+          gsutil cp index.json ${{ env.GCS_BUCKET }}/index.json
+
+      - name: Upload metadata.json and APK/AAB to GCS
+        run: |
+          mkdir -p temp_metadata
+          METADATA_PATH=temp_metadata/metadata.json
+
+          echo "{" > $METADATA_PATH
+          echo "  \"version\": \"${{ env.VERSION }}\"," >> $METADATA_PATH
+          echo "  \"changelog\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/CHANGELOG.md\"," >> $METADATA_PATH
+          echo "  \"dockerTags\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/docker-tags.md\"," >> $METADATA_PATH
+          echo "  \"apk\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/app-release.apk\"," >> $METADATA_PATH
+          echo "  \"aab\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/app-release.aab\"" >> $METADATA_PATH
+          echo "}" >> $METADATA_PATH
+
+          gsutil cp $METADATA_PATH ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/metadata.json
+
+          # Copy APK and AAB if found
+          find ./artifacts -name "*.apk" -exec gsutil cp {} ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/app-release.apk \;
+          find ./artifacts -name "*.aab" -exec gsutil cp {} ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/app-release.aab \;
 
   release-finalize:
     name: Finalize and Push Release Tag
@@ -294,6 +390,7 @@ jobs:
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
       BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -306,7 +403,7 @@ jobs:
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ env.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions/providers/github
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
