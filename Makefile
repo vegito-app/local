@@ -69,6 +69,7 @@ dev-ci: images-pull local-containers-up-ci local-application-containers-up-ci
 
 dev-ci-rm: local-dev-container-image-pull local-containers-rm-ci local-application-containers-rm-ci
 .PHONY: dev-ci-rm
+#	  local-android-containers-rm-ci \
 
 logs: local-containers-dev-logs-f
 .PHONY: logs

@@ -15,18 +15,6 @@ local-android-docker-images:
 	@$(MAKE) -j $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
 .PHONY: local-android-docker-images
 
-#$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-android-containers-%-ci): local-dev-container-image-pull
-#	@echo "Running operation 'local-android-containers-$(@:local-android-containers-%-ci=%)' for all local containers in CI..."
-#	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-#	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-#	  $(LOCAL_DEV_CONTAINER_RUN) \
-#	    make local-android-containers-$(@:local-android-containers-%-ci=%) \
-#	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-#	      LOCAL_ANDROID_STUDIO_ON_START=false \
-#	      LOCAL_ANDROID_STUDIO_CACHES_REFRESH=false \
-#	      LOCAL_ANDROID_STUDIO_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
-#.PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-android-containers-%-ci)
-
 $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake group $(@:%-group=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group=%)
@@ -146,7 +134,6 @@ local-android-app-sha1-fingerprint:
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 .PHONY: local-android-emulator-app-sha1-fingerprint
-
 
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
