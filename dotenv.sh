@@ -89,7 +89,9 @@ services:
       LOCAL_APPLICATION_TESTS_RUN_ON_START: true
 
   dev:
-    # image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-local:builder-latest
+    environment:
+      LOCAL_CONTAINER_INSTALL: 1
+      MAKE_DEV_ON_START: true
     command: |
       bash -c '
         make docker-sock

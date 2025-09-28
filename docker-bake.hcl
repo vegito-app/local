@@ -37,13 +37,6 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for builder image build (cannot be used before first write)"
 }
 
-variable "platforms" {
-  default = [
-    "linux/amd64",
-    # "linux/arm64"
-  ]
-}
-
 target "local-project-builder-ci" {
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION

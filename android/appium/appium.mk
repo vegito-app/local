@@ -22,6 +22,14 @@ local-android-appium-emulator-avd-restart:
 	'
 .PHONY: local-android-appium-emulator-avd-restart
 
+local-android-appium-emulator-avd-wipe-data:
+	@echo "Android Emulator Wipe Data:"
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
+		emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data \
+		--gpu $(LOCAL_ANDROID_CONTAINER_GPU_MODE) ; \
+	'
+.PHONY: local-android-appium-emulator-avd-wipe-data
+
 local-android-appium-emulator-avd:
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) appium-emulator-avd.sh
 .PHONY: local-android-appium-emulator-avd
