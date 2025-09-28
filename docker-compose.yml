@@ -159,7 +159,7 @@ services:
       - kvm
     devices:
       - /dev/kvm
-    working_dir: ${PWD}/application/mobile/android
+    working_dir: ${PWD}/application/mobile
     command: |
       bash -c '
       set -eu
@@ -171,8 +171,10 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      LOCAL_WORKSPACE: ${PWD}
-
+      LOCAL_WORKSPACE: ${LOCAL_WORKSPACE:-${PWD}}
+      VAULT_DATA: ${VAULT_DATA:-${PWD}/vault/file}
+      VAULT_CONFIG: ${VAULT_CONFIG:-${PWD}/vault/config}
+      VAULT_AUDIT: ${VAULT_AUDIT:-${PWD}/vault/audit}
       VAULT_ADDR: http://0.0.0.0:8200
       VAULT_DEV_ROOT_TOKEN_ID: root
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
