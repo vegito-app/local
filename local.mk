@@ -1,7 +1,6 @@
 # Local Docker Compose configuration
 LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 LOCAL_BUILDER_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-$(VERSION)
-
 LOCAL_DIR ?= $(CURDIR)
 
 LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github
@@ -66,36 +65,14 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
-local-container-config-show:
-	@echo "📦 Showing container configuration..."
-	@$(LOCAL_DOCKER_COMPOSE) config
-.PHONY: local-container-config-show
-
-local-project-builder-image-pull:
-	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
-	@$(LOCAL_DOCKER_COMPOSE) pull dev
-.PHONY: local-project-builder-image-pull
-
-local-dev-container-image-push:
-	@echo "⬆︎ Pushing builder image $(LOCAL_BUILDER_IMAGE)..."
-	@docker push $(LOCAL_BUILDER_IMAGE)
-.PHONY: local-dev-container-image-push
-
-local-dev-container-logs:
-	@echo "🗒️ Showing logs for dev container..."
-	@$(LOCAL_DOCKER_COMPOSE) logs dev
-.PHONY: local-dev-container-logs
-
-local-dev-container-logs-f:
-	@echo "📝 Following logs for dev container..."
-	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
-.PHONY: local-dev-container-logs-f
-
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
   application-tests
+
+local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
+.PHONY: local-docker-images-pull
 
 local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-docker-compose-images-pull
@@ -174,6 +151,31 @@ local-dev-container-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec dev bash
 .PHONY: local-dev-container-sh
 
+local-container-config-show:
+	@echo "📦 Showing container configuration..."
+	@$(LOCAL_DOCKER_COMPOSE) config
+.PHONY: local-container-config-show
+
+local-dev-container-image-pull:
+	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
+	$(LOCAL_DOCKER_COMPOSE) pull dev
+.PHONY: local-dev-container-image-pull
+
+local-dev-container-image-push:
+	@echo "⬆︎ Pushing builder image $(LOCAL_BUILDER_IMAGE)..."
+	@docker push $(LOCAL_BUILDER_IMAGE)
+.PHONY: local-dev-container-image-push
+
+local-dev-container-logs:
+	@echo "🗒️ Showing logs for dev container..."
+	@$(LOCAL_DOCKER_COMPOSE) logs dev
+.PHONY: local-dev-container-logs
+
+local-dev-container-logs-f:
+	@echo "📝 Following logs for dev container..."
+	@$(LOCAL_DOCKER_COMPOSE) logs -f dev
+.PHONY: local-dev-container-logs-f
+
 # Local Docker Compose Services for CI
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   vault-dev \
@@ -181,17 +183,17 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   clarinet-devnet \
   application-tests
 
-LOCAL_BUILDER_CONTAINER_DOCKER_COMPOSE_NAME = dev
+LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
-LOCAL_BUILDER_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_BUILDER_CONTAINER_DOCKER_COMPOSE_NAME)
+LOCAL_DEV_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
 LOCAL_CONTAINERS_OPERATIONS_CI = up rm
 
-$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-project-builder-image-pull
+$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-	  $(LOCAL_BUILDER_CONTAINER_RUN) \
+	  $(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
 	      LOCAL_ANDROID_STUDIO_ON_START=false \
@@ -205,8 +207,6 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-project-builder
 	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
--include $(LOCAL_DIR)/nodejs.mk
--include $(LOCAL_DIR)/go.mk
 -include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android/android.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
