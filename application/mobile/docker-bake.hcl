@@ -34,28 +34,43 @@ variable "LOCAL_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI" {
 
 variable "LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-${VERSION}"
+}
+
+variable "LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST" {
+  description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
 }
 
 variable "LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${VERSION}"
+}
+
+variable "LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST" {
+  description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
+}
+
+variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH" {
+  description = "Keystore for signing Android releases"
+  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.keystore"
 }
 
 variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH" {
   description = "Keystore for signing Android releases"
-  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.keystore.base64"
+  default     = "${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.base64"
 }
 
 variable "LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH" {
   description = "Keystore for signing Android releases"
-  default     = "${LOCAL_APPLICATION_MOBILE_DIR}/android/release-${INFRA_ENV}.keystore.storepass.base64"
+  default     = "${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64"
 }
 
 target "local-application-mobile" {
   args = {
-    apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE
-    apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
+    apk_builder_image = LOCAL_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
+    apk_runner_appium_image = LOCAL_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST
     environment          = INFRA_ENV
     version = VERSION
   }

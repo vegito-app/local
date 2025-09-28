@@ -35,11 +35,16 @@ COPY --from=android android.mk android/
 #   --secret id=keystore_store_pass,src=path/to/keystore/password
 # See https://docs.docker.com/engine/reference/commandline/buildx_build/#setting-secrets
 # and https://docs.docker.com/engine/reference/commandline/buildx_build/#use-mount
-ENV LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore
+ENV LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore
 RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.storepass \
-    sudo cat /tmp/release.keystore | base64 --decode > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH} && \
-    sudo cat /tmp/release.storepass > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64
+    sudo cat /tmp/release.keystore | base64 --decode > ${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
+    sudo cat /tmp/release.storepass > ${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
+    SHA1=$(keytool -list -v \
+            -keystore ${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} \
+            -storepass $(cat ${LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 | base64 --decode) \
+            | grep 'SHA1:' | awk '{print $2}') && \
+    echo "Local Android Keystore SHA1 fingerprint: $SHA1"
 
 ARG version=dev
 ARG keystore_alias_name=vegito-local-release
