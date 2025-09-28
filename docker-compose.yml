@@ -103,12 +103,14 @@ services:
     entrypoint: ${PWD}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
+      LOCAL_ANDROID_APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       LOCAL_ANDROID_APK_RELEASE_PATH: ${LOCAL_ANDROID_APK_RELEASE_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
-
+      LOCAL_ANDROID_EMULATOR_AVD_ON_START: false
+      LOCAL_ANDROID_CONTAINER_DISPLAY_START: ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-true}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}

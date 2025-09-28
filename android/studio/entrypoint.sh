@@ -21,6 +21,22 @@ trap kill_jobs EXIT
 if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
     caches-refresh.sh
 fi
+local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
+mkdir -p $local_container_cache
+
+android_release_keystore=${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH:-~/.android/release.keystore}
+if [ -f "$android_release_keystore" ] && [ ! -f ~/.android/release.keystore ]; then
+    echo "[entrypoint] Linking existing local release keystore from $android_release_keystore to ~/.android/release.keystore"
+    ln -sf "$android_release_keystore" ~/.android/release.keystore
+fi
+
+mkdir -p ~/.android
+if [ ! -f ~/.android/adbkey ] || [ ! -f ~/.android/adbkey.pub ]; then
+    echo "[entrypoint] Generating ADB keypair at ~/.android/adbkey{,.pub}..."
+    adb keygen -a -n ~/.android/adbkey
+else
+    echo "[entrypoint] Existing ADB keypair detected, skipping generation."
+fi
 
 android_adb_key=${LOCAL_ANDROID_ADB_KEY_PATH:-~/.android/adbkey}
 android_adb_pubkey=${LOCAL_ANDROID_ADB_KEY_PUB_PATH:-~/.android/adbkey.pub}
@@ -39,7 +55,7 @@ android_release_keystore_key_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS:-and
 android_release_keystore_dname=${LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME:-"CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"}
 
 if [ ! -f $android_release_keystore ]; then
-    echo "[entrypoint] No release.keystore found, generating via Makefile..."
+    echo "[entrypoint] No release.keystore found, generating via Keytool..."
     keytool -genkey -v \
       -keystore $android_release_keystore \
       -alias $android_release_keystore_alias \

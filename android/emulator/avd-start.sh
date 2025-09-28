@@ -1,5 +1,6 @@
 #!/bin/bash
-set -uo pipefail
+
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -24,12 +25,36 @@ if ! pgrep -x "adb" >/dev/null; then
 fi
 
 echo "List of available AVDs:"
+
 emulator -list-avds
 
-apk_path="${LOCAL_ANDROID_APK_RELEASE_PATH:-/build/output/app-release.apk}"
+# 📦 Détection automatique de l'APK si non fourni
+apk_path="${LOCAL_ANDROID_APK_PATH:-}"
+if [[ -z "$apk_path" ]]; then
+  if [[ -f "/build/output/app-release.apk" ]]; then
+    apk_path="/build/output/app-release.apk"
+  elif [[ -f "/build/output/app-debug.apk" ]]; then
+    apk_path="/build/output/app-debug.apk"
+  else
+    echo "❌ Aucun APK trouvé. Veuillez définir LOCAL_ANDROID_APK_PATH ou fournir app-release.apk/app-debug.apk dans /build/output/"
+    exit 1
+  fi
+fi
 avd_name="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
 gpu_mode="${LOCAL_ANDROID_gpu_mode:-swiftshader_indirect}"
-package_name="${LOCAL_ANDROID_PACKAGE_NAME:-vegito.example.app}"
+
+# 📛 Détection du nom du package si non fourni
+if [[ -z "${LOCAL_ANDROID_PACKAGE_NAME:-}" ]]; then
+  if command -v aapt >/dev/null; then
+    package_name=$(aapt dump badging "${apk_path}" | awk -F"'" '/package: name=/{print $2}')
+    echo "📦 Package name auto-detected: $package_name"
+  else
+    echo "❌ aapt n'est pas disponible pour auto-détecter le nom du package. Fournis LOCAL_ANDROID_PACKAGE_NAME."
+    exit 1
+  fi
+else
+  package_name="${LOCAL_ANDROID_PACKAGE_NAME}"
+fi
 
 echo "Using APK path: ${apk_path}"
 echo "Using package name: ${package_name}"
@@ -57,7 +82,8 @@ emulator -avd "${avd_name}" \
   -no-boot-anim \
   -wipe-data \
   -qemu &
-bg_pids+=($!)
+emulator_pid=$!
+bg_pids+=$
 
 # Wait for device and boot completion
 adb wait-for-device
@@ -86,28 +112,27 @@ until adb shell echo ok | grep -q "ok"; do
 done
 echo "✅ ADB shell is responsive."
 
-echo "Starting Appium server..."
-appium --address 0.0.0.0 --port 4723 \
-  --session-override --log-level info \
-  --allow-insecure uiautomator2:adb_shell &
-appium_pid=$!
-bg_pids+=("$appium_pid")
-
 echo "Appium is ready to accept connections on port 4723."
-
 emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
 echo "Loading test data from: ${emulator_data}"
 
 emulator-data-load.sh "${emulator_data}"
 
+
+# 🔐 Injection du token App Check si fourni
+if [[ "$apk_path" == *"release.apk" && -n "$FIREBASE_APP_CHECK_DEBUG_TOKEN" ]]; then
+  echo "💠 App Check debug token detected. Injecting..."
+  echo "FIREBASE_APP_CHECK_DEBUG_TOKEN=$FIREBASE_APP_CHECK_DEBUG_TOKEN" > /data/local/tmp/app_check.env
+fi
+
 echo "Checking if an APK is present and installing..."
 if [ -f "${apk_path}" ]; then
-  echo "APK found package_name ${apk_path}, attempting installation..."
+  echo "APK found ${package_name} ${apk_path}, attempting installation..."
   if adb install -r "${apk_path}"; then
-    echo "✅ APK installed package_name."
+    echo "✅ APK installed ${package_name}."
 
     echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 |tee /dev/null 2>&1
 
     sleep 2
 
@@ -125,13 +150,4 @@ else
   echo "⚠️ No APK found at ${apk_path}; skipping installation."
 fi
 
-echo "The emulator is ready and running."
-echo "You can now run your Appium tests."
-echo "Appium server is still running on port 4723 (Ctrl+C to stop / or script will auto-exit when all background jobs end)."
-
-# 🔍 Wait for Appium process to end, then exit
-echo "🔍 Waiting for Appium process (PID: $appium_pid) to end..."
-wait "$appium_pid"
-echo "⛔ Appium has stopped. Exiting script..."
-exit 0
-
+wait $emulator_pid
