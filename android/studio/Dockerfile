@@ -3,7 +3,6 @@ FROM ${android_apk_builder_image}
 
 USER root
 
-# Section 1 : Dépendances système
 RUN apt-get update && apt-get install -y \
   bash-completion git htop gnupg jq netcat-openbsd \
   make rsync socat sudo tree unzip vim wget xz-utils \
@@ -11,21 +10,11 @@ RUN apt-get update && apt-get install -y \
   locales \
   && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
 
-# Section 2 : NVIDIA (si supporté)
-RUN\
-  export DEBIAN_FRONTEND=noninteractive ; \
-  sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
-  apt-get update && apt-get install -y \
-  xserver-xorg-video-nvidia nvidia-driver mesa-utils
-
-# Section 3 : NodeJS pour Appium
+# NodeJS for Appium
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-  apt-get install -y nodejs && \
-  npm install -g appium@3.0.0-rc.2 && \
-  appium driver install uiautomator2
+  apt-get install -y nodejs 
 
-
-# Section 4 : Google Chrome ou Chromium selon arch
+# Google Chrome ou Chromium selon arch
 RUN ARCH="$(dpkg --print-architecture)" && \
   if [ "$ARCH" = "amd64" ]; then \
   curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
@@ -36,14 +25,20 @@ RUN ARCH="$(dpkg --print-architecture)" && \
   fi
 
 RUN ln -sf /usr/bin/bash /bin/sh
+
 ARG non_root_user=android
 USER ${non_root_user}
+
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-USER ${non_root_user}
+ENV PATH=${HOME}/node_modules/.bin:${PATH}
 
-# Section 8 : Android Studio
+# Appium
+RUN npm install appium@3.0.0-rc.2 && \
+  appium driver install uiautomator2
+
+# Android Studio
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 ARG android_studio_version
@@ -53,28 +48,15 @@ RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/an
 
 RUN flutter doctor --android-licenses && flutter doctor
 
-
-# Section 10 : Entrypoints & scripts
+# Entrypoints & scripts
 COPY --chown=${non_root_user}:${non_root_user} caches-refresh.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} android-studio.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
 
-COPY --from=appium --chown=${non_root_user}:${non_root_user} appium-emulator-avd.sh /usr/local/bin/
-
-# Rendre les scripts exécutables
 RUN chmod +x \
   /usr/local/bin/caches-refresh.sh \
   /usr/local/bin/android-studio.sh \
-  /usr/local/bin/appium-emulator-avd.sh \
   /usr/local/bin/android-studio-entrypoint.sh
-
-ARG default_display=20
-ENV DISPLAY=:${default_display}
-
-# Section 11 : Application mobile default
-# If a current APK is available, it will be automatically launched by 'appium-emulator-avd.sh'.
-ARG default_apk_path=/build/output/app.apk
-ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]

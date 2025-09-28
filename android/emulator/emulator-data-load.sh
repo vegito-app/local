@@ -1,17 +1,17 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 LOCAL_ANDROID_EMULATOR_DATA="${1:-${LOCAL_ANDROID_EMULATOR_DATA:-./images}}"
 
 # Vérifie si un appareil est connecté
 if ! adb devices | grep -w "device" >/dev/null; then
-  echo "❌ Aucun appareil détecté via adb. L'émulateur est-il lancé ?"
+  echo "❌ No device detected via adb. Is the emulator running?"
   exit 1
 fi
 
-echo "📁 Chargement des images depuis : $LOCAL_ANDROID_EMULATOR_DATA"
+echo "📁 Loading images from: $LOCAL_ANDROID_EMULATOR_DATA"
 if [ ! -d "$LOCAL_ANDROID_EMULATOR_DATA" ]; then
-  echo "❌ Le répertoire $LOCAL_ANDROID_EMULATOR_DATA n'existe pas."
+  echo "❌ Directory $LOCAL_ANDROID_EMULATOR_DATA does not exist."
   exit 1
 fi
 # Wait until the system property sys.boot_completed is 1

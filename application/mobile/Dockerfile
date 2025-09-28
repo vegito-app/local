@@ -66,12 +66,12 @@ FROM ${apk_runner_appium_image} AS runner
 
 ARG version=dev
 
-COPY --from=builder //home/android/src/android/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
-COPY --from=builder //home/android/src/android/app-release-${version}-signed.aab /build/output/app-release-${version}.aab
-
+COPY --from=builder /home/android/src/android/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
+COPY --from=builder /home/android/src/android/app-release-${version}-signed.aab /build/output/app-release-${version}.aab
+COPY --from=builder /home/android/src/application/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 ARG android_package_name=dev.vegito.app.android
 
-ENV LOCAL_ANDROID_APK_PATH=/build/output/app-release-${version}.apk
+ENV LOCAL_ANDROID_APK_PATH=/build/output/app-debug-${version}.apk
 ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_PACKAGE_NAME=${android_package_name}
 

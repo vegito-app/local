@@ -33,7 +33,7 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "ANDROID_STUDIO_VERSION" {
-  default = "2025.1.1.9"
+  default = "2025.2.1.1"
 }
 
 target "local-android-studio-ci" {
