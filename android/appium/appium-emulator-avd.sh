@@ -1,11 +1,10 @@
 #!/bin/bash
-set -eux
+set -uo pipefail
 
-HEADLESS_ARGS="-no-window"
-if xdpyinfo >/dev/null 2>&1; then
-  HEADLESS_ARGS=""
-fi
-
+# HEADLESS_ARGS="-no-window"
+# if xdpyinfo >/dev/null 2>&1; then
+#   HEADLESS_ARGS=""
+# fi
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -32,23 +31,33 @@ fi
 echo "List of available AVDs:"
 emulator -list-avds
 
-avd_to_use="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
-echo "AVD to use: ${avd_to_use}"
+apk_path="${LOCAL_ANDROID_APK_RELEASE_PATH:-/build/output/app-release.apk}"
+avd_name="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
+gpu_mode="${LOCAL_ANDROID_gpu_mode:-swiftshader_indirect}"
+package_name="${LOCAL_ANDROID_PACKAGE_NAME:-vegito.example.app}"
+
+echo "Using APK path: ${apk_path}"
+echo "Using package name: ${package_name}"
+echo "Using GPU mode: ${gpu_mode}"
+echo "Using AVD name: ${avd_name}"  
 
 # Detect KVM availability
-ACCEL_ARGS="-accel on"
+accel_args="-accel on"
 if [ ! -e /dev/kvm ]; then
   echo "⚠️ /dev/kvm not present, falling back to software accel"
-  ACCEL_ARGS="-accel off"
+  accel_args="-accel off"
 fi
 
-GPU_MODE="${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}"
+headless_args="-no-window"
+if xdpyinfo >/dev/null 2>&1; then
+  headless_args=""
+fi
 
-echo "Starting AVD named: ${avd_to_use} (gpu=${GPU_MODE})"
-emulator -avd "${avd_to_use}" \
-  -gpu "${GPU_MODE}" \
-  ${HEADLESS_ARGS} \
-  ${ACCEL_ARGS} \
+echo "Starting AVD named: ${avd_name} (gpu=${gpu_mode})"
+emulator -avd "${avd_name}" \
+  -gpu "${gpu_mode}" \
+  ${headless_args} \
+  ${accel_args} \
   -noaudio -no-snapshot-load \
   -no-boot-anim \
   -wipe-data \
@@ -62,45 +71,72 @@ until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do
   sleep 2
 done
 
+# 🔄 Attente que le device soit en ligne (plus offline)
+echo "🧪 Waiting for adb to become 'device' (not 'offline')..."
+while true; do
+  state=$(adb get-state 2>/dev/null || echo unknown)
+  if [[ "$state" == "device" ]]; then
+    echo "✅ ADB reports device is online."
+    break
+  fi
+  echo "⏳ Current ADB state: $state"
+  sleep 2
+done
+
+# ⏳ Vérifie que adb shell est réactif
+echo "🔍 Checking ADB shell responsiveness..."
+until adb shell echo ok | grep -q "ok"; do
+  echo "⏳ Waiting for ADB shell to respond..."
+  sleep 2
+done
+echo "✅ ADB shell is responsive."
+
 echo "Starting Appium server..."
 appium --address 0.0.0.0 --port 4723 \
   --session-override --log-level info \
-  --allow-insecure=adb_shell &
-bg_pids+=($!)
+  --allow-insecure uiautomator2:adb_shell &
+appium_pid=$!
+bg_pids+=("$appium_pid")
+
 echo "Appium is ready to accept connections on port 4723."
 
-emulator-data-load.sh "${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-./images}"
+emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
+echo "Loading test data from: ${emulator_data}"
+
+emulator-data-load.sh "${emulator_data}"
 
 echo "Checking if an APK is present and installing..."
-if [ -f "${APK_PATH}" ]; then
-  echo "APK found at ${APK_PATH}, attempting installation..."
-  if adb install -r "${APK_PATH}"; then
-    echo "✅ APK installed successfully."
+if [ -f "${apk_path}" ]; then
+  echo "APK found package_name ${apk_path}, attempting installation..."
+  if adb install -r "${apk_path}"; then
+    echo "✅ APK installed package_name."
 
     echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 
     sleep 2
 
-    if adb shell pidof "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" >/dev/null; then
+    if adb shell pidof "${package_name}" >/dev/null; then
       echo "✅ App is running."
     else
       echo "⚠️ App did not launch. Trying again..."
-      adb shell monkey -p "${APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}" -c android.intent.category.LAUNCHER 1
+      adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1
     fi
 
   else
     echo "❌ APK installation failed."
   fi
 else
-  echo "⚠️ No APK found at ${APK_PATH}; skipping installation."
+  echo "⚠️ No APK found at ${apk_path}; skipping installation."
 fi
 
 echo "The emulator is ready and running."
 echo "You can now run your Appium tests."
+echo "Appium server is still running on port 4723 (Ctrl+C to stop / or script will auto-exit when all background jobs end)."
 
-echo "📜 Kernel & system log tails (Ctrl+C to stop):"
-adb logcat -v time | sed -n '1,200p' || true
-adb logcat --pid=$(adb shell pidof -s com.android.systemui) -v threadtime &
-bg_pids+=($!)
-sleep infinity
+# 🔍 Wait for Appium process to end, then exit
+echo "🔍 Waiting for Appium process (PID: $appium_pid) to end..."
+wait "$appium_pid"
+echo "⛔ Appium has stopped. Exiting script..."
+exit 0
+

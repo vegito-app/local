@@ -4,11 +4,11 @@ services:
       context: ${PWD}
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/vegito-app:application-backend-latest}
+    image: ${LOCAL_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:application-backend-latest}
     env_file:
       - .env
     environment:
-      HOST_PWD: ${PWD}
+      LOCAL_WORKSPACE: ${PWD}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-${PWD}/infra/gcloud-credentials.json}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
       GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
@@ -30,30 +30,14 @@ services:
   application-mobile:
     cap_add:
       - SYS_ADMIN
-    image: ${LOCAL_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
+    image: ${LOCAL_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-mobile-latest}
     env_file:
       - .env
     environment:
-      HOST_PWD: ${PWD}
-      APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
-      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
-      DISPLAY: "${DISPLAY:-:20}"
-      FLUTTER: flutter
-      CHROME_LOG_FILE: /tmp/chrome_debug.log
-      LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
-      LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR: ${LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR:-${PWD}/application/tests/mobile_images}
-
-      LOCAL_ANDROID_AVD_NAME: Pixel_8_Intel
-      LOCAL_ANDROID_APK_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
-      LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
-      LOCAL_ANDROID_STUDIO_DIR: ${PWD}/local/android/studio
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
-      LOCAL_ANDROID_STUDIO_ON_START: true
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
     privileged: true
     volumes:
-      - ${HOST_PWD:-${PWD}}:${PWD}:cached
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render

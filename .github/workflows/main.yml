@@ -1,44 +1,77 @@
 permissions:
   id-token: write
   contents: write
-name: Build and Push Git Commit Tagged Docker Images To All Environments
+name: Build and Push Release Docker Images And Artifacts 📦
 on:
   push:
     branches:
-      - main
+      # - main
+      - dev
 jobs:
-  deploy-dev:
-    name: Build & Deploy Dev
+  build-release-images:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Build Release Images for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
-    environment: dev
+    environment: ${{ matrix.environment }}
     env:
+      VEGITO_PROJECT_NAME: local-${{ matrix.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_USER: vegito-${{ matrix.environment }}-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      INFRA_ENV: dev
-      BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
+      INFRA_ENV: ${{ matrix.environment }}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.base64
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.storepass.base64
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+    outputs:
+      version: ${{ steps.define_version.outputs.VERSION }}
+      android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
+      changelog: ${{ steps.define_version.outputs.CHANGELOG }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+      - name: Workaround auth action race condition
+        run: rm -rf "${{ runner.temp }}/_actions/google-github-actions/auth"
       - name: Define VERSION
+        id: define_version
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
           # Bump the version based on commit messages (default patch bump)
           standard-version
+          echo "Commit release bump and tag will be pushed after build success"
           echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_ENV
+          echo "VERSION=$(git describe --tags --abbrev=7 --match 'v*')" >> $GITHUB_OUTPUT
+          git fetch --tags
+          echo "## Changelog for ${{ env.VERSION }}" > CHANGELOG.new.md
+          echo "Android Keystore SHA1: ${{ env.ANDROID_KEYSTORE_SHA1 }}" >> CHANGELOG.new.md
+          conventional-changelog -p angular -r 1 >> CHANGELOG.new.md
+          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.new.md; fi
+          mv CHANGELOG.new.md CHANGELOG.md
+          cat CHANGELOG.md
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
       - name: Refresh local/.env file
         run: |
           ./dotenv.sh
-      - name: Use VERSION
-        run: echo "Current version is ${{ env.VERSION }}"
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
-          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
       - name: Set up Cloud SDK
@@ -50,51 +83,339 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
-      - name: Restore project images configuration
+      - name: Decode ADB release keystore & show SHA1 fingerprint
+        id: get_android_release_keystore
         run: |
-          make terraform-init vegito-mobile-android-config-json
-
-      - name: Decode Android release keystore from secret
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
+          echo "Listing fingerprint for keystore:"
+          export SHA1=$(keytool -list -v \
+            -keystore ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }} \
+            -storepass $(cat ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}) \
+            | grep 'SHA1:' | awk '{print $2}')
+          echo "ANDROID_KEYSTORE_SHA1=$SHA1" >> $GITHUB_OUTPUT
+          echo "SHA1 fingerprint: $SHA1"
+      - name: Build and load local project images
         run: |
-          echo "${{ secrets.ANDROID_RELEASE_KEYSTORE}}" | base64 -d > ~/.android/release.${{ vars.INFRA_ENV }}.keystore
-
-
-      - name: Restore ADB keys and debug.keystore
+          make images-ci
+      - name: Generate docker image tag list for ${{ matrix.environment }}
         run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.ANDROID_ADBKEY }}" | base64 -d > ~/.android/adbkey
-          echo "${{ secrets.ANDROID_ADBKEY_PUB }}" | base64 -d > ~/.android/adbkey.pub
-          echo "${{ secrets.ANDROID_DEBUG_KEYSTORE }}" | base64 -d > ~/.android/debug.keystore
-          chmod 600 ~/.android/adbkey
-      - name: Build and push up to date project images to dev registries
+          echo "### 🐳 Docker Images Built for \`${{ matrix.environment }}\` (excluding :latest):" > docker-tags.txt
+          for group in runners builders services applications; do
+            echo "#### Group: \`$group\`" >> docker-tags.txt
+            make local-docker-group-$group-tags-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt
+            echo "" >> docker-tags.txt
+          done
+          cat docker-tags.txt >> CHANGELOG.md
+      - name: Upload docker tags and index as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+          path: |
+            docker-tags.txt
+            index.json
+      - name: Export image tags to documentation
         run: |
-          make images-ci      
-      - name: Bump version and push tags
+          mkdir -p public/docker-image-tags
+          cp docker-tags.txt public/docker-image-tags/docker-tags-${{ env.VERSION }}.md
+  local-dev-environment:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    environment: ${{ matrix.environment }}
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
+      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+    name: Start ${{ matrix.environment }} docker containers
+    runs-on: self-hosted
+    needs: build-release-images
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Ensure fresh .env
         run: |
-          # Push the new commit and the new tag
-          git push --follow-tags origin main
+          rm -f .env 
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+        
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Show Docker config
+        run: |
+          make local-container-config-show
+      - name: Start dev environment containers
+        run: make dev-ci
+  run-tests:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Run tests ${{ matrix.environment }} ✅
+    runs-on: self-hosted
+    needs: [build-release-images, local-dev-environment]
+    environment: ${{ matrix.environment }}
+    env:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env 
+          ./dotenv.sh
+      - name: Use VERSION
+        run: echo "Current version is ${{ env.VERSION }}"
+        
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Run Application tests
+        run: make application-tests
+  extract-release-artifacts:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Publish Artifacts APK & AAB ${{ matrix.environment }} 📦
+    runs-on: self-hosted
+    needs: [build-release-images, run-tests]
+    environment: ${{ matrix.environment }}
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore
+      LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
+      LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
+      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env 
+          ./dotenv.sh
+      - name: Extract signed APK & AAB releases from images
+        id: extract_apk_aab
+        run: make local-application-mobile-image-tag-release-exrtract
       - name: Upload signed APK and AAB 📤
         uses: actions/upload-artifact@v4
         with:
-          name: android-artifacts-${{ env.INFRA_ENV }}
+          name: android-artifacts-${{ matrix.environment }}-${{ needs.build-release-images.outputs.version }}
           path: |
-            mobile/build/app/outputs/flutter-apk/app-${{ env.INFRA_ENV }}-release.apk
-            mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
+            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+  create-consolidated-release:
+    name: Create Consolidated GitHub Release ✨
+    runs-on: self-hosted
+    needs: [build-release-images, extract-release-artifacts]
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      ANDROID_KEYSTORE_SHA1: ${{ needs.build-release-images.outputs.android_keystore_sha1 }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Write changelog from previous step
+        run: |
+          echo "${{ needs.build-release-images.outputs.changelog }}" > CHANGELOG.md
+      - name: Download all artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      - name: List downloaded artifacts
+        run: |
+          find ./artifacts -type f -name "*.apk" -o -name "*.aab" | sort
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.VERSION }}
-          name: "Release ${{ env.VERSION }}"
-          body: |
-            Android artifacts for `${{ env.INFRA_ENV }}`:
-            - Signed APK and AAB generated
-            - Keystore: release.${{ env.INFRA_ENV }}.keystore
-          files: |
-            mobile/build/app/outputs/flutter-apk/app-${{ env.INFRA_ENV }}-release.apk
-            mobile/build/app/outputs/bundle/${{ env.INFRA_ENV }}Release/app-${{ env.INFRA_ENV }}-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Deployment of last changes to dev environment
+        with:
+          tag_name: main-${{ matrix.environment }}-${{ needs.build-release-images.outputs.version }}
+          name: "[${{ matrix.environment }}] Release ${{ needs.build-release-images.outputs.version }}"
+          body_path: ./CHANGELOG.md
+          files: |
+            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            CHANGELOG.md
+  
+  upload-docker-tags-to-gcs:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Upload Docker Tags to GCS
+    runs-on: self-hosted
+    needs: create-consolidated-release
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      INFRA_ENV: ${{ matrix.environment }}
+      GCS_BUCKET: gs://vegito-ci-artifacts-${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Ensure fresh .env
         run: |
-          make infra-deploy-dev
+          rm -f .env
+          ./dotenv.sh
+      - name: Set VERSION
+        run: echo "VERSION=${{ needs.build-release-images.outputs.version }}" >> $GITHUB_ENV
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+      - name: Download docker metadata artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+      - name: Generate index.json for release root
+        run: |
+          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
+          for f in $(gsutil ls "${GCS_BUCKET}"/v*/metadata.json); do
+            version=$(basename $(dirname "$f"))
+            echo "  {\"version\": \"$version\"}," >> index.json
+          done
+          # Supprimer la dernière virgule
+          sed -i '$ s/},/}/' index.json
+          echo ']}' >> index.json
+      - name: Upload Docker Tags and Index to GCS
+        run: |
+          gsutil cp docker-tags.txt ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/docker-tags.md
+          gsutil cp index.json ${{ env.GCS_BUCKET }}/index.json
 
+      - name: Upload metadata.json and APK/AAB to GCS
+        run: |
+          mkdir -p temp_metadata
+          METADATA_PATH=temp_metadata/metadata.json
+
+          echo "{" > $METADATA_PATH
+          echo "  \"version\": \"${{ env.VERSION }}\"," >> $METADATA_PATH
+          echo "  \"changelog\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/CHANGELOG.md\"," >> $METADATA_PATH
+          echo "  \"dockerTags\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/docker-tags.md\"," >> $METADATA_PATH
+          echo "  \"apk\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/app-release.apk\"," >> $METADATA_PATH
+          echo "  \"aab\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/v${{ env.VERSION }}/app-release.aab\"" >> $METADATA_PATH
+          echo "}" >> $METADATA_PATH
+
+          gsutil cp $METADATA_PATH ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/metadata.json
+
+          # Copy APK and AAB if found
+          find ./artifacts -name "*.apk" -exec gsutil cp {} ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/app-release.apk \;
+          find ./artifacts -name "*.aab" -exec gsutil cp {} ${{ env.GCS_BUCKET }}/v${{ env.VERSION }}/app-release.aab \;
+
+  release-finalize:
+    name: Finalize and Push Release Tag
+    runs-on: self-hosted
+    needs:
+      - build-release-images
+      - create-consolidated-release
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reset to clean state
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Recreate version tag
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+          standard-version
+
+      - name: Push tag if all builds succeeded
+        run: |
+          git push origin HEAD --follow-tags
+  cleanup:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Cleanup docker env ${{ matrix.environment }} 🧼
+    runs-on: self-hosted
+    needs: [build-release-images, local-dev-environment, run-tests, extract-release-artifacts]
+    if: ${{ always() }}
+    environment: ${{ matrix.environment }}
+    env:
+      VERSION: ${{ needs.build-release-images.outputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
+      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Refresh local/.env file
+        run: |
+          rm -f .env
+          ./dotenv.sh
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Set up Cloud SDK
+        run: |
+          make gcloud-config-set-project
+      - name: Configure Docker for GCR
+        run: |
+          make gcloud-auth-docker
+      - name: Shutdown containers
+        run: make dev-ci-rm
+      - name: Notify cleanup done
+        run: echo "Cleaning completed."

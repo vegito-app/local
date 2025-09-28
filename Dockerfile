@@ -228,6 +228,7 @@ RUN set -e ; \
     # 
     npm install -g \
     depcheck \
+    firebase-tools \
     npm-check-updates \
     npm-check \
     npm \
@@ -266,6 +267,8 @@ USER root
 RUN ln -sf /usr/bin/bash /bin/sh
 
 USER ${non_root_user}
+
+COPY container-install.sh /usr/local/bin/local-container-install.sh
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

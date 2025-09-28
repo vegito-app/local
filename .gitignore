@@ -7,7 +7,14 @@ build/
 *.log
 *.tmp
 _*
+._*
 .env
 .vscode/
 vscode.code-workspace
 .docker-compose*override*
+*.keystore.*
+*.jks
+*.storepass.*
+*.keypass.*
+app-release-*.apk
+app-release-*.aab

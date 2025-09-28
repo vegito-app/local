@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # List to hold background job PIDs
 bg_pids=()
@@ -17,8 +17,7 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
-make local-firebase-emulators-install
-make local-firebase-emulators-start &
+make local-firebase-emulators-install local-firebase-emulators-start &
 bg_pids+=("$!")
 
 # Need localproxy to forward some required port that could not be 
@@ -64,8 +63,7 @@ done
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}" &
-  sleep infinity
+  wait "${bg_pids[@]}"
 else
   exec "$@"
 fi
