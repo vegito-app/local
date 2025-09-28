@@ -25,7 +25,7 @@ local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD
 mkdir -p $local_container_cache
 
 android_release_keystore=${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH:-~/.android/release.keystore}
-if [ -f "$android_release_keystore" ]; then
+if [ -f "$android_release_keystore" ] && [ ! -f ~/.android/release.keystore ]; then
     echo "[entrypoint] Linking existing local release keystore from $android_release_keystore to ~/.android/release.keystore"
     ln -sf "$android_release_keystore" ~/.android/release.keystore
 fi
