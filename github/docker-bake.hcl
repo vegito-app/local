@@ -33,14 +33,15 @@ group "local-service" {
 
 target "github-actions-runner-ci" {
   args = {
-    docker_version         = DOCKER_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
-    terraform_version      = TERRAFORM_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
+    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
+    gitleaks_version       = GITLEAKS_VERSION
     kubectl_version        = KUBECTL_VERSION
     node_version           = NODE_VERSION
     nvm_version            = NVM_VERSION
-    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
+    terraform_version      = TERRAFORM_VERSION
   }
   context    = "${LOCAL_DIR}/github"
   tags = [
@@ -68,14 +69,15 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "github-actions-runner" {
   args = {
-    docker_version         = DOCKER_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
-    terraform_version      = TERRAFORM_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
+    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
+    gitleaks_version       = GITLEAKS_VERSION
     kubectl_version        = KUBECTL_VERSION
     node_version           = NODE_VERSION
     nvm_version            = NVM_VERSION
-    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
+    terraform_version      = TERRAFORM_VERSION
   }
   context    = "${LOCAL_DIR}/github"
   tags = [
