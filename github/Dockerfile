@@ -4,9 +4,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     gpg \
+    jq \
     make \
-    unzip \
     sudo \
+    unzip \
     wget \
     netcat-openbsd
 
@@ -169,6 +170,22 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
     && rm -f ./actions-runner-linux-x64-$RUNNER_VERSION.tar.gz \
     && ./bin/installdependencies.sh \
     && chown -R ${non_root_user}:${non_root_user} .
+
+ARG gitleaks_version=8.28.0
+
+RUN case "$TARGETPLATFORM" in "linux/amd64") \
+    url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" ; \
+    ;; \
+    "linux/arm64") \
+    url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_arm64.tar.gz" ; \
+    ;; \
+    *) echo >&2 "warning: unsupported 'gitleaks' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
+    esac; \
+    echo "Downloading gitleaks from $url"; \
+    curl -L -o /tmp/gitleaks.tar.gz $url \
+    && tar -xvzf /tmp/gitleaks.tar.gz -C /usr/local/bin \
+    && rm /tmp/gitleaks.tar.gz \
+    && gitleaks version
 
 USER ${non_root_user}
 COPY entrypoint.sh /gha-entrypoint.sh

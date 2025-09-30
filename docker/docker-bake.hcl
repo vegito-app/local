@@ -56,6 +56,11 @@ variable "K9S_VERSION" {
   default     = "0.50.9"
 }
 
+variable "GITLEAKS_VERSION" {
+  description = "current Gitleaks version"
+  default     = "8.28.0"
+}
+
 variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
