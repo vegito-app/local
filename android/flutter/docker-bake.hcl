@@ -47,7 +47,7 @@ variable "FLUTTER_VERSION" {
 target "local-android-flutter-ci" {
   args = {
     flutter_version        = FLUTTER_VERSION
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
+    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
     android_ndk_version = ANDROID_NDK_VERSION
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
@@ -69,7 +69,7 @@ target "local-android-flutter-ci" {
 target "local-android-flutter" {
   args = {
     flutter_version        = FLUTTER_VERSION
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
+    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
     android_ndk_version = ANDROID_NDK_VERSION
   }
   context = LOCAL_ANDROID_FLUTTER_DIR

@@ -1,4 +1,5 @@
 LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
+LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-$(VERSION)
 
 -include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
