@@ -13,7 +13,7 @@
   ],
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
-  "workspaceFolder": "/workspaces/refactored-winner",
+  "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
       "env": {
@@ -109,40 +109,44 @@
           "label": "Firebase Functions",
           "onAutoForward": "silent"
         },
+        "4723": {
+          "label": "Appium - Android Debug Bridge - Android",
+          "onAutoForward": "silent"
+        },
         "5037": {
-          "label": "ADB - Android Debug Bridge - Android Studio",
+          "label": "ADB - adb server - Studio - Android",
           "onAutoForward": "silent"
         },
         "6037": {
-          "label": "ADB - Android Debug Bridge - Android Appium",
+          "label": "ADB - Android Debug Bridge - Appium - Android",
           "onAutoForward": "silent"
         },
         "7037": {
-          "label": "ADB - Vegito - Android Appium",
+          "label": "ADB - Vegito - Application Mobile - Android",
           "onAutoForward": "silent"
         },
         "6900": {
-          "label": "VNC - X server - Android Studio",
+          "label": "VNC - X server - Studio - Android",
           "onAutoForward": "silent"
         },
         "7900": {
-          "label": "VNC - X server - Android Appium",
+          "label": "VNC - X server - Appium - Android",
           "onAutoForward": "silent"
         },
         "8900": {
-          "label": "VNC - X server - Application Mobile",
+          "label": "VNC - X server - Application Mobile - Android",
           "onAutoForward": "silent"
         },
         "6901": {
-          "label": "Xpra - X server - Android Studio",
+          "label": "Xpra - X server - Studio - Android",
           "onAutoForward": "silent"
         },
         "7901": {
-          "label": "Xpra - X server - Android Appium",
+          "label": "Xpra - X server - Appium - Android",
           "onAutoForward": "silent"
         },
         "8901": {
-          "label": "Xpra - X server - Application Mobile",
+          "label": "Xpra - X server - Application Mobile - Android",
           "onAutoForward": "silent"
         },
         "8200": {
@@ -174,7 +178,7 @@
           "onAutoForward": "silent"
         },
         "9100": {
-          "label": "Flutter and Dart DevTools",
+          "label": "Flutter and Dart DevTools - Studio - Android",
           "onAutoForward": "silent"
         },
         "9150": {
