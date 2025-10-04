@@ -5,9 +5,8 @@ USER root
 
 RUN apt-get update && apt-get install -y \
   bash-completion git htop gnupg jq netcat-openbsd \
-  make rsync socat sudo tree unzip vim wget xz-utils \
-  menu-xdg net-tools xpra \
-  locales \
+  rsync socat tree unzip vim wget xz-utils \
+  locales net-tools \
   && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
 
 # NodeJS for Appium

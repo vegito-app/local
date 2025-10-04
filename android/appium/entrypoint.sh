@@ -32,7 +32,6 @@ fi
 android-emulator-entrypoint.sh &
 bg_pids+=("$!")
 
-
 exec appium --address 0.0.0.0 --port 4723 \
     --session-override --log-level info \
     --allow-insecure uiautomator2:adb_shell
