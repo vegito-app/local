@@ -18,8 +18,6 @@ ENV PATH="${PATH}:${FLUTTER_HOME}/bin"
 RUN git clone -b stable https://github.com/flutter/flutter.git $FLUTTER_HOME && \
     flutter doctor
 
-ENV LOCAL_ANDROID_CONTAINER_DISPLAY_START=false
-
 # Android SDK complet (NDK + build-tools)
 ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/34.0.0
