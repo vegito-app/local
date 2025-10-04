@@ -116,7 +116,8 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-application-containers-%-ci): local-dev
 	@echo "Running operation 'local-application-containers-$(@:local-application-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-	  $(LOCAL_BUILDER_CONTAINER_RUN) \
+	  LOCAL_ANDROID_GPU_MODE=swiftshader_indirect \
+	  $(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-application-containers-$(@:local-application-containers-%-ci=%) \
 	      LOCAL_ANDROID_CONTAINER_NAME=application-mobile \
 	      LOCAL_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):application-backend-$(VERSION) \
