@@ -114,8 +114,6 @@ services:
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_CONTAINER_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Intel}
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
     privileged: true
@@ -184,12 +182,7 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/application
     tty: true
-    command: |
-      bash -c '
-      set -euo pipefail
-      ./vault-init.sh
-      sleep infinity
-      '
+  
   application-tests:
     tty: true
     image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}

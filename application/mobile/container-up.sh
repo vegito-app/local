@@ -3,7 +3,12 @@
 set -uo pipefail
 
 CONTAINER_NAME="application-mobile"
-PORTS_TO_WAIT_FOR=(5900 5901 5037 4723)
+PORTS_TO_WAIT_FOR=(\
+  5900 \
+  5901 \
+  # 5037 \ This port is not exposed outside the container
+  4723 \
+)
 bg_pids=()
 compose_pid=
 wait_pid=
