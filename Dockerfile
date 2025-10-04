@@ -275,8 +275,10 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     esac; \
     echo "Downloading gitleaks from $url"; \
     curl -L -o /tmp/gitleaks.tar.gz $url \
-    && tar -xvzf /tmp/gitleaks.tar.gz -C /usr/local/bin \
-    && rm /tmp/gitleaks.tar.gz \
+    && mkdir -p /tmp/gitleaks \
+    && tar -xvzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks \
+    && mv /tmp/gitleaks/gitleaks /usr/local/bin/gitleaks \
+    && rm -rf /tmp/gitleaks \
     && gitleaks version
 
 RUN ln -sf /usr/bin/bash /bin/sh

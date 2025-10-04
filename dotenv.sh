@@ -160,6 +160,15 @@ services:
       
       sleep infinity
       '
+  vault-dev:
+    working_dir: ${PWD}/local/vault-dev
+
+    command: |
+      bash -c '
+      set -euo pipefail
+      ./vault-init.sh
+      sleep infinity
+      '
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
@@ -181,6 +190,12 @@ services:
       ${dockerNetworkName}:
         aliases:
           - application-backend
+
+  application-mobile:
+    networks:
+      dev:
+        aliases:
+          - application-mobile
 
   firebase-emulators:
     networks:
@@ -219,6 +234,15 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
   android-studio:
+    # environment:
+    #  LOCAL_ANDROID_GPU_MODE: host
+    # runtime: nvidia
+    # devices:
+    #   - /dev/nvidia0
+    # shm_size: "8gb"
+    # group_add:
+    #   - sgx
+  application-mobile:
     # environment:
     #  LOCAL_ANDROID_GPU_MODE: host
     # runtime: nvidia
