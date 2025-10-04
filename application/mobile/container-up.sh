@@ -3,11 +3,7 @@
 set -uo pipefail
 
 CONTAINER_NAME="application-mobile"
-PORTS_TO_WAIT_FOR=(4723 5900 5037)
-if [ "${LOCAL_ANDROID_GPU_MODE:-}" = "host" ]; then
-  # When using host GPU mode, we need to wait for Xpra's port as well
-  PORTS_TO_WAIT_FOR+=(5901)
-fi
+PORTS_TO_WAIT_FOR=(5900 5901 5037 4723)
 bg_pids=()
 compose_pid=
 wait_pid=

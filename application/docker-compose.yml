@@ -44,12 +44,6 @@ services:
       - kvm
     devices:
       - /dev/kvm
-    working_dir: ${PWD}/application/mobile
-    command: |
-      bash -c '
-      set -eu
-      sleep infinity
-      '
     networks:
       dev:
         aliases:
