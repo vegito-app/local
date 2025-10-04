@@ -161,7 +161,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    working_dir: ${PWD}/application
+    working_dir: ${PWD}
     command: |
       bash -c '
       set -euo pipefail
