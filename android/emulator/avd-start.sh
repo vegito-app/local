@@ -36,7 +36,7 @@ if [[ -z "$apk_path" ]]; then
   elif [[ -f "/build/output/app-debug.apk" ]]; then
     apk_path="/build/output/app-debug.apk"
   else
-    echo "❌ Aucun APK trouvé. Veuillez définir LOCAL_ANDROID_APK_PATH ou fournir app-release.apk/app-debug.apk dans /build/output/"
+    echo "❌ No APK found. Please set LOCAL_ANDROID_APK_PATH or provide app-release.apk/app-debug.apk in /build/output/"
     exit 1
   fi
 fi
@@ -49,7 +49,7 @@ if [[ -z "${LOCAL_ANDROID_PACKAGE_NAME:-}" ]]; then
     package_name=$(aapt dump badging "${apk_path}" | awk -F"'" '/package: name=/{print $2}')
     echo "📦 Package name auto-detected: $package_name"
   else
-    echo "❌ aapt n'est pas disponible pour auto-détecter le nom du package. Fournis LOCAL_ANDROID_PACKAGE_NAME."
+    echo "❌ aapt is not available to auto-detect the package name. Please provide LOCAL_ANDROID_PACKAGE_NAME."
     exit 1
   fi
 else
@@ -83,7 +83,7 @@ emulator -avd "${avd_name}" \
   -wipe-data \
   -qemu &
 emulator_pid=$!
-bg_pids+=$
+bg_pids+=($emulator_pid)
 
 # Wait for device and boot completion
 adb wait-for-device
@@ -112,7 +112,6 @@ until adb shell echo ok | grep -q "ok"; do
 done
 echo "✅ ADB shell is responsive."
 
-echo "Appium is ready to accept connections on port 4723."
 emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
 echo "Loading test data from: ${emulator_data}"
 
@@ -132,7 +131,7 @@ if [ -f "${apk_path}" ]; then
     echo "✅ APK installed ${package_name}."
 
     echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 |tee /dev/null 2>&1
+    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 
     sleep 2
 

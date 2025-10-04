@@ -3,7 +3,7 @@
 set -euo pipefail
 
 CONTAINER_NAME=${LOCAL_ANDROID_APPIUM_CONTAINER_NAME:-"android-appium"}
-PORTS_TO_WAIT_FOR=(5900 5901 5037)
+PORTS_TO_WAIT_FOR=(5900 5901 5037 4723)
 bg_pids=()
 compose_pid=
 wait_pid=

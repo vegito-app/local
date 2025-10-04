@@ -2,8 +2,6 @@ local-android-emulator-avd-restart:
 	@echo "Restarting android-studio emulator..."
 	@echo LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME)
 	@echo LOCAL_ANDROID_BUILDER_CONTAINER_EXEC=$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC)
-	@echo LOCAL_ANDROID_AVD_NAME=$(LOCAL_ANDROID_AVD_NAME)
-	@echo LOCAL_ANDROID_CONTAINER_GPU_MODE=$(LOCAL_ANDROID_CONTAINER_GPU_MODE)
 	@echo LOCAL_ANDROID_STUDIO_DIR=$(LOCAL_ANDROID_STUDIO_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
@@ -22,8 +20,6 @@ local-android-emulator-avd-restart:
 	  adb start-server ; \
 	  echo "[*] Launching emulator..." ; \
 	  echo "Starting android-studio emulator..." ; \
-	  LOCAL_ANDROID_AVD_NAME=$(LOCAL_ANDROID_AVD_NAME) \
-	  LOCAL_ANDROID_GPU_MODE=$(LOCAL_ANDROID_CONTAINER_GPU_MODE) \
 	  	android-emulator-avd-start.sh ; \
 	  sleep infinity ; \
 	'

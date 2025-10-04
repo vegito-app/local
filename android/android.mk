@@ -139,7 +139,6 @@ LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
 LOCAL_ANDROID_CONTAINER_EXEC ?= $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
 
 LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
-LOCAL_ANDROID_CONTAINER_GPU_MODE ?= swiftshader_indirect
 
 local-android-app-sha1-fingerprint:
 	@echo "Android Emulator SHA1 fingerprint:" 

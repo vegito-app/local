@@ -8,6 +8,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     curl unzip x11vnc xvfb xinit openbox xorg xdg-utils openjdk-17-jre \
     libgtk-3-dev libvulkan1 libpulse0 libasound2 fonts-liberation \
+    menu-xdg xpra \
     qemu-kvm aapt sudo \
     && rm -rf /var/lib/apt/lists/*
 
@@ -80,5 +81,6 @@ ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_AVD_NAME=Pixel_8_Intel
 ENV LOCAL_ANDROID_EMULATOR_DATA=tests/mobile_images
 ENV LOCAL_ANDROID_GPU_MODE=swiftshader_indirect
+ENV LOCAL_ANDROID_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["android-emulator-entrypoint.sh"]
