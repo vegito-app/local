@@ -7,7 +7,7 @@ LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
-  application-tests \
+  robotframework-tests \
   firebase-emulators \
   vault-dev
 
@@ -69,7 +69,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests
+  robotframework-tests
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -181,7 +181,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  application-tests
+  robotframework-tests
 
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
