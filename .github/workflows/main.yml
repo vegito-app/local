@@ -199,7 +199,7 @@ jobs:
         run: |
           make gcloud-auth-docker
       - name: Run Application tests
-        run: make application-tests
+        run: make robotframework-tests
   extract-release-artifacts:
     strategy:
       matrix:

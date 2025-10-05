@@ -98,12 +98,12 @@ services:
         if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
           make dev
         fi
-        if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-          until make local-application-tests-check-env ; do
-            echo "[application-tests] Waiting for environment to be ready..."
+        if [ "$${LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
+          until make local-robotframework-tests-check-env ; do
+            echo "[robotframework-tests] Waiting for environment to be ready..."
             sleep 5
           done
-          make application-tests
+          make robotframework-tests
         fi
         sudo chsh -s /usr/bin/zsh root
         sudo chsh -s /usr/bin/zsh vegito
@@ -142,7 +142,7 @@ services:
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
       
-  application-tests:
+  robotframework-tests:
     working_dir: ${PWD}/tests
     environment:
       LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
@@ -220,11 +220,11 @@ services:
         aliases:
           - vault-dev
 
-  application-tests:
+  robotframework-tests:
     networks:
       ${dockerNetworkName}:
         aliases:
-          - application-tests
+          - robotframework-tests
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.

@@ -39,7 +39,7 @@ services:
           echo "[application-tests] Waiting for environment to be ready..."
           sleep 5
         done
-        make application-tests
+        make robotframework-tests
       fi
 
 
@@ -183,7 +183,7 @@ services:
     working_dir: ${PWD}/application
     tty: true
   
-  application-tests:
+  robotframework-tests:
     tty: true
     image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
     environment:
