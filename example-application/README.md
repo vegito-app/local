@@ -45,7 +45,7 @@ Application is available at:
 - http://localhost:8080](http://localhost:8080) for the standard react application.
 - or http://localhost:8080/ui](http://localhost:8080/ui) for the server-side pre-rendered react application.
 
-Some othe companion Makefile targets in familly `application-frontend-*` are available, see [application/frontend/frontend.mk](application/frontend/frontend.mk) for details.
+Some othe companion Makefile targets in familly `application-frontend-*` are available, see [example-application/frontend/frontend.mk](example-application/frontend/frontend.mk) for details.
 
     application-frontend-build   
     application-frontend-bundle  

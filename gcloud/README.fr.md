@@ -69,7 +69,7 @@ L’authentification `gcloud` peut se faire de deux manières :
 
 ### ⚠️ Important — Définir `PROJECT_USER` dans `.env`
 
-Pour que les noms des comptes de service (SA) soient correctement générés, tu dois définir la variable `PROJECT_USER` dans le fichier `.env` local, par exemple :
+Pour que les noms des comptes de service (SA) soient correctement générés, tu dois définir la variable `PROJECT_USER` dans le fichier `.env` local, par example :
 
 ```dotenv
 PROJECT_USER=david-berichon

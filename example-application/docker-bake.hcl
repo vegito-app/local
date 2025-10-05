@@ -2,7 +2,7 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "local"
 }
-variable "LOCAL_APPLICATION_DIR" {
+variable "LOCAL_EXAMPLE_APPLICATION_DIR" {
   default = "."
 }
 variable "INFRA_ENV" {
@@ -17,19 +17,15 @@ variable "VEGITO_APP_PUBLIC_IMAGES_BASE" {
 variable "VEGITO_APP_PRIVATE_IMAGES_BASE" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-app"
 }
-group "local-application" {
+group "local-example-application" {
   targets = [
-    "local-application-backend",
-    "local-application-mobile",
-    # "application-images-vision-cleaner",
-    # "application-images-vision-moderator",
+    "local-example-application-backend",
+    "local-example-application-mobile",
   ]
 }
-group "local-application-ci" {
+group "local-example-application-ci" {
   targets = [
-    "local-application-backend",
-    "local-application-mobile",
-    # "application-images-vision-cleaner",
-    # "application-images-vision-moderator",
+    "local-example-application-backend",
+    "local-example-application-mobile",
   ]
 }

@@ -125,7 +125,7 @@ cat <<'EOF' > $backendLaunchDebug
 EOF
 fi
 
-mobileLaunchDebug=${PWD}/application/mobile/.vscode/launch.json
+mobileLaunchDebug=${PWD}/example-application/mobile/.vscode/launch.json
 if [ ! -f $mobileLaunchDebug ] ;  then
 mkdir -p $(dirname $mobileLaunchDebug)
 cat <<'EOF' > $mobileLaunchDebug

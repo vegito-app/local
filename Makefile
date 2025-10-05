@@ -51,23 +51,23 @@ images: docker-images
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-parallel local-application-docker-images-pull-parallel
+images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-parallel local-example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
 
-dev: local-containers-up local-android-containers-up local-application-containers-up
+dev: local-containers-up local-android-containers-up local-example-application-containers-up
 .PHONY: dev
 
-dev-rm: local-application-containers-rm local-containers-rm local-android-containers-rm
+dev-rm: local-example-application-containers-rm local-containers-rm local-android-containers-rm
 .PHONY: dev-rm
 
-dev-ci: images-pull local-containers-up-ci local-application-containers-up-ci
+dev-ci: images-pull local-containers-up-ci local-example-application-containers-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-dev-ci-rm: local-dev-container-image-pull local-containers-rm-ci local-application-containers-rm-ci
+dev-ci-rm: local-dev-container-image-pull local-containers-rm-ci local-example-application-containers-rm-ci
 .PHONY: dev-ci-rm
 
 logs: local-containers-dev-logs-f

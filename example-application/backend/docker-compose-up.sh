@@ -3,9 +3,7 @@
 set -euo pipefail
 
 SOCAT_MAPS=(
-  "8900:5900:x11vnc"
-  "8901:5901:xpra"
-  "7037:5037:adb"
+  "8080:8080:http"  # Backend HTTP
 )
 
 # List to hold background job PIDs
@@ -26,10 +24,10 @@ trap kill_jobs EXIT
 # -- Start socat port forwarders --
 for map in "${SOCAT_MAPS[@]}"; do
   IFS=":" read -r local remote label <<< "$map"
-  socat TCP-LISTEN:$local,fork,reuseaddr TCP:application-mobile:$remote \
-    >> "/tmp/socat-application-mobile-${label}-${remote}.log" 2>&1 &
+  socat TCP-LISTEN:$local,fork,reuseaddr TCP:application-backend:$remote \
+    >> "/tmp/socat-application-backend-${label}-${remote}.log" 2>&1 &
   bg_pids+=("$!")
 done
 
 docker_compose=${LOCAL_DOCKER_COMPOSE:-"docker compose -f ${VEGITO_MOBILE_DIR}/docker-compose.yml"}
-exec $docker_compose up application-mobile
+exec $docker_compose up example-application-backend

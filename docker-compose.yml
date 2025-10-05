@@ -158,7 +158,7 @@ services:
       - kvm
     devices:
       - /dev/kvm
-    working_dir: ${PWD}/application/mobile
+    working_dir: ${PWD}/example-application/mobile
     command: |
       bash -c '
       set -eu

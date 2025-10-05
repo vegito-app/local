@@ -81,7 +81,7 @@ EOF
 dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.yml
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
-  application-backend:
+  example-application-backend:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
       LOCAL_BUILDER_IMAGE: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
@@ -117,7 +117,7 @@ services:
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
       LOCAL_ANDROID_APK_RELEASE_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
 
-    working_dir: ${PWD}/application/mobile
+    working_dir: ${PWD}/example-application/mobile
     command: |
       bash -c '
 
@@ -184,17 +184,17 @@ services:
         aliases:
           - devcontainer
 
-  application-backend:
+  example-application-backend:
     networks:
       ${dockerNetworkName}:
         aliases:
-          - application-backend
+          - example-application-backend
 
-  application-mobile:
+  example-application-mobile:
     networks:
       dev:
         aliases:
-          - application-mobile
+          - example-application-mobile
 
   firebase-emulators:
     networks:
@@ -241,7 +241,7 @@ services:
     # shm_size: "8gb"
     # group_add:
     #   - sgx
-  application-mobile:
+  example-application-mobile:
     # environment:
     #  LOCAL_ANDROID_GPU_MODE: host
     # runtime: nvidia
