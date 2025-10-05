@@ -20,7 +20,7 @@ variable "LOCAL_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI" {
 
 target "application-tests-ci" {
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
+    builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
   context    = "${LOCAL_DIR}/application-tests"
   dockerfile = "Dockerfile"
