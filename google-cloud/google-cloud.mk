@@ -6,9 +6,9 @@ GOOGLE_CLOUD_PROJECT_ID ?= $(DEV_GOOGLE_CLOUD_PROJECT_ID)
 
 GCLOUD_DEVELOPER_SERVICE_ACCOUNT ?= $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
-GCLOUD_DIR ?= $(CURDIR)
+GOOGLE_CLOUD_DIR ?= $(CURDIR)
 
-GOOGLE_APPLICATION_CREDENTIALS ?= $(GCLOUD_DIR)/gcloud-credentials.json
+GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/google-cloud-credentials.json
 
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
@@ -183,7 +183,7 @@ gcloud-auth-func-deploy:
 	  --gen2 \
 	  --region=$(GOOGLE_CLOUD_REGION) \
 	  --runtime=go122 \
-	  --source=$(CURDIR)/gcloud/auth \
+	  --source=$(CURDIR)/google-cloud/auth \
 	  --entry-point=idp.go \
 	  --trigger-http
 .PHONY: gcloud-auth-func-deploy
