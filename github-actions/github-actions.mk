@@ -107,14 +107,14 @@ local-github-actions-runner-container-rm: local-github-actions-runner-remove-tok
 	@echo ✅ All GitHub Actions runners removed.
 .PHONY: local-github-actions-runner-container-rm
 
-LOCAL_GITHUB_WORKFLOWS_DIR ?= $(LOCAL_DIR)/.github/workflows/
+LOCAL_GITHUB_WORKFLOWS_DIR ?= $(LOCAL_DIR)/.github-actions/github-actionsworkflows/
 LOCAL_GITHUB_ACT_SECRET_FILE ?= $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret
 
 $(LOCAL_GITHUB_ACT_SECRET_FILE):
 	@-rm -f $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>&1
-	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/gcloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
-	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/staging/gcloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
-	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/prod/gcloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
+	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
+	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/staging/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
+	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/prod/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
 
 LOCAL_GITHUB_WORKFLOWS := \
   dev.yml \
@@ -125,5 +125,5 @@ LOCAL_GITHUB_ACT := act --secret-file $(LOCAL_GITHUB_ACT_SECRET_FILE) \
 	 -P self-hosted=$(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE) \
 	 
 $(LOCAL_GITHUB_WORKFLOWS:%=local-github-run-%-workflow): $(LOCAL_GITHUB_ACT_SECRET_FILE)
-	@$(LOCAL_GITHUB_ACT) -W $(LOCAL_DIR)/.github/workflows/$(@:github-run-%-workflow=%)
+	@$(LOCAL_GITHUB_ACT) -W $(LOCAL_DIR)/.github-actions/github-actionsworkflows/$(@:github-run-%-workflow=%)
 .PHONY: $(LOCAL_GITHUB_WORKFLOWS:%=local-github-run-%-workflow)

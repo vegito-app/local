@@ -43,7 +43,7 @@ target "github-actions-runner-ci" {
     nvm_version            = NVM_VERSION
     terraform_version      = TERRAFORM_VERSION
   }
-  context    = "${LOCAL_DIR}/github"
+  context    = "${LOCAL_DIR}/github-actions"
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
@@ -79,7 +79,7 @@ target "github-actions-runner" {
     nvm_version            = NVM_VERSION
     terraform_version      = TERRAFORM_VERSION
   }
-  context    = "${LOCAL_DIR}/github"
+  context    = "${LOCAL_DIR}/github-actions"
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
