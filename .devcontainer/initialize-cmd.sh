@@ -82,7 +82,7 @@ workspaceFile=${PWD}/vscode.code-workspace
 }
 EOF
 
-backendLaunchDebug=${PWD}/application/backend/.vscode/launch.json
+backendLaunchDebug=${PWD}/example-application/backend/.vscode/launch.json
 if [ ! -f $backendLaunchDebug ] ;  then
 mkdir -p $(dirname $backendLaunchDebug)
 cat <<'EOF' > $backendLaunchDebug
@@ -100,7 +100,7 @@ cat <<'EOF' > $backendLaunchDebug
             "program": "${workspaceFolder}",
             "env": {
                 "PORT": "8888",
-                "GOOGLE_APPLICATION_CREDENTIALS": "../../infra/environments/dev/gcloud-credentials.json",
+                "GOOGLE_APPLICATION_CREDENTIALS": "../../infra/environments/dev/google-cloud-credentials.json",
                 "UI_CONFIG_FIREBASE_SECRET_ID": "projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/latest",
                 "UI_CONFIG_GOOGLEMAPS_SECRET_ID": "projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/googlemaps-web-api-key/versions/latest",
                 "STRIPE_KEY": "projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest",

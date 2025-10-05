@@ -34,8 +34,8 @@ services:
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
       fi
-      if [ "$${MAKE_LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-        until make local-application-tests-check-env ; do
+      if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
+        until make local-robotframework-tests-check-env ; do
           echo "[application-tests] Waiting for environment to be ready..."
           sleep 5
         done
@@ -115,7 +115,7 @@ services:
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
-      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
@@ -148,7 +148,7 @@ services:
       LOCAL_ANDROID_APPIUM_CONTAINER_CACHE: ${LOCAL_ANDROID_APPIUM_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
       LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_APPIUM_ANDROID_GPU_MODE:-swiftshader_indirect}
       LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_APPIUM_ANDROID_AVD_NAME:-Pixel_8_Intel}
-      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/application/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
@@ -185,17 +185,17 @@ services:
   
   robotframework-tests:
     tty: true
-    image: ${LOCAL_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-tests-latest}
+    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_APPLICATION_TESTS_DIR: ${PWD}/application/tests
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
     env_file:
       - .env
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
-    working_dir: ${PWD}/application/tests
+    working_dir: ${PWD}/example-application/tests
     command: |
       bash -c '
       set -eu

@@ -15,7 +15,7 @@ INFRA_PROJECT_NAME := moov
 DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
 
 PROJECT_NAME := vegito-local
-LOCAL_APPLICATION_TESTS_DIR := $(LOCAL_DIR)/application-tests
+LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -23,13 +23,13 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_APPLICATION_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github/docker-bake.hcl
+	-f $(LOCAL_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
+	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
-    -f $(LOCAL_APPLICATION_DIR)/docker-compose.yml \
+    -f $(LOCAL_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -73,6 +73,6 @@ dev-ci-rm: local-dev-container-image-pull local-containers-rm-ci local-example-a
 logs: local-containers-dev-logs-f
 .PHONY: logs
 
-end-to-end-tests: local-application-tests-container-run
+end-to-end-tests: local-robotframework-tests-container-run
 	@echo "End-to-end tests completed successfully."
 .PHONY: end-to-end-tests

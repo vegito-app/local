@@ -3,20 +3,20 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 LOCAL_BUILDER_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-$(VERSION)
 LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github
+LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github-actions
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
-  robotframework-tests \
+  robotframework \
   firebase-emulators \
   vault-dev
 
 local-docker-images-pull-parallel: local-docker-compose-images-pull-parallel local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
 
-local-dockercompose-images-push: 
-	@$(MAKE) -j local-dockercompose-images-push
-.PHONY: local-dockercompose-images-push
+local-docker-compose-images-push: 
+	@$(MAKE) -j local-docker-compose-images-push
+.PHONY: local-docker-compose-images-push
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -27,7 +27,7 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/android/flutter/docker-bake.hcl \
 	-f $(LOCAL_DIR)/android/appium/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github/docker-bake.hcl
+	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image=%)
@@ -198,7 +198,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
-	      LOCAL_APPLICATION_TESTS_IMAGE=$(LOCAL_APPLICATION_TESTS_IMAGE_VERSION) \
+	      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE=$(LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION) \
 	      LOCAL_CLARINET_DEVNET_IMAGE=$(LOCAL_CLARINET_DEVNET_IMAGE_VERSION) \
 	      LOCAL_FIREBASE_EMULATORS_IMAGE=$(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION) \
 	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
@@ -207,7 +207,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 -include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android/android.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
--include $(LOCAL_DIR)/github/github.mk
+-include $(LOCAL_DIR)/github-actions/github-actions.mk
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
--include $(LOCAL_DIR)/application-tests/application-tests.mk
+-include $(LOCAL_DIR)/robotframework/robotframework.mk

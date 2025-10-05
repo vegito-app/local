@@ -53,8 +53,7 @@ $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): docker-bu
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci)
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
-  studio \
-  appium
+  studio
 
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%): 
 	@echo "Starting container for android service $(@:android-%=local-%-container-up)"
@@ -97,7 +96,7 @@ $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull):
 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
 
-local-android-containers-up: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES)
+local-android-containers-up: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%)
 .PHONY: local-android-containers-up
 
 local-android-containers-rm: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm)
