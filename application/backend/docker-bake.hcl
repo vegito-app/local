@@ -49,7 +49,7 @@ target "local-application-backend-ci" {
     "project" : "."
   }
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
+    builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
   tags = [
     LOCAL_APPLICATION_BACKEND_IMAGE,
