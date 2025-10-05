@@ -119,7 +119,7 @@ group "local-services" {
     "firebase-emulators",
     "github-actions-runner",
     "vault-dev",
-    "application-tests",
+    "robotframework",
   ]
 }
 group "local-services-ci" {
@@ -129,7 +129,7 @@ group "local-services-ci" {
     "firebase-emulators-ci",
     "github-actions-runner-ci",
     "vault-dev-ci",
-    "application-tests-ci",
+    "robotframework-ci",
   ]
 }
 

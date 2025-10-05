@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/7d4b9/utrade/infra/gcloud/auth/firebase"
 	"github.com/rs/zerolog/log"
+	"github.com/vegito-app/vegito/infra/google-cloud/auth/firebase"
 
 	_ "github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
 	"github.com/rs/zerolog"

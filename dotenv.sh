@@ -79,26 +79,23 @@ EOF
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
 # The file is created in the current working directory or the specified WORKING_DIR environment variable.
 dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.yml
-[ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
+[ -f $dockerComposeOverride ] || cat <<EOF > $dockerComposeOverride
 services:
   example-application-backend:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
-      LOCAL_BUILDER_IMAGE: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
-      MAKE_DEV_ON_START: true
-      LOCAL_APPLICATION_TESTS_RUN_ON_START: true
 
   dev:
     environment:
       LOCAL_CONTAINER_INSTALL: 1
-      MAKE_DEV_ON_START: true
+      MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
     command: |
       bash -c '
         make docker-sock
-        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        if [ "${MAKE_DEV_ON_START:-true}" = "true" ] ; then
           make dev
         fi
-        if [ "$${LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
+        if [ "${LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START:-false}" = "true" ] ; then
           until make local-robotframework-tests-check-env ; do
             echo "[robotframework-tests] Waiting for environment to be ready..."
             sleep 5
@@ -111,7 +108,7 @@ services:
       '
   android-studio:
     environment:
-      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/application/tests/mobile_images
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: true
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
@@ -145,7 +142,7 @@ services:
   robotframework-tests:
     working_dir: ${PWD}/tests
     environment:
-      LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
 
   firebase-emulators:
     environment:
@@ -161,7 +158,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    working_dir: ${PWD}
+    working_dir: ${PWD}/example-application/
     command: |
       bash -c '
       set -euo pipefail
