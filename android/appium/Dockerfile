@@ -18,10 +18,9 @@ ENV PATH=${HOME}/node_modules/.bin:${PATH}
 RUN npm install appium@3.0.0-rc.2 \
     appium driver install uiautomator2
 
-# 📥 Entrypoint pour lancer émulateur + APK
+# 📥 Entrypoint to launch emulator + APK
 COPY --chown=android:android entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
 
-# Rendre les scripts exécutables
 RUN chmod +x /usr/local/bin/android-appium-entrypoint.sh
 
 ENTRYPOINT ["android-appium-entrypoint.sh"]

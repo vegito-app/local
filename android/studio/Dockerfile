@@ -3,6 +3,7 @@ FROM ${android_apk_builder_image}
 
 USER root
 
+# Basic tools
 RUN apt-get update && apt-get install -y \
   bash-completion git htop gnupg jq netcat-openbsd \
   rsync socat tree unzip vim wget xz-utils \
@@ -23,6 +24,7 @@ RUN ARCH="$(dpkg --print-architecture)" && \
   apt-get update && apt-get install -y chromium ; \
   fi
 
+# Make /bin/sh point to bash (and not dash)
 RUN ln -sf /usr/bin/bash /bin/sh
 
 ARG non_root_user=android

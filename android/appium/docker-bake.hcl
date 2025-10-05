@@ -58,7 +58,7 @@ target "local-android-appium-ci" {
 
 target "local-android-appium" {
   args = {
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
+    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [

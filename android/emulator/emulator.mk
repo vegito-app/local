@@ -78,7 +78,7 @@ local-android-emulator-data-load-mobile-images:
 	set -e ; \
 	echo "Load android-studio emulator data, inputs folder : $$(pwd)" ; \
 	$(LOCAL_ANDROID_STUDIO_DIR)/emulator-data-load.sh \
-		$(LOCAL_APPLICATION_DIR)/tests/mobile_images ; \
+		$(LOCAL_EXAMPLE_APPLICATION_DIR)/tests/mobile_images ; \
 	'
 .PHONY: local-android-emulator-data-load-mobile-images
 
