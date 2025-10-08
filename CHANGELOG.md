@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/vegito-app/local/compare/v1.2.0...v1.3.0) (2025-10-08)
+
+
+### Features
+
+* **ci:** add step to download Android artifacts in workflow ([eb9faf2](https://github.com/vegito-app/local/commit/eb9faf29f2aa028afd45a9563cd84a607ac278cc))
+
 ## [1.2.0](https://github.com/vegito-app/local/compare/v1.1.0...v1.2.0) (2025-10-08)
 
 
