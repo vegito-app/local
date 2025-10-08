@@ -17,14 +17,14 @@ jobs:
     env:
       VEGITO_PROJECT_NAME: local-${{ matrix.environment }}-${{ github.ref }}-${{ github.run_id }}
       VEGITO_PROJECT_USER: vegito-${{ matrix.environment }}-${{ github.run_id }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ matrix.environment }}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.base64
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: application/mobile/android/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-key.keystore.storepass.base64
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
@@ -82,6 +82,11 @@ jobs:
       - name: Set up Docker Buildx
         run: |
           make docker-buildx-setup
+      - name: Restore ADB keys and debug.keystore
+        run: |
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
+    
       - name: Build and load local project images
         run: |
           make images-ci
@@ -113,11 +118,11 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     name: Start ${{ matrix.environment }} docker containers
     runs-on: self-hosted
     needs: build-release-images
@@ -161,12 +166,12 @@ jobs:
     needs: [build-release-images, local-dev-environment]
     environment: ${{ matrix.environment }}
     env:
-      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -260,8 +265,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: main-${{ matrix.environment }}-${{ needs.build-release-images.outputs.version }}
-          name: "[${{ matrix.environment }}] Release ${{ needs.build-release-images.outputs.version }}"
+          tag_name: main-${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
           body_path: ./CHANGELOG.md
           files: |
             ./artifacts/**/*.apk
@@ -279,11 +284,12 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       INFRA_ENV: ${{ matrix.environment }}
-      GCS_BUCKET: gs://vegito-ci-artifacts-${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags
+      GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GCS_BUCKET_NAME: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
     steps: 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -310,36 +316,34 @@ jobs:
       - name: Generate index.json for release root
         run: |
           echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
-          for f in $(gsutil ls "${GCS_BUCKET}"/v*/metadata.json); do
+          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/v*/metadata.json" 2>/dev/null || true); do
             version=$(basename $(dirname "$f"))
             echo "  {\"version\": \"$version\"}," >> index.json
           done
-          # Supprimer la dernière virgule
-          sed -i '$ s/},/}/' index.json
+          sed -i '$ s/},/}/' index.json || true
           echo ']}' >> index.json
       - name: Upload Docker Tags and Index to GCS
         run: |
-          gsutil cp docker-tags.txt ${{ env.GCS_BUCKET }}/${{ env.VERSION }}/docker-tags.md
-          gsutil cp index.json ${{ env.GCS_BUCKET }}/index.json
+          gcloud storage cp docker-tags.txt gs://${GCS_BUCKET_NAME}/${VERSION}/docker-tags.md --quiet
+          gcloud storage cp index.json gs://${GCS_BUCKET_NAME}/index.json --quiet
 
       - name: Upload metadata.json and APK/AAB to GCS
         run: |
           mkdir -p temp_metadata
           METADATA_PATH=temp_metadata/metadata.json
+          cat <<EOF > $METADATA_PATH
+          {
+            "version": "${VERSION}",
+            "changelog": "https://storage.googleapis.com/${GCS_BUCKET_NAME}/${VERSION}/CHANGELOG.md",
+            "dockerTags": "https://storage.googleapis.com/${GCS_BUCKET_NAME}/${VERSION}/docker-tags.md",
+            "apk": "https://storage.googleapis.com/${GCS_BUCKET_NAME}/${VERSION}/app-release.apk",
+            "aab": "https://storage.googleapis.com/${GCS_BUCKET_NAME}/${VERSION}/app-release.aab"
+          }
+          EOF
 
-          echo "{" > $METADATA_PATH
-          echo "  \"version\": \"${{ env.VERSION }}\"," >> $METADATA_PATH
-          echo "  \"changelog\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/${{ env.VERSION }}/CHANGELOG.md\"," >> $METADATA_PATH
-          echo "  \"dockerTags\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/${{ env.VERSION }}/docker-tags.md\"," >> $METADATA_PATH
-          echo "  \"apk\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/${{ env.VERSION }}/app-release.apk\"," >> $METADATA_PATH
-          echo "  \"aab\": \"https://storage.googleapis.com/vegito-ci-artifacts-${{ env.GOOGLE_CLOUD_PROJECT_ID }}/github-release-tags/${{ env.VERSION }}/app-release.aab\"" >> $METADATA_PATH
-          echo "}" >> $METADATA_PATH
-
-          gsutil cp $METADATA_PATH ${{ env.GCS_BUCKET }}/${{ env.VERSION }}/metadata.json
-
-          # Copy APK and AAB if found
-          find ./artifacts -name "*.apk" -exec gsutil cp {} ${{ env.GCS_BUCKET }}/${{ env.VERSION }}/app-release.apk \;
-          find ./artifacts -name "*.aab" -exec gsutil cp {} ${{ env.GCS_BUCKET }}/${{ env.VERSION }}/app-release.aab \;
+          gcloud storage cp "$METADATA_PATH" "gs://${GCS_BUCKET_NAME}/${VERSION}/metadata.json" --quiet
+          find ./artifacts -name "*.apk" -exec gcloud storage cp {} "gs://${GCS_BUCKET_NAME}/${VERSION}/app-release.apk" --quiet \;
+          find ./artifacts -name "*.aab" -exec gcloud storage cp {} "gs://${GCS_BUCKET_NAME}/${VERSION}/app-release.aab" --quiet \;
 
   release-finalize:
     name: Finalize and Push Release Tag
@@ -399,11 +403,11 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ vars.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
