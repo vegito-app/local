@@ -326,7 +326,11 @@ jobs:
         run: |
           gcloud storage cp docker-tags.txt gs://${GCS_BUCKET_NAME}/${VERSION}/docker-tags.md --quiet
           gcloud storage cp index.json gs://${GCS_BUCKET_NAME}/index.json --quiet
-
+      - name: Download APK and AAB artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifacts-${{ matrix.environment }}-${{ env.VERSION }}
+          path: ./artifacts
       - name: Upload metadata.json and APK/AAB to GCS
         run: |
           mkdir -p temp_metadata
