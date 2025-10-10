@@ -1,8 +1,8 @@
-variable "GITHUB_RUNNER_IMAGE_VERSION" {
+variable "LOCAL_GITHUB_RUNNER_IMAGE_VERSION" {
   default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:github-action-runner-${LOCAL_VERSION}" : ""
 }
 
-variable "LATEST_GITHUB_RUNNER_IMAGE" {
+variable "LOCAL_GITHUB_RUNNER_LATEST_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:github-action-runner-latest"
 }
 
@@ -33,11 +33,11 @@ target "github-action-runner-ci" {
   depends_on = [builder]
   context    = "${LOCAL_DIR}/github"
   tags = [
-    LATEST_GITHUB_RUNNER_IMAGE,
-    notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
+    LOCAL_GITHUB_RUNNER_LATEST_IMAGE,
+    LOCAL_GITHUB_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
-    LATEST_GITHUB_RUNNER_IMAGE
+    LOCAL_GITHUB_RUNNER_LATEST_IMAGE
   ]
   cache-to  = ["type=inline"]
   platforms = platforms
@@ -65,8 +65,8 @@ target "github-action-runner" {
   depends_on = [builder-local]
   context    = "${LOCAL_DIR}/github"
   tags = [
-    LATEST_GITHUB_RUNNER_IMAGE,
-    notequal("", LOCAL_VERSION) ? GITHUB_RUNNER_IMAGE_VERSION : "",
+    LOCAL_GITHUB_RUNNER_LATEST_IMAGE,
+    LOCAL_GITHUB_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_READ,

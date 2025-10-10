@@ -1,5 +1,5 @@
 # Local Docker Compose configuration
-LATEST_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
+LOCAL_BUILDER_IMAGE ?= $(PUBLIC_IMAGES_BASE):builder-latest
 
 LOCAL_DIR ?= $(CURDIR)
 
