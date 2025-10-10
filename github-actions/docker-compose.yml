@@ -10,9 +10,9 @@ services:
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
     deploy:
-      replicas: 3
+      replicas: 5
       update_config:
-        parallelism: 3
+        parallelism: 5
         delay: 300s
     networks:
       - github-actions
