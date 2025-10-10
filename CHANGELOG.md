@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/vegito-app/local/compare/v1.3.0...v1.4.0) (2025-10-10)
+
+
+### Features
+
+* **android:** improve docker and CI workflow for Android development ([9e40479](https://github.com/vegito-app/local/commit/9e404798fb6ac681780d5c8f1a2e736693a0369c))
+
 ## [1.3.0](https://github.com/vegito-app/local/compare/v1.2.0...v1.3.0) (2025-10-08)
 
 
