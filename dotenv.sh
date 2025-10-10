@@ -7,8 +7,12 @@ set -eu
 
 trap "echo Exited with code $?." EXIT
 
-currentWorkingDir=${WORKING_DIR:-${PWD}}
+projectName=${VEGITO_PROJECT_NAME:-vegito-local}
+projectUser=${VEGITO_PROJECT_USER:-local-developer-id}
+localDockerComposeProjectName=${VEGITO_COMPOSE_PROJECT_NAME:-$projectName-$projectUser}
 
+currentWorkingDir=${WORKING_DIR:-${PWD}}
+# Ensure the current working directory exists.
 # Create default local .env file with minimum required values to start.
 localDotenvFile=${currentWorkingDir}/.env
 
@@ -22,7 +26,7 @@ localDotenvFile=${currentWorkingDir}/.env
 # Please set the values in this section according to your personnal settings.
 # 
 # Trigger the local project display name in Docker Compose.
-COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-local-${VEGITO_PROJECT_USER:-local-developer-id}}
+COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-developer-id}
@@ -37,6 +41,8 @@ DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secre
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
+LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${DEV_GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
+#
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 # 
@@ -49,7 +55,7 @@ CDN_PUBLIC_PREFIX=https://cdn.mon-backend.com  # ton CDN public GCS
 STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app/vegito
+GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 #----------------------------------------------------------------|
 #----------------------------------------------------------------|
 # The following variables are used for propagating the containers|
@@ -87,19 +93,20 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-app:builder-latest
     command: |
       bash -c '
-      make docker-sock
-      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
-        make dev
+        make docker-sock
+        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+          make dev
+        fi
         if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
           until make local-application-tests-check-env ; do
             echo "[application-tests] Waiting for environment to be ready..."
             sleep 5
           done
-          
-          make application-tests-robot-framework-all-run
+          make application-tests
         fi
-      fi
-      sleep infinity
+        sudo chsh -s /usr/bin/zsh root
+        sudo chsh -s /usr/bin/zsh vegito
+        sleep infinity
       '
   android-studio:
     environment:
@@ -110,12 +117,6 @@ services:
       LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
       LOCAL_ANDROID_STUDIO_ANDROID_GPU_MODE=host
       LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_8_Intel
-  firebase-emulators:
-    environment:
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
-
 
     working_dir: ${PWD}/mobile
     command: |
@@ -146,7 +147,7 @@ services:
     command: |
       bash -c '
       set -eu
-      make -C ../.. local-clarinet-devnet-start
+      make -C .. local-clarinet-devnet-start
       sleep infinity
       '
   application-tests:
@@ -154,8 +155,11 @@ services:
     environment:
       LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
 
-
   firebase-emulators:
+    environment:
+      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
+      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
+      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
     command: |
       bash -c '
       set -eu

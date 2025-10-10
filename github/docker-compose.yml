@@ -1,11 +1,11 @@
 services:
   github-action-runner:
     restart: unless-stopped
-    image: ${GITHUB_ACTIONS_RUNNER_IMAGE}
+    image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/7d4b9/refactored-winner}
+      - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-action-stack}
     deploy:

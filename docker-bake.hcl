@@ -1,8 +1,8 @@
 variable "BUILDER_IMAGE_VERSION" {
-  default = notequal("dev", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION}" : ""
+  default = notequal("latest", LOCAL_VERSION) ? "${PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION}" : ""
 }
 
-variable "LATEST_BUILDER_IMAGE" {
+variable "LOCAL_BUILDER_IMAGE" {
   default = "${PUBLIC_IMAGES_BASE}:builder-latest"
 }
 variable "LOCAL_DIR" {
@@ -25,10 +25,10 @@ target "builder-ci" {
   context = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_BUILDER_IMAGE,
+    LOCAL_BUILDER_IMAGE,
     notequal("", LOCAL_VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
-  cache-from = [LATEST_BUILDER_IMAGE]
+  cache-from = [LOCAL_BUILDER_IMAGE]
   cache-to   = ["type=inline"]
   platforms  = platforms
 }
@@ -57,11 +57,11 @@ target "builder" {
   context = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
-    LATEST_BUILDER_IMAGE,
+    LOCAL_BUILDER_IMAGE,
     notequal("", LOCAL_VERSION) ? BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    LATEST_BUILDER_IMAGE,
+    LOCAL_BUILDER_IMAGE,
     LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ,
   ]
   cache-to = [
