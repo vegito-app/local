@@ -92,10 +92,10 @@ jobs:
           make images-ci
       - name: Generate docker image tag list for ${{ matrix.environment }}
         run: |
-          echo "### 🐳 Docker Images Built for \`${{ matrix.environment }}\` (excluding :latest):" > docker-tags.txt
+          echo "### 🐳 Docker Images Built for '${{ matrix.environment }}' (excluding :latest):" > docker-tags.txt
           for group in runners builders services applications; do
-            echo "#### Group: \`$group\`" >> docker-tags.txt
-            make local-docker-group-$group-tags-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt
+            echo "#### Group: '$group'" >> docker-tags.txt
+            make local-docker-group-$group-tags-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt || echo "_no tags for group '$group'_" >> docker-tags.txt
             echo "" >> docker-tags.txt
           done
           cat docker-tags.txt >> CHANGELOG.md
