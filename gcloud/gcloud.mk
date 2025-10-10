@@ -131,8 +131,8 @@ gcloud-images-list:
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
+	@echo "📦 Listing all images in public repository $(VEGITO_LOCAL_PUBLIC_REPOSITORY)..."
+	$(GCLOUD) container images list --repository=$(VEGITO_LOCAL_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:

@@ -1,14 +1,14 @@
 GOOGLE_CLOUD_REGION ?= europe-west1
-REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
-LOCAL_IMAGES_BASE ?= vegito-local
+GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
+VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
-VEGITO_PUBLIC_REPOSITORY ?= $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(LOCAL_IMAGES_BASE)
+VEGITO_LOCAL_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_LOCAL_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
-VEGITO_PRIVATE_REPOSITORY ?= $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
+VEGITO_LOCAL_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 
 docker-login: gcloud-auth-docker
-	@docker login $(REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
+	@docker login $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: docker-login
 
 docker-sock:
@@ -18,6 +18,39 @@ docker-sock:
 docker-clean: 
 	@docker system prune --all --force
 .PHONY: docker-clean
+
+# Groups are used to manage the build process. 
+# If an image is built in a group, all images in that group are built together.
+# If an image depends on another image as base, the groups must be built in the correct order (cf. docker-images-ci).
+LOCAL_DOCKER_BUILDX_GROUPS := \
+  runners \
+  builders \
+  services \
+  applications
+
+# Build all images (dev)
+# In this variant, images are built and loaded into the local Docker daemon.
+# The build does not push images to a remote registry.
+# Groups are not built sequentially, so images may not use the latest version of their base image.
+docker-images: 
+	@$(MAKE) -j $(LOCAL_DOCKER_BUILDX_GROUPS:%=%-images)
+.PHONY: docker-images
+
+# Build all images (CI)
+# In this variant, images are built and pushed to the remote registry.
+# Groups are built sequentially to ensure each image uses the latest version of its base image.
+docker-images-ci: $(LOCAL_DOCKER_BUILDX_GROUPS:%=%-images-ci)
+.PHONY: docker-images-ci
+
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=%-images): $(LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-images=local-%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-images=local-%)
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=%-images)
+
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=%-images-ci): docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-images-ci=local-%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-images-ci=local-%-ci)
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=%-images-ci)
 
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST ?= container.mac-m1.local
