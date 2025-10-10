@@ -26,25 +26,36 @@ COPY --chown=${non_root_user}:${non_root_user} mobile.mk application/mobile/
 COPY --chown=${non_root_user}:${non_root_user} android application/mobile/android/
 COPY --chown=${non_root_user}:${non_root_user} lib application/mobile/lib/
 
-ARG version=dev
-
 COPY --from=android android.mk android/
 
-ARG keystore_alias_name=vegito-local-release
-
+# Build APK and AAB signed release with the provided keystore and keystore password
+# The keystore file and the keystore password must be provided as build secrets
+# Example:
+#   --secret id=keystore,src=path/to/keystore/file
+#   --secret id=keystore_store_pass,src=path/to/keystore/password
+# See https://docs.docker.com/engine/reference/commandline/buildx_build/#setting-secrets
+# and https://docs.docker.com/engine/reference/commandline/buildx_build/#use-mount
+ENV LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore
 RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.storepass \
-    export LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore && \
     sudo cat /tmp/release.keystore | base64 --decode > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH} && \
-    sudo cat /tmp/release.storepass > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
-    LOCAL_ANDROID_CONTAINER_EXEC="" \
-    LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name} \
-    LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/application/mobile/build/app/outputs/bundle/release/app-release.aab \
-    LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk \
-    LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/android/app-release-${version}-signed-aligned.apk \
-    FLUTTER="cd application/mobile && flutter" \
-    VERSION=${version} \
-    make local-application-mobile-android-release
+    sudo cat /tmp/release.storepass > ${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64
+
+ARG version=dev
+ARG keystore_alias_name=vegito-local-release
+
+ENV LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name}
+ENV LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/application/mobile/build/app/outputs/bundle/release/app-release.aab
+ENV LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/application/mobile/build/app/outputs/flutter-apk/app-release.apk
+ENV LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/android/app-release-${version}-signed-aligned.apk
+
+ENV VERSION=${version} 
+ENV LOCAL_ANDROID_CONTAINER_EXEC="" 
+ENV FLUTTER="cd application/mobile && flutter" 
+
+RUN make \
+    local-application-mobile-android-release \
+    local-application-mobile-flutter-build-apk-debug
 
 FROM ${apk_runner_appium_image} AS runner
 

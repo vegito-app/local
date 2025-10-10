@@ -73,6 +73,7 @@ variable "GOOGLE_CLOUD_PROJECT_ID" {
   description = "Google Cloud Project ID"
   default     = "moov-dev-439608"
 }
+
 variable "platforms" {
   default = [
     "linux/amd64",

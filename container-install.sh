@@ -44,6 +44,7 @@ fi
 [ -d $VSCODE_REMOTE ] && mv $VSCODE_REMOTE ${VSCODE_REMOTE}_back
 mkdir -p ${local_container_cache}/vscode/userData
 mkdir -p ${local_container_cache}/vscode/extensions
+mkdir -p ${VSCODE_REMOTE}
 ln -sf ${local_container_cache}/vscode/extensions ${VSCODE_REMOTE}/extensions
 VSCODE_REMOTE_USER_DATA=${VSCODE_REMOTE}/data/User
 if [ -d $VSCODE_REMOTE_USER_DATA ] ; then 

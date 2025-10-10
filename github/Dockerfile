@@ -149,8 +149,10 @@ RUN set -e ; \
     nvm use default ;  \
     # 
     npm install -g \
+    firebase-tools \
     standard-version \
     conventional-changelog \
+    conventional-changelog-angular \
     npm ; \
     rm -rf ${HOME}/.npm 
 
