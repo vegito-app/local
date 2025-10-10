@@ -100,7 +100,7 @@ L’objectif de cet environnement est de :
 - Débloquer des transferts conditionnels via smart contract
 - Permettre à un wallet d’interagir avec ces contrats, recevoir des tokens, etc.
 
-Un exemple complet de déploiement automatisé (TypeScript + @stacks/transactions) sera bientôt ajouté.
+Un example complet de déploiement automatisé (TypeScript + @stacks/transactions) sera bientôt ajouté.
 
 ---
 

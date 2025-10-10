@@ -56,6 +56,11 @@ variable "K9S_VERSION" {
   default     = "0.50.9"
 }
 
+variable "GITLEAKS_VERSION" {
+  description = "current Gitleaks version"
+  default     = "8.28.0"
+}
+
 variable "INFRA_ENV" {
   description = "production, staging or dev"
   default     = "dev"
@@ -114,7 +119,7 @@ group "local-services" {
     "firebase-emulators",
     "github-actions-runner",
     "vault-dev",
-    "application-tests",
+    "robotframework",
   ]
 }
 group "local-services-ci" {
@@ -124,7 +129,7 @@ group "local-services-ci" {
     "firebase-emulators-ci",
     "github-actions-runner-ci",
     "vault-dev-ci",
-    "application-tests-ci",
+    "robotframework-ci",
   ]
 }
 
@@ -138,6 +143,6 @@ group "local-applications" {
 group "local-applications-ci" {
   targets = [
     "local-android-studio-ci",
-    "local-application-ci",
+    "local-example-application-ci",
   ]
 }

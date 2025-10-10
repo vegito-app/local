@@ -23,6 +23,8 @@ socat TCP-LISTEN:7901,fork,reuseaddr TCP:android-appium:5901 >> /tmp/socat-andro
 bg_pids+=("$!")
 socat TCP-LISTEN:6037,fork,reuseaddr TCP:android-appium:5037 >> /tmp/socat-android-appium-adb-5037.log 2>&1 &
 bg_pids+=("$!")
+socat TCP-LISTEN:5723,fork,reuseaddr TCP:android-appium:4723 >> /tmp/socat-android-appium-adb-4723.log 2>&1 &
+bg_pids+=("$!")
 
 docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_DIR}/docker-compose.yml}
 

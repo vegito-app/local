@@ -14,7 +14,7 @@ ifeq ($(UNAME_M), aarch64)
 endif
 
 LOCAL_GO_MODULES ?= \
-	application/backend \
+	example-application/backend \
 	firebase-emulators/functions/auth \
 	proxy
 

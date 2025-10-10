@@ -28,7 +28,7 @@ variable "CLARINET_VERSION" {
 
 target "clarinet-devnet-ci" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE_LATEST
+    builder_image    = LOCAL_BUILDER_IMAGE_VERSION
     docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
   }

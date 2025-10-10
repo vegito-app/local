@@ -18,3 +18,4 @@ vscode.code-workspace
 *.keypass.*
 app-release-*.apk
 app-release-*.aab
+gitleaks-report.json

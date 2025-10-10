@@ -1,6 +1,6 @@
 # local
 
-<!-- ![Logo](./images/logo-1.png) -->
+<!-- ![Logo](./assets/images/logo-1.png) -->
 ![image](https://github.com/user-attachments/assets/2b24c0b6-d77d-45d1-a16d-e8b2b134601b)
 
 **Portable DevContainer Environment for Vegito**

@@ -129,7 +129,7 @@ ln -sf ${local_container_cache}/npm $NPM_DIR
 
 # GCP persistence
 # This allows you to persist your gcloud configuration across container rebuilds.
-GCLOUD_CONFIG=${HOME}/.config/gcloud
-mkdir -p $GCLOUD_CONFIG ${local_container_cache}/gcloud
+GCLOUD_CONFIG=${HOME}/.config/google-cloud
+mkdir -p $GCLOUD_CONFIG ${local_container_cache}/google-cloud
 rm -rf $GCLOUD_CONFIG
-ln -sf ${local_container_cache}/gcloud $GCLOUD_CONFIG
+ln -sf ${local_container_cache}/google-cloud $GCLOUD_CONFIG

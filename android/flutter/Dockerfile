@@ -4,11 +4,15 @@ FROM ${android_apk_emulator_image} AS apk-builder
 
 USER root
 
-# Ajout des outils de build Android
+# Adding Android build tools
+# clang, cmake, ninja-build : for native build (NDK)
+# openjdk-17-jdk : for Android tools (sdkmanager, avdmanager, etc.)
+# make, git, unzip, wget, curl, zip : miscellaneous utilities
 RUN apt-get update && apt-get install -y \
     clang cmake ninja-build openjdk-17-jdk \
     make git unzip wget curl zip && rm -rf /var/lib/apt/lists/*
 
+# Use non-root user to install Flutter and Android SDK
 ARG non_root_user=android
 USER ${non_root_user}
 
@@ -18,7 +22,7 @@ ENV PATH="${PATH}:${FLUTTER_HOME}/bin"
 RUN git clone -b stable https://github.com/flutter/flutter.git $FLUTTER_HOME && \
     flutter doctor
 
-# Android SDK complet (NDK + build-tools)
+# Android SDK complete (NDK + build-tools)
 ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/34.0.0
 ARG android_ndk_version

@@ -263,6 +263,23 @@ RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
 ENV PATH=${HOME}/bin:$PATH
 
 USER root
+ARG gitleaks_version=8.28.0
+
+RUN case "$TARGETPLATFORM" in "linux/amd64") \
+    url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" ; \
+    ;; \
+    "linux/arm64") \
+    url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_arm64.tar.gz" ; \
+    ;; \
+    *) echo >&2 "warning: unsupported 'gitleaks' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
+    esac; \
+    echo "Downloading gitleaks from $url"; \
+    curl -L -o /tmp/gitleaks.tar.gz $url \
+    && mkdir -p /tmp/gitleaks \
+    && tar -xvzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks \
+    && mv /tmp/gitleaks/gitleaks /usr/local/bin/gitleaks \
+    && rm -rf /tmp/gitleaks \
+    && gitleaks version
 
 RUN ln -sf /usr/bin/bash /bin/sh
 

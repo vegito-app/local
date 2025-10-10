@@ -15,19 +15,20 @@ kill_jobs() {
 }
 
 # 🚨 Register cleanup function to run on script exit
-
 trap kill_jobs EXIT
 
-case "${LOCAL_ANDROID_GPU_MODE}" in
+if [ ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
+case "${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}" in
     "host")
         display-start-xpra.sh &
         bg_pids+=("$!")
         ;;
-    *)
+    "swiftshader_indirect" | "guest" | *)
         display-start.sh &
         bg_pids+=("$!")
         ;;
 esac
+fi
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
@@ -60,6 +61,11 @@ bg_pids+=("$!")
 # access to debug backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
+
+if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "true" ]; then
+    android-emulator-avd-start.sh &
+    bg_pids+=($!)
+fi
 
 # Developer-friendly aliases
 alias gs='git status'

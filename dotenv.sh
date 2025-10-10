@@ -79,31 +79,28 @@ EOF
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
 # The file is created in the current working directory or the specified WORKING_DIR environment variable.
 dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.yml
-[ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
+[ -f $dockerComposeOverride ] || cat <<EOF > $dockerComposeOverride
 services:
-  application-backend:
+  example-application-backend:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
-      LOCAL_BUILDER_IMAGE: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
-      MAKE_DEV_ON_START: true
-      LOCAL_APPLICATION_TESTS_RUN_ON_START: true
 
   dev:
     environment:
       LOCAL_CONTAINER_INSTALL: 1
-      MAKE_DEV_ON_START: true
+      MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
     command: |
       bash -c '
         make docker-sock
-        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        if [ "${MAKE_DEV_ON_START:-true}" = "true" ] ; then
           make dev
         fi
-        if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-          until make local-application-tests-check-env ; do
-            echo "[application-tests] Waiting for environment to be ready..."
+        if [ "${LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START:-false}" = "true" ] ; then
+          until make local-robotframework-tests-check-env ; do
+            echo "[robotframework-tests] Waiting for environment to be ready..."
             sleep 5
           done
-          make application-tests
+          make robotframework-tests
         fi
         sudo chsh -s /usr/bin/zsh root
         sudo chsh -s /usr/bin/zsh vegito
@@ -111,13 +108,13 @@ services:
       '
   android-studio:
     environment:
-      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/application/tests/mobile_images
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: true
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
       LOCAL_ANDROID_APK_RELEASE_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
 
-    working_dir: ${PWD}/application/mobile
+    working_dir: ${PWD}/example-application/mobile
     command: |
       bash -c '
 
@@ -142,10 +139,10 @@ services:
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
       
-  application-tests:
+  robotframework-tests:
     working_dir: ${PWD}/tests
     environment:
-      LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
 
   firebase-emulators:
     environment:
@@ -158,6 +155,14 @@ services:
       
       make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
       
+      sleep infinity
+      '
+  vault-dev:
+    working_dir: ${PWD}/example-application/
+    command: |
+      bash -c '
+      set -euo pipefail
+      ./vault-init.sh
       sleep infinity
       '
 EOF
@@ -176,11 +181,17 @@ services:
         aliases:
           - devcontainer
 
-  application-backend:
+  example-application-backend:
     networks:
       ${dockerNetworkName}:
         aliases:
-          - application-backend
+          - example-application-backend
+
+  example-application-mobile:
+    networks:
+      dev:
+        aliases:
+          - example-application-mobile
 
   firebase-emulators:
     networks:
@@ -206,11 +217,11 @@ services:
         aliases:
           - vault-dev
 
-  application-tests:
+  robotframework-tests:
     networks:
       ${dockerNetworkName}:
         aliases:
-          - application-tests
+          - robotframework-tests
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
@@ -219,6 +230,15 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
   android-studio:
+    # environment:
+    #  LOCAL_ANDROID_GPU_MODE: host
+    # runtime: nvidia
+    # devices:
+    #   - /dev/nvidia0
+    # shm_size: "8gb"
+    # group_add:
+    #   - sgx
+  example-application-mobile:
     # environment:
     #  LOCAL_ANDROID_GPU_MODE: host
     # runtime: nvidia

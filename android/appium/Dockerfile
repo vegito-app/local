@@ -3,27 +3,24 @@ FROM ${android_apk_emulator_image} AS builder
 
 USER root
 
+# NodeJS for Appium
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g appium@3.0.0-rc.2 \
-    appium driver install uiautomator2
+    apt-get install -y nodejs 
 
 ARG non_root_user=android
 USER ${non_root_user}
 
-# 📥 Entrypoint pour lancer émulateur + APK
-COPY --chown=android:android appium-emulator-avd.sh /usr/local/bin/
+ENV HOME=/home/${non_root_user}
+WORKDIR ${HOME}
+
+ENV PATH=${HOME}/node_modules/.bin:${PATH}
+
+RUN npm install appium@3.0.0-rc.2 \
+    appium driver install uiautomator2
+
+# 📥 Entrypoint to launch emulator + APK
 COPY --chown=android:android entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
 
-# Rendre les scripts exécutables
-RUN chmod +x \
-    /usr/local/bin/appium-emulator-avd.sh \
-    /usr/local/bin/android-appium-entrypoint.sh
-
-# 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
-ARG default_apk_path=/apk/app.apk
-ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
-ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true
-ENV LOCAL_ANDROID_EMULATOR_DATA=tests/mobile_images
+RUN chmod +x /usr/local/bin/android-appium-entrypoint.sh
 
 ENTRYPOINT ["android-appium-entrypoint.sh"]
