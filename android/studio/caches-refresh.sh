@@ -101,24 +101,15 @@ mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sf ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
-# Git config (optional but useful)
-GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
-if [ -f "$GIT_CONFIG_GLOBAL" ]; then
-  mkdir -p ${local_container_cache}/git
-  rsync -av "$GIT_CONFIG_GLOBAL" ${local_container_cache}/git/
-  rm -f "$GIT_CONFIG_GLOBAL"
-  ln -s ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
-fi
-
 # CAUSES UNFORTUNATE START WITH INCONSISTENT ALREADY RUNNING STATE
 # # Persist VS Code settings (optional)
 # VSCODE_SETTINGS=${HOME}/.config/Code
-# mkdir -p $LOCAL_ANDROID_BUILDER_CONTAINER_EXEC/vscode
+# mkdir -p $LOCAL_ANDROID_STUDIO/vscode
 # if [ -d "$VSCODE_SETTINGS" ]; then
-#   rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_BUILDER_CONTAINER_EXEC/vscode/
+#   rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_STUDIO/vscode/
 #   rm -rf "$VSCODE_SETTINGS"
 # fi
-# ln -sf $LOCAL_ANDROID_BUILDER_CONTAINER_EXEC/vscode/Code $VSCODE_SETTINGS
+# ln -sf $LOCAL_ANDROID_STUDIO/vscode/Code $VSCODE_SETTINGS
 
 android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}
 
