@@ -101,16 +101,6 @@ mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sf ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
-# CAUSES UNFORTUNATE START WITH INCONSISTENT ALREADY RUNNING STATE
-# # Persist VS Code settings (optional)
-# VSCODE_SETTINGS=${HOME}/.config/Code
-# mkdir -p $LOCAL_ANDROID_STUDIO/vscode
-# if [ -d "$VSCODE_SETTINGS" ]; then
-#   rsync -av "$VSCODE_SETTINGS" $LOCAL_ANDROID_STUDIO/vscode/
-#   rm -rf "$VSCODE_SETTINGS"
-# fi
-# ln -sf $LOCAL_ANDROID_STUDIO/vscode/Code $VSCODE_SETTINGS
-
 android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}
 
 # Create symlinks for scripts
