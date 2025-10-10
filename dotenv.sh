@@ -19,9 +19,13 @@ localDotenvFile=${currentWorkingDir}/.env
 #  
 # Please set the values in this section according to your personnal values.
 #------------------------------------------------------- 
+# Please set the values in this section according to your personnal settings.
+# 
+# Trigger the local project display name in Docker Compose.
+COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-local-${VEGITO_PROJECT_USER:-local-developer-id}}
 # 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
+VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-developer-id}
 # 
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-repo-${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}}
@@ -136,6 +140,7 @@ services:
       '
   vault-dev:
     working_dir: ${PWD}
+    
   clarinet-devnet:
     working_dir: ${PWD}/local/clarinet-devnet
     command: |
@@ -148,6 +153,17 @@ services:
     working_dir: ${PWD}/tests
     environment:
       LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
+
+
+  firebase-emulators:
+    command: |
+      bash -c '
+      set -eu
+      
+      make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
+      
+      sleep infinity
+      '
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}

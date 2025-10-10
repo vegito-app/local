@@ -27,10 +27,10 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	$(LOCAL_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:application-%=-f $(LOCAL_DIR)/application/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github/docker-bake.hcl
 
-local-local-services-multi-arch-push-images: docker-buildx-setup local-builder-image-ci
+local-services-multi-arch-push-images: docker-buildx-setup local-builder-image-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-services-multi-arch-push
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-services-multi-arch-push
-.PHONY: local-local-services-multi-arch-push-images
+.PHONY: local-services-multi-arch-push-images
 
 docker-images-local-arch: local-builder-image
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-services-host-arch-load
