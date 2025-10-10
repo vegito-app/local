@@ -24,7 +24,7 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "firebase-emulators-ci" {
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
+    builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [

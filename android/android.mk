@@ -1,4 +1,5 @@
 LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
+LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-$(VERSION)
 
 -include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
@@ -13,18 +14,6 @@ LOCAL_ANDROID_DOCKER_BAKE_GROUPS ?= \
 local-android-docker-images: 
 	@$(MAKE) -j $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
 .PHONY: local-android-docker-images
-
-#$(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-android-containers-%-ci): local-dev-container-image-pull
-#	@echo "Running operation 'local-android-containers-$(@:local-android-containers-%-ci=%)' for all local containers in CI..."
-#	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-#	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-#	  $(LOCAL_DEV_CONTAINER_RUN) \
-#	    make local-android-containers-$(@:local-android-containers-%-ci=%) \
-#	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-#	      LOCAL_ANDROID_STUDIO_ON_START=false \
-#	      LOCAL_ANDROID_STUDIO_CACHES_REFRESH=false \
-#	      LOCAL_ANDROID_STUDIO_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
-#.PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-android-containers-%-ci)
 
 $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake group $(@:%-group=%)
@@ -64,8 +53,7 @@ $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): docker-bu
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci)
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
-  studio \
-  appium
+  studio
 
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%): 
 	@echo "Starting container for android service $(@:android-%=local-%-container-up)"
@@ -108,7 +96,7 @@ $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull):
 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-image-pull)
 
-local-android-containers-up: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES)
+local-android-containers-up: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%)
 .PHONY: local-android-containers-up
 
 local-android-containers-rm: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm)
@@ -139,14 +127,12 @@ LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
 LOCAL_ANDROID_CONTAINER_EXEC ?= $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
 
 LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
-LOCAL_ANDROID_CONTAINER_GPU_MODE ?= swiftshader_indirect
 
 local-android-app-sha1-fingerprint:
 	@echo "Android Emulator SHA1 fingerprint:" 
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 .PHONY: local-android-emulator-app-sha1-fingerprint
-
 
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
