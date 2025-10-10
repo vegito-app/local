@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/vegito-app/local/compare/v1.5.0...v1.5.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* **workflow:** correct formatting in docker image tag generation output ([9945781](https://github.com/vegito-app/local/commit/994578170307dbfe4a82f95c0211a960770b8679))
+
 ## [1.5.0](https://github.com/vegito-app/local/compare/v1.4.0...v1.5.0) (2025-10-10)
 
 
