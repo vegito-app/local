@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/vegito-app/local/compare/v1.4.0...v1.5.0) (2025-10-10)
+
+
+### Features
+
+* **ci:** improve changelog and storage path structure ([fe1854e](https://github.com/vegito-app/local/commit/fe1854e3d43cc3e3f43a3c245e5d2a01097addfb))
+
 ## [1.4.0](https://github.com/vegito-app/local/compare/v1.3.0...v1.4.0) (2025-10-10)
 
 
