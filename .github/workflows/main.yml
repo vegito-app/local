@@ -253,6 +253,13 @@ jobs:
       - name: Write changelog from previous step
         run: |
           echo "${{ needs.build-release-images.outputs.changelog }}" > CHANGELOG.md
+      - name: Append Docker tags to changelog
+        run: |
+          if [ -f ./artifacts/docker-tags.txt ]; then
+            echo -e "\n\n---\n\n" >> CHANGELOG.md
+            echo "### Docker images published in this release:" >> CHANGELOG.md
+            cat ./artifacts/docker-tags.txt >> CHANGELOG.md
+          fi
       - name: Download all artifacts 📥
         uses: actions/download-artifact@v4
         with:
@@ -316,7 +323,7 @@ jobs:
       - name: Generate index.json for release root
         run: |
           echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
-          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/v*/metadata.json" 2>/dev/null || true); do
+          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
             version=$(basename $(dirname "$f"))
             echo "  {\"version\": \"$version\"}," >> index.json
           done
@@ -326,13 +333,9 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          gs_path="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
-          # Upload docker tags
-          gcloud storage cp docker-tags.txt "$gs_path/docker-tags.md" --quiet
-          # Upload index.json à la racine (si tu veux garder compat)
-          gcloud storage cp index.json gs://${GCS_BUCKET_NAME}/index.json --quiet
-          # Upload index.json dans le dossier de version (nouveau)
-          gcloud storage cp index.json "$gs_path/index.json" --quiet
+          gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
+          gcloud storage cp docker-tags.txt "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
+          gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
       - name: Download APK and AAB artifacts
         uses: actions/download-artifact@v4
         with:
