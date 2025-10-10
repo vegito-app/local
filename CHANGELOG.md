@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.3](https://github.com/vegito-app/local/compare/v1.5.2...v1.5.3) (2025-10-10)
+
+
+### Bug Fixes
+
+* **docker-compose:** increase replicas and parallelism for GitHub Actions runner ([49dfcc3](https://github.com/vegito-app/local/commit/49dfcc3591c768328e240a103e871e665fce3620))
+
 ### [1.5.2](https://github.com/vegito-app/local/compare/v1.5.1...v1.5.2) (2025-10-10)
 
 ### [1.5.1](https://github.com/vegito-app/local/compare/v1.5.0...v1.5.1) (2025-10-10)
