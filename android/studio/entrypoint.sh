@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -18,81 +18,53 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-[ "${LOCAL_ANDROID_STUDIO_ENV_SETUP}" = "true" ] && \
+if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
     caches-refresh.sh
-
-case "${LOCAL_ANDROID_GPU_MODE}" in
-    "host")
-        display-start-xpra.sh &
-        bg_pids+=("$!")
-        ;;
-    *)
-        display-start.sh &
-        bg_pids+=("$!")
-        ;;
-esac
-
-
-# Forward firebase-emulators to container as localhost
-socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4501.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4401.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-firebase-emulators-9000.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9099,fork,reuseaddr TCP:firebase-emulators:9099 > /tmp/socat-firebase-emulators-9099.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:9150 > /tmp/socat-firebase-emulators-9150.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:9199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:8085,fork,reuseaddr TCP:firebase-emulators:8085 > /tmp/socat-firebase-emulators-8085.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:5001,fork,reuseaddr TCP:firebase-emulators:5001 > /tmp/socat-firebase-emulators-5001.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-firebase-emulators-4000.log 2>&1 &
-bg_pids+=("$!")
-
-# access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
-socat TCP-LISTEN:8080,fork,reuseaddr TCP:application-backend:8080 > /tmp/socat-backend-8080.log 2>&1 &
-bg_pids+=("$!")
-
-# access to debug backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
-socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
-bg_pids+=("$!")
-
-# Developer-friendly aliases
-alias gs='git status'
-alias gb='git branch'
-alias gd='git diff'
-alias gl='git log --oneline --graph --decorate'
-alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
-alias run-android='flutter run -d android'
-
-# Some linux distibution like Codespaces are requiring this additionnaly to the docker group addition.
-sudo chown root:kvm /dev/kvm
-sudo chmod 660 /dev/kvm
-
-# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
-
-if [ "${LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START}" = "true" ]; then
-    appium-emulator-avd.sh &
-    bg_pids+=("$!")
 fi
 
+android_adb_key=${LOCAL_ANDROID_ADB_KEY_PATH:-~/.android/adbkey}
+android_adb_pubkey=${LOCAL_ANDROID_ADB_KEY_PUB_PATH:-~/.android/adbkey.pub}
+[ -d ~/.android ] || mkdir -p ~/.android
+if [ ! -f $android_adb_key ] || [ ! -f $android_adb_pubkey ]; then
+    echo "[entrypoint] Generating ADB keypair at $android_adb_key and $android_adb_pubkey..."
+    adb keygen $android_adb_key
+else
+    echo "[entrypoint] Existing ADB keypair detected, skipping generation."
+fi
+
+android_release_keystore=${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH:-~/.android/release.keystore}
+android_release_keystore_alias=${LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME:-vegito-local-release}
+android_release_keystore_store_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS:-android}
+android_release_keystore_key_pass=${LOCAL_ANDROID_RELEASE_KEYSTORE_KEY_PASS:-android}
+android_release_keystore_dname=${LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME:-"CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"}
+
+if [ ! -f $android_release_keystore ]; then
+    echo "[entrypoint] No release.keystore found, generating via Makefile..."
+    keytool -genkey -v \
+      -keystore $android_release_keystore \
+      -alias $android_release_keystore_alias \
+      -keyalg RSA \
+      -keysize 2048 \
+      -validity 10000 \
+      -storepass $android_release_keystore_store_pass \
+      -keypass $android_release_keystore_key_pass \
+      -dname "$android_release_keystore_dname"
+else
+    echo "[entrypoint] Existing release.keystore found, skipping generation."
+fi
+
+(android-emulator-entrypoint.sh) &
+bg_pids+=("$!")
+
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
-    android-studio.sh &
-    bg_pids+=("$!")
+    (android-studio.sh) &
 fi
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}" &
-  sleep infinity
+  wait "${bg_pids[@]}"
+  echo "[entrypoint] All background processes have exited, container will stop now."
 else
+  echo "[entrypoint] Executing passed command: $*"
   exec "$@"
 fi

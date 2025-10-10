@@ -43,19 +43,31 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     sdkmanager \
     "system-images;android-34;google_apis_playstore;x86_64" \
     "emulator" ; \
-    echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6" ; \
+    echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_8" ; \
     fi
 
-
 # 🖥️ Variables d'affichage
-ENV DISPLAY=:20
+ARG default_display=20
+ENV DISPLAY=:${default_display}
 
 # 📥 Entrypoint pour lancer émulateur + APK
-COPY --chown=android:android entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY --chown=android:android display-start.sh /usr/local/bin/
+COPY --chown=android:android display-start-xpra.sh /usr/local/bin/
+COPY --chown=android:android entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
+COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
+COPY --chown=android:android openbox-setup.sh /usr/local/bin/
+
+# Rendre les scripts exécutables
+RUN chmod +x /usr/local/bin/display-start.sh \
+    /usr/local/bin/display-start-xpra.sh \
+    /usr/local/bin/android-emulator-entrypoint.sh \
+    /usr/local/bin/emulator-data-load.sh \
+    /usr/local/bin/openbox-setup.sh
 
 # 📱 Par défaut, on peut passer un APK déjà monté dans /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV APPLICATION_MOBILE_APK_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_GPU_MODE=swiftshader_indirect
+ENV LOCAL_ANDROID_AVD_NAME=Pixel_8_Intel
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["android-emulator-entrypoint.sh"]

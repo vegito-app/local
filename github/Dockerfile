@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
     make \
     unzip \
     sudo \
-    wget
+    wget \
+    netcat-openbsd
 
 ARG TARGETPLATFORM
 
@@ -36,15 +37,10 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://p
     && apt-get install -y kubectl \
     && rm -rf /var/lib/apt/lists/* 
 
-# helm
-RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list > /dev/null \
-    && apt-get update \
-    && apt-get install helm \ 
-    && rm -rf /var/lib/apt/lists/* \
-    && helm repo add hashicorp https://helm.releases.hashicorp.com \
-    && helm repo update 
-
+# Install Helm
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
+    && chmod 700 get_helm.sh \
+    && ./get_helm.sh
 
 ARG docker_version
 ARG docker_compose_version
@@ -141,20 +137,22 @@ ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version
 ARG node_version
-RUN set -x; \
+
+RUN set -e ; \
     # 
-    mkdir -p ${NVM_DIR} \
+    mkdir -p ${NVM_DIR} ; \
+    #
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
+    . ${NVM_DIR}/nvm.sh ; \
+    nvm install ${node_version} ; \
+    nvm alias default ${node_version} ; \
+    nvm use default ;  \
     # 
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - \
-    && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${node_version} \
-    && nvm alias default ${node_version} \
-    && nvm use default \
-    # 
-    && npm install -g \
+    npm install -g \
     standard-version \
-    npm \
-    && rm -rf ${HOME}/.npm
+    conventional-changelog \
+    npm ; \
+    rm -rf ${HOME}/.npm 
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
@@ -171,9 +169,10 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
     && chown -R ${non_root_user}:${non_root_user} .
 
 USER ${non_root_user}
-COPY docker-entrypoint.sh /github-entrypoint.sh
-ENTRYPOINT ["/github-entrypoint.sh"]
+COPY entrypoint.sh /gha-entrypoint.sh
+ENTRYPOINT ["/gha-entrypoint.sh"]
 
 ENV RUNNER_WORKDIR=/runner/_work
 RUN mkdir ${RUNNER_WORKDIR}
-VOLUME ["${RUNNER_WORKDIR}"]
+RUN chown ${non_root_user}:${non_root_user} ${RUNNER_WORKDIR}
+RUN chmod o+rw ${RUNNER_WORKDIR}

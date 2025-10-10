@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     environment:
-      HOST_PWD: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
+      LOCAL_WORKSPACE: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
 
   nestor:
     image: ${LOCAL_BUILDER_IMAGE}
@@ -33,7 +33,7 @@ services:
       - ${NESTOR_APPLICATION_BACKEND_PORT:-8080}:8080
       - ${NESTOR_APPLICATION_BACKEND_DEBUG_PORT:-8888}:8888
     volumes:
-      - ${HOST_PWD:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
+      - ${LOCAL_WORKSPACE:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
     working_dir: ${PWD:-/workspaces/refactored-winner}/.devcontainer
     env_file:
       - .env

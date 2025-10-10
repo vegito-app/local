@@ -6,8 +6,12 @@ variable "LOCAL_VAULT_DEV_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-latest"
 }
 
-variable "LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE" {
+variable "LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/vault-dev"
+}
+
+variable "LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/vault-dev/ci"
 }
 
 target "vault-dev-ci" {
@@ -18,12 +22,12 @@ target "vault-dev-ci" {
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE}" : "",
-    "type=inline, ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI}" : "",
+    "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
@@ -44,11 +48,11 @@ target "vault-dev" {
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE}" : "",
-    "type=inline, ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE}" : "",
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
   ]
 }

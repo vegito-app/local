@@ -3,13 +3,15 @@
 # This script is run on the host as devcontainer 'initializeCommand' 
 # (cf. https://containers.dev/implementors/json_reference/#lifecycle-scripts)
 
-set -eu
+set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
 projectName=${VEGITO_PROJECT_NAME:-vegito-local}
 projectUser=${VEGITO_PROJECT_USER:-local-developer-id}
 localDockerComposeProjectName=${VEGITO_COMPOSE_PROJECT_NAME:-$projectName-$projectUser}
+
+GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}}
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 # Ensure the current working directory exists.
@@ -31,9 +33,6 @@ COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-developer-id}
 # 
-# Trigger the local project display name in Docker Compose.
-COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-repo-${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}}
-# 
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 #
@@ -41,7 +40,7 @@ DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/g
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
+LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -56,7 +55,6 @@ STRIPE_KEY_PUBLISHABLE_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/str
 STRIPE_KEY_SECRET_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
-#
 #----------------------------------------------------------------|
 #----------------------------------------------------------------|
 # The following variables are used for propagating the containers|
@@ -80,18 +78,18 @@ EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
 # The file is created in the current working directory or the specified WORKING_DIR environment variable.
-dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-override.yml
+dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.yml
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   application-backend:
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
-      LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
-      MAKE_DEV_ON_START=true
-      LOCAL_APPLICATION_TESTS_RUN_ON_START=true
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
+      LOCAL_BUILDER_IMAGE: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
+      MAKE_DEV_ON_START: true
+      LOCAL_APPLICATION_TESTS_RUN_ON_START: true
 
   dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-app:builder-latest
+    # image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-local:builder-latest
     command: |
       bash -c '
         make docker-sock
@@ -111,14 +109,13 @@ services:
       '
   android-studio:
     environment:
-      - LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=${PWD}/application/tests/mobile_images
-      - LOCAL_ANDROID_STUDIO_ON_START=true
-      - LOCAL_ANDROID_STUDIO_ENV_SETUP=true
-      - LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
-      - LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
-      - LOCAL_ANDROID_STUDIO_ANDROID_AVD_NAME=Pixel_8_Intel
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/application/tests/mobile_images
+      LOCAL_ANDROID_STUDIO_ON_START: true
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
+      LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
+      LOCAL_ANDROID_APK_RELEASE_PATH: mobile/build/app/outputs/flutter-apk/app-release.apk
 
-    working_dir: ${PWD}/mobile
+    working_dir: ${PWD}/application/mobile
     command: |
       bash -c '
 
@@ -139,9 +136,10 @@ services:
       
       sleep infinity
       '
-  vault-dev:
-    working_dir: ${PWD}
-    
+  clarinet-devnet:
+    environment:
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
+      
   application-tests:
     working_dir: ${PWD}/tests
     environment:
@@ -154,7 +152,7 @@ services:
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
     command: |
       bash -c '
-      set -eu
+      set -euo pipefail
       
       make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
       
@@ -220,11 +218,10 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 services:
   android-studio:
     # environment:
-    #   LOCAL_ANDROID_ANDROID_GPU_MODE=host
+    #  LOCAL_ANDROID_GPU_MODE: host
+    # runtime: nvidia
     # devices:
     #   - /dev/nvidia0
-    # # runtime: nvidia # Uncomment this line if you are using the nvidia runtime.
-    # runtime: runc
     # shm_size: "8gb"
     # group_add:
     #   - sgx

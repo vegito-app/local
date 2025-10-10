@@ -1,20 +1,17 @@
-APPLICATION_MOBILE_DIR ?= $(LOCAL_APPLICATION_DIR)/mobile
-APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE ?= $(LOCAL_APPLICATION_DIR)/.containers/docker-buildx-cache/local-application-mobile
-$(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE):;	@mkdir -p "$@"
-ifneq ($(wildcard $(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE)/index.json),)
-APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ = type=local,src=$(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE)
-endif
+LOCAL_APPLICATION_MOBILE_DIR ?= $(LOCAL_APPLICATION_DIR)/mobile
 
-APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE= type=local,mode=max,dest=$(APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE)
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).keystore
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
 
--include $(APPLICATION_MOBILE_DIR)/android/android.mk
+local-application-mobile-container-up: local-application-mobile-container-rm
+	@echo "Starting mobile application container..."
+	@$(LOCAL_APPLICATION_MOBILE_DIR)/container-up.sh
+.PHONY: local-application-mobile-container-up
 
 FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
 
-APPLICATION_MOBILE_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
-
 local-application-mobile-flutter-create:
-	@$(FLUTTER) create . --org $(APPLICATION_MOBILE_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
+	@$(FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
 	@echo "Flutter application created successfully"
 	@echo "Please run 'make local-application-mobile-flutter-pub-get' to install dependencies"
 	@echo "You can also run 'make local-application-mobile-flutter-analyze' to analyze the code"
@@ -30,13 +27,17 @@ local-application-mobile-flutter-clean:
 	@$(FLUTTER) clean
 .PHONY: local-application-mobile-flutter-clean
 
-local-application-mobile-flutter-pub-get:
+local-application-mobile-flutter-pub-get: local-application-mobile-flutter-clean
 	@$(FLUTTER) pub get
 .PHONY: local-application-mobile-flutter-pub-get
 
 local-application-mobile-flutter-tests:
 	@$(FLUTTER) test
 .PHONY: local-application-mobile-flutter-tests
+
+local-application-mobile-flutter-tests-ci: local-application-mobile-flutter-pub-get
+	@$(FLUTTER) test
+.PHONY: local-application-mobile-flutter-tests-ci
 
 DART ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio dart
 
@@ -55,72 +56,181 @@ flutter-app-uninstall:
 	@$(ADB) uninstall dev.vegito.app.android || true
 .PHONY: flutter-app-uninstall
 
-APPLICATION_MOBILE_BUILDS = apk ios
+LOCAL_APPLICATION_MOBILE_IMAGE_VERSION ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}
 
-$(APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%): 
-	@$(FLUTTER) clean
-	@$(FLUTTER) pub get
-	@$(FLUTTER) build $(@:local-application-mobile-flutter-build-%=%) --flavor $(INFRA_ENV) --release --verbose
-	@echo "Build for $(@:local-application-mobile-flutter-build-%=%) completed successfully"
-.PHONY: $(APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%)
+LOCAL_APPLICATION_MOBILE_BUILDS = apk ios appbundle
 
-local-application-mobile-flutter-build: $(APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%)
+local-application-mobile-flutter-build: $(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%)
 .PHONY: local-application-mobile-flutter-build
 
-firebase-emulators-check:
-	@firebase-emulators-check.sh
-.PHONY: firebase-emulators-check
+$(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%-release):
+	$(FLUTTER) build $(@:local-application-mobile-flutter-build-%-release=%) --release
+	@echo "Build for $(@:local-application-mobile-flutter-build-%-release=%) completed successfully"
+.PHONY: $(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-build-%release)
 
-local-application-mobile-flutter-run-prepare: flutter-app-uninstall
-	@echo "Preparing the app for running on the emulator with flavor $(INFRA_ENV)"
-	@$(FLUTTER) clean
-	@$(FLUTTER) pub get
+local-application-mobile-flutter-android-release: local-application-mobile-flutter-build-apk-release local-application-mobile-flutter-build-appbundle-release
+.PHONY: local-application-mobile-flutter-android-release
+
+local-application-mobile-flutter-build-release: local-application-mobile-flutter-android-release local-application-mobile-flutter-build-ios-release
+.PHONY: local-application-mobile-flutter-build-release
+
+$(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-%):
+	@$(FLUTTER) build $(@:local-application-mobile-flutter-%=%) --debug
+	@echo "Build for $(@:local-application-mobile-flutter-%=%) completed successfully"
+.PHONY: $(LOCAL_APPLICATION_MOBILE_BUILDS:%=local-application-mobile-flutter-%)
+
+local-application-mobile-flutter-run-prepare: flutter-app-uninstall local-application-mobile-flutter-pub-get
 .PHONY: local-application-mobile-flutter-run-prepare	
 
-local-application-mobile-flutter-run: local-application-mobile-flutter-run-prepare
-	@echo "Running the app on the emulator with flavor $(INFRA_ENV)"
-	$(FLUTTER) run --verbose --flavor $(INFRA_ENV) --release lib/main.dart
-	@echo "App is running on the emulator with flavor $(INFRA_ENV)"
-.PHONY: local-application-mobile-flutter-run	
-
-local-application-mobile-flutter-debug: local-application-mobile-flutter-run-prepare
-	@echo "Running the app in debug mode on the emulator with flavor $(INFRA_ENV)"
-	$(FLUTTER) run --verbose --flavor $(INFRA_ENV) --debug lib/main.dart
-.PHONY: local-application-mobile-flutter-debug
-
-APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST = $(LOCAL_APPLICATION_DIR)/mobile/ios/GoogleService-Info.plist
-
-local-application-mobile-ios-config-plist: $(APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST)
-.PHONY:local-application-mobile-ios-config-plist
-
-$(APPLICATION_MOBILE_DEFAULT_FIREBASE_IOS_CONFIG_PLIST): $(INFRA_FIREBASE_IOS_CONFIG_PLIST)
-	@echo Creating local ios config copy "'$@'"
-	@cp -f $< $@ 
-
-APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_DIR)/mobile/android/app/google-services.json
-
-$(APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
-	@echo Creating local android config copy "'$@'"
-	@cp -f $< $@ 
-
-local-application-mobile-default-android-config-json: $(APPLICATION_MOBILE_DEFAULT_FIREBASE_ANDROID_CONFIG_JSON)
-.PHONY: local-application-mobile-default-android-config-json
-
-APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_DIR)/mobile/android/app/src/$(INFRA_ENV)/google-services.json
-
-local-application-mobile-android-config-json: $(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
-.PHONY: local-application-mobile-android-config-json
-
-$(APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
-	@echo Creating local android config copy "'$@'"
-	@cp -f $(INFRA_FIREBASE_ANDROID_CONFIG_JSON) $@
-
-APPLICATION_MOBILE_FLAVORS = dev staging prod
+LOCAL_APPLICATION_MOBILE_FLAVORS ?= dev staging prod
 
 local-application-mobile-flutter-native-splash:
-	@$(FLUTTER) pub run flutter_native_splash:create --flavors $(APPLICATION_MOBILE_FLAVORS)
+	@echo "Creating native splash screen for flavors: $(LOCAL_APPLICATION_MOBILE_FLAVORS)"
+	@$(FLUTTER) pub run flutter_native_splash:create --flavors $(LOCAL_APPLICATION_MOBILE_FLAVORS)
 .PHONY: local-application-mobile-flutter-native-splash
 
 local-application-mobile-flutter-launcher-icons:
+	@echo "Creating launcher icons for flavors: $(LOCAL_APPLICATION_MOBILE_FLAVORS)"
 	@$(FLUTTER) pub run flutter_launcher_icons:main
 .PHONY: local-application-mobile-flutter-launcher-icons
+
+local-application-mobile-flutter-run-flavor: local-application-mobile-flutter-run-prepare
+	@echo "Running the app on the emulator with flavor $(INFRA_ENV)"
+	@$(FLUTTER) run --flavor $(INFRA_ENV) --release lib/main.dart
+	@echo "App is running on the emulator with flavor $(INFRA_ENV)"
+.PHONY: local-application-mobile-flutter-run-flavor	
+
+local-application-mobile-flutter-run-debug-flavor: local-application-mobile-flutter-run-prepare
+	@echo "Running the app in debug mode on the emulator with flavor $(INFRA_ENV)"
+	@$(FLUTTER) run --flavor $(INFRA_ENV) --debug lib/main.dart
+	@echo "App is running in debug mode on the emulator with flavor $(INFRA_ENV)"
+.PHONY: local-application-mobile-flutter-run-debug-flavor
+
+LOCAL_APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST = $(LOCAL_APPLICATION_MOBILE_DIR)/ios/GoogleService-Info.plist
+
+local-application-mobile-ios-config-plist: $(LOCAL_APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST)
+.PHONY:local-application-mobile-ios-config-plist
+
+$(LOCAL_APPLICATION_MOBILE_FIREBASE_IOS_CONFIG_PLIST): $(INFRA_FIREBASE_IOS_CONFIG_PLIST)
+	@echo Creating local ios config copy "'$@'"
+	@cp -f $< $@ 
+
+LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/google-services.json
+
+local-application-mobile-default-android-config-json: $(LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON)
+.PHONY: local-application-mobile-default-android-config-json
+
+$(LOCAL_APPLICATION_MOBILE_FIREBASE_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
+	@echo Creating local android config copy "'$@'"
+	@cp -f $< $@ 
+
+LOCAL_APPLICATION_MOBILE_FIREBASE_FLAVOR_ANDROID_CONFIG_JSON = $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/src/$(INFRA_ENV)/google-services.json
+
+local-application-mobile-flavor-android-config-json: $(LOCAL_APPLICATION_MOBILE_FIREBASE_FLAVOR_ANDROID_CONFIG_JSON)
+.PHONY: local-application-mobile-flavor-android-config-json
+
+$(LOCAL_APPLICATION_MOBILE_FIREBASE_FLAVOR_ANDROID_CONFIG_JSON): $(INFRA_FIREBASE_ANDROID_CONFIG_JSON)
+	@echo Creating local android config copy "'$@'"
+	@cp -f $(INFRA_FIREBASE_ANDROID_CONFIG_JSON) $@
+
+local-application-mobile-flutter-flavor-release:
+	@echo "🏗️ Building flavor unsigned APK and AAB for '$(INFRA_ENV)'..."
+	@$(MAKE) \
+	  local-application-mobile-flutter-build-apk-flavor-release \
+	  local-application-mobile-flutter-build-appbundle-flavor-release
+.PHONY: local-application-mobile-flutter-flavor-release
+
+LOCAL_ANDROID_RELEASE_APK_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/flutter-apk/app-release-$(VERSION).apk
+LOCAL_ANDROID_RELEASE_AAB_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/build/app/outputs/bundle/release/app-release-$(VERSION).aab
+
+LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH ?= mobile/build/app/outputs/apk/$(INFRA_ENV)/release/app-$(INFRA_ENV)-release-$(VERSION).apk
+LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH ?= mobile/build/app/outputs/bundle/$(INFRA_ENV)Release/app-$(INFRA_ENV)-release-$(VERSION).aab
+
+local-application-mobile-flavor-release:
+	@echo "📦 Signing flavor APK..."
+	@$(MAKE) local-application-mobile-flutter-flavor-release \
+	  LOCAL_ANDROID_RELEASE_APK_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
+	  LOCAL_ANDROID_RELEASE_AAB_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH) \
+.PHONY: local-application-mobile-flavor-release
+
+local-application-mobile-vacuum:
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/build
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/.dart_tool
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/.packages
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/ios/Pods
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/ios/Podfile.lock
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/android/.gradle
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/android/app/build
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/android/build
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/app-release-*.apk
+	@rm -rf $(LOCAL_APPLICATION_MOBILE_DIR)/app-release-*.aab
+	@echo "✅ Cleaned Flutter project and build artifacts"
+.PHONY: local-application-mobile-vacuum
+
+local-application-mobile-android-release-build: \
+local-application-mobile-flutter-android-release \
+local-android-verify-apk \
+local-android-sign-aab
+.PHONY: local-application-mobile-android-release-build
+
+LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
+
+local-application-mobile-image-tag-apk-extract:
+	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
+	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
+	  echo "Copying APK from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).apk $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ APK extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH)"
+.PHONY: local-application-mobile-image-tag-apk-extract
+
+LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH ?= ${LOCAL_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.aab
+
+local-application-mobile-image-tag-aab-extract:
+	@echo "Creating temp container from image $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)"
+	@container_id=$$(docker create $(LOCAL_APPLICATION_MOBILE_IMAGE_VERSION)) && \
+	  echo "Copying AAB from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).aab $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ AAB extracted to $(LOCAL_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH)"
+.PHONY: local-application-mobile-image-tag-aab-extract
+
+local-application-mobile-flutter-android-release:
+	@echo "🏗️ Building unsigned APK and AAB for '$(INFRA_ENV)'..."
+	@$(MAKE) \
+	  local-application-mobile-vacuum \
+	  local-application-mobile-flutter-pub-get \
+	  local-application-mobile-flutter-build-apk-release \
+	  local-application-mobile-flutter-build-appbundle-release
+.PHONY: local-application-mobile-flutter-android-release
+
+local-application-mobile-image-tag-release-exrtract: local-application-mobile-image-tag-aab-extract local-application-mobile-image-tag-apk-extract
+.PHONY: local-application-mobile-image-tag-release-exrtract
+
+################################################################################
+## 📦 ANDROID RELEASE FULL PIPELINE
+################################################################################
+LOCAL_APPLICATION_MOBILE_RELEASE_AAB_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/build/app/outputs/bundle/release/app-release.aab
+LOCAL_APPLICATION_MOBILE_RELEASE_APK_PATH ?= $(LOCAL_APPLICATION_MOBILE_DIR)/build/app/outputs/flutter-apk/app-release.apk
+LOCAL_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME ?= $(INFRA_ENV).vegito.app.android
+LOCAL_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME ?= vegito-local-release
+LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME ?= "CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=IDF, C=FR"
+
+local-application-mobile-android-release:
+	@LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_PATH=$(LOCAL_APPLICATION_MOBILE_RELEASE_AAB_PATH) \
+	LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH=$(LOCAL_APPLICATION_MOBILE_RELEASE_APK_PATH) \
+	LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH) \
+	$(MAKE) local-application-mobile-android-release-build
+	@echo "✅ Android Release APK built, aligned, signed and verified at: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)"
+	@echo "✅ Android Release AAB built, signed and verified at: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)"
+.PHONY: local-application-mobile-android-release
+
+local-application-mobile-android-release-keystore: 
+	@LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=$(LOCAL_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME) \
+	LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME) \
+	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
+	$(MAKE) local-android-release-keystore 
+.PHONY: local-application-mobile-android-release-keystore
+
+
+
