@@ -64,7 +64,7 @@ local-github-actions-runner-remove-token-exist:
 	fi
 .PHONY: local-github-actions-runner-remove-token-exist
 
-LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_PROJECT_NAME ?= $(PROJECT_NAME)-github-actions
+LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-github-actions
 LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE ?= COMPOSE_PROJECT_NAME=$(LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_PROJECT_NAME) \
   docker compose -f $(LOCAL_GITHUB_ACTIONS_DIR)/docker-compose.yml
 

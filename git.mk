@@ -11,13 +11,14 @@ git-subtree-status:
 	@git status
 .PHONY: git-subtree-status
 
-GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VERSION)
+# VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VERSION)
+VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
 VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud
 
 $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm):
 	@echo "🗑️ Removing the distribution branch..."
-	-git push git@github.com:vegito-app/$(@:git-subtree-%-remote-branch-rm=%).git :$(GIT_SUBTREE_REMOTE_BRANCH)
+	-git push git@github.com:vegito-app/$(@:git-subtree-%-remote-branch-rm=%).git :$(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 .PHONY: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm)
 
 git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm)
@@ -36,7 +37,7 @@ git-subtree-gcloud-pull:
 git-subtree-gcloud-push:
 	@echo "⬆︎ Pushing changes from the gcloud subtree..."
 	@git subtree push --prefix gcloud \
-	  git@github.com:vegito-app/google-cloud.git $(GIT_SUBTREE_REMOTE_BRANCH)
+	  git@github.com:vegito-app/google-cloud.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "Gcloud subtree pushed successfully."
 .PHONY: git-subtree-gcloud-push
 
@@ -57,7 +58,7 @@ git-subtree-application-pull:
 git-subtree-example-application-push:
 	@echo "⬆︎ Pushing changes from the example-application subtree..."
 	@git subtree push --prefix example-application \
-	  git@github.com:vegito-app/example-application.git $(GIT_SUBTREE_REMOTE_BRANCH)
+	  git@github.com:vegito-app/example-application.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
 

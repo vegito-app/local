@@ -1,4 +1,4 @@
-
+VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
 LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
@@ -14,7 +14,6 @@ INFRA_PROJECT_NAME := moov
 
 DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
 
-PROJECT_NAME := vegito-local
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
