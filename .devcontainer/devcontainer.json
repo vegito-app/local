@@ -11,14 +11,14 @@
   "runServices": [
     "dev"
   ],
+  "containerEnv": {
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
+  },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
-      "env": {
-        "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
-      },
       "editor.fontLigatures": false,
       "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
