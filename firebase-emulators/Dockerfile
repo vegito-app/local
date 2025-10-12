@@ -1,4 +1,4 @@
-ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
+ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/vegito-local:builder-latest
 FROM ${builder_image} AS builder
 FROM debian:bookworm
 
