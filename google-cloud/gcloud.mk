@@ -1,14 +1,35 @@
-GOOGLE_CLOUD_REGION = europe-west1
+
+DEV_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-dev
+DEV_GOOGLE_CLOUD_PROJECT_ID     ?= $(DEV_GOOGLE_CLOUD_PROJECT_NAME)-439608
+DEV_GOOGLE_CLOUD_PROJECT_NUMBER ?= 203475703228
+
+STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
+STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
+STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
+
+PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
+PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
+PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
+
+GOOGLE_CLOUD_REGION ?= europe-west1
+GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
+
+VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
+
+VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 
 GCLOUD_PROJET_USER_ID ?= ${PROJECT_USER}
 
+GOOGLE_CLOUD_PROJECT_ID ?= $(DEV_GOOGLE_CLOUD_PROJECT_ID)
+
 GCLOUD_DEVELOPER_SERVICE_ACCOUNT ?= $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
 
-GCLOUD_DIR ?= $(CURDIR)
+GOOGLE_CLOUD_DIR ?= $(CURDIR)
 
-ifeq ($(GOOGLE_APPLICATION_CREDENTIALS),)
-GOOGLE_APPLICATION_CREDENTIALS = $(GCLOUD_DIR)/gcloud-credentials.json
-endif
+GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/gcloud-credentials.json
 
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
@@ -37,7 +58,7 @@ gcloud-application-credentials:
 
 gcloud-auth-login:
 	@echo "🔐 Logging in to gcloud..."
-	@$(GCLOUD) auth login
+	@$(GCLOUD) auth login --no-launch-browser
 .PHONY: gcloud-auth-login
 
 gcloud-auth-reset:
@@ -119,7 +140,7 @@ gcloud-info:
 
 gcloud-auth-docker:
 	@echo "🐳 Authenticating Docker with Google Artifact Registry..."
-	@$(GCLOUD) --quiet auth configure-docker $(REGISTRY)
+	@$(GCLOUD) --quiet auth configure-docker $(GOOGLE_CLOUD_DOCKER_REGISTRY)
 .PHONY: gcloud-auth-docker
 
 gcloud-config-set-project:
@@ -128,54 +149,49 @@ gcloud-config-set-project:
 .PHONY:gcloud-config-set-project
 
 gcloud-images-list:
-	@echo "📦 Listing all images in repository $(REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(REPOSITORY)
+	@echo "📦 Listing all images in repository $(VEGITO_PRIVATE_REPOSITORY)..."
+	$(GCLOUD) container images list --repository=$(VEGITO_PRIVATE_REPOSITORY)
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(PUBLIC_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(PUBLIC_REPOSITORY)
+	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
+	$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:
-	@echo "🏷️  Listing tags for image base $(PRIVATE_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(PRIVATE_IMAGES_BASE)
+	@echo "🏷️  Listing tags for image base $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
+	@$(GCLOUD) container images list-tags $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)
 .PHONY: gcloud-images-list-tags
 
 gcloud-images-list-tags-public:
-	@echo "🏷️  Listing tags for public image base $(PUBLIC_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(PUBLIC_IMAGES_BASE)
+	@echo "🏷️  Listing tags for public image base $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
+	@$(GCLOUD) container images list-tags $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)
 .PHONY: gcloud-images-list-tags-public
 
 gcloud-images-delete-all:
-	@echo "🗑️  Deleting all images from repository $(PRIVATE_IMAGES_BASE)..."
+	@echo "🗑️  Deleting all images from repository $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
 	$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
-    $(PRIVATE_IMAGES_BASE) \
+    $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE) \
     | uniq \
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all
 
 gcloud-images-delete-all-public:
-	@echo "🗑️  Deleting all images from public repository $(PUBLIC_IMAGES_BASE)..."
+	@echo "🗑️  Deleting all images from public repository $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
 	@$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
-    $(PUBLIC_IMAGES_BASE) \
+    $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE) \
     | uniq \
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all-public
 
 gcloud-backend-image-delete:
-	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE)
+	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE_LATEST)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE_LATEST)
 .PHONY: gcloud-backend-image-delete
-
-gcloud-builder-image-delete:
-	@echo "🗑️  Deleting builder image $(BUILDER_IMAGE)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(BUILDER_IMAGE)
-.PHONY: gcloud-builder-image-delete
 
 gcloud-auth-func-logs:
 	@echo "📜 Reading logs for Cloud Function: utrade-us-central1-identity-platform..."
@@ -188,7 +204,7 @@ gcloud-auth-func-deploy:
 	  --gen2 \
 	  --region=$(GOOGLE_CLOUD_REGION) \
 	  --runtime=go122 \
-	  --source=$(CURDIR)/gcloud/auth \
+	  --source=$(CURDIR)/google-cloud/auth \
 	  --entry-point=idp.go \
 	  --trigger-http
 .PHONY: gcloud-auth-func-deploy
@@ -234,14 +250,14 @@ gcloud-serviceaccounts-list:
 	@$(GCLOUD) iam service-accounts list
 .PHONY: gcloud-serviceaccounts-list
 
-gcloud-services-list:
+gcloud-services-list-enabled:
 	@$(GCLOUD) services list --enabled
-.PHONY: gcloud-services-list
+.PHONY: gcloud-services-list-enabled
 
 # Use this target to configure the Docker pluggin of Vscode if credential-helper cannot help.
 gcloud-docker-registry-temporary-token:
 	@echo Getting $(GCLOUD) docker registry temporary access token:
-	@echo  registry: $(REGISTRY)
+	@echo  registry: $(GOOGLE_CLOUD_DOCKER_REGISTRY)
 	@echo  username: oauth2accesstoken
 	@echo  password: `$(GCLOUD) auth print-access-token`
 .PHONY: gcloud-docker-registry-temporary-token
@@ -387,13 +403,16 @@ gcloud-compute-quotas:
 .PHONY: gcloud-compute-quotas
 
 gcloud-user-compute-instance-suspend:
-	$(GCLOUD) compute instances suspend dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
+	@echo "⏸️  Suspending compute instance dev-$(PROJECT_USER)..."
+	@$(GCLOUD) compute instances suspend dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
 .PHONY: gcloud-user-suspend
 
 gcloud-user-compute-instance-start:
-	$(GCLOUD) compute instances start dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
+	@echo "▶️  Starting compute instance dev-$(PROJECT_USER)..."
+	@$(GCLOUD) compute instances start dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b
 .PHONY: gcloud-user-start
 
 gcloud-user-compute-instance-status:
-	$(GCLOUD) compute instances describe dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b --format='get(status)'
+	@echo "ℹ️  Status of compute instance dev-$(PROJECT_USER)..."
+	@$(GCLOUD) compute instances describe dev-$(PROJECT_USER) --zone=$(GOOGLE_CLOUD_REGION)-b --format='get(status)'
 .PHONY: gcloud-user-status
