@@ -402,7 +402,7 @@ jobs:
           EOF
 
           # Créer les dossiers nécessaires
-          mkdir -p ./artifacts/tests ./artifacts/logs ./metadata
+          mkdir -p ./artifacts/tests ./artifacts/logs
 
           # Créer un aperçu statique fictif si absent
           if [ ! -f ./artifacts/preview.png ]; then
@@ -410,7 +410,7 @@ jobs:
           fi
 
           # Générer QR code APK
-          qrencode -o metadata/qr-code.png "${apkUrl}"
+          qrencode -o ./artifacts/qr-code.png "${apkUrl}"
 
           # Créer un robot-output.html factice si absent
           if [ ! -f ./artifacts/tests/robot-output.html ]; then
@@ -435,6 +435,7 @@ jobs:
     needs:
       - build-release-images
       - create-consolidated-release
+      - upload-docker-tags-to-gcs
     if: success()
     steps:
       - name: Checkout repository
@@ -523,5 +524,7 @@ jobs:
           make gcloud-auth-docker
       - name: Shutdown containers
         run: make dev-ci-rm
+      - name: Clean Docker network
+        run: make local-docker-compose-network-rm-dev
       - name: Notify cleanup done
         run: echo "Cleaning completed."
