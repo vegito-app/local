@@ -19,6 +19,31 @@
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
+      // 🚫 Empêche VSCode de rechercher ou indexer ces dossiers lourds
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.git": true,
+        "**/.devcontainer": false,
+        "**/.containers": true,
+        "**/.next": true,
+        "**/.cache": true
+      },
+      // 💤 Désactive la surveillance en temps réel sur ces dossiers
+      "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.git/**": true,
+        "**/.cache/**": true
+      },
+      // 💨 (optionnel) Réduit la charge sur la recherche globale
+      "search.followSymlinks": false,
+      // 🧠 (optionnel) Exclut les node_modules de l’explorateur de fichiers
+      "files.exclude": {
+        "**/node_modules": true
+      },
       "editor.fontLigatures": false,
       "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
