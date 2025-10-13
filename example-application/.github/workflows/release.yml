@@ -1,0 +1,17 @@
+name: Reuse Vegito CI pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: vegito-app/local/.github/workflows/main-release-template.yml@main
+    with:
+      environment: dev
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

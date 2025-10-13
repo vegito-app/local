@@ -1,0 +1,19 @@
+name: Reuse Vegito Application Release pipeline
+
+permissions:
+  id-token: write
+  contents: write
+
+on:
+  push:
+    branches: [main]
+jobs:
+  application-release-build:
+    uses: vegito-app/local/.github/workflows/main-application-release-template.yml@main
+    with:
+      environment: dev
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}

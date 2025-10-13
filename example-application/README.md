@@ -1,3 +1,6 @@
+![Release Version](https://img.shields.io/github/v/release/vegito-app/example-application?sort=semver)
+![CI](https://github.com/vegito-app/example-application/actions/workflows/deploy.yml/badge.svg?branch=main)
+
 ### Application
 
 #### application-backend
