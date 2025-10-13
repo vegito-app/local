@@ -27,33 +27,33 @@ git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-r
 # ------------------------------------------
 # Subtree ./google-cloud
 # ------------------------------------------
-git-subtree-gcloud-pull:
-	@echo "⬇︎ Pulling the gcloud subtree..."
-	@git subtree pull --prefix gcloud \
+git-subtree-google-cloud-pull:
+	@echo "⬇︎ Pulling the google-cloud subtree..."
+	@git subtree pull --prefix google-cloud \
 	  git@github.com:vegito-app/google-cloud.git main --squash
-	@echo "Gcloud subtree pulled successfully."
-.PHONY: git-subtree-gcloud-pull
+	@echo "Google Cloud subtree pulled successfully."
+.PHONY: git-subtree-google-cloud-pull
 
-git-subtree-gcloud-push:
-	@echo "⬆︎ Pushing changes from the gcloud subtree..."
-	@git subtree push --prefix gcloud \
+git-subtree-google-cloud-push:
+	@echo "⬆︎ Pushing changes from the google-cloud subtree..."
+	@git subtree push --prefix google-cloud \
 	  git@github.com:vegito-app/google-cloud.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
-	@echo "Gcloud subtree pushed successfully."
-.PHONY: git-subtree-gcloud-push
+	@echo "Google Cloud subtree pushed successfully."
+.PHONY: git-subtree-google-cloud-push
 
 GOOGLE_CLOUD_DIR := $(CURDIR)/google-cloud
 -include $(GOOGLE_CLOUD_DIR)/google-cloud.mk
 # ------------------------------------------
 
 # ------------------------------------------
-# Subtree ./application
+# Subtree ./example-application
 # ------------------------------------------
-git-subtree-application-pull:
-	@echo "⬇︎ Pulling the application subtree..."
-	@git subtree pull --prefix application \
-	  git@github.com:vegito-app/application.git main --squash
-	@echo "Application subtree pulled successfully."
-.PHONY: git-subtree-application-pull
+git-subtree-example-application-pull:
+	@echo "⬇︎ Pulling the example-application subtree..."
+	@git subtree pull --prefix example-application \
+	  git@github.com:vegito-app/example-application.git main --squash
+	@echo "Example Application subtree pulled successfully."
+.PHONY: git-subtree-example-application-pull
 
 git-subtree-example-application-push:
 	@echo "⬆︎ Pushing changes from the example-application subtree..."
@@ -62,6 +62,5 @@ git-subtree-example-application-push:
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
 
-LOCAL_EXAMPLE_APPLICATION_DIR = $(CURDIR)/example-application
 -include $(LOCAL_EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------

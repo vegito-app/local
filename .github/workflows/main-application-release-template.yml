@@ -1,16 +1,38 @@
+# Enable reuse of this workflow from other repositories in the org
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      ANDROID_RELEASE_KEYSTORE:
+        required: true
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
+        required: true
+      # GITHUB_TOKEN:
+      #   required: true
+    outputs:
+      version:
+        description: "The version generated and used by the build"
+        value: ${{ jobs.build-release-images.outputs.version }}
 permissions:
   id-token: write
   contents: write
 name: Build and Push Release Docker Images And Artifacts 📦
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 jobs:
   build-release-images:
     strategy:
       matrix:
-        environment: [dev,staging,prod]
+        environment: [dev, staging, prod]
     name: Build Release Images for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
@@ -29,6 +51,7 @@ jobs:
       version: ${{ steps.define_version.outputs.VERSION }}
       android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
       changelog: ${{ steps.define_version.outputs.CHANGELOG }}
+      images_build_log: ${{ steps.export_log_path.outputs.log_path }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -83,19 +106,27 @@ jobs:
         run: |
           make docker-buildx-setup
       - name: Restore ADB keys and debug.keystore
+        id: get_android_release_keystore
         run: |
           printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
           printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
-    
+          keystore_sha1=$(base64 --decode ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }} | keytool -list -v -keystore /dev/stdin -storepass $(base64 --decode ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }} ) | grep 'SHA1:' | awk '{print $2}')
+          # echo "ANDROID_KEYSTORE_SHA1=$keystore_sha1" >> $GITHUB_ENV
+          echo "ANDROID_KEYSTORE_SHA1=$keystore_sha1" >> $GITHUB_OUTPUT
       - name: Build and load local project images
+        id: build_and_push_images
         run: |
-          make images-ci
+          make images-ci | tee images-build.log
+
+      - name: Export build log path
+        id: export_log_path
+        run: echo "log_path=images-build.log" >> $GITHUB_OUTPUT
       - name: Generate docker image tag list for ${{ matrix.environment }}
         run: |
           echo "### 🐳 Docker Images Built for '${{ matrix.environment }}' (excluding :latest):" > docker-tags.txt
           for group in runners builders services applications; do
             echo "#### Group: '$group'" >> docker-tags.txt
-            make local-docker-group-$group-tags-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt || echo "_no tags for group '$group'_" >> docker-tags.txt
+            make local-$group-docker-group-tags-list-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt || echo "_no tags for group '$group'_" >> docker-tags.txt
             echo "" >> docker-tags.txt
           done
           cat docker-tags.txt >> CHANGELOG.md
@@ -105,6 +136,7 @@ jobs:
           name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
           path: |
             docker-tags.txt
+            images-build.log
             index.json
       - name: Export image tags to documentation
         run: |
@@ -137,7 +169,7 @@ jobs:
           ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
-        
+
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
@@ -176,14 +208,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
       - name: Ensure fresh .env
         run: |
           rm -f .env 
           ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
-        
+
       - name: Authenticate to Google Cloud via Workload Identity Federation
         uses: google-github-actions/auth@v2
         with:
@@ -269,8 +301,8 @@ jobs:
           find ./artifacts -type f -name "*.apk" -o -name "*.aab" | sort
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: main-${{ env.VERSION }}
           name: Release ${{ env.VERSION }}
@@ -278,8 +310,8 @@ jobs:
           files: |
             ./artifacts/**/*.apk
             ./artifacts/**/*.aab
-            CHANGELOG.md  
-  
+            CHANGELOG.md
+
   upload-docker-tags-to-gcs:
     strategy:
       matrix:
@@ -297,7 +329,7 @@ jobs:
       INFRA_ENV: ${{ matrix.environment }}
       GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GCS_BUCKET_NAME: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
-    steps: 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -320,6 +352,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+      - name: Download images-build.log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+          path: .
       - name: Generate index.json for release root
         run: |
           echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
@@ -333,9 +370,11 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
-          gcloud storage cp docker-tags.txt "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
-          gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
+          gs_path_github_repo="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
+          gcloud storage cp docker-tags.txt "gs://$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
+          gcloud storage cp index.json "gs://$gs_path_github_repo/index.json" --quiet
+          # Upload images-build.log to logs folder
+          gcloud storage cp images-build.log "gs://$gs_path_github_repo/${VERSION}/logs/images-build.log" --quiet
       - name: Download APK and AAB artifacts
         uses: actions/download-artifact@v4
         with:
@@ -343,7 +382,8 @@ jobs:
           path: ./artifacts
       - name: Upload metadata.json and APK/AAB to GCS
         run: |
-          gs_path="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          apkUrl="https://storage.googleapis.com/${gs_path}/app-release.apk"
           mkdir -p temp_metadata
           METADATA_PATH=temp_metadata/metadata.json
           cat <<EOF > $METADATA_PATH
@@ -351,20 +391,51 @@ jobs:
             "version": "${VERSION}",
             "changelog": "https://storage.googleapis.com/${gs_path}/CHANGELOG.md",
             "dockerTags": "https://storage.googleapis.com/${gs_path}/docker-tags.md",
-            "apk": "https://storage.googleapis.com/${gs_path}/app-release.apk",
-            "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab"
+            "apk": "${apkUrl}",
+            "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab",
+            "thumbnail": "https://storage.googleapis.com/${gs_path}/preview.png",
+            "robot": "https://storage.googleapis.com/${gs_path}/tests/robot-output.html",
+            "buildLog": "https://storage.googleapis.com/${gs_path}/logs/build-log.html",
+            "buildImagesLog": "https://storage.googleapis.com/${gs_path}/logs/images-build.log",
+            "qr": "https://storage.googleapis.com/${gs_path}/qr-code.png"
           }
           EOF
 
-          gcloud storage cp "$METADATA_PATH" "$gs_path/metadata.json" --quiet
-          find ./artifacts -name "*.apk" -exec gcloud storage cp {} "$gs_path/app-release.apk" --quiet \;
-          find ./artifacts -name "*.aab" -exec gcloud storage cp {} "$gs_path/app-release.aab" --quiet \;
+          # Créer les dossiers nécessaires
+          mkdir -p ./artifacts/tests ./artifacts/logs
+
+          # Créer un aperçu statique fictif si absent
+          if [ ! -f ./artifacts/preview.png ]; then
+            convert -size 400x200 xc:lightgray -pointsize 20 -draw "text 20,100 'Preview ${VERSION}'" ./artifacts/preview.png
+          fi
+
+          # Générer QR code APK
+          qrencode -o ./artifacts/qr-code.png "${apkUrl}"
+
+          # Créer un robot-output.html factice si absent
+          if [ ! -f ./artifacts/tests/robot-output.html ]; then
+            echo "<html><body><h1>Robot Test Results for ${VERSION}</h1></body></html>" > ./artifacts/tests/robot-output.html
+          fi
+
+          # Créer un build-log.html factice si absent
+          if [ ! -f ./artifacts/logs/build-log.html ]; then
+            echo "<html><body><pre>Build log for ${VERSION}</pre></body></html>" > ./artifacts/logs/build-log.html
+          fi
+
+          gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
+          find ./artifacts -name "*.apk" -exec gcloud storage cp {} "gs://$gs_path/app-release.apk" --quiet \;
+          find ./artifacts -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
+          gcloud storage cp ./artifacts/preview.png "gs://$gs_path/preview.png" --quiet
+          gcloud storage cp ./artifacts/tests/robot-output.html "gs://$gs_path/tests/robot-output.html" --quiet
+          gcloud storage cp ./artifacts/logs/build-log.html "gs://$gs_path/logs/build-log.html" --quiet
+          gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
   release-finalize:
     name: Finalize and Push Release Tag
     runs-on: self-hosted
     needs:
       - build-release-images
       - create-consolidated-release
+      - upload-docker-tags-to-gcs
     if: success()
     steps:
       - name: Checkout repository
@@ -411,7 +482,13 @@ jobs:
         environment: [dev, staging, prod]
     name: Cleanup docker env ${{ matrix.environment }} 🧼
     runs-on: self-hosted
-    needs: [build-release-images, local-dev-environment, run-tests, extract-release-artifacts]
+    needs:
+      [
+        build-release-images,
+        local-dev-environment,
+        run-tests,
+        extract-release-artifacts,
+      ]
     if: ${{ always() }}
     environment: ${{ matrix.environment }}
     env:
@@ -447,5 +524,7 @@ jobs:
           make gcloud-auth-docker
       - name: Shutdown containers
         run: make dev-ci-rm
+      - name: Clean Docker network
+        run: make local-docker-compose-network-rm-dev
       - name: Notify cleanup done
         run: echo "Cleaning completed."

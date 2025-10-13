@@ -66,7 +66,11 @@ dev-ci: images-pull local-containers-up-ci local-example-application-containers-
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-dev-ci-rm: local-dev-container-image-pull local-containers-rm-ci local-example-application-containers-rm-ci
+dev-ci-rm: \
+local-dev-container-image-pull \
+local-containers-rm-ci \
+local-example-application-containers-rm-ci \
+local-docker-compose-network-rm-dev
 .PHONY: dev-ci-rm
 
 logs: local-containers-dev-logs-f

@@ -185,7 +185,10 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     curl -L -o /tmp/gitleaks.tar.gz $url \
     && tar -xvzf /tmp/gitleaks.tar.gz -C /usr/local/bin \
     && rm /tmp/gitleaks.tar.gz \
-    && gitleaks version
+    && gitleaks version \
+    && sudo apt-get update && sudo apt-get install -y \
+     imagemagick \
+     qrencode
 
 USER ${non_root_user}
 COPY entrypoint.sh /gha-entrypoint.sh

@@ -39,7 +39,7 @@ export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-43960
 EOF
 fi
 
-. ${WORKING_DIR}/.devcontainer/.envrc
+. ${envrcFile}
 
 echo "Initializing .env file"
 ${WORKING_DIR}/dotenv.sh

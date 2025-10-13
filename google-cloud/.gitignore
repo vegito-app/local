@@ -1,1 +1,3 @@
-gcloud-credentials.json
+*credentials.json
+vscode*
+gitleaks-report.json

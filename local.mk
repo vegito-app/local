@@ -87,6 +87,11 @@ local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-imag
 local-docker-compose-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push) local-dev-container-image-push
 .PHONY: local-docker-compose-images-push
 
+local-docker-compose-network-rm-dev: 
+	@echo "🗑️  Removing the docker network used"
+	@-docker network rm $(COMPOSE_PROJECT_NAME)_dev
+.PHONY: local-docker-compose-network-rm-dev
+
 local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-dev-images-pull
 
@@ -139,7 +144,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 
 local-dev-container:
 	@echo "⬆︎ Bringing up dev container..."
-	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+	@$(LOCAL_DOCKER_COMPOSE) up -d --remove-orphans dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:

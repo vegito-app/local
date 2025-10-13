@@ -1,3 +1,6 @@
+![Release Version](https://img.shields.io/github/v/release/vegito-app/local?sort=semver)
+![CI](https://github.com/vegito-app/local/actions/workflows/release.yml/badge.svg?branch=main)
+
 # local
 
 <!-- ![Logo](./assets/images/logo-1.png) -->

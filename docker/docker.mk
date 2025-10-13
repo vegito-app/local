@@ -26,12 +26,12 @@ LOCAL_DOCKER_BUILDX_GROUPS := \
   services \
   applications
 
-local-docker-tags-generate-ci: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-docker-group-%-ci)
-.PHONY: local-docker-tags-generate-ci
+local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci)
+.PHONY: local-docker-group-tags-list-ci
 
-$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-docker-group-%-ci):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-group-%-ci=local-%-ci) 2>/dev/null | jq -r '.target | to_entries[] | .value.tags[]'
-.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-docker-group-%-ci)
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) 2>/dev/null | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci)
 
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
