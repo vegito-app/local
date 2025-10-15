@@ -73,7 +73,7 @@ local-example-application-containers-rm-ci \
 local-docker-compose-network-rm-dev
 .PHONY: dev-ci-rm
 
-logs: local-containers-dev-logs-f
+logs: local-dev-container-logs-f
 .PHONY: logs
 
 end-to-end-tests: local-robotframework-tests-container-run
