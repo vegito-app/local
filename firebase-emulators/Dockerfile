@@ -1,6 +1,9 @@
-ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/vegito-local:builder-latest
+ARG local_dev_only_docker_hub_registry=europe-west1-docker.pkg.dev/moov-dev-439608
+ARG local_docker_hub_repository_private=${local_dev_only_docker_hub_registry}/docker-repository-private
+ARG builder_image=${local_dev_only_docker_hub_registry}/docker-repository-public/vegito-local:builder-latest
+
 FROM ${builder_image} AS builder
-FROM debian:bookworm
+FROM ${local_docker_hub_repository_private}/debian:latest
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
