@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
-RUN set -eux; \
+RUN set -eu; \
     # Try to use Adoptium apt repo for this distro; fallback to tarball install if repo not available
     DIST_CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"; \
     ADOPTIUM_OK=0; \
