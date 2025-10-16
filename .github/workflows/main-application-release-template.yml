@@ -5,6 +5,12 @@ on:
       environment:
         required: true
         type: string
+      use_registry_cache:
+        required: false
+        type: boolean
+        default: true
+      # Custom paths to retrieve Android release keystores from GitHub secrets.
+      # Set them where you want them to be available in the workflow.
       android_release_keystore_path:
         required: false
         type: string
@@ -18,8 +24,7 @@ on:
         type: string
         default: .android.release-key.keystore.storepass.base64
       workload_identity_provider:
-        required: false
-        default: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+        required: true
         type: string
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
