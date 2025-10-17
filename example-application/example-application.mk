@@ -41,6 +41,21 @@ $(LOCAL_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm):
 	@echo "🗑️  Removing container for $(@:local-%-container-rm=%)..."
 	@$(MAKE) $(@:%-rm=%-stop)
 	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	-$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	echo 🔄 Waiting for $(@:local-%-container-rm=%) container removal...
+	set -x; timeout=10; \
+	while docker ps -a --format '{{.Names}}' | grep -q "^$(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1$$" && [ $$timeout -gt 0 ]; do \
+	  echo "⏳ Waiting for container removal..."; \
+	  sleep 1; timeout=$$((timeout-1)); \
+	done; \
+	if [ $$timeout -eq 0 ]; then \
+	  echo "⚠️  Timeout reached while waiting for container removal."; \
+	  echo "🗑️ Forcing removal of container for $(@:local-%-container-rm=%)."; \
+	  docker container rm -f $(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1 || true ; \
+	else \
+	  echo "✅ Container removed successfully."; \
+	fi
 .PHONY: $(LOCAL_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 
 $(LOCAL_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm-ci): 

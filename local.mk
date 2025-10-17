@@ -112,9 +112,23 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES):
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm): 
-	@echo "🗑️  Removing container for $(@:local-%-container-rm=%)..."
-	@$(MAKE) $(@:%-rm=%-stop)
-	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	echo "🗑️  Removing container for $(@:local-%-container-rm=%)..."
+	$(MAKE) $(@:%-rm=%-stop)
+	-$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
+	echo 🔄 Waiting for $(@:local-%-container-rm=%) container removal...
+	set -x;timeout=10; \
+	while docker ps -a --format '{{.Names}}' | grep -q "^$(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1$$" && [ $$timeout -gt 0 ]; do \
+	  echo "⏳ Waiting for container removal..."; \
+	  sleep 1; timeout=$$((timeout-1)); \
+	done; \
+	if [ $$timeout -eq 0 ]; then \
+	  echo "⚠️  Timeout reached while waiting for container removal."; \
+	  echo "🗑️ Forcing removal of container for $(@:local-%-container-rm=%)."; \
+	  docker container rm -f $(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1 || true ; \
+	else \
+	  echo "✅ Container removed successfully."; \
+	fi
+
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-start):
@@ -124,7 +138,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-start):
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-stop):
 	@echo "🛑 Stopping $(@:local-%-container-stop=%)..."
-	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-container-stop=%) 2>/dev/null
+	-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-container-stop=%) 2>/dev/null
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-stop)
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs):
@@ -144,7 +158,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 
 local-dev-container:
 	@echo "⬆︎ Bringing up dev container..."
-	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+	@$(LOCAL_DOCKER_COMPOSE) up -d --remove-orphans dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:

@@ -31,8 +31,10 @@ localDotenvFile=${currentWorkingDir}/.env
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # Enable or disable the use of the Docker registry cache.
 USE_REGISTRY_CACHE=${USE_REGISTRY_CACHE:-true}
+# Enable or disable the use of the local development environment.
+MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-developer-id}
+VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 # 
 GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 #------------------------------------------------------- 
@@ -88,7 +90,7 @@ services:
       - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
       - MAKE_DEV_ON_START=true
       - LOCAL_APPLICATION_TESTS_RUN_ON_START=true
-      - LOCAL_CONTAINER_INSTALL=true
+      - LOCAL_CONTAINER_INSTALL=1
     command: |
       bash -c '
         make docker-sock
