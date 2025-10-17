@@ -131,14 +131,7 @@ services:
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
-    command: |
-      bash -c '
-      set -euo pipefail
-      
-      make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
-      
-      sleep infinity
-      '
+
   vault-dev:
     working_dir: ${PWD}/example-application/
     command: |

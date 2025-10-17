@@ -4,19 +4,16 @@ FIREBASE_EMULATORS = cd $(LOCAL_FIREBASE_EMULATORS_DIR) && firebase
 # This is a comma separated list of emulator names.
 # Valid options are: ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
 FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub,database
-LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/functions
+LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/auth_functions
 LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
 LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
-
-local-firebase-emulators-prepare: local-firebase-emulators-install local-firebase-emulators-init
-.PHONY: local-firebase-emulators-prepare
 
 local-firebase-emulators-install: local-firebase-emulators-auth-functions-npm-install
 	@cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR) && npm install
 .PHONY: local-firebase-emulators-install
 
 local-firebase-emulators-auth-functions-npm-install:
-	cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR)/auth && npm install
+	cd $(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR) && npm install
 .PHONY: local-firebase-emulators-auth-functions-npm-install
 
 local-firebase-emulators-init:
@@ -24,7 +21,7 @@ local-firebase-emulators-init:
 .PHONY: local-firebase-emulators-init
 
 local-firebase-emulators-functions-serve:
-	@cd $(LOCAL_FIREBASE_EMULATORS_DIR)/functions && \
+	@cd $(LOCAL_FIREBASE_EMULATORS_DIR)/auth_functions && \
 	unset GOOGLE_APPLICATION_CREDENTIALS && \
 	npm run serve
 .PHONY: local-firebase-emulators-functions-serve
@@ -33,10 +30,11 @@ local-firebase-emulators-config-json: $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON)
 .PHONY: local-firebase-emulators-config-json	
 
 $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON):
+	@echo "Creating Firebase emulators config JSON at $@"
 	@$(LOCAL_FIREBASE_EMULATORS_DIR)/firebase-emulators-config-create-json.sh
 
 local-firebase-emulators-start: local-firebase-emulators-install local-firebase-emulators-config-json
-	@unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
+	unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
 	  $(FIREBASE_EMULATORS) emulators:start \
 	    --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
 	    --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \

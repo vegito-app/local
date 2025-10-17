@@ -96,3 +96,6 @@ RUN ln -sf /usr/bin/bash /bin/sh
 
 USER ${non_root_user}
 ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
+
+COPY emulators-run.sh /usr/local/bin/firebase-emulators-run.sh
+CMD [ "firebase-emulators-run.sh" ]

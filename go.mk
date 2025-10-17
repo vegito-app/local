@@ -15,7 +15,7 @@ endif
 
 LOCAL_GO_MODULES ?= \
 	example-application/backend \
-	firebase-emulators/functions/auth \
+	firebase-emulators/auth_functions \
 	proxy
 
 local-go-mod-tidy: $(LOCAL_GO_MODULES:%=local-go-%-mod-tidy)
