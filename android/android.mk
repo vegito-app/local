@@ -63,6 +63,19 @@ $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%):
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm): 
 	@echo "Removing container for $(@:local-%-container-rm=%)"
 	@$(MAKE) $(@:%-rm=%-stop)
+	@echo 🔄 Waiting for container removal...
+	@timeout=10; \
+	while docker ps -a --format '{{.Names}}' | grep -q "^$(COMPOSE_PROJECT_NAME)-$(@:local-android-%-container-rm=%)-1$$" && [ $$timeout -gt 0 ]; do \
+	  echo "⏳ Waiting for container removal..."; \
+	  sleep 1; timeout=$$((timeout-1)); \
+	done; \
+	if [ $$timeout -eq 0 ]; then \
+	  echo "⚠️  Timeout reached while waiting for container removal."; \
+	  echo "🗑️ Forcing removal of container for $(@:local-android-%-container-rm=%)." \
+	  docker container rm -f $(COMPOSE_PROJECT_NAME)-$(@:local-android-%-container-rm=%)-1 || true \
+	else \
+	  echo "✅ Container removed successfully."; \
+	fi
 	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm)
 
