@@ -62,6 +62,7 @@ jobs:
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
+      
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
@@ -77,6 +78,14 @@ jobs:
         run: |
           rm -f .env
           ./dotenv.sh
+      - name: Source dynamic env vars (buildx name etc)
+        run: |
+          if [ -f /runner/gha-env-vars ]; then
+            echo "📦 Loading env from /runner/gha-env-vars"
+            cat /runner/gha-env-vars >> $GITHUB_ENV
+          else
+              echo "⚠️ gha-env-vars not found"
+          fi
       - name: Workaround auth action race condition
         run: rm -rf "${{ runner.temp }}/_actions/google-github-actions/auth"
       - name: Define VERSION

@@ -196,7 +196,13 @@ jobs:
   cleanup:
     name: Cleanup docker env 🧼
     runs-on: self-hosted
-    needs: [build-release-images, local-dev-environment, run-tests, extract-release-artifacts]
+    needs:
+      [
+        build-release-images,
+        local-dev-environment,
+        run-tests,
+        extract-release-artifacts,
+      ]
     if: ${{ always() }}
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
