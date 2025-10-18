@@ -1,7 +1,6 @@
 NODE_MODULES ?= \
 	$(LOCAL_EXAMPLE_APPLICATION_DIR)/frontend \
-	$(LOCAL_FIREBASE_EMULATORS_DIR)/functions \
-	$(LOCAL_FIREBASE_EMULATORS_DIR)/functions/auth
+	$(LOCAL_FIREBASE_EMULATORS_DIR)/auth_functions
 
 local-node-modules-npm-check-updates: 
 	@$(MAKE) -j $(NODE_MODULES:%=%-npm-check-updates)
@@ -32,6 +31,13 @@ local-node-modules: $(NODE_MODULES:%=%/node_modules)
 $(NODE_MODULES:%=local-%-node-modules):
 	cd $(@:local-%-node-modules=%) && npm install
 .PHONY: $(NODE_MODULES:%=local-%-node-modules)
+
+local-node-modules-audit-fix: $(NODE_MODULES:%=local-%-node-modules-audit-fix)
+.PHONY: local-node-modules-audit-fix
+
+$(NODE_MODULES:%=local-%-node-modules-audit-fix):
+	cd $(@:local-%-node-modules-audit-fix=%) && npm audit fix
+.PHONY: $(NODE_MODULES:%=local-%-node-modules-audit-fix)
 
 $(NODE_MODULES:%=%/node_modules):
 	@$(MAKE) $(@:%/node_modules=local-%-node-modules)
