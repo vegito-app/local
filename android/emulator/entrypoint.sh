@@ -20,7 +20,7 @@ trap kill_jobs EXIT
 if [ ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}" in
     "host")
-        display-start-xpra.sh &
+        display-start-xorg-host.sh &
         bg_pids+=("$!")
         ;;
     "swiftshader_indirect" | "guest" | *)
