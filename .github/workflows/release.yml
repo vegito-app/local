@@ -6,7 +6,7 @@ permissions:
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
 jobs:
   application-release-build:
     uses: vegito-app/local/.github/workflows/main-application-release-template.yml@main
