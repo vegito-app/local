@@ -41,8 +41,6 @@ services:
         done
         make robotframework-tests
       fi
-
-
       sleep infinity
       '
 
@@ -59,14 +57,6 @@ services:
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      set -eu
-
-      make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
-
-      sleep infinity
-      '
 
   clarinet-devnet:
     tty: true
@@ -182,7 +172,6 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/application
     tty: true
-  
   robotframework-tests:
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
