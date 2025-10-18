@@ -1,6 +1,6 @@
 ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
-
-FROM ${local_docker_hub_repository_private}/debian:latest
+ARG debian_image=debian:latest
+FROM ${debian_image}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -79,6 +79,7 @@ ENV LOCAL_ANDROID_DEBUG_APK_PATH=${default_apk_path}
 ARG default_display=20
 ENV DISPLAY=:${default_display}
 
+# Enable AVD on start by default
 ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_AVD_NAME=Pixel_8_Intel
 ENV LOCAL_ANDROID_EMULATOR_DATA=tests/mobile_images

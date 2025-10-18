@@ -1,6 +1,6 @@
 ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
-
-FROM ${local_docker_hub_repository_private}/debian:latest
+ARG debian_image=debian:latest
+FROM ${debian_image}
 
 RUN apt-get update && apt-get install -y \
     adb \

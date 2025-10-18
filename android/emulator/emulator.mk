@@ -25,18 +25,18 @@ local-android-emulator-adb-devices-list:
 .PHONY: local-android-emulator-adb-devices-list
 
 local-android-emulator-avd-start:
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) android-emulator-avd-start.sh
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) android-emulator-avd-start.sh
 .PHONY: local-android-emulator-avd-start
 
 local-android-emulator-avd-restart:
 	@echo "Restarting android-studio emulator..."
 	@echo LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME)
-	@echo LOCAL_ANDROID_BUILDER_CONTAINER_EXEC=$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC)
+	@echo LOCAL_ANDROID_CONTAINER_EXEC=$(LOCAL_ANDROID_CONTAINER_EXEC)
 	@echo LOCAL_ANDROID_STUDIO_DIR=$(LOCAL_ANDROID_STUDIO_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
-	$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) bash -c ' \
+	$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Killing emulator & adb..." ; \
 	  pkill -9 emulator ; \
 	  pkill -9 qemu-system ; \
@@ -57,7 +57,7 @@ local-android-emulator-avd-restart:
 .PHONY: local-android-emulator-avd-start
 local-android-emulator-kernel:
 	@echo "Showing emulator kernel..."
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Showing emulator kernel..." ; \
 	  emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
 	  echo "[*] Emulator kernel shown." ; \
@@ -65,7 +65,7 @@ local-android-emulator-kernel:
 .PHONY: local-android-emulator-kernel
 
 local-android-emulator-dump: 
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) bash -c ' \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  set -e ; \
 	  output_dir=$(LOCAL_ANDROID_STUDIO_DIR)/_emulator_dump ; \
 	  mkdir -p $$output_dir ; \
@@ -86,7 +86,7 @@ local-android-emulator-dump:
 .PHONY: local-android-emulator-dump
 
 local-android-emulator-data-load:
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	make -C ../.. local-android-emulator-data-load-mobile-images
 	@echo "Data loaded to android-studio emulator"
 .PHONY: local-android-emulator-data-load
@@ -100,8 +100,3 @@ local-android-emulator-data-load-mobile-images:
 	'
 .PHONY: local-android-emulator-data-load-mobile-images
 
-local-android-emulator-app-sha1-fingerprint:
-	@echo "Android Studio Emulator SHA1 fingerprint:" 
-	$(LOCAL_ANDROID_STUDIO) \
-	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
-.PHONY: local-android-emulator-app-sha1-fingerprint
