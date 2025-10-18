@@ -1,6 +1,6 @@
 LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR ?= $(LOCAL_EXAMPLE_APPLICATION_DIR)/mobile
 
-LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR)/android/release-$(INFRA_ENV).keystore
+LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR)/android/release-key.keystore
 LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
 LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-$(VERSION)
 LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-$(VERSION)
@@ -198,6 +198,17 @@ local-example-application-mobile-image-tag-aab-extract:
 	  echo "✅ AAB extracted to $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH)"
 .PHONY: local-example-application-mobile-image-tag-aab-extract
 
+LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH ?= ${LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR}/release-${VERSION}-key.keystore.sha1
+
+local-example-application-mobile-image-tag-keystore-sha1-extract:
+	@echo "Creating temp container from image $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)"
+	@container_id=$$(docker create $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)) && \
+	  echo "Copying keystore SHA1 from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release-${VERSION}-key.keystore.sha1 $(LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ Keystore SHA1 extracted to $(LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH)"
+.PHONY: local-example-application-mobile-image-tag-keystore-sha1-extract
+
 local-example-application-mobile-flutter-android-release:
 	@echo "🏗️ Building unsigned APK and AAB for '$(INFRA_ENV)'..."
 	@$(MAKE) \
@@ -207,8 +218,11 @@ local-example-application-mobile-flutter-android-release:
 	  local-example-application-mobile-flutter-build-appbundle-release
 .PHONY: local-example-application-mobile-flutter-android-release
 
-local-example-application-mobile-image-tag-release-exrtract: local-example-application-mobile-image-tag-aab-extract local-example-application-mobile-image-tag-apk-extract
-.PHONY: local-example-application-mobile-image-tag-release-exrtract
+local-example-application-mobile-image-tag-release-extract: \
+local-example-application-mobile-image-tag-aab-extract \
+local-example-application-mobile-image-tag-apk-extract \
+local-example-application-mobile-image-tag-keystore-sha1-extract
+.PHONY: local-example-application-mobile-image-tag-release-extract
 
 ################################################################################
 ## 📦 ANDROID RELEASE FULL PIPELINE

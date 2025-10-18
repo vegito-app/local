@@ -1,4 +1,6 @@
-FROM debian:bookworm
+ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
+
+FROM ${local_docker_hub_repository_private}/debian:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -55,7 +57,7 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     fi
 
 COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
-COPY --chown=android:android display-start-xpra.sh /usr/local/bin/
+COPY --chown=android:android display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=android:android display-start.sh /usr/local/bin/
 COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
 COPY --chown=android:android entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
@@ -64,7 +66,7 @@ COPY --chown=android:android openbox-setup.sh /usr/local/bin/
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \
     /usr/local/bin/android-emulator-entrypoint.sh \
-    /usr/local/bin/display-start-xpra.sh \
+    /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
     /usr/local/bin/emulator-data-load.sh \
     /usr/local/bin/openbox-setup.sh
