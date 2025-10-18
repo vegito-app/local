@@ -146,3 +146,52 @@ group "local-applications-ci" {
     "local-example-application-ci",
   ]
 }
+
+group "local-dockerhub-ci" {
+  targets = [
+    "local-debian-ci",
+    "local-docker-dind-rootless-ci",
+    "local-golang-alpine-ci",
+    "local-rust-ci",
+  ]
+}
+
+target "local-docker-dind-rootless-ci" {
+  tags = [
+    "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest",
+    "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${VERSION}",
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "docker-dind-rootless.Dockerfile"
+  platforms  = platforms
+}
+
+target "local-debian-ci" {
+  tags = [
+    "${VEGITO_PRIVATE_REPOSITORY}/debian:latest",
+    "${VEGITO_PRIVATE_REPOSITORY}/debian:${VERSION}",
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "debian.Dockerfile"
+  platforms  = platforms
+}
+
+target "local-golang-alpine-ci" {
+  tags = [
+    "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest",
+    "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${VERSION}",
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "golang-alpine.Dockerfile"
+  platforms  = platforms
+}
+
+target "local-rust-ci" {
+  tags = [
+    "${VEGITO_PRIVATE_REPOSITORY}/rust:latest",
+    "${VEGITO_PRIVATE_REPOSITORY}/rust:${VERSION}",
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "rust.Dockerfile"
+  platforms  = platforms
+}
