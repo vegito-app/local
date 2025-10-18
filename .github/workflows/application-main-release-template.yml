@@ -381,7 +381,7 @@ jobs:
           VERSION="${{ env.VERSION }}
           echo "" >> RELEASE_BODY.md
           echo "---" >> RELEASE_BODY.md
-          echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md"
+          echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
           echo "# 🚀 Release $VERSION" > RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
           echo "## 🧩 Changes included:" >> RELEASE_BODY.md
