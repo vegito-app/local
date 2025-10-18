@@ -1,9 +1,14 @@
-ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
-FROM ${builder_image} AS project-builder
-FROM docker:dind-rootless AS docker-dind
+ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
 
-FROM rust:1-alpine3.20 AS rust-build
+ARG builder_image=europe-west1-docker.pkg.local/europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/europe-west1-docker.pkg.dev/moov-dev-439608:builder-latest
+FROM ${builder_image} AS project-builder
+
+FROM ${local_docker_hub_repository_private}/docker:dind-rootless AS docker-dind
+
+FROM europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/rust:latest AS rust-build
+
 ARG TARGETPLATFORM
+
 ARG clarinet_version
 RUN apk add --no-cache \
     wget musl-dev build-base \
@@ -14,7 +19,7 @@ RUN wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarin
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
 
-FROM debian:bookworm
+FROM ${local_docker_hub_repository_private}/debian:latest
 
 COPY --from=project-builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/
