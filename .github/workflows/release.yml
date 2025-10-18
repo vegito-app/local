@@ -9,7 +9,7 @@ on:
     branches: [main]
 jobs:
   application-release-build:
-    uses: vegito-app/local/.github/workflows/main-application-release-template.yml@main
+    uses: vegito-app/local/.github/workflows/application-release-template-main.yml@dev
     with:
       environment: dev
     secrets:
