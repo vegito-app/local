@@ -1,4 +1,6 @@
-FROM debian:bookworm
+ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
+
+FROM ${local_docker_hub_repository_private}/debian:latest
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -187,8 +189,8 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     && rm /tmp/gitleaks.tar.gz \
     && gitleaks version \
     && sudo apt-get update && sudo apt-get install -y \
-     imagemagick \
-     qrencode
+    imagemagick \
+    qrencode
 
 USER ${non_root_user}
 COPY entrypoint.sh /gha-entrypoint.sh
