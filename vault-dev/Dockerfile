@@ -1,6 +1,6 @@
-ARG local_dev_only_docker_hub_registry=europe-west1-docker.pkg.dev/moov-dev-439608
+ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
 
-FROM ${local_dev_only_docker_hub_registry}/docker-repository-private/debian:latest
+FROM ${local_dev_docker_registry}/docker-repository-private/debian:latest
 
 # ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
 # FROM ${builder_image} AS builder

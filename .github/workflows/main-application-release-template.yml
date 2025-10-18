@@ -62,7 +62,7 @@ jobs:
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
       LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
-      
+
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       android_keystore_sha1: ${{ steps.get_android_release_keystore.outputs.ANDROID_KEYSTORE_SHA1 }}
@@ -114,7 +114,6 @@ jobs:
         id: create_compose_project_name
         run: |
           project_name=$(echo ${{ github.repository }} | tr '/' '-')
-          echo "COMPOSE_PROJECT_NAME=$project_name-gha-${{ matrix.environment }}-${{ github.run_id }}" >> $GITHUB_ENV
           echo "COMPOSE_PROJECT_NAME=$project_name-gha-${{ matrix.environment }}-${{ github.run_id }}" >> $GITHUB_OUTPUT
       - name: Create local/.env file
         run: |

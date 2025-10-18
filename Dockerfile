@@ -1,6 +1,6 @@
-ARG local_dev_only_docker_hub_registry=europe-west1-docker.pkg.dev/moov-dev-439608
+ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
 
-FROM ${local_dev_only_docker_hub_registry}/docker-repository-private/golang-alpine:latest AS go-build
+FROM ${local_dev_docker_registry}/docker-repository-private/golang-alpine:latest AS go-build
 
 COPY proxy proxy
 

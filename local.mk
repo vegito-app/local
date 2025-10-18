@@ -116,17 +116,22 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm):
 	$(MAKE) $(@:%-rm=%-stop)
 	-$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
 	echo 🔄 Waiting for $(@:local-%-container-rm=%) container removal...
-	set -x;timeout=10; \
-	while docker ps -a --format '{{.Names}}' | grep -q "^$(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1$$" && [ $$timeout -gt 0 ]; do \
-	  echo "⏳ Waiting for container removal..."; \
-	  sleep 1; timeout=$$((timeout-1)); \
-	done; \
-	if [ $$timeout -eq 0 ]; then \
-	  echo "⚠️  Timeout reached while waiting for container removal."; \
-	  echo "🗑️ Forcing removal of container for $(@:local-%-container-rm=%)."; \
-	  docker container rm -f $(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1 || true ; \
+	set -x; timeout=10; \
+	container_name="$(COMPOSE_PROJECT_NAME)-$(@:local-%-container-rm=%)-1"; \
+	container_id=$$(docker container ls -aqf "name=^$${container_name}$$"); \
+	if [ -n "$$container_id" ]; then \
+	  while docker container inspect "$$container_id" >/dev/null 2>&1 && [ $$timeout -gt 0 ]; do \
+	    echo "⏳ Waiting for $$container_name removal..."; \
+	    sleep 1; timeout=$$((timeout - 1)); \
+	  done; \
+	  if [ $$timeout -eq 0 ]; then \
+	    echo "⚠️ Timeout reached for $$container_name. Forcing removal..."; \
+	    docker container rm -f "$$container_id" || true; \
+	  else \
+	    echo "✅ Container $$container_name removed."; \
+	  fi; \
 	else \
-	  echo "✅ Container removed successfully."; \
+	  echo "ℹ️ No container $$container_name found."; \
 	fi
 
 .PHONY: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
