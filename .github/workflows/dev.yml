@@ -171,7 +171,7 @@ jobs:
           ./dotenv.sh
       - name: Extract signed APK & AAB releases from images
         id: extract_apk_aab
-        run: make local-example-application-mobile-image-tag-release-exrtract
+        run: make local-example-application-mobile-image-tag-release-extract
       - name: Upload signed APK and AAB 📤
         uses: actions/upload-artifact@v4
         with:
@@ -196,7 +196,13 @@ jobs:
   cleanup:
     name: Cleanup docker env 🧼
     runs-on: self-hosted
-    needs: [build-release-images, local-dev-environment, run-tests, extract-release-artifacts]
+    needs:
+      [
+        build-release-images,
+        local-dev-environment,
+        run-tests,
+        extract-release-artifacts,
+      ]
     if: ${{ always() }}
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
