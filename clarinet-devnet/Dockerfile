@@ -1,4 +1,6 @@
-ARG builder_image=europe-west1-docker.pkg.local/moov-dev-439608/docker-repository-public/moov-dev-439608:builder-latest
+ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
+
+ARG builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest
 FROM ${builder_image} AS project-builder
 FROM docker:dind-rootless AS docker-dind
 
