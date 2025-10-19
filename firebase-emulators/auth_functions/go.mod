@@ -1,4 +1,4 @@
-module github.com/vegito-app/vegito/infra/google-cloud/auth
+module github.com/vegito-app/vegito/infra/google-cloud/auth_functions
 
 go 1.24
 

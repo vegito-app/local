@@ -15,10 +15,6 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
-PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
-
 GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 
@@ -52,7 +48,7 @@ GCLOUD_DEVELOPER_SERVICE_ACCOUNT ?= $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOG
 
 GOOGLE_CLOUD_DIR ?= $(CURDIR)
 
-GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/google-cloud-credentials.json
+GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/gcloud-credentials.json
 
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
@@ -177,8 +173,8 @@ gcloud-images-list:
 .PHONY: gcloud-images-list
 
 gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(VEGITO_LOCAL_PUBLIC_REPOSITORY)..."
-	@$(GCLOUD) container images list --repository=$(VEGITO_LOCAL_PUBLIC_REPOSITORY)
+	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
+	@$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:
@@ -273,9 +269,9 @@ gcloud-serviceaccounts-list:
 	@$(GCLOUD) iam service-accounts list
 .PHONY: gcloud-serviceaccounts-list
 
-gcloud-services-list:
+gcloud-services-list-enabled:
 	@$(GCLOUD) services list --enabled
-.PHONY: gcloud-services-list
+.PHONY: gcloud-services-list-enabled
 
 # Use this target to configure the Docker pluggin of Vscode if credential-helper cannot help.
 gcloud-docker-registry-temporary-token:

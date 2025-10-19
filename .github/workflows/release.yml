@@ -1,4 +1,4 @@
-name: Reuse Vegito Application Release pipeline
+name: Application Release Build
 
 permissions:
   id-token: write
@@ -9,10 +9,15 @@ on:
     branches: [main]
 jobs:
   application-release-build:
-    uses: vegito-app/local/.github/workflows/application-release-template-main.yml@dev
+    uses: vegito-app/local/.github/workflows/application-main-release-template.yml@main
     with:
+      android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
+      android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
       environment: dev
+      use_registry_cache: true
     secrets:
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}

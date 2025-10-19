@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	"github.com/vegito-app/vegito/infra/google-cloud/auth/firebase"
+	firebase "github.com/vegito-app/vegito/infra/google-cloud/auth_functions/go"
 
 	_ "github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
 	"github.com/rs/zerolog"

@@ -9,10 +9,24 @@
     "rules": "./firestore.rules"
   },
   "functions": {
-    "source": "./functions",
-    "ignore": [".git", "firebase-debug.log", "firebase-debug.*.log", "*.local"]
+    "source": "./auth_functions",
+    "watch": {
+      "ignored": [
+        "**/*.go",
+        "**/*.sum",
+        "**/*.mod",
+        "**/*.lock",
+        "**/*.log",
+        "**/firebase/**/*",
+        "**/node_modules/**",
+        ".git/**",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
   },
-
   "emulators": {
     "ui": {
       "enabled": true,
@@ -47,8 +61,5 @@
       "rules": "./storage.rules",
       "storageBucket": "moov-dev-439608.appspot.com"
     }
-  },
-  "auth": {
-    "providers": ["password", "google.com", "facebook.com", "anonymous"]
   }
 }
