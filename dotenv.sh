@@ -86,8 +86,9 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-v1.6.0
     environment:
-      - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
+      - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-v1.6.0
       - MAKE_DEV_ON_START=true
       - LOCAL_APPLICATION_TESTS_RUN_ON_START=true
       - LOCAL_CONTAINER_INSTALL=1
@@ -107,32 +108,27 @@ services:
         sleep infinity
       '
 
-  example-application-mobile:
-    environment:
-      HEADLESS_ARGS:
-
-
   android-studio:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-v1.6.0
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: true
-    working_dir: ${PWD}/example-application/mobile
+    working_dir: ${PWD}/mobile
+
   clarinet-devnet:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-v1.6.0
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
-      
-  robotframework-tests:
-    working_dir: ${PWD}/tests
-    environment:
-      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
-
+    
   firebase-emulators:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-v1.6.0
     environment:
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
   vault-dev:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-v1.6.0
     working_dir: ${PWD}/example-application/
     command: |
       bash -c '
