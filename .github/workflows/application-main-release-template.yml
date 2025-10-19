@@ -96,7 +96,7 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
           # 1️⃣ Bump version, tag and regenerate full CHANGELOG.md
-          standard-version --release-as patch
+          standard-version --skip.tag --skip.commit --release-as patch
           # 2️⃣ Capture new version
           VERSION=$(git describe --tags --abbrev=7 --match 'v*')
           echo "VERSION=$VERSION" | tee -a $GITHUB_ENV >> $GITHUB_OUTPUT
@@ -305,7 +305,7 @@ jobs:
           echo "" >> CHANGELOG.new.md
           echo "## 🧩 Changes included:" >> CHANGELOG.new.md
           echo "" >> CHANGELOG.new.md
-          conventional-changelog -p angular -r 2 >> CHANGELOG.new.md
+          conventional-changelog -p angular -r 0 >> CHANGELOG.new.md
 
           echo "" >> CHANGELOG.new.md
           echo "---" >> CHANGELOG.new.md
@@ -496,7 +496,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
-          standard-version
+          standard-version --release-as $VERSION
 
       - name: Push tag if all builds succeeded
         run: |

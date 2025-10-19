@@ -34,7 +34,7 @@ services:
       if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make dev
       fi
-      if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
+      if [ "$${MAKE_MAKE_TESTS_ON_START}" = "true" ] ; then
         until make local-robotframework-tests-check-env ; do
           echo "[application-tests] Waiting for environment to be ready..."
           sleep 5
