@@ -40,22 +40,19 @@ on:
         required: true
       ANDROID_RELEASE_KEYSTORE_STORE_PASS:
         required: true
-    outputs:
-      version:
-        description: "The version generated and used by the build"
-        value: ${{ jobs.build-release-images.outputs.version }}
+
 permissions:
   id-token: write
   contents: write
+
 name: Build and Push Release Docker Images And Artifacts 📦
+
 jobs:
   define_version:
     name: Define VERSION ✨
     runs-on: self-hosted
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
-      changelog: ${{ steps.define_version.outputs.CHANGELOG }}
-      changelog_new_only: ${{ steps.generate_changelog.outputs.CHANGELOG_NEW }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -65,37 +62,36 @@ jobs:
         run: |
           rm -f .env
           ./dotenv.sh
-      - name: Define VERSION
+      - name: Define VERSION and Tag 🏷
         id: define_version
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
 
           # Bump the version based on commit messages (default patch bump)
-          standard-version
+          touch CHANGELOG.old.md
+          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.old.md; fi
+          rm -f CHANGELOG.md
+          git fetch --tags
           echo "Commit release bump and tag will be pushed after build success"
+          standard-version --skip.commit
+          echo "CHANGELOG_NEW<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "📝 CHANGELOG (new only):"
           VERSION=$(git describe --tags --abbrev=7 --match 'v*')
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "✅ Created tag: $VERSION"
-      - name: Generate Changelog
-        id: generate_changelog
+      - name: Show New Changes log
         run: |
-          git fetch --tags
-          echo "## Changelog for ${VERSION}" > CHANGELOG.new.md
-          conventional-changelog -p angular -r 1 >> CHANGELOG.new.md
-          echo "CHANGELOG_NEW<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.new.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.new.md; fi
-          mv CHANGELOG.new.md CHANGELOG.md
           cat CHANGELOG.md
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Affichage pour logs CI
-          cat CHANGELOG.md
+      - name: Upload New Changes Changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-changelog
+          path: |
+            CHANGELOG.md
 
   build-release-images:
     needs: define_version
@@ -173,7 +169,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Build Release Images for ${{ matrix.environment }} 🧱
+    name: Upload Release Images for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
     env:
@@ -182,7 +178,6 @@ jobs:
       VERSION: ${{ needs.define_version.outputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ matrix.environment }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -222,7 +217,8 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Build Release Images for ${{ matrix.environment }} 🧱
+
+    name: Upload Android Release Artifacts for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
     env:
@@ -232,9 +228,10 @@ jobs:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ matrix.environment }}
       # Application release artifacts paths
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.define_version.outputs.version }}-signed-aligned.apk
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.define_version.outputs.version }}-signed.aab
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
+      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-signed-aligned.apk
+      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-signed.aab
+      LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -264,7 +261,8 @@ jobs:
             ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
             ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
 
-  local-dev-environment:
+  local-docker-environment:
+    name: Start ${{ matrix.environment }} docker containers
     strategy:
       matrix:
         environment: [dev, staging, prod]
@@ -278,7 +276,7 @@ jobs:
       BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
-    name: Start ${{ matrix.environment }} docker containers
+
     runs-on: self-hosted
     steps:
       - name: Checkout repository
@@ -287,7 +285,7 @@ jobs:
           fetch-depth: 0
       - name: Ensure fresh .env
         run: |
-          rm -f .env 
+          rm -f .env
           ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
@@ -311,13 +309,16 @@ jobs:
           make local-container-config-show
       - name: Start dev environment containers
         run: make dev-ci
-  run-tests:
+
+  functional-tests:
     strategy:
       matrix:
         environment: [dev, staging, prod]
     name: Run tests ${{ matrix.environment }} ✅
     runs-on: self-hosted
-    needs: [define_version, build-release-images, local-dev-environment]
+    needs:
+      - define_version
+      - local-docker-environment
     environment: ${{ matrix.environment }}
     env:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -333,7 +334,7 @@ jobs:
           fetch-depth: 0
       - name: Ensure fresh .env
         run: |
-          rm -f .env 
+          rm -f .env
           ./dotenv.sh
       - name: Use VERSION
         run: echo "Current version is ${{ env.VERSION }}"
@@ -355,18 +356,15 @@ jobs:
       - name: Run Application tests
         run: make robotframework-tests
 
-  create-consolidated-release:
+  create-github-release:
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
     needs:
-      [
-        define_version,
-        build-release-images,
-        upload-android-artifacts,
-        upload-release-images,
-      ]
+      - define_version
+      - functional-tests
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
+      LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -376,61 +374,128 @@ jobs:
         run: |
           rm -f .env
           ./dotenv.sh
+      - name: Download version changelog artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: version-changelog
+          path: ./artifacts
+      - name: Show New Changes log from artifact
+        run: |
+          cat ./artifacts/CHANGELOG.md
       - name: Write changelog from previous step
         run: |
-          VERSION="${{ env.VERSION }}
+          VERSION="${{ env.VERSION }}"
           echo "" >> RELEASE_BODY.md
           echo "---" >> RELEASE_BODY.md
           echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
           echo "# 🚀 Release $VERSION" > RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
           echo "## 🧩 Changes included:" >> RELEASE_BODY.md
+          cat ./artifacts/CHANGELOG.md >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
-          echo "${{ needs.define_version.outputs.changelog_new_only }}" >> RELEASE_BODY.md
-
-      - name: Download all artifacts 📥
+      - name: Download all production artifacts 📥
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts/prod
           name: docker-metadata-${{ env.VERSION }}-prod
-      - name: Append Docker tags to changelog
+      - name: Download all development artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts/prod
+          name: android-artifacts-prod-${{ env.VERSION }}
+      - name: Append Android release keystore SHA1 to changelog
         run: |
-          if [ -f ./artifacts/docker-tags.txt ]; then
+          keystore_sha1_path=./artifacts/prod/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+          if [ -f "$keystore_sha1_path" ]; then
+            echo -e "\n\n---\n\n" >> RELEASE_BODY.md
+            echo "### [prod] Android Release Keystore SHA1:" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+            cat "$keystore_sha1_path" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+          fi
+          mv ./artifacts/prod/android-mobile-release-${{ env.VERSION }}-signed-aligned.apk ./artifacts/prod-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+          mv ./artifacts/prod/android-mobile-release-${{ env.VERSION }}-signed.aab ./artifacts/prod-android-mobile-release-${{ env.VERSION }}-signed.aab
+          mv ./artifacts/prod/android-mobile-release-${{ env.VERSION }}-key.keystore.sha1 ./artifacts/prod-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1
+      - name: Append production Docker tags to changelog
+        run: |
+          if [ -f ./artifacts/prod/docker-tags.txt ]; then
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [production] Docker images published in this release:" >> RELEASE_BODY.md
             cat ./artifacts/prod/docker-tags.txt >> RELEASE_BODY.md
           fi
-      - name: Download all artifacts 📥
+      - name: Download all staging artifacts 📥
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts/staging
           name: docker-metadata-${{ env.VERSION }}-staging
+      - name: Download all development artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts/staging
+          name: android-artifacts-staging-${{ env.VERSION }}
+      - name: Append Android release keystore SHA1 to changelog
+        run: |
+          keystore_sha1_path=./artifacts/staging/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+          if [ -f "$keystore_sha1_path" ]; then
+            echo -e "\n\n---\n\n" >> RELEASE_BODY.md
+            echo "### [staging] Android Release Keystore SHA1:" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+            cat "$keystore_sha1_path" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+          fi
+          mv ./artifacts/staging/android-mobile-release-${{ env.VERSION }}-signed-aligned.apk ./artifacts/staging-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+          mv ./artifacts/staging/android-mobile-release-${{ env.VERSION }}-signed.aab ./artifacts/staging-android-mobile-release-${{ env.VERSION }}-signed.aab
+          mv ./artifacts/staging/android-mobile-release-${{ env.VERSION }}-key.keystore.sha1 ./artifacts/staging-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1
       - name: Append Docker tags to changelog
         run: |
-          if [ -f ./artifacts/docker-tags.txt ]; then
+          if [ -f ./artifacts/staging/docker-tags.txt ]; then
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [staging] Docker images published in this release:" >> RELEASE_BODY.md
             cat ./artifacts/staging/docker-tags.txt >> RELEASE_BODY.md
           fi
-      - name: Download all artifacts 📥
+      - name: Download all development artifacts 📥
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts/dev
           name: docker-metadata-${{ env.VERSION }}-dev
+      - name: Download all development artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts/dev
+          name: android-artifacts-dev-${{ env.VERSION }}
+      - name: Append Android release keystore SHA1 to changelog
+        run: |
+          keystore_sha1_path=./artifacts/dev/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+          if [ -f "$keystore_sha1_path" ]; then
+            echo -e "\n\n---\n\n" >> RELEASE_BODY.md
+            echo "### [dev] Android Release Keystore SHA1:" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+            cat "$keystore_sha1_path" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+          fi
+          mv ./artifacts/dev/android-mobile-release-${{ env.VERSION }}-signed-aligned.apk ./artifacts/dev-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+          mv ./artifacts/dev/android-mobile-release-${{ env.VERSION }}-signed.aab ./artifacts/dev-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+          mv ./artifacts/dev/android-mobile-release-${{ env.VERSION }}-key.keystore.sha1 ./artifacts/dev-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+
       - name: Append Docker tags to changelog
         run: |
-          if [ -f ./artifacts/docker-tags.txt ]; then
+          if [ -f ./artifacts/dev/docker-tags.txt ]; then
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [dev] Docker images published in this release:" >> RELEASE_BODY.md
             cat ./artifacts/dev/docker-tags.txt >> RELEASE_BODY.md
           fi
-
+      - name: Show Release Body preview
+        run: |
+          cat RELEASE_BODY.md
       - name: List downloaded artifacts
         run: |
           find ./artifacts -type f -name "*.apk" -o -name "*.aab" | sort
-      - name: Write changelog from previous step
-        run: |
-          echo "${{ needs.define_version.outputs.changelog }}" > CHANGELOG.md
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         env:
@@ -440,18 +505,28 @@ jobs:
           name: Release ${{ env.VERSION }}
           body_path: ./RELEASE_BODY.md
           files: |
-            ./artifacts/**/*.apk
-            ./artifacts/**/*.aab
-            ./artifacts/**/*.sha1
-            CHANGELOG.md
+            ./artifacts/dev-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+            ./artifacts/dev-android-mobile-release-${{ env.VERSION }}-signed.aab
+            ./artifacts/dev-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1
+            ./artifacts/prod-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+            ./artifacts/prod-android-mobile-release-${{ env.VERSION }}-signed.aab
+            ./artifacts/prod-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1
+            ./artifacts/staging-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk
+            ./artifacts/staging-android-mobile-release-${{ env.VERSION }}-signed.aab
+            ./artifacts/staging-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1
+            ./artifacts/CHANGELOG.md
 
-  upload-docker-tags-to-gcs:
+  upload-release-to-gcs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Upload Docker Tags to GCS
+    name: Upload ${{ matrix.environment }} artifacts and metadata to GCS
     runs-on: self-hosted
-    needs: [define_version, create-consolidated-release, build-release-images]
+    needs:
+      - define_version
+      - functional-tests
+      - upload-release-images
+      - upload-android-artifacts
     environment: ${{ matrix.environment }}
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
@@ -508,7 +583,8 @@ jobs:
           path: ./artifacts
       - name: Upload metadata.json and APK/AAB to GCS
         run: |
-          gs_path="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          apkUrl="https://storage.googleapis.com/${gs_path}/app-release.apk"
           mkdir -p temp_metadata
           METADATA_PATH=temp_metadata/metadata.json
           cat <<EOF > $METADATA_PATH
@@ -516,21 +592,51 @@ jobs:
             "version": "${VERSION}",
             "changelog": "https://storage.googleapis.com/${gs_path}/CHANGELOG.md",
             "dockerTags": "https://storage.googleapis.com/${gs_path}/docker-tags.md",
-            "apk": "https://storage.googleapis.com/${gs_path}/app-release.apk",
-            "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab"
+            "apk": "${apkUrl}",
+            "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab",
+            "thumbnail": "https://storage.googleapis.com/${gs_path}/preview.png",
+            "robot": "https://storage.googleapis.com/${gs_path}/tests/robot-output.html",
+            "buildLog": "https://storage.googleapis.com/${gs_path}/logs/build-log.html",
+            "buildImagesLog": "https://storage.googleapis.com/${gs_path}/logs/images-build.log",
+            "qr": "https://storage.googleapis.com/${gs_path}/qr-code.png"
           }
           EOF
 
-          gcloud storage cp "$METADATA_PATH" "$gs_path/metadata.json" --quiet
-          find ./artifacts -name "*.apk" -exec gcloud storage cp {} "$gs_path/app-release.apk" --quiet \;
-          find ./artifacts -name "*.aab" -exec gcloud storage cp {} "$gs_path/app-release.aab" --quiet \;
+          # Créer les dossiers nécessaires
+          mkdir -p ./artifacts/tests ./artifacts/logs
 
-  release-finalize:
+          # Créer un aperçu statique fictif si absent
+          if [ ! -f ./artifacts/preview.png ]; then
+            convert -size 400x200 xc:lightgray -pointsize 20 -draw "text 20,100 'Preview ${VERSION}'" ./artifacts/preview.png
+          fi
+
+          # Générer QR code APK
+          qrencode -o ./artifacts/qr-code.png "${apkUrl}"
+
+          # Créer un robot-output.html factice si absent
+          if [ ! -f ./artifacts/tests/robot-output.html ]; then
+            echo "<html><body><h1>Robot Test Results for ${VERSION}</h1></body></html>" > ./artifacts/tests/robot-output.html
+          fi
+
+          # Créer un build-log.html factice si absent
+          if [ ! -f ./artifacts/logs/build-log.html ]; then
+            echo "<html><body><pre>Build log for ${VERSION}</pre></body></html>" > ./artifacts/logs/build-log.html
+          fi
+
+          gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
+          find ./artifacts -name "*.apk" -exec gcloud storage cp {} "gs://$gs_path/app-release.apk" --quiet \;
+          find ./artifacts -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
+          gcloud storage cp ./artifacts/preview.png "gs://$gs_path/preview.png" --quiet
+          gcloud storage cp ./artifacts/tests/robot-output.html "gs://$gs_path/tests/robot-output.html" --quiet
+          gcloud storage cp ./artifacts/logs/build-log.html "gs://$gs_path/logs/build-log.html" --quiet
+          gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
+
+  commit-and-push-release-tag:
     name: Finalize and Push Release Tag
     runs-on: self-hosted
     needs:
-      - build-release-images
-      - create-consolidated-release
+      - create-github-release
+      - upload-release-to-gcs
     if: success()
     steps:
       - name: Checkout repository
@@ -541,16 +647,13 @@ jobs:
         run: |
           rm -f .env
           ./dotenv.sh
-
       - name: Reset to clean state
         run: |
           git fetch origin main
           git reset --hard origin/main
-
       - name: Run Gitleaks scan
         run: |
           gitleaks detect --source . --report-path gitleaks-report.json --log-opts "--all"
-
       - name: Upload Gitleaks report as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -566,22 +669,29 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
-          standard-version --release-as $VERSION
-
+          standard-version
       - name: Push tag if all builds succeeded
         run: |
           git push origin HEAD --follow-tags
-  cleanup:
+
+  cleanup-docker-environment:
     strategy:
       matrix:
-        environment: [dev, staging, prod]
+        environment:
+          - dev
+          - staging
+          - prod
     name: Cleanup docker env ${{ matrix.environment }} 🧼
     runs-on: self-hosted
-    needs: [define_version, local-dev-environment, run-tests]
+    needs:
+      - local-docker-environment
+      - functional-tests
+      - define_version
     if: ${{ always() }}
     environment: ${{ matrix.environment }}
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
+      INFRA_ENV: ${{ matrix.environment }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
