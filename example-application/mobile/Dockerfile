@@ -36,15 +36,26 @@ COPY --from=android android.mk android/
 # See https://docs.docker.com/engine/reference/commandline/buildx_build/#setting-secrets
 # and https://docs.docker.com/engine/reference/commandline/buildx_build/#use-mount
 ENV LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore
+# Prepare empty keystore files with correct permissions. They will be populated in the next step.
+RUN mkdir -p /home/android/.android && \
+    touch ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
+    chmod 600 ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
+    touch ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
+    chmod 600 ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
+    touch ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
+    chmod 600 ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1
+
 RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.storepass \
     sudo cat /tmp/release.keystore | base64 --decode > ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
     sudo cat /tmp/release.storepass > ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
     SHA1=$(keytool -list -v \
-            -keystore ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} \
-            -storepass $(cat ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 | base64 --decode) \
-            | grep 'SHA1:' | awk '{print $2}') && \
-    echo "Local Android Keystore SHA1 fingerprint: $SHA1"
+    -keystore ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} \
+    -storepass $(cat ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 | base64 --decode) \
+    | grep 'SHA1:' | awk '{print $2}') && \
+    echo "Local Android Keystore SHA1 fingerprint: $SHA1" && \
+    echo -n "$SHA1" > ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
+    mv ${LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 /home/android/src/android/app-release.keystore.sha1
 
 ARG version=dev
 ARG keystore_alias_name=vegito-local-release
@@ -68,7 +79,11 @@ ARG version=dev
 
 COPY --from=builder /home/android/src/android/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
 COPY --from=builder /home/android/src/android/app-release-${version}-signed.aab /build/output/app-release-${version}.aab
+
+COPY --from=builder /home/android/src/android/app-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
+
 COPY --from=builder /home/android/src/example-application/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
+
 ARG android_package_name=dev.vegito.app.android
 
 ENV LOCAL_ANDROID_APK_PATH=/build/output/app-debug-${version}.apk

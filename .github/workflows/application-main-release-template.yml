@@ -1,4 +1,5 @@
-# Enable reuse of this workflow from other repositories in the org
+name: Build and Push Release Docker Images A
+
 on:
   workflow_call:
     inputs:
@@ -13,8 +14,6 @@ on:
         required: false
         type: boolean
         default: true
-      # Custom paths to retrieve Android release keystores from GitHub secrets.
-      # Set them where you want them to be available in the workflow.
       android_release_keystore_path:
         required: false
         type: string
@@ -40,14 +39,11 @@ on:
         required: true
       ANDROID_RELEASE_KEYSTORE_STORE_PASS:
         required: true
-    outputs:
-      version:
-        description: "The version generated and used by the build"
-        value: ${{ jobs.build-release-images.outputs.version }}
+
 permissions:
   id-token: write
   contents: write
-name: Build and Push Release Docker Images And Artifacts 📦
+
 jobs:
   define_version:
     name: Define VERSION ✨
@@ -72,7 +68,7 @@ jobs:
           git config --global user.email "build-and-push-images-action@github.com"
 
           # Bump the version based on commit messages (default patch bump)
-          standard-version
+          standard-version --release-as patch --skip.tag --skip.commit
           echo "Commit release bump and tag will be pushed after build success"
           VERSION=$(git describe --tags --abbrev=7 --match 'v*')
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
@@ -93,8 +89,8 @@ jobs:
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
-          # Affichage pour logs CI
+      - name: Show full CHANGELOG
+        run: |
           cat CHANGELOG.md
 
   build-release-images:
@@ -173,7 +169,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Build Release Images for ${{ matrix.environment }} 🧱
+    name: Upload Release Images for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
     env:
@@ -182,7 +178,6 @@ jobs:
       VERSION: ${{ needs.define_version.outputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ matrix.environment }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -222,7 +217,8 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Build Release Images for ${{ matrix.environment }} 🧱
+
+    name: Upload Android Release Artifacts for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
     env:
@@ -231,10 +227,11 @@ jobs:
       VERSION: ${{ needs.define_version.outputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ matrix.environment }}
-      # Application release artifacts paths
+
       LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.define_version.outputs.version }}-signed-aligned.apk
       LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.define_version.outputs.version }}-signed.aab
       LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -265,6 +262,7 @@ jobs:
             ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
 
   local-dev-environment:
+    name: Start ${{ matrix.environment }} docker containers
     strategy:
       matrix:
         environment: [dev, staging, prod]
@@ -278,7 +276,7 @@ jobs:
       BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
-    name: Start ${{ matrix.environment }} docker containers
+
     runs-on: self-hosted
     steps:
       - name: Checkout repository
@@ -311,13 +309,14 @@ jobs:
           make local-container-config-show
       - name: Start dev environment containers
         run: make dev-ci
+
   run-tests:
     strategy:
       matrix:
         environment: [dev, staging, prod]
     name: Run tests ${{ matrix.environment }} ✅
     runs-on: self-hosted
-    needs: [define_version, build-release-images, local-dev-environment]
+    needs: [define_version, local-dev-environment]
     environment: ${{ matrix.environment }}
     env:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -359,12 +358,9 @@ jobs:
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
     needs:
-      [
-        define_version,
-        build-release-images,
-        upload-android-artifacts,
-        upload-release-images,
-      ]
+      - define_version
+      - build-release-images
+      - run-tests
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
     steps:
@@ -378,7 +374,7 @@ jobs:
           ./dotenv.sh
       - name: Write changelog from previous step
         run: |
-          VERSION="${{ env.VERSION }}
+          VERSION="${{ env.VERSION }}"
           echo "" >> RELEASE_BODY.md
           echo "---" >> RELEASE_BODY.md
           echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
@@ -387,7 +383,6 @@ jobs:
           echo "## 🧩 Changes included:" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
           echo "${{ needs.define_version.outputs.changelog_new_only }}" >> RELEASE_BODY.md
-
       - name: Download all artifacts 📥
         uses: actions/download-artifact@v4
         with:
@@ -424,7 +419,6 @@ jobs:
             echo "### [dev] Docker images published in this release:" >> RELEASE_BODY.md
             cat ./artifacts/dev/docker-tags.txt >> RELEASE_BODY.md
           fi
-
       - name: List downloaded artifacts
         run: |
           find ./artifacts -type f -name "*.apk" -o -name "*.aab" | sort
@@ -451,7 +445,9 @@ jobs:
         environment: [dev, staging, prod]
     name: Upload Docker Tags to GCS
     runs-on: self-hosted
-    needs: [define_version, create-consolidated-release, build-release-images]
+    needs:
+      - define_version
+      - release-finalize
     environment: ${{ matrix.environment }}
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
@@ -529,8 +525,10 @@ jobs:
     name: Finalize and Push Release Tag
     runs-on: self-hosted
     needs:
-      - build-release-images
       - create-consolidated-release
+      # - upload-android-artifacts
+      - run-tests
+      - define_version
     if: success()
     steps:
       - name: Checkout repository
@@ -541,16 +539,13 @@ jobs:
         run: |
           rm -f .env
           ./dotenv.sh
-
       - name: Reset to clean state
         run: |
           git fetch origin main
           git reset --hard origin/main
-
       - name: Run Gitleaks scan
         run: |
           gitleaks detect --source . --report-path gitleaks-report.json --log-opts "--all"
-
       - name: Upload Gitleaks report as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -566,22 +561,21 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
-          standard-version --release-as $VERSION
-
+          standard-version --release-as ${{ needs.define_version.outputs.version }} --skip.tag --skip.commit
       - name: Push tag if all builds succeeded
         run: |
           git push origin HEAD --follow-tags
-  cleanup:
+
+  cleanup-docker-environment:
     strategy:
       matrix:
         environment: [dev, staging, prod]
     name: Cleanup docker env ${{ matrix.environment }} 🧼
     runs-on: self-hosted
-    needs: [define_version, local-dev-environment, run-tests]
+    needs: [local-dev-environment, run-tests]
     if: ${{ always() }}
     environment: ${{ matrix.environment }}
     env:
-      VERSION: ${{ needs.define_version.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
