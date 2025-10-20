@@ -72,7 +72,7 @@ jobs:
           git config --global user.email "build-and-push-images-action@github.com"
 
           # Bump the version based on commit messages (default patch bump)
-          standard-version
+          standard-version --release-as patch --skip.tag --skip.commit
           echo "Commit release bump and tag will be pushed after build success"
           VERSION=$(git describe --tags --abbrev=7 --match 'v*')
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
@@ -173,7 +173,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Build Release Images for ${{ matrix.environment }} 🧱
+    name: Upload Release Images for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
     env:
@@ -222,7 +222,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    name: Build Release Images for ${{ matrix.environment }} 🧱
+    name: Upload Android Release Artifacts for ${{ matrix.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ matrix.environment }}
     env:
@@ -359,12 +359,12 @@ jobs:
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
     needs:
-      [
-        define_version,
-        build-release-images,
-        upload-android-artifacts,
-        upload-release-images,
-      ]
+      - define_version
+      - build-release-images
+      - run-tests
+      # - upload-android-artifacts
+      # - upload-release-images
+
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
     steps:
@@ -378,7 +378,7 @@ jobs:
           ./dotenv.sh
       - name: Write changelog from previous step
         run: |
-          VERSION="${{ env.VERSION }}
+          VERSION="${{ env.VERSION }}"
           echo "" >> RELEASE_BODY.md
           echo "---" >> RELEASE_BODY.md
           echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
@@ -451,7 +451,10 @@ jobs:
         environment: [dev, staging, prod]
     name: Upload Docker Tags to GCS
     runs-on: self-hosted
-    needs: [define_version, create-consolidated-release, build-release-images]
+    needs:
+      - define_version
+      # - create-consolidated-release
+      - build-release-images
     environment: ${{ matrix.environment }}
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
@@ -524,13 +527,15 @@ jobs:
           gcloud storage cp "$METADATA_PATH" "$gs_path/metadata.json" --quiet
           find ./artifacts -name "*.apk" -exec gcloud storage cp {} "$gs_path/app-release.apk" --quiet \;
           find ./artifacts -name "*.aab" -exec gcloud storage cp {} "$gs_path/app-release.aab" --quiet \;
-
   release-finalize:
     name: Finalize and Push Release Tag
     runs-on: self-hosted
     needs:
-      - build-release-images
-      - create-consolidated-release
+      # - create-consolidated-release
+      # - upload-docker-tags-to-gcs
+      # - upload-android-artifacts
+      - run-tests
+      - define_version
     if: success()
     steps:
       - name: Checkout repository
@@ -566,7 +571,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
-          standard-version --release-as $VERSION
+          standard-version --release-as ${{ needs.define_version.outputs.version }} --skip.tag --skip.commit
 
       - name: Push tag if all builds succeeded
         run: |
