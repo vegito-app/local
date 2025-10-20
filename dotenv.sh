@@ -30,7 +30,6 @@ localDotenvFile=${currentWorkingDir}/.env
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # Enable or disable the use of the Docker registry cache.
-USE_REGISTRY_CACHE=${USE_REGISTRY_CACHE:-true}
 # Enable or disable the use of the local development environment.
 MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 

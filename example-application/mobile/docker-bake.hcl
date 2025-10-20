@@ -69,10 +69,10 @@ variable "LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_B
 
 target "local-example-application-mobile" {
   args = {
-    apk_builder_image = LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
+    apk_builder_image       = LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
     apk_runner_appium_image = LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST
-    environment          = INFRA_ENV
-    version = VERSION
+    environment             = INFRA_ENV
+    version                 = VERSION
   }
   secret = [
     {
@@ -88,7 +88,7 @@ target "local-example-application-mobile" {
   contexts = {
     "android" : LOCAL_ANDROID_DIR
     "approot" : LOCAL_EXAMPLE_APPLICATION_DIR
-    "project": "."
+    "project" : "."
   }
   tags = [
     LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
@@ -107,9 +107,9 @@ target "local-example-application-mobile" {
 
 target "local-example-application-mobile-ci" {
   args = {
-    apk_builder_image = LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
+    apk_builder_image       = LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = LOCAL_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
-    version = VERSION
+    version                 = VERSION
   }
   secret = [
     {
@@ -125,7 +125,7 @@ target "local-example-application-mobile-ci" {
   contexts = {
     "android" : LOCAL_ANDROID_DIR
     "approot" : LOCAL_EXAMPLE_APPLICATION_DIR
-    "project": "."
+    "project" : "."
   }
   tags = [
     LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
