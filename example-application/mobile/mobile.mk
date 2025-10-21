@@ -58,8 +58,6 @@ flutter-app-uninstall:
 	@$(ADB) uninstall dev.vegito.app.android || true
 .PHONY: flutter-app-uninstall
 
-LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}
-
 LOCAL_EXAMPLE_APPLICATION_MOBILE_BUILDS = apk ios appbundle
 
 local-example-application-mobile-flutter-build: $(LOCAL_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=local-example-application-mobile-flutter-build-%)
@@ -176,39 +174,6 @@ local-android-verify-apk \
 local-android-sign-aab
 .PHONY: local-example-application-mobile-android-release-build
 
-LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
-
-local-example-application-mobile-image-tag-apk-extract:
-	@echo "Creating temp container from image $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)"
-	@container_id=$$(docker create $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)) && \
-	  echo "Copying APK from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release-$(VERSION).apk $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH) && \
-	  docker rm $$container_id > /dev/null && \
-	  echo "✅ APK extracted to $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH)"
-.PHONY: local-example-application-mobile-image-tag-apk-extract
-
-LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH ?= ${LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR}/app-release-$(VERSION)-extract.aab
-
-local-example-application-mobile-image-tag-aab-extract:
-	@echo "Creating temp container from image $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)"
-	@container_id=$$(docker create $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)) && \
-	  echo "Copying AAB from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release-$(VERSION).aab $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH) && \
-	  docker rm $$container_id > /dev/null && \
-	  echo "✅ AAB extracted to $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH)"
-.PHONY: local-example-application-mobile-image-tag-aab-extract
-
-LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH ?= ${LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR}/release-${VERSION}-key.keystore.sha1
-
-local-example-application-mobile-image-tag-keystore-sha1-extract:
-	@echo "Creating temp container from image $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)"
-	@container_id=$$(docker create $(LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION)) && \
-	  echo "Copying keystore SHA1 from container $$container_id..." && \
-	  docker cp $$container_id:/build/output/app-release-${VERSION}-key.keystore.sha1 $(LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH) && \
-	  docker rm $$container_id > /dev/null && \
-	  echo "✅ Keystore SHA1 extracted to $(LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH)"
-.PHONY: local-example-application-mobile-image-tag-keystore-sha1-extract
-
 local-example-application-mobile-flutter-android-release:
 	@echo "🏗️ Building unsigned APK and AAB for '$(INFRA_ENV)'..."
 	@$(MAKE) \
@@ -217,12 +182,6 @@ local-example-application-mobile-flutter-android-release:
 	  local-example-application-mobile-flutter-build-apk-release \
 	  local-example-application-mobile-flutter-build-appbundle-release
 .PHONY: local-example-application-mobile-flutter-android-release
-
-local-example-application-mobile-image-tag-release-extract: \
-local-example-application-mobile-image-tag-aab-extract \
-local-example-application-mobile-image-tag-apk-extract \
-local-example-application-mobile-image-tag-keystore-sha1-extract
-.PHONY: local-example-application-mobile-image-tag-release-extract
 
 ################################################################################
 ## 📦 ANDROID RELEASE FULL PIPELINE
@@ -252,6 +211,3 @@ local-example-application-mobile-android-release-keystore:
 	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
 	$(MAKE) local-android-release-keystore 
 .PHONY: local-example-application-mobile-android-release-keystore
-
-
-
