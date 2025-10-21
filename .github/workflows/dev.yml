@@ -157,8 +157,8 @@ jobs:
       ANDROID_PACKAGE_NAME: ${{ needs.build-release-images.outputs.android_release_package_name }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       INFRA_ENV: ${{ vars.INFRA_ENV }}
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
+      APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
+      APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
 
     steps:
@@ -177,8 +177,8 @@ jobs:
         with:
           name: android-artifacts-dev
           path: |
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         with:
@@ -189,8 +189,8 @@ jobs:
             - Signed APK and AAB generated
             - Keystore: release.dev.keystore
           files: |
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   cleanup:

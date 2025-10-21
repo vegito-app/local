@@ -110,9 +110,9 @@ jobs:
       USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       # Android release keystore paths
-      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
-      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
-      LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -156,8 +156,8 @@ jobs:
           make docker-buildx-setup
       - name: Restore ADB keys and debug.keystore
         run: |
-          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
-          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
       - name: Build and load local project images
         id: build_and_push_images
         run: |
@@ -228,9 +228,9 @@ jobs:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ matrix.environment }}
       # Application release artifacts paths
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-signed-aligned.apk
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-signed.aab
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
+      APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-signed-aligned.apk
+      APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-signed.aab
+      APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
 
     steps:
       - name: Checkout repository
@@ -257,9 +257,9 @@ jobs:
         with:
           name: android-artifacts-${{ matrix.environment }}-${{ needs.define_version.outputs.version }}
           path: |
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
-            ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ${{ env.APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
 
   local-docker-environment:
     name: Start ${{ matrix.environment }} docker containers
@@ -364,7 +364,7 @@ jobs:
       - functional-tests
     env:
       VERSION: ${{ needs.define_version.outputs.version }}
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
+      APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.define_version.outputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -405,7 +405,7 @@ jobs:
           name: android-artifacts-prod-${{ env.VERSION }}
       - name: Append Android release keystore SHA1 to changelog
         run: |
-          keystore_sha1_path=./artifacts/prod/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+          keystore_sha1_path=./artifacts/prod/${{ env.APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
           if [ -f "$keystore_sha1_path" ]; then
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [prod] Android Release Keystore SHA1:" >> RELEASE_BODY.md
@@ -437,7 +437,7 @@ jobs:
           name: android-artifacts-staging-${{ env.VERSION }}
       - name: Append Android release keystore SHA1 to changelog
         run: |
-          keystore_sha1_path=./artifacts/staging/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+          keystore_sha1_path=./artifacts/staging/${{ env.APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
           if [ -f "$keystore_sha1_path" ]; then
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [staging] Android Release Keystore SHA1:" >> RELEASE_BODY.md
@@ -469,7 +469,7 @@ jobs:
           name: android-artifacts-dev-${{ env.VERSION }}
       - name: Append Android release keystore SHA1 to changelog
         run: |
-          keystore_sha1_path=./artifacts/dev/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
+          keystore_sha1_path=./artifacts/dev/${{ env.APPLICATION_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}
           if [ -f "$keystore_sha1_path" ]; then
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [dev] Android Release Keystore SHA1:" >> RELEASE_BODY.md
