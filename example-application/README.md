@@ -1,4 +1,4 @@
-![Release Version](https://img.shields.io/github/v/release/vegito-app/example-application?sort=semver)
+![Release Version](https://img.shields.io/github/v/application-release/vegito-app/example-application?sort=semver)
 ![CI](https://github.com/vegito-app/example-application/actions/workflows/deploy.yml/badge.svg?branch=main)
 
 ### Application
@@ -50,14 +50,14 @@ Application is available at:
 
 Some othe companion Makefile targets in familly `application-frontend-*` are available, see [example-application/frontend/frontend.mk](example-application/frontend/frontend.mk) for details.
 
-    application-frontend-build   
-    application-frontend-bundle  
-    application-frontend-npm-ci  
+    application-frontend-build
+    application-frontend-bundle
+    application-frontend-npm-ci
     application-frontend-start
 
 #### application-mobile
 
-A mobile cross platform *iOS* and *Android* _mobile-application_ using [Flutter](https://flutter.dev) is also available.
+A mobile cross platform _iOS_ and _Android_ _mobile-application_ using [Flutter](https://flutter.dev) is also available.
 
 See [application/mobile/flutter.mk](application/mobile) folder for more details about the available `application-mobile-*` targets.
 
@@ -65,8 +65,4 @@ As an example, get _application-mobile_ Flutter dependancies with:
 
 ```bash
 $ make application-mobile-flutter-pub-get
-````
-
-
-    
-        
+```

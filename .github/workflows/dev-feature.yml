@@ -18,9 +18,9 @@ jobs:
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
       ANDROID_RELEASE_PACKAGE_NAME: dev.vegito.app.android
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.base64
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.storepass.base64
+      EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore
+      EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.base64
+      EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.storepass.base64
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
@@ -59,8 +59,8 @@ jobs:
           make docker-buildx-setup
       - name: Restore ADB keys and debug.keystore
         run: |
-          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.base64
-          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.storepass.base64
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.base64
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.storepass.base64
       - name: Build and load local project images
         run: |
           make images-ci
@@ -150,8 +150,8 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
+      LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
+      LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -162,18 +162,24 @@ jobs:
           ./dotenv.sh
       - name: Extract signed APK & AAB releases from images
         id: extract_apk_aab
-        run: make local-example-application-mobile-image-tag-release-exrtract
+        run: make local-android-mobile-image-tag-release-extract
       - name: Upload signed APK and AAB 📤
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts-dev
           path: |
-            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
-            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
   cleanup:
     name: Cleanup docker env 🧼
     runs-on: self-hosted
-    needs: [build-release-images, local-dev-environment, run-tests, extract-release-artifacts]
+    needs:
+      [
+        build-release-images,
+        local-dev-environment,
+        run-tests,
+        extract-release-artifacts,
+      ]
     if: ${{ always() }}
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
