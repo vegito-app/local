@@ -34,25 +34,26 @@ jobs:
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+```
 
 ⸻
 
-🚀 Fonctionnement Général
+### 🚀 Fonctionnement Général
 
 Le workflow est structuré autour des étapes suivantes :
-	1.	🐳 Build des images Docker multi-env
-	2.	📱 Extraction d’artefacts Android (APK, AAB)
-	3.	📝 Génération automatique de changelog (CHANGELOG.md)
-	4.	🏷️ Création d’une release GitHub incluant les artefacts
-	5.	☁️ Publication des métadonnées sur Google Cloud Storage (GCS)
-	6.	🧼 Nettoyage des conteneurs et environnements temporaires
+
+    1. 🐳 Build des images Docker multi-env
+    2. 📱 Extraction d’artefacts Android (APK, AAB)
+    3. 📝 Génération automatique de changelog (CHANGELOG.md)
+    4. 🏷️ Création d’une release GitHub incluant les artefacts
+    5. ☁️ Publication des métadonnées sur Google Cloud Storage (GCS)
+    6. 🧼 Nettoyage des conteneurs et environnements temporaires
 
 Chaque environnement (dev, staging, prod) utilise ses propres secrets et configurations injectées automatiquement.
 
 ⸻
 
-🔎 Accès aux Releases publiées
+### 🔎 Accès aux Releases publiées
 
 Les versions publiées, leurs artefacts, les changelogs, les APK et les tags Docker sont disponibles sur la page publique :
 

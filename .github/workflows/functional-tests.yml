@@ -1,0 +1,75 @@
+name: Functional Tests
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-tests:
+    name: Run Tests ${{ inputs.environment }} ✅
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    env:
+      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ inputs.environment }}-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VERSION: ${{ inputs.version }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Setup Docker Environment
+        run: |
+          make gcloud-config-set-project
+          make gcloud-auth-docker
+          make local-container-config-show
+          make dev-ci
+
+      - name: Run Application Tests
+        run: |
+          make robotframework-tests
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ inputs.environment }}-${{ inputs.version }}
+          path: tests/output
+
+      - name: Cleanup Docker Environment
+        if: always()
+        run: |
+          make dev-ci-rm
