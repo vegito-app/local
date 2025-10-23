@@ -114,7 +114,8 @@ services:
   android-studio:
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
-      LOCAL_ANDROID_STUDIO_ON_START: true
+      LOCAL_ANDROID_STUDIO_ON_START: false
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
     working_dir: ${PWD}/example-application/mobile
   clarinet-devnet:
     environment:

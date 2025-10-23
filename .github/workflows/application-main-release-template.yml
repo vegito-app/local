@@ -260,10 +260,10 @@ jobs:
           else
               echo "⚠️ gha-env-vars not found"
           fi
-      - name: Extract signed APK & AAB releases and keystore SHA1 from images
+      - name: Extract signed APK & AAB releases and keystore SHA1 from release images
         id: extract_apk_aab
-        run: make local-example-application-mobile-image-tag-release-extract
-      - name: Upload signed APK and AAB 📤
+        run: make application-mobile-image-extract-android-artifacts
+      - name: Upload signed APK and AAB with keystore SHA1 📤
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts-${{ matrix.environment }}-${{ needs.define_version.outputs.version }}

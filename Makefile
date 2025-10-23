@@ -82,6 +82,10 @@ dev-ci: images-pull local-containers-up-ci example-application-containers-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
+application-mobile-image-extract-android-artifacts: local-android-mobile-image-tag-release-extract
+	@echo "✅ Extracted Android release artifacts successfully."
+.PHONY: application-mobile-image-extract-android-artifacts
+
 dev-ci-rm: \
 local-dev-container-image-pull \
 local-containers-rm-ci \

@@ -34,7 +34,7 @@ EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
 example-application-containers-rm: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
 .PHONY: example-application-containers-rm
 
-example-application-containers-up: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-up)
+example-application-containers-up: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up)
 .PHONY: example-application-containers-up
 
 $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm):
@@ -105,7 +105,7 @@ example-application-docker-images-push:
 
 LOCAL_CONTAINERS_GROUP_OPERATIONS_CI := up rm
 
-$(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): dev-container-image-pull
+$(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'example-application-containers-$(@:example-application-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
