@@ -28,21 +28,21 @@ git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-r
 # Subtree ./google-cloud
 # ------------------------------------------
 git-subtree-google-cloud-pull:
-	@echo "⬇︎ Pulling the google-cloud subtree..."
+	@echo "⬇︎ Pulling the gcloud subtree..."
 	@git subtree pull --prefix google-cloud \
-	  git@github.com:vegito-app/google-cloud.git main --squash
-	@echo "Google Cloud subtree pulled successfully."
+	  git@github.com:vegito-app/gcloud.git main --squash
+	@echo "Gcloud subtree pulled successfully."
 .PHONY: git-subtree-google-cloud-pull
 
 git-subtree-google-cloud-push:
-	@echo "⬆︎ Pushing changes from the google-cloud subtree..."
+	@echo "⬆︎ Pushing changes from the gcloud subtree..."
 	@git subtree push --prefix google-cloud \
 	  git@github.com:vegito-app/google-cloud.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "Google Cloud subtree pushed successfully."
 .PHONY: git-subtree-google-cloud-push
 
-GOOGLE_CLOUD_DIR := $(CURDIR)/google-cloud
--include $(GOOGLE_CLOUD_DIR)/google-cloud.mk
+GOOGLE_CLOUD_DIR := $(LOCAL_DIR)/gcloud
+-include $(GOOGLE_CLOUD_DIR)/gcloud.mk
 # ------------------------------------------
 
 # ------------------------------------------
@@ -62,5 +62,7 @@ git-subtree-example-application-push:
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
 
--include $(LOCAL_EXAMPLE_APPLICATION_DIR)/example-application.mk
+EXAMPLE_APPLICATION_DIR = $(CURDIR)/example-application
+
+-include $(EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------

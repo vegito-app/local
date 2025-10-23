@@ -143,7 +143,7 @@ group "local-applications" {
 group "local-applications-ci" {
   targets = [
     "local-android-studio-ci",
-    "local-example-application-ci",
+    "example-application-ci",
   ]
 }
 

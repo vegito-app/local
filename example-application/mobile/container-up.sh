@@ -24,7 +24,7 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 echo "📱 Launching mobile compose in background..."
-${LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR}/docker-compose-up.sh &
+${EXAMPLE_APPLICATION_MOBILE_DIR}/docker-compose-up.sh &
 compose_pid=$!
 
 # Start waiting for ports in a background subshell

@@ -12,28 +12,28 @@ ifeq ($(UNAME_M), aarch64)
   GOARCH = arm64
 endif
 
-APPLICATION_BACKEND_DIR ?= $(LOCAL_EXAMPLE_APPLICATION_DIR)/backend
+APPLICATION_BACKEND_DIR ?= $(EXAMPLE_APPLICATION_DIR)/backend
 APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
 APPLICATION_BACKEND_VENDOR = $(APPLICATION_BACKEND_DIR)/vendor
 
 $(APPLICATION_BACKEND_VENDOR):
 	@$(MAKE) go-application/backend-mod-vendor
 
-local-example-application-backend-run: $(APPLICATION_BACKEND_INSTALL_BIN)
+example-application-backend-run: $(APPLICATION_BACKEND_INSTALL_BIN)
 	@$(APPLICATION_BACKEND_INSTALL_BIN)
-.PHONY: local-example-application-backend-run
+.PHONY: example-application-backend-run
 
-$(APPLICATION_BACKEND_INSTALL_BIN): local-example-application-backend-install
+$(APPLICATION_BACKEND_INSTALL_BIN): example-application-backend-install
 
-local-example-application-backend-install:
+example-application-backend-install:
 	@echo Installing backend...
-	@cd example-application/backend \
+	cd $(APPLICATION_BACKEND_DIR) \
 	  && go install -a -ldflags "-linkmode external -extldflags -static"
 	#   && go install -a -ldflags "-linkmode external"
 	@echo Installed backend.
-.PHONY: local-example-application-backend-install
+.PHONY: example-application-backend-install
 
-local-example-application-backend-container-up: local-example-application-backend-container-rm
+example-application-backend-container-up: example-application-backend-container-rm
 	@echo "Starting backend application container..."
 	$(APPLICATION_BACKEND_DIR)/container-up.sh
-.PHONY: local-example-application-backend-container-up
+.PHONY: example-application-backend-container-up

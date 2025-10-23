@@ -19,8 +19,32 @@
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
+      // 🚫 Empêche VSCode de rechercher ou indexer ces dossiers lourds
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.git": true,
+        "**/.devcontainer": false,
+        "**/.containers": true,
+        "**/.next": true,
+        "**/.cache": true
+      },
+      // 💤 Désactive la surveillance en temps réel sur ces dossiers
+      "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.git/**": true,
+        "**/.cache/**": true
+      },
+      // 💨 (optionnel) Réduit la charge sur la recherche globale
+      "search.followSymlinks": false,
+      // 🧠 (optionnel) Exclut les node_modules de l’explorateur de fichiers
+      "files.exclude": {
+        "**/node_modules": true
+      },
       "editor.fontLigatures": false,
-      "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
       "explorer.confirmDelete": false,
       "files.hotExit": "onExitAndWindowClose",
@@ -38,16 +62,27 @@
           "color": "terminal.ansiRed"
         }
       },
+      "diffEditor.hideUnchangedRegions.enabled": false,
+      "workbench.activityBar.location": "top",
+      "window.customTitleBarVisibility": "windowed",
       "terminal.integrated.defaultProfile.linux": "bash",
       "window.commandCenter": false,
       "workbench.colorTheme": "Dark Theme - JetBrains IDE",
       "workbench.iconTheme": "material-icon-theme",
+      "material-icon-theme.folders.theme": "specific",
       "workbench.layoutControl.enabled": false,
       "zenMode.centerLayout": false,
       "zenMode.hideLineNumbers": false,
       "diffEditor.ignoreTrimWhitespace": false,
       "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "workbench.editor.editorActionsLocation": "titleBar",
+      "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
       },
       "vsicons.dontShowNewVersionMessage": true,
       "files.autoSave": "onFocusChange",

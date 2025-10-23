@@ -11,6 +11,7 @@ jobs:
   application-release-build:
     uses: vegito-app/local/.github/workflows/application-main-release-template.yml@main
     with:
+      android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
       android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
       environment: dev

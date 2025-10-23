@@ -2,12 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [1.6.0](https://github.com/vegito-app/local/compare/v1.5.3...v1.6.0) (2025-10-19)
+### [1.6.1](https://github.com/vegito-app/local/compare/v1.6.0...v1.6.1) (2025-10-23)
+
+## [1.6.0](https://github.com/vegito-app/local/compare/v1.5.3...v1.6.0) (2025-10-21)
 
 
 ### Features
 
-* **github-actions:** enhance Docker build process and add README for self-hosted runners ([a661944](https://github.com/vegito-app/local/commit/a66194498c546ae2f3dae12c790feceac1e8efac))
+* **docs:** add French README and rename release workflow ([b1e1394](https://github.com/vegito-app/local/commit/b1e13946e999e781e82dad56191364d97b9fccc8))
+* **github-actions:** enhance Docker build process and add README for self-hosted runners ([39b34be](https://github.com/vegito-app/local/commit/39b34be04216b1bf2ecd9ab140df98711d5edea2))
 
 ### [1.5.3](https://github.com/vegito-app/local/compare/v1.5.2...v1.5.3) (2025-10-10)
 

@@ -90,7 +90,7 @@ services:
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
     env_file:
       - .env
-    entrypoint: ${PWD}/android/studio/entrypoint.sh
+    entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ANDROID_APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
@@ -102,7 +102,7 @@ services:
       LOCAL_ANDROID_EMULATOR_AVD_ON_START: false
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
-      LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
+      LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-true}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}

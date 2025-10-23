@@ -30,7 +30,6 @@ localDotenvFile=${currentWorkingDir}/.env
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # Enable or disable the use of the Docker registry cache.
-USE_REGISTRY_CACHE=${USE_REGISTRY_CACHE:-true}
 # Enable or disable the use of the local development environment.
 MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
@@ -112,9 +111,9 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-v1.6.0
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
-      LOCAL_ANDROID_STUDIO_ON_START: true
-    working_dir: ${PWD}/mobile
-
+      LOCAL_ANDROID_STUDIO_ON_START: false
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
+    working_dir: ${PWD}/example-application/mobile
   clarinet-devnet:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-v1.6.0
     environment:

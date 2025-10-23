@@ -5,7 +5,7 @@ RUN mkdir ${HOME}/src
 WORKDIR ${HOME}/src
 
 ARG application_directory="example-application"
-ENV LOCAL_EXAMPLE_APPLICATION_DIR=${application_directory}
+ENV EXAMPLE_APPLICATION_DIR=${application_directory}
 
 COPY --from=project Makefile .
 COPY --from=project local.mk .
@@ -22,13 +22,13 @@ COPY --from=appfrontend package.json example-application/frontend/
 COPY --from=appfrontend package-lock.json example-application/frontend/
 COPY --from=appfrontend frontend.mk example-application/frontend/
 
-RUN make local-example-application-frontend-npm-ci
+RUN make example-application-frontend-npm-ci
 
 COPY --from=appfrontend public example-application/frontend/public
 COPY --from=appfrontend src example-application/frontend/src
 COPY --from=appfrontend webpack.server.js example-application/frontend/
 
-RUN make -j local-example-application-frontend-build local-example-application-frontend-bundle
+RUN make -j example-application-frontend-build example-application-frontend-bundle
 
 # backend
 RUN mkdir -p example-application/backend
@@ -46,7 +46,7 @@ COPY track example-application/backend/track
 COPY firebase example-application/backend/firebase
 COPY main.go example-application/backend/
 
-RUN make local-example-application-backend-install 
+RUN make example-application-backend-install 
 
 # artefacts
 
