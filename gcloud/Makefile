@@ -2,5 +2,5 @@ VEGITO_DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
 
 DEV_GOOGLE_CLOUD_PROJECT_ID ?= $(VEGITO_DEV_GOOGLE_CLOUD_PROJECT_ID)
 
-include google-cloud.mk
+include gcloud.mk
 

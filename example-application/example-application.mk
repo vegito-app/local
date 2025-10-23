@@ -31,55 +31,55 @@ EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   example-application-backend \
   example-application-mobile
 
-example-application-containers-rm: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
+example-application-containers-rm: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
 .PHONY: example-application-containers-rm
 
 example-application-containers-up: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-up)
 .PHONY: example-application-containers-up
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm):
-	@echo "🗑️  Removing container for $(@:local-%-container-rm=%)..."
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm):
+	@echo "🗑️  Removing container for $(@:%-container-rm=%)..."
 	@$(MAKE) $(@:%-rm=%-stop)
-	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
+	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:%-container-rm=%)
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm-ci): 
-	@echo "🗑️  Removing container for $(@:local-%-container-rm-ci=%)..."
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm-ci): 
+	@echo "🗑️  Removing container for $(@:%-container-rm-ci=%)..."
 	@echo $(MAKE) $(@:%-rm-ci=%-stop)
-	@echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm-ci=%)
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm-ci)
+	@echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:%-container-rm-ci=%)
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm-ci)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-start):
-	@echo "▶️ Starting $(@:local-%-container-start=%)..."
-	@-$(LOCAL_DOCKER_COMPOSE) start $(@:local-%-container-start=%) 2>/dev/null
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-start)
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-start):
+	@echo "▶️ Starting $(@:%-container-start=%)..."
+	@-$(LOCAL_DOCKER_COMPOSE) start $(@:%-container-start=%) 2>/dev/null
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-start)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-stop):
-	@echo "🛑 Stopping container for $(@:local-%-container-stop=%)..."
-	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:local-%-container-stop=%) 2>/dev/null
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-stop)
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-stop):
+	@echo "🛑 Stopping container for $(@:%-container-stop=%)..."
+	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:%-container-stop=%) 2>/dev/null
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-stop)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs):
-	@echo "🗒️ Showing logs for $(@:local-%-container-logs=%)..."
-	@$(LOCAL_DOCKER_COMPOSE) logs $(@:local-%-container-logs=%)
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs)
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs):
+	@echo "🗒️ Showing logs for $(@:%-container-logs=%)..."
+	@$(LOCAL_DOCKER_COMPOSE) logs $(@:%-container-logs=%)
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs-f):
-	@echo "📝 Following logs for $(@:local-%-container-logs-f=%)..."
-	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:local-%-container-logs-f=%)
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs-f)
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs-f):
+	@echo "📝 Following logs for $(@:%-container-logs-f=%)..."
+	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:%-container-logs-f=%)
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs-f)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
-	@echo "💻 Opening bash shell for $(@:local-%-container-sh=%)..."
-	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:local-%-container-sh=%) bash
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh)
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-sh):
+	@echo "💻 Opening bash shell for $(@:%-container-sh=%)..."
+	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:%-container-sh=%) bash
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-sh)
 
-$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
-	@echo Pulling the container image for $(@:local-%-image-pull=%)
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
-.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
+$(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-image-pull):
+	@echo Pulling the container image for $(@:%-image-pull=%)
+	$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-image-pull)
 
-example-application-docker-compose-images-pull: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
+example-application-docker-compose-images-pull: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-image-pull)
 .PHONY: example-application-docker-compose-images-pull
 
 example-application-docker-images-pull: 
@@ -92,8 +92,8 @@ example-application-docker-images-pull-parallel:
 .PHONY: example-application-docker-images-pull-parallel
 
 $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-push):
-	@echo Pushing the container image for $(@:local-%-image-push=%)
-	@$(LOCAL_DOCKER_COMPOSE) push $(@:local-%-image-push=%)
+	@echo Pushing the container image for $(@:%-image-push=%)
+	@$(LOCAL_DOCKER_COMPOSE) push $(@:%-image-push=%)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-push)
 
 example-application-docker-compose-images-push: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-push)
@@ -105,7 +105,7 @@ example-application-docker-images-push:
 
 LOCAL_CONTAINERS_GROUP_OPERATIONS_CI := up rm
 
-$(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): local-dev-container-image-pull
+$(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): dev-container-image-pull
 	@echo "Running operation 'example-application-containers-$(@:example-application-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
