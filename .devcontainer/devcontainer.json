@@ -45,7 +45,6 @@
         "**/node_modules": true
       },
       "editor.fontLigatures": false,
-      "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
       "explorer.confirmDelete": false,
       "files.hotExit": "onExitAndWindowClose",
@@ -63,16 +62,27 @@
           "color": "terminal.ansiRed"
         }
       },
+      "diffEditor.hideUnchangedRegions.enabled": false,
+      "workbench.activityBar.location": "top",
+      "window.customTitleBarVisibility": "windowed",
       "terminal.integrated.defaultProfile.linux": "bash",
       "window.commandCenter": false,
       "workbench.colorTheme": "Dark Theme - JetBrains IDE",
       "workbench.iconTheme": "material-icon-theme",
+      "material-icon-theme.folders.theme": "specific",
       "workbench.layoutControl.enabled": false,
       "zenMode.centerLayout": false,
       "zenMode.hideLineNumbers": false,
       "diffEditor.ignoreTrimWhitespace": false,
       "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "workbench.editor.editorActionsLocation": "titleBar",
+      "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
       },
       "vsicons.dontShowNewVersionMessage": true,
       "files.autoSave": "onFocusChange",

@@ -171,7 +171,7 @@ jobs:
       - name: Upload images-build.log
         uses: actions/upload-artifact@v4
         with:
-          name: images-build-log-{{ matrix.environment }}
+          name: images-build-log-${{ matrix.environment }}
           path: |
             images-build.log
 
@@ -260,10 +260,10 @@ jobs:
           else
               echo "⚠️ gha-env-vars not found"
           fi
-      - name: Extract signed APK & AAB releases and keystore SHA1 from images
+      - name: Extract signed APK & AAB releases and keystore SHA1 from release images
         id: extract_apk_aab
-        run: make local-example-application-mobile-image-tag-release-extract
-      - name: Upload signed APK and AAB 📤
+        run: make application-mobile-image-extract-android-artifacts
+      - name: Upload signed APK and AAB with keystore SHA1 📤
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts-${{ matrix.environment }}-${{ needs.define_version.outputs.version }}
@@ -399,11 +399,11 @@ jobs:
         run: |
           VERSION="${{ env.VERSION }}"
           echo "" > RELEASE_BODY.md
-          echo "## 📦 Artefacts de Build (Vegito)" >> RELEASE_BODY.md
+          echo "## 📦 Build Artifacts (Vegito)" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
           echo "See the full list of build artifacts for this release at:" >> RELEASE_BODY.md
 
-          🔗 **[Download from GCS release bucket of project `${{env.VEGITO_APPLICATION_RELEASE_PROD_GCS_BUCKET }}` – version `${{ env.VERSION }}`](https://release.vegito.app/releases?project=${{env.VEGITO_APPLICATION_RELEASE_PROJECT }}&version=${{ env.VERSION }})**
+          echo "🔗 **[Download from GCS release bucket of project `${{env.VEGITO_APPLICATION_RELEASE_PROD_GCS_BUCKET }}` – version `${{ env.VERSION }}`](https://release.vegito.app/releases?project=${{env.VEGITO_APPLICATION_RELEASE_PROJECT }}&version=${{ env.VERSION }})**" >> RELEASE_BODY.md
 
           echo "### 📱 Download via QR Code"
           echo "![QR Code to Download APK](https://storage.googleapis.com/${{env.VEGITO_APPLICATION_RELEASE_PROD_GCS_BUCKET }}/qr-code.png)" >> RELEASE_BODY.md
@@ -612,7 +612,7 @@ jobs:
       - name: Download build log artifact
         uses: actions/download-artifact@v4
         with:
-          name: images-build-log-{{ matrix.environment }}
+          name: images-build-log-${{ matrix.environment }}
           path: ./artifacts/logs
       - name: Download APK and AAB artifacts
         uses: actions/download-artifact@v4
