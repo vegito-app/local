@@ -150,8 +150,8 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
-      LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
+      LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
+      LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ vars.ANDROID_RELEASE_PACKAGE_NAME }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -162,14 +162,14 @@ jobs:
           ./dotenv.sh
       - name: Extract signed APK & AAB releases from images
         id: extract_apk_aab
-        run: make local-example-application-mobile-image-tag-release-extract
+        run: make local-android-mobile-image-tag-release-extract
       - name: Upload signed APK and AAB 📤
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts-dev
           path: |
-            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
-            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.PROJECT_DIR }}/${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
   cleanup:
     name: Cleanup docker env 🧼
     runs-on: self-hosted
