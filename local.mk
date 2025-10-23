@@ -144,7 +144,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 
 local-dev-container:
 	@echo "⬆︎ Bringing up dev container..."
-	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+	@$(LOCAL_DOCKER_COMPOSE) up -d --remove-orphans dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:

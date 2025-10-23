@@ -175,7 +175,7 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 ################################################################################
 LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION).apk
 LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-aligned.apk
-LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-signed-aligned.apk
+LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-signed-aligned.apk
 
 local-android-align-apk: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 .PHONY: local-android-verify-apk
@@ -186,22 +186,22 @@ local-android-align-apk: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  zipalign -v -p 4 $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH) $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 
-local-android-sign-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH) 
+local-android-sign-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) 
 .PHONY: local-android-sign-apksign
 
-$(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
-	@echo "🔐 Signing APK with apksigner using keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH): $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)..."
+$(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
+	@echo "🔐 Signing APK with apksigner using keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH): $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  apksigner sign \
 	    --ks $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    --ks-pass pass:$(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
-	    --out $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH) \
+	    --out $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) \
 		$(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 
-local-android-verify-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)
-	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)..."
+local-android-verify-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
+	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  apksigner verify --verbose $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)
+	  apksigner verify --verbose $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
 .PHONY: local-android-verify-apk
 
 ################################################################################
