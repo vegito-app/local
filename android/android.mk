@@ -275,3 +275,12 @@ local-android-mobile-image-tag-aab-extract \
 local-android-mobile-image-tag-apk-extract \
 local-android-mobile-image-tag-keystore-sha1-extract
 .PHONY: local-android-mobile-image-tag-release-extract
+
+LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH ?= ${LOCAL_ANDROID_MOBILE_DIR}/release-${VERSION}-screenshot.png
+
+local-android-emulator-screenshot:
+	@echo "Capturing screenshot from Android Emulator..."
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
+	  adb exec-out screencap -p > $(LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH)
+	@echo "✅ Screenshot saved to $(LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH)"
+.PHONY: local-android-emulator-screenshot

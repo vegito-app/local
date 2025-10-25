@@ -122,9 +122,9 @@ services:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
       
   robotframework-tests:
-    working_dir: ${PWD}/tests
+    working_dir: ${PWD}/example-application/tests
     environment:
-      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
 
   firebase-emulators:
     environment:
@@ -167,6 +167,12 @@ services:
       ${dockerNetworkName}:
         aliases:
           - example-application-mobile
+
+  example-application-tests:
+    networks:
+      ${dockerNetworkName}:
+        aliases:
+          - example-application-tests
 
   firebase-emulators:
     networks:

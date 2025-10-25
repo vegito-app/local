@@ -285,6 +285,12 @@ jobs:
           name: images-build-log-${{ matrix.environment }}-${{ env.VERSION }}
           path: ./artifacts/logs
 
+      - name: Download build log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results-${{ matrix.environment }}-${{ env.VERSION }}
+          path: ./artifacts/tests
+
       - name: Download APK and AAB artifacts
         uses: actions/download-artifact@v4
         with:
@@ -305,7 +311,9 @@ jobs:
             "apk": "${apkUrl}",
             "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab",
             "thumbnail": "https://storage.googleapis.com/${gs_path}/preview.png",
-            "robot": "https://storage.googleapis.com/${gs_path}/tests/robot-output.html",
+            "robotReport": "https://storage.googleapis.com/${gs_path}/tests/report.html",
+            "robotLog": "https://storage.googleapis.com/${gs_path}/tests/log.html",
+            "robotXml": "https://storage.googleapis.com/${gs_path}/tests/output.xml",
             "buildLog": "https://storage.googleapis.com/${gs_path}/logs/build-log.html",
             "buildImagesLog": "https://storage.googleapis.com/${gs_path}/logs/images-build.log",
             "qr": "https://storage.googleapis.com/${gs_path}/qr-code.png"
@@ -323,9 +331,17 @@ jobs:
           # Générer QR code APK
           qrencode -o ./artifacts/qr-code.png "${apkUrl}"
 
-          # Créer un robot-output.html factice si absent
-          if [ ! -f ./artifacts/tests/robot-output.html ]; then
-            echo "<html><body><h1>Robot Test Results for ${VERSION}</h1></body></html>" > ./artifacts/tests/robot-output.html
+          # Créer report.html à partir du log brut si absent
+          if [ ! -f ./artifacts/tests/report.html ]; then
+            echo "<html><body><pre>" > ./artifacts/tests/report.html
+            cat ./artifacts/tests/images-build.log >> ./artifacts/tests/report.html
+            echo "</pre></body></html>" >> ./artifacts/tests/report.html
+          fi
+
+          if [ ! -f ./artifacts/tests/log.html ]; then
+            echo "<html><body><pre>" > ./artifacts/tests/log.html
+            cat ./artifacts/tests/images-build.log >> ./artifacts/tests/log.html
+            echo "</pre></body></html>" >> ./artifacts/tests/log.html
           fi
 
           # Créer build-log.html à partir du log brut si présent
@@ -335,62 +351,25 @@ jobs:
             echo "</pre></body></html>" >> ./artifacts/logs/build-log.html
           fi
 
+          # Créer tests-log.html à partir du log brut si présent
+          if [ -f ./artifacts/logs/functional-tests.log ]; then
+            echo "<html><body><pre>" > ./artifacts/logs/tests-log.html
+            cat ./artifacts/logs/functional-tests.log >> ./artifacts/logs/tests-log.html
+            echo "</pre></body></html>" >> ./artifacts/logs/tests-log.html
+          fi
+
           gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
           find ./artifacts -name "*.apk" -exec gcloud storage cp {} "gs://$gs_path/app-release.apk" --quiet \;
           find ./artifacts -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
-          gcloud storage cp ./artifacts/preview.png "gs://$gs_path/preview.png" --quiet
-          gcloud storage cp ./artifacts/tests/robot-output.html "gs://$gs_path/tests/robot-output.html" --quiet
+          gcloud storage cp ./artifacts/mobile/preview.png "gs://$gs_path/preview.png" --quiet
           gcloud storage cp ./artifacts/logs/build-log.html "gs://$gs_path/logs/build-log.html" --quiet
+          gcloud storage cp ./artifacts/logs/tests-log.html "gs://$gs_path/logs/tests-log.html" --quiet
           gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
-
-  cleanup-docker-environment:
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    name: Cleanup docker env ${{ matrix.environment }} 🧼
-    runs-on: self-hosted
-    if: ${{ always() }}
-    environment: ${{ matrix.environment }}
-    env:
-      VERSION: ${{ inputs.version }}
-      INFRA_ENV: ${{ matrix.environment }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
-      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
-      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Refresh local/.env file
+      - name: 🔍 Check test output files
+        run: ls -lh ./artifacts/tests/output/
+      - name: 📤 Upload Robot Framework reports to GCS
         run: |
-          rm -f .env
-          ./dotenv.sh
-
-      - name: Authenticate to Google Cloud via Workload Identity Federation
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
-          token_format: "access_token"
-          export_environment_variables: true
-
-      - name: Set up Cloud SDK
-        run: |
-          make gcloud-config-set-project
-
-      - name: Configure Docker for GCR
-        run: |
-          make gcloud-auth-docker
-
-      - name: Shutdown containers
-        run: make dev-ci-rm
-
-      - name: Notify cleanup done
-        run: echo "Cleaning completed."
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gcloud storage cp ./artifacts/tests/output/report.html "gs://$gs_path/tests/report.html" --quiet
+          gcloud storage cp ./artifacts/tests/output/log.html "gs://$gs_path/tests/log.html" --quiet
+          gcloud storage cp ./artifacts/tests/output/output.xml "gs://$gs_path/tests/output.xml" --quiet

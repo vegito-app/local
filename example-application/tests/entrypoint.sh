@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -euxo pipefail
 
 trap "echo Exited with code $?." EXIT
 
@@ -44,11 +44,11 @@ mkdir -p ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR}
 cd ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR} && python3 -m http.server 8088 &
 bg_pids+=($!)
 
+exec "$@"
+
 # Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
 current_workspace=$PWD
 if [ "$current_workspace" != "$LOCAL_WORKSPACE" ] ; then
     sudo ln -s $current_workspace $LOCAL_WORKSPACE 2>&1 || true
     echo "Linked current workspace $current_workspace to $LOCAL_WORKSPACE"
 fi
-
-exec "$@"

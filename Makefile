@@ -86,6 +86,14 @@ application-mobile-image-extract-android-artifacts: local-android-mobile-image-t
 	@echo "✅ Extracted Android release artifacts successfully."
 .PHONY: application-mobile-image-extract-android-artifacts
 
+application-mobile-screenshot: example-application-mobile-screenshot
+	@echo "✅ Captured mobile application screenshot successfully."
+.PHONY: application-mobile-screenshot
+
+application-mobile-dump: example-application-mobile-dump
+	@echo "✅ Dumped mobile application successfully."
+.PHONY: application-mobile-dump
+
 dev-ci-rm: \
 local-dev-container-image-pull \
 local-containers-rm-ci \

@@ -3,10 +3,12 @@ EXAMPLE_APPLICATION_DIR ?= $(LOCAL_DIR)/example-application
 -include $(EXAMPLE_APPLICATION_DIR)/frontend/frontend.mk
 -include $(EXAMPLE_APPLICATION_DIR)/backend/backend.mk
 -include $(EXAMPLE_APPLICATION_DIR)/mobile/mobile.mk
+-include $(EXAMPLE_APPLICATION_DIR)/tests/tests.mk
 
 APPLICATION_DOCKER_BUILDX_BAKE_IMAGES := \
   backend \
-  mobile
+  mobile \
+  tests
 
 example-application-docker-images:
 	@$(MAKE) -j $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
@@ -29,7 +31,8 @@ $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): docke
 
 EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   example-application-backend \
-  example-application-mobile
+  example-application-mobile \
+  example-application-tests
 
 example-application-containers-rm: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
 .PHONY: example-application-containers-rm

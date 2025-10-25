@@ -17,15 +17,18 @@ variable "VEGITO_APP_PUBLIC_IMAGES_BASE" {
 variable "VEGITO_APP_PRIVATE_IMAGES_BASE" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-app"
 }
+
 group "local-example-application" {
   targets = [
     "example-application-backend",
     "example-application-mobile",
+    "example-application-tests",
   ]
 }
 group "example-application-ci" {
   targets = [
     "example-application-backend",
     "example-application-mobile",
+    "example-application-tests",
   ]
 }

@@ -30,7 +30,7 @@ services:
   example-application-mobile:
     cap_add:
       - SYS_ADMIN
-    image: ${EXAMPLE_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-mobile-latest}
+    image: ${EXAMPLE_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:example-application-mobile-latest}
     env_file:
       - .env
     environment:
@@ -48,3 +48,24 @@ services:
       dev:
         aliases:
           - application-mobile
+
+  example-application-tests:
+    tty: true
+    image: ${EXAMPLE_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:example-application-tests-latest}
+    environment:
+      APPLICATION_BACKEND_URL_DEBUG: http://application-backend:8888
+      LOCAL_WORKSPACE: ${PWD}
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
+      STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
+    volumes:
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+    working_dir: ${PWD}/example-application/tests
+    # command: |
+    #   bash -c '
+    #   set -eu
+    #   ./entrypoint.sh
+    #   '
+    networks:
+      dev:
+        aliases:
+          - application-tests

@@ -58,6 +58,16 @@ jobs:
           make gcloud-auth-docker
           make local-container-config-show
           make dev-ci
+      - name: Generate Mobile Preview Screenshot
+        run: |
+          make application-mobile-screenshot
+          mv /workspaces/vegito-app/local/android/release-${{ inputs.version }}-screenshot.png mobile/preview.png
+
+      - name: Upload Mobile Preview Screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-preview-${{ inputs.environment }}-${{ inputs.version }}
+          path: mobile/preview.png
 
       - name: Run Application Tests
         run: |

@@ -36,6 +36,7 @@ target "robotframework-ci" {
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
+  platforms = platforms
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {

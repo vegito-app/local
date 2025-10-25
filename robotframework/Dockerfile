@@ -17,11 +17,6 @@ RUN apt-get update && apt-get install -y \
     python3 python3-pip python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Stripe CLI via .deb from GitHub Releases
-RUN curl -L -o /tmp/stripe-cli.deb https://github.com/stripe/stripe-cli/releases/download/v1.27.0/stripe_1.27.0_linux_amd64.deb \
-    && apt-get install -y /tmp/stripe-cli.deb \
-    && rm /tmp/stripe-cli.deb
-
 RUN python3 -m venv /opt/venv
 
 RUN /opt/venv/bin/pip install --no-cache-dir \
