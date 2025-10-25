@@ -4,9 +4,8 @@ name: Application Release Pipeline
 on:
   workflow_call:
     inputs:
-      ci_version:
-        required: false
-        default: main
+      version:
+        required: true
         type: string
       environment:
         required: true
@@ -23,83 +22,20 @@ on:
         required: false
         type: boolean
         default: true
-      # Ajout des inputs pour les chemins personnalisés
-      android_release_keystore_path:
-        required: false
-        type: string
-        default: example-application/mobile/android/release-key.keystore
-      android_release_keystore_base64_path:
-        required: false
-        type: string
-        default: example-application/mobile/android/release-key.keystore.base64
-      android_release_keystore_store_pass_base64_path:
-        required: false
-        type: string
-        default: example-application/mobile/android/release-key.keystore.storepass.base64
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
-        required: true
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
-        required: true
-      WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-      ANDROID_RELEASE_KEYSTORE:
-        required: true
-      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
-        required: true
 
 permissions:
   id-token: write
   contents: write
 
 jobs:
-  version:
-    name: Generate Version and Changelog
-    uses: vegito-app/local/.github/workflows/version.yml@v1.6.1
-    # uses: vegito/.github/workflows/version.yml
-
-  build:
-    needs: version
-    name: Build and Push Images
-    uses: vegito-app/local/.github/workflows/build-images.yml@v1.6.1
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    with:
-      version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
-      application_release_bucket_prefix: ${{ inputs.application_release_bucket_prefix }}
-      use_registry_cache: ${{ inputs.use_registry_cache }}
-      android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
-      android_release_keystore_base64_path: ${{ inputs.android_release_keystore_base64_path }}
-      android_release_keystore_store_pass_base64_path: ${{ inputs.android_release_keystore_store_pass_base64_path }}
-    secrets: inherit
-
-  test:
-    needs:
-      - build
-      - version
-    name: Run Tests
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.6.1
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    with:
-      version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
-    secrets: inherit
-
   create-github-release:
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
-    needs: [version, build, test]
     env:
-      VERSION: ${{ needs.version.outputs.version }}
+      VERSION: ${{ inputs.version }}
       VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
       VEGITO_APPLICATION_RELEASE_BUCKET: vegito-app-prod-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}
-      LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.version.outputs.version }}-key.keystore.sha1
+      LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -275,10 +211,9 @@ jobs:
         environment: [dev, staging, prod]
     name: Upload ${{ matrix.environment }} artifacts and metadata to GCS
     runs-on: self-hosted
-    needs: [version, build, test]
     environment: ${{ matrix.environment }}
     env:
-      VERSION: ${{ needs.version.outputs.version }}
+      VERSION: ${{ inputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
@@ -400,11 +335,10 @@ jobs:
         environment: [dev, staging, prod]
     name: Cleanup docker env ${{ matrix.environment }} 🧼
     runs-on: self-hosted
-    needs: [version, build, test]
     if: ${{ always() }}
     environment: ${{ matrix.environment }}
     env:
-      VERSION: ${{ needs.version.outputs.version }}
+      VERSION: ${{ inputs.version }}
       INFRA_ENV: ${{ matrix.environment }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
