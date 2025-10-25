@@ -4,6 +4,10 @@ name: Application Release Pipeline
 on:
   workflow_call:
     inputs:
+      ci_version:
+        required: false
+        default: main
+        type: string
       environment:
         required: true
         type: string
@@ -53,12 +57,13 @@ permissions:
 jobs:
   version:
     name: Generate Version and Changelog
-    uses: ./.github/workflows/version.yml
+    uses: vegito-app/local/.github/workflows/version.yml@v1.6.1
+    # uses: vegito/.github/workflows/version.yml
 
   build:
     needs: version
     name: Build and Push Images
-    uses: ./.github/workflows/build-images.yml
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.6.1
     strategy:
       matrix:
         environment: [dev, staging, prod]
@@ -77,7 +82,7 @@ jobs:
       - build
       - version
     name: Run Tests
-    uses: ./.github/workflows/functional-tests.yml
+    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.6.1
     strategy:
       matrix:
         environment: [dev, staging, prod]
