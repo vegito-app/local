@@ -31,8 +31,6 @@ on:
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
-        required: true
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
         required: true
       WORKLOAD_IDENTITY_PROVIDER:
@@ -58,7 +56,6 @@ jobs:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
       USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
@@ -115,7 +112,7 @@ jobs:
       - name: Upload images-build.log
         uses: actions/upload-artifact@v4
         with:
-          name: images-build-log-${{ inputs.environment }}
+          name: images-build-log-${{ inputs.environment }}-${{ inputs.version }}
           path: |
             images-build.log
 
@@ -166,7 +163,7 @@ jobs:
       - name: Upload docker tags and index as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: docker-metadata-${{ inputs.version }}-${{ inputs.environment }}
+          name: docker-metadata-${{ inputs.environment }}-${{ inputs.version }}
           path: |
             docker-tags.txt
             index.json

@@ -4,9 +4,8 @@ name: Application Release Pipeline
 on:
   workflow_call:
     inputs:
-      ci_version:
-        required: false
-        default: main
+      version:
+        required: true
         type: string
       environment:
         required: true
@@ -23,31 +22,12 @@ on:
         required: false
         type: boolean
         default: true
-      # Ajout des inputs pour les chemins personnalisés
-      android_release_keystore_path:
-        required: false
-        type: string
-        default: example-application/mobile/android/release-key.keystore
-      android_release_keystore_base64_path:
-        required: false
-        type: string
-        default: example-application/mobile/android/release-key.keystore.base64
-      android_release_keystore_store_pass_base64_path:
-        required: false
-        type: string
-        default: example-application/mobile/android/release-key.keystore.storepass.base64
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
         required: true
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
         required: true
       WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-      ANDROID_RELEASE_KEYSTORE:
-        required: true
-      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
         required: true
 
 permissions:
@@ -55,51 +35,14 @@ permissions:
   contents: write
 
 jobs:
-  version:
-    name: Generate Version and Changelog
-    uses: vegito-app/local/.github/workflows/version.yml@v1.6.1
-    # uses: vegito/.github/workflows/version.yml
-
-  build:
-    needs: version
-    name: Build and Push Images
-    uses: vegito-app/local/.github/workflows/build-images.yml@v1.6.1
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    with:
-      version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
-      application_release_bucket_prefix: ${{ inputs.application_release_bucket_prefix }}
-      use_registry_cache: ${{ inputs.use_registry_cache }}
-      android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
-      android_release_keystore_base64_path: ${{ inputs.android_release_keystore_base64_path }}
-      android_release_keystore_store_pass_base64_path: ${{ inputs.android_release_keystore_store_pass_base64_path }}
-    secrets: inherit
-
-  test:
-    needs:
-      - build
-      - version
-    name: Run Tests
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.6.1
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    with:
-      version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
-    secrets: inherit
-
   create-github-release:
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
-    needs: [version, build, test]
     env:
-      VERSION: ${{ needs.version.outputs.version }}
+      VERSION: ${{ inputs.version }}
       VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
       VEGITO_APPLICATION_RELEASE_BUCKET: vegito-app-prod-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}
-      LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ needs.version.outputs.version }}-key.keystore.sha1
+      LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -169,23 +112,27 @@ jobs:
 
       - name: Append environment-specific information to changelog
         run: |
+          set -euxo pipefail
+          sudo apt-get update && sudo apt-get install -y tree
+          tree ./artifacts
           for env in prod staging dev; do
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [$env] Environment Artifacts:" >> RELEASE_BODY.md
             echo "" >> RELEASE_BODY.md
             
             # Append Android keystore SHA1 if available
-            keystore_sha1_path="./artifacts/$env/${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}"
+            keystore_sha1_path="./artifacts/$env/android-artifacts-$env-${{ inputs.version }}/${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}"
             if [ -f "$keystore_sha1_path" ]; then
               echo "**Android Release Keystore SHA1:**" >> RELEASE_BODY.md
               echo '```' >> RELEASE_BODY.md
               cat "$keystore_sha1_path" >> RELEASE_BODY.md
+              echo '' >> RELEASE_BODY.md
               echo '```' >> RELEASE_BODY.md
               echo "" >> RELEASE_BODY.md
             fi
             
             # Append Docker tags if available
-            docker_tags_path="./artifacts/$env/docker-tags.txt"
+            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.txt"
             if [ -f "$docker_tags_path" ]; then
               echo "**Docker images published:**" >> RELEASE_BODY.md
               cat "$docker_tags_path" >> RELEASE_BODY.md
@@ -275,14 +222,14 @@ jobs:
         environment: [dev, staging, prod]
     name: Upload ${{ matrix.environment }} artifacts and metadata to GCS
     runs-on: self-hosted
-    needs: [version, build, test]
     environment: ${{ matrix.environment }}
     env:
-      VERSION: ${{ needs.version.outputs.version }}
+      VERSION: ${{ inputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       INFRA_ENV: ${{ matrix.environment }}
       GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GCS_BUCKET_NAME: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
@@ -304,7 +251,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
@@ -312,7 +259,7 @@ jobs:
       - name: Download docker metadata artifact
         uses: actions/download-artifact@v4
         with:
-          name: docker-metadata-${{ env.VERSION }}-${{ matrix.environment }}
+          name: docker-metadata-${{ matrix.environment }}-${{ env.VERSION }}
 
       - name: Generate index.json for release root
         run: |
@@ -335,7 +282,7 @@ jobs:
       - name: Download build log artifact
         uses: actions/download-artifact@v4
         with:
-          name: images-build-log-${{ matrix.environment }}
+          name: images-build-log-${{ matrix.environment }}-${{ env.VERSION }}
           path: ./artifacts/logs
 
       - name: Download APK and AAB artifacts
@@ -381,9 +328,11 @@ jobs:
             echo "<html><body><h1>Robot Test Results for ${VERSION}</h1></body></html>" > ./artifacts/tests/robot-output.html
           fi
 
-          # Créer un images-build.log factice si absent
-          if [ ! -f ./artifacts/logs/images-build.log ]; then
-            echo "<html><body><pre>Build log for ${VERSION}</pre></body></html>" > ./artifacts/logs/images-build.log
+          # Créer build-log.html à partir du log brut si présent
+          if [ -f ./artifacts/logs/images-build.log ]; then
+            echo "<html><body><pre>" > ./artifacts/logs/build-log.html
+            cat ./artifacts/logs/images-build.log >> ./artifacts/logs/build-log.html
+            echo "</pre></body></html>" >> ./artifacts/logs/build-log.html
           fi
 
           gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
@@ -391,7 +340,7 @@ jobs:
           find ./artifacts -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
           gcloud storage cp ./artifacts/preview.png "gs://$gs_path/preview.png" --quiet
           gcloud storage cp ./artifacts/tests/robot-output.html "gs://$gs_path/tests/robot-output.html" --quiet
-          gcloud storage cp ./artifacts/logs/images-build.log "gs://$gs_path/logs/images-build.log" --quiet
+          gcloud storage cp ./artifacts/logs/build-log.html "gs://$gs_path/logs/build-log.html" --quiet
           gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
 
   cleanup-docker-environment:
@@ -400,18 +349,18 @@ jobs:
         environment: [dev, staging, prod]
     name: Cleanup docker env ${{ matrix.environment }} 🧼
     runs-on: self-hosted
-    needs: [version, build, test]
     if: ${{ always() }}
     environment: ${{ matrix.environment }}
     env:
-      VERSION: ${{ needs.version.outputs.version }}
+      VERSION: ${{ inputs.version }}
       INFRA_ENV: ${{ matrix.environment }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       BUILDER_IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/${{ vars.VEGITO_PROJECT_NAME }}:builder-latest
       COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ matrix.environment }}-${{ github.run_id }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -427,7 +376,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
