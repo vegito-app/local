@@ -30,7 +30,7 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
+LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -104,6 +104,14 @@ local-docker-compose-network-rm-dev
 logs: local-dev-container-logs-f
 .PHONY: logs
 
-end-to-end-tests: local-robotframework-tests-container-run
+functional-tests: local-robotframework-tests-container-run
 	@echo "End-to-end tests completed successfully."
-.PHONY: end-to-end-tests
+.PHONY: functional-tests
+
+functional-tests-ci: example-application-tests-container-up
+	@echo "End-to-end tests completed successfully."
+.PHONY: functional-tests
+
+test-local: example-application-tests-robot-all
+	@echo "End-to-end tests completed successfully."
+.PHONY: test-local

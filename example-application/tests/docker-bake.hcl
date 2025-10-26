@@ -7,7 +7,7 @@ variable "EXAMPLE_APPLICATION_TESTS_IMAGES_BASE" {
 }
 
 variable "EXAMPLE_APPLICATION_TESTS_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-tests-v1.6.3-1-gee402dc" : ""
+  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-tests-${VERSION}" : ""
 }
 
 variable "EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST" {
@@ -24,7 +24,7 @@ variable "EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI" {
 
 target "example-application-tests-ci" {
   args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-cquoicettemerde"
+    robotframework_image = LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION
   }
   context    = EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
@@ -55,7 +55,7 @@ target "example-application-tests" {
   context    = EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
   args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-v1.6.3-1-gee402dc"
+    robotframework_image = LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION
   }
   tags = [
     EXAMPLE_APPLICATION_TESTS_IMAGE_VERSION,

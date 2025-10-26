@@ -9,11 +9,11 @@ variable "VERSION" {
 }
 
 variable "EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-backend"
 }
 
 variable "EXAMPLE_APPLICATION_BACKEND_IMAGE" {
-  default = notequal("dev", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend-${VERSION}" : ""
+  default = notequal("dev", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-backend-${VERSION}" : ""
 }
 
 variable "EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
@@ -77,7 +77,7 @@ target "example-application-backend" {
     "project" : "."
   }
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
+    builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
   tags = [
     EXAMPLE_APPLICATION_BACKEND_IMAGE,

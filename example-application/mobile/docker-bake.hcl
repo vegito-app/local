@@ -4,11 +4,11 @@ variable "EXAMPLE_APPLICATION_MOBILE_DIR" {
 }
 
 variable "EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}" : ""
+  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-${VERSION}" : ""
 }
 
 variable "EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-latest"
 }
 
 variable "EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -69,10 +69,10 @@ variable "EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_
 
 target "example-application-mobile" {
   args = {
-    apk_builder_image       = EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
-    apk_runner_appium_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-v1.6.3"
-    environment             = INFRA_ENV
-    version                 = VERSION
+    # apk_builder_image       = EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
+    apk_runner_appium_image = LOCAL_ANDROID_APPIUM_IMAGE_VERSION
+    # environment             = INFRA_ENV
+    version = VERSION
   }
   secret = [
     {
@@ -107,8 +107,7 @@ target "example-application-mobile" {
 
 target "example-application-mobile-ci" {
   args = {
-    apk_runner_appium_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-v1.6.3"
-    apk_runner_appium_image = EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
+    apk_runner_appium_image = LOCAL_ANDROID_APPIUM_IMAGE_VERSION
     version                 = VERSION
   }
   secret = [

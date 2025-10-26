@@ -4,7 +4,7 @@ services:
       context: ${PWD}
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    image: ${EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:application-backend-latest}
+    image: ${EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:example-application-backend-latest}
     env_file:
       - .env
     environment:
@@ -60,6 +60,7 @@ services:
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/example-application/tests
+    # working_dir: ${HOME}/tests
     # command: |
     #   bash -c '
     #   set -eu
