@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euxo pipefail
+set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 

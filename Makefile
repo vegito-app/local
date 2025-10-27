@@ -72,19 +72,31 @@ images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
 
-dev: local-containers-up local-android-containers-up example-application-containers-up
+dev: \
+local-containers-up \
+local-android-containers-up \
+example-application-backend-container-up \
+example-application-mobile-container-up
 .PHONY: dev
 
 dev-rm: example-application-containers-rm local-containers-rm local-android-containers-rm
 .PHONY: dev-rm
 
-dev-ci: images-pull local-containers-up-ci example-application-containers-up-ci
+dev-ci: \
+images-pull \
+local-containers-up-ci \
+example-application-backend-container-up-ci \
+example-application-mobile-container-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-application-mobile-image-extract-android-artifacts: local-android-mobile-image-tag-release-extract
+application-mobile-image-extract-android-artifacts: example-application-mobile-extract-android-artifacts
 	@echo "✅ Extracted Android release artifacts successfully."
 .PHONY: application-mobile-image-extract-android-artifacts
+
+application-mobile-wait-for-boot: example-application-mobile-wait-for-boot
+	@echo "✅ Booted mobile application successfully."
+.PHONY: application-mobile-wait-for-boot
 
 application-mobile-screenshot: example-application-mobile-screenshot
 	@echo "✅ Captured mobile application screenshot successfully."
@@ -103,6 +115,10 @@ local-docker-compose-network-rm-dev
 
 logs: local-dev-container-logs-f
 .PHONY: logs
+
+containers-logs-ci: local-containers-logs-ci example-application-containers-logs-ci
+	@echo "✅ Retrieved CI containers logs successfully."
+.PHONY: containers-logs-ci
 
 functional-tests: local-robotframework-tests-container-run
 	@echo "End-to-end tests completed successfully."
