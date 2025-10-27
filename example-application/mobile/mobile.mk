@@ -51,8 +51,6 @@ example-application-mobile-flutter-analyze:
 	@$(FLUTTER) analyze
 .PHONY: example-application-mobile-flutter-analyze
 
-ADB ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio adb
-
 flutter-app-uninstall:
 	@echo "Uninstalling the app from the emulator"
 	@$(ADB) uninstall dev.vegito.app.android || true
@@ -209,7 +207,7 @@ example-application-mobile-android-release-keystore:
 	@LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=$(EXAMPLE_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME=$(EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
-	$(MAKE) local-android-release-keystore 
+	  $(MAKE) local-android-release-keystore 
 .PHONY: example-application-mobile-android-release-keystore
 ## 📦 END ANDROID RELEASE FULL PIPELINE
 ################################################################################
@@ -218,14 +216,26 @@ EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME = example-application-mobile
 
 EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME)
 
+EXAMPLE_APPLICATION_MOBILE_IMAGE = $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
+
+example-application-mobile-wait-for-boot:
+	@LOCAL_ANDROID_CONTAINER_EXEC="$(EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	  $(MAKE) local-android-emulator-wait-for-boot
+.PHONY: example-application-mobile-wait-for-boot
+
 example-application-mobile-screenshot:
 	@echo "Capturing screenshot from Android Emulator..."
 	@LOCAL_ANDROID_CONTAINER_EXEC="$(EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
-	  make local-android-emulator-screenshot
+	  $(MAKE) local-android-emulator-screenshot
 .PHONY: example-application-mobile-screenshot
 
 example-application-mobile-dump:
 	@echo "Capturing dump from Android Emulator..."
 	@LOCAL_ANDROID_BUILDER_CONTAINER_EXEC="$(EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
-	  make local-android-emulator-dump
+	  $(MAKE) local-android-emulator-dump
 .PHONY: example-application-mobile-dump
+
+example-application-mobile-extract-android-artifacts:
+	LOCAL_ANDROID_MOBILE_IMAGE=$(EXAMPLE_APPLICATION_MOBILE_IMAGE) \
+	$(MAKE) local-android-mobile-image-tag-release-extract
+.PHONY: example-application-mobile-extract-android-artifacts

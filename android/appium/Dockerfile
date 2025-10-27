@@ -16,7 +16,7 @@ WORKDIR ${HOME}
 
 ENV PATH=${HOME}/node_modules/.bin:${PATH}
 
-RUN npm install appium@3.0.0-rc.2 \
+RUN npm install appium@3.0.0-rc.2 && \
     appium driver install uiautomator2
 
 # 📥 Entrypoint to launch emulator + APK

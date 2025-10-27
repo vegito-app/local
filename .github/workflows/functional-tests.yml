@@ -8,6 +8,10 @@ on:
       environment:
         required: true
         type: string
+      functional-tests-output-dir:
+        required: false
+        type: string
+        default: "tests/output"
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -55,30 +59,48 @@ jobs:
 
       - name: Setup Docker Environment
         run: |
+          set -euo pipefail
           make gcloud-config-set-project
           make gcloud-auth-docker
           make local-container-config-show
           make dev-ci
+
+      - name: Wait for Mobile Application to Boot
+        run: |
+          make application-mobile-wait-for-boot
+      - name: Run Application Tests
+        run: |
+          set -euo pipefail
+          sleep 100
+          make functional-tests-ci
+
       - name: Generate Mobile Preview Screenshot
         run: |
           make application-mobile-screenshot
-          mv /workspaces/vegito-app/local/android/release-${{ inputs.version }}-screenshot.png mobile/preview.png
+          mv android/release-${{ env.VERSION }}-screenshot.png preview.png
 
       - name: Upload Mobile Preview Screenshot
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-preview-${{ inputs.environment }}-${{ inputs.version }}
-          path: mobile/preview.png
+          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: preview.png
 
-      - name: Run Application Tests
+      - name: Collect Docker Containers Logs
         run: |
-          make functional-tests-ci
+          make containers-logs-ci 2>&1 > containers.log
+
+      - name: Upload Mobile Preview Screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-logs-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: |
+            containers.log
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ inputs.environment }}-${{ inputs.version }}
-          path: tests/output
+          name: tests-results-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: ${{ inputs.functional-tests-output-dir}}
 
       - name: Cleanup Docker Environment
         if: always()
