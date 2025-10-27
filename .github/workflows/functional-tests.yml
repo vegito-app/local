@@ -58,26 +58,40 @@ jobs:
           make gcloud-config-set-project
           make gcloud-auth-docker
           make local-container-config-show
-          make dev-ci
+          make dev-ci 2>&1 | tee dev-ci-start.log
+
+      - name: Wait for Mobile Application to Boot
+        run: |
+          make application-mobile-wait-for-boot
       - name: Generate Mobile Preview Screenshot
         run: |
           make application-mobile-screenshot
-          mv /workspaces/vegito-app/local/android/release-${{ inputs.version }}-screenshot.png mobile/preview.png
+          mv android/release-${{ env.VERSION }}-screenshot.png mobile-preview.png
 
       - name: Upload Mobile Preview Screenshot
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-preview-${{ inputs.environment }}-${{ inputs.version }}
-          path: mobile/preview.png
+          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: mobile-preview.png
 
       - name: Run Application Tests
         run: |
-          make functional-tests-ci
+          make functional-tests-ci 2>&1 | tee functional-tests.log
+          make containers-logs-ci 2>&1 | tee containers.log
+
+      - name: Upload Mobile Preview Screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-logs-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: |
+            dev-ci-start.log
+            functional-tests.log
+            containers.log
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ inputs.environment }}-${{ inputs.version }}
+          name: tests-results-${{ env.INFRA_ENV }}-${{ env.VERSION }}
           path: tests/output
 
       - name: Cleanup Docker Environment

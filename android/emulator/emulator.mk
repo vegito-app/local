@@ -1,3 +1,33 @@
+ADB = $(LOCAL_ANDROID_CONTAINER_EXEC) adb
+
+LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH ?= $(LOCAL_ANDROID_MOBILE_DIR)/release-$(VERSION)-screenshot.png
+
+local-android-emulator-screenshot:
+	@echo "Capturing screenshot from Android Emulator..."
+	@$(ADB) exec-out screencap -p > $(LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH)
+	@echo "✅ Screenshot saved to $(LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH)"
+.PHONY: local-android-emulator-screenshot
+
+local-android-emulator-wait-for-boot:
+	@echo "Waiting for Android Emulator to boot..."
+	@$(ADB) wait-for-device
+	@$(ADB) shell getprop sys.boot_completed | grep -m 1 '1'
+.PHONY: local-android-emulator-wait-for-boot
+
+local-android-emulator-logs:
+	@echo "Fetching last 10 lines of Android Emulator logs..."
+	@$(ADB) logcat -T 10
+.PHONY: local-android-emulator-logs
+
+local-android-emulator-adb-devices-list:
+	@echo "Listing connected Android Emulator devices..."
+	@$(ADB) devices -l
+.PHONY: local-android-emulator-adb-devices-list
+
+local-android-emulator-avd-start:
+	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) android-emulator-avd-start.sh
+.PHONY: local-android-emulator-avd-start
+
 local-android-emulator-avd-restart:
 	@echo "Restarting android-studio emulator..."
 	@echo LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME)
@@ -24,19 +54,7 @@ local-android-emulator-avd-restart:
 	  sleep infinity ; \
 	'
 .PHONY: local-android-emulator-avd-restart
-
-local-android-emulator-avd-start:
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) android-emulator-avd-start.sh
 .PHONY: local-android-emulator-avd-start
-
-local-android-emulator-logs:
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) adb logcat -T 10
-.PHONY: local-android-emulator-logs
-
-local-android-emulator-adb-devices-list:
-	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) adb devices -l
-.PHONY: local-android-emulator-adb-devices-list
-
 local-android-emulator-kernel:
 	@echo "Showing emulator kernel..."
 	@$(LOCAL_ANDROID_BUILDER_CONTAINER_EXEC) bash -c ' \

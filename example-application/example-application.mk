@@ -31,7 +31,8 @@ $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): docke
 
 EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   example-application-backend \
-  example-application-mobile \
+  example-application-mobile
+#    \
   example-application-tests
 
 example-application-containers-rm: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
@@ -39,6 +40,9 @@ example-application-containers-rm: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES
 
 example-application-containers-up: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up)
 .PHONY: example-application-containers-up
+
+example-application-containers-logs: $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs)
+.PHONY: example-application-containers-logs
 
 $(EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm):
 	@echo "🗑️  Removing container for $(@:%-container-rm=%)..."
@@ -106,7 +110,7 @@ example-application-docker-images-push:
 	@$(MAKE) -j example-application-docker-compose-images-push
 .PHONY: example-application-docker-images-push
 
-LOCAL_CONTAINERS_GROUP_OPERATIONS_CI := up rm
+LOCAL_CONTAINERS_GROUP_OPERATIONS_CI := up rm logs
 
 $(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'example-application-containers-$(@:example-application-containers-%-ci=%)' for all local containers in CI..."
