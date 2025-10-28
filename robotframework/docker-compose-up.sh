@@ -22,4 +22,4 @@ bg_pids+=("$!")
 
 docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_DIR}/docker-compose.yml}
 
-$docker_compose up robotframework-tests 2>&1
+$docker_compose up robotframework 2>&1

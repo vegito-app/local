@@ -38,13 +38,13 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
+	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
-    -f $(EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+    -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -120,7 +120,7 @@ containers-logs-ci: local-containers-logs-ci example-application-containers-logs
 	@echo "✅ Retrieved CI containers logs successfully."
 .PHONY: containers-logs-ci
 
-functional-tests: local-robotframework-tests-container-run
+functional-tests: local-robotframework-container-run
 	@echo "End-to-end tests completed successfully."
 .PHONY: functional-tests
 

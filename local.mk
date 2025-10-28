@@ -68,7 +68,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  robotframework-tests
+  robotframework
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -187,6 +187,7 @@ local-dev-container-logs-f:
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   vault-dev \
   firebase-emulators \
+  clarinet-devnet
 
 #   clarinet-devnet
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev

@@ -1,5 +1,5 @@
 NODE_MODULES ?= \
-	$(EXAMPLE_APPLICATION_DIR)/frontend \
+	$(VEGITO_EXAMPLE_APPLICATION_DIR)/frontend \
 	$(LOCAL_FIREBASE_EMULATORS_DIR)/auth_functions
 
 local-node-modules-npm-check-updates: 
