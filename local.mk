@@ -101,6 +101,9 @@ local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 local-containers-rm: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm
 
+local-containers-logs: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs)
+.PHONY: local-containers-logs
+
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
 	@echo "⬇︎ Pulling image for $(@:local-%-image-pull=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) pull $(@:local-%-image-pull=%)
@@ -184,14 +187,14 @@ local-dev-container-logs-f:
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   vault-dev \
   firebase-emulators \
-  clarinet-devnet \
-  robotframework
+  clarinet-devnet
 
+#   clarinet-devnet
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
 LOCAL_DEV_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
-LOCAL_CONTAINERS_OPERATIONS_CI = up rm
+LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
@@ -202,7 +205,6 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
-	      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE=$(LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION) \
 	      LOCAL_CLARINET_DEVNET_IMAGE=$(LOCAL_CLARINET_DEVNET_IMAGE_VERSION) \
 	      LOCAL_FIREBASE_EMULATORS_IMAGE=$(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION) \
 	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)

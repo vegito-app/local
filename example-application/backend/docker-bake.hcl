@@ -9,11 +9,11 @@ variable "VERSION" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-backend"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE" {
-  default = notequal("dev", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-backend-${VERSION}" : ""
+  default = notequal("dev", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-backend-${VERSION}" : ""
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
@@ -21,14 +21,14 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/application-backend"
+  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/example-application-backend"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/application-backend/ci"
+  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/example-application-backend/ci"
 }
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR}/.containers/application-backend/docker-buildx-cache"
+  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR}/.containers/example-application-backend/docker-buildx-cache"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -44,8 +44,8 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
 target "example-application-backend-ci" {
   context = "example-application/backend"
   contexts = {
-    "approot" : "example-application"
-    "appfrontend" : "example-application/frontend"
+    "approot" : EXAMPLE_APPLICATION_DIR
+    "appfrontend" : "${EXAMPLE_APPLICATION_DIR}/frontend"
     "project" : "."
   }
   args = {
@@ -72,12 +72,12 @@ target "example-application-backend-ci" {
 target "example-application-backend" {
   context = "example-application/backend"
   contexts = {
-    "approot" : "example-application"
-    "appfrontend" : "example-application/frontend"
+    "approot" : EXAMPLE_APPLICATION_DIR
+    "appfrontend" : "${EXAMPLE_APPLICATION_DIR}/frontend"
     "project" : "."
   }
   args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
+    builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,

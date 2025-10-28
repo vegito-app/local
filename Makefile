@@ -30,7 +30,7 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_DIR := $(LOCAL_DIR)/robotframework
+LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -72,19 +72,39 @@ images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
 
-dev: local-containers-up local-android-containers-up example-application-containers-up
+dev: \
+local-containers-up \
+local-android-containers-up \
+example-application-backend-container-up \
+example-application-mobile-container-up
 .PHONY: dev
 
 dev-rm: example-application-containers-rm local-containers-rm local-android-containers-rm
 .PHONY: dev-rm
 
-dev-ci: images-pull local-containers-up-ci example-application-containers-up-ci
+dev-ci: \
+images-pull \
+local-containers-up-ci \
+example-application-backend-container-up-ci \
+example-application-mobile-container-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-application-mobile-image-extract-android-artifacts: local-android-mobile-image-tag-release-extract
+application-mobile-image-extract-android-artifacts: example-application-mobile-extract-android-artifacts
 	@echo "✅ Extracted Android release artifacts successfully."
 .PHONY: application-mobile-image-extract-android-artifacts
+
+application-mobile-wait-for-boot: example-application-mobile-wait-for-boot
+	@echo "✅ Booted mobile application successfully."
+.PHONY: application-mobile-wait-for-boot
+
+application-mobile-screenshot: example-application-mobile-screenshot
+	@echo "✅ Captured mobile application screenshot successfully."
+.PHONY: application-mobile-screenshot
+
+application-mobile-dump: example-application-mobile-dump
+	@echo "✅ Dumped mobile application successfully."
+.PHONY: application-mobile-dump
 
 dev-ci-rm: \
 local-dev-container-image-pull \
@@ -96,6 +116,18 @@ local-docker-compose-network-rm-dev
 logs: local-dev-container-logs-f
 .PHONY: logs
 
-end-to-end-tests: local-robotframework-container-run
+containers-logs-ci: local-containers-logs-ci example-application-containers-logs-ci
+	@echo "✅ Retrieved CI containers logs successfully."
+.PHONY: containers-logs-ci
+
+functional-tests: local-robotframework-container-run
 	@echo "End-to-end tests completed successfully."
-.PHONY: end-to-end-tests
+.PHONY: functional-tests
+
+functional-tests-ci: example-application-tests-container-up
+	@echo "End-to-end tests completed successfully."
+.PHONY: functional-tests
+
+test-local: example-application-tests-robot-all
+	@echo "End-to-end tests completed successfully."
+.PHONY: test-local

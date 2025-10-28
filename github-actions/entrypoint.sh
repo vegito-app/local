@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 # Define a unique name for the local Buildx builder
 export HOSTNAME=$(hostname)

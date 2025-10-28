@@ -30,7 +30,7 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 cat << 'EOF' >> ~/.bashrc
-alias rf='robot --outputdir ${LOCAL_ROBOTFRAMEWORK_DIR} tests/robot'
+alias rf='robot --outputdir ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR} tests/robot'
 alias h='htop'
 alias i='sudo iftop'
 alias ll='ls -lha'
@@ -39,10 +39,12 @@ alias la='ls -Ah'
 alias lla='ls -lhA'
 EOF
 
-mkdir -p ${LOCAL_ROBOTFRAMEWORK_DIR}
+mkdir -p ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR}
 
-cd ${LOCAL_ROBOTFRAMEWORK_DIR} && python3 -m http.server 8088 &
+cd ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR} && python3 -m http.server 8088 &
 bg_pids+=($!)
+
+exec "$@"
 
 # Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
 current_workspace=$PWD
@@ -50,5 +52,3 @@ if [ "$current_workspace" != "$LOCAL_WORKSPACE" ] ; then
     sudo ln -s $current_workspace $LOCAL_WORKSPACE 2>&1 || true
     echo "Linked current workspace $current_workspace to $LOCAL_WORKSPACE"
 fi
-
-exec "$@"

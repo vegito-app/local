@@ -118,7 +118,12 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-latest
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
-    
+      
+  robotframework:
+    working_dir: ${PWD}/example-application/tests
+    environment:
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
+
   firebase-emulators:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
     environment:
@@ -162,6 +167,12 @@ services:
       ${dockerNetworkName}:
         aliases:
           - example-application-mobile
+
+  example-application-tests:
+    networks:
+      ${dockerNetworkName}:
+        aliases:
+          - example-application-tests
 
   firebase-emulators:
     networks:

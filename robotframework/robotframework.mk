@@ -5,7 +5,7 @@ LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):robotfr
 local-robotframework-container-up: local-robotframework-container-rm
 	@echo "Starting robotframework tests container..."
 	@VERSION=latest $(LOCAL_DIR)/robotframework/docker-compose-up.sh &
-	@$(LOCAL_DOCKER_COMPOSE) logs robotframework
+	@$(LOCAL_DOCKER_COMPOSE) logs robotframework-tests
 	@echo
 	@echo Started Application tests display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs

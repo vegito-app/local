@@ -1,0 +1,108 @@
+name: Functional Tests
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      functional-tests-output-dir:
+        required: false
+        type: string
+        default: "tests/output"
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-tests:
+    name: Run Tests ${{ inputs.environment }} ✅
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    env:
+      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ inputs.environment }}-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VERSION: ${{ inputs.version }}
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      INFRA_ENV: ${{ inputs.environment }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Setup Docker Environment
+        run: |
+          set -euo pipefail
+          make gcloud-config-set-project
+          make gcloud-auth-docker
+          make local-container-config-show
+          make dev-ci
+
+      - name: Wait for Mobile Application to Boot
+        run: |
+          make application-mobile-wait-for-boot
+      - name: Run Application Tests
+        run: |
+          set -euo pipefail
+          sleep 100
+          make functional-tests-ci
+
+      - name: Generate Mobile Preview Screenshot
+        run: |
+          make application-mobile-screenshot
+          mv android/release-${{ env.VERSION }}-screenshot.png preview.png
+
+      - name: Upload Mobile Preview Screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: preview.png
+
+      - name: Collect Docker Containers Logs
+        run: |
+          make containers-logs-ci 2>&1 > containers.log
+
+      - name: Upload Mobile Preview Screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-logs-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: |
+            containers.log
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-results-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: ${{ inputs.functional-tests-output-dir}}
+
+      - name: Cleanup Docker Environment
+        if: always()
+        run: |
+          make dev-ci-rm

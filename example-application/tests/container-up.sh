@@ -17,9 +17,10 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
-fi
+docker_compose=${LOCAL_DOCKER_COMPOSE:-"docker compose -f ${VEGITO_MOBILE_DIR}/docker-compose.yml"}
+exec $docker_compose up example-application-tests \
+  --exit-code-from "example-application-tests" \
+  --abort-on-container-exit \
+  --build \
+  --remove-orphans \
+  --force-recreate
