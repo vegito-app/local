@@ -73,7 +73,7 @@ RUN chmod +x \
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_DEBUG_APK_PATH=${default_apk_path}
 
 # 🖥️ Display Variables
 ARG default_display=20
