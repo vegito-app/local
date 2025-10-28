@@ -17,9 +17,9 @@ jobs:
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
       BUILDER_IMAGE: ${BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/docker-repository-public/vegito-local:builder-latest}
       ANDROID_RELEASE_PACKAGE_NAME: dev.vegito.app.android
-      EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore
-      EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.base64
-      EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.storepass.base64
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.base64
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: example-application/mobile/android/dev.vegito.app.android-release-key.keystore.storepass.base64
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
 
     outputs:
@@ -63,8 +63,8 @@ jobs:
           make docker-buildx-setup
       - name: Restore ADB keys and debug.keystore
         run: |
-          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.base64
-          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.storepass.base64
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.base64
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH }}.storepass.base64
       - name: Build and load local project images
         run: |
           make images-ci
@@ -145,7 +145,7 @@ jobs:
         run: |
           make gcloud-auth-docker
       - name: Run Application tests
-        run: make robotframework-tests
+        run: make robotframework
 
   extract-release-artifacts:
     name: Upload Artifacts APK & AAB 📦

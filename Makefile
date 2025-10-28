@@ -30,7 +30,7 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
+LOCAL_ROBOTFRAMEWORK_DIR := $(LOCAL_DIR)/robotframework
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -38,13 +38,13 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
+	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
-    -f $(EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+    -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -96,6 +96,6 @@ local-docker-compose-network-rm-dev
 logs: local-dev-container-logs-f
 .PHONY: logs
 
-end-to-end-tests: local-robotframework-tests-container-run
+end-to-end-tests: local-robotframework-container-run
 	@echo "End-to-end tests completed successfully."
 .PHONY: end-to-end-tests

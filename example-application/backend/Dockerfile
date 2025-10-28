@@ -5,7 +5,7 @@ RUN mkdir ${HOME}/src
 WORKDIR ${HOME}/src
 
 ARG application_directory="example-application"
-ENV EXAMPLE_APPLICATION_DIR=${application_directory}
+ENV VEGITO_EXAMPLE_APPLICATION_DIR=${application_directory}
 
 COPY --from=project Makefile .
 COPY --from=project local.mk .

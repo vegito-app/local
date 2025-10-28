@@ -35,11 +35,11 @@ services:
         make dev
       fi
       if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
-        until make local-robotframework-tests-check-env ; do
+        until make local-robotframework-check-env ; do
           echo "[application-tests] Waiting for environment to be ready..."
           sleep 5
         done
-        make robotframework-tests
+        make robotframework
       fi
       sleep infinity
       '
@@ -172,13 +172,13 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/application
     tty: true
-  robotframework-tests:
+  robotframework:
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
+      LOCAL_ROBOTFRAMEWORK_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
     env_file:
       - .env

@@ -4,7 +4,7 @@ services:
       context: ${PWD}
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    image: ${EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:application-backend-latest}
+    image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:application-backend-latest}
     env_file:
       - .env
     environment:
@@ -30,7 +30,7 @@ services:
   example-application-mobile:
     cap_add:
       - SYS_ADMIN
-    image: ${EXAMPLE_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-mobile-latest}
+    image: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:application-mobile-latest}
     env_file:
       - .env
     environment:

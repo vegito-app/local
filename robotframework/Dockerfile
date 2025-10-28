@@ -49,6 +49,6 @@ RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 COPY entrypoint.sh /usr/local/bin/tests-entrypoint.sh
 
-ENV LOCAL_ROBOTFRAMEWORK_TESTS_DIR=${HOME}/robotframework
+ENV LOCAL_ROBOTFRAMEWORK_DIR=${HOME}/robotframework
 
 ENTRYPOINT [ "tests-entrypoint.sh" ]

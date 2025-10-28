@@ -68,7 +68,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  robotframework-tests
+  robotframework
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -185,7 +185,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   vault-dev \
   firebase-emulators \
   clarinet-devnet \
-  robotframework-tests
+  robotframework
 
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
@@ -202,7 +202,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
-	      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE=$(LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION) \
+	      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE=$(LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION) \
 	      LOCAL_CLARINET_DEVNET_IMAGE=$(LOCAL_CLARINET_DEVNET_IMAGE_VERSION) \
 	      LOCAL_FIREBASE_EMULATORS_IMAGE=$(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION) \
 	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)

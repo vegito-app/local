@@ -2,7 +2,7 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "local"
 }
-variable "EXAMPLE_APPLICATION_DIR" {
+variable "VEGITO_EXAMPLE_APPLICATION_DIR" {
   default = "."
 }
 variable "INFRA_ENV" {

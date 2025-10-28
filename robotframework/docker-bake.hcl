@@ -2,7 +2,7 @@ variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGES_BASE" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework"
 }
 
-variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION" {
+variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
   default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}" : ""
 }
 
@@ -25,7 +25,7 @@ target "robotframework-ci" {
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION,
+    LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,
     LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
@@ -53,7 +53,7 @@ target "robotframework" {
     builder_image = LOCAL_BUILDER_IMAGE_LATEST
   }
   tags = [
-    LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION,
+    LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,
     LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
