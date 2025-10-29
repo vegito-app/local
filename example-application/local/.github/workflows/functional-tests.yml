@@ -71,7 +71,6 @@ jobs:
       - name: Run Application Tests
         run: |
           set -euo pipefail
-          sleep 100
           make functional-tests-ci
 
       - name: Generate Mobile Preview Screenshot
