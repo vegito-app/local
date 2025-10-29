@@ -1,6 +1,6 @@
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR" {
   description = "current git tag or commit version"
-  default     = "application/backend"
+  default     = "${VEGITO_EXAMPLE_APPLICATION_DIR}/backend"
 }
 
 variable "VERSION" {
@@ -42,11 +42,10 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
 }
 
 target "example-application-backend-ci" {
-  context = "example-application/backend"
+  context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${EXAMPLE_APPLICATION_DIR}/frontend"
-    "project" : "."
+    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
+    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
   }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_VERSION
@@ -70,11 +69,10 @@ target "example-application-backend-ci" {
 }
 
 target "example-application-backend" {
-  context = "example-application/backend"
+  context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${EXAMPLE_APPLICATION_DIR}/frontend"
-    "project" : "."
+    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
+    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
   }
   args = {
     builder_image = LOCAL_BUILDER_IMAGE_VERSION

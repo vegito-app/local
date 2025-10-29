@@ -70,7 +70,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_
 target "example-application-mobile" {
   args = {
     # apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
-    apk_runner_appium_image = LOCAL_ANDROID_APPIUM_IMAGE_VERSION
+    apk_runner_appium_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${LOCAL_VERSION}"
     # environment             = INFRA_ENV
     version = VERSION
   }
@@ -94,19 +94,19 @@ target "example-application-mobile" {
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG,
   ]
-  # cache-from = [
-  #   USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}" : "",
-  #   VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  #   "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}",
-  # ]
-  # cache-to = [
-  #   USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
-  # ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}" : "",
+    VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}",
+  ]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+  ]
 }
 
 target "example-application-mobile-ci" {
   args = {
-    apk_runner_appium_image = LOCAL_ANDROID_APPIUM_IMAGE_VERSION
+    apk_runner_appium_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${LOCAL_VERSION}"
     version                 = VERSION
   }
   secret = [
