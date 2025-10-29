@@ -98,18 +98,11 @@ services:
           make dev
         fi
         if [ "${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
-          until make local-robotframework-check-env ; do
-            echo "[robotframework] Waiting for environment to be ready..."
-            sleep 5
-          done
+          make application-mobile-wait-for-boot
           make functional-tests
         fi
         sleep infinity
       '
-
-  example-application-mobile:
-    environment:
-      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
 
   android-studio:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-latest
@@ -136,7 +129,7 @@ services:
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
   vault-dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-latest
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-latest
     working_dir: ${PWD}/example-application/
     command: |
       bash -c '

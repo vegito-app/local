@@ -4,7 +4,6 @@ variable "VERSION" {
 }
 variable "LOCAL_VERSION" {
   description = "version of vegito-app/local repository"
-  default     = "v1.6.6"
 }
 variable "VEGITO_EXAMPLE_APPLICATION_DIR" {
   default = "."

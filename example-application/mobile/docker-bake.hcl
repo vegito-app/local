@@ -70,7 +70,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_
 target "example-application-mobile" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
-    apk_runner_appium_image = LOCAL_ANDROID_APPIUM_IMAGE_VERSION
+    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST
     version                 = VERSION
   }
   secret = [

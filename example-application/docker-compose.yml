@@ -55,7 +55,7 @@ services:
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://application-backend:8888
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ROBOTFRAMEWORK_DIR: ${PWD}/example-application/tests
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
