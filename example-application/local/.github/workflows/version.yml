@@ -1,0 +1,64 @@
+name: Version Management
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: "Version number generated"
+        value: ${{ jobs.define_version.outputs.version }}
+      changelog:
+        description: "Generated changelog content"
+        value: ${{ jobs.define_version.outputs.changelog }}
+
+permissions:
+  contents: write
+
+jobs:
+  define_version:
+    name: Define VERSION ✨
+    runs-on: self-hosted
+    outputs:
+      version: ${{ steps.define_version.outputs.VERSION }}
+      changelog: ${{ steps.define_version.outputs.CHANGELOG_NEW }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Define VERSION and Tag 🏷
+        id: define_version
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
+          # Bump the version based on commit messages (default patch bump)
+          touch CHANGELOG.old.md
+          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.old.md; fi
+          rm -f CHANGELOG.md
+          git fetch --tags
+          echo "Commit release bump and tag will be pushed after build success"
+          standard-version --skip.commit
+          echo "CHANGELOG_NEW<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "📝 CHANGELOG (new only):"
+          VERSION=$(git describe --tags --abbrev=7 --match 'v*')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "✅ Created tag: $VERSION"
+
+      - name: Show New Changes log
+        run: |
+          cat CHANGELOG.md
+
+      - name: Upload New Changes Changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-changelog
+          path: |
+            CHANGELOG.md

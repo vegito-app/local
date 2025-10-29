@@ -1,0 +1,214 @@
+name: Build Images
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      application_release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      use_registry_cache:
+        required: false
+        type: boolean
+        default: true
+      android_release_keystore_path:
+        required: false
+        type: string
+        default: .android.release-key.keystore
+      android_release_keystore_base64_path:
+        required: false
+        type: string
+        default: .android.release-key.keystore.base64
+      android_release_keystore_store_pass_base64_path:
+        required: false
+        type: string
+        default: .android.release-key.keystore.storepass.base64
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      ANDROID_RELEASE_KEYSTORE:
+        required: true
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build and Push Images for ${{ inputs.environment }} 🧱
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    env:
+      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_USER: vegito-${{ inputs.environment }}-${{ github.run_id }}
+      VERSION: ${{ inputs.version }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: ${{ inputs.environment }}
+      USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
+
+    outputs:
+      image_tags: ${{ steps.build_and_push_images.outputs.image_tags }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Source dynamic env vars
+        run: |
+          if [ -f /runner/gha-env-vars ]; then
+          echo "📦 Loading env from /runner/gha-env-vars"
+          cat /runner/gha-env-vars >> $GITHUB_ENV
+          else
+          echo "⚠️ gha-env-vars not found"
+          fi
+
+      - name: Restore ADB keys and debug.keystore
+        run: |
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
+          printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}" > ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Configure Cloud SDK and Docker
+        run: |
+          make gcloud-config-set-project
+          make gcloud-auth-docker
+          make docker-buildx-setup
+
+      - name: Build and load local project images
+        id: build_and_push_images
+        run: |
+          set -o pipefail
+          make images-ci 2>&1 | tee images-build.log
+
+      - name: Upload images-build.log
+        uses: actions/upload-artifact@v4
+        with:
+          name: images-build-log-${{ inputs.environment }}-${{ inputs.version }}
+          path: |
+            images-build.log
+
+      - name: Cleanup Sensitive Files
+        if: always()
+        run: |
+          # Suppression sécurisée des fichiers sensibles
+          shred -u ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}* || true
+
+  upload-release-images:
+    needs: build-and-push
+    name: Upload Release Images for ${{ inputs.environment }} 🧱
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    env:
+      VERSION: ${{ inputs.version }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: ${{ inputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Source dynamic env vars
+        run: |
+          if [ -f /runner/gha-env-vars ]; then
+            echo "📦 Loading env from /runner/gha-env-vars"
+            cat /runner/gha-env-vars >> $GITHUB_ENV
+          else
+            echo "⚠️ gha-env-vars not found"
+          fi
+
+      - name: Generate docker image tag list for ${{ inputs.environment }}
+        run: |
+          echo "### 🐳 Docker Images Built for '${{ inputs.environment }}' (excluding :latest):" > docker-tags.txt
+          for group in runners builders services applications; do
+            echo "#### Group: '$group'" >> docker-tags.txt
+            make local-$group-docker-group-tags-list-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt || echo "_no tags for group '$group'_" >> docker-tags.txt
+            echo "" >> docker-tags.txt
+          done
+
+      - name: Upload docker tags and index as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-metadata-${{ inputs.environment }}-${{ inputs.version }}
+          path: |
+            docker-tags.txt
+            index.json
+
+  upload-android-artifacts:
+    needs: build-and-push
+    name: Upload Android Release Artifacts for ${{ inputs.environment }} 🧱
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    env:
+      VERSION: ${{ inputs.version }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: ${{ inputs.environment }}
+      LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-signed-aligned.apk
+      LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-signed.aab
+      LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Source dynamic env vars
+        run: |
+          if [ -f /runner/gha-env-vars ]; then
+            echo "📦 Loading env from /runner/gha-env-vars"
+            cat /runner/gha-env-vars >> $GITHUB_ENV
+          else
+            echo "⚠️ gha-env-vars not found"
+          fi
+
+      - name: Extract signed APK & AAB releases and keystore SHA1 from images
+        id: extract_apk_aab
+        run: make application-mobile-image-extract-android-artifacts
+
+      - name: Upload signed APK and AAB 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts-${{ inputs.environment }}-${{ inputs.version }}
+          path: |
+            ${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}
+            ${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}
+            ${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}

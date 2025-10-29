@@ -1,0 +1,237 @@
+{
+  "name": "Go Dev Container",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "../local/docker-compose.yml",
+    "./docker-compose.yml",
+    "../.docker-compose-services-override.yml",
+    "../.docker-compose-networks-override.yml",
+    "../.docker-compose-gpu-override.yml"
+  ],
+  "runServices": [
+    "dev"
+  ],
+  "containerEnv": {
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/local/android/studio/.containers/android-studio/flutter"
+  },
+  "service": "dev",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "customizations": {
+    "vscode": {
+      "editor.fontLigatures": false,
+      "editor.formatOnSave": true,
+      "editor.inlineSuggest.enabled": true,
+      "explorer.confirmDelete": false,
+      "files.hotExit": "onExitAndWindowClose",
+      "genieai.enableConversationHistory": true,
+      "genieai.openai.model": "gpt-4",
+      "genieai.promptPrefix.addComments-enabled": false,
+      "git.enabled": true,
+      "go.toolsManagement.autoUpdate": true,
+      "remote.autoForwardPortsSource": "process",
+      "search.showLineNumbers": true,
+      "terminal.integrated.profiles.linux": {
+        "bash": {
+          "path": "bash",
+          "icon": "terminal-debian",
+          "color": "terminal.ansiRed"
+        }
+      },
+      "terminal.integrated.defaultProfile.linux": "bash",
+      "window.commandCenter": false,
+      "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      "workbench.iconTheme": "material-icon-theme",
+      "workbench.layoutControl.enabled": false,
+      "zenMode.centerLayout": false,
+      "zenMode.hideLineNumbers": false,
+      "diffEditor.ignoreTrimWhitespace": false,
+      "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "vsicons.dontShowNewVersionMessage": true,
+      "files.autoSave": "onFocusChange",
+      "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+          80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off",
+        "dart.flutterSdkPath": "${localWorkspaceFolder}/local/.containers/android-studio/flutter",
+        "workbench.activityBar.location": "top"
+      },
+      "remote.portsAttributes": {
+        "2375": {
+          "label": "Devcontainer - Host - Docker Socket",
+          "protocol": "http",
+          "onAutoForward": "silent"
+        },
+        "2376": {
+          "label": "Clarinet - Devnet - Docker Socket",
+          "protocol": "http",
+          "onAutoForward": "silent"
+        },
+        "3000": {
+          "label": "Application UI - Debug",
+          "protocol": "http",
+          "onAutoForward": "silent"
+        },
+        "8080": {
+          "label": "Application Backend - Container",
+          "protocol": "http",
+          "onAutoForward": "silent"
+        },
+        "8088": {
+          "label": "Application Tests - Report",
+          "onAutoForward": "silent"
+        },
+        "8888": {
+          "label": "Application Backend - Debug",
+          "onAutoForward": "silent"
+        },
+        "4000": {
+          "label": "Firebase Emulator UI",
+          "protocol": "http",
+          "onAutoForward": "silent"
+        },
+        "4400": {
+          "label": "Firebase Emulator Hub",
+          "onAutoForward": "silent"
+        },
+        "4500": {
+          "label": "Firebase reserved 0",
+          "onAutoForward": "silent"
+        },
+        "5001": {
+          "label": "Firebase Functions",
+          "onAutoForward": "silent"
+        },
+        "5037": {
+          "label": "ADB - Android Debug Bridge - Android Studio",
+          "onAutoForward": "silent"
+        },
+        "6037": {
+          "label": "ADB - Android Debug Bridge - Android Appium",
+          "onAutoForward": "silent"
+        },
+        "7037": {
+          "label": "ADB - Vegito - Android Appium",
+          "onAutoForward": "silent"
+        },
+        "6900": {
+          "label": "VNC - X server - Android Studio",
+          "onAutoForward": "silent"
+        },
+        "7900": {
+          "label": "VNC - X server - Android Appium",
+          "onAutoForward": "silent"
+        },
+        "8900": {
+          "label": "VNC - X server - Application Mobile",
+          "onAutoForward": "silent"
+        },
+        "6901": {
+          "label": "Xpra - X server - Android Studio",
+          "onAutoForward": "silent"
+        },
+        "7901": {
+          "label": "Xpra - X server - Android Appium",
+          "onAutoForward": "silent"
+        },
+        "8901": {
+          "label": "Xpra - X server - Application Mobile",
+          "onAutoForward": "silent"
+        },
+        "8200": {
+          "label": "Vault API",
+          "onAutoForward": "silent"
+        },
+        "8201": {
+          "label": "Vault Cluster",
+          "onAutoForward": "silent"
+        },
+        "8085": {
+          "label": "Firebase Pub/Sub Emulator",
+          "onAutoForward": "silent"
+        },
+        "8090": {
+          "label": "Firebase Firestore",
+          "onAutoForward": "silent"
+        },
+        "9000": {
+          "label": "Firebase Database",
+          "onAutoForward": "silent"
+        },
+        "9005": {
+          "label": "Firebase CLI Login",
+          "onAutoForward": "silent"
+        },
+        "9099": {
+          "label": "Firebase Authentication",
+          "onAutoForward": "silent"
+        },
+        "9100": {
+          "label": "Flutter and Dart DevTools",
+          "onAutoForward": "silent"
+        },
+        "9150": {
+          "label": "Firebase Reserved 1",
+          "onAutoForward": "silent"
+        },
+        "9199": {
+          "label": "Firebase Storage",
+          "onAutoForward": "silent"
+        },
+        "9299": {
+          "label": "Firebase (triggers)",
+          "onAutoForward": "silent"
+        }
+      },
+      "extensions": [
+        "4ops.terraform",
+        "alexisvt.flutter-snippets",
+        "bierner.markdown-mermaid",
+        "ChFlick.firecode",
+        "circlecodesolution.ccs-flutter-color",
+        "codeium.codeium",
+        "dart-code.dart-code",
+        "dart-code.dart-test-adapter",
+        "dart-code.flutter",
+        "dbaeumer.vscode-eslint",
+        "diemasmichiels.emulate",
+        "esbenp.prettier-vscode",
+        "genieai.chatgpt-vscode",
+        "github.vscode-github-actions",
+        "golang.go",
+        "googlecloudtools.cloudcode",
+        "gornivv.vscode-flutter-files",
+        "hasanakg.firebase-snippets",
+        "hashicorp.hcl",
+        "hashicorp.terraform",
+        "huang-an-sheng.firebase-web-app-snippets",
+        "jsayol.firebase-explorer",
+        "luanpotter.dart-import",
+        "marcelovelasquez.flutter-tree",
+        "MarufHassan.flutter-snippets",
+        "me-dutour-mathieu.vscode-github-actions",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "msjsdiag.vscode-react-native",
+        "Nash.awesome-flutter-snippets",
+        "openai.chatgpt",
+        "pjmiravalle.terraform-advanced-syntax-highlighting",
+        "pkief.material-icon-theme",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "robocorp.robotframework-lsp",
+        "shd101wyy.markdown-preview-enhanced",
+        "standard.vscode-standard",
+        "toba.vsfire",
+        "tylerharris.terraform-link-docs"
+      ]
+    }
+  }
+}

@@ -1,0 +1,3 @@
+.docker-buildx-cache
+.containers
+node_modules

@@ -37,6 +37,7 @@ jobs:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       INFRA_ENV: ${{ inputs.environment }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+      LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: android-mobile-${{ inputs.environment }}-${{ inputs.version }}-screenshot.png
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,19 +72,18 @@ jobs:
       - name: Run Application Tests
         run: |
           set -euo pipefail
-          sleep 100
           make functional-tests-ci
 
       - name: Generate Mobile Preview Screenshot
         run: |
           make application-mobile-screenshot
-          mv android/release-${{ env.VERSION }}-screenshot.png preview.png
+          mv ${{ env.LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH }} android-mobile-preview.png
 
       - name: Upload Mobile Preview Screenshot
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
-          path: preview.png
+          name: android-mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: android-mobile-preview.png
 
       - name: Collect Docker Containers Logs
         run: |
