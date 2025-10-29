@@ -24,7 +24,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI" {
 
 target "example-application-tests-ci" {
   args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-v1.6.5"
+    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
   }
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
@@ -55,7 +55,7 @@ target "example-application-tests" {
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
   args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-v1.6.5"
+    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_VERSION,

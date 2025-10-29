@@ -142,7 +142,7 @@ jobs:
         run: |
           make gcloud-auth-docker
       - name: Run Application tests
-        run: make robotframework
+        run: make functional-tests
 
   extract-release-artifacts:
     name: Upload Artifacts APK & AAB 📦

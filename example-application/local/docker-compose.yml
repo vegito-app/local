@@ -35,11 +35,8 @@ services:
         make dev
       fi
       if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
-        until make local-robotframework-check-env ; do
-          echo "[application-tests] Waiting for environment to be ready..."
-          sleep 5
-        done
-        make robotframework
+        make application-mobile-wait-for-boot
+        make functional-tests
       fi
       sleep infinity
       '
@@ -93,8 +90,7 @@ services:
     entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ANDROID_APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
-      LOCAL_ANDROID_APK_RELEASE_PATH: ${LOCAL_ANDROID_APK_RELEASE_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
@@ -130,7 +126,7 @@ services:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ANDROID_APK_RELEASE_PATH: ${LOCAL_ANDROID_APK_RELEASE_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
+      LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true

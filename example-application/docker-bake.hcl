@@ -2,6 +2,10 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "local"
 }
+variable "LOCAL_VERSION" {
+  description = "version of vegito-app/local repository"
+  default     = "v1.6.6"
+}
 variable "VEGITO_EXAMPLE_APPLICATION_DIR" {
   default = "."
 }
@@ -19,7 +23,7 @@ variable "VEGITO_APP_PRIVATE_IMAGES_BASE" {
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-v1.6.5"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
 }
 
 group "local-example-application" {

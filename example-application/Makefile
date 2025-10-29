@@ -100,7 +100,9 @@ example-application-mobile-container-up-ci
 dev-ci-rm: \
 local-dev-container-image-pull \
 local-containers-rm-ci \
-example-application-containers-rm-ci
+local-android-containers-rm-ci \
+example-application-containers-rm-ci \
+example-application-tests-container-rm-ci
 .PHONY: dev-ci-rm
 
 logs: local-dev-container-logs-f

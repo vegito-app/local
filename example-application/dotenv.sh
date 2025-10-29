@@ -29,10 +29,12 @@ localDotenvFile=${currentWorkingDir}/.env
 # 
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
-# Enable or disable the use of the Docker registry cache.
-
+# Version of the vegito-app/local development environment images to use.
+LOCAL_VERSION=${LOCAL_VERSION:-v1.6.6}
 # Enable or disable the use of the local development environment.
 MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
+# Enable or disable the execution of the local application tests on container start.
+MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-false}
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 # 
@@ -84,9 +86,9 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${LOCAL_VERSION}
     environment:
-      - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-v1.6.5
+      - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${LOCAL_VERSION}
       - MAKE_DEV_ON_START=true
       - LOCAL_APPLICATION_TESTS_RUN_ON_START=true
       - LOCAL_CONTAINER_INSTALL=1
@@ -97,36 +99,33 @@ services:
           make dev -j
         fi
         if [ "${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
-          until make local-robotframework-check-env ; do
-            echo "[robotframework] Waiting for environment to be ready..."
-            sleep 5
-          done
-          make robotframework
+          make application-mobile-wait-for-boot
+          make functional-tests
         fi
         sleep infinity
       '
 
   android-studio:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-${LOCAL_VERSION}
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: true
     working_dir: ${PWD}/mobile
 
   clarinet-devnet:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-${LOCAL_VERSION}
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
     
   firebase-emulators:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-${LOCAL_VERSION}
     environment:
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
   vault-dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-${LOCAL_VERSION}
     working_dir: ${PWD}/
     command: |
       bash -c '
@@ -135,7 +134,7 @@ services:
       sleep infinity
       '
   robotframework:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:robotframework-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:robotframework-${LOCAL_VERSION}
     working_dir: ${PWD}/tests
 EOF
 
