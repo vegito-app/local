@@ -29,14 +29,14 @@ echo "List of available AVDs:"
 emulator -list-avds
 
 # 📦 Détection automatique de l'APK si non fourni
-apk_path="${LOCAL_ANDROID_APK_PATH:-}"
+apk_path="${LOCAL_ANDROID_DEBUG_APK_PATH:-}"
 if [[ -z "$apk_path" ]]; then
   if [[ -f "/build/output/app-release.apk" ]]; then
     apk_path="/build/output/app-release.apk"
   elif [[ -f "/build/output/app-debug.apk" ]]; then
     apk_path="/build/output/app-debug.apk"
   else
-    echo "❌ No APK found. Please set LOCAL_ANDROID_APK_PATH or provide app-release.apk/app-debug.apk in /build/output/"
+    echo "❌ No APK found. Please set LOCAL_ANDROID_DEBUG_APK_PATH or provide app-release.apk/app-debug.apk in /build/output/"
     exit 1
   fi
 fi

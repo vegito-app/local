@@ -36,7 +36,8 @@ cat <<'EOF' > ${envrcFile}
 
 export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-user-id}
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
-export MAKE_DEV_ON_START=false
+export MAKE_DEV_ON_START=true
+export MAKE_TESTS_ON_START=true
 export VEGITO_PROJECT_NAME=${VEGITO_PROJECT_NAME:-example-application}
 EOF
 fi
