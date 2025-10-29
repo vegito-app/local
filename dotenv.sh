@@ -98,11 +98,8 @@ services:
           make dev
         fi
         if [ "${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
-          until make local-robotframework-check-env ; do
-            echo "[robotframework] Waiting for environment to be ready..."
-            sleep 5
-          done
-          make robotframework
+          make application-mobile-wait-for-boot
+          make functional-tests
         fi
         sleep infinity
       '

@@ -18,7 +18,3 @@ local-robotframework-container-run:
 	@$(ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) robot
 .PHONY: robotframework-container-run
 
-local-robotframework-check-env:
-	@echo Checking application tests environment validity	
-	@$(LOCAL_DOCKER_COMPOSE) exec robotframework bash $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)/check_env.sh
-.PHONY: local-robotframework-check-env
