@@ -77,7 +77,7 @@ jobs:
           echo "    <div>➡️ <a href=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk\">Download APK</a></div>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '  <div>' >> RELEASE_BODY.md
-          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
+          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '</div>' >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
@@ -299,7 +299,7 @@ jobs:
       - name: Download mobile preview artifact
         uses: actions/download-artifact@v4
         with:
-          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          name: android-mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
           path: ./artifacts/mobile
 
       - name: Download build log artifact
@@ -327,7 +327,7 @@ jobs:
             "dockerTags": "https://storage.googleapis.com/${gs_path}/docker-tags.md",
             "apk": "${apkUrl}",
             "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab",
-            "thumbnail": "https://storage.googleapis.com/${gs_path}/mobile/preview.png",
+            "thumbnail": "https://storage.googleapis.com/${gs_path}/mobile/android-preview.png",
             "robotReport": "https://storage.googleapis.com/${gs_path}/tests/report.html",
             "robotLog": "https://storage.googleapis.com/${gs_path}/tests/log.html",
             "robotXml": "https://storage.googleapis.com/${gs_path}/tests/output.xml",
@@ -358,7 +358,7 @@ jobs:
           gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
           find ./artifacts/android -name "*.apk" -exec gcloud storage cp {} "gs://$gs_path/app-release.apk" --quiet \;
           find ./artifacts/android -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
-          gcloud storage cp ./artifacts/mobile/preview.png "gs://$gs_path/preview.png" --quiet
+          gcloud storage cp ./artifacts/mobile/android-mobile-preview.png "gs://$gs_path/mobile/android-preview.png" --quiet
           gcloud storage cp ./artifacts/build/images-build.html "gs://$gs_path/build/images-build.html" --quiet
           gcloud storage cp ./artifacts/dev/containers.html "gs://$gs_path/dev/containers.html" --quiet
           gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet

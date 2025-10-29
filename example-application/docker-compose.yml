@@ -35,6 +35,7 @@ services:
       - .env
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: ${LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH:-local/android/mobile-screenshot.png}
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
