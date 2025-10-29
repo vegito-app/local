@@ -77,7 +77,7 @@ jobs:
           echo "    <div>➡️ <a href=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk\">Download APK</a></div>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '  <div>' >> RELEASE_BODY.md
-          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
+          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/mobile/android-preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '</div>' >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
