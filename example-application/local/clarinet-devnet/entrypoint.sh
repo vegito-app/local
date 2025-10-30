@@ -38,7 +38,7 @@ TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
 bg_pids+=("$!")
 
 mkdir -p ${HOME}/.docker/run
-ln -s /run/user/$LOCAL_USER_ID/docker.sock ${HOME}/.docker/run/docker.sock
+ln -sf /run/user/$LOCAL_USER_ID/docker.sock ${HOME}/.docker/run/docker.sock
 
 
 # Set inotify watches limit
