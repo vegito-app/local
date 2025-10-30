@@ -92,7 +92,6 @@ jobs:
           echo "- 🧪 [Test Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html)" >> RELEASE_BODY.md
           echo "- 📊 [Test Output (XML)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/output.xml)" >> RELEASE_BODY.md
           echo "- 🧾 [Build Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build/images-build.html)" >> RELEASE_BODY.md
-          echo "- 🧾 [Build Images Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build/build-log.html)" >> RELEASE_BODY.md
           echo "- 🧾 [Docker Tags](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/docker-tags.md)" >> RELEASE_BODY.md
           echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
           echo "# 🚀 Release $VERSION" >> RELEASE_BODY.md
