@@ -25,17 +25,36 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
 }
 
-group "local-example-application" {
+group "example-applications" {
   targets = [
     "example-application-backend",
     "example-application-mobile",
     "example-application-tests",
   ]
 }
-group "example-application-ci" {
+
+group "example-applications-ci" {
   targets = [
     "example-application-backend-ci",
     "example-application-mobile-ci",
     "example-application-tests-ci",
   ]
 }
+
+# docker buildx bake
+# /workspaces/vegito-app/local/docker/docker-bake.hcl
+# /workspaces/vegito-app/local/docker-bake.hcl
+# /workspaces/vegito-app/local/clarinet-devnet/docker-bake.hcl
+# /workspaces/vegito-app/local/robotframework/docker-bake.hcl
+# /workspaces/vegito-app/local/firebase-emulators/docker-bake.hcl
+# /workspaces/vegito-app/local/vault-dev/docker-bake.hcl
+# /workspaces/vegito-app/local/android/docker-bake.hcl
+# /workspaces/vegito-app/local/android/appium/docker-bake.hcl
+# /workspaces/vegito-app/local/android/emulator/docker-bake.hcl
+# /workspaces/vegito-app/local/android/flutter/docker-bake.hcl
+# /workspaces/vegito-app/local/android/studio/docker-bake.hcl
+# /workspaces/vegito-app/local/example-application/docker-bake.hcl
+# /workspaces/vegito-app/local/example-application/backend/docker-bake.hcl
+# /workspaces/vegito-app/local/example-application/mobile/docker-bake.hcl
+# /workspaces/vegito-app/local/example-application/tests/docker-bake.hcl
+# /workspaces/vegito-app/local/github-actions/docker-bake.hcl --print local-applications-ci
