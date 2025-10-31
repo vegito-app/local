@@ -55,11 +55,7 @@ workspaceFile=${WORKING_DIR}/vscode.code-workspace
 {
   "folders": [
     {
-      "path": ".",
-      "name": "Application - Vegito"
-    },
-    {
-      "name": "E2E Tests - RobotFramework",
+      "name": "Tests - RobotFramework",
       "path": "tests"
     },
     {
@@ -75,21 +71,9 @@ workspaceFile=${WORKING_DIR}/vscode.code-workspace
       "path": "frontend"
     },
     {
-      "name": "Images - Cleaner - Go",
-      "path": "images/cleaner"
-    },
-    {
-      "name": "Images - Moderator - Go",
-      "path": "images/moderator"
-    },
-    {
-      "name": "Authentication - Firebase Auth",
-      "path": "firebase/functions"
-    },
-    {
-      "name": "Infrastructure - Terraform",
-      "path": "run"
-    },
+      "name": "Root",
+      "path": "."
+    }
   ],
   "settings": {}
 }

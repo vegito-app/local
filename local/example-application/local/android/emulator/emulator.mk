@@ -1,11 +1,11 @@
 ADB = $(LOCAL_ANDROID_CONTAINER_EXEC) adb
 
-LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH ?= $(LOCAL_ANDROID_MOBILE_DIR)/release-$(VERSION)-screenshot.png
+LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH ?= $(LOCAL_ANDROID_MOBILE_DIR)/release-$(VERSION)-screenshot.png
 
 local-android-emulator-screenshot:
 	@echo "Capturing screenshot from Android Emulator..."
-	@$(ADB) exec-out screencap -p > $(LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH)
-	@echo "✅ Screenshot saved to $(LOCAL_ANDROID_MOBILE_SCREENSHOT_PATH)"
+	@$(ADB) exec-out screencap -p > $(LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH)
+	@echo "✅ Screenshot saved to $(LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH)"
 .PHONY: local-android-emulator-screenshot
 
 local-android-emulator-wait-for-boot:

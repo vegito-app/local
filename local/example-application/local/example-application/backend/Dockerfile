@@ -1,50 +1,46 @@
 ARG builder_image="vegito-local:local-builder-latest"
 FROM ${builder_image} AS build
 
-RUN mkdir ${HOME}/src
+RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
-ARG application_directory="example-application"
-ENV VEGITO_EXAMPLE_APPLICATION_DIR=${application_directory}
+COPY --from=approot Makefile .
+COPY --from=approot local/local.mk local/
+COPY --from=approot git.mk .
+COPY --from=approot nodejs.mk .
+COPY --from=approot go.mk .
 
-COPY --from=project Makefile .
-COPY --from=project local.mk .
-COPY --from=project git.mk .
-COPY --from=project nodejs.mk .
-COPY --from=project go.mk .
-
-RUN mkdir -p example-application/ 
-COPY --from=approot example-application.mk example-application/
+COPY --from=approot example-application.mk .
 
 # frontend
-RUN mkdir -p example-application/frontend 
-COPY --from=appfrontend package.json example-application/frontend/
-COPY --from=appfrontend package-lock.json example-application/frontend/
-COPY --from=appfrontend frontend.mk example-application/frontend/
+RUN mkdir -p frontend 
+COPY --from=appfrontend package.json frontend/
+COPY --from=appfrontend package-lock.json frontend/
+COPY --from=appfrontend frontend.mk frontend/
 
 RUN make example-application-frontend-npm-ci
 
-COPY --from=appfrontend public example-application/frontend/public
-COPY --from=appfrontend src example-application/frontend/src
-COPY --from=appfrontend webpack.server.js example-application/frontend/
+COPY --from=appfrontend public frontend/public
+COPY --from=appfrontend src frontend/src
+COPY --from=appfrontend webpack.server.js frontend/
 
 RUN make -j example-application-frontend-build example-application-frontend-bundle
 
 # backend
-RUN mkdir -p example-application/backend
+RUN mkdir -p backend
 
-COPY backend.mk example-application/backend/
-COPY go.sum example-application/backend/
-COPY go.mod example-application/backend/
+COPY backend.mk backend/
+COPY go.sum backend/
+COPY go.mod backend/
 
-RUN make local-go-example-application/backend-mod-download
+RUN make example-application-go-backend-mod-download
 
-COPY internal example-application/backend/internal
-COPY http example-application/backend/http
-COPY log example-application/backend/log
-COPY track example-application/backend/track
-COPY firebase example-application/backend/firebase
-COPY main.go example-application/backend/
+COPY internal backend/internal
+COPY http backend/http
+COPY log backend/log
+COPY track backend/track
+COPY firebase backend/firebase
+COPY main.go backend/
 
 RUN make example-application-backend-install 
 
@@ -80,8 +76,8 @@ ARG builder_home=/home/${non_root_user}
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /home/${non_root_user}/src/example-application/frontend/build/ /frontend/build
-COPY --from=build /home/${non_root_user}/src/example-application/frontend/public/ /frontend/public
+COPY --from=build /home/${non_root_user}/src/frontend/build/ /frontend/build
+COPY --from=build /home/${non_root_user}/src/frontend/public/ /frontend/public
 COPY --from=build /home/${non_root_user}/go/bin/backend /backend
 
 ENV FRONTEND_BUILD_DIR=/frontend/build \

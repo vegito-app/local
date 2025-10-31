@@ -9,6 +9,9 @@ endif
 
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
+# Version of the vegito-app/local development environment images to use.
+LOCAL_VERSION := v1.7.1
+
 export
 
 INFRA_PROJECT_NAME := moov
@@ -29,7 +32,7 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_DIR := $(LOCAL_DIR)/robotframework
+LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -98,11 +101,10 @@ example-application-mobile-container-up-ci
 .PHONY: dev-ci
 
 dev-ci-rm: \
-local-dev-container-image-pull \
-local-containers-rm-ci \
-local-android-containers-rm-ci \
+example-application-tests-container-rm-ci \
 example-application-containers-rm-ci \
-example-application-tests-container-rm-ci
+local-containers-rm-ci \
+local-dev-container-image-pull
 .PHONY: dev-ci-rm
 
 logs: local-dev-container-logs-f
