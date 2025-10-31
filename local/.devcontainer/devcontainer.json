@@ -12,7 +12,12 @@
     "dev"
   ],
   "containerEnv": {
-    "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
+    "DOCKER_HOST": "tcp://localhost:2375",
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter",
+    "LOCAL_ANDROID_STUDIO_CACHES_REFRESH": "true",
+    "LOCAL_APPLICATION_TESTS_RUN_ON_START": "true",
+    "LOCAL_CONTAINER_INSTALL": "1",
+    "MAKE_DEV_ON_START": "true"
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",

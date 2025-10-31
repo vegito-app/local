@@ -88,9 +88,6 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
     environment:
       - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
-      - MAKE_DEV_ON_START=true
-      - LOCAL_APPLICATION_TESTS_RUN_ON_START=true
-      - LOCAL_CONTAINER_INSTALL=1
     command: |
       bash -c '
         make docker-sock
@@ -103,6 +100,15 @@ services:
         fi
         sleep infinity
       '
+  example-application-mobile:
+    working_dir: ${PWD}/example-application/mobile
+    environment:
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
+
+  example-application-tests:
+    working_dir: ${PWD}/example-application/tests
+    environment:
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
 
   android-studio:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-latest
@@ -129,7 +135,7 @@ services:
       LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
   vault-dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-v1.6.5
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-latest
     working_dir: ${PWD}/example-application/
     command: |
       bash -c '

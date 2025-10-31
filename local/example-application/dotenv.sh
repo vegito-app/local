@@ -29,8 +29,6 @@ localDotenvFile=${currentWorkingDir}/.env
 # 
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
-# Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION=${LOCAL_VERSION:-v1.6.7}
 # Enable or disable the use of the local development environment.
 MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
 # Enable or disable the execution of the local application tests on container start.
@@ -89,9 +87,6 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${LOCAL_VERSION}
     environment:
       - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${LOCAL_VERSION}
-      - MAKE_DEV_ON_START=true
-      - LOCAL_APPLICATION_TESTS_RUN_ON_START=true
-      - LOCAL_CONTAINER_INSTALL=1
     command: |
       bash -c '
         make docker-sock

@@ -1,0 +1,75 @@
+services:
+  dev:
+    container_name: dev
+    # image: europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        builder_image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest}
+    env_file:
+      - .env
+    environment:
+      LOCAL_WORKSPACE: ${PWD:-/workspaces/${GITHUB_REPOSITORY_NAME:-refactored-winner}}
+    command: sleep infinity
+  nestor:
+    container_name: nestor
+    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest}
+    ports:
+      - ${NESTOR_DEV_DOCKER_SOCK_PORT:-2375}:2375
+      - ${NESTOR_CLARINET_DEVNET_DOCKER_ROOTLESS_SOCK_PORT:-2376}:2376
+      - ${NESTOR_VAULT_PORT:-8200}:8200
+      - ${NESTOR_VAULT_CLUSTER_PORT:-8201}:8201
+      - ${NESTOR_FIREBASE_UI_PORT:-4000}:4000
+      - ${NESTOR_FIREBASE_EMULATOR_HUB_PORT:-4400}:4400
+      - ${NESTOR_FIREBASE_RESERVED_O_PORT:-4500}:4500
+      - ${NESTOR_FIREBASE_FUNCTIONS_PORT:-5001}:5001
+      - ${NESTOR_FIREBASE_FIRESTORE_PORT:-8085}:8085
+      - ${NESTOR_FIREBASE_FIRESTORE_PORT:-8090}:8090
+      - ${NESTOR_FIREBASE_DATABASE_PORT:-9000}:9000
+      - ${NESTOR_FIREBASE_AUTH_PORT:-9099}:9099
+      - ${NESTOR_FIREBASE_RESERVED_1_PORT:-9150}:9150
+      - ${NESTOR_FIREBASE_STORAGE_PORT:-9199}:9199
+      - ${NESTOR_FIREBASE_TRIGGERS_PORT:-9299}:9299
+      - ${NESTOR_ANDROID_STUDIO_X11_SERVER_PORT:-5901}:5901
+      - ${NESTOR_APPLICATION_BACKEND_PORT:-8080}:8080
+      - ${NESTOR_APPLICATION_BACKEND_DEBUG_PORT:-8888}:8888
+    volumes:
+      - ${LOCAL_WORKSPACE:-${PWD:-/workspaces/refactored-winner}}:${PWD:-/workspaces/refactored-winner}:cached
+    working_dir: ${PWD:-/workspaces/refactored-winner}/.devcontainer
+    env_file:
+      - .env
+    networks:
+      - dev
+    command: |
+      bash -c '
+
+      set -eu
+
+      # List to hold background job PIDs
+      bg_pids=()
+
+      # Function to kill background jobs when script ends
+      kill_jobs() {
+          echo "Killing clarinet background jobs"
+          for pid in "$${bg_pids[@]}"; do
+              kill "$$pid"
+              wait "$$pid" 2>/dev/null
+          done
+      }
+
+      # Trap to call kill_jobs on script exit
+      trap kill_jobs EXIT
+      for i in \
+          8200 8201 \
+          4000 4400 4500 5001 5901 8085 8090 9000 9099 \
+          8080 ; do
+          socat TCP-LISTEN:$$i,fork,reuseaddr TCP:dev:$$i > /tmp/socat-nestor-dev-$$i.log 2>&1 &
+          bg_pids+=("$$!")
+      done
+
+      sleep infinity
+      '
+
+networks:
+  dev:

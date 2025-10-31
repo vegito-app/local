@@ -143,3 +143,8 @@ example-application-docker-images-push-parallel:
 	@echo Pushing all application images in parallel...
 	@$(MAKE) -j example-application-docker-images-push
 .PHONY: example-application-docker-images-push-parallel
+
+example-application-docker-group-tags-list-ci: 
+	@echo "Listing all tags for example-application docker images in CI..." >&2
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: example-application-docker-group-tags-list-ci

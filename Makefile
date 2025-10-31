@@ -143,3 +143,12 @@ application-mobile-screenshot: example-application-mobile-screenshot
 application-mobile-dump: example-application-mobile-dump
 	@echo "✅ Dumped mobile application successfully."
 .PHONY: application-mobile-dum
+
+docker-build-tags-list-ci-md:
+	@echo "### 🐳 Docker Images Built (excluding latest):"
+	@$(MAKE) example-application-docker-group-tags-list-ci 2>/dev/null \
+	 | grep -vE 'latest$$' \
+	 | grep -v 'make\[1\]\:' \
+	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
+	  echo "" 
+.PHONY: docker-build-tags-list-ci-md
