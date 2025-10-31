@@ -1,4 +1,4 @@
-ARG robotframework_image
+ARG robotframework_image=vegito-local:robotframework-latest
 FROM ${robotframework_image}
 
 ARG non_root_user=tests

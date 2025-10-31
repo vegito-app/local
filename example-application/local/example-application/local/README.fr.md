@@ -152,6 +152,99 @@ http://localhost:5900/
 
 ---
 
+## 🏗️ Organisation par couches
+
+### 1. **CI GitHub (niveau le plus haut)**
+
+Chaque dépôt applicatif contient un workflow `application-release.yml` basé sur un template générique partagé `application-release-template.yml`.  
+Ce pipeline :
+
+- compile l’application (mobile, backend, etc.)
+- génère les artefacts (APK, AAB, images Docker…)
+- publie dans un bucket GCS
+- rend accessible la version via : [https://release.vegito.app](https://release.vegito.app)
+
+Il déclenche des commandes `make` spécifiques à chaque projet.
+
+### 2. **Makefile modulaire**
+
+Le `Makefile` principal inclut dynamiquement tous les fichiers `*.mk` des sous-modules (`backend/`, `mobile/`, `frontend/`, etc.).  
+Chaque module définit ses propres cibles via des fichiers comme :
+
+```
+mobile/flutter.mk
+backend/backend.mk
+```
+
+Cela permet :
+
+- une validation locale des builds
+- une factorisation des commandes pour la CI et les devs
+
+### 3. **Docker (build & run)**
+
+Les commandes Make utilisent :
+
+- `docker buildx bake` avec des `docker-bake.hcl` spécifiques
+- `docker compose` avec des `docker-compose.yml` propres à chaque module
+
+Ce système permet de :
+
+- construire des images versionnées
+- exécuter tous les services dans un réseau Docker isolé
+
+### 4. **Environnement local et CI unifiés**
+
+Grâce à DevContainer, l’environnement utilisé localement est **identique** à celui de la CI.  
+Il permet notamment :
+
+- le debug des services localement (Go, Flutter, Firebase, etc.)
+- le test fonctionnel via RobotFramework
+- l’utilisation GPU dans un conteneur
+
+---
+
+## 🗂️ Ajout d’une nouvelle application
+
+Pour qu’un dépôt soit compatible avec la CI générique :
+
+1. Créer un `Makefile` à la racine
+2. Exposer les cibles attendues par la CI (`make build`, `make test`, etc.)
+3. Structurer le projet par modules : `backend/`, `frontend/`, `mobile/`, `tests/`, etc.
+4. Ajouter les `Dockerfile`, `docker-compose.yml` et `docker-bake.hcl` nécessaires
+
+---
+
+## 🧬 Schéma d’architecture
+
+```mermaid
+graph TD
+  A[Dev / CI GitHub] --> B[Workflow application-release.yml]
+  B --> C[Commandes make]
+  C --> D[Makefile principal]
+  D --> E[Modules *.mk]
+  C --> F[docker buildx bake]
+  C --> G[docker compose up]
+  F --> H[Dockerfile + docker-bake.hcl]
+  G --> I[docker-compose.yml]
+  H --> J[Image Docker versionnée]
+  I --> K[Conteneurs pour tests / builds]
+  K --> L[Artifacts versionnés : APK, AAB, Images...]
+  L --> M[Bucket GCS + Page releases]
+```
+
+---
+
+## 📘 Conclusion
+
+Ce système CI/Makefile/Docker modulaire garantit :
+
+- une forte **portabilité** (local/dev/CI identiques)
+- une **extensibilité** aisée (ajout de modules ou dépôts)
+- une **reproductibilité** totale des builds
+
+Il peut être repris tel quel pour tout projet Flutter/Go basé sur des conteneurs et des workflows GitHub Actions.
+
 ## 💡 Bonnes pratiques
 
 - Ce dépôt peut être utilisé comme **template public** pour projets Flutter + Go.
@@ -164,3 +257,12 @@ http://localhost:5900/
 
 MIT — utilisez, modifiez, améliorez librement.  
 Voir le fichier [LICENSE](./LICENSE).
+
+---
+
+# 🧠 Architecture CI/CD modulaire de Vegito
+
+Le projet **Vegito** repose sur une superposition cohérente de briques technologiques :  
+CI GitHub → Makefile → Docker → Code source modulaire.
+
+---

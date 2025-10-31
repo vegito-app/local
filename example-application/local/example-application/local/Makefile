@@ -1,7 +1,12 @@
 VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
+ifdef VERSION
+LOCAL_VERSION := $(VERSION)
+endif
+
 LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
+
 ifeq ($(LOCAL_VERSION),)
 LOCAL_VERSION := latest
 endif

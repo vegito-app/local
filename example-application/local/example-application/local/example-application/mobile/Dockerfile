@@ -9,22 +9,26 @@ USER ${non_root_user}
 
 ENV HOME=${builder_home}
 
-RUN mkdir -p ${HOME}/src/example-application/mobile \
-    ${HOME}/src/android
+RUN mkdir ${HOME}/src \
+    ${HOME}/src/mobile \
+    ${HOME}/src/mobile/android \
+    ${HOME}/src/local \
+    ${HOME}/src/local/android
 
-WORKDIR ${HOME}/src
+WORKDIR ${HOME}/src 
 
-COPY --from=project Makefile .
-COPY --from=project local.mk .
-COPY --from=project git.mk .
+COPY --from=approot Makefile .
+COPY --from=approot local/local.mk local/
+COPY --from=approot local/android/android.mk local/android/
+COPY --from=approot git.mk .
 
-COPY --from=approot example-application.mk example-application/
+COPY --from=approot example-application.mk .
 
-COPY --chown=${non_root_user}:${non_root_user} pubspec.yaml example-application/mobile/
-COPY --chown=${non_root_user}:${non_root_user} pubspec.lock example-application/mobile/
-COPY --chown=${non_root_user}:${non_root_user} mobile.mk example-application/mobile/
-COPY --chown=${non_root_user}:${non_root_user} android example-application/mobile/android/
-COPY --chown=${non_root_user}:${non_root_user} lib example-application/mobile/lib/
+COPY --chown=${non_root_user}:${non_root_user} pubspec.yaml mobile/
+COPY --chown=${non_root_user}:${non_root_user} pubspec.lock mobile/
+COPY --chown=${non_root_user}:${non_root_user} mobile.mk mobile/
+COPY --chown=${non_root_user}:${non_root_user} android mobile/android/
+COPY --chown=${non_root_user}:${non_root_user} lib mobile/lib/
 
 COPY --from=android android.mk android/
 
@@ -55,19 +59,19 @@ RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     | grep 'SHA1:' | awk '{print $2}') && \
     echo "Local Android Keystore SHA1 fingerprint: $SHA1" && \
     echo -n "$SHA1" > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
-    mv ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 /home/android/src/android/app-release.keystore.sha1
+    mv ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 /home/android/src/local/android/app-release.keystore.sha1
 
 ARG version=dev
 ARG keystore_alias_name=vegito-local-release
 
 ENV LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name}
-ENV LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/example-application/mobile/build/app/outputs/bundle/release/app-release.aab
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/example-application/mobile/build/app/outputs/flutter-apk/app-release.apk
-ENV LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/android/app-release-${version}-signed-aligned.apk
+ENV LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab
+ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk
+ENV LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/local/android/app-release-${version}-signed-aligned.apk
 
 ENV VERSION=${version} 
 ENV LOCAL_ANDROID_CONTAINER_EXEC="" 
-ENV FLUTTER="cd example-application/mobile && flutter" 
+ENV FLUTTER="cd mobile && flutter" 
 
 RUN make \
     example-application-mobile-android-release \
@@ -77,12 +81,12 @@ FROM ${apk_runner_appium_image} AS runner
 
 ARG version=dev
 
-COPY --from=builder /home/android/src/android/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
-COPY --from=builder /home/android/src/android/app-release-${version}-signed.aab /build/output/app-release-${version}.aab
+COPY --from=builder /home/android/src/local/android/app-release-${version}-signed-aligned.apk /build/output/app-release-${version}.apk
+COPY --from=builder /home/android/src/local/android/app-release-${version}-signed.aab /build/output/app-release-${version}.aab
 
-COPY --from=builder /home/android/src/android/app-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
+COPY --from=builder /home/android/src/local/android/app-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
 
-COPY --from=builder /home/android/src/example-application/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
+COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 
 ARG android_package_name=dev.vegito.app.android
 

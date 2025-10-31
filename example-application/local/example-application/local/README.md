@@ -25,6 +25,8 @@ It includes ready-to-use setups for Android Studio, Firebase emulators, smart co
 - [Docker Stack Layers](#devlocal-docker-gpu-stack)
 - [Quick Start](#quick-start)
 - [Local Services](#local-services-available-commands)
+- [CI/CD Structure](#cicd-structure--application-modularity)
+- [Vision](#vision--philosophy)
 - [Best Practices](#best-practices)
 - [License](#license)
 
@@ -82,29 +84,7 @@ include local/local.mk
 
 ---
 
-## 🧭 Vision
-
-This project serves as the foundation for a powerful dev experience:
-
-- As a **portable open-source kit** for Android/GPU developers
-- As a **base layer** for building SaaS platforms:
-  - Provision remote GPU-powered Android workspaces
-  - Run ephemeral builds/tests with GPU emulation
-  - Power SSR previews for design+QA workflows
-
----
-
-## 🧪 Use Cases
-
-- 🚀 Mobile emulator testing with real OpenGL (no CPU lag)
-- 🎥 Flutter + Maps integration preview
-- 🧠 ML inferencing with shared GPU
-- 🧪 CI pipelines with rendering tests
-- ☁️ Remote dev with full graphical support
-
----
-
-# 🧱 DevLocal Docker GPU Stack
+# 💻 Dev Environment Overview
 
 Welcome to **DevLocal-Docker**, a fully portable, GPU-accelerated local development stack designed for high-performance Flutter + Android + GPU projects. This stack provides a complete development environment, including Android Studio with emulator support, GPU rendering, server-side rendering with V8Go, and full headless compatibility via Xpra + Xorg.
 
@@ -222,6 +202,130 @@ The same logic applies to:
 - Add a VPN and/or SSH container to the container set to provide an integrated entrypoint usable from the internet with minimal configuration.
 
 ---
+
+# 🚀 CI/CD Structure & Application Modularity
+
+The **Vegito** project is built on a coherent layered stack of technologies: GitHub CI → Makefile → Docker → modular source code.
+
+---
+
+## 🏗️ Layered organization
+
+### 1. **GitHub CI (top level)**
+
+Each application repository contains an `application-release.yml` workflow that uses the shared template `application-release-template.yml`.
+
+This pipeline:
+
+- builds the application (mobile, backend, etc.)
+- produces versioned artifacts (APK, AAB, Docker images, ...)
+- uploads artifacts to a GCS bucket
+- exposes the release via: [https://releases.vegito.app](https://releases.vegito.app)
+
+It triggers `make` targets that are specific to each project.
+
+### 2. **Modular Makefile**
+
+The top-level `Makefile` dynamically includes `*.mk` files from submodules (`backend/`, `mobile/`, `frontend/`, ...).
+Each module exposes its own targets through files such as:
+
+```
+mobile/flutter.mk
+backend/backend.mk
+```
+
+Benefits:
+
+- local validation of builds
+- command factorization for CI and developers
+- flexibility: each application only needs to expose the targets required by CI
+
+### 3. **Docker (build & run)**
+
+Make targets use:
+
+- `docker buildx bake` with module-specific `docker-bake.hcl`
+- `docker compose` with module-specific `docker-compose.yml`
+
+This enables:
+
+- building versioned images
+- running all services inside an isolated Docker network
+
+### 4. **Unified local & CI environment**
+
+With DevContainer, the local environment is **identical** to the CI runtime. It enables:
+
+- local debugging of services (Go, Flutter, Firebase, ...)
+- functional testing (RobotFramework)
+- GPU usage inside containers
+
+---
+
+## 🗂️ Adding a new application
+
+To make a repository compatible with the generic CI pipeline:
+
+1. Add a `Makefile` at the repository root
+2. Expose the CI-expected targets (`make build`, `make test`, ...)
+3. Organize the code into modules: `backend/`, `frontend/`, `mobile/`, `tests/`, etc.
+4. Add the necessary `Dockerfile`, `docker-compose.yml` and `docker-bake.hcl`
+
+---
+
+## 🧬 Architecture diagram
+
+```mermaid
+graph TD
+  A[Dev / CI GitHub] --> B[Workflow application-release.yml]
+  B --> C[Make commands]
+  C --> D[Top-level Makefile]
+  D --> E[Modules *.mk]
+  C --> F[docker buildx bake]
+  C --> G[docker compose up]
+  F --> H[Dockerfile + docker-bake.hcl]
+  G --> I[docker-compose.yml]
+  H --> J[Versioned Docker image]
+  I --> K[Containers for tests / builds]
+  K --> L[Versioned artifacts: APK, AAB, Images...]
+  L --> M[GCS bucket + releases page]
+```
+
+---
+
+## 📘 Conclusion
+
+This modular CI / Makefile / Docker system ensures:
+
+- strong **portability** (local/dev/CI parity)
+- easy **extensibility** (add modules or repos)
+- full **reproducibility** of builds
+
+It can be reused as-is for any Flutter/Go containerized project using GitHub Actions.
+
+---
+
+# 🌱 Vision & Philosophy
+
+This project serves as the foundation for a powerful dev experience:
+
+- As a **portable open-source kit** for Android/GPU developers
+- As a **base layer** for building SaaS platforms:
+  - Provision remote GPU-powered Android workspaces
+  - Run ephemeral builds/tests with GPU emulation
+  - Power SSR previews for design+QA workflows
+
+---
+
+## 🧪 Use Cases
+
+- 🚀 Mobile emulator testing with real OpenGL (no CPU lag)
+- 🎥 Flutter + Maps integration preview
+- 🧠 ML inferencing with shared GPU
+- 🧪 CI pipelines with rendering tests
+- ☁️ Remote dev with full graphical support
+
+--- 
 
 ## 💡 Best Practices
 

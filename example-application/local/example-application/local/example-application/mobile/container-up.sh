@@ -2,7 +2,7 @@
 
 set -uo pipefail
 
-CONTAINER_NAME="application-mobile"
+CONTAINER_NAME="example-application-mobile"
 PORTS_TO_WAIT_FOR=(\
   5900 \
   5901 \

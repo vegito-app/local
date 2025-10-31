@@ -30,7 +30,7 @@ localDotenvFile=${currentWorkingDir}/.env
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 # Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION=${LOCAL_VERSION:-v1.6.6}
+LOCAL_VERSION=${LOCAL_VERSION:-v1.6.7}
 # Enable or disable the use of the local development environment.
 MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
 # Enable or disable the execution of the local application tests on container start.

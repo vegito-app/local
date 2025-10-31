@@ -207,35 +207,35 @@ example-application-mobile-android-release-keystore:
 	@LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_KEYSTORE_ALIAS_NAME) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_DNAME) \
 	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
-	$(MAKE) local-android-release-keystore 
+	  $(MAKE) local-android-release-keystore 
 .PHONY: example-application-mobile-android-release-keystore
 ## 📦 END ANDROID RELEASE FULL PIPELINE
 ################################################################################
 
-EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME = example-application-mobile
+VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME = example-application-mobile
 
-EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME)
+VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME)
 
-EXAMPLE_APPLICATION_MOBILE_IMAGE = $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
+VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE = $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
 
 example-application-mobile-wait-for-boot:
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
 	  $(MAKE) local-android-emulator-wait-for-boot
 .PHONY: example-application-mobile-wait-for-boot
 
 example-application-mobile-screenshot:
 	@echo "Capturing screenshot from Android Emulator..."
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
 	  $(MAKE) local-android-emulator-screenshot
 .PHONY: example-application-mobile-screenshot
 
 example-application-mobile-dump:
 	@echo "Capturing dump from Android Emulator..."
-	@LOCAL_ANDROID_BUILDER_CONTAINER_EXEC="$(EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_BUILDER_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
 	  $(MAKE) local-android-emulator-dump
 .PHONY: example-application-mobile-dump
 
 example-application-mobile-extract-android-artifacts:
-	LOCAL_ANDROID_MOBILE_IMAGE=$(EXAMPLE_APPLICATION_MOBILE_IMAGE) \
+	LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE) \
 	$(MAKE) local-android-mobile-image-tag-release-extract
 .PHONY: example-application-mobile-extract-android-artifacts

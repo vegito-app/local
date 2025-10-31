@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://github.com/vegito-app/local/compare/v1.7.0...v1.7.1) (2025-10-30)
+
+## [1.7.0](https://github.com/vegito-app/local/compare/v1.6.9...v1.7.0) (2025-10-30)
+
+
+### Features
+
+* **workflows:** enhance release and test logging ([59754d1](https://github.com/vegito-app/local/commit/59754d1424d2f58b81b44167367f80b6a6dc9c15))
+
+### [1.6.9](https://github.com/vegito-app/local/compare/v1.6.8...v1.6.9) (2025-10-29)
+
+
+### Bug Fixes
+
+* **release-script:** correct image path for android preview ([b8ee522](https://github.com/vegito-app/local/commit/b8ee522347b7ccf23e5db207b3a3fdc229be5102))
+
+### [1.6.8](https://github.com/vegito-app/local/compare/v1.6.7...v1.6.8) (2025-10-29)
+
 ### [1.6.7](https://github.com/vegito-app/local/compare/v1.6.6...v1.6.7) (2025-10-29)
 
 ### [1.6.6](https://github.com/vegito-app/local/compare/v1.6.5...v1.6.6) (2025-10-28)

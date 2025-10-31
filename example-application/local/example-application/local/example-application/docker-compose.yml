@@ -34,7 +34,7 @@ services:
     env_file:
       - .env
     environment:
-      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/tests/mobile_images}
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
@@ -51,7 +51,7 @@ services:
 
   example-application-tests:
     tty: true
-    image: ${EXAMPLE_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:example-application-tests-latest}
+    image: ${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:example-application-tests-latest}
     environment:
       APPLICATION_BACKEND_URL_DEBUG: http://application-backend:8888
       LOCAL_WORKSPACE: ${PWD}

@@ -1,0 +1,23 @@
+name: Application Release Build
+
+permissions:
+  id-token: write
+  contents: write
+
+on:
+  push:
+    branches: [main]
+jobs:
+  application-release-build:
+    uses: vegito-app/local/.github/workflows/application-main-release-template.yml@main
+    with:
+      environment: dev
+      android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
+      android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
+      use_registry_cache: true
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}

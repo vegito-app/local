@@ -153,19 +153,14 @@ jobs:
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
         run: |
-          echo "### 🐳 Docker Images Built for '${{ inputs.environment }}' (excluding :latest):" > docker-tags.txt
-          for group in runners builders services applications; do
-            echo "#### Group: '$group'" >> docker-tags.txt
-            make local-$group-docker-group-tags-list-ci | grep -v ':latest' | sed 's/^/- /' >> docker-tags.txt || echo "_no tags for group '$group'_" >> docker-tags.txt
-            echo "" >> docker-tags.txt
-          done
+          make docker-build-tags-list-ci-md > docker-tags.md
 
       - name: Upload docker tags and index as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: docker-metadata-${{ inputs.environment }}-${{ inputs.version }}
           path: |
-            docker-tags.txt
+            docker-tags.md
             index.json
 
   upload-android-artifacts:

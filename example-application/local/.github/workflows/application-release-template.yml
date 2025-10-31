@@ -77,7 +77,7 @@ jobs:
           echo "    <div>➡️ <a href=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk\">Download APK</a></div>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '  <div>' >> RELEASE_BODY.md
-          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
+          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/mobile/android-preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '</div>' >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
@@ -87,8 +87,10 @@ jobs:
           echo "" >> RELEASE_BODY.md
           echo "- 🔗 [Download APK](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk)" >> RELEASE_BODY.md
           echo "- 🔗 [Download AAB](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.aab)" >> RELEASE_BODY.md
+          echo "- 🔗 [Android Release Keystore SHA1](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.keystore.sha1)" >> RELEASE_BODY.md
           echo "- 🧪 [Test Report (Robot Framework)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/report.html)" >> RELEASE_BODY.md
           echo "- 🧪 [Test Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html)" >> RELEASE_BODY.md
+          echo "- 📊 [Test Output (XML)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/output.xml)" >> RELEASE_BODY.md
           echo "- 🧾 [Build Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build/images-build.html)" >> RELEASE_BODY.md
           echo "- 🧾 [Docker Tags](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/docker-tags.md)" >> RELEASE_BODY.md
           echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
@@ -138,7 +140,7 @@ jobs:
             fi
             
             # Append Docker tags if available
-            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.txt"
+            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.md"
             if [ -f "$docker_tags_path" ]; then
               echo "**Docker images published:**" >> RELEASE_BODY.md
               cat "$docker_tags_path" >> RELEASE_BODY.md
@@ -282,7 +284,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
-          gcloud storage cp docker-tags.txt "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
+          gcloud storage cp docker-tags.md "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
           gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
 
       - name: Download build log artifact
@@ -299,7 +301,7 @@ jobs:
       - name: Download mobile preview artifact
         uses: actions/download-artifact@v4
         with:
-          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          name: android-mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
           path: ./artifacts/mobile
 
       - name: Download build log artifact
@@ -316,8 +318,35 @@ jobs:
 
       - name: Upload metadata.json and APK/AAB to GCS
         run: |
-          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
           apkUrl="https://storage.googleapis.com/${gs_path}/app-release.apk"
+
+          qrencode -o ./artifacts/qr-code.png "${apkUrl}"
+
+          if [ -f ./artifacts/dev/containers.log ]; then
+            echo "<html><body><pre>" > ./artifacts/dev/containers.html
+            cat ./artifacts/dev/containers.log >> ./artifacts/dev/containers.html
+            echo "</pre></body></html>" >> ./artifacts/dev/containers.html
+          fi
+
+          if [ -f ./artifacts/dev/setup.log ]; then
+            echo "<html><body><pre>" > ./artifacts/dev/setup.html
+            cat ./artifacts/dev/setup.log >> ./artifacts/dev/setup.html
+            echo "</pre></body></html>" >> ./artifacts/dev/setup.html
+          fi
+
+          if [ -f ./artifacts/dev/tests.log ]; then
+            echo "<html><body><pre>" > ./artifacts/dev/tests.html
+            cat ./artifacts/dev/tests.log >> ./artifacts/dev/tests.html
+            echo "</pre></body></html>" >> ./artifacts/dev/tests.html
+          fi
+
+          if [ -f ./artifacts/build/images-build.log ]; then
+            echo "<html><body><pre>" > ./artifacts/build/images-build.html
+            cat ./artifacts/build/images-build.log >> ./artifacts/build/images-build.html
+            echo "</pre></body></html>" >> ./artifacts/build/images-build.html
+          fi
+
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
           mkdir -p temp_metadata
           METADATA_PATH=temp_metadata/metadata.json
           cat <<EOF > $METADATA_PATH
@@ -327,40 +356,41 @@ jobs:
             "dockerTags": "https://storage.googleapis.com/${gs_path}/docker-tags.md",
             "apk": "${apkUrl}",
             "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab",
-            "thumbnail": "https://storage.googleapis.com/${gs_path}/mobile/preview.png",
+            "androidKeystoreSha1": "https://storage.googleapis.com/${gs_path}/app-release.keystore.sha1",
+            "thumbnail": "https://storage.googleapis.com/${gs_path}/mobile/android-preview.png",
             "robotReport": "https://storage.googleapis.com/${gs_path}/tests/report.html",
             "robotLog": "https://storage.googleapis.com/${gs_path}/tests/log.html",
             "robotXml": "https://storage.googleapis.com/${gs_path}/tests/output.xml",
-            "buildLog": "https://storage.googleapis.com/${gs_path}/build/build-log.html",
+            "buildImages": "https://storage.googleapis.com/${gs_path}/build/images-build.html",
             "buildImagesLog": "https://storage.googleapis.com/${gs_path}/build/images-build.log",
-            "devTestsLog": "https://storage.googleapis.com/${gs_path}/dev/containers.html",
+            "devTests": "https://storage.googleapis.com/${gs_path}/dev/tests.html",
+            "devTestsLog": "https://storage.googleapis.com/${gs_path}/dev/tests.log",
+            "devContainers": "https://storage.googleapis.com/${gs_path}/dev/containers.html",
+            "devContainersLog": "https://storage.googleapis.com/${gs_path}/dev/containers.log",
+            "devSetup": "https://storage.googleapis.com/${gs_path}/dev/setup.html",
+            "devSetupLog": "https://storage.googleapis.com/${gs_path}/dev/setup.log",
             "qr": "https://storage.googleapis.com/${gs_path}/qr-code.png"
           }
           EOF
 
-          # Générer QR code APK
-          qrencode -o ./artifacts/qr-code.png "${apkUrl}"
-
-          # Créer tests-run.html à partir du log brut si présent
-          if [ -f ./artifacts/dev/containers.log ]; then
-            echo "<html><body><pre>" > ./artifacts/dev/containers.html
-            cat ./artifacts/dev/containers.log >> ./artifacts/dev/containers.html
-            echo "</pre></body></html>" >> ./artifacts/dev/containers.html
-          fi
-
-          # Créer images-build.html à partir du log brut si présent
-          if [ -f ./artifacts/build/images-build.log ]; then
-            echo "<html><body><pre>" > ./artifacts/build/images-build.html
-            cat ./artifacts/build/images-build.log >> ./artifacts/build/images-build.html
-            echo "</pre></body></html>" >> ./artifacts/build/images-build.html
-          fi
-
           gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
-          find ./artifacts/android -name "*.apk" -exec gcloud storage cp {} "gs://$gs_path/app-release.apk" --quiet \;
-          find ./artifacts/android -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
-          gcloud storage cp ./artifacts/mobile/preview.png "gs://$gs_path/preview.png" --quiet
+
+          gcloud storage cp ./artifacts/android/android-mobile-release-${{ inputs.version }}-signed-aligned.apk "gs://$gs_path/app-release.apk" --quiet
+          gcloud storage cp ./artifacts/android/android-mobile-release-${{ inputs.version }}-signed.aab "gs://$gs_path/app-release.aab" --quiet
+          gcloud storage cp ./artifacts/android/android-mobile-release-${{ inputs.version }}-key.keystore.sha1 "gs://$gs_path/app-release.keystore.sha1" --quiet
+
+          gcloud storage cp ./artifacts/mobile/android-mobile-preview.png "gs://$gs_path/mobile/android-preview.png" --quiet
+
           gcloud storage cp ./artifacts/build/images-build.html "gs://$gs_path/build/images-build.html" --quiet
+          gcloud storage cp ./artifacts/build/images-build.log "gs://$gs_path/build/images-build.log" --quiet
+
+          gcloud storage cp ./artifacts/dev/tests.html "gs://$gs_path/dev/tests.html" --quiet
+          gcloud storage cp ./artifacts/dev/tests.log "gs://$gs_path/dev/tests.log" --quiet
+          gcloud storage cp ./artifacts/dev/setup.html "gs://$gs_path/dev/setup.html" --quiet
+          gcloud storage cp ./artifacts/dev/setup.log "gs://$gs_path/dev/setup.log" --quiet
           gcloud storage cp ./artifacts/dev/containers.html "gs://$gs_path/dev/containers.html" --quiet
+          gcloud storage cp ./artifacts/dev/containers.log "gs://$gs_path/dev/containers.log" --quiet
+
           gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
 
       - name: 🔍 Check test output files

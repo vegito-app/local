@@ -71,7 +71,6 @@ target "example-application-mobile" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST
-    environment             = INFRA_ENV
     version                 = VERSION
   }
   secret = [
@@ -88,7 +87,6 @@ target "example-application-mobile" {
   contexts = {
     "android" : LOCAL_ANDROID_DIR
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "project" : "."
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
@@ -102,7 +100,6 @@ target "example-application-mobile" {
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
-  platforms = ["linux/amd64"]
 }
 
 target "example-application-mobile-ci" {
@@ -125,7 +122,6 @@ target "example-application-mobile-ci" {
   contexts = {
     "android" : LOCAL_ANDROID_DIR
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "project" : "."
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,

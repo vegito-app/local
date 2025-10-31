@@ -140,7 +140,7 @@ jobs:
             fi
             
             # Append Docker tags if available
-            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.txt"
+            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.md"
             if [ -f "$docker_tags_path" ]; then
               echo "**Docker images published:**" >> RELEASE_BODY.md
               cat "$docker_tags_path" >> RELEASE_BODY.md
@@ -284,7 +284,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
-          gcloud storage cp docker-tags.txt "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
+          gcloud storage cp docker-tags.md "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
           gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
 
       - name: Download build log artifact

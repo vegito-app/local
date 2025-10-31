@@ -38,3 +38,31 @@ In CI, the APK is signed and aligned during the **builder stage** using a releas
 - The images are compatible with both `arm64` and `amd64` architectures.
 
 For more details, see the CI build setup in the parent project or the Dockerfiles under `local/android/`.
+
+
+## 🛠️ Makefile Integration for Example Application
+
+This example application includes a dedicated `Makefile` that enables seamless integration with the Vegito CI/CD system.
+
+### Available Targets
+
+- `make build-release`: Builds the release APK and AAB artifacts.
+- `make extract-artifacts`: Extracts the APK, AAB, and keystore SHA1 from a tagged container image.
+- `make push-release`: Pushes the tagged image and artifacts to the registry.
+- `make clean`: Cleans up build outputs.
+
+### CI/CD Reusability
+
+The project leverages a reusable GitHub Actions workflow defined in:
+
+```
+./example-application/.github/workflows/application-release.yml
+```
+
+This workflow:
+- Uses the same versioning logic as the main Vegito repo.
+- Builds tagged release images.
+- Extracts Android artifacts (APK, AAB, SHA1).
+- Publishes the consolidated release.
+
+This modular structure ensures that the example app behaves as a fully standalone subtree, while remaining fully interoperable with Vegito’s central pipeline logic.
