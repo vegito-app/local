@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/vegito-app/local/compare/v1.7.2...v1.8.0) (2025-10-31)
+
+
+### Features
+
+* **build:** update docker build group naming and add tag listings ([c05d0bb](https://github.com/vegito-app/local/commit/c05d0bbba177b2733b2f4e9e0e7b916c2658b3f8))
+
 ### [1.7.2](https://github.com/vegito-app/local/compare/v1.7.1...v1.7.2) (2025-10-31)
 
 
