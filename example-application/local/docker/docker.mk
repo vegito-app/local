@@ -35,7 +35,7 @@ local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%
 .PHONY: local-docker-group-tags-list-ci
 
 $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) 2>/dev/null | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci)
 
 # Build all images (dev)

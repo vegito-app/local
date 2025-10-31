@@ -135,15 +135,13 @@ group "local-services-ci" {
 
 group "local-applications" {
   targets = [
-    "local-android-studio",
-    "local-application",
+    "example-applications",
   ]
 }
 
 group "local-applications-ci" {
   targets = [
-    "local-android-studio-ci",
-    "example-application-ci",
+    "example-applications-ci",
   ]
 }
 

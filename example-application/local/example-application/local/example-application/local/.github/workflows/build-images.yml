@@ -152,8 +152,8 @@ jobs:
           fi
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
-        run: |
-          make docker-build-tags-list-ci-md > docker-tags.mdmake docker-build-tags-list-ci-md > docker-tags.md
+        run: |make docker-build-tags-list-ci-md > docker-tags.md
+          
 
       - name: Upload docker tags and index as artifacts
         uses: actions/upload-artifact@v4

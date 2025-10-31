@@ -61,12 +61,6 @@ services:
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/tests
-    # working_dir: ${HOME}/tests
-    # command: |
-    #   bash -c '
-    #   set -eu
-    #   ./entrypoint.sh
-    #   '
     networks:
       dev:
         aliases:

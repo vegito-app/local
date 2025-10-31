@@ -1,0 +1,374 @@
+# Enable reuse of this workflow from other repositories in the org
+name: Application Release Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      application_release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      application_release_bucket_project_prefix:
+        required: false
+        type: string
+        default: local
+      use_registry_cache:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  create-github-release:
+    name: Create Consolidated GitHub Release ✨
+    runs-on: self-hosted
+    env:
+      VERSION: ${{ inputs.version }}
+      VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
+      VEGITO_APPLICATION_RELEASE_BUCKET: vegito-app-prod-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}
+      LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Download version changelog artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: version-changelog
+          path: ./artifacts
+
+      - name: Write changelog and release body
+        run: |
+          VERSION="${{ env.VERSION }}"
+          echo "" > RELEASE_BODY.md
+          echo "## 📦 Build Artifacts (Vegito)" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "See the full list of build artifacts for this release at:" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "🔗 **[Download from GCS release bucket of project \`${VEGITO_APPLICATION_RELEASE_PROJECT}\` – version \`${VERSION}\`](https://release.vegito.app/releases?project=${VEGITO_APPLICATION_RELEASE_PROJECT}&version=${VERSION})**" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "### 📱 Download and Preview" >> RELEASE_BODY.md
+          echo '<div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">' >> RELEASE_BODY.md
+          echo '  <div style="text-align: center;">' >> RELEASE_BODY.md
+          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/qr-code.png\" alt=\"QR Code\" width=\"140\" height=\"140\"/>" >> RELEASE_BODY.md
+          echo "    <div>➡️ <a href=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk\">Download APK</a></div>" >> RELEASE_BODY.md
+          echo '  </div>' >> RELEASE_BODY.md
+          echo '  <div>' >> RELEASE_BODY.md
+          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
+          echo '  </div>' >> RELEASE_BODY.md
+          echo '</div>' >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "---" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "## 📦 [Production] Artifacts (GCS)" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "- 🔗 [Download APK](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk)" >> RELEASE_BODY.md
+          echo "- 🔗 [Download AAB](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.aab)" >> RELEASE_BODY.md
+          echo "- 🧪 [Test Report (Robot Framework)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/report.html)" >> RELEASE_BODY.md
+          echo "- 🧪 [Test Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html)" >> RELEASE_BODY.md
+          echo "- 🧾 [Build Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build/images-build.html)" >> RELEASE_BODY.md
+          echo "- 🧾 [Docker Tags](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/docker-tags.md)" >> RELEASE_BODY.md
+          echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
+          echo "# 🚀 Release $VERSION" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "## 🧩 Changes included:" >> RELEASE_BODY.md
+          cat ./artifacts/CHANGELOG.md >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+
+      - name: Download all production artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts/prod
+          pattern: "*-prod-*"
+
+      - name: Download all staging artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts/staging
+          pattern: "*-staging-*"
+
+      - name: Download all development artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts/dev
+          pattern: "*-dev-*"
+
+      - name: Append environment-specific information to changelog
+        run: |
+          set -euo pipefail
+          sudo apt-get update && sudo apt-get install -y tree
+          tree ./artifacts
+          for env in prod staging dev; do
+            echo -e "\n\n---\n\n" >> RELEASE_BODY.md
+            echo "### [$env] Environment Artifacts:" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            
+            # Append Android keystore SHA1 if available
+            keystore_sha1_path="./artifacts/$env/android-artifacts-$env-${{ inputs.version }}/${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}"
+            if [ -f "$keystore_sha1_path" ]; then
+              echo "**Android Release Keystore SHA1:**" >> RELEASE_BODY.md
+              echo '```' >> RELEASE_BODY.md
+              cat "$keystore_sha1_path" >> RELEASE_BODY.md
+              echo '' >> RELEASE_BODY.md
+              echo '```' >> RELEASE_BODY.md
+              echo "" >> RELEASE_BODY.md
+            fi
+            
+            # Append Docker tags if available
+            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.md"
+            if [ -f "$docker_tags_path" ]; then
+              echo "**Docker images published:**" >> RELEASE_BODY.md
+              cat "$docker_tags_path" >> RELEASE_BODY.md
+              echo "" >> RELEASE_BODY.md
+            fi
+          done
+
+      - name: Organize artifacts for release
+        run: |
+          mkdir -p release_artifacts
+          for env in prod staging dev; do
+            find ./artifacts/$env -name "*.apk" -exec cp {} release_artifacts/${env}-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk \; 2>/dev/null || true
+            find ./artifacts/$env -name "*.aab" -exec cp {} release_artifacts/${env}-android-mobile-release-${{ env.VERSION }}-signed.aab \; 2>/dev/null || true
+            find ./artifacts/$env -name "*.sha1" -exec cp {} release_artifacts/${env}-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1 \; 2>/dev/null || true
+          done
+          cp ./artifacts/CHANGELOG.md release_artifacts/ 2>/dev/null || true
+
+      - name: Show Release Body preview
+        run: |
+          cat RELEASE_BODY.md
+
+      - name: List release artifacts
+        run: |
+          find release_artifacts -type f | sort
+
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: main-${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          body_path: ./RELEASE_BODY.md
+          files: release_artifacts/*
+
+  commit-and-push-release-tag:
+    name: Finalize and Push Release Tag
+    runs-on: self-hosted
+    needs: [create-github-release, upload-release-to-gcs]
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Reset to clean state
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Run Gitleaks scan
+        run: |
+          gitleaks detect --source . --report-path gitleaks-report.json --log-opts "--all"
+
+      - name: Upload Gitleaks report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+
+      - name: Fail if leaks found
+        run: |
+          if grep -q '"line":' gitleaks-report.json; then
+            echo "🚨 Secrets found, stopping build!"
+            exit 1
+          fi
+
+      - name: Recreate version tag
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+          standard-version
+
+      - name: Push tag if all builds succeeded
+        run: |
+          git push origin HEAD --follow-tags
+
+  upload-release-to-gcs:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Upload ${{ matrix.environment }} artifacts and metadata to GCS
+    runs-on: self-hosted
+    environment: ${{ matrix.environment }}
+    env:
+      VERSION: ${{ inputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+      INFRA_ENV: ${{ matrix.environment }}
+      GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GCS_BUCKET_NAME: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
+      - name: Set VERSION
+        run: echo "VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
+
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Download docker metadata artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-metadata-${{ matrix.environment }}-${{ env.VERSION }}
+
+      - name: Generate index.json for release root
+        run: |
+          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
+          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
+            version=$(basename $(dirname "$f"))
+            echo "  {\"version\": \"$version\"}," >> index.json
+          done
+          sed -i '$ s/},/}/' index.json || true
+          echo ']}' >> index.json
+
+      - name: Upload Docker Tags and Index to GCS
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
+          gcloud storage cp docker-tags.md "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
+          gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
+
+      - name: Download build log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: images-build-log-${{ matrix.environment }}-${{ env.VERSION }}
+          path: ./artifacts/build
+
+      - name: Download dev log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dev-logs-${{ matrix.environment }}-${{ env.VERSION }}
+          path: ./artifacts/dev
+      - name: Download mobile preview artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
+          path: ./artifacts/mobile
+
+      - name: Download build log artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tests-results-${{ matrix.environment }}-${{ env.VERSION }}
+          path: ./artifacts/tests
+
+      - name: Download APK and AAB artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifacts-${{ matrix.environment }}-${{ env.VERSION }}
+          path: ./artifacts/android
+
+      - name: Upload metadata.json and APK/AAB to GCS
+        run: |
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          apkUrl="https://storage.googleapis.com/${gs_path}/app-release.apk"
+          mkdir -p temp_metadata
+          METADATA_PATH=temp_metadata/metadata.json
+          cat <<EOF > $METADATA_PATH
+          {
+            "version": "${VERSION}",
+            "changelog": "https://storage.googleapis.com/${gs_path}/CHANGELOG.md",
+            "dockerTags": "https://storage.googleapis.com/${gs_path}/docker-tags.md",
+            "apk": "${apkUrl}",
+            "aab": "https://storage.googleapis.com/${gs_path}/app-release.aab",
+            "thumbnail": "https://storage.googleapis.com/${gs_path}/mobile/preview.png",
+            "robotReport": "https://storage.googleapis.com/${gs_path}/tests/report.html",
+            "robotLog": "https://storage.googleapis.com/${gs_path}/tests/log.html",
+            "robotXml": "https://storage.googleapis.com/${gs_path}/tests/output.xml",
+            "buildLog": "https://storage.googleapis.com/${gs_path}/build/build-log.html",
+            "buildImagesLog": "https://storage.googleapis.com/${gs_path}/build/images-build.log",
+            "devTestsLog": "https://storage.googleapis.com/${gs_path}/dev/containers.html",
+            "qr": "https://storage.googleapis.com/${gs_path}/qr-code.png"
+          }
+          EOF
+
+          # Générer QR code APK
+          qrencode -o ./artifacts/qr-code.png "${apkUrl}"
+
+          # Créer tests-run.html à partir du log brut si présent
+          if [ -f ./artifacts/dev/containers.log ]; then
+            echo "<html><body><pre>" > ./artifacts/dev/containers.html
+            cat ./artifacts/dev/containers.log >> ./artifacts/dev/containers.html
+            echo "</pre></body></html>" >> ./artifacts/dev/containers.html
+          fi
+
+          # Créer images-build.html à partir du log brut si présent
+          if [ -f ./artifacts/build/images-build.log ]; then
+            echo "<html><body><pre>" > ./artifacts/build/images-build.html
+            cat ./artifacts/build/images-build.log >> ./artifacts/build/images-build.html
+            echo "</pre></body></html>" >> ./artifacts/build/images-build.html
+          fi
+
+          gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
+          find ./artifacts/android -name "*.apk" -exec gcloud storage cp {} "gs://$gs_path/app-release.apk" --quiet \;
+          find ./artifacts/android -name "*.aab" -exec gcloud storage cp {} "gs://$gs_path/app-release.aab" --quiet \;
+          gcloud storage cp ./artifacts/mobile/preview.png "gs://$gs_path/preview.png" --quiet
+          gcloud storage cp ./artifacts/build/images-build.html "gs://$gs_path/build/images-build.html" --quiet
+          gcloud storage cp ./artifacts/dev/containers.html "gs://$gs_path/dev/containers.html" --quiet
+          gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
+
+      - name: 🔍 Check test output files
+        run: ls -lh ./artifacts/tests
+
+      - name: 📤 Upload Robot Framework reports to GCS
+        run: |
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gcloud storage cp ./artifacts/tests/report.html "gs://$gs_path/tests/report.html" --quiet
+          gcloud storage cp ./artifacts/tests/log.html "gs://$gs_path/tests/log.html" --quiet
+          gcloud storage cp ./artifacts/tests/output.xml "gs://$gs_path/tests/output.xml" --quiet
