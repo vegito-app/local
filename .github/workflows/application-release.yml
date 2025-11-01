@@ -10,12 +10,12 @@ on:
 jobs:
   version:
     name: Generate Version and Changelog
-    uses: vegito-app/local/.github/workflows/version.yml@v1.6.9
+    uses: vegito-app/local/.github/workflows/version.yml@v1.8.3
 
   build:
     needs: version
     name: Build and Push Images
-    uses: vegito-app/local/.github/workflows/build-images.yml@v1.6.9
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.8.3
     strategy:
       matrix:
         environment: [dev, staging, prod]
@@ -39,7 +39,7 @@ jobs:
       - build
       - version
     name: Run Tests
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.6.9
+    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.8.3
     strategy:
       matrix:
         environment: [dev, staging, prod]
@@ -58,7 +58,7 @@ jobs:
       - test
       - version
     name: Application Release Build 🚀
-    uses: vegito-app/local/.github/workflows/application-release-template.yml@v1.6.9
+    uses: vegito-app/local/.github/workflows/application-release-template.yml@v1.8.3
     with:
       environment: dev
       version: ${{ needs.version.outputs.version }}
