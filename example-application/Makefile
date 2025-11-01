@@ -10,7 +10,7 @@ endif
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
 # Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION := v1.7.1
+LOCAL_VERSION := v1.8.3
 
 export
 
