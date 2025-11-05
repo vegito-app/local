@@ -3,9 +3,8 @@ GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
-
 VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE = $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
 docker-login: gcloud-auth-docker
 	@docker login $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
@@ -22,24 +21,34 @@ docker-clean:
 # Groups are used to manage the build process. 
 # If an image is built in a group, all images in that group are built together.
 # If an image depends on another image as base, the groups must be built in the correct order (cf. docker-images-ci).
-LOCAL_DOCKER_BUILDX_GROUPS := \
+LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := \
   runners \
   builders \
   services \
   applications
 
+LOCAL_DOCKER_BUILDX_GROUPS := \
+  dockerhub \
+  $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS)
+
+local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
+.PHONY: local-docker-group-tags-list-ci
+
+$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | tee | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci)
+
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
 # The build does not push images to a remote registry.
 # Groups are not built sequentially, so images may not use the latest version of their base image.
-docker-images: 
-	@$(MAKE) -j $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images)
+docker-images: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images)
 .PHONY: docker-images
 
 # Build all images (CI)
 # In this variant, images are built and pushed to the remote registry.
 # Groups are built sequentially to ensure each image uses the latest version of its base image.
-docker-images-ci: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images-ci)
+docker-images-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 .PHONY: docker-images-ci
 
 $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images): docker-buildx-setup
@@ -97,3 +106,19 @@ docker-local-buildx-cache-clean:
 	  done \
 	'
 .PHONY: docker-local-buildx-cache-clean
+
+DOCKER_HUB_IMAGES = \
+  docker-dind-rootless \
+  debian \
+  golang-alpine \
+  rust 
+
+local-docker-hub-images-update:	
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-dockerhub-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-dockerhub-ci
+.PHONY: local-docker-hub-images-update
+
+$(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
+.PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
