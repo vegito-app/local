@@ -1,0 +1,7 @@
+**/.git
+**/.git/
+**/.github
+**/.cache
+**/.containers
+**/.docker-buildx-cache
+**/.DS_Store

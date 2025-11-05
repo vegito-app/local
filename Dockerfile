@@ -1,12 +1,13 @@
-FROM golang:alpine AS go-build
+ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
+
+FROM ${local_dev_docker_registry}/docker-repository-private/golang-alpine:latest AS go-build
 
 COPY proxy proxy
 
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-FROM debian:bookworm
-
+FROM ${local_dev_docker_registry}/docker-repository-private/debian:latest
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
 RUN apt-get update && apt-get install -y \
@@ -20,7 +21,7 @@ RUN apt-get update && apt-get install -y \
     file \
     g++ \
     gcc \
-    gcc \    
+    gcc \
     git \
     gnupg \
     htop \
@@ -228,6 +229,7 @@ RUN set -e ; \
     # 
     npm install -g \
     depcheck \
+    firebase-tools \
     npm-check-updates \
     npm-check \
     npm \
@@ -262,10 +264,29 @@ RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
 ENV PATH=${HOME}/bin:$PATH
 
 USER root
+ARG gitleaks_version=8.28.0
+
+RUN case "$TARGETPLATFORM" in "linux/amd64") \
+    url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" ; \
+    ;; \
+    "linux/arm64") \
+    url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_arm64.tar.gz" ; \
+    ;; \
+    *) echo >&2 "warning: unsupported 'gitleaks' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
+    esac; \
+    echo "Downloading gitleaks from $url"; \
+    curl -L -o /tmp/gitleaks.tar.gz $url \
+    && mkdir -p /tmp/gitleaks \
+    && tar -xvzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks \
+    && mv /tmp/gitleaks/gitleaks /usr/local/bin/gitleaks \
+    && rm -rf /tmp/gitleaks \
+    && gitleaks version
 
 RUN ln -sf /usr/bin/bash /bin/sh
 
 USER ${non_root_user}
+
+COPY container-install.sh /usr/local/bin/local-container-install.sh
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]

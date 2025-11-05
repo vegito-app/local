@@ -1,0 +1,20 @@
+services:
+  github-actions-runner:
+    restart: no
+    image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
+    volumes:
+      - /runner/_work:/runner/_work:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
+      - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
+      - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
+    deploy:
+      replicas: 5
+      update_config:
+        parallelism: 5
+        delay: 300s
+    networks:
+      - github-actions
+networks:
+  github-actions:

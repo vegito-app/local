@@ -1,0 +1,95 @@
+{
+  "name": "Vegito Dev Container",
+  "image": "europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind,consistency=cached"
+  ],
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "customizations": {
+    "vscode": {
+      "editor.fontLigatures": false,
+      "editor.formatOnSave": true,
+      "editor.inlineSuggest.enabled": true,
+      "explorer.confirmDelete": false,
+      "files.hotExit": "onExitAndWindowClose",
+      "genieai.enableConversationHistory": true,
+      "genieai.openai.model": "gpt-4",
+      "genieai.promptPrefix.addComments-enabled": false,
+      "git.enabled": true,
+      "go.toolsManagement.autoUpdate": true,
+      "remote.autoForwardPortsSource": "process",
+      "search.showLineNumbers": true,
+      "terminal.integrated.profiles.linux": {
+        "bash": {
+          "path": "bash",
+          "icon": "terminal-debian",
+          "color": "terminal.ansiRed"
+        }
+      },
+      "terminal.integrated.defaultProfile.linux": "bash",
+      "window.commandCenter": false,
+      "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      "workbench.iconTheme": "material-icon-theme",
+      "workbench.layoutControl.enabled": false,
+      "zenMode.centerLayout": false,
+      "zenMode.hideLineNumbers": false,
+      "diffEditor.ignoreTrimWhitespace": false,
+      "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "vsicons.dontShowNewVersionMessage": true,
+      "files.autoSave": "onFocusChange",
+      "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+          80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off",
+        "dart.flutterSdkPath": "${localWorkspaceFolder}/local/.containers/android-studio/flutter",
+        "workbench.activityBar.location": "top"
+      },
+      "extensions": [
+        "4ops.terraform",
+        "alexisvt.flutter-snippets",
+        "bierner.markdown-mermaid",
+        "ChFlick.firecode",
+        "circlecodesolution.ccs-flutter-color",
+        "codeium.codeium",
+        "dbaeumer.vscode-eslint",
+        "diemasmichiels.emulate",
+        "esbenp.prettier-vscode",
+        "genieai.chatgpt-vscode",
+        "github.vscode-github-actions",
+        "golang.go",
+        "googlecloudtools.cloudcode",
+        "gornivv.vscode-flutter-files",
+        "hasanakg.firebase-snippets",
+        "hashicorp.hcl",
+        "hashicorp.terraform",
+        "huang-an-sheng.firebase-web-app-snippets",
+        "jsayol.firebase-explorer",
+        "luanpotter.dart-import",
+        "marcelovelasquez.flutter-tree",
+        "MarufHassan.flutter-snippets",
+        "me-dutour-mathieu.vscode-github-actions",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "msjsdiag.vscode-react-native",
+        "Nash.awesome-flutter-snippets",
+        "openai.chatgpt",
+        "pjmiravalle.terraform-advanced-syntax-highlighting",
+        "pkief.material-icon-theme",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "robocorp.robotframework-lsp",
+        "shd101wyy.markdown-preview-enhanced",
+        "standard.vscode-standard",
+        "toba.vsfire",
+        "tylerharris.terraform-link-docs"
+      ]
+    }
+  }
+}
