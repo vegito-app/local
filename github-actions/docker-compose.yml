@@ -1,6 +1,6 @@
 services:
   github-actions-runner:
-    restart: no
+    restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - /runner/_work:/runner/_work:cached
