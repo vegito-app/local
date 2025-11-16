@@ -49,12 +49,16 @@ RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/an
 
 RUN flutter doctor --android-licenses && flutter doctor
 
+# 📥 Use Appium entrypoint to launch emulator + APK
+COPY --from=appium --chown=${non_root_user}:${non_root_user}  entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
+
 # Entrypoints & scripts
 COPY --chown=${non_root_user}:${non_root_user} caches-refresh.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} android-studio.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
 
 RUN chmod +x \
+  /usr/local/bin/android-appium-entrypoint.sh \
   /usr/local/bin/caches-refresh.sh \
   /usr/local/bin/android-studio.sh \
   /usr/local/bin/android-studio-entrypoint.sh
