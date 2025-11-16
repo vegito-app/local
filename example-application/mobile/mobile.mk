@@ -65,7 +65,7 @@ $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-
 	@echo "Building $(@:example-application-mobile-flutter-build-%-release=%)..."
 	@$(FLUTTER) build $(@:example-application-mobile-flutter-build-%-release=%) --release
 	@echo "Build for $(@:example-application-mobile-flutter-build-%-release=%) completed successfully"
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%release)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%-release)
 
 example-application-mobile-flutter-android-release: example-application-mobile-flutter-build-apk-release example-application-mobile-flutter-build-appbundle-release
 .PHONY: example-application-mobile-flutter-android-release
@@ -209,9 +209,10 @@ example-application-mobile-android-release-keystore:
 	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
 	  $(MAKE) local-android-release-keystore 
 .PHONY: example-application-mobile-android-release-keystore
+
+################################################################################
 ## 📦 END ANDROID RELEASE FULL PIPELINE
 ################################################################################
-
 VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME = example-application-mobile
 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME)
@@ -231,7 +232,7 @@ example-application-mobile-screenshot:
 
 example-application-mobile-dump:
 	@echo "Capturing dump from Android Emulator..."
-	@LOCAL_ANDROID_BUILDER_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
 	  $(MAKE) local-android-emulator-dump
 .PHONY: example-application-mobile-dump
 
