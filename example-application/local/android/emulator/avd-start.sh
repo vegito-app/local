@@ -70,7 +70,7 @@ fi
 
 headless_args="-no-window"
 if xdpyinfo >/dev/null 2>&1; then
-  headless_args=""
+  headless_args=${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-""}
 fi
 
 echo "Starting AVD named: ${avd_name} (gpu=${gpu_mode})"
