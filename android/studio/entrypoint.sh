@@ -32,41 +32,13 @@ fi
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
 mkdir -p $local_container_cache
 
-android_release_keystore=${LOCAL_ANDROID_RELEASE_KEYSTORE_PATH:-~/.android/release.keystore}
-if [ -f "$android_release_keystore" ]; then
-    echo "[entrypoint] Linking existing local release keystore from $android_release_keystore to ~/.android/release.keystore"
-    ln -sf "$android_release_keystore" ~/.android/release.keystore
-fi
-
-mkdir -p ~/.android
-if [ ! -f ~/.android/adbkey ] || [ ! -f ~/.android/adbkey.pub ]; then
-    echo "[entrypoint] Generating ADB keypair at ~/.android/adbkey{,.pub}..."
-    adb keygen -a -n ~/.android/adbkey
-else
-    echo "[entrypoint] Existing ADB keypair detected, skipping generation."
-fi
-
-if [ ! -f ~/.android/release.keystore ]; then
-    echo "[entrypoint] No release.keystore found, generating via Makefile..."
-    LOCAL_ANDROID_STUDIO="" make -C .. local-android-release-keystore
-else
-    echo "[entrypoint] Existing release.keystore found, skipping generation."
-fi
-
-mkdir -p ~/.android
-if [ ! -f ~/.android/adbkey ] || [ ! -f ~/.android/adbkey.pub ]; then
-    echo "[entrypoint] Generating ADB keypair at ~/.android/adbkey{,.pub}..."
-    adb keygen -a -n ~/.android/adbkey
-else
-    echo "[entrypoint] Existing ADB keypair detected, skipping generation."
-fi
 
 android_adb_key=${LOCAL_ANDROID_ADB_KEY_PATH:-~/.android/adbkey}
 android_adb_pubkey=${LOCAL_ANDROID_ADB_KEY_PUB_PATH:-~/.android/adbkey.pub}
 [ -d ~/.android ] || mkdir -p ~/.android
 if [ ! -f $android_adb_key ] || [ ! -f $android_adb_pubkey ]; then
     echo "[entrypoint] Generating ADB keypair at $android_adb_key and $android_adb_pubkey..."
-    adb keygen $android_adb_key
+    adb keygen -a -n $android_adb_key
 else
     echo "[entrypoint] Existing ADB keypair detected, skipping generation."
 fi
@@ -92,7 +64,10 @@ else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi
 
-(android-emulator-entrypoint.sh) &
+rm -f ~/.android/avd/*/*.lock
+rm -f ~/.android/avd/*.ini.lock
+
+(android-appium-entrypoint.sh) &
 bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then

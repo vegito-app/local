@@ -63,6 +63,19 @@ $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%):
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm): 
 	@echo "Removing container for $(@:local-%-container-rm=%)"
 	@$(MAKE) $(@:%-rm=%-stop)
+	@echo 🔄 Waiting for container removal...
+	@timeout=10; \
+	while docker ps -a --format '{{.Names}}' | grep -q "^$(COMPOSE_PROJECT_NAME)-$(@:local-android-%-container-rm=%)-1$$" && [ $$timeout -gt 0 ]; do \
+	  echo "⏳ Waiting for container removal..."; \
+	  sleep 1; timeout=$$((timeout-1)); \
+	done; \
+	if [ $$timeout -eq 0 ]; then \
+	  echo "⚠️  Timeout reached while waiting for container removal."; \
+	  echo "🗑️ Forcing removal of container for $(@:local-android-%-container-rm=%)." \
+	  docker container rm -f $(COMPOSE_PROJECT_NAME)-$(@:local-android-%-container-rm=%)-1 || true \
+	else \
+	  echo "✅ Container removed successfully."; \
+	fi
 	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm)
 
@@ -128,10 +141,10 @@ LOCAL_ANDROID_CONTAINER_EXEC ?= $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CON
 
 LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
 
-local-android-app-sha1-fingerprint:
-	@echo "Android Emulator SHA1 fingerprint:" 
+local-android-emulator-app-sha1-fingerprint:
+	@echo "Android Studio Emulator SHA1 fingerprint:" 
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+	  keytool -list -v -keystore /home/android/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 .PHONY: local-android-emulator-app-sha1-fingerprint
 
 ################################################################################
@@ -187,7 +200,7 @@ local-android-align-apk: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 	  zipalign -v -p 4 $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH) $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 
 local-android-sign-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) 
-.PHONY: local-android-sign-apksign
+.PHONY: local-android-sign-apk
 
 $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 	@echo "🔐 Signing APK with apksigner using keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH): $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."

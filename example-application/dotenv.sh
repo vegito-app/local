@@ -135,6 +135,31 @@ services:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
 EOF
 
+
+mobileLaunchDebug=${PWD}/tests/robot/.vscode/launch.json
+if [ ! -f $mobileLaunchDebug ] ;  then
+mkdir -p $(dirname $mobileLaunchDebug)
+cat <<'EOF' > $mobileLaunchDebug
+{
+    "workbench.colorTheme": "Red",
+    "robotcode.languageServer.mode": "stdio",
+    "robotcode.analysis.progressMode": "detailed",
+    "robotcode.workspace.excludePatterns": [
+        ".hatch/",
+        ".venv/",
+        "node_modules/",
+        ".pytest_cache/",
+        "__pycache__/",
+        ".mypy_cache/",
+        ".robotcode_cache/"
+    ],
+    "robotcode.robot.outputDir": "${workspaceFolder}/results",
+    "robotcode.analysis.diagnosticMode": "workspace",
+    "robotcode.analysis.referencesCodeLens": false,
+}
+EOF
+fi
+
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
 dockerComposeNetworksOverride=${WORKING_DIR:-${PWD}}/.docker-compose-networks-override.yml
 [ -f $dockerComposeNetworksOverride ] || cat <<EOF > $dockerComposeNetworksOverride
