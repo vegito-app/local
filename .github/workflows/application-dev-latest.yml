@@ -1,4 +1,4 @@
-name: Application Release Build
+name: Application Dev Latest Build
 
 permissions:
   id-token: write
@@ -6,21 +6,22 @@ permissions:
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
 jobs:
-  # version:
-  #   name: Generate Version and Changelog
-  #   uses: ./.github/workflows/version.yml
+  version:
+    name: Generate Version and Changelog
+    uses: ./.github/workflows/version.yml
 
   build:
-    # needs: version
+    needs: version
     name: Build and Push Images
     uses: ./.github/workflows/build-images.yml
     strategy:
       matrix:
-        environment: [dev, staging, prod]
+        environment: [dev]
     with:
-      version: ${{ needs.version.outputs.version }}
+      # use only one version to prevent costly over uploading images to the registry
+      version: dev-latest
       environment: ${{ matrix.environment }}
       # use_registry_cache: true
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
@@ -36,14 +37,14 @@ jobs:
   test:
     needs:
       - build
-      - version
     name: Run Tests
     uses: ./.github/workflows/functional-tests.yml
     strategy:
       matrix:
         environment: [dev, staging, prod]
     with:
-      version: ${{ needs.version.outputs.version }}
+      # use only one version to prevent costly over uploading images to the registry
+      version: dev-latest
       environment: ${{ matrix.environment }}
       functional-tests-output-dir: example-application/tests/output
     secrets:
@@ -54,12 +55,12 @@ jobs:
     needs:
       - build
       - test
-      # - version
+      - version
     name: Application Release Build 🚀
     uses: ./.github/workflows/application-release-template.yml
     with:
       environment: dev
-      version: ${{ needs.version.outputs.version }}
+      version: dev-latest
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

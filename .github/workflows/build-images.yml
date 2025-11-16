@@ -15,7 +15,7 @@ on:
       use_registry_cache:
         required: false
         type: boolean
-        default: true
+        default: false
       android_release_keystore_path:
         required: false
         type: string

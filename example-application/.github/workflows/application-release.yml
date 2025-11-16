@@ -25,7 +25,7 @@ jobs:
       android_release_keystore_path: mobile/android/release-key.keystore
       android_release_keystore_base64_path: mobile/android/release-key.keystore.base64
       android_release_keystore_store_pass_base64_path: mobile/android/release-key.keystore.storepass.base64
-      use_registry_cache: true
+      # use_registry_cache: true
 
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
