@@ -114,10 +114,6 @@ services:
     
   firebase-emulators:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-${LOCAL_VERSION}
-    environment:
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
 
   vault-dev:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-${LOCAL_VERSION}
@@ -134,6 +130,31 @@ services:
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
 EOF
+
+
+mobileLaunchDebug=${PWD}/tests/robot/.vscode/launch.json
+if [ ! -f $mobileLaunchDebug ] ;  then
+mkdir -p $(dirname $mobileLaunchDebug)
+cat <<'EOF' > $mobileLaunchDebug
+{
+    "workbench.colorTheme": "Red",
+    "robotcode.languageServer.mode": "stdio",
+    "robotcode.analysis.progressMode": "detailed",
+    "robotcode.workspace.excludePatterns": [
+        ".hatch/",
+        ".venv/",
+        "node_modules/",
+        ".pytest_cache/",
+        "__pycache__/",
+        ".mypy_cache/",
+        ".robotcode_cache/"
+    ],
+    "robotcode.robot.outputDir": "${workspaceFolder}/results",
+    "robotcode.analysis.diagnosticMode": "workspace",
+    "robotcode.analysis.referencesCodeLens": false,
+}
+EOF
+fi
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
 dockerComposeNetworksOverride=${WORKING_DIR:-${PWD}}/.docker-compose-networks-override.yml
