@@ -122,6 +122,7 @@ group "local-services" {
     "robotframework",
   ]
 }
+
 group "local-services-ci" {
   targets = [
     "local-android-services-ci",
@@ -154,40 +155,72 @@ group "local-dockerhub-ci" {
   ]
 }
 
+variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest"
+}
+
+variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${VERSION}"
+}
+
 target "local-docker-dind-rootless-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${VERSION}",
+    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
   platforms  = platforms
 }
 
+variable "DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:latest"
+}
+
+variable "DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${VERSION}"
+}
+
 target "local-debian-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/debian:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/debian:${VERSION}",
+    DEBIAN_IMAGE_LATEST,
+    DEBIAN_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "debian.Dockerfile"
   platforms  = platforms
 }
 
+variable "GO_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest"
+}
+
+variable "GO_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${VERSION}"
+}
+
 target "local-golang-alpine-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${VERSION}",
+    GO_IMAGE_LATEST,
+    GO_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "golang-alpine.Dockerfile"
   platforms  = platforms
 }
 
+variable "RUST_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/rust:latest"
+}
+
+variable "RUST_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${VERSION}"
+}
+
 target "local-rust-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/rust:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/rust:${VERSION}",
+    RUST_IMAGE_LATEST,
+    RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"

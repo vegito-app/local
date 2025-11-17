@@ -28,9 +28,11 @@ variable "CLARINET_VERSION" {
 
 target "clarinet-devnet-ci" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE_VERSION
-    docker_version   = DOCKER_VERSION
-    clarinet_version = CLARINET_VERSION
+    builder_image              = LOCAL_BUILDER_IMAGE_VERSION
+    clarinet_version           = CLARINET_VERSION
+    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_VERSION
+    docker_version             = DOCKER_VERSION
+    rust_image                 = RUST_IMAGE_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -51,9 +53,11 @@ target "clarinet-devnet-ci" {
 
 target "clarinet-devnet" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE_LATEST
-    docker_version   = DOCKER_VERSION
-    clarinet_version = CLARINET_VERSION
+    builder_image              = LOCAL_BUILDER_IMAGE_LATEST
+    clarinet_version           = CLARINET_VERSION
+    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_LATEST
+    docker_version             = DOCKER_VERSION
+    rust_image                 = RUST_IMAGE_LATEST
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"

@@ -28,12 +28,12 @@ variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for local-android-flutter image build"
-  default = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for local-android-flutter image build (cannot be used before first write)"
-  default = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "ANDROID_NDK_VERSION" {
@@ -46,9 +46,10 @@ variable "FLUTTER_VERSION" {
 
 target "local-android-flutter-ci" {
   args = {
-    flutter_version        = FLUTTER_VERSION
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
-    android_ndk_version = ANDROID_NDK_VERSION
+    debian_image               = DEBIAN_IMAGE_VERSION
+    flutter_version            = FLUTTER_VERSION
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
+    android_ndk_version        = ANDROID_NDK_VERSION
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
@@ -68,9 +69,10 @@ target "local-android-flutter-ci" {
 
 target "local-android-flutter" {
   args = {
-    flutter_version        = FLUTTER_VERSION
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
-    android_ndk_version = ANDROID_NDK_VERSION
+    debian_image               = DEBIAN_IMAGE_LATEST
+    flutter_version            = FLUTTER_VERSION
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
+    android_ndk_version        = ANDROID_NDK_VERSION
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
