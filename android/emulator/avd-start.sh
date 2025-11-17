@@ -70,7 +70,7 @@ fi
 
 headless_args="-no-window"
 if xdpyinfo >/dev/null 2>&1; then
-  headless_args=""
+  headless_args=${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-""}
 fi
 
 echo "Starting AVD named: ${avd_name} (gpu=${gpu_mode})"
@@ -129,19 +129,15 @@ if [ -f "${apk_path}" ]; then
   echo "APK found ${package_name} ${apk_path}, attempting installation..."
   if adb install -r "${apk_path}"; then
     echo "✅ APK installed ${package_name}."
-
     echo "🚀 Attempting to launch the app..."
     adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
-
     sleep 2
-
     if adb shell pidof "${package_name}" >/dev/null; then
       echo "✅ App is running."
     else
       echo "⚠️ App did not launch. Trying again..."
       adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1
     fi
-
   else
     echo "❌ APK installation failed."
   fi
