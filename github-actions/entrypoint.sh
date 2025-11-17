@@ -10,8 +10,19 @@ export RUNNER_ALLOWMULTIPLEJOBS=false
 
 # Cleanup function to deregister the runner and remove the builder
 cleanup() {
-  echo "Received signal, stopping runner gracefully..."
-  kill $(pidof Runner.Listener) || true
+  echo "🧹 Received signal, cleaning up..."
+
+  if docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
+    echo "🧹 Removing Docker Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
+    docker buildx rm "$LOCAL_DOCKER_BUILDX_NAME" || true
+  fi
+
+  echo "🧹 Removing GitHub Actions Runner configuration"
+  ./config.sh remove --token "$GITHUB_ACTIONS_RUNNER_TOKEN"
+  
+  echo "🧹 Removing runner work directory"
+  rm -rf /runner/_work/${HOSTNAME}
+  
   exit 0
 }
 
