@@ -23,7 +23,7 @@ variable "LOCAL_ANDROID_FLUTTER_DIR" {
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_ANDROID_FLUTTER_DIR}/.containers/android-flutter/docker-buildx-cache"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -62,7 +62,8 @@ target "local-android-flutter-ci" {
     LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }

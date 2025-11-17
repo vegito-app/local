@@ -15,7 +15,7 @@ variable "LOCAL_ANDROID_EMULATOR_DIR" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_ANDROID_EMULATOR_DIR}/.containers/android-emulator/docker-buildx-cache"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -47,7 +47,8 @@ target "local-android-emulator-ci" {
     LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline",
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
   platforms = platforms
 }

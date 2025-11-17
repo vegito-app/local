@@ -12,13 +12,13 @@ export RUNNER_ALLOWMULTIPLEJOBS=false
 cleanup() {
   echo "🧹 Received signal, cleaning up..."
 
+  echo "🧹 Removing GitHub Actions Runner configuration"
+  ./config.sh remove --token "$GITHUB_ACTIONS_RUNNER_TOKEN" || true
+
   if docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
     echo "🧹 Removing Docker Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
     docker buildx rm "$LOCAL_DOCKER_BUILDX_NAME" || true
   fi
-
-  echo "🧹 Removing GitHub Actions Runner configuration"
-  ./config.sh remove --token "$GITHUB_ACTIONS_RUNNER_TOKEN"
   
   echo "🧹 Removing runner work directory"
   rm -rf /runner/_work/${HOSTNAME}
@@ -37,6 +37,9 @@ fi
 
 docker buildx use "$LOCAL_DOCKER_BUILDX_NAME"
 
+WORKSPACE=/runner/_work/${HOSTNAME}
+sudo mkdir -p "$WORKSPACE"
+
 # Fix permissions on the working directory
 echo "🔧 Fixing ownership of /runner/_work"
 sudo chown -R "github:github" /runner/_work || true
@@ -50,11 +53,12 @@ cd /runner
     --name "$GITHUB_ACTIONS_RUNNER_STACK-$HOSTNAME" \
     --work "/runner/_work/${HOSTNAME}"
 
-WORKSPACE=/runner/_work/${HOSTNAME}
-mkdir -p "$WORKSPACE"
-
 # Export the local Buildx builder name as an environment variable for GitHub Actions
-echo "LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME" > "$WORKSPACE/gha-env-vars"
+{
+  echo "LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME"
+  echo "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache"
+  echo "BUILDX_BAKE_ENTITLEMENTS_FS=0"
+} > "$WORKSPACE/gha-env-vars"
 
 # Launch the runner
 echo "🚀 Starting GitHub Actions Runner"
