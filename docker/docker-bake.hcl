@@ -2,6 +2,14 @@ variable "USE_REGISTRY_CACHE" {
   default = false
 }
 
+variable "LOCAL_DOCKER_DIR" {
+  default = "${LOCAL_DIR}/docker"
+}
+
+variable "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
+  default = "${LOCAL_DOCKER_DIR}/.containers/buildx-cache"
+}
+
 variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
@@ -186,7 +194,7 @@ target "local-debian-ci" {
     DEBIAN_IMAGE_LATEST,
     DEBIAN_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "debian.Dockerfile"
   platforms  = platforms
 }
@@ -204,7 +212,7 @@ target "local-golang-alpine-ci" {
     GO_IMAGE_LATEST,
     GO_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
   platforms  = platforms
 }
