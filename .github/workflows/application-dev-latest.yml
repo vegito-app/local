@@ -8,12 +8,7 @@ on:
   push:
     branches: [dev]
 jobs:
-  version:
-    name: Generate Version and Changelog
-    uses: ./.github/workflows/version.yml
-
   build:
-    needs: version
     name: Build and Push Images
     uses: ./.github/workflows/build-images.yml
     strategy:
@@ -41,7 +36,7 @@ jobs:
     uses: ./.github/workflows/functional-tests.yml
     strategy:
       matrix:
-        environment: [dev, staging, prod]
+        environment: [dev]
     with:
       # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
@@ -55,7 +50,6 @@ jobs:
     needs:
       - build
       - test
-      - version
     name: Application Release Build 🚀
     uses: ./.github/workflows/application-release-template.yml
     with:

@@ -20,12 +20,12 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for local-android-emulator image build"
-  default = "type=local,mode=max,dest=${LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for local-android-emulator image build (cannot be used before first write)"
-  default = "type=local,src=${LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,src=${LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_LATEST" {
@@ -34,6 +34,9 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_LATEST" {
 
 target "local-android-emulator-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
+  args = {
+    debian_image = DEBIAN_IMAGE_VERSION
+  }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
     LOCAL_ANDROID_EMULATOR_VERSION,
@@ -51,6 +54,9 @@ target "local-android-emulator-ci" {
 
 target "local-android-emulator" {
   context = LOCAL_ANDROID_EMULATOR_DIR
+  args = {
+    debian_image = DEBIAN_IMAGE_LATEST
+  }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
     LOCAL_ANDROID_EMULATOR_VERSION,

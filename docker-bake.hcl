@@ -39,10 +39,12 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "local-project-builder-ci" {
   args = {
+    debian_image           = DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
     gitleaks_version       = GITLEAKS_VERSION
+    go_image               = GO_IMAGE_VERSION
     go_version             = GO_VERSION
     k9s_version            = K9S_VERSION
     kubectl_version        = KUBECTL_VERSION
@@ -51,7 +53,7 @@ target "local-project-builder-ci" {
     oh_my_zsh_version      = OH_MY_ZSH_VERSION
     terraform_version      = TERRAFORM_VERSION
   }
-  context = LOCAL_DIR
+  context    = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
@@ -65,7 +67,7 @@ target "local-project-builder-ci" {
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
-  platforms  = platforms
+  platforms = platforms
 }
 
 target "local-project-builder" {
@@ -74,6 +76,8 @@ target "local-project-builder" {
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
     gitleaks_version       = GITLEAKS_VERSION
+    debian_image           = DEBIAN_IMAGE_LATEST
+    go_image               = GO_IMAGE_LATEST
     go_version             = GO_VERSION
     k9s_version            = K9S_VERSION
     kubectl_version        = KUBECTL_VERSION
@@ -82,7 +86,7 @@ target "local-project-builder" {
     oh_my_zsh_version      = OH_MY_ZSH_VERSION
     terraform_version      = TERRAFORM_VERSION
   }
-  context = LOCAL_DIR
+  context    = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
