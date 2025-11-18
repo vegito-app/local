@@ -15,7 +15,7 @@ variable "LOCAL_ANDROID_EMULATOR_DIR" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_ANDROID_EMULATOR_DIR}/.containers/android-emulator/docker-buildx-cache"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {

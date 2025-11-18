@@ -72,7 +72,9 @@
       "window.customTitleBarVisibility": "windowed",
       "terminal.integrated.defaultProfile.linux": "bash",
       "window.commandCenter": false,
-      "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      // "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      // "workbench.colorTheme": "Hacker Red",
+      "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
       "workbench.iconTheme": "material-icon-theme",
       "material-icon-theme.folders.theme": "specific",
       "workbench.layoutControl.enabled": false,
@@ -257,6 +259,7 @@
         "hashicorp.terraform",
         "huang-an-sheng.firebase-web-app-snippets",
         "jsayol.firebase-explorer",
+        "lakshits11.best-themes-redefined",
         "luanpotter.dart-import",
         "marcelovelasquez.flutter-tree",
         "MarufHassan.flutter-snippets",
@@ -274,7 +277,8 @@
         "shd101wyy.markdown-preview-enhanced",
         "standard.vscode-standard",
         "toba.vsfire",
-        "tylerharris.terraform-link-docs"
+        "tylerharris.terraform-link-docs",
+        "xynny.hackerred"
       ]
     }
   }

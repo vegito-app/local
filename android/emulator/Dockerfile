@@ -1,5 +1,5 @@
-ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
 ARG debian_image=debian:latest
+
 FROM ${debian_image}
 
 ENV DEBIAN_FRONTEND=noninteractive

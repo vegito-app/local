@@ -15,7 +15,7 @@ on:
       use_registry_cache:
         required: false
         type: boolean
-        default: true
+        default: false
       android_release_keystore_path:
         required: false
         type: string
@@ -76,9 +76,9 @@ jobs:
 
       - name: Source dynamic env vars
         run: |
-          if [ -f /runner/gha-env-vars ]; then
-          echo "📦 Loading env from /runner/gha-env-vars"
-          cat /runner/gha-env-vars >> $GITHUB_ENV
+          if [ -f $GITHUB_WORKSPACE/../../gha-env-vars ]; then
+          echo "📦 Loading env from $GITHUB_WORKSPACE/../../gha-env-vars"
+          cat $GITHUB_WORKSPACE/../../gha-env-vars >> $GITHUB_ENV
           else
           echo "⚠️ gha-env-vars not found"
           fi
@@ -144,11 +144,11 @@ jobs:
 
       - name: Source dynamic env vars
         run: |
-          if [ -f /runner/gha-env-vars ]; then
-            echo "📦 Loading env from /runner/gha-env-vars"
-            cat /runner/gha-env-vars >> $GITHUB_ENV
+          if [ -f "/runner/_work/${HOSTNAME}/gha-env-vars" ]; then
+            echo "📦 Loading env from /runner/_work/${HOSTNAME}/gha-env-vars"
+            cat "/runner/_work/${HOSTNAME}/gha-env-vars" >> $GITHUB_ENV
           else
-            echo "⚠️ gha-env-vars not found"
+            echo "⚠️ gha-env-vars not found in expected path"
           fi
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
@@ -190,7 +190,7 @@ jobs:
         run: |
           if [ -f /runner/gha-env-vars ]; then
             echo "📦 Loading env from /runner/gha-env-vars"
-            cat /runner/gha-env-vars >> $GITHUB_ENV
+            cat $GITHUB_WORKSPACE/../../gha-env-vars >> $GITHUB_ENV
           else
             echo "⚠️ gha-env-vars not found"
           fi

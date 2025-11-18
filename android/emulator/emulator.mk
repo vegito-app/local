@@ -99,4 +99,3 @@ local-android-emulator-data-load-mobile-images:
 		$(VEGITO_EXAMPLE_APPLICATION_DIR)/tests/mobile_images ; \
 	'
 .PHONY: local-android-emulator-data-load-mobile-images
-

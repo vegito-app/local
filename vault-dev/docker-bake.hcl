@@ -27,7 +27,8 @@ target "vault-dev-ci" {
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
   platforms = platforms
 }

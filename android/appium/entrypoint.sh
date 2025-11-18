@@ -32,7 +32,6 @@ fi
 android-emulator-entrypoint.sh &
 bg_pids+=("$!")
 
-
 # ⏳ Attente du boot complet de l'émulateur
 echo "⏳ Waiting for full Android boot..."
 

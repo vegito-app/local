@@ -165,7 +165,7 @@ local-container-config-show:
 
 local-dev-container-image-pull:
 	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
-	$(LOCAL_DOCKER_COMPOSE) pull dev
+	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
 
 local-dev-container-image-push:

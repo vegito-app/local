@@ -18,6 +18,20 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner/ci"
 }
 
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner"
+}
+
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+  description = "local write cache for clarinet image build"
+  default     = "type=local,mode=max,dest=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for clarinet image build (cannot be used before first write)"
+  default     = "type=local,src=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
 variable "GITHUB_ACTION_RUNNER_VERSION" {
   description = "current Github Actions Runner version"
   default     = "2.328.0"
@@ -61,17 +75,9 @@ target "github-actions-runner-ci" {
   platforms = platforms
 }
 
-variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for github-actions-runner image build"
-}
-
-variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for github-actions-runner image build (cannot be used before first write)"
-}
-
 target "github-actions-runner" {
   args = {
-    debian_image           = DEBIAN_IMAGE_VERSION
+    debian_image           = DEBIAN_IMAGE_LATEST
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION

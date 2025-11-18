@@ -1,13 +1,15 @@
-ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
+ARG go_image=golang-alpine:latest
+ARG debian_image=debian:latest
 
-FROM ${local_dev_docker_registry}/docker-repository-private/golang-alpine:latest AS go-build
+FROM ${go_image} AS go-build
 
 COPY proxy proxy
 
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-FROM ${local_dev_docker_registry}/docker-repository-private/debian:latest
+FROM ${debian_image}
+
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
 RUN apt-get update && apt-get install -y \

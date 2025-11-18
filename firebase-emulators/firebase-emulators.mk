@@ -36,6 +36,7 @@ $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON):
 local-firebase-emulators-start: local-firebase-emulators-install local-firebase-emulators-config-json
 	unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
 	  $(FIREBASE_EMULATORS) emulators:start \
+	    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
 	    --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
 	    --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \
 	    --log-verbosity DEBUG \
@@ -81,6 +82,7 @@ local-firebase-emulators-pubsub-subscriptions: $(LOCAL_FIREBASE_EMULATORS_PUBSUB
 
 $(LOCAL_FIREBASE_EMULATORS_PUBSUB_SUBSCRIPTIONS:%=local-firebase-emulators-pubsub-subscriptions-create-%):
 	@echo "📣 Creating local Pub/Sub subscription: $@"
+	@echo "📣 LOCAL_FIREBASE_EMULATORS_PUBSUB_SUBSCRIPTIONS: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_SUBSCRIPTIONS)"
 	@curl -X PUT http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions/$(@:local-firebase-emulators-pubsub-subscriptions-create-%=%) \
 	  -H "Content-Type: application/json" \
 	  -d '{ "topic": "projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics/$(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)" }'|echo

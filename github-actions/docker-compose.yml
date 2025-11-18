@@ -1,6 +1,6 @@
 services:
   github-actions-runner:
-    restart: no
+    # restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - /runner/_work:/runner/_work:cached
@@ -10,9 +10,9 @@ services:
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
     deploy:
-      replicas: 5
+      replicas: 3
       update_config:
-        parallelism: 5
+        parallelism: 3
         delay: 300s
     networks:
       - github-actions

@@ -14,12 +14,18 @@ variable "LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/clarinet-devnet/ci"
 }
 
+variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/clarinet-devnet"
+}
+
 variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for clarinet image build"
+  default     = "type=local,mode=max,dest=${LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for clarinet image build (cannot be used before first write)"
+  default     = "type=local,src=${LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "CLARINET_VERSION" {
@@ -28,11 +34,12 @@ variable "CLARINET_VERSION" {
 
 target "clarinet-devnet-ci" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE_VERSION
-    clarinet_version = CLARINET_VERSION
-    debian_image     = DEBIAN_IMAGE_VERSION
-    docker_version   = DOCKER_VERSION
-    rust_image       = RUST_IMAGE_VERSION
+    builder_image              = LOCAL_BUILDER_IMAGE_VERSION
+    clarinet_version           = CLARINET_VERSION
+    debian_image               = DEBIAN_IMAGE_VERSION
+    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_VERSION
+    docker_version             = DOCKER_VERSION
+    rust_image                 = RUST_IMAGE_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -54,11 +61,12 @@ target "clarinet-devnet-ci" {
 
 target "clarinet-devnet" {
   args = {
-    builder_image    = LOCAL_BUILDER_IMAGE_LATEST
-    clarinet_version = CLARINET_VERSION
-    debian_image     = DEBIAN_IMAGE_LATEST
-    docker_version   = DOCKER_VERSION
-    rust_image       = RUST_IMAGE_LATEST
+    builder_image              = LOCAL_BUILDER_IMAGE_LATEST
+    clarinet_version           = CLARINET_VERSION
+    debian_image               = DEBIAN_IMAGE_LATEST
+    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_LATEST
+    docker_version             = DOCKER_VERSION
+    rust_image                 = RUST_IMAGE_LATEST
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
