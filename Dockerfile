@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
     file \
     g++ \
     gcc \
-    gcc \    
+    gcc \
     git \
     gnupg \
     htop \
