@@ -128,12 +128,6 @@ LOCAL_ANDROID_CONTAINER_EXEC ?= $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CON
 
 LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
 
-local-android-app-sha1-fingerprint:
-	@echo "Android Emulator SHA1 fingerprint:" 
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
-.PHONY: local-android-emulator-app-sha1-fingerprint
-
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
 ################################################################################
