@@ -19,17 +19,17 @@ variable "LOCAL_ANDROID_APPIUM_DIR" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_ANDROID_APPIUM_DIR}/.containers/android-appium/docker-buildx-cache"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for local-android-appium image build"
-  default = "type=local,mode=max,dest=${LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for local-android-appium image build (cannot be used before first write)"
-  default = "type=local,src=${LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,src=${LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
@@ -38,7 +38,7 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
 
 target "local-android-appium-ci" {
   args = {
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -51,14 +51,15 @@ target "local-android-appium-ci" {
     LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }
 
 target "local-android-appium" {
   args = {
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [

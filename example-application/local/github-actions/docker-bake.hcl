@@ -33,6 +33,7 @@ group "local-service" {
 
 target "github-actions-runner-ci" {
   args = {
+    debian_image           = DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -43,7 +44,7 @@ target "github-actions-runner-ci" {
     nvm_version            = NVM_VERSION
     terraform_version      = TERRAFORM_VERSION
   }
-  context    = "${LOCAL_DIR}/github-actions"
+  context = "${LOCAL_DIR}/github-actions"
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
@@ -54,7 +55,8 @@ target "github-actions-runner-ci" {
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }
@@ -69,6 +71,7 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "github-actions-runner" {
   args = {
+    debian_image           = DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -79,7 +82,7 @@ target "github-actions-runner" {
     nvm_version            = NVM_VERSION
     terraform_version      = TERRAFORM_VERSION
   }
-  context    = "${LOCAL_DIR}/github-actions"
+  context = "${LOCAL_DIR}/github-actions"
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,

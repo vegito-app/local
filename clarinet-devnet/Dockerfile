@@ -1,11 +1,11 @@
-ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
-
+ARG docker_dind_rootless_image=docker:dind-rootless
+ARG rust_image=rust:latest
+ARG debian_image=debian:latest
 ARG builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/europe-west1-docker.pkg.dev/moov-dev-439608:builder-latest
+
 FROM ${builder_image} AS project-builder
-
-FROM ${local_docker_hub_repository_private}/docker:dind-rootless AS docker-dind
-
-FROM europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private/rust:latest AS rust-build
+FROM ${docker_dind_rootless_image} AS docker-dind
+FROM ${rust_image} AS rust-build
 
 ARG TARGETPLATFORM
 
@@ -19,7 +19,7 @@ RUN wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarin
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
 
-FROM ${local_docker_hub_repository_private}/debian:latest
+FROM ${debian_image}
 
 COPY --from=project-builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/

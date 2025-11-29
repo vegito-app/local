@@ -29,6 +29,14 @@ $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): docke
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 
+example-application-docker-tags-list-ci: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-list-ci)
+.PHONY: example-application-docker-tags-list-ci
+
+$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-ci): docker-buildx-setup
+	@$($(LOCAL_DOCKER_BUILDX_BAKE)) --print $(@:%-docker-tags=%-ci) 2>/dev/null \
+	| jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
+
 VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   example-application-backend \
   example-application-mobile \
