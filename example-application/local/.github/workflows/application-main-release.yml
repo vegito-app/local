@@ -8,25 +8,24 @@ on:
   push:
     branches: [main]
 jobs:
-  version:
-    name: Generate Version and Changelog
-    uses: vegito-app/local/.github/workflows/version.yml@v1.8.6
+  # version:
+  #   name: Generate Version and Changelog
+  #   uses: ./.github/workflows/version.yml
 
   build:
-    needs: version
+    # needs: version
     name: Build and Push Images
-    uses: vegito-app/local/.github/workflows/build-images.yml@v1.8.6
+    uses: ./.github/workflows/build-images.yml
     strategy:
       matrix:
         environment: [dev, staging, prod]
     with:
       version: ${{ needs.version.outputs.version }}
       environment: ${{ matrix.environment }}
-      android_release_keystore_path: mobile/android/release-key.keystore
-      android_release_keystore_base64_path: mobile/android/release-key.keystore.base64
-      android_release_keystore_store_pass_base64_path: mobile/android/release-key.keystore.storepass.base64
       # use_registry_cache: true
-
+      android_release_keystore_path: example-application/mobile/android/release-key.keystore
+      android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
+      android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
@@ -39,14 +38,14 @@ jobs:
       - build
       - version
     name: Run Tests
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.8.6
+    uses: ./.github/workflows/functional-tests.yml
     strategy:
       matrix:
         environment: [dev, staging, prod]
     with:
       version: ${{ needs.version.outputs.version }}
       environment: ${{ matrix.environment }}
-      functional-tests-output-dir: tests/output
+      functional-tests-output-dir: example-application/tests/output
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
@@ -56,9 +55,9 @@ jobs:
     needs:
       - build
       - test
-      - version
+      # - version
     name: Application Release Build 🚀
-    uses: vegito-app/local/.github/workflows/application-release-template.yml@v1.8.6
+    uses: ./.github/workflows/application-release-template.yml
     with:
       environment: dev
       version: ${{ needs.version.outputs.version }}

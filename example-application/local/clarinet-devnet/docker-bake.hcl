@@ -29,8 +29,10 @@ variable "CLARINET_VERSION" {
 target "clarinet-devnet-ci" {
   args = {
     builder_image    = LOCAL_BUILDER_IMAGE_VERSION
-    docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
+    debian_image     = DEBIAN_IMAGE_VERSION
+    docker_version   = DOCKER_VERSION
+    rust_image       = RUST_IMAGE_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -44,7 +46,8 @@ target "clarinet-devnet-ci" {
     LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
   platforms = platforms
 }
@@ -52,8 +55,10 @@ target "clarinet-devnet-ci" {
 target "clarinet-devnet" {
   args = {
     builder_image    = LOCAL_BUILDER_IMAGE_LATEST
-    docker_version   = DOCKER_VERSION
     clarinet_version = CLARINET_VERSION
+    debian_image     = DEBIAN_IMAGE_LATEST
+    docker_version   = DOCKER_VERSION
+    rust_image       = RUST_IMAGE_LATEST
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"

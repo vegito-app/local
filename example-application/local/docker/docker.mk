@@ -22,21 +22,34 @@ docker-clean:
 # If an image is built in a group, all images in that group are built together.
 # If an image depends on another image as base, the groups must be built in the correct order (cf. docker-images-ci).
 LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := \
+  dockerhub \
   runners \
   builders \
   services \
   applications
 
-LOCAL_DOCKER_BUILDX_GROUPS := \
-  dockerhub \
-  $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS)
+DOCKER_HUB_IMAGES = \
+  docker-dind-rootless \
+  debian \
+  golang-alpine \
+  rust 
+
+local-docker-hub-images-update:	
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-dockerhub-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-dockerhub-ci
+.PHONY: local-docker-hub-images-update
+
+$(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
+.PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
 
 local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 .PHONY: local-docker-group-tags-list-ci
 
-$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci):
+$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
-.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-group-tags-list-ci)
+.PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
@@ -51,15 +64,15 @@ docker-images: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images)
 docker-images-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 .PHONY: docker-images-ci
 
-$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-images=local-%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
-.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images)
+.PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images)
 
-$(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images-ci): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
-.PHONY: $(LOCAL_DOCKER_BUILDX_GROUPS:%=local-%-docker-images-ci)
+.PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST ?= container.mac-m1.local
@@ -106,19 +119,3 @@ docker-local-buildx-cache-clean:
 	  done \
 	'
 .PHONY: docker-local-buildx-cache-clean
-
-DOCKER_HUB_IMAGES = \
-  docker-dind-rootless \
-  debian \
-  golang-alpine \
-  rust 
-
-local-docker-hub-images-update:	
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-dockerhub-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-dockerhub-ci
-.PHONY: local-docker-hub-images-update
-
-$(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
-.PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)

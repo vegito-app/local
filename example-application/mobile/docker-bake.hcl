@@ -11,12 +11,18 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-latest"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile"
+}
+
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for application-mobile image build"
+  description = "local write cache for clarinet image build"
+  default     = "type=local,mode=max,dest=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for application-mobile image build (cannot be used before first write)"
+  description = "local read cache for clarinet image build (cannot be used before first write)"
+  default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE" {
@@ -133,7 +139,8 @@ target "example-application-mobile-ci" {
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE_CI},mode=max" : VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = ["linux/amd64"]
 }

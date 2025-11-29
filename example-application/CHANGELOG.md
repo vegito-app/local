@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/vegito-app/example-application/compare/v1.3.0...v1.4.0) (2025-11-03)
+
+
+### Features
+
+* **ci:** add target list printout for docker images ([b14baf4](https://github.com/vegito-app/example-application/commit/b14baf43a1016ef26db8d493ec56ec6c132abd7d))
+
 ## [1.3.0](https://github.com/vegito-app/example-application/compare/v1.2.0...v1.3.0) (2025-10-31)
 
 ## [1.2.0](https://github.com/vegito-app/example-application/compare/v1.1.2...v1.2.0) (2025-10-31)
