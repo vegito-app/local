@@ -25,11 +25,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Ensure fresh .env
-        run: |
-          rm -f .env
-          ./dotenv.sh
-
       - name: Define VERSION and Tag 🏷
         id: define_version
         run: |
