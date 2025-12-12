@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
-	"github.com/7d4b9/utrade/backend/firebase"
 	"github.com/spf13/viper"
+	"github.com/vegito-app/vegito/backend/firebase"
 	"google.golang.org/api/option"
 )
 

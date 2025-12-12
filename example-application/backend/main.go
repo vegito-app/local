@@ -1,12 +1,12 @@
 package main
 
 import (
-	_ "github.com/7d4b9/utrade/backend/log"
+	_ "github.com/vegito-app/vegito/backend/log"
 
-	"github.com/7d4b9/utrade/backend/internal/firebase"
-	"github.com/7d4b9/utrade/backend/internal/http"
-	"github.com/7d4b9/utrade/backend/track"
 	"github.com/rs/zerolog/log"
+	"github.com/vegito-app/vegito/backend/internal/firebase"
+	"github.com/vegito-app/vegito/backend/internal/http"
+	"github.com/vegito-app/vegito/backend/track"
 )
 
 func main() {
