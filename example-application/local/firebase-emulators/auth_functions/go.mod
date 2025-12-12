@@ -1,10 +1,10 @@
-module github.com/vegito-app/vegito/infra/google-cloud/auth_functions
+module github.com/7d4b9/utrade/infra/google-cloud/auth_functions
 
 go 1.24
 
 toolchain go1.24.1
 
-// replace github.com/vegito-app/vegito/backend/firebase => ./firebase
+// replace github.com/7d4b9/utrade/backend/firebase => ./firebase
 
 replace firebase.google.com/go/v4 => github.com/7d4b9/firebase-admin-go/v4 v4.0.0-20240812132131-5bae0559240c
 
