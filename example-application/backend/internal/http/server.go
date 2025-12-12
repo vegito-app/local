@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
+	backendhttp "github.com/7d4b9/utrade/backend/http"
+	"github.com/7d4b9/utrade/backend/internal/firebase"
+	apiv1 "github.com/7d4b9/utrade/backend/internal/http/internal/api/v1"
+	"github.com/7d4b9/utrade/backend/internal/http/internal/ui"
+	uiconfig "github.com/7d4b9/utrade/backend/internal/http/internal/ui/config"
 	"github.com/spf13/viper"
-	backendhttp "github.com/vegito-app/vegito/backend/http"
-	"github.com/vegito-app/vegito/backend/internal/firebase"
-	apiv1 "github.com/vegito-app/vegito/backend/internal/http/internal/api/v1"
-	"github.com/vegito-app/vegito/backend/internal/http/internal/ui"
-	uiconfig "github.com/vegito-app/vegito/backend/internal/http/internal/ui/config"
 )
 
 var config = viper.New()

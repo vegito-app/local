@@ -235,8 +235,6 @@ RUN set -e ; \
     npm-check-updates \
     npm-check \
     npm \
-    @asyncapi/cli \
-    @asyncapi/generator \
     @devcontainers/cli ; \
     rm -rf ${HOME}/.npm 
 
