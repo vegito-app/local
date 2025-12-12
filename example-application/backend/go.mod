@@ -1,4 +1,4 @@
-module github.com/7d4b9/utrade/backend
+module github.com/vegito-app/vegito/backend
 
 go 1.24
 
