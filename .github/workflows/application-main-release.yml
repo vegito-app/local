@@ -33,6 +33,37 @@ jobs:
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
+  trivy-scan:
+    runs-on: self-hosted
+    name: Run Trivy Scan
+    needs:
+      - build
+      - version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image (si non publié)
+        run: |
+          docker build -t vegito-backend:${{ github.sha }} -f vegito/Dockerfile .
+
+      - name: Run Trivy scan (HTML report)
+        uses: aquasecurity/trivy-action@v0.17.0
+        with:
+          image-ref: vegito-backend:${{ github.sha }}
+          format: 'template'
+          template: '@/contrib/html.tpl'
+          output: 'trivy-report.html'
+
+      - name: Upload Trivy HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.html
+
   test:
     needs:
       - build
