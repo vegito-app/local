@@ -149,7 +149,7 @@ example-application-mobile-flavor-release:
 	@echo "📦 Signing flavor APK..."
 	@$(MAKE) example-application-mobile-flutter-flavor-release \
 	  LOCAL_ANDROID_RELEASE_APK_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
-	  LOCAL_ANDROID_RELEASE_AAB_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH) \
+	  LOCAL_ANDROID_RELEASE_AAB_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH)
 .PHONY: example-application-mobile-flavor-release
 
 example-application-mobile-vacuum:
