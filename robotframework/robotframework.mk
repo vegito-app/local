@@ -9,12 +9,12 @@ local-robotframework-container-up: local-robotframework-container-rm
 	@echo
 	@echo Started Application tests display: 
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
-.PHONY: robotframework-container-up
+.PHONY: local-robotframework-container-up
 
 ROBOT ?= $(LOCAL_DOCKER_COMPOSE) exec robotframework robot
 
-local-robotframework-container-run:
+local-robotframework-container-exec:
 	@echo "📝 Running robotframework..."
 	@$(ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) robot
-.PHONY: robotframework-container-run
+.PHONY: local-robotframework-container-exec
 

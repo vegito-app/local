@@ -34,7 +34,8 @@ permissions:
 
 jobs:
   finalize:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    name: Finalize Version
 
     steps:
       - name: Checkout clean

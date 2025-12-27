@@ -51,7 +51,7 @@ jobs:
     environment: ${{ inputs.environment }}
     env:
       VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}

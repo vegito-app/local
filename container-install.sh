@@ -58,6 +58,8 @@ fi
 # GO persistence 
 # This allows you to persist your go workspace across container rebuilds.
 GOPATH=${HOME}/go
+sudo chown -R vegito:vegito $GOPATH
+sudo chmod -R +rw $GOPATH
 rm -rf $GOPATH
 mkdir -p ${local_container_cache}/gopath
 ln -sf ${local_container_cache}/gopath $GOPATH
@@ -103,6 +105,8 @@ alias vim='vim'
 alias v='vim'
 alias ld='lazydocker'
 alias k='k9s'
+
+alias clean_appledouble='find . -name "._*" -delete'
 
 export HISTSIZE=50000
 export HISTFILESIZE=100000

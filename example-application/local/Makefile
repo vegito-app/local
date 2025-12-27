@@ -125,7 +125,7 @@ containers-logs-ci: local-containers-logs-ci example-application-containers-logs
 	@echo "✅ Retrieved CI containers logs successfully."
 .PHONY: containers-logs-ci
 
-functional-tests: local-robotframework-container-run
+functional-tests: local-robotframework-container-exec
 	@echo "End-to-end tests completed successfully."
 .PHONY: functional-tests
 
