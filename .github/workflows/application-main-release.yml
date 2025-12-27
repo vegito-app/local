@@ -10,7 +10,7 @@ on:
 jobs:
   version:
     name: Generate Version and Changelog
-    uses: ./.github/workflows/version.yml
+    uses: ./.github/workflows/version-prepare.yml
 
   build:
     needs: version

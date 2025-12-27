@@ -57,6 +57,15 @@ LOCAL_DOCKER_COMPOSE = docker compose \
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
   studio
 
+LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := \
+  runners \
+  builders \
+  services \
+  applications \
+  dockerhub
+
+# DOCKERHUB_VERSION ?= 1.9.0
+
 -include local.mk
 -include git.mk
 -include nodejs.mk
@@ -64,6 +73,7 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
 
 node-modules: local-node-modules
 .PHONY: node-modules
+
 
 images: docker-images
 .PHONY: images
@@ -125,7 +135,7 @@ containers-logs-ci: local-containers-logs-ci example-application-containers-logs
 	@echo "✅ Retrieved CI containers logs successfully."
 .PHONY: containers-logs-ci
 
-functional-tests: local-robotframework-container-run
+functional-tests: local-robotframework-container-exec
 	@echo "End-to-end tests completed successfully."
 .PHONY: functional-tests
 

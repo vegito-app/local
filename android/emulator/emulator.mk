@@ -99,3 +99,9 @@ local-android-emulator-data-load-mobile-images:
 		$(VEGITO_EXAMPLE_APPLICATION_DIR)/tests/mobile_images ; \
 	'
 .PHONY: local-android-emulator-data-load-mobile-images
+
+local-android-emulator-app-sha1-fingerprint:
+	@echo "Android Studio Emulator SHA1 fingerprint:" 
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
+	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+.PHONY: local-android-emulator-app-sha1-fingerprint

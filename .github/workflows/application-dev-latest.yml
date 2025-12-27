@@ -8,16 +8,22 @@ on:
   push:
     branches: [dev]
 jobs:
-  build:
+  checkout:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+  build-dev-latest:
+    needs:
+      - checkout
     name: Build and Push Images
     uses: ./.github/workflows/build-images.yml
-    strategy:
-      matrix:
-        environment: [dev]
     with:
       # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
-      environment: ${{ matrix.environment }}
+      environment: dev
       # use_registry_cache: true
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
@@ -31,16 +37,13 @@ jobs:
 
   test:
     needs:
-      - build
+      - build-dev-latest
     name: Run Tests
     uses: ./.github/workflows/functional-tests.yml
-    strategy:
-      matrix:
-        environment: [dev]
     with:
       # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
-      environment: ${{ matrix.environment }}
+      environment: dev
       functional-tests-output-dir: example-application/tests/output
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
