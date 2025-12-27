@@ -14,6 +14,10 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
+variable "DOCKERHUB_REPLICA_VERSION" {
+  description = "current git tag or commit version"
+  default     = VERSION
+}
 variable "GO_VERSION" {
   description = "current Go version"
   default     = "1.25.5"
@@ -168,7 +172,7 @@ variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
 }
 
 variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${VERSION}"
+  default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${DOCKERHUB_REPLICA_VERSION}"
 }
 
 target "local-docker-dind-rootless-ci" {
@@ -186,7 +190,7 @@ variable "DEBIAN_IMAGE_LATEST" {
 }
 
 variable "DEBIAN_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${VERSION}"
+  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
 }
 
 target "local-debian-ci" {
@@ -204,7 +208,7 @@ variable "GO_IMAGE_LATEST" {
 }
 
 variable "GO_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${VERSION}"
+  default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${DOCKERHUB_REPLICA_VERSION}"
 }
 
 target "local-golang-alpine-ci" {
@@ -222,7 +226,7 @@ variable "RUST_IMAGE_LATEST" {
 }
 
 variable "RUST_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${VERSION}"
+  default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${DOCKERHUB_REPLICA_VERSION}"
 }
 
 target "local-rust-ci" {

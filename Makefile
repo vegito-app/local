@@ -57,15 +57,6 @@ LOCAL_DOCKER_COMPOSE = docker compose \
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
   studio
 
-LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := \
-  runners \
-  builders \
-  services \
-  applications \
-  dockerhub
-
-# DOCKERHUB_VERSION ?= 1.9.0
-
 -include local.mk
 -include git.mk
 -include nodejs.mk

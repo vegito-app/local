@@ -22,6 +22,7 @@ jobs:
     with:
       version: ${{ needs.version.outputs.version }}
       environment: ${{ matrix.environment }}
+      images_ci_build_groups: "runners builders services applications"
       # use_registry_cache: true
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
