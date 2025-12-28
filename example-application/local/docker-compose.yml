@@ -118,39 +118,6 @@ services:
       set -eu
       sleep infinity
       '
-  android-appium:
-    tty: true
-    cap_add:
-      - SYS_ADMIN
-    image: ${LOCAL_ANDROID_APPIUM_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
-    env_file:
-      - .env
-    environment:
-      LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
-      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
-      DISPLAY: "${DISPLAY:-:20}"
-      LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
-      LOCAL_ANDROID_APPIUM_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_APPIUM_CONTAINER_CACHE: ${LOCAL_ANDROID_APPIUM_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_APPIUM_ANDROID_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_APPIUM_ANDROID_AVD_NAME:-Pixel_8_Intel}
-      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
-    privileged: true
-    volumes:
-      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
-      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
-    group_add:
-      - render
-      - kvm
-    devices:
-      - /dev/kvm
-    working_dir: ${PWD}/example-application/mobile
-    command: |
-      bash -c '
-      set -eu
-      sleep infinity
-      '
   vault-dev:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
 

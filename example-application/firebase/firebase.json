@@ -1,32 +1,19 @@
 {
+  "projectId": "${GOOGLE_CLOUD_PROJECT_ID}",
   "storage": {
     "host": "0.0.0.0",
     "port": 9199,
-    "rules": "./storage.rules",
+    "rules": "storage.rules",
     "storageBucket": "${GOOGLE_CLOUD_PROJECT_ID}.appspot.com"
   },
   "firestore": {
-    "rules": "./firestore.rules"
+    "rules": "firestore.rules"
   },
   "functions": {
-    "source": "./auth_functions",
-    "watch": {
-      "ignored": [
-        "**/*.go",
-        "**/*.sum",
-        "**/*.mod",
-        "**/*.lock",
-        "**/*.log",
-        "**/firebase/**/*",
-        "**/node_modules/**",
-        ".git/**",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ]
-    }
+    "source": "auth_functions",
+    "ignore": [".git", "firebase-debug.log", "firebase-debug.*.log", "*.local"]
   },
+
   "emulators": {
     "ui": {
       "enabled": true,
@@ -58,8 +45,11 @@
     "storage": {
       "host": "0.0.0.0",
       "port": 9199,
-      "rules": "./storage.rules",
+      "rules": "storage.rules",
       "storageBucket": "${GOOGLE_CLOUD_PROJECT_ID}.appspot.com"
     }
+  },
+  "auth": {
+    "providers": ["password", "google.com", "facebook.com", "anonymous"]
   }
 }

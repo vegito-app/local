@@ -191,12 +191,6 @@ services:
         aliases:
           - android-studio
 
-  android-appium:
-    networks:
-      ${dockerNetworkName}:
-        aliases:
-          - android-appium
-
   vault-dev:
     networks:
       ${dockerNetworkName}:

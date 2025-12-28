@@ -28,6 +28,14 @@ on:
         required: false
         type: string
         default: .android.release-key.keystore.storepass.base64
+      images_ci_build_groups:
+        required: false
+        type: string
+        default: "dockerhub runners builders services applications"
+      dockerhub_replica_version:
+        required: false
+        type: string
+        default: "latest"
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -51,7 +59,7 @@ jobs:
     environment: ${{ inputs.environment }}
     env:
       VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
-      VEGITO_PROJECT_USER: vegito-${{ inputs.environment }}-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
@@ -61,18 +69,12 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
 
     outputs:
-      image_tags: ${{ steps.build_and_push_images.outputs.image_tags }}
-
+      image_tags_md: ${{ steps.build_and_push_images.outputs.image_tags_md }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Ensure fresh .env
-        run: |
-          rm -f .env
-          ./dotenv.sh
 
       - name: Source dynamic env vars
         run: |
@@ -93,7 +95,7 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
 
@@ -103,11 +105,21 @@ jobs:
           make gcloud-auth-docker
           make docker-buildx-setup
 
-      - name: Build and load local project images
-        id: build_and_push_images
+      - name: Build Docker image
+        env:
+          LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS: ${{ inputs.images_ci_build_groups }}
+          DOCKERHUB_REPLICA_VERSION: ${{ inputs.dockerhub_replica_version }}
         run: |
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log
+
+      - name: Generate docker image tag list for ${{ inputs.environment }}
+        id: docker_tags
+        run: |
+          make docker-build-tags-list-ci-md > docker-tags.md
+          echo "tags_md<<EOF" >> $GITHUB_OUTPUT
+          cat docker-tags.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Upload images-build.log
         uses: actions/upload-artifact@v4
@@ -136,11 +148,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Ensure fresh .env
-        run: |
-          rm -f .env
-          ./dotenv.sh
 
       - name: Source dynamic env vars
         run: |
@@ -180,11 +187,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Ensure fresh .env
-        run: |
-          rm -f .env
-          ./dotenv.sh
 
       - name: Source dynamic env vars
         run: |

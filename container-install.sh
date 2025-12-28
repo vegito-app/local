@@ -106,6 +106,8 @@ alias v='vim'
 alias ld='lazydocker'
 alias k='k9s'
 
+alias clean_appledouble='find . -name "._*" -delete'
+
 export HISTSIZE=50000
 export HISTFILESIZE=100000
 EOF

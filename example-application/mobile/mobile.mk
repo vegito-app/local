@@ -220,7 +220,10 @@ VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE = $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
 
 example-application-mobile-wait-for-boot:
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@echo "Waiting for Android Emulator to boot..."
+	echo LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	  $(MAKE) local-android-emulator-wait-for-boot
+	LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
 	  $(MAKE) local-android-emulator-wait-for-boot
 .PHONY: example-application-mobile-wait-for-boot
 

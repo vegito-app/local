@@ -24,6 +24,7 @@ RUN /opt/venv/bin/pip install --no-cache-dir \
     robotframework \
     robotframework-appiumlibrary \
     robotframework-requests \
+    robotframework-robocop \
     robotframework-seleniumlibrary \
     robotframework-faker
 

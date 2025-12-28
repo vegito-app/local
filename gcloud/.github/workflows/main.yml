@@ -152,7 +152,7 @@ jobs:
     environment: ${{ matrix.environment }}
     env:
       VERSION: ${{ needs.build-release-infos.outputs.version }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ matrix.environment }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

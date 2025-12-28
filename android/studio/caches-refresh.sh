@@ -101,15 +101,4 @@ mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sf ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
-android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}
-
-# Create symlinks for scripts
-for filename in `ls ${android_studio_dir}/*.sh`; \
-do
-    if [ -f "${filename}" ]; then
-        echo "Linking ${filename} to /usr/local/bin/$(basename ${filename}) for easy access"
-        sudo ln -sf ${filename} /usr/local/bin/$(basename ${filename})
-    fi
-done
-
 caches_refresh_success=true
