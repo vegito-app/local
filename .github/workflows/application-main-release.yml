@@ -34,18 +34,32 @@ jobs:
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
-  test:
+  prepare-local-env:
+    strategy:
+      matrix:
+        environment: [dev]
     needs:
       - build
       - version
+    name: Prepare Local Environment ${{ matrix.environment }} 🛠️
+    uses: ./.github/workflows/local-env-start.yml
+    with:
+      environment: ${{ matrix.environment }}
+      version: ${{ needs.version.outputs.version }}
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+
+  test:
+    needs:
+      - version
+      - prepare-local-env
     name: Run Tests
     uses: ./.github/workflows/functional-tests.yml
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
     with:
       version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
+      environment: dev
       functional-tests-output-dir: example-application/tests/output
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -54,9 +68,8 @@ jobs:
 
   application-release-build:
     needs:
-      - build
-      - test
       - version
+      - test
     name: Application Release Build 🚀
     uses: ./.github/workflows/application-release-template.yml
     with:
