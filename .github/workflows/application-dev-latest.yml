@@ -20,6 +20,9 @@ jobs:
       - checkout
     name: Build and Push Images
     uses: ./.github/workflows/build-images.yml
+    strategy:
+      matrix:
+        environment: [dev]
     with:
       # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
@@ -31,17 +34,38 @@ jobs:
       images_ci_build_groups: "runners builders services applications"
       dockerhub_replica_version: 1.9.0
     secrets:
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
-  test:
+  prepare-local-env:
     needs:
       - build-dev-latest
+    name: Prepare Local Environment dev 🛠️
+    uses: ./.github/workflows/local-env-start.yml
+    strategy:
+      matrix:
+        environment: [dev]
+    with:
+      environment: dev
+      version: dev-latest
+
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+
+  test:
+    needs:
+      - prepare-local-env
     name: Run Tests
     uses: ./.github/workflows/functional-tests.yml
+    strategy:
+      matrix:
+        environment: [dev]
     with:
       # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
