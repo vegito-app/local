@@ -86,13 +86,3 @@ jobs:
           fi
 
           echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT
-
-  finalize-version:
-    name: Finalize Version (Standard Chain)
-    needs: prepare-notes
-    uses: ./.github/workflows/version-finalize.yaml
-    with:
-      version: ${{ inputs.version }}
-      create_github_release: ${{ inputs.create_github_release }}
-      release_title: "${{ inputs.release_title_prefix }} ${{ inputs.version }}"
-      release_notes_path: ${{ needs.prepare-notes.outputs.notes_path }}
