@@ -10,7 +10,7 @@ on:
 jobs:
   version:
     name: Generate Version and Changelog
-    uses: ./.github/workflows/version.yml
+    uses: ./.github/workflows/version-prepare.yml
 
   build:
     needs: version
@@ -22,6 +22,7 @@ jobs:
     with:
       version: ${{ needs.version.outputs.version }}
       environment: ${{ matrix.environment }}
+      images_ci_build_groups: "runners builders services applications"
       # use_registry_cache: true
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
@@ -30,52 +31,36 @@ jobs:
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
-  trivy-scan:
-    runs-on: self-hosted
-    name: Run Trivy Scan
+  prepare-local-env:
+    strategy:
+      matrix:
+        environment: [dev]
     needs:
       - build
       - version
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build backend image (si non publié)
-        run: |
-          docker build -t vegito-backend:${{ github.sha }} -f vegito/Dockerfile .
-
-      - name: Run Trivy scan (HTML report)
-        uses: aquasecurity/trivy-action@v0.17.0
-        with:
-          image-ref: vegito-backend:${{ github.sha }}
-          format: 'template'
-          template: '@/contrib/html.tpl'
-          output: 'trivy-report.html'
-
-      - name: Upload Trivy HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report
-          path: trivy-report.html
+    name: Prepare Local Environment ${{ matrix.environment }} 🛠️
+    uses: ./.github/workflows/local-env-start.yml
+    with:
+      environment: ${{ matrix.environment }}
+      version: ${{ needs.version.outputs.version }}
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
 
   test:
     needs:
-      - build
       - version
+      - prepare-local-env
     name: Run Tests
     uses: ./.github/workflows/functional-tests.yml
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
     with:
       version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
+      environment: dev
       functional-tests-output-dir: example-application/tests/output
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -84,9 +69,8 @@ jobs:
 
   application-release-build:
     needs:
-      - build
-      - test
       - version
+      - test
     name: Application Release Build 🚀
     uses: ./.github/workflows/application-release-template.yml
     with:

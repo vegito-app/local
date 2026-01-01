@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.1](https://github.com/vegito-app/local/compare/v1.9.0...v1.9.1) (2025-12-31)
+
+## [1.9.0](https://github.com/vegito-app/local/compare/v1.8.6...v1.9.0) (2025-12-28)
+
+
+### Features
+
+* **trivy:** add HTML report template and workflow for Docker image scanning ([23c1fee](https://github.com/vegito-app/local/commit/23c1fee6357f34f9193014f11c13e56dddbc8314))
+* **workflows:** add version calculation and finalization GitHub Actions ([6e881a9](https://github.com/vegito-app/local/commit/6e881a99b8a22da56e823099068e3656c8509ec2))
+
 ### [1.8.6](https://github.com/vegito-app/local/compare/v1.8.5...v1.8.6) (2025-11-18)
 
 ### [1.8.5](https://github.com/vegito-app/local/compare/v1.8.4...v1.8.5) (2025-11-11)

@@ -64,10 +64,11 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
+
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
-  vault-dev \
-  firebase-emulators \
   clarinet-devnet \
+  firebase-emulators \
+  vault-dev \
   robotframework
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
@@ -184,10 +185,11 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 # Local Docker Compose Services for CI
+#   vault-dev \
+#   firebase-emulators \
+#   clarinet-devnet
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet
+  robotframework
 
 #   clarinet-devnet
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev

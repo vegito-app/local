@@ -21,7 +21,7 @@ docker-clean:
 # Groups are used to manage the build process. 
 # If an image is built in a group, all images in that group are built together.
 # If an image depends on another image as base, the groups must be built in the correct order (cf. docker-images-ci).
-LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := \
+LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS ?= \
   dockerhub \
   runners \
   builders \
@@ -57,6 +57,18 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): docker-buildx
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
+
+docker-build-tags-list-ci-md:
+	@echo "### 🐳 Docker Images Built (excluding latest):"
+	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
+	  echo "#### Group: '$$group'" ; \
+	 $(MAKE) local-$$group-docker-group-tags-list-ci \
+	 | grep -vE 'latest$$' \
+	 | grep -v 'make\[1\]\:' \
+	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
+	  echo "" ; \
+	done
+.PHONY: docker-build-tags-list-ci-md
 
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST ?= container.mac-m1.local
