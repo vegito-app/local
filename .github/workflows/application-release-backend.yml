@@ -1,0 +1,88 @@
+name: Backend Release (DRY, Version & Changelog)
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Semantic version to release (already computed)"
+        required: true
+        type: string
+
+      environment:
+        description: "Reference environment (usually prod)"
+        required: true
+        type: string
+
+      application_release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
+      application_release_bucket_project_prefix:
+        required: false
+        type: string
+        default: local
+
+      create_github_release:
+        description: "Whether to create a GitHub Release"
+        required: false
+        type: boolean
+        default: false
+
+      release_title_prefix:
+        description: "Prefix for GitHub Release title"
+        required: false
+        type: string
+        default: "Backend release"
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-notes:
+    name: Prepare Release Notes
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+
+    outputs:
+      notes_path: ${{ steps.notes.outputs.path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare release notes
+        id: notes
+        run: |
+          NOTES_PATH=RELEASE_NOTES.md
+          VERSION="${{ inputs.version }}"
+          VEGITO_APPLICATION_RELEASE_PROJECT="${{ inputs.application_release_bucket_project_prefix }}"
+          VEGITO_APPLICATION_RELEASE_BUCKET="vegito-app-prod-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}"
+          BASE_URL="https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}"
+
+          echo "# 🚀 Backend Release ${VERSION}" > ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+          echo "This release contains backend changes only." >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+
+          echo "## 🔗 Artifacts & Reports (GCS)" >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+          echo "Artifacts are published in the Vegito release bucket for project \`${VEGITO_APPLICATION_RELEASE_PROJECT}\`:" >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+          echo "- 🛡️ **Trivy Security Report**: ${BASE_URL}/trivy/trivy-report.html" >> ${NOTES_PATH}
+          echo "- 🤖 **Robot Framework Report**: ${BASE_URL}/tests/report.html" >> ${NOTES_PATH}
+          echo "- 📋 **Robot Framework Log**: ${BASE_URL}/tests/log.html" >> ${NOTES_PATH}
+          echo "- 🧾 **Robot Framework Output (XML)**: ${BASE_URL}/tests/output.xml" >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+
+          if [ -f CHANGELOG.md ]; then
+            echo "## 🧩 Changelog" >> ${NOTES_PATH}
+            echo "" >> ${NOTES_PATH}
+            cat CHANGELOG.md >> ${NOTES_PATH}
+          else
+            echo "_No changelog file found._" >> ${NOTES_PATH}
+          fi
+
+          echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT

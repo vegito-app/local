@@ -24,7 +24,7 @@ local-github-actions-runner-image-ci: docker-buildx-setup
 LOCAL_GITHUB_ACTIONS_RUNNER_URL ?= https://github.com/organizations/vegito-app/settings/actions/runners
 
 local-github-actions-runner-token-exist:
-	@if [ ! -v GITHUB_ACTIONS_RUNNER_TOKEN ] ; then \
+	@bash -c "if [ ! -v GITHUB_ACTIONS_RUNNER_TOKEN ] ; then \
 		echo Missing GITHUB_ACTIONS_RUNNER_TOKEN environment variable. ; \
 		echo ; \
 		echo Get a new self-hosted runner token. Click on "'New Runner'" here: ; \
@@ -40,7 +40,7 @@ local-github-actions-runner-token-exist:
 		echo 'GITHUB_ACTIONS_RUNNER_TOKEN=<your_token> make <your_target>' ; \
 		echo ; \
 		exit -1 ; \
-	fi
+	fi"
 .PHONY: local-github-actions-runner-token-exist
 
 local-github-actions-runner-remove-token-exist:
@@ -79,7 +79,7 @@ $(LOCAL_GITHUB_ACTIONS_RUNNER_DOCKER_COMPOSE_SERVICES:%=local-github-actions-%-i
 
 local-github-actions-runner-container-up: local-github-actions-runner-token-exist
 	@echo Starting github-actions-runner container...
-	@$(LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE) up -d github-actions-runner
+	$(LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE) up -d github-actions-runner
 .PHONY: local-github-actions-runner-container-up
 
 # This avoids github dangling offline runners on github.com side.

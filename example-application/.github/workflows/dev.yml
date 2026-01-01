@@ -72,7 +72,7 @@ jobs:
     environment: dev
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-dev-${{ needs.build-release-images.outputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ vars.INFRA_ENV }}
       USE_REGISTRY_CACHE: ${{ vars.USE_REGISTRY_CACHE }}
@@ -117,7 +117,7 @@ jobs:
     env:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       VERSION: ${{ needs.build-release-images.outputs.version }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       COMPOSE_PROJECT_NAME: vegito-example-application-dev-${{ github.run_id }}
 
@@ -157,7 +157,7 @@ jobs:
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
       ANDROID_PACKAGE_NAME: ${{ needs.build-release-images.outputs.android_release_package_name }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       INFRA_ENV: ${{ vars.INFRA_ENV }}
       LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: example-application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed-aligned.apk
       LOCAL_EXAMPLE_APPLICATION_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: example-application/mobile/${{ needs.build-release-images.outputs.android_release_package_name }}-release-${{ needs.build-release-images.outputs.version }}-signed.aab
@@ -208,7 +208,7 @@ jobs:
     if: ${{ always() }}
     env:
       VERSION: ${{ needs.build-release-images.outputs.version }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

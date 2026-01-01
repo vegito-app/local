@@ -21,7 +21,7 @@ docker-clean:
 # Groups are used to manage the build process. 
 # If an image is built in a group, all images in that group are built together.
 # If an image depends on another image as base, the groups must be built in the correct order (cf. docker-images-ci).
-LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := \
+LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS ?= \
   dockerhub \
   runners \
   builders \

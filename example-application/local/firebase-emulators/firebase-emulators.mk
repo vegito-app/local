@@ -62,9 +62,6 @@ local-firebase-emulators-pubsub-wait:
 local-firebase-emulators-pubsub-init: local-firebase-emulators-pubsub-wait local-firebase-emulators-pubsub-topics-create local-firebase-emulators-pubsub-subscriptions
 .PHONY: local-firebase-emulators-pubsub-init
 
-# Use same PubSub topic to bypass current validation in local setup
-LOCAL_FIREBASE_EMULATORS_PUBSUB_VALIDATED_IMAGES_TOPIC = $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)
-
 LOCAL_FIREBASE_EMULATORS_PUB_SUB_TOPICS = \
   $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)
 
