@@ -50,7 +50,7 @@ jobs:
           set -euo pipefail
           (
             make gcloud-config-set-project
-            make gcloud-auth-docker
+            make docker-login
             make local-container-config-show
             make dev-ci
           ) 2>&1 | tee setup.log
