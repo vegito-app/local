@@ -50,8 +50,13 @@ jobs:
           export_environment_variables: true
       - name: Setup Docker Environment
         run: |
-          make gcloud-config-set-project
-          make gcloud-auth-docker
+          set -euo pipefail
+          (
+            make gcloud-config-set-project
+            make docker-login
+            make local-container-config-show
+            make dev-ci
+          ) 2>&1 | tee setup.log
 
       - name: Wait for Mobile Application to Boot
         run: |
