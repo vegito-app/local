@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/vegito-app/local/compare/v1.9.1...v1.10.0) (2026-01-02)
+
+
+### Features
+
+* **docker, mobile:** add Docker image tags CI target and fix mobile makefile typo ([985bf9c](https://github.com/vegito-app/local/commit/985bf9cb101f8999044ccb691438206eb224b1aa))
+
+
+### Bug Fixes
+
+* **workflow:** replace 'gcloud-auth-docker' with 'docker-login' ([5d9bd58](https://github.com/vegito-app/local/commit/5d9bd583f38abdef9aca704c49abbe8f5011435e))
+
 ### [1.9.1](https://github.com/vegito-app/local/compare/v1.9.0...v1.9.1) (2025-12-31)
 
 ## [1.9.0](https://github.com/vegito-app/local/compare/v1.8.6...v1.9.0) (2025-12-28)
