@@ -165,12 +165,12 @@ local-container-config-show:
 .PHONY: local-container-config-show
 
 local-dev-container-image-pull:
-	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
+	@echo "⬇︎ Pulling builder image..."
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
 
 local-dev-container-image-push:
-	@echo "⬆︎ Pushing builder image $(LOCAL_BUILDER_IMAGE)..."
+	@echo "⬆︎ Pushing builder image..."
 	@docker push $(LOCAL_BUILDER_IMAGE)
 .PHONY: local-dev-container-image-push
 
@@ -194,22 +194,22 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
 #   clarinet-devnet
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
-LOCAL_DEV_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
+LOCAL_DEV_CONTAINER_RUN = \
+  LOCAL_CONTAINER_INSTALL=0 \
+  MAKE_DEV_ON_START=false \
+  $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
 LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
-	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-	  $(LOCAL_DEV_CONTAINER_RUN) \
+	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE)"
+	@$(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
-	      LOCAL_CLARINET_DEVNET_IMAGE=$(LOCAL_CLARINET_DEVNET_IMAGE_VERSION) \
-	      LOCAL_FIREBASE_EMULATORS_IMAGE=$(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION) \
-	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
+	      VERSION=$(LOCAL_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk
