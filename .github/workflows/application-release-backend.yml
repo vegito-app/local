@@ -34,6 +34,10 @@ on:
         required: false
         type: string
         default: "Backend release"
+    outputs:
+      release_notes_path:
+        description: "Path to the prepared release notes file"
+        value: ${{ jobs.prepare-notes.outputs.notes_path }}
 
 permissions:
   contents: write
@@ -86,3 +90,8 @@ jobs:
           fi
 
           echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: ${steps.notes.outputs.path}

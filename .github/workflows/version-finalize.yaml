@@ -56,7 +56,10 @@ jobs:
       - name: Push git tag
         run: |
           git push origin "${{ inputs.version }}"
-
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: .
       - name: Create GitHub Release
         if: ${{ inputs.create_github_release }}
         uses: softprops/action-gh-release@v2
