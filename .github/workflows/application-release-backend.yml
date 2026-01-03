@@ -36,6 +36,10 @@ on:
         required: false
         type: string
         default: "Backend release"
+    outputs:
+      release_notes_path:
+        description: "Path to the prepared release notes file"
+        value: ${{ jobs.prepare-notes.outputs.notes_path }}
 
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
