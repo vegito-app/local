@@ -200,16 +200,13 @@ LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
-	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
+	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE)"
+	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE) \
 	  $(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
-	      LOCAL_VAULT_AUDIT_INIT=false \
-	      LOCAL_CLARINET_DEVNET_IMAGE=$(LOCAL_CLARINET_DEVNET_IMAGE_VERSION) \
-	      LOCAL_FIREBASE_EMULATORS_IMAGE=$(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION) \
-	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
+	      LOCAL_VAULT_AUDIT_INIT=false
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk
