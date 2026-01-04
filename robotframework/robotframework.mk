@@ -22,6 +22,8 @@ ROBOT ?= $(LOCAL_DOCKER_COMPOSE) exec robotframework robot
 local-robotframework-container-exec:
 	@echo "📝 Running robotframework..."
 	@$(LOCAL_DOCKER_COMPOSE) exec robotframework sh -c "\
-	  mkdir -p $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)/output && \
-	  robot --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)/output robot"
+	  set -euxo pipefail; \
+	  cd $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR); \
+	  mkdir -p output; \
+	  robot --outputdir output robot"
 .PHONY: local-robotframework-container-exec
