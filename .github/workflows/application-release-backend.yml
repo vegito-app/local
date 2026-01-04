@@ -90,3 +90,8 @@ jobs:
           fi
 
           echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: ${steps.notes.outputs.path}
