@@ -1,5 +1,5 @@
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR ?= $(LOCAL_DIR)/example-application/tests
-
+LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)/output
 LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):robotframework-$(VERSION)
 
 local-robotframework-container-up: local-robotframework-container-rm
@@ -13,8 +13,22 @@ local-robotframework-container-up: local-robotframework-container-rm
 
 ROBOT ?= $(LOCAL_DOCKER_COMPOSE) exec robotframework robot
 
+# local-robotframework-container-exec:
+# 	echo "📝 Running robotframework..."
+# 	mkdir -p $(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR)
+# 	$(ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR) robot
+# .PHONY: local-robotframework-container-exec
+
 local-robotframework-container-exec:
 	@echo "📝 Running robotframework..."
-	@$(ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) robot
+	@$(LOCAL_DOCKER_COMPOSE) exec -e LOCAL_ROBOTFRAMEWORK_TESTS_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) robotframework \
+	  robot --outputdir output robot
 .PHONY: local-robotframework-container-exec
 
+local-robotframework-container-exec-ci: local-dev-container-image-pull
+	@echo "Using dev container image: $(LOCAL_BUILDER_IMAGE)"
+	@$(LOCAL_DEV_CONTAINER_RUN) \
+	  make local-robotframework-container-exec \
+	    LOCAL_ROBOTFRAMEWORK_TESTS_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)
+	@echo "End-to-end tests completed successfully in CI."
+.PHONY: local-robotframework-container-exec-ci

@@ -82,7 +82,6 @@ jobs:
           name: dev-logs-${{ env.INFRA_ENV }}-${{ env.VERSION }}
           path: |
             containers.log
-            setup.log
             tests.log
 
       - name: Upload Test Results

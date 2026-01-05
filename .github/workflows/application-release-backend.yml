@@ -34,6 +34,19 @@ on:
         required: false
         type: string
         default: "Backend release"
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+    outputs:
+      release_notes_path:
+        description: "Path to the prepared release notes file"
+        value: ${{ jobs.prepare-notes.outputs.notes_path }}
 
 permissions:
   contents: write
@@ -76,6 +89,19 @@ jobs:
           echo "- 📋 **Robot Framework Log**: ${BASE_URL}/tests/log.html" >> ${NOTES_PATH}
           echo "- 🧾 **Robot Framework Output (XML)**: ${BASE_URL}/tests/output.xml" >> ${NOTES_PATH}
           echo "" >> ${NOTES_PATH}
+          echo "## 🧪 CI Logs & Build Reports" >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+          echo "- 🛠️ **Images Build Log (raw)**: ${BASE_URL}/build/images-build.log" >> ${NOTES_PATH}
+          echo "- 🛠️ **Images Build Log (HTML)**: ${BASE_URL}/build/images-build.html" >> ${NOTES_PATH}
+          echo "- 🧰 **Dev Containers Log (raw)**: ${BASE_URL}/dev/containers.log" >> ${NOTES_PATH}
+          echo "- 🧰 **Dev Containers Log (HTML)**: ${BASE_URL}/dev/containers.html" >> ${NOTES_PATH}
+          echo "- 🔧 **Dev Setup Log (raw)**: ${BASE_URL}/dev-setup/setup.log" >> ${NOTES_PATH}
+          echo "- 🔧 **Dev Setup Log (HTML)**: ${BASE_URL}/dev-setup/setup.html" >> ${NOTES_PATH}
+          echo "- 🧪 **Functional Tests Log (raw)**: ${BASE_URL}/dev/tests.log" >> ${NOTES_PATH}
+          echo "- 🧪 **Functional Tests Log (HTML)**: ${BASE_URL}/dev/tests.html" >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
+          echo "---" >> ${NOTES_PATH}
+          echo "" >> ${NOTES_PATH}
 
           if [ -f CHANGELOG.md ]; then
             echo "## 🧩 Changelog" >> ${NOTES_PATH}
@@ -86,3 +112,167 @@ jobs:
           fi
 
           echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: ${steps.notes.outputs.path}
+
+
+  # --- upload-release-to-gcs job ---
+  upload-release-to-gcs:
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    name: Upload ${{ matrix.environment }} artifacts and metadata to GCS
+    runs-on: self-hosted
+    environment: ${{ matrix.environment }}
+    env:
+      VERSION: ${{ inputs.version }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ matrix.environment }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+      INFRA_ENV: ${{ matrix.environment }}
+      GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GCS_BUCKET_NAME: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Generate index.json for release root
+        run: |
+          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
+          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
+            version=$(basename $(dirname "$f"))
+            echo "  {\"version\": \"$version\"}," >> index.json
+          done
+          sed -i '$ s/},/}/' index.json || true
+          echo ']}' >> index.json
+
+      - name: Upload index.json to GCS
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
+          gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
+
+      - name: Download release notes artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: ./release-notes
+
+      - name: Ensure release notes are uploaded to GCS
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gcloud storage cp ./release-notes/RELEASE_NOTES.md "gs://$gs_path/RELEASE_NOTES.md" --quiet
+
+      - name: Download dev logs artifacts
+        if: env.INFRA_ENV == 'dev'
+        uses: actions/download-artifact@v4
+        with:
+          path: ./dev-logs
+          pattern: "*dev*logs*"
+
+      - name: Convert downloaded logs to HTML (dev only)
+        if: env.INFRA_ENV == 'dev'
+        run: |
+          mkdir -p html-logs
+          find ./dev-logs -maxdepth 1 -type f 2>/dev/null || true
+          for f in $(find ./dev-logs -maxdepth 1 -type f 2>/dev/null || true); do
+            base=$(basename "$f")
+            out="html-logs/${base}.html"
+            echo "<html><body><pre>" > "$out"
+            cat "$f" >> "$out"
+            echo "</pre></body></html>" >> "$out"
+          done
+          if [ -f "./artifacts/build/images-build.log" ]; then
+            mkdir -p html-build
+            echo "<html><body><pre>" > html-build/images-build.html
+            cat ./artifacts/build/images-build.log >> html-build/images-build.html
+            echo "</pre></body></html>" >> html-build/images-build.html
+          fi
+
+      - name: Upload dev HTML logs to GCS (dev only)
+        if: env.INFRA_ENV == 'dev'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}/dev"
+          gcloud storage cp html-logs/*.html "gs://$gs_path/" --quiet || true
+          if [ -d html-build ]; then
+            gcloud storage cp html-build/images-build.html "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}/build/images-build.html" --quiet || true
+          fi
+
+      - name: Download Robot Framework report artifact
+        if: env.INFRA_ENV == 'dev'
+        uses: actions/download-artifact@v4
+        with:
+          name: robotframework-reports
+          path: ./rf-reports
+
+      - name: Upload Robot Framework reports to GCS (dev only)
+        if: env.INFRA_ENV == 'dev'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}/tests"
+          gcloud storage cp ./rf-reports/report.html "gs://$gs_path/report.html" --quiet || true
+          gcloud storage cp ./rf-reports/log.html "gs://$gs_path/log.html" --quiet || true
+          gcloud storage cp ./rf-reports/output.xml "gs://$gs_path/output.xml" --quiet || true
+
+      - name: Generate and upload metadata.json
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          METADATA_PATH=metadata.json
+
+          cat <<EOF > $METADATA_PATH
+          {
+            "version": "${VERSION}",
+            "project": "${GITHUB_REPOSITORY}",
+            "backend": true,
+            "artifactsBase": "https://storage.googleapis.com/${gs_path}",
+            "releaseNotes": "https://storage.googleapis.com/${gs_path}/RELEASE_NOTES.md",
+            "security": {
+              "trivyReport": "https://storage.googleapis.com/${gs_path}/trivy/trivy-report.html"
+            },
+            "tests": {
+              "robotReport": "https://storage.googleapis.com/${gs_path}/tests/report.html",
+              "robotLog": "https://storage.googleapis.com/${gs_path}/tests/log.html",
+              "robotXml": "https://storage.googleapis.com/${gs_path}/tests/output.xml"
+            },
+            "build": {
+              "imagesBuildHtml": "https://storage.googleapis.com/${gs_path}/build/images-build.html",
+              "imagesBuildLog": "https://storage.googleapis.com/${gs_path}/build/images-build.log"
+            },
+            "development": {
+              "functionalTestsHtml": "https://storage.googleapis.com/${gs_path}/dev/tests.html",
+              "functionalTestsLog": "https://storage.googleapis.com/${gs_path}/dev/tests.log",
+              "containersHtml": "https://storage.googleapis.com/${gs_path}/dev/containers.html",
+              "containersLog": "https://storage.googleapis.com/${gs_path}/dev/containers.log",
+              "devSetupHtml": "https://storage.googleapis.com/${gs_path}/dev-setup/setup.html",
+              "devSetupLog": "https://storage.googleapis.com/${gs_path}/dev-setup/setup.log"
+            }
+          }
+          EOF
+
+          gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
