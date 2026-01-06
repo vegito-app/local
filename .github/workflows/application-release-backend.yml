@@ -218,14 +218,14 @@ jobs:
       - name: Download build log artifact
         uses: actions/download-artifact@v4
         with:
-          name: images-build-log-${{ matrix.environment }}-${{ env.VERSION }}
+          name: images-build-log-${{ inputs.environment }}-${{ env.VERSION }}
           path: ./artifacts/build
 
       - name: Download dev log artifact
         if: env.INFRA_ENV == 'dev'
         uses: actions/download-artifact@v4
         with:
-          name: dev-logs-${{ matrix.environment }}-${{ env.VERSION }}
+          name: dev-logs-${{ inputs.environment }}-${{ env.VERSION }}
           path: ./artifacts/dev
 
       - name: Convert build and dev logs to HTML

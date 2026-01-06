@@ -116,8 +116,6 @@ jobs:
       - name: Append environment-specific information to changelog
         run: |
           set -euo pipefail
-          sudo apt-get update && sudo apt-get install -y tree
-          tree ./artifacts
           for env in prod staging dev; do
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
             echo "### [$env] Environment Artifacts:" >> RELEASE_BODY.md
