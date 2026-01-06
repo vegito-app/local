@@ -58,18 +58,6 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): docker-buildx
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
-	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" ; \
-	done
-.PHONY: docker-build-tags-list-ci-md
-
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST ?= container.mac-m1.local
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-m1
