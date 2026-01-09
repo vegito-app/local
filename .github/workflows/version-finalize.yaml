@@ -57,10 +57,16 @@ jobs:
         run: |
           git push origin "${{ inputs.version }}"
 
+      - name: Download release notes artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: ./release-notes
+
       - name: Create GitHub Release
         if: ${{ inputs.create_github_release }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "${{ inputs.version }}"
           name: ${{ inputs.release_title }}
-          body_path: ${{ inputs.release_notes_path }}
+          body_path: ./release-notes/${{ inputs.release_notes_path }}

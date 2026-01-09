@@ -1,4 +1,7 @@
 name: Trivy Scan Docker Image
+permissions:
+  id-token: write
+  contents: read
 on:
   workflow_call:
     inputs:
@@ -67,7 +70,7 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_REF }}
           format: template
-          template: .github/templates/trivy-html.tpl
+          template: "@.github/templates/trivy-html.tpl.html"
           output: trivy-report.html
           exit-code: ${{ inputs.exit-code }}
           ignore-unfixed: true
