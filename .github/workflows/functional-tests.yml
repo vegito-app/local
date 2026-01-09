@@ -25,20 +25,9 @@ permissions:
   contents: read
 
 jobs:
-  prepare-local-env:
-    name: Prepare Local Environment ${{ inputs.environment }} 🛠️
-    uses: ./.github/workflows/local-env-start.yml
-    with:
-      environment: ${{ inputs.environment }}
-      version: ${{ inputs.version }}
-    secrets:
-      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
   run-local-tests:
     name: Run Tests ${{ inputs.environment }} ✅
     runs-on: self-hosted
-    needs: prepare-local-env
     environment: ${{ inputs.environment }}
     env:
       INFRA_ENV: ${{ inputs.environment }}
@@ -61,8 +50,13 @@ jobs:
           export_environment_variables: true
       - name: Setup Docker Environment
         run: |
-          make gcloud-config-set-project
-          make gcloud-auth-docker
+          set -euo pipefail
+          (
+            make gcloud-config-set-project
+            make docker-login
+            make local-container-config-show
+            make dev-ci
+          ) 2>&1 | tee setup.log
 
       - name: Wait for Mobile Application to Boot
         run: |
