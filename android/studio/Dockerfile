@@ -3,13 +3,6 @@ FROM ${android_apk_builder_image}
 
 USER root
 
-# Basic tools
-RUN apt-get update && apt-get install -y \
-  bash-completion git htop gnupg jq netcat-openbsd \
-  rsync socat tree unzip vim wget xz-utils \
-  locales net-tools \
-  && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
-
 # NodeJS for Appium
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
   apt-get install -y nodejs 
