@@ -6,7 +6,7 @@ VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOT ?= \
 
 $(VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOT:%=example-application-tests-robot-%): 
 	@echo "Running robot test $(@:example-application-tests-robot-%=%)..."
-	$(ROBOT) --outputdir $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output \
+	$(LOCAL_ROBOTFRAMEWORK_ROBOT) --outputdir $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output \
 		      $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/$(@:example-application-tests-robot-%=%)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOT:%=example-application-tests-robot-%)
 
