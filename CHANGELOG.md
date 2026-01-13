@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/vegito-app/local/compare/v1.9.1...v1.10.0) (2026-01-13)
+
+
+### Features
+
+* **docker, mobile:** add Docker image tags CI target and fix mobile makefile typo ([50ec4be](https://github.com/vegito-app/local/commit/50ec4befc8fd47e380744fb51778069ce27f0ab2))
+* **workflow:** enhance GCS upload with environment-specific artifact handling ([50398c3](https://github.com/vegito-app/local/commit/50398c337978628bba920c51137285eedb95aa6e))
+* **workflows:** enhance backend release and Trivy scan workflows with GCS integration ([9c04626](https://github.com/vegito-app/local/commit/9c04626e21a28f969204e477042cc91b6245315b))
+
+
+### Bug Fixes
+
+* **workflow:** replace 'gcloud-auth-docker' with 'docker-login' ([a9bf794](https://github.com/vegito-app/local/commit/a9bf794d4c9bb42b40ffa68e340a8f5bd05090ac))
+
 ## [1.10.0](https://github.com/vegito-app/local/compare/v1.9.1...v1.10.0) (2026-01-09)
 
 
