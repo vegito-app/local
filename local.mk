@@ -185,11 +185,11 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 # Local Docker Compose Services for CI
-#   vault-dev \
-#   firebase-emulators \
-#   clarinet-devnet
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
-  robotframework
+  vault-dev \
+  firebase-emulators \
+  clarinet-devnet
+#   robotframework
 
 #   clarinet-devnet
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
@@ -201,7 +201,7 @@ LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
+	LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
 	  $(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \

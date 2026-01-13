@@ -47,7 +47,7 @@ bg_pids+=($!)
 # Needed with github Codespaces which can change the workspace mount specified inside docker-compose.
 current_workspace=$PWD
 if [ "$current_workspace" != "$LOCAL_WORKSPACE" ] ; then
-    sudo ln -s $current_workspace $LOCAL_WORKSPACE 2>&1 || true
+    sudo ln -sf $current_workspace $LOCAL_WORKSPACE 2>/dev/null || true
     echo "Linked current workspace $current_workspace to $LOCAL_WORKSPACE"
 fi
 
