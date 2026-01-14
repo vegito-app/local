@@ -1,4 +1,4 @@
-LOCAL_ANDROID_ADB = $(LOCAL_ANDROID_CONTAINER_EXEC) adb
+LOCAL_ANDROID_ADB ?= $(LOCAL_ANDROID_CONTAINER_EXEC) adb
 
 LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH ?= $(LOCAL_ANDROID_MOBILE_DIR)/release-$(VERSION)-screenshot.png
 
@@ -9,7 +9,14 @@ local-android-emulator-screenshot:
 .PHONY: local-android-emulator-screenshot
 
 local-android-emulator-wait-for-boot:
-	@echo "Waiting for Android Emulator to boot..."
+	@echo "ORIGIN LOCAL_ANDROID_CONTAINER_NAME = $(origin LOCAL_ANDROID_CONTAINER_NAME)"
+	@echo "FLAVOR LOCAL_ANDROID_CONTAINER_NAME = $(flavor LOCAL_ANDROID_CONTAINER_NAME)"
+	@echo "VALUE  LOCAL_ANDROID_CONTAINER_NAME = '$(LOCAL_ANDROID_CONTAINER_NAME)'"
+	@echo "ORIGIN LOCAL_ANDROID_CONTAINER_EXEC = $(origin LOCAL_ANDROID_CONTAINER_EXEC)"
+	@echo "VALUE  LOCAL_ANDROID_CONTAINER_EXEC = '$(LOCAL_ANDROID_CONTAINER_EXEC)'"
+	@echo "ORIGIN LOCAL_ANDROID_ADB = $(origin LOCAL_ANDROID_ADB)"
+	@echo "VALUE  LOCAL_ANDROID_ADB = '$(LOCAL_ANDROID_ADB)'"
+	@echo "------------------------------------"
 	@$(LOCAL_ANDROID_ADB) wait-for-device
 	@$(LOCAL_ANDROID_ADB) shell getprop sys.boot_completed | grep -m 1 '1'
 .PHONY: local-android-emulator-wait-for-boot
