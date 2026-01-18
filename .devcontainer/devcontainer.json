@@ -3,7 +3,7 @@
   "dockerComposeFile": [
     "../docker-compose.yml",
     "../example-application/docker-compose.yml",
-    // "./docker-compose.yml",
+    "./docker-compose.yml",
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml"
