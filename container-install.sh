@@ -28,33 +28,6 @@ EMACS_DIR=${HOME}/.emacs.d
 mkdir -p ${local_container_cache}/emacs
 ln -sf ${local_container_cache}/emacs $EMACS_DIR
 
-
-# Vscode server/remote persistence
-VSCODE_REMOTE=${HOME}/.vscode-server
-
-# Github Codespaces specific
-if [ -v  CODESPACES ] ; then
-    VSCODE_REMOTE=${HOME}/.vscode-remote
-fi
-
-# VSCODE User data persistence
-# This allows you to persist your vscode user data across container rebuilds.
-# Note: This will not persist your extensions, only your user settings and configurations.
-# Extensions are typically reinstalled via the devcontainer.json file.
-[ -d $VSCODE_REMOTE ] && mv $VSCODE_REMOTE ${VSCODE_REMOTE}_back
-mkdir -p ${local_container_cache}/vscode/userData
-mkdir -p ${local_container_cache}/vscode/extensions
-mkdir -p ${VSCODE_REMOTE}
-ln -sf ${local_container_cache}/vscode/extensions ${VSCODE_REMOTE}/extensions
-VSCODE_REMOTE_USER_DATA=${VSCODE_REMOTE}/data/User
-if [ -d $VSCODE_REMOTE_USER_DATA ] ; then 
-  mv $VSCODE_REMOTE_USER_DATA ${VSCODE_REMOTE_USER_DATA}_back
-  LOCAL_VSCODE_USER_GLOBAL_STORAGE=${local_container_cache}/vscode/userData/globalStorage
-  mkdir -p ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}
-  ln -sf ${local_container_cache}/vscode/userData $VSCODE_REMOTE_USER_DATA
-  ln -sf ${local_container_cache}/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
-fi
-
 # GO persistence 
 # This allows you to persist your go workspace across container rebuilds.
 GOPATH=${HOME}/go
