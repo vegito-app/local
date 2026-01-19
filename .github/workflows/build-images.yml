@@ -113,7 +113,7 @@ jobs:
           DOCKERHUB_REPLICA_VERSION: ${{ inputs.dockerhub_replica_version }}
         run: |
           set -o pipefail
-          make images-ci 2>&1 | tee images-build.log
+          echo make images-ci 2>&1 | tee images-build.log
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
@@ -198,6 +198,20 @@ jobs:
           else
             echo "⚠️ gha-env-vars not found"
           fi
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
 
       - name: Extract signed APK & AAB releases and keystore SHA1 from images
         id: extract_apk_aab
