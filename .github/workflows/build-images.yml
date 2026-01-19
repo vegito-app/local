@@ -199,6 +199,20 @@ jobs:
             echo "⚠️ gha-env-vars not found"
           fi
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
       - name: Extract signed APK & AAB releases and keystore SHA1 from images
         id: extract_apk_aab
         run: make application-mobile-image-extract-android-artifacts

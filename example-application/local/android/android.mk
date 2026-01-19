@@ -63,19 +63,6 @@ $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%):
 $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm): 
 	@echo "Removing container for $(@:local-%-container-rm=%)"
 	@$(MAKE) $(@:%-rm=%-stop)
-	@echo 🔄 Waiting for container removal...
-	@timeout=10; \
-	while docker ps -a --format '{{.Names}}' | grep -q "^$(COMPOSE_PROJECT_NAME)-$(@:local-android-%-container-rm=%)-1$$" && [ $$timeout -gt 0 ]; do \
-	  echo "⏳ Waiting for container removal..."; \
-	  sleep 1; timeout=$$((timeout-1)); \
-	done; \
-	if [ $$timeout -eq 0 ]; then \
-	  echo "⚠️  Timeout reached while waiting for container removal."; \
-	  echo "🗑️ Forcing removal of container for $(@:local-android-%-container-rm=%)." \
-	  docker container rm -f $(COMPOSE_PROJECT_NAME)-$(@:local-android-%-container-rm=%)-1 || true \
-	else \
-	  echo "✅ Container removed successfully."; \
-	fi
 	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:local-%-container-rm=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=local-android-%-container-rm)
 
@@ -137,7 +124,7 @@ local-android-docker-images-push-parallel:
 .PHONY: local-android-docker-images-push-parallel
 
 LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
-LOCAL_ANDROID_CONTAINER_EXEC ?= $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
+LOCAL_ANDROID_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
 
 LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
 
@@ -192,28 +179,31 @@ LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-releas
 local-android-align-apk: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 .PHONY: local-android-verify-apk
 
+LOCAL_ANDROID_ZIPALIGN ?= $(LOCAL_ANDROID_CONTAINER_EXEC) zipalign
+
  $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH)
 	@echo "🧰 Aligning APK: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH)..."
 	@if [ -f $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH) ]; then rm -f $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH); fi
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  zipalign -v -p 4 $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH) $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
+	@$(LOCAL_ANDROID_ZIPALIGN) -v -p 4 $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH) $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 
 local-android-sign-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) 
-.PHONY: local-android-sign-apksign
+.PHONY: local-android-sign-apk
+
+LOCAL_ANDROID_APKSIGNER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) apksigner
 
 $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 	@echo "🔐 Signing APK with apksigner using keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH): $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  apksigner sign \
-	    --ks $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
-	    --ks-pass pass:$(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
-	    --out $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) \
+	@$(LOCAL_ANDROID_APKSIGNER) sign \
+	  --ks $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
+	  --ks-pass pass:$(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
+	  --out $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) \
 		$(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
+
+LOCAL_ANDROID_APKSIGNER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) apksigner
 
 local-android-verify-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
 	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  apksigner verify --verbose $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
+	@$(LOCAL_ANDROID_APKSIGNER) verify --verbose $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
 .PHONY: local-android-verify-apk
 
 ################################################################################
@@ -229,10 +219,11 @@ $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_ALIGNED_PATH):
 local-android-sign-aab: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
 .PHONY: local-android-sign-aab
 
+LOCAL_ANDROID_JARSIGNER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) jarsigner
+
 $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH): $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_ALIGNED_PATH)
 	@echo "📦 Signing AAB with keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
+	@$(LOCAL_ANDROID_JARSIGNER) -sigalg SHA256withRSA -digestalg SHA-256 \
 	    -keystore $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    -storepass $(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
 	    $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_ALIGNED_PATH) $(LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME)
@@ -240,8 +231,7 @@ $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH): $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_A
 
 local-android-verify-aab: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
 	@echo "🔍 Verifying AAB signature for: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  jarsigner -verify -verbose -certs $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
+	@$(LOCAL_ANDROID_JARSIGNER) -verify -verbose -certs $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
 .PHONY: local-android-verify-aab
 
 ################################################################################
