@@ -185,9 +185,6 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 # Local Docker Compose Services for CI
-#   vault-dev \
-#   firebase-emulators \
-#   clarinet-devnet
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   robotframework
 

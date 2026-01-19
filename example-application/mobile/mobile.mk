@@ -10,7 +10,7 @@ example-application-mobile-container-up: example-application-mobile-container-rm
 	@$(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR)/container-up.sh
 .PHONY: example-application-mobile-container-up
 
-FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
+FLUTTER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) flutter
 
 example-application-mobile-flutter-create:
 	@$(FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
@@ -41,7 +41,7 @@ example-application-mobile-flutter-tests-ci: example-application-mobile-flutter-
 	@$(FLUTTER) test
 .PHONY: example-application-mobile-flutter-tests-ci
 
-DART ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio dart
+LOCAL_EXAMPLE_APPLICATION_DART ?= $(LOCAL_ANDROID_CONTAINER_EXEC) dart
 
 example-application-mobile-flutter-tests-buildrunner:
 	@$(DART) run build_runner test --delete-conflicting-outputs

@@ -3,7 +3,7 @@
   "dockerComposeFile": [
     "../docker-compose.yml",
     "../example-application/docker-compose.yml",
-    // "./docker-compose.yml",
+    "./docker-compose.yml",
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml"
@@ -15,6 +15,7 @@
     "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
   },
   "service": "dev",
+  "onCreateCommand": "rm -rf ~/.vscode-remote && ln -sf ~/.vscode-server ~/.vscode-remote",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
