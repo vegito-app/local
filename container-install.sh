@@ -96,7 +96,7 @@ expose-port() {
   local CONTAINER_PORT="\$3"
   local NETWORK="\$4"
   echo "Exposing \$CONTAINER_NAME:\$CONTAINER_PORT to localhost:\$LOCAL_PORT ..."
-  docker run --rm --network \$NETWORK alpine/socat \
+  docker run --rm -p \$LOCAL_PORT:\$LOCAL_PORT --network \$NETWORK alpine/socat \
     TCP-LISTEN:"\$LOCAL_PORT",fork,reuseaddr TCP:\$CONTAINER_NAME:"\$CONTAINER_PORT"
 }
 EOF
