@@ -96,7 +96,9 @@ example-application-mobile-container-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-application-mobile-image-extract-android-artifacts: example-application-mobile-extract-android-artifacts
+application-mobile-image-extract-android-artifacts: \
+example-application-mobile-image-pull \
+example-application-mobile-extract-android-artifacts
 	@echo "✅ Extracted Android release artifacts successfully."
 .PHONY: application-mobile-image-extract-android-artifacts
 

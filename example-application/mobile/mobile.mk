@@ -221,25 +221,24 @@ VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE = $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):exa
 
 example-application-mobile-wait-for-boot:
 	@echo "Waiting for Android Emulator to boot..."
-	echo LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
-	  $(MAKE) local-android-emulator-wait-for-boot
-	LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_ADB="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC) adb" \
 	  $(MAKE) local-android-emulator-wait-for-boot
 .PHONY: example-application-mobile-wait-for-boot
 
 example-application-mobile-screenshot:
 	@echo "Capturing screenshot from Android Emulator..."
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_ADB="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC) adb" \
 	  $(MAKE) local-android-emulator-screenshot
 .PHONY: example-application-mobile-screenshot
 
 example-application-mobile-dump:
 	@echo "Capturing dump from Android Emulator..."
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_ADB="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC) adb" \
 	  $(MAKE) local-android-emulator-dump
 .PHONY: example-application-mobile-dump
 
 example-application-mobile-extract-android-artifacts:
-	LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE) \
-	$(MAKE) local-android-mobile-image-tag-release-extract
+	@echo "Extracting Android release artifacts from mobile application image..."
+	@LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE) \
+	  $(MAKE) local-android-mobile-image-tag-release-extract
 .PHONY: example-application-mobile-extract-android-artifacts
