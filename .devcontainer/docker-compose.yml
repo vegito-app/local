@@ -36,3 +36,7 @@ services:
 
 networks:
   dev:
+
+volumes:
+  vscode-server-extensions:
+  vscode-server-bin:

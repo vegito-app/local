@@ -12,6 +12,10 @@ on:
         required: false
         type: string
         default: "tests/output"
+      local-android-container-name:
+        required: false
+        type: string
+        default: "android-studio-emulator"
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -35,10 +39,10 @@ jobs:
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
     steps:
-      - name: Ensure fresh .env
-        run: |
-          rm -f .env
-          ./dotenv.sh
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -48,6 +52,12 @@ jobs:
           project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          ./dotenv.sh
+
       - name: Setup Docker Environment
         run: |
           set -euo pipefail
@@ -57,10 +67,6 @@ jobs:
             make local-container-config-show
             make dev-ci
           ) 2>&1 | tee setup.log
-
-      - name: Wait for Mobile Application to Boot
-        run: |
-          make application-mobile-wait-for-boot
       - name: Run Application Tests
         run: |
           set -euo pipefail
@@ -83,6 +89,7 @@ jobs:
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: dev-logs-${{ env.INFRA_ENV }}-${{ env.VERSION }}
           path: |
@@ -92,6 +99,7 @@ jobs:
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: tests-results-${{ env.INFRA_ENV }}-${{ env.VERSION }}
           path: ${{ inputs.functional-tests-output-dir}}
