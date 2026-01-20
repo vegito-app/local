@@ -96,7 +96,8 @@ dev-ci: \
 images-pull \
 local-containers-up-ci \
 example-application-backend-container-up-ci \
-example-application-mobile-container-up-ci
+example-application-mobile-container-up-ci \
+local-android-emulator-wait-for-boot
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
