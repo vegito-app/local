@@ -1,4 +1,8 @@
-# Enable reuse of this workflow from other repositories in the org
+#######################################################################
+# MIGRATION EN COURS : Les artefacts sont désormais à uploader vers GCS directement
+# Les uploads via actions/upload-artifact@v4 sont désactivés ou à désactiver.
+# TODO: Nettoyer les dépendances et le workflow complet pour full GCS.
+#######################################################################
 name: Application Release Pipeline
 
 on:
@@ -49,11 +53,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download version changelog artifact
-        uses: actions/download-artifact@v4
+      # --- REMPLACEMENT : Récupération du changelog directement depuis GCS ---
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          name: version-changelog
-          path: ./artifacts
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Download version changelog from GCS
+        run: |
+          mkdir -p ./artifacts
+          gcloud storage cp gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/CHANGELOG.md ./artifacts/CHANGELOG.md
 
       - name: Write changelog and release body
         run: |
@@ -95,23 +108,21 @@ jobs:
           cat ./artifacts/CHANGELOG.md >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
 
-      - name: Download all production artifacts 📥
-        uses: actions/download-artifact@v4
-        with:
-          path: ./artifacts/prod
-          pattern: "*-prod-*"
-
-      - name: Download all staging artifacts 📥
-        uses: actions/download-artifact@v4
-        with:
-          path: ./artifacts/staging
-          pattern: "*-staging-*"
-
-      - name: Download all development artifacts 📥
-        uses: actions/download-artifact@v4
-        with:
-          path: ./artifacts/dev
-          pattern: "*-dev-*"
+      # --- REMPLACEMENT : Téléchargement des artefacts Android et Docker depuis GCS pour chaque environnement ---
+      - name: Download environment artifacts from GCS
+        run: |
+          set -euo pipefail
+          for env in prod staging dev; do
+            env_artifacts_dir="./artifacts/$env"
+            mkdir -p "$env_artifacts_dir"
+            # Récupération APK/AAB/SHA1
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk" "$env_artifacts_dir/android-mobile-release-${VERSION}-signed-aligned.apk" || true
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-signed.aab" "$env_artifacts_dir/android-mobile-release-${VERSION}-signed.aab" || true
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1" "$env_artifacts_dir/android-mobile-release-${VERSION}-key.keystore.sha1" || true
+            # Récupération Docker tags
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/docker-tags.md" "$env_artifacts_dir/docker-tags.md" || true
+          done
+          # Récupération changelog déjà fait plus haut
 
       - name: Append environment-specific information to changelog
         run: |
@@ -122,7 +133,7 @@ jobs:
             echo "" >> RELEASE_BODY.md
             
             # Append Android keystore SHA1 if available
-            keystore_sha1_path="./artifacts/$env/android-artifacts-$env-${{ inputs.version }}/${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}"
+            keystore_sha1_path="./artifacts/$env/android-mobile-release-${VERSION}-key.keystore.sha1"
             if [ -f "$keystore_sha1_path" ]; then
               echo "**Android Release Keystore SHA1:**" >> RELEASE_BODY.md
               echo '```' >> RELEASE_BODY.md
@@ -131,9 +142,8 @@ jobs:
               echo '```' >> RELEASE_BODY.md
               echo "" >> RELEASE_BODY.md
             fi
-            
-            # Append Docker tags if available
-            docker_tags_path="./artifacts/$env/docker-metadata-$env-${{ inputs.version }}/docker-tags.md"
+
+            docker_tags_path="./artifacts/$env/docker-tags.md"
             if [ -f "$docker_tags_path" ]; then
               echo "**Docker images published:**" >> RELEASE_BODY.md
               cat "$docker_tags_path" >> RELEASE_BODY.md
@@ -141,13 +151,14 @@ jobs:
             fi
           done
 
+      # --- REMPLACEMENT : Organisation des artefacts téléchargés depuis GCS ---
       - name: Organize artifacts for release
         run: |
           mkdir -p release_artifacts
           for env in prod staging dev; do
-            find ./artifacts/$env -name "*.apk" -exec cp {} release_artifacts/${env}-android-mobile-release-${{ env.VERSION }}-signed-aligned.apk \; 2>/dev/null || true
-            find ./artifacts/$env -name "*.aab" -exec cp {} release_artifacts/${env}-android-mobile-release-${{ env.VERSION }}-signed.aab \; 2>/dev/null || true
-            find ./artifacts/$env -name "*.sha1" -exec cp {} release_artifacts/${env}-android-mobile-release-${{ env.VERSION }}-key.keystore.sha1 \; 2>/dev/null || true
+            cp ./artifacts/$env/android-mobile-release-${VERSION}-signed-aligned.apk release_artifacts/${env}-android-mobile-release-${VERSION}-signed-aligned.apk 2>/dev/null || true
+            cp ./artifacts/$env/android-mobile-release-${VERSION}-signed.aab release_artifacts/${env}-android-mobile-release-${VERSION}-signed.aab 2>/dev/null || true
+            cp ./artifacts/$env/android-mobile-release-${VERSION}-key.keystore.sha1 release_artifacts/${env}-android-mobile-release-${VERSION}-key.keystore.sha1 2>/dev/null || true
           done
           cp ./artifacts/CHANGELOG.md release_artifacts/ 2>/dev/null || true
 
@@ -169,6 +180,12 @@ jobs:
           body_path: ./RELEASE_BODY.md
           files: release_artifacts/*
 
+      - name: Upload release notes to GCS
+        run: |
+          if [ -f "release-notes.md" ]; then
+            gcloud storage cp RELEASE_BODY.md gs://app-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/dev/release-notes/${{ needs.version.outputs.version }}.md
+          fi
+
   commit-and-push-release-tag:
     name: Finalize and Push Release Tag
     runs-on: self-hosted
@@ -189,11 +206,12 @@ jobs:
         run: |
           gitleaks detect --source . --report-path gitleaks-report.json --log-opts "--all"
 
-      - name: Upload Gitleaks report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitleaks-report
-          path: gitleaks-report.json
+      # - name: Upload Gitleaks report as artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: gitleaks-report
+      #     path: gitleaks-report.json
+      # TODO: Uploader direct vers GCS à la génération (gitleaks-report.json)
 
       - name: Fail if leaks found
         run: |
