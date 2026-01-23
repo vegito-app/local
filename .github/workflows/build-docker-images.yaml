@@ -63,12 +63,9 @@ jobs:
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log
 
-      - name: Upload images-build.log
-        uses: actions/upload-artifact@v4
-        with:
-          name: images-build-log-${{ inputs.environment }}-${{ inputs.version }}
-          path: |
-            images-build.log
+      - name: Upload images-build.log to GCS
+        run: |
+          gcloud storage cp images-build.log gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/images-build.log
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
@@ -78,9 +75,6 @@ jobs:
           cat docker-tags.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Upload docker tags and index as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-metadata-${{ inputs.environment }}-${{ inputs.version }}
-          path: |
-            docker-tags.md
+      - name: Upload docker-tags.md to GCS
+        run: |
+          gcloud storage cp docker-tags.md gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/docker-tags.md

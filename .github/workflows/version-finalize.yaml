@@ -57,11 +57,12 @@ jobs:
         run: |
           git push origin "${{ inputs.version }}"
 
-      - name: Download release notes artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: release-notes
-          path: ./release-notes
+      - name: Download release notes from GCS
+        run: |
+          mkdir -p ./release-notes
+          gcloud storage cp \
+            gs://vegito-app-dev-github-actions-ci-artifacts/${{ inputs.version }}/CHANGELOG.md \
+            ./release-notes/${{ inputs.release_notes_path }}
 
       - name: Create GitHub Release
         if: ${{ inputs.create_github_release }}
