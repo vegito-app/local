@@ -8,6 +8,11 @@
 name: Version Prepare (Reusable)
 on:
   workflow_call:
+    inputs:
+      environment:
+        description: "Environment"
+        required: true
+        type: string
     outputs:
       version:
         description: "Version number generated"
@@ -25,11 +30,13 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   define_version:
     name: Define VERSION ✨
     runs-on: self-hosted
+    environment: ${{ inputs.environment }}
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       changelog: ${{ steps.define_version.outputs.CHANGELOG_NEW }}
