@@ -48,6 +48,10 @@ example-application-containers-rm: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_S
 example-application-containers-up: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up)
 .PHONY: example-application-containers-up
 
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES):
+	@$(MAKE) $(@:%=%-container-up)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES)
+
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci): local-dev-container-image-pull
 	@echo "Running operation 'example-application-containers-$(@:example-application-containers-%-container-up-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"

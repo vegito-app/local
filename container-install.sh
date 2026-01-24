@@ -91,8 +91,8 @@ expose-port() {
     echo "Usage: expose-port <container_name> <host_port> <container_port> <network>"
     return 1
   fi
-  local CONTAINER_NAME="\$1"
-  local LOCAL_PORT="\$2"
+  local LOCAL_PORT="\$1"
+  local CONTAINER_NAME="\$2"
   local CONTAINER_PORT="\$3"
   local NETWORK="\$4"
   echo "Exposing \$CONTAINER_NAME:\$CONTAINER_PORT to localhost:\$LOCAL_PORT ..."
