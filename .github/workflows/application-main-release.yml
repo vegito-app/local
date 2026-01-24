@@ -11,6 +11,8 @@ jobs:
   version:
     name: Generate Version and Changelog
     uses: ./.github/workflows/version-prepare.yml
+    with:
+      environment: dev
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
@@ -77,18 +79,6 @@ jobs:
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
-    steps:
-      - name: Authenticate to Google Cloud
-        run: |
-          echo "${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}" > ${HOME}/gcloud-key.json
-          gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
-          gcloud config set project ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      - name: Upload build images metadata to GCS
-        run: |
-          # Assuming images metadata or logs are stored in a known directory, adjust path accordingly
-          if [ -d "images-output" ]; then
-            gcloud storage cp -r images-output gs://app-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ matrix.environment }}/images-output/${{ needs.version.outputs.version }}/
-          fi
 
   application-release-build:
     needs:

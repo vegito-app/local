@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-  build-dev-release:
+  build-dev-latest:
     needs:
       - checkout
     name: Build and Push Images
@@ -24,7 +24,7 @@ jobs:
       matrix:
         environment: [dev]
     with:
-      version: dev-release
+      version: dev-latest
       environment: dev
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
@@ -39,14 +39,13 @@ jobs:
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
-
   test:
     name: Run Tests
     needs:
-      - build-dev-release
+      - build-dev-latest
     uses: ./.github/workflows/functional-tests.yml
     with:
-      version: dev-release
+      version: dev-latest
       environment: dev
       functional-tests-output-dir: example-application/tests/output
       local-android-container-name: example-application-mobile

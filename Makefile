@@ -63,6 +63,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES = \
   robotframework
 #   clarinet-devnet \
 
+-include android.mk
 -include local.mk
 -include git.mk
 -include nodejs.mk

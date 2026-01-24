@@ -52,30 +52,18 @@ local-android-emulator-avd-start:
 .PHONY: local-android-emulator-avd-start
 
 local-android-emulator-avd-restart:
-	@echo "Restarting android-studio emulator..."
-	@echo LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME)
-	@echo LOCAL_ANDROID_CONTAINER_EXEC=$(LOCAL_ANDROID_CONTAINER_EXEC)
-	@echo LOCAL_ANDROID_STUDIO_DIR=$(LOCAL_ANDROID_STUDIO_DIR)
-	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
-	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
-	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
+	@echo "Restarting android emulator AVD (infra-safe)"
 	$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
-	  echo "[*] Killing emulator & adb..." ; \
-	  pkill -9 emulator ; \
-	  pkill -9 qemu-system ; \
-	  adb kill-server ; \
-	  echo "[*] Cleaning up locks..." ; \
-	  rm -rf ~/.android/avd/*/*.lock ; \
-	  rm -f ~/.android/*.lock ; \
-	  rm -f ~/.android/adb*.ini.lock ; \
-	  rm -f /tmp/.X20-lock ; \
-	  echo "[*] Restarting LOCAL_ANDROID_ADB..." ; \
-	  adb start-server ; \
-	  echo "[*] Launching emulator..." ; \
-	  echo "Starting android-studio emulator..." ; \
-	  	android-emulator-avd-start.sh ; \
-	  sleep infinity ; \
-	'
+	    set -e ; \
+	    echo "[*] Stopping emulator..." ; \
+	    adb emu kill || true \
+	    sleep 2 ; \
+	    adb kill-server || true ; \
+	    rm -rf ~/.android/avd/*/*.lock ~/.android/*.lock ~/.android/adb*.ini.lock ; \
+	    adb start-server ; \
+	    echo "[*] Restarting AVD..." ; \
+	    exec android-emulator-avd-start.sh ; \
+	  '
 .PHONY: local-android-emulator-avd-restart
 
 local-android-emulator-kernel:

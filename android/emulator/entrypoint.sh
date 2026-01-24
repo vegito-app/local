@@ -64,7 +64,8 @@ bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "true" ]; then
     android-emulator-avd-start.sh &
-    bg_pids+=($!)
+    # Don't track this PID as the script will exit after starting the emulator if it is restarted (using 'make local-android-emulator-avd-restart' for example)
+    # bg_pids+=($!) 
 fi
 
 # Developer-friendly aliases

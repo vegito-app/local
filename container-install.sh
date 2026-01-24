@@ -78,6 +78,7 @@ alias vim='vim'
 alias v='vim'
 alias ld='lazydocker'
 alias k='k9s'
+alias pst='ps -eo pid,ppid,cmd --forest'
 
 alias clean_appledouble='find . -name "._*" -delete'
 
