@@ -119,9 +119,9 @@ emulator-data-load.sh "${emulator_data}"
 
 
 # 🔐 Injection du token App Check si fourni
-if [[ "$apk_path" == *"release.apk" && -n "$FIREBASE_APP_CHECK_DEBUG_TOKEN" ]]; then
+if [[ "$apk_path" == *"release.apk" && -n "${FIREBASE_APP_CHECK_DEBUG_TOKEN:-}" ]]; then
   echo "💠 App Check debug token detected. Injecting..."
-  echo "FIREBASE_APP_CHECK_DEBUG_TOKEN=$FIREBASE_APP_CHECK_DEBUG_TOKEN" > /data/local/tmp/app_check.env
+  echo "FIREBASE_APP_CHECK_DEBUG_TOKEN=${FIREBASE_APP_CHECK_DEBUG_TOKEN:-}" > /data/local/tmp/app_check.env
 fi
 
 echo "Checking if an APK is present and installing..."
