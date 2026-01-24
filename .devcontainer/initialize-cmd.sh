@@ -182,3 +182,11 @@ mkdir -p ${CONTAINERS_CACHE_DIR}/dev
 if [ -d ~/.emacs.d ]; then
     rsync -av ~/.emacs.d ${CONTAINERS_CACHE_DIR}/emacs
 fi
+
+INIT_VSIX_SCRIPT="${WORKING_DIR}/.devcontainer/init-vsix.sh"
+if [ -f "${INIT_VSIX_SCRIPT}" ] ; then
+  echo "Initializing VSCode extensions VSIX files"
+  bash "${INIT_VSIX_SCRIPT}"
+else
+  echo "No VSCode extensions VSIX initialization script found at ${INIT_VSIX_SCRIPT}"
+fi

@@ -23,7 +23,51 @@ ln -sf ${local_container_cache}/emacs $EMACS_DIR
 ln -sfn ${local_container_cache}/bash_history ~/.bash_history
 
 # Vscode server/remote
-VSCODE_REMOTE=${HOME}/.vscode-server
+VSCODE_REMOTE="${HOME}/.vscode-server"
+mkdir -p "$VSCODE_REMOTE/bin" "$VSCODE_REMOTE/extensions"
+# -------------------------------------------------------------------
+# VS Code Server prewarm (bin + extensions)
+# -------------------------------------------------------------------
+
+VSCODE_COMMIT="${VSCODE_COMMIT:-c9d77990917f3102ada88be140d28b038d1dd7c7}"
+
+SRC_BASE="/home/vegito/.vscode-server"
+SRC_BIN="${SRC_BASE}/bin/${VSCODE_COMMIT}"
+SRC_EXT="${SRC_BASE}/extensions"
+
+for USER_HOME in \
+  /home/clarinet \
+  /home/android \
+  ; do
+  TARGET_BASE="${USER_HOME}/.vscode-server"
+
+  mkdir -p "${TARGET_BASE}/bin/${VSCODE_COMMIT}" "${TARGET_BASE}/extensions"
+
+  # Server binaries (idempotent)
+  if [ -d "$SRC_BIN" ] && [ ! -d "${TARGET_BASE}/bin/${VSCODE_COMMIT}/node_modules" ]; then
+    rsync -a "$SRC_BIN/" "${TARGET_BASE}/bin/${VSCODE_COMMIT}/"
+  fi
+
+  # Extensions (heavy but worth it)
+  # if [ -d "$SRC_EXT" ]; then
+  #   rsync -a "$SRC_EXT/" "${TARGET_BASE}/extensions/"
+  # fi
+done
+
+# -------------------------------------------------------------------
+# VS Code Server - Install .vsix extensions
+# -------------------------------------------------------------------
+VSIX_DIR="/opt/vscode/vsix"
+EXT_DIR="${HOME}/.vscode-server/extensions"
+
+if [ -d "$VSIX_DIR" ]; then
+  for VSIX in "$VSIX_DIR"/*.vsix; do
+    code-server \
+      --extensions-dir "$EXT_DIR" \
+      --install-extension "$VSIX" \
+      --force
+  done
+fi
 
 # Github Codespaces
 if [ -v  CODESPACES ] ; then

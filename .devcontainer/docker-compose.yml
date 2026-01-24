@@ -16,27 +16,35 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
-      - vscode-server-extensions:/home/vegito/.vscode-server/extensions
-      - vscode-server-bin:/home/vegito/.vscode-server/bin
+      - vscode-server-dev:/home/vegito/.vscode-server
+      - vscode-server-clarinet:/home/clarinet/.vscode-server
+      - vscode-server-android:/home/android/.vscode-server
+      - ${LOCAL_WORKSPACE:-${PWD}}/.devcontainer/vsix:/opt/vscode/vsix:ro
+    command: |
+      bash -c '
+      set -eu
+      make docker-sock
+      until docker info; do
+        echo "Waiting for Docker to be ready..."
+        sleep 1
+      done'
 
   clarinet-devnet:
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
-      - vscode-server-extensions:/home/clarinet/.vscode-server/extensions
-      - vscode-server-bin:/home/clarinet/.vscode-server/bin
-
+      - vscode-server-clarinet:/home/clarinet/.vscode-server
   android-studio:
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
-      - vscode-server-extensions:/home/android/.vscode-server/extensions
-      - vscode-server-bin:/home/android/.vscode-server/bin
+      - vscode-server-android:/home/android/.vscode-server
 
 networks:
   dev:
 
 volumes:
-  vscode-server-extensions:
-  vscode-server-bin:
+  vscode-server-dev:
+  vscode-server-android:
+  vscode-server-clarinet:
