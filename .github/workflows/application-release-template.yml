@@ -42,10 +42,11 @@ jobs:
   create-github-release:
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
+    environment: ${{ inputs.environment }}
     env:
       VERSION: ${{ inputs.version }}
       VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
-      VEGITO_APPLICATION_RELEASE_BUCKET: vegito-app-prod-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}
+      VEGITO_APPLICATION_RELEASE_BUCKET: vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
@@ -108,21 +109,30 @@ jobs:
           cat ./artifacts/CHANGELOG.md >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
 
-      # --- REMPLACEMENT : Téléchargement des artefacts Android et Docker depuis GCS pour chaque environnement ---
-      - name: Download environment artifacts from GCS
+      # --- Téléchargement minimal des artefacts nécessaires à la génération du RELEASE_BODY.md ---
+      - name: Download environment artifacts from GCS (minimal)
         run: |
           set -euo pipefail
           for env in prod staging dev; do
             env_artifacts_dir="./artifacts/$env"
             mkdir -p "$env_artifacts_dir"
-            # Récupération APK/AAB/SHA1
-            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk" "$env_artifacts_dir/android-mobile-release-${VERSION}-signed-aligned.apk" || true
-            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-signed.aab" "$env_artifacts_dir/android-mobile-release-${VERSION}-signed.aab" || true
-            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1" "$env_artifacts_dir/android-mobile-release-${VERSION}-key.keystore.sha1" || true
-            # Récupération Docker tags
-            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/docker-tags.md" "$env_artifacts_dir/docker-tags.md" || true
+            echo "🔎 Downloading Android keystore SHA1 for $env..."
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1" "$env_artifacts_dir/android-mobile-release-${VERSION}-key.keystore.sha1" || echo "No keystore SHA1 for $env"
+            echo "🔎 Downloading docker-tags.md for $env..."
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/docker-tags.md" "$env_artifacts_dir/docker-tags.md" || echo "No docker-tags.md for $env"
           done
-          # Récupération changelog déjà fait plus haut
+          # Le changelog est déjà téléchargé plus haut
+
+      - name: Download Robot Framework artifacts from GCS (for release body)
+        run: |
+          set -euo pipefail
+          for env in prod staging dev; do
+            env_dir="./artifacts/$env/tests"
+            mkdir -p "$env_dir"
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/tests/report.html" "$env_dir/report.html" || true
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/tests/log.html" "$env_dir/log.html" || true
+            gcloud storage cp "gs://vegito-app-${env}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/tests/output.xml" "$env_dir/output.xml" || true
+          done
 
       - name: Append environment-specific information to changelog
         run: |
@@ -149,26 +159,22 @@ jobs:
               cat "$docker_tags_path" >> RELEASE_BODY.md
               echo "" >> RELEASE_BODY.md
             fi
-          done
 
-      # --- REMPLACEMENT : Organisation des artefacts téléchargés depuis GCS ---
-      - name: Organize artifacts for release
-        run: |
-          mkdir -p release_artifacts
-          for env in prod staging dev; do
-            cp ./artifacts/$env/android-mobile-release-${VERSION}-signed-aligned.apk release_artifacts/${env}-android-mobile-release-${VERSION}-signed-aligned.apk 2>/dev/null || true
-            cp ./artifacts/$env/android-mobile-release-${VERSION}-signed.aab release_artifacts/${env}-android-mobile-release-${VERSION}-signed.aab 2>/dev/null || true
-            cp ./artifacts/$env/android-mobile-release-${VERSION}-key.keystore.sha1 release_artifacts/${env}-android-mobile-release-${VERSION}-key.keystore.sha1 2>/dev/null || true
+            tests_dir="./artifacts/$env/tests"
+            if [ -d "$tests_dir" ]; then
+              if [ -f "$tests_dir/report.html" ] || [ -f "$tests_dir/log.html" ] || [ -f "$tests_dir/output.xml" ]; then
+                echo "**Robot Framework Tests:**" >> RELEASE_BODY.md
+                [ -f "$tests_dir/report.html" ] && echo "- 🧪 Test Report: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/report.html" >> RELEASE_BODY.md
+                [ -f "$tests_dir/log.html" ] && echo "- 🧪 Test Log: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html" >> RELEASE_BODY.md
+                [ -f "$tests_dir/output.xml" ] && echo "- 📊 Test Output (XML): https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/output.xml" >> RELEASE_BODY.md
+                echo "" >> RELEASE_BODY.md
+              fi
+            fi
           done
-          cp ./artifacts/CHANGELOG.md release_artifacts/ 2>/dev/null || true
 
       - name: Show Release Body preview
         run: |
           cat RELEASE_BODY.md
-
-      - name: List release artifacts
-        run: |
-          find release_artifacts -type f | sort
 
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
@@ -178,13 +184,6 @@ jobs:
           tag_name: main-${{ env.VERSION }}
           name: Release ${{ env.VERSION }}
           body_path: ./RELEASE_BODY.md
-          files: release_artifacts/*
-
-      - name: Upload release notes to GCS
-        run: |
-          if [ -f "RELEASE_BODY.md" ]; then
-            gcloud storage cp RELEASE_BODY.md gs://app-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/dev/release-notes/${{ inputs.version }}.md
-          fi
 
   commit-and-push-release-tag:
     name: Finalize and Push Release Tag
@@ -270,24 +269,6 @@ jobs:
           mkdir -p ./artifacts
           gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ github.repository }}/${{ env.VERSION }}/docker-tags.md" ./artifacts/docker-tags.md || true
 
-      - name: Generate index.json for release root
-        run: |
-          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
-          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
-            version=$(basename $(dirname "$f"))
-            echo "  {\"version\": \"$version\"}," >> index.json
-          done
-          sed -i '$ s/},/}/' index.json || true
-          echo ']}' >> index.json
-
-      - name: Upload Docker Tags and Index to GCS
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          gs_path_github_repo="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
-          gcloud storage cp docker-tags.md "$gs_path_github_repo/${VERSION}/docker-tags.md" --quiet
-          gcloud storage cp index.json "$gs_path_github_repo/index.json" --quiet
-
       - name: Download build log artifact from GCS
         run: |
           mkdir -p ./artifacts/build
@@ -321,6 +302,16 @@ jobs:
           gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ env.VERSION }}/android-mobile-release-${{ env.VERSION }}-signed-aligned.apk" ./artifacts/android/android-mobile-release-${{ env.VERSION }}-signed-aligned.apk || true
           gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ env.VERSION }}/android-mobile-release-${{ env.VERSION }}-signed.aab" ./artifacts/android/android-mobile-release-${{ env.VERSION }}-signed.aab || true
           gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ env.VERSION }}/android-mobile-release-${{ env.VERSION }}-key.keystore.sha1" ./artifacts/android/android-mobile-release-${{ env.VERSION }}-key.keystore.sha1 || true
+
+      - name: Download Robot Framework reports from GCS
+        run: |
+          for env in prod staging dev; do
+            env_artifacts_dir="./artifacts/$env"
+            mkdir -p "$env_artifacts_dir"
+            gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/tests/report.html" "$env_artifacts_dir/report.html" || echo "No report.html for $env"
+            gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/tests/log.html" "$env_artifacts_dir/log.html" || echo "No log.html for $env"
+            gcloud storage cp "gs://vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts/${{ github.repository }}/${VERSION}/tests/output.xml" "$env_artifacts_dir/output.xml" || echo "No output.xml for $env"
+          done
 
       - name: Upload metadata.json and APK/AAB to GCS
         run: |
@@ -401,15 +392,3 @@ jobs:
           fi
 
           gcloud storage cp ./artifacts/qr-code.png "gs://$gs_path/qr-code.png" --quiet
-
-      - name: 🔍 Check test output files
-        if: env.INFRA_ENV == 'dev'
-        run: ls -lh ./artifacts/tests
-
-      - name: 📤 Upload Robot Framework reports to GCS
-        if: env.INFRA_ENV == 'dev'
-        run: |
-          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
-          gcloud storage cp ./artifacts/tests/report.html "gs://$gs_path/tests/report.html" --quiet
-          gcloud storage cp ./artifacts/tests/log.html "gs://$gs_path/tests/log.html" --quiet
-          gcloud storage cp ./artifacts/tests/output.xml "gs://$gs_path/tests/output.xml" --quiet

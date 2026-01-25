@@ -82,4 +82,4 @@ jobs:
 
       - name: Upload New Changes Changelog to GCS
         run: |
-          gcloud storage cp CHANGELOG.md gs://vegito-app-dev-github-actions-ci-artifacts/${{ steps.define_version.outputs.version }}/CHANGELOG.md
+          gcloud storage cp CHANGELOG.md gs://vegito-app-dev-github-actions-ci-artifacts/${{ github.repository }}/${{ steps.define_version.outputs.version }}/CHANGELOG.md
