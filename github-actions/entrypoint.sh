@@ -60,6 +60,9 @@ cd /runner
   echo "BUILDX_BAKE_ENTITLEMENTS_FS=0"
 } > "$WORKSPACE/gha-env-vars"
 
+mkdir -p /runner/_work/.containers
+ln -sf /runner/_work/.containers $WORKSPACE/
+
 # Launch the runner
 echo "🚀 Starting GitHub Actions Runner"
 ./run.sh &
