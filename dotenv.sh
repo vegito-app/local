@@ -119,17 +119,21 @@ services:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: false
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
+      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
+
     working_dir: ${PWD}/example-application/mobile
   clarinet-devnet:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-latest
     environment:
-      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
-      
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: true
+      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
+
   robotframework:
     working_dir: ${PWD}/example-application/tests
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
-
+      LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE-${PWD}/.containers/robotframework}
+      LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: true
   firebase-emulators:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
       
@@ -142,69 +146,127 @@ services:
       ./vault-init.sh
       sleep infinity
       '
+
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
 dockerComposeNetworksOverride=${WORKING_DIR:-${PWD}}/.docker-compose-networks-override.yml
 [ -f $dockerComposeNetworksOverride ] || cat <<EOF > $dockerComposeNetworksOverride
 networks:
-  ${dockerNetworkName}:
+  dev:
     driver: bridge
-    
+
 services:
   dev:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - devcontainer
+    ports:
+      # Docker daemon
+      - 2375
 
   example-application-backend:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - example-application-backend
+    ports:
+      # HTTP
+      - 8080
 
   example-application-mobile:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - example-application-mobile
+    ports:
+      # VNC
+      # - 5900
+      # Xpra
+      - 5901
+      # ADB
+      # - 5037
 
   example-application-tests:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - example-application-tests
 
   firebase-emulators:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - firebase-emulators
+    ports:
+      # UI
+      - 4000
+      # Hub
+      # - 4400
+      # Firebase Reserved
+      # - 4500
+      # Functions
+      # - 5001
+      # Pub/Sub
+      # - 8085
+      # Firestore
+      # - 8090
+      # Database
+      # - 9000
+      # Login CLI
+      # - 9005
+      # Auth
+      # - 9099
+      # Firebase Reserved
+      # - 9150
+      # Storage
+      # - 9199
+      # Firebase Triggers
+      # - 9299
 
   clarinet-devnet:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - clarinet-devnet
+    ports:
+      # Docker daemon
+      - 2375
 
   android-studio:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - android-studio
-
+    ports:
+      # VNC
+      # - 5900
+      # Xpra
+      - 5901
+      # ADB
+      # - 5037
+      # Flutter Tools
+      - 9100
   vault-dev:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - vault-dev
+    ports:
+      # Server HTTP API
+      # - 8200
+      # UI
+      - 8201
 
   robotframework:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - robotframework
+    ports:
+      # HTTP
+      - 8080
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.

@@ -15,7 +15,6 @@
     "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
   },
   "service": "dev",
-  "onCreateCommand": "rm -rf ~/.vscode-remote && ln -sf ~/.vscode-server ~/.vscode-remote",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
@@ -279,6 +278,11 @@
         "cosmicsarthak.cosmicsarthak-neon-theme",
         "xynny.hackerred"
       ]
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+      ".github/workflows/application-main-release.yml",
+      ".github/workflows/application-dev-latest.yml",
+    ],
+    "robotcode.disableExtension": true
   }
 }
