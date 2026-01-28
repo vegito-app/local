@@ -34,8 +34,9 @@ cat <<'EOF' > ${envrcFile}
 # Note: This file is not sourced automatically. 
 # It is used by .devcontainer/initialize-cmd.sh to generate other files.
 
-export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-user-id}
+export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
+export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true} # Whether to run 'make dev' on container startup.
 EOF
 fi
 
@@ -81,6 +82,17 @@ workspaceFile=${PWD}/vscode.code-workspace
   "settings": {}
 }
 EOF
+
+
+testsLaunchDebug=${PWD}/example-application/tests/.vscode/settings.json
+if [ ! -f $testsLaunchDebug ] ;  then
+mkdir -p $(dirname $testsLaunchDebug)
+cat <<'EOF' > $testsLaunchDebug
+{
+    "robotcode.disableExtension": false
+}
+EOF
+fi
 
 backendLaunchDebug=${PWD}/example-application/backend/.vscode/launch.json
 if [ ! -f $backendLaunchDebug ] ;  then

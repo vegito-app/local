@@ -50,6 +50,7 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+	-f $(CURDIR)/.devcontainer/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -79,11 +80,23 @@ images: docker-images
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-parallel example-application-docker-images-pull-parallel
+images-pull: \
+local-docker-images-pull-parallel \
+local-android-docker-images-pull-parallel \
+example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
+
+ensure-vscode-volume:
+	@docker volume inspect vscode > /dev/null 2>&1 || docker volume create vscode
+	@echo "✅ Ensured VSCode volume exists."
+.PHONY: ensure-vscode-volume
+
+dev-vscode: ensure-vscode-volume dev
+	@echo "🟢 Development VSCode environment is up and running."
+.PHONY: dev-vscode
 
 dev: \
 local-containers-up \
@@ -92,7 +105,10 @@ example-application-backend-container-up \
 example-application-mobile-container-up
 .PHONY: dev
 
-dev-rm: example-application-containers-rm local-containers-rm local-android-containers-rm
+dev-rm: \
+example-application-containers-rm \
+local-containers-rm \
+local-android-containers-rm
 .PHONY: dev-rm
 
 dev-ci: \

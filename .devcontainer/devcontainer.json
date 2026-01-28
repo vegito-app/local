@@ -12,10 +12,9 @@
     "dev"
   ],
   "containerEnv": {
-    "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter"
   },
   "service": "dev",
-  "onCreateCommand": "rm -rf ~/.vscode-remote && ln -sf ~/.vscode-server ~/.vscode-remote",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
@@ -46,6 +45,7 @@
         "**/node_modules": true
       },
       "editor.fontLigatures": false,
+      "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
       "explorer.confirmDelete": false,
       "files.hotExit": "onExitAndWindowClose",
@@ -279,6 +279,11 @@
         "cosmicsarthak.cosmicsarthak-neon-theme",
         "xynny.hackerred"
       ]
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+      ".github/workflows/application-main-release.yml",
+      ".github/workflows/application-dev-latest.yml",
+    ],
+    "robotcode.disableExtension": true
   }
 }

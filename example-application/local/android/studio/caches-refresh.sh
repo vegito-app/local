@@ -89,12 +89,6 @@ mkdir -p ${local_container_cache}/.dartServer
 rm -rf $ANDROID_STUDIO_DART_SERVER
 ln -sf ${local_container_cache}/.dartServer $ANDROID_STUDIO_DART_SERVER
 
-# vscode-server config
-ANDROID_STUDIO_VSCODE_SERVER=${HOME}/.vscode-server
-mkdir -p ${local_container_cache}/.vscode-server
-rm -rf $ANDROID_STUDIO_VSCODE_SERVER
-ln -sf ${local_container_cache}/.vscode-server $ANDROID_STUDIO_VSCODE_SERVER
-
 # Bash history
 BASH_HISTORY_PATH=${HOME}/.bash_history
 mkdir -p ${local_container_cache}
