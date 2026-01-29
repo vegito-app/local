@@ -29,9 +29,6 @@ localDotenvFile=${currentWorkingDir}/.env
 # 
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
-# Enable or disable the use of the Docker registry cache.
-# Enable or disable the use of the local development environment.
-MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 # 
@@ -85,24 +82,27 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
+    image: ${LOCAL_BUILDER_IMAGE}
     environment:
-      - LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-latest
-      - MAKE_DEV_ON_START=true
-      - LOCAL_APPLICATION_TESTS_RUN_ON_START=true
-      - LOCAL_CONTAINER_INSTALL=1
+      # Enable or disable the use of the local development environment.
+      - MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
+      # Enable or disable the use of the local test environment.
+      - MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-false}
+      # Enable or disable the use of the local container installation.
+      - LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-false}
     command: |
       bash -c '
         make docker-sock
-        if [ "${MAKE_DEV_ON_START:-true}" = "true" ] ; then
+        if [ "${MAKE_DEV_ON_START}" = "true" ] ; then
           make dev
         fi
-        if [ "${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
+        if [ "${MAKE_TESTS_ON_START}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests
         fi
         sleep infinity
       '
+
   example-application-mobile:
     working_dir: ${PWD}/example-application/mobile
     environment:
@@ -117,23 +117,24 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
-      LOCAL_ANDROID_STUDIO_ON_START: true
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
+      LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
-
     working_dir: ${PWD}/example-application/mobile
+
   clarinet-devnet:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-latest
     environment:
-      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: true
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
     working_dir: ${PWD}/example-application/tests
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
-      LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE-${PWD}/.containers/robotframework}
-      LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: true
+      LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE:-${PWD}/.containers/robotframework}
+      LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: ${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}
+  
   firebase-emulators:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
       
@@ -146,7 +147,6 @@ services:
       ./vault-init.sh
       sleep infinity
       '
-
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
