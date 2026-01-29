@@ -12,7 +12,10 @@
     "dev"
   ],
   "containerEnv": {
-    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter"
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "LOCAL_CONTAINER_INSTALL": "true",
+    "MAKE_DEV_ON_START": "true",
+    "MAKE_TESTS_ON_START": "true",
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
