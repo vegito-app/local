@@ -117,7 +117,7 @@ services:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
-      LOCAL_ANDROID_STUDIO_ON_START: false
+      LOCAL_ANDROID_STUDIO_ON_START: true
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH: true
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
 
