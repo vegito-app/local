@@ -1,5 +1,5 @@
+ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
 ARG debian_image=debian:latest
-
 FROM ${debian_image}
 
 RUN apt-get update && apt-get install -y \
@@ -43,6 +43,7 @@ RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_use
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 COPY entrypoint.sh /usr/local/bin/tests-entrypoint.sh
+COPY caches-refresh.sh /usr/local/bin/robotframework-caches-refresh.sh
 
 ENV LOCAL_ROBOTFRAMEWORK_TESTS_DIR=${HOME}/robotframework
 

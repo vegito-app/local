@@ -10,18 +10,25 @@ on:
 jobs:
   version:
     name: Generate Version and Changelog
-    uses: ./.github/workflows/version.yml
+    uses: ./.github/workflows/version-prepare.yml
+    with:
+      environment: dev
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
 
-  build:
+  build-dev:
     needs: version
     name: Build and Push Images
     uses: ./.github/workflows/build-images.yml
     strategy:
       matrix:
-        environment: [dev, staging, prod]
+        environment: [dev]
     with:
       version: ${{ needs.version.outputs.version }}
       environment: ${{ matrix.environment }}
+      images_ci_build_groups: "runners builders services applications"
       # use_registry_cache: true
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
@@ -30,32 +37,54 @@ jobs:
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
-  test:
+  test-dev:
     needs:
-      - build
       - version
+      - build-dev
     name: Run Tests
     uses: ./.github/workflows/functional-tests.yml
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
     with:
       version: ${{ needs.version.outputs.version }}
-      environment: ${{ matrix.environment }}
+      environment: dev
       functional-tests-output-dir: example-application/tests/output
+      local-android-container-name: example-application-mobile
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
 
+  build-staging-prod:
+    needs: [version, test-dev]
+    name: Build and Push Images
+    uses: ./.github/workflows/build-images.yml
+    strategy:
+      matrix:
+        environment: [staging, prod]
+    with:
+      version: ${{ needs.version.outputs.version }}
+      environment: ${{ matrix.environment }}
+      images_ci_build_groups: "runners builders services applications"
+      # use_registry_cache: true
+      android_release_keystore_path: example-application/mobile/android/release-key.keystore
+      android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
+      android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+      ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
+
   application-release-build:
     needs:
-      - build
-      - test
       - version
+      - test-dev
+      - build-staging-prod
     name: Application Release Build 🚀
     uses: ./.github/workflows/application-release-template.yml
     with:

@@ -35,7 +35,7 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(EXAMPLE_APPLICATION_TESTS_DIR)/robot
+LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -50,6 +50,7 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+	-f $(CURDIR)/.devcontainer/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -57,6 +58,13 @@ LOCAL_DOCKER_COMPOSE = docker compose \
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
   studio
 
+LOCAL_DOCKER_COMPOSE_SERVICES = \
+  firebase-emulators \
+  vault-dev \
+  robotframework
+#   clarinet-devnet \
+
+-include android.mk
 -include local.mk
 -include git.mk
 -include nodejs.mk
@@ -65,17 +73,30 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
 node-modules: local-node-modules
 .PHONY: node-modules
 
+
 images: docker-images
 .PHONY: images
 
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-parallel example-application-docker-images-pull-parallel
+images-pull: \
+local-docker-images-pull-parallel \
+local-android-docker-images-pull-parallel \
+example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
+
+ensure-vscode-volume:
+	@docker volume inspect vscode > /dev/null 2>&1 || docker volume create vscode
+	@echo "✅ Ensured VSCode volume exists."
+.PHONY: ensure-vscode-volume
+
+dev-vscode: ensure-vscode-volume dev
+	@echo "🟢 Development VSCode environment is up and running."
+.PHONY: dev-vscode
 
 dev: \
 local-containers-up \
@@ -84,7 +105,10 @@ example-application-backend-container-up \
 example-application-mobile-container-up
 .PHONY: dev
 
-dev-rm: example-application-containers-rm local-containers-rm local-android-containers-rm
+dev-rm: \
+example-application-containers-rm \
+local-containers-rm \
+local-android-containers-rm
 .PHONY: dev-rm
 
 dev-ci: \
@@ -95,7 +119,9 @@ example-application-mobile-container-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-application-mobile-image-extract-android-artifacts: example-application-mobile-extract-android-artifacts
+application-mobile-image-extract-android-artifacts: \
+example-application-mobile-image-pull \
+example-application-mobile-extract-android-artifacts
 	@echo "✅ Extracted Android release artifacts successfully."
 .PHONY: application-mobile-image-extract-android-artifacts
 
@@ -125,7 +151,7 @@ containers-logs-ci: local-containers-logs-ci example-application-containers-logs
 	@echo "✅ Retrieved CI containers logs successfully."
 .PHONY: containers-logs-ci
 
-functional-tests: local-robotframework-container-run
+functional-tests: local-robotframework-container-exec
 	@echo "End-to-end tests completed successfully."
 .PHONY: functional-tests
 

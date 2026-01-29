@@ -1,0 +1,73 @@
+name: Version Finalize (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      release_branch:
+        type: string
+        default: main
+
+      version:
+        description: "Semantic version without leading v (ex: 1.2.3)"
+        type: string
+        required: true
+
+      create_github_release:
+        description: "Whether to create a GitHub Release"
+        type: boolean
+        default: false
+
+      release_title:
+        description: "GitHub Release title"
+        type: string
+        required: false
+        default: ""
+
+      release_notes_path:
+        description: "Path to release notes file"
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: self-hosted
+    name: Finalize Version
+
+    steps:
+      - name: Checkout clean
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.release_branch }}
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "Vegito Release Bot"
+          git config --global user.email "release@vegito.app"
+
+      - name: Create annotated git tag
+        run: |
+          git tag -a "${{ inputs.version }}" -m "${{ inputs.release_title }}"
+
+      - name: Push git tag
+        run: |
+          git push origin "${{ inputs.version }}"
+
+      - name: Download release notes from GCS
+        run: |
+          mkdir -p ./release-notes
+          gcloud storage cp \
+            gs://vegito-app-dev-github-actions-ci-artifacts/${{ inputs.version }}/CHANGELOG.md \
+            ./release-notes/${{ inputs.release_notes_path }}
+
+      - name: Create GitHub Release
+        if: ${{ inputs.create_github_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ inputs.version }}"
+          name: ${{ inputs.release_title }}
+          body_path: ./release-notes/${{ inputs.release_notes_path }}

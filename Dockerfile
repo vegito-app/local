@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
     file \
     g++ \
     gcc \
-    gcc \    
+    gcc \
     git \
     gnupg \
     htop \
@@ -252,7 +252,7 @@ RUN emacs --batch --eval "(require 'package)" \
     --eval "(package-initialize)" \
     --eval "(unless package-archive-contents (package-refresh-contents))" \
     --eval "(package-install 'magit)"
-
+# Go tools
 RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
     && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
@@ -292,3 +292,6 @@ COPY container-install.sh /usr/local/bin/local-container-install.sh
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
+
+# oapi-codegen
+RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest

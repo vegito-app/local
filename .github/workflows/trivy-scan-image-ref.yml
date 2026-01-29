@@ -1,0 +1,97 @@
+name: Trivy Scan Docker Image
+permissions:
+  id-token: write
+  contents: read
+on:
+  workflow_call:
+    inputs:
+      image-ref:
+        description: "Full Docker image reference to scan"
+        required: true
+        type: string
+      environment:
+        description: "GitHub environment to use (for secrets/vars)"
+        required: true
+        type: string
+      severity:
+        description: "Comma-separated severities to fail on"
+        required: false
+        default: "CRITICAL,HIGH"
+        type: string
+      exit-code:
+        description: "Exit code when vulnerabilities are found"
+        required: false
+        default: "1"
+        type: string
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      WORKLOAD_IDENTITY_POOL_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER_ID:
+        required: true
+
+jobs:
+  trivy-scan:
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    name: Trivy Scan (${{ inputs.environment }})
+    env:
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: access_token
+          export_environment_variables: true
+
+      - name: Configure Cloud SDK and Docker
+        run: |
+          make gcloud-config-set-project
+          make gcloud-auth-docker
+
+      - name: Run Trivy scan (HTML report)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ env.IMAGE_REF }}
+          format: template
+          template: "@.github/templates/trivy-html.tpl.html"
+          output: trivy-report.html
+          exit-code: ${{ inputs.exit-code }}
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: ${{ inputs.severity }}
+          version: v0.68.2
+
+      - name: Upload Trivy HTML report to GCS
+        if: always()
+        shell: bash
+        run: |
+          if [[ "${{ inputs.environment }}" == "dev" ]]; then
+            BUCKET="vegito-app-dev-github-actions-ci-artifacts"
+          elif [[ "${{ inputs.environment }}" == "staging" ]]; then
+            BUCKET="vegito-app-staging-github-actions-ci-artifacts"
+          elif [[ "${{ inputs.environment }}" == "prod" ]]; then
+            BUCKET="vegito-app-prod-github-actions-ci-artifacts"
+          else
+            echo "Unknown environment: ${{ inputs.environment }}"
+            exit 1
+          fi
+          DEST="gs://${BUCKET}/${{ inputs.environment }}/trivy-report-${{ github.sha }}.html"
+          echo "Uploading trivy-report.html to $DEST"
+          gcloud storage cp trivy-report.html "$DEST"

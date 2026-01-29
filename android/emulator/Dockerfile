@@ -14,6 +14,13 @@ RUN apt-get update && apt-get install -y \
     qemu-kvm aapt sudo \
     && rm -rf /var/lib/apt/lists/*
 
+# Basic tools
+RUN apt-get update && apt-get install -y \
+    bash-completion git htop gnupg jq netcat-openbsd \
+    rsync socat tree unzip vim wget xz-utils \
+    locales net-tools \
+    && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
+
 # NVIDIA
 RUN export DEBIAN_FRONTEND=noninteractive ; \
     sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \

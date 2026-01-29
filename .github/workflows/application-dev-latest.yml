@@ -1,4 +1,4 @@
-name: Application Dev Latest Build
+name: Application Dev Release Build
 
 permissions:
   id-token: write
@@ -8,21 +8,31 @@ on:
   push:
     branches: [dev]
 jobs:
-  build:
+  checkout:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+  build-dev-latest:
+    needs:
+      - checkout
     name: Build and Push Images
     uses: ./.github/workflows/build-images.yml
     strategy:
       matrix:
         environment: [dev]
     with:
-      # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
-      environment: ${{ matrix.environment }}
-      # use_registry_cache: true
+      environment: dev
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
       android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
+      images_ci_build_groups: "runners builders services applications"
+      dockerhub_replica_version: 1.9.0
     secrets:
+      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -30,18 +40,15 @@ jobs:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
   test:
-    needs:
-      - build
     name: Run Tests
+    needs:
+      - build-dev-latest
     uses: ./.github/workflows/functional-tests.yml
-    strategy:
-      matrix:
-        environment: [dev]
     with:
-      # use only one version to prevent costly over uploading images to the registry
       version: dev-latest
-      environment: ${{ matrix.environment }}
+      environment: dev
       functional-tests-output-dir: example-application/tests/output
+      local-android-container-name: example-application-mobile
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

@@ -33,9 +33,21 @@ cat <<'EOF' > ${envrcFile}
 #
 # Note: This file is not sourced automatically. 
 # It is used by .devcontainer/initialize-cmd.sh to generate other files.
-
-export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-user-id}
+# You can source it manually if needed.
+# Example:
+#   source .devcontainer/.envrc
+#   dotenv.sh
+#
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
+export LOCAL_ANDROID_STUDIO_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
+export LOCAL_ANDROID_STUDIO_ON_START=${LOCAL_ANDROID_STUDIO_ON_START:-true}
+export LOCAL_CLARINET_DEVNET_CACHES_REFRESH=${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
+export LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-true}
+export LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH=${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-true}
+export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
+export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true} # Whether to run 'make dev' on container startup.
+export MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-true}
+export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 EOF
 fi
 

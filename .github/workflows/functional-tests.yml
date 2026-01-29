@@ -12,6 +12,10 @@ on:
         required: false
         type: string
         default: "tests/output"
+      local-android-container-name:
+        required: false
+        type: string
+        default: "android-studio-emulator"
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -25,52 +29,44 @@ permissions:
   contents: read
 
 jobs:
-  run-tests:
+  run-local-tests:
     name: Run Tests ${{ inputs.environment }} ✅
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
-      COMPOSE_PROJECT_NAME: ${{ vars.VEGITO_PROJECT_NAME }}-gha-${{ inputs.environment }}-${{ github.run_id }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       INFRA_ENV: ${{ inputs.environment }}
       LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: android-mobile-${{ inputs.environment }}-${{ inputs.version }}-screenshot.png
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
-      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
       - name: Ensure fresh .env
         run: |
           rm -f .env
           ./dotenv.sh
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
-          token_format: "access_token"
-          export_environment_variables: true
 
       - name: Setup Docker Environment
         run: |
           set -euo pipefail
           (
             make gcloud-config-set-project
-            make gcloud-auth-docker
+            make docker-login
             make local-container-config-show
             make dev-ci
           ) 2>&1 | tee setup.log
-
-      - name: Wait for Mobile Application to Boot
-        run: |
-          make application-mobile-wait-for-boot
       - name: Run Application Tests
         run: |
           set -euo pipefail
@@ -81,30 +77,31 @@ jobs:
           make application-mobile-screenshot
           mv ${{ env.LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH }} android-mobile-preview.png
 
-      - name: Upload Mobile Preview Screenshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-mobile-preview-${{ env.INFRA_ENV }}-${{ env.VERSION }}
-          path: android-mobile-preview.png
+      - name: Upload Mobile Preview Screenshot to GCS
+        run: |
+          gcloud storage cp android-mobile-preview.png gs://vegito-app-${{ env.INFRA_ENV }}-github-actions-ci-artifacts/${{ env.VERSION }}/android-mobile-preview.png
 
       - name: Collect Docker Containers Logs
         run: |
           make containers-logs-ci 2>&1 > containers.log
 
-      - name: Upload Logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: dev-logs-${{ env.INFRA_ENV }}-${{ env.VERSION }}
-          path: |
-            containers.log
-            setup.log
-            tests.log
+      - name: Upload Logs to GCS
+        if: always()
+        run: |
+          if ! gcloud storage cp containers.log gs://vegito-app-${{ env.INFRA_ENV }}-github-actions-ci-artifacts/${{ env.VERSION }}/containers.log; then
+            echo "::warning::Failed to upload containers.log to GCS for env=${INFRA_ENV}, version=${VERSION}"
+          fi
+          if ! gcloud storage cp setup.log gs://vegito-app-${{ env.INFRA_ENV }}-github-actions-ci-artifacts/${{ env.VERSION }}/setup.log; then
+            echo "::warning::Failed to upload setup.log to GCS for env=${INFRA_ENV}, version=${VERSION}"
+          fi
+          if ! gcloud storage cp tests.log gs://vegito-app-${{ env.INFRA_ENV }}-github-actions-ci-artifacts/${{ env.VERSION }}/tests.log; then
+            echo "::warning::Failed to upload tests.log to GCS for env=${INFRA_ENV}, version=${VERSION}"
+          fi
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: tests-results-${{ env.INFRA_ENV }}-${{ env.VERSION }}
-          path: ${{ inputs.functional-tests-output-dir}}
+      - name: Upload Test Results to GCS
+        if: always()
+        run: |
+          gcloud storage cp -r ${{ inputs.functional-tests-output-dir }} gs://vegito-app-${{ env.INFRA_ENV }}-github-actions-ci-artifacts/${{ env.VERSION }}/
 
       - name: Cleanup Docker Environment
         if: always()

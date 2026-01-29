@@ -71,7 +71,9 @@ rm -f ~/.android/avd/*.ini.lock
 bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
-    (android-studio.sh) &
+    android-studio.sh &
+    # Don't track this PID as the script will exit after if Android Studio is restarted manually.
+    # bg_pids+=("$!") 
 fi
 
 if [ $# -eq 0 ]; then

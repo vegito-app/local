@@ -3,7 +3,7 @@
   "dockerComposeFile": [
     "../docker-compose.yml",
     "../example-application/docker-compose.yml",
-    // "./docker-compose.yml",
+    "./docker-compose.yml",
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml"
@@ -74,7 +74,9 @@
       "window.commandCenter": false,
       // "workbench.colorTheme": "Dark Theme - JetBrains IDE",
       // "workbench.colorTheme": "Hacker Red",
-      "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
+      // "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
+      "workbench.colorTheme": "Hacker Red",
+      // "workbench.colorTheme": "Low Eye Strain Light Contrast",
       "workbench.iconTheme": "material-icon-theme",
       "material-icon-theme.folders.theme": "specific",
       "workbench.layoutControl.enabled": false,
@@ -278,8 +280,14 @@
         "standard.vscode-standard",
         "toba.vsfire",
         "tylerharris.terraform-link-docs",
+        "cosmicsarthak.cosmicsarthak-neon-theme",
         "xynny.hackerred"
       ]
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+      ".github/workflows/application-main-release.yml",
+      ".github/workflows/application-dev-latest.yml",
+    ],
+    "robotcode.disableExtension": true
   }
 }

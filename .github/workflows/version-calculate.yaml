@@ -1,0 +1,30 @@
+name: Version Calculate (Reusable)
+
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: "Computed semantic version"
+        value: ${{ jobs.calc.outputs.version }}
+
+permissions:
+  contents: read
+
+jobs:
+  calc:
+    runs-on: self-hosted
+    outputs:
+      version: ${{ steps.calc.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: calc
+        run: |
+          git fetch --tags
+          VERSION=$(git describe --tags --abbrev=7 --match 'v*' 2>/dev/null || echo "v0.0.0")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - run: echo "📦 Version = ${{ steps.calc.outputs.version }}"
