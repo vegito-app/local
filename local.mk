@@ -3,7 +3,16 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 LOCAL_BUILDER_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-$(VERSION)
 LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github-actions
+LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+
+LOCAL_DOTENV_FILE ?= .env
+
+local-dotenv: $(LOCAL_DOTENV_FILE)
+.PHONY: local-dotenv
+
+$(LOCAL_DOTENV_FILE):
+	@echo "📝 Generating .env file for local development..."
+	@$(LOCAL_DIR)/dotenv.sh
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \

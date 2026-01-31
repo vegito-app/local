@@ -93,10 +93,10 @@ services:
     command: |
       bash -c '
         make docker-sock
-        if [ "${MAKE_DEV_ON_START}" = "true" ] ; then
+        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
           make dev
         fi
-        if [ "${MAKE_TESTS_ON_START}" = "true" ] ; then
+        if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests
         fi

@@ -12,12 +12,10 @@
     "dev"
   ],
   "containerEnv": {
-    "DOCKER_HOST": "tcp://localhost:2375",
-    "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter",
-    "LOCAL_ANDROID_STUDIO_CACHES_REFRESH": "true",
-    "LOCAL_APPLICATION_TESTS_RUN_ON_START": "true",
-    "LOCAL_CONTAINER_INSTALL": "1",
-    "MAKE_DEV_ON_START": "true"
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "LOCAL_CONTAINER_INSTALL": "true",
+    "MAKE_DEV_ON_START": "true",
+    "MAKE_TESTS_ON_START": "true",
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
@@ -50,6 +48,7 @@
         "**/node_modules": true
       },
       "editor.fontLigatures": false,
+      "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
       "explorer.confirmDelete": false,
       "files.hotExit": "onExitAndWindowClose",

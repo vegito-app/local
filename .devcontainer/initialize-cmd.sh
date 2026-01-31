@@ -94,6 +94,17 @@ workspaceFile=${PWD}/vscode.code-workspace
 }
 EOF
 
+
+testsLaunchDebug=${PWD}/example-application/tests/.vscode/settings.json
+if [ ! -f $testsLaunchDebug ] ;  then
+mkdir -p $(dirname $testsLaunchDebug)
+cat <<'EOF' > $testsLaunchDebug
+{
+    "robotcode.disableExtension": false
+}
+EOF
+fi
+
 backendLaunchDebug=${PWD}/example-application/backend/.vscode/launch.json
 if [ ! -f $backendLaunchDebug ] ;  then
 mkdir -p $(dirname $backendLaunchDebug)

@@ -94,7 +94,7 @@ variable "GOOGLE_CLOUD_PROJECT_ID" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    # "linux/arm64"
+    "linux/arm64",
   ]
 }
 

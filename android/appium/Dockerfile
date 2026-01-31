@@ -1,6 +1,7 @@
 ARG local_dev_only_docker_registry_public=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public
+ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:android-emulator-latest
 
-FROM ${local_dev_only_docker_registry_public}/vegito-local:android-emulator-latest AS builder
+FROM ${builder_image} AS builder
 
 USER root
 
