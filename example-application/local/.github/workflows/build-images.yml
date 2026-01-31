@@ -184,7 +184,7 @@ jobs:
       - name: Ensure fresh .env
         run: |
           rm -f .env
-          ./dotenv.sh
+          make dotenv
 
       - name: Source dynamic env vars
         run: |

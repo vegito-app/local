@@ -56,7 +56,7 @@ jobs:
       - name: Ensure fresh .env
         run: |
           rm -f .env
-          ./dotenv.sh
+          make dotenv
 
       - name: Setup Docker Environment
         run: |

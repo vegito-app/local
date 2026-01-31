@@ -224,7 +224,7 @@ jobs:
       - name: Ensure fresh .env
         run: |
           rm -f .env
-          ./dotenv.sh
+          make dotenv
 
       - name: Extract signed APK & AAB releases and keystore SHA1 from images
         id: extract_apk_aab
