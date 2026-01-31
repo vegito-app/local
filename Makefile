@@ -73,6 +73,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES = \
 node-modules: local-node-modules
 .PHONY: node-modules
 
+dotenv: local-dotenv
+.PHONY: dotenv
 
 images: docker-images
 .PHONY: images
