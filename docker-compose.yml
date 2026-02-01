@@ -23,23 +23,6 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      # chsh -s $(which zsh) ${USER:-$(whoami)}
-      make docker-sock
-      until docker info; do
-        echo "Waiting for Docker to be ready..."
-        sleep 1
-      done
-      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
-        make dev
-      fi
-      if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
-        make application-mobile-wait-for-boot
-        make functional-tests
-      fi
-      sleep infinity
-      '
 
   firebase-emulators:
     tty: true
