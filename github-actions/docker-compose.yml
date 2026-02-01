@@ -3,9 +3,11 @@ services:
     # restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
-      - /runner/_work:/runner/_work:cached
+      - ${LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR:-/runner/_work}:/runner/_work:cached
+      - ${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-/runner/_work/.containers}:/runner/_work/.containers:cached
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-/runner/_work/.containers}
       - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}

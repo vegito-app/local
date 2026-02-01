@@ -31,40 +31,43 @@ trap cleanup SIGHUP SIGINT SIGTERM
 
 # Create a dedicated Buildx builder if it doesn't exist
 if ! docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-  echo "🔧 Creating local Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
-  docker buildx create --name "$LOCAL_DOCKER_BUILDX_NAME" --driver docker-container --use || true
+  echo 🔧 Creating local Buildx builder: $LOCAL_DOCKER_BUILDX_NAME
+  docker buildx create --name $LOCAL_DOCKER_BUILDX_NAME --driver docker-container --use || true
 fi
 
-docker buildx use "$LOCAL_DOCKER_BUILDX_NAME"
+docker buildx use $LOCAL_DOCKER_BUILDX_NAME
 
 WORKSPACE=/runner/_work/${HOSTNAME}
-sudo mkdir -p "$WORKSPACE"
+sudo mkdir -p $WORKSPACE
 
 # Fix permissions on the working directory
-echo "🔧 Fixing ownership of /runner/_work"
-sudo chown -R "github:github" /runner/_work || true
+echo 🔧 Fixing ownership of /runner/_work
+sudo chown -R github:github /runner/_work || true
 
 # Configure GitHub Actions Runner
 cd /runner
 ./config.sh \
-    --url "$GITHUB_ACTIONS_RUNNER_URL" \
-    --token "$GITHUB_ACTIONS_RUNNER_TOKEN" \
+    --url $GITHUB_ACTIONS_RUNNER_URL \
+    --token $GITHUB_ACTIONS_RUNNER_TOKEN \
     --unattended \
-    --name "$GITHUB_ACTIONS_RUNNER_STACK-$HOSTNAME" \
-    --work "/runner/_work/${HOSTNAME}"
+    --name $GITHUB_ACTIONS_RUNNER_STACK-$HOSTNAME \
+    --work /runner/_work/${HOSTNAME}
 
 # Export the local Buildx builder name as an environment variable for GitHub Actions
 {
-  echo "LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME"
-  echo "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache"
-  echo "BUILDX_BAKE_ENTITLEMENTS_FS=0"
-} > "$WORKSPACE/gha-env-vars"
+  echo LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME
+  echo LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache
+  echo BUILDX_BAKE_ENTITLEMENTS_FS=0
+} > $WORKSPACE/gha-env-vars
 
-mkdir -p /runner/_work/.containers
-ln -sf /runner/_work/.containers $WORKSPACE/
+LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-$WORKSPACE/.containers}
+
+# Create symlink for container build cache
+mkdir -p $LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE
+ln -sf $LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE $WORKSPACE
 
 # Launch the runner
-echo "🚀 Starting GitHub Actions Runner"
+echo 🚀 Starting GitHub Actions Runner
 ./run.sh &
 
 # Wait for process to finish
