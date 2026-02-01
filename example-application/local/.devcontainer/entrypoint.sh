@@ -19,7 +19,5 @@ EMACS_DIR=${HOME}/.emacs.d
 mkdir -p ${local_container_cache}/emacs
 ln -sf ${local_container_cache}/emacs $EMACS_DIR
 
-# BASH history
-ln -sfn ${local_container_cache}/bash_history ~/.bash_history
 
 dev-entrypoint.sh "$@"

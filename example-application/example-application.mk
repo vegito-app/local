@@ -10,6 +10,16 @@ APPLICATION_DOCKER_BUILDX_BAKE_IMAGES := \
   mobile \
   tests
 
+VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/.env
+
+example-application-dotenv: $(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE)
+.PHONY: example-application-dotenv
+
+$(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE):
+	@echo "📝 Generating .env file for local development..."
+	@$(VEGITO_EXAMPLE_APPLICATION_DIR)/dotenv.sh
+
+
 example-application-docker-images:
 	@$(MAKE) -j $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 .PHONY: example-application-docker-images

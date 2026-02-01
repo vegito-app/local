@@ -1,5 +1,5 @@
-ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
 ARG debian_image=debian:latest
+
 FROM ${debian_image}
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,6 +13,13 @@ RUN apt-get update && apt-get install -y \
     menu-xdg xpra \
     qemu-kvm aapt sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Basic tools
+RUN apt-get update && apt-get install -y \
+    bash-completion git htop gnupg jq netcat-openbsd \
+    rsync socat tree unzip vim wget xz-utils \
+    locales net-tools \
+    && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
 
 # NVIDIA
 RUN export DEBIAN_FRONTEND=noninteractive ; \

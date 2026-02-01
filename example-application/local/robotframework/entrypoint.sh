@@ -4,20 +4,12 @@ set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
-LOCAL_ROBOTFRAMEWORK_TESTS_CONTAINER_CACHE=${LOCAL_WORKSPACE}/.containers/e2e-tests
-mkdir -p $LOCAL_ROBOTFRAMEWORK_TESTS_CONTAINER_CACHE
+if [ "${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}" = "true" ]; then
+    robotframework-caches-refresh.sh
+fi
 
-# Bash history
-cat <<'EOF' >> ~/.bashrc
-export HISTSIZE=50000
-export HISTFILESIZE=100000
-EOF
-
-# Python/pip cache
-PIP_CACHE_DIR=${HOME}/.cache/pip
-[ -d $PIP_CACHE_DIR ] && mv $PIP_CACHE_DIR ${PIP_CACHE_DIR}_back || true
-mkdir -p ${LOCAL_ROBOTFRAMEWORK_TESTS_CONTAINER_CACHE}/pip ${PIP_CACHE_DIR}
-ln -sf ${LOCAL_ROBOTFRAMEWORK_TESTS_CONTAINER_CACHE}/pip $PIP_CACHE_DIR
+LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE=${LOCAL_WORKSPACE}/.containers/e2e-tests
+mkdir -p $LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE
 
 kill_jobs() {
     echo "Killing background jobs"

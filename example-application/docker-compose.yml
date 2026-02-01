@@ -35,6 +35,7 @@ services:
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+    working_dir: ${PWD}/mobile
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render

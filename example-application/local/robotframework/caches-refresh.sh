@@ -7,9 +7,9 @@ caches_refresh_success=false
 # 🧹 Function called at the end of the script to check for success
 check_success() {
     if [ $caches_refresh_success = true ]; then
-        echo "♻️ Clarinet Devnet caches refreshed successfully."
+        echo "♻️ Robot Framework caches refreshed successfully."
     else
-        echo "❌ Clarinet Devnet caches refresh failed."
+        echo "❌ Robot Framework caches refresh failed."
     fi
 }
 
@@ -17,14 +17,14 @@ check_success() {
 trap check_success EXIT
 
 # Local Container Cache
-local_container_cache=${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/clarinet-devnet}
+local_container_cache=${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/robotframework}
 mkdir -p $local_container_cache
 
-# local docker rootless cache 
-LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.share/docker
-mkdir -p $local_container_cache/dockerd
-mkdir -p ${HOME}/.share/
-ln -s $local_container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+# Python/pip cache
+PIP_CACHE_DIR=${HOME}/.cache/pip
+[ -d $PIP_CACHE_DIR ] && mv $PIP_CACHE_DIR ${PIP_CACHE_DIR}_back || true
+mkdir -p ${local_container_cache}/pip ${PIP_CACHE_DIR}
+ln -sf ${local_container_cache}/pip $PIP_CACHE_DIR
 
 # Bash history
 BASH_HISTORY_PATH=${HOME}/.bash_history
@@ -35,9 +35,6 @@ ln -sfn ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 cat <<EOF >> ~/.bashrc
 export HISTSIZE=50000
 export HISTFILESIZE=100000
-export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
-export DOCKER_CONFIG=${local_container_cache}/.docker
-export DOCKER_BUILDKIT=1
 EOF
 
 # Git config (optional but useful)
@@ -48,7 +45,5 @@ if [ -f "$GIT_CONFIG_GLOBAL" ]; then
   rm -f "$GIT_CONFIG_GLOBAL"
   ln -s ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
 fi
-
-clarinet_devnet_dir=${LOCAL_CLARINET_DEVNET_DIR:-${PWD}}
 
 caches_refresh_success=true

@@ -14,7 +14,6 @@ check_success() {
 }
 
 # 🚨 Register cleanup function to run on script exit
-
 trap check_success EXIT
 
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
@@ -96,15 +95,5 @@ rm -f $BASH_HISTORY_PATH
 ln -sf ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
 android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}
-
-# Create symlinks for scripts
-for script in `ls ${android_studio_dir}/*.sh`; \
-do
-    filename=${android_studio_dir}/${script}
-    if [ -f "${filename}" ]; then
-        echo "Linking ${script} to /usr/local/bin/${script} for easy access"
-        sudo ln -sf ${filename} /usr/local/bin/${script}
-    fi
-done
 
 caches_refresh_success=true

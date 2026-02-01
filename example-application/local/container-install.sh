@@ -31,6 +31,8 @@ ln -sf ${local_container_cache}/emacs $EMACS_DIR
 # GO persistence 
 # This allows you to persist your go workspace across container rebuilds.
 GOPATH=${HOME}/go
+sudo chown -R vegito:vegito $GOPATH
+sudo chmod -R +rw $GOPATH
 rm -rf $GOPATH
 mkdir -p ${local_container_cache}/gopath
 ln -sf ${local_container_cache}/gopath $GOPATH
@@ -76,9 +78,28 @@ alias vim='vim'
 alias v='vim'
 alias ld='lazydocker'
 alias k='k9s'
+alias pst='ps -eo pid,ppid,cmd --forest'
+
+alias clean_appledouble='find . -name "._*" -delete'
 
 export HISTSIZE=50000
 export HISTFILESIZE=100000
+
+# Function to expose a port from a container to the host machine
+expose-port() {
+  # Usage: expose-port <local_port> <container_name> <host_port> <container_port> <network>
+  if [ \$# -ne 4 ]; then
+    echo "Usage: expose-port <local_port> <container_name> <host_port> <container_port> <network>"
+    return 1
+  fi
+  local LOCAL_PORT="\$1"
+  local CONTAINER_NAME="\$2"
+  local CONTAINER_PORT="\$3"
+  local NETWORK="\$4"
+  echo "Exposing \$CONTAINER_NAME:\$CONTAINER_PORT to localhost:\$LOCAL_PORT ..."
+  docker run --rm -p \$LOCAL_PORT:\$LOCAL_PORT --network \$NETWORK alpine/socat \
+    TCP-LISTEN:"\$LOCAL_PORT",fork,reuseaddr TCP:\$CONTAINER_NAME:"\$CONTAINER_PORT"
+}
 EOF
 
 cat <<EOF >> ~/.bashrc

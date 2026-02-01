@@ -154,7 +154,7 @@ group "local-applications" {
 
 group "local-applications-ci" {
   targets = [
-    "example-applications-ci",
+    "example-application-ci",
   ]
 }
 
