@@ -36,6 +36,7 @@ $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON):
 local-firebase-emulators-start: local-firebase-emulators-install local-firebase-emulators-config-json
 	unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
 	  $(FIREBASE_EMULATORS) emulators:start \
+	    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
 	    --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
 	    --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \
 	    --log-verbosity DEBUG \
@@ -58,36 +59,6 @@ local-firebase-emulators-pubsub-wait:
 	done
 	@echo "✅ Pub/Sub emulator is up!"
 .PHONY: local-firebase-emulators-pubsub-wait
-
-local-firebase-emulators-pubsub-init: local-firebase-emulators-pubsub-wait local-firebase-emulators-pubsub-topics-create local-firebase-emulators-pubsub-subscriptions
-.PHONY: local-firebase-emulators-pubsub-init
-
-# Use same PubSub topic to bypass current validation in local setup
-LOCAL_FIREBASE_EMULATORS_PUBSUB_VALIDATED_IMAGES_TOPIC = $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)
-
-LOCAL_FIREBASE_EMULATORS_PUB_SUB_TOPICS = \
-  $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)
-
-local-firebase-emulators-pubsub-topics-create: $(LOCAL_FIREBASE_EMULATORS_PUB_SUB_TOPICS:%=local-firebase-emulators-pubsub-topics-create-%)
-.PHONY: local-firebase-emulators-pubsub-topics-create
-
-$(LOCAL_FIREBASE_EMULATORS_PUB_SUB_TOPICS:%=local-firebase-emulators-pubsub-topics-create-%):
-	@echo "📣 Creating local Pub/Sub topic: $@"
-	@curl -X PUT http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics/$(@:local-firebase-emulators-pubsub-topics-create-%=%)|echo
-.PHONY: $(LOCAL_FIREBASE_EMULATORS_PUB_SUB_TOPICS:%=local-firebase-emulators-pubsub-topics-create-%)
-
-LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_SUBSCRIPTIONS ?= \
-  $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION)
-
-local-firebase-emulators-pubsub-subscriptions: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_SUBSCRIPTIONS:%=local-firebase-emulators-pubsub-subscriptions-create-%)
-.PHONY: local-firebase-emulators-pubsub-subscriptions
-
-$(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_SUBSCRIPTIONS:%=local-firebase-emulators-pubsub-subscriptions-create-%):
-	@echo "📣 Creating local Pub/Sub subscription: $@"
-	@curl -X PUT http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions/$(@:local-firebase-emulators-pubsub-subscriptions-create-%=%) \
-	  -H "Content-Type: application/json" \
-	  -d '{ "topic": "projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics/$(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)" }'|echo
-.PHONY: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_SUBSCRIPTIONS:%=local-firebase-emulators-pubsub-subscriptions-create-%)
 
 local-firebase-emulators-pubsub-check:
 	@echo "📋 Listing local Pub/Sub topics:"

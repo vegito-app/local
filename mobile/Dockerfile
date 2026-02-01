@@ -62,19 +62,26 @@ RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     mv ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 /home/android/src/local/android/app-release.keystore.sha1
 
 ARG version=dev
+
 ARG keystore_alias_name=vegito-local-release
 
-ENV LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name}
-ENV LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk
-ENV LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/local/android/app-release-${version}-signed-aligned.apk
+RUN \
+    LOCAL_ANDROID_APKSIGNER=apksigner \
+    LOCAL_ANDROID_JARSIGNER=jarsigner \
+    LOCAL_ANDROID_RELEASE_AAB_PATH=/home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab \
+    LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH=/home/android/src/local/android/app-release-${version}-signed-aligned.apk \
+    LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name} \
+    LOCAL_ANDROID_ZIPALIGN=zipalign \
+    VEGITO_EXAMPLE_APPLICATION_FLUTTER="cd mobile && flutter" \
+    VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk \
+    VERSION=${version} \
+    make \
+    example-application-mobile-android-release
 
-ENV VERSION=${version} 
-ENV LOCAL_ANDROID_CONTAINER_EXEC="" 
-ENV FLUTTER="cd mobile && flutter" 
-
-RUN make \
-    example-application-mobile-android-release \
+RUN \
+    VEGITO_EXAMPLE_APPLICATION_FLUTTER="cd mobile && flutter" \
+    VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_APK_RELEASE_PATH=/home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk \
+    make \
     example-application-mobile-flutter-build-apk-debug
 
 FROM ${apk_runner_appium_image} AS runner

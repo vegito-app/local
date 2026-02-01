@@ -49,7 +49,7 @@ async function setInitialData(document) {
     console.error("Failed to update the document", error, document);
     throw new functions.https.HttpsError(
       "Internal",
-      "Failed to setInitialData user the document"
+      "Failed to set initial data for the user document"
     );
   }
   console.log("Entered new data into the document");
@@ -62,10 +62,10 @@ async function updateData(document, { displayName, name, email }) {
     console.error("Failed to update the document", error);
     throw new functions.https.HttpsError(
       "Internal",
-      "Failed to update user the document"
+      "Failed to update the user document"
     );
   }
-  console.log("Updated new data into the document");
+  console.log("Updated user data in the document");
 }
 
 exports.checkForBan = functions.auth

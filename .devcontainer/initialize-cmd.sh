@@ -3,7 +3,7 @@
 # This script is run on the host as devcontainer 'initializeCommand' 
 # (cf. https://containers.dev/implementors/json_reference/#lifecycle-scripts)
 
-set -eu
+set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
@@ -33,12 +33,20 @@ cat <<'EOF' > ${envrcFile}
 #
 # Note: This file is not sourced automatically. 
 # It is used by .devcontainer/initialize-cmd.sh to generate other files.
-
-export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-user-id}
+# You can source it manually if needed.
+# Example:
+#   source .devcontainer/.envrc
+#   dotenv.sh
+#
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
-export MAKE_DEV_ON_START=true
-export MAKE_TESTS_ON_START=true
-export VEGITO_PROJECT_NAME=${VEGITO_PROJECT_NAME:-example-application}
+export LOCAL_ANDROID_STUDIO_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
+export LOCAL_ANDROID_STUDIO_ON_START=${LOCAL_ANDROID_STUDIO_ON_START:-true}
+export LOCAL_CLARINET_DEVNET_CACHES_REFRESH=${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
+export LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-true}
+export LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH=${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-true}
+export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
+export MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-true}
+export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 EOF
 fi
 
@@ -47,10 +55,8 @@ fi
 echo "Initializing .env file"
 ${WORKING_DIR}/dotenv.sh
 
-localDotenvFile=${WORKING_DIR}/.env
-
 # Vscode
-workspaceFile=${WORKING_DIR}/vscode.code-workspace
+workspaceFile=${PWD}/vscode.code-workspace
 [ -f $workspaceFile ] || cat <<'EOF' > $workspaceFile
 {
   "folders": [
@@ -111,9 +117,6 @@ cat <<'EOF' > $backendLaunchDebug
                 "VAULT_TOKEN": "root",
                 "VAULT_MIN_USER_RECOVERY_KEY_ROTATION_INTERVAL": "1s",
                 "FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
-                "VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC": "vegetable-images-created",
-                "VEGETABLE_VALIDATED_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION": "${env:LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG}",
-                "VEGETABLE_VALIDATED_IMAGES_CDN_PREFIX_URL": "https://validated-images-cdn-prefix-url",
             },
             "envFile": "${workspaceFolder}/../.env",
         }

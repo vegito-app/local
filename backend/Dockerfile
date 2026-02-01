@@ -4,10 +4,6 @@ FROM ${builder_image} AS build
 RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
-# ARG application_directory="example-application"
-
-# ENV VEGITO_EXAMPLE_APPLICATION_DIR=${application_directory}
-
 COPY --from=approot Makefile .
 COPY --from=approot local/local.mk local/
 COPY --from=approot git.mk .

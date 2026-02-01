@@ -4,7 +4,6 @@ variable "VERSION" {
 }
 variable "LOCAL_VERSION" {
   description = "version of vegito-app/local repository"
-  default     = "v1.6.6"
 }
 variable "VEGITO_EXAMPLE_APPLICATION_DIR" {
   default = "."
@@ -26,13 +25,14 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
 }
 
-group "local-example-application" {
+group "example-application" {
   targets = [
     "example-application-backend",
     "example-application-mobile",
     "example-application-tests",
   ]
 }
+
 group "example-application-ci" {
   targets = [
     "example-application-backend-ci",

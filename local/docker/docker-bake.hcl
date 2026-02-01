@@ -2,13 +2,25 @@ variable "USE_REGISTRY_CACHE" {
   default = false
 }
 
+variable "LOCAL_DOCKER_DIR" {
+  default = "${LOCAL_DIR}/docker"
+}
+
+variable "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
+  default = "${LOCAL_DOCKER_DIR}/.containers/buildx-cache"
+}
+
 variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
+variable "DOCKERHUB_REPLICA_VERSION" {
+  description = "current git tag or commit version"
+  default     = VERSION
+}
 variable "GO_VERSION" {
   description = "current Go version"
-  default     = "1.24.5"
+  default     = "1.25.5"
 }
 
 variable "NODE_VERSION" {
@@ -82,7 +94,7 @@ variable "GOOGLE_CLOUD_PROJECT_ID" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    "linux/arm64"
+    "linux/arm64",
   ]
 }
 
@@ -155,40 +167,72 @@ group "local-dockerhub-ci" {
   ]
 }
 
+variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest"
+}
+
+variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${DOCKERHUB_REPLICA_VERSION}"
+}
+
 target "local-docker-dind-rootless-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${VERSION}",
+    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
   platforms  = platforms
 }
 
+variable "DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:latest"
+}
+
+variable "DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
+}
+
 target "local-debian-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/debian:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/debian:${VERSION}",
+    DEBIAN_IMAGE_LATEST,
+    DEBIAN_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "debian.Dockerfile"
   platforms  = platforms
 }
 
+variable "GO_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest"
+}
+
+variable "GO_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${DOCKERHUB_REPLICA_VERSION}"
+}
+
 target "local-golang-alpine-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${VERSION}",
+    GO_IMAGE_LATEST,
+    GO_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
   platforms  = platforms
 }
 
+variable "RUST_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/rust:latest"
+}
+
+variable "RUST_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${DOCKERHUB_REPLICA_VERSION}"
+}
+
 target "local-rust-ci" {
   tags = [
-    "${VEGITO_PRIVATE_REPOSITORY}/rust:latest",
-    "${VEGITO_PRIVATE_REPOSITORY}/rust:${VERSION}",
+    RUST_IMAGE_LATEST,
+    RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"

@@ -21,14 +21,14 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/application-backend"
+  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/example-application-backend"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/application-backend/ci"
+  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/example-application-backend/ci"
 }
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR}/.containers/application-backend/docker-buildx-cache"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -60,7 +60,8 @@ target "example-application-backend-ci" {
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline",
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
   platforms = [
     "linux/amd64",

@@ -2,18 +2,18 @@ VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/mobil
 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR)/android/release-key.keystore
 VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
-VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-$(VERSION)
-VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-$(VERSION)
+VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-$(LOCAL_VERSION)
+VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-$(LOCAL_VERSION)
 
 example-application-mobile-container-up: example-application-mobile-container-rm
 	@echo "Starting mobile application container..."
 	@$(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR)/container-up.sh
 .PHONY: example-application-mobile-container-up
 
-FLUTTER ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio flutter
+VEGITO_EXAMPLE_APPLICATION_FLUTTER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) flutter
 
 example-application-mobile-flutter-create:
-	@$(FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
 	@echo "Flutter application created successfully"
 	@echo "Please run 'make example-application-mobile-flutter-pub-get' to install dependencies"
 	@echo "You can also run 'make example-application-mobile-flutter-analyze' to analyze the code"
@@ -26,29 +26,29 @@ example-application-mobile-flutter-create:
 .PHONY: example-application-mobile-flutter-create
 
 example-application-mobile-flutter-clean:
-	@$(FLUTTER) clean
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) clean
 .PHONY: example-application-mobile-flutter-clean
 
 example-application-mobile-flutter-pub-get: example-application-mobile-flutter-clean
-	@$(FLUTTER) pub get
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) pub get
 .PHONY: example-application-mobile-flutter-pub-get
 
 example-application-mobile-flutter-tests:
-	@$(FLUTTER) test
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) test
 .PHONY: example-application-mobile-flutter-tests
 
 example-application-mobile-flutter-tests-ci: example-application-mobile-flutter-pub-get
-	@$(FLUTTER) test
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) test
 .PHONY: example-application-mobile-flutter-tests-ci
 
-DART ?= $(LOCAL_DOCKER_COMPOSE) exec android-studio dart
+LOCAL_EXAMPLE_APPLICATION_DART ?= $(LOCAL_ANDROID_CONTAINER_EXEC) dart
 
 example-application-mobile-flutter-tests-buildrunner:
 	@$(DART) run build_runner test --delete-conflicting-outputs
 .PHONY: example-application-mobile-flutter-tests-buildrunner
 
 example-application-mobile-flutter-analyze:
-	@$(FLUTTER) analyze
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) analyze
 .PHONY: example-application-mobile-flutter-analyze
 
 flutter-app-uninstall:
@@ -63,9 +63,9 @@ example-application-mobile-flutter-build: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BU
 
 $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%-release):
 	@echo "Building $(@:example-application-mobile-flutter-build-%-release=%)..."
-	@$(FLUTTER) build $(@:example-application-mobile-flutter-build-%-release=%) --release
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) build $(@:example-application-mobile-flutter-build-%-release=%) --release
 	@echo "Build for $(@:example-application-mobile-flutter-build-%-release=%) completed successfully"
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%release)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%-release)
 
 example-application-mobile-flutter-android-release: example-application-mobile-flutter-build-apk-release example-application-mobile-flutter-build-appbundle-release
 .PHONY: example-application-mobile-flutter-android-release
@@ -74,7 +74,7 @@ example-application-mobile-flutter-build-release: example-application-mobile-flu
 .PHONY: example-application-mobile-flutter-build-release
 
 $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%-debug):
-	@$(FLUTTER) build $(@:example-application-mobile-flutter-build-%-debug=%) --debug
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) build $(@:example-application-mobile-flutter-build-%-debug=%) --debug
 	@echo "Build for $(@:example-application-mobile-flutter-build-%-debug=%) completed successfully"
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%-debug)
 
@@ -85,23 +85,23 @@ VEGITO_EXAMPLE_APPLICATION_MOBILE_FLAVORS ?= dev staging prod
 
 example-application-mobile-flutter-native-splash:
 	@echo "Creating native splash screen for flavors: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_FLAVORS)"
-	@$(FLUTTER) pub run flutter_native_splash:create --flavors $(VEGITO_EXAMPLE_APPLICATION_MOBILE_FLAVORS)
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) pub run flutter_native_splash:create --flavors $(VEGITO_EXAMPLE_APPLICATION_MOBILE_FLAVORS)
 .PHONY: example-application-mobile-flutter-native-splash
 
 example-application-mobile-flutter-launcher-icons:
 	@echo "Creating launcher icons for flavors: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_FLAVORS)"
-	@$(FLUTTER) pub run flutter_launcher_icons:main
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) pub run flutter_launcher_icons:main
 .PHONY: example-application-mobile-flutter-launcher-icons
 
 example-application-mobile-flutter-run-flavor: example-application-mobile-flutter-run-prepare
 	@echo "Running the app on the emulator with flavor $(INFRA_ENV)"
-	@$(FLUTTER) run --flavor $(INFRA_ENV) --release lib/main.dart
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) run --flavor $(INFRA_ENV) --release lib/main.dart
 	@echo "App is running on the emulator with flavor $(INFRA_ENV)"
 .PHONY: example-application-mobile-flutter-run-flavor	
 
 example-application-mobile-flutter-run-debug-flavor: example-application-mobile-flutter-run-prepare
 	@echo "Running the app in debug mode on the emulator with flavor $(INFRA_ENV)"
-	@$(FLUTTER) run --flavor $(INFRA_ENV) --debug lib/main.dart
+	@$(VEGITO_EXAMPLE_APPLICATION_FLUTTER) run --flavor $(INFRA_ENV) --debug lib/main.dart
 	@echo "App is running in debug mode on the emulator with flavor $(INFRA_ENV)"
 .PHONY: example-application-mobile-flutter-run-debug-flavor
 
@@ -149,7 +149,7 @@ example-application-mobile-flavor-release:
 	@echo "📦 Signing flavor APK..."
 	@$(MAKE) example-application-mobile-flutter-flavor-release \
 	  LOCAL_ANDROID_RELEASE_APK_PATH=$(LOCAL_ANDROID_APK_FLAVOR_RELEASE_PATH) \
-	  LOCAL_ANDROID_RELEASE_AAB_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH) \
+	  LOCAL_ANDROID_RELEASE_AAB_PATH=$(LOCAL_ANDROID_AAB_FLAVOR_RELEASE_PATH)
 .PHONY: example-application-mobile-flavor-release
 
 example-application-mobile-vacuum:
@@ -209,9 +209,10 @@ example-application-mobile-android-release-keystore:
 	LOCAL_ANDROID_RELEASE_KEYSTORE_PATH=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
 	  $(MAKE) local-android-release-keystore 
 .PHONY: example-application-mobile-android-release-keystore
+
+################################################################################
 ## 📦 END ANDROID RELEASE FULL PIPELINE
 ################################################################################
-
 VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME = example-application-mobile
 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_NAME)
@@ -219,23 +220,25 @@ VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE = $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
 
 example-application-mobile-wait-for-boot:
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@echo "Waiting for Android Emulator to boot..."
+	@LOCAL_ANDROID_ADB="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC) adb" \
 	  $(MAKE) local-android-emulator-wait-for-boot
 .PHONY: example-application-mobile-wait-for-boot
 
 example-application-mobile-screenshot:
 	@echo "Capturing screenshot from Android Emulator..."
-	@LOCAL_ANDROID_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_ADB="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC) adb" \
 	  $(MAKE) local-android-emulator-screenshot
 .PHONY: example-application-mobile-screenshot
 
 example-application-mobile-dump:
 	@echo "Capturing dump from Android Emulator..."
-	@LOCAL_ANDROID_BUILDER_CONTAINER_EXEC="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC)" \
+	@LOCAL_ANDROID_ADB="$(VEGITO_EXAMPLE_APPLICATION_MOBILE_CONTAINER_EXEC) adb" \
 	  $(MAKE) local-android-emulator-dump
 .PHONY: example-application-mobile-dump
 
 example-application-mobile-extract-android-artifacts:
-	LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE) \
-	$(MAKE) local-android-mobile-image-tag-release-extract
+	@echo "Extracting Android release artifacts from mobile application image..."
+	@LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE) \
+	  $(MAKE) local-android-mobile-image-tag-release-extract
 .PHONY: example-application-mobile-extract-android-artifacts

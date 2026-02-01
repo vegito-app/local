@@ -28,36 +28,11 @@ EMACS_DIR=${HOME}/.emacs.d
 mkdir -p ${local_container_cache}/emacs
 ln -sf ${local_container_cache}/emacs $EMACS_DIR
 
-
-# Vscode server/remote persistence
-VSCODE_REMOTE=${HOME}/.vscode-server
-
-# Github Codespaces specific
-if [ -v  CODESPACES ] ; then
-    VSCODE_REMOTE=${HOME}/.vscode-remote
-fi
-
-# VSCODE User data persistence
-# This allows you to persist your vscode user data across container rebuilds.
-# Note: This will not persist your extensions, only your user settings and configurations.
-# Extensions are typically reinstalled via the devcontainer.json file.
-[ -d $VSCODE_REMOTE ] && mv $VSCODE_REMOTE ${VSCODE_REMOTE}_back
-mkdir -p ${local_container_cache}/vscode/userData
-mkdir -p ${local_container_cache}/vscode/extensions
-mkdir -p ${VSCODE_REMOTE}
-ln -sf ${local_container_cache}/vscode/extensions ${VSCODE_REMOTE}/extensions
-VSCODE_REMOTE_USER_DATA=${VSCODE_REMOTE}/data/User
-if [ -d $VSCODE_REMOTE_USER_DATA ] ; then 
-  mv $VSCODE_REMOTE_USER_DATA ${VSCODE_REMOTE_USER_DATA}_back
-  LOCAL_VSCODE_USER_GLOBAL_STORAGE=${local_container_cache}/vscode/userData/globalStorage
-  mkdir -p ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}
-  ln -sf ${local_container_cache}/vscode/userData $VSCODE_REMOTE_USER_DATA
-  ln -sf ${local_container_cache}/genieai.chatgpt-vscode ${LOCAL_VSCODE_USER_GLOBAL_STORAGE}/
-fi
-
 # GO persistence 
 # This allows you to persist your go workspace across container rebuilds.
 GOPATH=${HOME}/go
+sudo chown -R vegito:vegito $GOPATH
+sudo chmod -R +rw $GOPATH
 rm -rf $GOPATH
 mkdir -p ${local_container_cache}/gopath
 ln -sf ${local_container_cache}/gopath $GOPATH
@@ -103,9 +78,28 @@ alias vim='vim'
 alias v='vim'
 alias ld='lazydocker'
 alias k='k9s'
+alias pst='ps -eo pid,ppid,cmd --forest'
+
+alias clean_appledouble='find . -name "._*" -delete'
 
 export HISTSIZE=50000
 export HISTFILESIZE=100000
+
+# Function to expose a port from a container to the host machine
+expose-port() {
+  # Usage: expose-port <local_port> <container_name> <host_port> <container_port> <network>
+  if [ \$# -ne 4 ]; then
+    echo "Usage: expose-port <local_port> <container_name> <host_port> <container_port> <network>"
+    return 1
+  fi
+  local LOCAL_PORT="\$1"
+  local CONTAINER_NAME="\$2"
+  local CONTAINER_PORT="\$3"
+  local NETWORK="\$4"
+  echo "Exposing \$CONTAINER_NAME:\$CONTAINER_PORT to localhost:\$LOCAL_PORT ..."
+  docker run --rm -p \$LOCAL_PORT:\$LOCAL_PORT --network \$NETWORK alpine/socat \
+    TCP-LISTEN:"\$LOCAL_PORT",fork,reuseaddr TCP:\$CONTAINER_NAME:"\$CONTAINER_PORT"
+}
 EOF
 
 cat <<EOF >> ~/.bashrc

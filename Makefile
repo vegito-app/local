@@ -10,7 +10,7 @@ endif
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
 # Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION := v1.8.4
+LOCAL_VERSION ?= v1.11.0
 
 export
 
@@ -62,6 +62,9 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
 node-modules: local-node-modules
 .PHONY: node-modules
 
+dotenv: example-application-dotenv
+.PHONY: dotenv
+
 images: example-application-docker-images
 .PHONY: images
 
@@ -96,7 +99,8 @@ dev-ci: \
 images-pull \
 local-containers-up-ci \
 example-application-backend-container-up-ci \
-example-application-mobile-container-up-ci
+example-application-mobile-container-up-ci \
+example-application-mobile-wait-for-boot
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
@@ -116,7 +120,7 @@ example-application-containers-logs-ci
 	@echo "✅ Retrieved CI containers logs successfully."
 .PHONY: containers-logs-ci
 
-functional-tests: local-robotframework-container-run
+functional-tests: local-robotframework-container-exec
 	@echo "End-to-end tests completed successfully."
 .PHONY: functional-tests
 

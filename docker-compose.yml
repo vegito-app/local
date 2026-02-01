@@ -12,12 +12,8 @@ services:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-${PWD}/infra/google-cloud-credentials.json}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
       GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
-      VEGETABLE_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION: ${LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION:-vegetable-images-validated-backend}
       UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/2}
       UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID:-projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-maps-api-key/versions/1}
-      VEGETABLE_CREATED_IMAGES_MODERATOR_PUBSUB_TOPIC: ${LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC:-vegetable-images-created}
-      VEGETABLE_VALIDATED_IMAGES_BACKEND_PUBSUB_SUBSCRIPTION: ${LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION:-vegetable-images-validated-backend}
-      VEGETABLE_VALIDATED_IMAGES_CDN_PREFIX_URL: ${LOCAL_FIREBASE_EMULATORS_VEGETABLE_IMAGES_CDN_PREFIX_URL:-https://vegetable-images-cdn-prefix-url}
       VAULT_ADDR: http://vault-dev:8200
       VAULT_TOKEN: root
     volumes:
@@ -35,9 +31,11 @@ services:
       - .env
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: ${LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH:-local/android/mobile-screenshot.png}
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+    working_dir: ${PWD}/mobile
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
@@ -60,12 +58,6 @@ services:
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/tests
-    # working_dir: ${HOME}/tests
-    # command: |
-    #   bash -c '
-    #   set -eu
-    #   ./entrypoint.sh
-    #   '
     networks:
       dev:
         aliases:

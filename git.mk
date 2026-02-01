@@ -43,13 +43,15 @@ git-subtree-local-push:
 LOCAL_DIR := $(CURDIR)/local
 LOCAL_GO_MODULES := \
 	backend \
-	$(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR)/functions/auth \
+	$(LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR)/auth_functions \
 	proxy
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)
 LOCAL_BUILDER_IMAGE_VERSION=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-${LOCAL_VERSION}
 
 -include $(LOCAL_DIR)/local.mk
+# Android High-Level targets
+-include $(LOCAL_DIR)/android.mk
 
 GOOGLE_CLOUD_DIR := $(LOCAL_DIR)/gcloud
 -include $(GOOGLE_CLOUD_DIR)/gcloud.mk

@@ -10,6 +10,16 @@ APPLICATION_DOCKER_BUILDX_BAKE_IMAGES := \
   mobile \
   tests
 
+VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/.env
+
+example-application-dotenv: $(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE)
+.PHONY: example-application-dotenv
+
+$(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE):
+	@echo "📝 Generating .env file for local development..."
+	@$(VEGITO_EXAMPLE_APPLICATION_DIR)/dotenv.sh
+
+
 example-application-docker-images:
 	@$(MAKE) -j $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 .PHONY: example-application-docker-images
@@ -48,6 +58,10 @@ example-application-containers-rm: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_S
 example-application-containers-up: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up)
 .PHONY: example-application-containers-up
 
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES):
+	@$(MAKE) $(@:%=%-container-up)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES)
+
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci): local-dev-container-image-pull
 	@echo "Running operation 'example-application-containers-$(@:example-application-containers-%-container-up-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
@@ -59,10 +73,6 @@ $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci): local
 	      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-backend-$(VERSION) \
 	      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci)
-
-example-application-containers-up-ci: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci)
-.PHONY: example-application-containers-up-ci
-
 
 example-application-containers-logs: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs)
 .PHONY: example-application-containers-logs
