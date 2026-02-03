@@ -2,24 +2,24 @@ LOCAL_DOCKER_COMPOSE_VSCODE = $(LOCAL_DOCKER_COMPOSE) \
 	-f $(CURDIR)/.devcontainer/docker-compose.yml \
 	-f $(CURDIR)/.devcontainer/docker-compose-vscode.yml
 
-local-vscode-devcontainer: ensure-vscode-store-volume
+devcontainer-vscode: ensure-vscode-store-volume
 	@echo "🟢 Starting Devcontainer VSCode..."
 	  $(MAKE) dev
 	@echo "🟢 Devcontainer VSCode is up and running."
-.PHONY: local-vscode-devcontainer
+.PHONY: devcontainer-vscode
 
 LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES = $(LOCAL_DOCKER_COMPOSE) \
 	-f $(CURDIR)/.devcontainer/docker-compose.yml \
 	-f $(CURDIR)/.devcontainer/docker-compose-vscode-codespaces.yml
 
-local-vscode-devcontainer-codespaces: 
+devcontainer-vscode-github-codespaces:
 	@echo "🟢 Starting Github Codespaces VSCode environment..."
 	@LOCAL_DOCKER_COMPOSE= $(LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES) \
 	  $(MAKE) dev
 	@echo "🟢 Github Codespaces VSCode environment is up and running."
-.PHONY: local-codespaces
+.PHONY: devcontainer-vscode-github-codespaces
 
-local-docker-buildx-setup-github-codespaces:
+docker-buildx-setup-github-codespaces:
 	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
 	-docker buildx create \
 	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
@@ -29,4 +29,4 @@ local-docker-buildx-setup-github-codespaces:
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=1048576 \
 	  --use
 	@-docker buildx inspect --bootstrap
-.PHONY: local-docker-buildx-setup-github-codespaces
+.PHONY: docker-buildx-setup-github-codespaces

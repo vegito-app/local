@@ -40,7 +40,7 @@ variable "NVM_VERSION" {
 
 variable "DOCKER_VERSION" {
   description = "current Docker version"
-  default     = "28.0.2"
+  default     = "24.0.9"
 }
 
 variable "DOCKER_COMPOSE_VERSION" {

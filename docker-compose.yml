@@ -12,7 +12,6 @@ services:
       MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
       LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
-
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -100,7 +99,6 @@ services:
       '
   vault-dev:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
-
     cap_add:
       - IPC_LOCK
     environment:

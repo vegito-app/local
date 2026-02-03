@@ -43,11 +43,11 @@ $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): docker-buildx-setup
 # If an image is built in a group, all images in that group are built together.
 # If an image depends on another image as base, the groups must be built in the correct
 LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS ?= \
-  dockerhub \
-  runners \
-  builders \
-  services \
   applications
+#   dockerhub \
+#   runners \
+#   builders \
+#   services \
 
 local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 .PHONY: local-docker-group-tags-list-ci
