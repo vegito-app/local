@@ -86,6 +86,8 @@ local-github-actions-runner-container-up-codespaces: local-github-actions-runner
 	@echo Starting github-actions-runner container...
 	LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR=/mnt/data/gha-runner \
 	LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=/mnt/gha-runner/.containers \
+	LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS=1 \
+	LOCAL_DOCKER_BUILDX_NAME=$(LOCAL_DOCKER_BUILDX_NAME) \
 	$(LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE) up -d github-actions-runner
 .PHONY: local-github-actions-runner-container-up-codespaces
 

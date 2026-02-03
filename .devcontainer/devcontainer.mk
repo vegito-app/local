@@ -18,3 +18,15 @@ local-vscode-devcontainer-codespaces:
 	  $(MAKE) dev
 	@echo "🟢 Github Codespaces VSCode environment is up and running."
 .PHONY: local-codespaces
+
+local-docker-buildx-setup-github-codespaces:
+	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
+	-docker buildx create \
+	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	  --driver docker-container \
+	  --platform linux/amd64 \
+	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760 \
+	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=1048576 \
+	  --use
+	@-docker buildx inspect --bootstrap
+.PHONY: local-docker-buildx-setup-github-codespaces

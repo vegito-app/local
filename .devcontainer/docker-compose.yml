@@ -22,6 +22,7 @@ services:
       if [ "$${CODESPACES}" = "true" ] ; then
         echo "Detected '$${CODESPACE_NAME}' Codespaces environment."
         make devcontainer-codespaces
+        make local-docker-buildx-setup-github-codespaces
       else if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make devcontainer
       fi

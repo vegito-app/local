@@ -89,7 +89,8 @@ docker-clean-all:
 .PHONY: docker-clean-all
 
 docker-buildx-setup: #docker-context-arm
-	@-docker buildx create --name $(LOCAL_DOCKER_BUILDX_NAME) --driver docker-container --use --platform linux/amd64
+	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
+	-docker buildx create --name $(LOCAL_DOCKER_BUILDX_NAME) --driver docker-container --use --platform linux/amd64
 # 	@-docker buildx create --name $(LOCAL_DOCKER_BUILDX_NAME) --append $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --platform linux/arm64
 	@-docker buildx inspect --bootstrap
 .PHONY: docker-buildx-setup
