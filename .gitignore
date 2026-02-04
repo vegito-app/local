@@ -1,0 +1,8 @@
+id_rsa*
+authorized_keys
+core
+state
+._*
+_*
+conf
+.vscode
