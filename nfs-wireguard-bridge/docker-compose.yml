@@ -1,5 +1,5 @@
 services:
-  server:
+  nfs-wireguard-bridge-server:
     build: .
     container_name: nfs-wireguard-bridge
     image: dbndev/nfs-wireguard-bridge

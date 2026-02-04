@@ -2,7 +2,7 @@ networks:
   sshbridge:
     driver: bridge
 services:
-  server:
+  docker-ssh-bridge-server:
     restart: unless-stopped
     image: ${IMAGE:-dbndev/ssh-bridge}
     volumes:
@@ -83,7 +83,7 @@ services:
         aliases:
           - proxy
 
-  consumer:
+  docker-ssh-bridge-consumer:
     image: ${IMAGE:-dbndev/ssh-bridge}
     environment:
       - DOCKER_HOST=docker-proxy:23750

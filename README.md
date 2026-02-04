@@ -1,5 +1,8 @@
 # codespaces-hub
 
+A persistent development hub built on GitHub Codespaces,
+behaving like a personal Linux dev machine.
+
 This repository provides a persistent development hub based on GitHub Codespaces.
 
 It acts as a shared, VM-like environment exposing:

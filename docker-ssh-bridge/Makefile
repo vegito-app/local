@@ -1,98 +1,55 @@
-export 
+DOCKER_SSH_BRIDGE_PROJECT_DIR ?= $(CURDIR)
 
-REPOSITORY ?= dbndev
-IMAGE := $(REPOSITORY)/ssh-bridge
-PWD = $(CURDIR)
+-include $(DOCKER_SSH_BRIDGE_PROJECT_DIR)/docker-ssh-bridge.mk
 
 server-upgrade: build server-down server-up
 .PHONY: server-upgrade
 
-DOCKER_ADDRESS ?= localhost
-
-server-up: $(SSH_PUBLIC_KEY)
-	@echo Launching ssh server
-	@-docker compose rm -f -s server
-	@docker compose up -d server
-	@until nc -z $(DOCKER_ADDRESS) 22022 ; do echo waiting server ; sleep 1 ; done
-	@echo server is running.
-	@echo use "make server-logs" or "make server-logs-follow" to view server logs
+server-up: docker-ssh-bridge-server-up
 .PHONY: server-up
 
-server-up-github-codespaces:
-	@echo Launching ssh server in GitHub Codespaces
-	@DOCKER_SSH_BRIDGE_GITHUB_ACTIONS_RUNNER_WORK_DIR=/mnt/data/gha-runner \
-	DOCKER_ADDRESS=172.17.0.1 \
-	COMPOSE_PROJECT_NAME=ssh-docker-bridge \
-	  $(MAKE) server-up
+server-up-github-codespaces: docker-ssh-bridge-server-up-github-codespaces
 .PHONY: server-up-github-codespaces
 
-server-logs:
-	@docker compose logs server
+server-logs: docker-ssh-bridge-server-logs
 .PHONY: server-logs
 
-server-logs-follow:
-	@docker compose logs --follow server
+server-logs-follow: docker-ssh-bridge-server-logs-follow
 .PHONY: server-logs-follow
 
-server-sh:
-	@echo Launching ssh server shell
-	@docker compose exec -it server bash
+server-sh: docker-ssh-bridge-server-sh
 .PHONY: server-sh
 
-server-down:
-	@echo Removing ssh server container
-	@docker compose down server
+server-down: docker-ssh-bridge-server-down
 .PHONY: server-down
 
-docker-proxy: $(SSH_PRIVATE_KEY)
-	@echo Launching ssh proxy
-	@-docker compose rm -f -s docker-proxy
-	@docker compose up docker-proxy
+docker-proxy: docker-ssh-bridge-docker-proxy
 .PHONY: docker-proxy
 
-docker-proxy-sh:
-	@echo Launching ssh proxy shell
-	@docker compose exec -it docker-proxy bash
+docker-proxy-sh: docker-ssh-bridge-docker-proxy-sh
 .PHONY: docker-proxy-sh
 
-client:
-	@echo Launching ssh client
-	@-docker compose rm -f -s docker-proxy-client
+docker-proxy-rm: docker-ssh-bridge-docker-proxy-rm
+.PHONY: docker-proxy-rm
+
+client: docker-ssh-bridge-client
 	@docker compose up consumer
 .PHONY: client
 
-client-sh:
-	@echo Launching ssh client shell
-	@docker compose exec -it consumer bash
+client-sh: docker-ssh-bridge-client-sh
 .PHONY: client-sh
 
-SSH_PRIVATE_KEY ?= $(CURDIR)/id_rsa
-SSH_PUBLIC_KEY ?= $(CURDIR)/id_rsa.pub
-
-SSH_KEYS = $(SSH_PRIVATE_KEY) $(SSH_PUBLIC_KEY)
-
-$(SSH_KEYS): generate-ssh-keys
-
-generate-ssh-keys: ssh-keys-rm 
-	@echo Generating ssh keys
-	@ssh-keygen -t rsa -b 4096 -f $(SSH_PRIVATE_KEY) -q -N ""
+generate-ssh-keys: docker-ssh-bridge-generate-ssh-keys
 .PHONY: generate-ssh-keys
 
-build:
-	@echo Building image:
-	@docker build -t $(IMAGE) .
+build: docker-ssh-bridge-build
 .PHONY: build
 
-push:
-	@echo pushing image:
-	@docker push $(IMAGE)
+push: docker-ssh-bridge-push
 .PHONY: push
 
-pull:
-	@echo pulling image:
-	@docker pull $(IMAGE)
+pull: docker-ssh-bridge-pull
 .PHONY: pull
 
-ssh-keys-rm:
-	@rm -rf $(SSH_KEYS)
-.PHONY: ssh-keys-clean
+server-rm: docker-ssh-bridge-server-rm
+.PHONY: server-rm
