@@ -1,7 +1,7 @@
 export
 
-NFS_WIREGUARD_BRIDGE_PROJECT_DIR = $(CURDIR)
-NFS_WIREGUARD_BRIDGE_PROJECT_NAME = nfs-wireguard-bridge
+NFS_WIREGUARD_BRIDGE_PROJECT_DIR ?= $(CURDIR)
+NFS_WIREGUARD_BRIDGE_PROJECT_NAME ?= nfs-wireguard-bridge
 
 NFS_WIREGUARD_BRIDGE_DOCKER_REPOSITORY ?= dbndev
 NFS_WIREGUARD_BRIDGE_DOCKER_IMAGE ?= $(NFS_WIREGUARD_BRIDGE_DOCKER_REPOSITORY)/nfs-wireguard-bridge
@@ -31,11 +31,12 @@ NFS_WIREGUARD_BRIDGE_COMPOSE_PROJECT_NAME ?= $(NFS_WIREGUARD_BRIDGE_PROJECT_NAME
 
 NFS_WIREGUARD_BRIDGE_SERVER_DOCKER_COMPOSE = \
   COMPOSE_PROJECT_NAME=$(NFS_WIREGUARD_BRIDGE_COMPOSE_PROJECT_NAME) \
-  docker compose
+  docker compose \
+  -f $(NFS_WIREGUARD_BRIDGE_PROJECT_DIR)/docker-compose.yml
 
 nfs-wireguard-bridge-server-up: nfs-wireguard-bridge-server-rm
 	@echo Launching wireguard NFS bridge server
-	@$(NFS_WIREGUARD_BRIDGE_SERVER_DOCKER_COMPOSE) up -d server
+	@$(NFS_WIREGUARD_BRIDGE_SERVER_DOCKER_COMPOSE) up -d nfs-wireguard-bridge-server
 	@echo server is running.
 	@echo use "make server-logs" or "make server-logs-follow" to view server logs
 .PHONY: nfs-wireguard-bridge-server-up

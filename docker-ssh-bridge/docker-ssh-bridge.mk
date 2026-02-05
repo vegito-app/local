@@ -13,14 +13,15 @@ DOCKER_SSH_BRIDGE_COMPOSE_PROJECT_NAME ?= docker-ssh-bridge
 
 DOCKER_SSH_BRIDGE_SERVER_DOCKER_COMPOSE = \
   COMPOSE_PROJECT_NAME=$(DOCKER_SSH_BRIDGE_COMPOSE_PROJECT_NAME) \
-  docker compose
+  docker compose \
+	-f $(DOCKER_SSH_BRIDGE_PROJECT_DIR)/docker-compose.yml
 
 DOCKER_SSH_BRIDGE_DOCKER_ADDRESS ?= localhost
 
 docker-ssh-bridge-server-up: $(DOCKER_SSH_BRIDGE_SSH_PUBLIC_KEY)
 	@echo Launching ssh server
-	@-$(DOCKER_SSH_BRIDGE_SERVER_DOCKER_COMPOSE) rm -f -s server
-	@$(DOCKER_SSH_BRIDGE_SERVER_DOCKER_COMPOSE) up -d server
+	@-$(DOCKER_SSH_BRIDGE_SERVER_DOCKER_COMPOSE) rm -f -s docker-ssh-bridge-server
+	@$(DOCKER_SSH_BRIDGE_SERVER_DOCKER_COMPOSE) up -d docker-ssh-bridge-server
 	@until nc -z $(DOCKER_SSH_BRIDGE_DOCKER_ADDRESS) 22022 ; do echo waiting server ; sleep 1 ; done
 	@echo server is running.
 	@echo use "make server-logs" or "make server-logs-follow" to view server logs
@@ -81,7 +82,7 @@ DOCKER_SSH_BRIDGE_SSH_KEYS = $(DOCKER_SSH_BRIDGE_SSH_PRIVATE_KEY) $(DOCKER_SSH_B
 
 $(DOCKER_SSH_BRIDGE_SSH_KEYS): docker-ssh-bridge-generate-ssh-keys
 
-docker-ssh-bridge-generate-ssh-keys: ssh-keys-rm 
+docker-ssh-bridge-generate-ssh-keys: docker-ssh-bridge-ssh-keys-rm 
 	@echo Generating ssh keys
 	@ssh-keygen -t rsa -b 4096 -f $(DOCKER_SSH_BRIDGE_SSH_PRIVATE_KEY) -q -N ""
 .PHONY: docker-ssh-bridge-generate-ssh-keys

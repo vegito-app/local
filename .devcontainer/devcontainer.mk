@@ -20,7 +20,7 @@ devcontainer-vscode-github-codespaces:
 .PHONY: devcontainer-vscode-github-codespaces
 
 docker-buildx-setup-github-codespaces:
-	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
+	-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
 	-docker buildx create \
 	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
 	  --driver docker-container \
@@ -28,7 +28,7 @@ docker-buildx-setup-github-codespaces:
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760 \
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=1048576 \
 	  --use
-	@-docker buildx inspect --bootstrap
+	-docker buildx inspect --bootstrap
 .PHONY: docker-buildx-setup-github-codespaces
 
 docker-sock:

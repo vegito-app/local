@@ -8,13 +8,14 @@ services:
     #   context: ..
     #   dockerfile: .devcontainer/Dockerfile
     # command: sleep infinity
+    # command: sleep infinity
     command: |
       bash -c '
         # make docker-sock
-        # until docker info; do
-        #   echo "Waiting for Docker to be ready..."
-        #   sleep 1
-        # done
+        until docker info; do
+           echo "Waiting for Docker to be ready..."
+           sleep 1
+        done
         if [ "$${CODESPACES}" = "true" ] ; then
           echo "Detected '$${CODESPACE_NAME}' Codespaces environment."
           # make devcontainer-codespaces
@@ -23,7 +24,6 @@ services:
         else if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
           make devcontainer-vscode
         fi
-        sleep infinity
       '
-        # sudo chmod o+rw /var/run/docker.sock
+    # sudo chmod o+rw /var/run/docker.sock
     # command: ["/bin/bash", ".devcontainer/init-devcontainer.sh"]
