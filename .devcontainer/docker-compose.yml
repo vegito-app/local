@@ -1,0 +1,29 @@
+services:
+  dev:
+    # image: codespaces-hub-devcontainer-dev:latest
+    # image: ubuntu
+    image: europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest
+    # image: mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
+    # build:
+    #   context: ..
+    #   dockerfile: .devcontainer/Dockerfile
+    # command: sleep infinity
+    command: |
+      bash -c '
+        # make docker-sock
+        # until docker info; do
+        #   echo "Waiting for Docker to be ready..."
+        #   sleep 1
+        # done
+        if [ "$${CODESPACES}" = "true" ] ; then
+          echo "Detected '$${CODESPACE_NAME}' Codespaces environment."
+          # make devcontainer-codespaces
+          # make docker-buildx-setup-github-codespaces
+          # make codespaces-hub-server-up
+        else if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+          make devcontainer-vscode
+        fi
+        sleep infinity
+      '
+        # sudo chmod o+rw /var/run/docker.sock
+    # command: ["/bin/bash", ".devcontainer/init-devcontainer.sh"]

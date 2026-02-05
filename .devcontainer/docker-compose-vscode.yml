@@ -1,0 +1,19 @@
+services:
+  dev:
+    volumes:
+      - vscode-store:/vscode
+  # android-studio:
+  #   volumes:
+  #     - vscode-store:/vscode
+  # clarinet-devnet:
+  #   volumes:
+  #     - vscode-store:/vscode
+
+  # robotframework:
+  #   volumes:
+  #     - vscode-store:/vscode
+      
+volumes:
+  vscode-store:
+    external: true
+    name: vscode
