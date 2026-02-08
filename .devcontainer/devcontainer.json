@@ -12,10 +12,16 @@
     "dev"
   ],
   "containerEnv": {
+    // "MAKE_DEV_ON_START": "true",
+    // "MAKE_TESTS_ON_START": "true",
     "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "DEV_GOOGLE_CLOUD_PROJECT_ID": "moov-dev-439608",
+    "LOCAL_ANDROID_STUDIO_CACHES_REFRESH": "true",
+    "LOCAL_ANDROID_STUDIO_CONTAINER_CACHE": "${localWorkspaceFolder}/.containers/android-studio",
+    "LOCAL_ANDROID_STUDIO_ON_START": "true",
+    "LOCAL_CLARINET_DEVNET_CACHES_REFRESH": "true",
     "LOCAL_CONTAINER_INSTALL": "true",
-    "MAKE_DEV_ON_START": "true",
-    "MAKE_TESTS_ON_START": "true",
+    "LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH": "true"
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",

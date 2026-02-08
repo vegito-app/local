@@ -50,7 +50,6 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
-	-f $(CURDIR)/.devcontainer/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -69,6 +68,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES = \
 -include git.mk
 -include nodejs.mk
 -include go.mk
+-include .devcontainer/devcontainer.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
@@ -91,14 +91,16 @@ example-application-docker-images-pull-parallel
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
 
-ensure-vscode-volume:
-	@docker volume inspect vscode > /dev/null 2>&1 || docker volume create vscode
-	@echo "✅ Ensured VSCode volume exists."
-.PHONY: ensure-vscode-volume
+ensure-vscode-store-volume:
+	@docker volume inspect vscode-store > /dev/null 2>&1 || docker volume create vscode-store
+	@echo "✅ Ensured VSCode store volume exists."
+.PHONY: ensure-vscode-store-volume
 
-dev-vscode: ensure-vscode-volume dev
-	@echo "🟢 Development VSCode environment is up and running."
-.PHONY: dev-vscode
+devcontainer: devcontainer-vscode
+.PHONY: devcontainer
+
+devcontainer-codespaces: devcontainer-vscode-codespaces
+.PHONY: devcontainer-codespaces
 
 dev: \
 local-containers-up \
@@ -159,7 +161,7 @@ functional-tests: local-robotframework-container-exec
 
 functional-tests-ci: example-application-tests-container-up
 	@echo "End-to-end tests completed successfully."
-.PHONY: functional-tests
+.PHONY: functional-tests-ci
 
 test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
