@@ -109,6 +109,14 @@ alias gl='git log --oneline --graph --decorate'
 alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
 alias run-android='flutter run -d android'
 
+if [ -e /dev/kvm ]; then
+  KVM_GID_EXPECTED=$(stat -c '%g' /dev/kvm)
+  if ! id -G | tr ' ' '\n' | grep -qx "$KVM_GID_EXPECTED"; then
+    echo "❌ ERROR: android user is not in /dev/kvm group ($KVM_GID_EXPECTED)"
+    exit 1
+  fi
+fi
+
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 if [ $# -eq 0 ]; then
