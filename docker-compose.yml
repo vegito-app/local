@@ -18,6 +18,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
+    devices:
+      - /dev/kvm
     privileged: true
     cap_add:
       - SYS_ADMIN
@@ -106,7 +108,7 @@ services:
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
-      - kvm
+      - ${KVM_GID}
     devices:
       - /dev/kvm
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}

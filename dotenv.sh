@@ -16,6 +16,13 @@ DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
 GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID}}
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
+
+if [ -e /dev/kvm ]; then
+  KVM_GID=$(stat -c '%g' /dev/kvm)
+else
+  KVM_GID=""
+fi
+
 # Ensure the current working directory exists.
 # Create default .env file with minimum required values to start.
 localDotenvFile=${currentWorkingDir}/.env
@@ -41,6 +48,12 @@ DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}
+LOCAL_ANDROID_STUDIO_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+LOCAL_CLARINET_DEVNET_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS=${LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS:-3}
+#
+KVM_GID=${KVM_GID}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}

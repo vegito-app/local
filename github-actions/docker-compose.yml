@@ -14,6 +14,8 @@ services:
       update_config:
         parallelism: 3
         delay: 300s
+    devices:
+      - /dev/kvm
     networks:
       - github-actions
 networks:
