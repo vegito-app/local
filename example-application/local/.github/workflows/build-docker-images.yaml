@@ -1,0 +1,80 @@
+name: Build Docker Images
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Semantic version to build"
+        required: true
+        type: string
+
+      environment:
+        description: "Target environment (dev|staging|prod)"
+        required: true
+        type: string
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    env:
+      VERSION: ${{ inputs.version }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      INFRA_ENV: ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
+    name: Build & Push Docker Image
+    runs-on: self-hosted
+    outputs:
+      image_tags_md: ${{ steps.docker_tags.outputs.tags_md }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Configure Cloud SDK and Docker
+        run: |
+          make gcloud-config-set-project
+          make gcloud-auth-docker
+          make docker-buildx-setup
+
+      - name: Build Docker image
+        run: |
+          set -o pipefail
+          make images-ci 2>&1 | tee images-build.log
+
+      - name: Upload images-build.log to GCS
+        run: |
+          gcloud storage cp images-build.log gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/images-build.log
+
+      - name: Generate docker image tag list for ${{ inputs.environment }}
+        id: docker_tags
+        run: |
+          make docker-build-tags-list-ci-md > docker-tags.md
+          echo "tags_md<<EOF" >> $GITHUB_OUTPUT
+          cat docker-tags.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload docker-tags.md to GCS
+        run: |
+          gcloud storage cp docker-tags.md gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/docker-tags.md

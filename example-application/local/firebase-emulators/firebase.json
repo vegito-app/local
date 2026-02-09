@@ -3,7 +3,7 @@
     "host": "0.0.0.0",
     "port": 9199,
     "rules": "./storage.rules",
-    "storageBucket": "moov-dev-439608.appspot.com"
+    "storageBucket": "${GOOGLE_CLOUD_PROJECT_ID}.appspot.com"
   },
   "firestore": {
     "rules": "./firestore.rules"
@@ -59,7 +59,7 @@
       "host": "0.0.0.0",
       "port": 9199,
       "rules": "./storage.rules",
-      "storageBucket": "moov-dev-439608.appspot.com"
+      "storageBucket": "${GOOGLE_CLOUD_PROJECT_ID}.appspot.com"
     }
   }
 }

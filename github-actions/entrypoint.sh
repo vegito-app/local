@@ -2,9 +2,17 @@
 
 set -euo pipefail
 
-# Define a unique name for the local Buildx builder
-export HOSTNAME=$(hostname)
-export LOCAL_DOCKER_BUILDX_NAME="vegito-local-gha-builder-${HOSTNAME}"
+# Detect if running in Codespaces
+if [[ -n "${CODESPACES:-}" ]]; then
+  echo "🚀 Running inside Codespaces environment"
+  export LOCAL_DOCKER_BUILDX_NAME="${LOCAL_DOCKER_BUILDX_NAME:-vegito-codespaces-builder}"
+  # Use a fixed builder name in Codespaces, no per-hostname builder
+else
+  # Define a unique name for the local Buildx builder
+  export HOSTNAME=$(hostname)
+  export LOCAL_DOCKER_BUILDX_NAME="${LOCAL_DOCKER_BUILDX_NAME:-vegito-local-gha-builder-${HOSTNAME}}"
+fi
+
 export RUNNER_ALLOW_RUNASROOT=false
 export RUNNER_ALLOWMULTIPLEJOBS=false
 
@@ -15,13 +23,16 @@ cleanup() {
   echo "🧹 Removing GitHub Actions Runner configuration"
   ./config.sh remove --token "$GITHUB_ACTIONS_RUNNER_TOKEN" || true
 
+  echo "🧹 Cleaning up BuildKit cache"
+  docker buildx prune -af --keep-storage 10GB || true
+  
   if docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
     echo "🧹 Removing Docker Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
     docker buildx rm "$LOCAL_DOCKER_BUILDX_NAME" || true
   fi
   
   echo "🧹 Removing runner work directory"
-  rm -rf /runner/_work/${HOSTNAME}
+  rm -rf /runner/_work/${HOSTNAME:-default}
   
   exit 0
 }
@@ -31,18 +42,24 @@ trap cleanup SIGHUP SIGINT SIGTERM
 
 # Create a dedicated Buildx builder if it doesn't exist
 if ! docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-  echo "🔧 Creating local Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
+  echo 🔧 Creating local Buildx builder: $LOCAL_DOCKER_BUILDX_NAME
   docker buildx create --name "$LOCAL_DOCKER_BUILDX_NAME" --driver docker-container --use || true
 fi
 
 docker buildx use "$LOCAL_DOCKER_BUILDX_NAME"
 
-WORKSPACE=/runner/_work/${HOSTNAME}
+WORKSPACE=/runner/_work/${HOSTNAME:-default}
 sudo mkdir -p "$WORKSPACE"
 
 # Fix permissions on the working directory
-echo "🔧 Fixing ownership of /runner/_work"
-sudo chown -R "github:github" /runner/_work || true
+echo 🔧 Fixing ownership of /runner/_work
+sudo chown -R github:github /runner/_work || true
+
+# Optionally apply BuildKit environment limits if set
+if [[ -n "${BUILDKIT_MAX_PARALLELISM:-}" ]]; then
+  export BUILDKIT_MAX_PARALLELISM
+  echo "⚙️ Applying BuildKit max parallelism limit: $BUILDKIT_MAX_PARALLELISM"
+fi
 
 # Configure GitHub Actions Runner
 cd /runner
@@ -50,18 +67,24 @@ cd /runner
     --url "$GITHUB_ACTIONS_RUNNER_URL" \
     --token "$GITHUB_ACTIONS_RUNNER_TOKEN" \
     --unattended \
-    --name "$GITHUB_ACTIONS_RUNNER_STACK-$HOSTNAME" \
-    --work "/runner/_work/${HOSTNAME}"
+    --name "$GITHUB_ACTIONS_RUNNER_STACK-${HOSTNAME:-default}" \
+    --work "$WORKSPACE"
 
 # Export the local Buildx builder name as an environment variable for GitHub Actions
 {
-  echo "LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME"
-  echo "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache"
-  echo "BUILDX_BAKE_ENTITLEMENTS_FS=0"
+  echo LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME
+  echo LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache
+  echo BUILDX_BAKE_ENTITLEMENTS_FS=0
 } > "$WORKSPACE/gha-env-vars"
 
+LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-$WORKSPACE/.containers}
+
+# Create symlink for container build cache
+mkdir -p "$LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE"
+ln -sf "$LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE" "$WORKSPACE"
+
 # Launch the runner
-echo "🚀 Starting GitHub Actions Runner"
+echo 🚀 Starting GitHub Actions Runner
 ./run.sh &
 
 # Wait for process to finish

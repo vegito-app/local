@@ -64,7 +64,33 @@ bg_pids+=("$!")
 
 if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "true" ]; then
     android-emulator-avd-start.sh &
-    bg_pids+=($!)
+    # Don't track this PID as the script will exit after starting the emulator if it is restarted (using 'make local-android-emulator-avd-restart' for example)
+    # bg_pids+=($!) 
+    # ⏳ Attente du boot complet de l'émulateur
+    echo "⏳ Waiting for full Android boot..."
+
+    if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "false" ]; then
+        echo "ℹ️ Skipping AVD start as LOCAL_ANDROID_EMULATOR_AVD_ON_START is set to false."
+        exit 0
+    fi
+
+    adb wait-for-device
+
+    until adb shell getprop sys.boot_completed | grep -q "1"; do
+    echo "⏳ Android not booted yet..."
+    sleep 2
+    done
+
+    while [[ "$(adb shell getprop init.svc.bootanim 2>/dev/null)" != *"stopped"* ]]; do
+    echo "🎞️ Boot animation still running..."
+    sleep 2
+    done
+
+    # Optionnel : check de réactivité ADB shell
+    until adb shell "echo ok" | grep -q "ok"; do
+    echo "🔁 Waiting for ADB shell..."
+    sleep 2
+    done
 fi
 
 # Developer-friendly aliases

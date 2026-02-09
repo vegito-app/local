@@ -25,7 +25,7 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
 }
 
-group "example-applications" {
+group "example-application" {
   targets = [
     "example-application-backend",
     "example-application-mobile",
@@ -33,7 +33,7 @@ group "example-applications" {
   ]
 }
 
-group "example-applications-ci" {
+group "example-application-ci" {
   targets = [
     "example-application-backend-ci",
     "example-application-mobile-ci",

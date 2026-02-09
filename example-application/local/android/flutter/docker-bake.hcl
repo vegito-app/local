@@ -23,17 +23,17 @@ variable "LOCAL_ANDROID_FLUTTER_DIR" {
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_ANDROID_FLUTTER_DIR}/.containers/android-flutter/docker-buildx-cache"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for local-android-flutter image build"
-  default = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for local-android-flutter image build (cannot be used before first write)"
-  default = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "ANDROID_NDK_VERSION" {
@@ -46,9 +46,9 @@ variable "FLUTTER_VERSION" {
 
 target "local-android-flutter-ci" {
   args = {
-    flutter_version        = FLUTTER_VERSION
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
-    android_ndk_version = ANDROID_NDK_VERSION
+    flutter_version            = FLUTTER_VERSION
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
+    android_ndk_version        = ANDROID_NDK_VERSION
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
@@ -61,16 +61,17 @@ target "local-android-flutter-ci" {
     LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }
 
 target "local-android-flutter" {
   args = {
-    flutter_version        = FLUTTER_VERSION
-    android_apk_emulator_image   = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
-    android_ndk_version = ANDROID_NDK_VERSION
+    flutter_version            = FLUTTER_VERSION
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
+    android_ndk_version        = ANDROID_NDK_VERSION
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [

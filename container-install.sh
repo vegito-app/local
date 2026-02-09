@@ -78,6 +78,7 @@ alias vim='vim'
 alias v='vim'
 alias ld='lazydocker'
 alias k='k9s'
+alias pst='ps -eo pid,ppid,cmd --forest'
 
 alias clean_appledouble='find . -name "._*" -delete'
 
@@ -86,9 +87,9 @@ export HISTFILESIZE=100000
 
 # Function to expose a port from a container to the host machine
 expose-port() {
-  # Usage: expose-port <container_name> <host_port> <container_port> <network>
+  # Usage: expose-port <local_port> <container_name> <host_port> <container_port> <network>
   if [ \$# -ne 4 ]; then
-    echo "Usage: expose-port <container_name> <host_port> <container_port> <network>"
+    echo "Usage: expose-port <local_port> <container_name> <host_port> <container_port> <network>"
     return 1
   fi
   local LOCAL_PORT="\$1"

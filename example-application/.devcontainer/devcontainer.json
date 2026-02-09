@@ -12,17 +12,41 @@
     "dev"
   ],
   "containerEnv": {
-    "FLUTTER_ROOT": "${localWorkspaceFolder}/local/android/studio/.containers/android-studio/flutter",
-    "LOCAL_ANDROID_STUDIO_CACHES_REFRESH": "true",
-    "MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START": "true",
-    "LOCAL_CONTAINER_INSTALL": "1",
-    "MAKE_DEV_ON_START": "true"
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "LOCAL_CONTAINER_INSTALL": "true",
+    "MAKE_DEV_ON_START": "true",
+    "MAKE_TESTS_ON_START": "true"
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
+      // 🚫 Empêche VSCode de rechercher ou indexer ces dossiers lourds
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.git": true,
+        "**/.devcontainer": false,
+        "**/.containers": true,
+        "**/.next": true,
+        "**/.cache": true
+      },
+      // 💤 Désactive la surveillance en temps réel sur ces dossiers
+      "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.git/**": true,
+        "**/.cache/**": true
+      },
+      // 💨 (optionnel) Réduit la charge sur la recherche globale
+      "search.followSymlinks": false,
+      // 🧠 (optionnel) Exclut les node_modules de l’explorateur de fichiers
+      "files.exclude": {
+        "**/node_modules": true
+      },
       "editor.fontLigatures": false,
       "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
@@ -42,16 +66,31 @@
           "color": "terminal.ansiRed"
         }
       },
+      "diffEditor.hideUnchangedRegions.enabled": false,
+      "workbench.activityBar.location": "top",
+      "window.customTitleBarVisibility": "windowed",
       "terminal.integrated.defaultProfile.linux": "bash",
       "window.commandCenter": false,
-      "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      // "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      // "workbench.colorTheme": "Hacker Red",
+      // "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
+      "workbench.colorTheme": "Hacker Red",
+      // "workbench.colorTheme": "Low Eye Strain Light Contrast",
       "workbench.iconTheme": "material-icon-theme",
+      "material-icon-theme.folders.theme": "specific",
       "workbench.layoutControl.enabled": false,
       "zenMode.centerLayout": false,
       "zenMode.hideLineNumbers": false,
       "diffEditor.ignoreTrimWhitespace": false,
       "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "workbench.editor.editorActionsLocation": "titleBar",
+      "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
       },
       "vsicons.dontShowNewVersionMessage": true,
       "files.autoSave": "onFocusChange",
@@ -113,40 +152,44 @@
           "label": "Firebase Functions",
           "onAutoForward": "silent"
         },
+        "4723": {
+          "label": "Appium - Android Debug Bridge - Android",
+          "onAutoForward": "silent"
+        },
         "5037": {
-          "label": "ADB - Android Debug Bridge - Android Studio",
+          "label": "ADB - adb server - Studio - Android",
           "onAutoForward": "silent"
         },
         "6037": {
-          "label": "ADB - Android Debug Bridge - Android Appium",
+          "label": "ADB - Android Debug Bridge - Appium - Android",
           "onAutoForward": "silent"
         },
         "7037": {
-          "label": "ADB - Vegito - Android Appium",
+          "label": "ADB - Vegito - Application Mobile - Android",
           "onAutoForward": "silent"
         },
         "6900": {
-          "label": "VNC - X server - Android Studio",
+          "label": "VNC - X server - Studio - Android",
           "onAutoForward": "silent"
         },
         "7900": {
-          "label": "VNC - X server - Android Appium",
+          "label": "VNC - X server - Appium - Android",
           "onAutoForward": "silent"
         },
         "8900": {
-          "label": "VNC - X server - Application Mobile",
+          "label": "VNC - X server - Application Mobile - Android",
           "onAutoForward": "silent"
         },
         "6901": {
-          "label": "Xpra - X server - Android Studio",
+          "label": "Xpra - X server - Studio - Android",
           "onAutoForward": "silent"
         },
         "7901": {
-          "label": "Xpra - X server - Android Appium",
+          "label": "Xpra - X server - Appium - Android",
           "onAutoForward": "silent"
         },
         "8901": {
-          "label": "Xpra - X server - Application Mobile",
+          "label": "Xpra - X server - Application Mobile - Android",
           "onAutoForward": "silent"
         },
         "8200": {
@@ -178,7 +221,7 @@
           "onAutoForward": "silent"
         },
         "9100": {
-          "label": "Flutter and Dart DevTools",
+          "label": "Flutter and Dart DevTools - Studio - Android",
           "onAutoForward": "silent"
         },
         "9150": {
@@ -217,6 +260,7 @@
         "hashicorp.terraform",
         "huang-an-sheng.firebase-web-app-snippets",
         "jsayol.firebase-explorer",
+        "lakshits11.best-themes-redefined",
         "luanpotter.dart-import",
         "marcelovelasquez.flutter-tree",
         "MarufHassan.flutter-snippets",
@@ -234,8 +278,15 @@
         "shd101wyy.markdown-preview-enhanced",
         "standard.vscode-standard",
         "toba.vsfire",
-        "tylerharris.terraform-link-docs"
+        "tylerharris.terraform-link-docs",
+        "cosmicsarthak.cosmicsarthak-neon-theme",
+        "xynny.hackerred"
       ]
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+      ".github/workflows/application-main-release.yml",
+      ".github/workflows/application-dev-latest.yml",
+    ],
+    "robotcode.disableExtension": true
   }
 }

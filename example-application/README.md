@@ -1,5 +1,5 @@
 ![Release Version](https://img.shields.io/github/v/release/vegito-app/example-application?sort=semver)
-![CI](https://github.com/vegito-app/example-application/actions/workflows/application-release.yml/badge.svg?branch=main)
+![CI](https://github.com/vegito-app/example-application/actions/workflows/application-main-release.yml/badge.svg?branch=main)
 
 # Example Application
 

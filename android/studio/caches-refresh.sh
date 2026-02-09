@@ -14,7 +14,6 @@ check_success() {
 }
 
 # 🚨 Register cleanup function to run on script exit
-
 trap check_success EXIT
 
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
@@ -89,16 +88,12 @@ mkdir -p ${local_container_cache}/.dartServer
 rm -rf $ANDROID_STUDIO_DART_SERVER
 ln -sf ${local_container_cache}/.dartServer $ANDROID_STUDIO_DART_SERVER
 
-# vscode-server config
-ANDROID_STUDIO_VSCODE_SERVER=${HOME}/.vscode-server
-mkdir -p ${local_container_cache}/.vscode-server
-rm -rf $ANDROID_STUDIO_VSCODE_SERVER
-ln -sf ${local_container_cache}/.vscode-server $ANDROID_STUDIO_VSCODE_SERVER
-
 # Bash history
 BASH_HISTORY_PATH=${HOME}/.bash_history
 mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sf ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
+
+android_studio_dir=${LOCAL_ANDROID_STUDIO_DIR:-${PWD}}
 
 caches_refresh_success=true

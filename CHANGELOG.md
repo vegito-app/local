@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.11.0](https://github.com/vegito-app/local/compare/v1.10.0...v1.11.0) (2026-01-31)
+
+
+### Features
+
+* **android:** integrate android.mk in build process and enhance AVD script ([241a489](https://github.com/vegito-app/local/commit/241a48958151bf37fae9c28e4a16887fc34fc743))
+* **devcontainer:** improve cache management and script execution ([80ee258](https://github.com/vegito-app/local/commit/80ee258436dd5ad9691c73423e49fcdcee97a9fc))
+
+
+### Bug Fixes
+
+* **entrypoint:** create symlink for containers directory in workspace ([3912662](https://github.com/vegito-app/local/commit/3912662c09f65a925111fcbf6133f6a5cc3afe8d))
+
 ## [1.10.0](https://github.com/vegito-app/local/compare/v1.9.1...v1.10.0) (2026-01-22)
 
 
