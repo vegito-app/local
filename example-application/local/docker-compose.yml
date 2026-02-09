@@ -64,7 +64,6 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
-      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
@@ -95,7 +94,7 @@ services:
       DISPLAY: "${DISPLAY:-:20}"
       VEGITO_EXAMPLE_APPLICATION_FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
-      LOCAL_ANDROID_EMULATOR_AVD_ON_START: false
+      LOCAL_ANDROID_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
@@ -146,6 +145,7 @@ services:
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
+
     env_file:
       - .env
     volumes:

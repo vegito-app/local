@@ -18,6 +18,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
+    devices:
+      - /dev/kvm
     privileged: true
     cap_add:
       - SYS_ADMIN
@@ -64,7 +66,6 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
-      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
@@ -96,7 +97,6 @@ services:
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-true}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
@@ -107,7 +107,7 @@ services:
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
-      - kvm
+      - ${KVM_GID}
     devices:
       - /dev/kvm
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
@@ -142,6 +142,7 @@ services:
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
+
     env_file:
       - .env
     volumes:

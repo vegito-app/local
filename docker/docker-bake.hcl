@@ -94,7 +94,7 @@ variable "GOOGLE_CLOUD_PROJECT_ID" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    "linux/arm64"
+    "linux/arm64",
   ]
 }
 
@@ -154,7 +154,7 @@ group "local-applications" {
 
 group "local-applications-ci" {
   targets = [
-    "example-applications-ci",
+    "example-application-ci",
   ]
 }
 

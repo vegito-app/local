@@ -168,6 +168,16 @@ jobs:
         run: |
           make docker-build-tags-list-ci-md > docker-tags.md
 
+      - name: Generate index.json for release root
+        run: |
+          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
+          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
+            version=$(basename $(dirname "$f"))
+            echo "  {\"version\": \"$version\"}," >> index.json
+          done
+          sed -i '$ s/},/}/' index.json || true
+          echo ']}' >> index.json
+
       - name: Upload docker tags and index to GCS
         run: |
           gcloud storage cp docker-tags.md gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/docker-tags.md
@@ -214,7 +224,7 @@ jobs:
       - name: Ensure fresh .env
         run: |
           rm -f .env
-          ./dotenv.sh
+          make dotenv
 
       - name: Extract signed APK & AAB releases and keystore SHA1 from images
         id: extract_apk_aab

@@ -60,21 +60,15 @@ local-android-emulator-avd-restart:
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
-	  echo "[*] Killing emulator & adb..." ; \
-	  pkill -9 emulator ; \
-	  pkill -9 qemu-system ; \
+	  pkill -x emulator ; \
+	  pkill -x qemu-system ; \
+	  pkill -x adb ; \
 	  adb kill-server ; \
-	  echo "[*] Cleaning up locks..." ; \
 	  rm -rf ~/.android/avd/*/*.lock ; \
 	  rm -f ~/.android/*.lock ; \
 	  rm -f ~/.android/adb*.ini.lock ; \
-	  rm -f /tmp/.X20-lock ; \
-	  echo "[*] Restarting LOCAL_ANDROID_ADB..." ; \
 	  adb start-server ; \
-	  echo "[*] Launching emulator..." ; \
-	  echo "Starting android-studio emulator..." ; \
-	  	android-emulator-avd-start.sh ; \
-	  sleep infinity ; \
+	  android-emulator-avd-start.sh ; \
 	'
 .PHONY: local-android-emulator-avd-restart
 

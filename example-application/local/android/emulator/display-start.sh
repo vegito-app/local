@@ -2,11 +2,15 @@
 
 set -euo pipefail
 
+# Nettoyage du flag d'état à chaque arrêt
+rm -f /tmp/.xdisplay-ready
+
 # 📌 List of PIDs of background processes
 bg_pids=()
 
 # 🧹 Function called at the end of the script to kill background processes
 kill_jobs() {
+    rm -f /tmp/.xdisplay-ready
     echo "🧼 Cleaning up background processes..."
     for pid in "${bg_pids[@]}"; do
         kill "$pid" || true
@@ -31,12 +35,18 @@ resolution=${DISPLAY_RESOLUTION:-$default_resolution}
 Xvfb ${display} -nolisten tcp -ac -screen 0, ${resolution}x24 &
 bg_pids+=("$!")
 
-
-# Boucle d'attente pour permettre à xvfb de démarrer
-until xdpyinfo -display ${display} > /dev/null 2>&1; do 
+timeout_xvfb=60
+for i in $(seq 1 $timeout_xvfb); do
+    if xdpyinfo -display ${display} > /dev/null 2>&1; then
+        break
+    fi
     echo Waiting X display frame buffer
     sleep 1
 done
+if ! xdpyinfo -display ${display} > /dev/null 2>&1; then
+    echo "❌ Timeout waiting for X display ${display}."
+    exit 1
+fi
 
 # Lancer openbox en arrière-plan avec gestion d'erreur
 echo "🚀 Starting Openbox window manager..."
@@ -67,21 +77,21 @@ echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
 # Lancer xpra en arrière-plan avec gestion d'erreur
 echo "🌀 Starting Xpra on $display with Openbox session..."
 xpra start-desktop "$display" \
-  --use-display  \
-  --bind-tcp=0.0.0.0:5901   \
-  --dbus-control=no \
-  --dbus-launch='' \
-  --dbus-proxy=no \
-  --desktop-scaling=auto \
-  --dpi="$dpi"   \
-  --env=DISPLAY="$display" \
-  --html=on \
-  --min-size="$resolution" \
-  --no-daemon   \
-  --no-mdns   \
-  --notifications=no \
-  --resize-display=yes \
-  --webcam=no &
+  --use-display \
+  --bind-tcp=0.0.0.0:5901 \
+  --dbus-control= \
+  --dbus-launch \
+  --dbus-proxy= \
+  --desktop-scaling= \
+  --dpi="$dpi" \
+  --env=DISPLAY="$display \
+  --html= \
+  --min-size="$resolution \
+  --no-daemon \
+  --no-mdns \
+  --notifications= \
+  --resize-display= \
+  --webcam= &
 
 xpra_pid=$!
 
@@ -94,6 +104,8 @@ until pgrep -f "xpra start-desktop $display" > /dev/null; do
 done
 echo "🌀 Xpra started successfully on $display with Openbox session."
 
+# Création d'un flag indiquant que tout le display est prêt
+echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xdisplay-ready
 # Garder le script en vie
 echo "🖥️  Display server is ready"
 wait "$x11vnc_bg_pid" "$xpra_pid" || true
