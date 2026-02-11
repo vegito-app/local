@@ -13,6 +13,15 @@ on:
         description: "Environment"
         required: true
         type: string
+      release_bucket_name:
+        description: "GCS bucket name for releases"
+        required: true
+        type: string
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
     outputs:
       version:
         description: "Version number generated"
@@ -82,4 +91,6 @@ jobs:
 
       - name: Upload New Changes Changelog to GCS
         run: |
-          gcloud storage cp CHANGELOG.md gs://vegito-app-dev-github-actions-ci-artifacts/${{ github.repository }}/${{ steps.define_version.outputs.version }}/CHANGELOG.md
+          GCS_PATH="gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ steps.define_version.outputs.version }}"
+          echo "Uploading changelog to $GCS_PATH"
+          gcloud storage cp CHANGELOG.md "$GCS_PATH/CHANGELOG.md"

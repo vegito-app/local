@@ -23,6 +23,19 @@ on:
         required: false
         default: "1"
         type: string
+      release_bucket_name:
+        description: "GCS bucket name for artifacts"
+        required: true
+        type: string
+      release_bucket_prefix:
+        description: "GCS bucket prefix (usually repository)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      version:
+        description: "Release version (used as GCS path)"
+        required: true
+        type: string
 
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
@@ -44,6 +57,8 @@ jobs:
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
+      VERSION: ${{ inputs.version }}
 
     steps:
       - name: Checkout repository
@@ -80,18 +95,7 @@ jobs:
 
       - name: Upload Trivy HTML report to GCS
         if: always()
-        shell: bash
         run: |
-          if [[ "${{ inputs.environment }}" == "dev" ]]; then
-            BUCKET="vegito-app-dev-github-actions-ci-artifacts"
-          elif [[ "${{ inputs.environment }}" == "staging" ]]; then
-            BUCKET="vegito-app-staging-github-actions-ci-artifacts"
-          elif [[ "${{ inputs.environment }}" == "prod" ]]; then
-            BUCKET="vegito-app-prod-github-actions-ci-artifacts"
-          else
-            echo "Unknown environment: ${{ inputs.environment }}"
-            exit 1
-          fi
-          DEST="gs://${BUCKET}/${{ inputs.environment }}/trivy-report-${{ github.sha }}.html"
+          DEST="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
           echo "Uploading trivy-report.html to $DEST"
           gcloud storage cp trivy-report.html "$DEST"
