@@ -61,8 +61,8 @@ GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 # configurations between them each others selves.
 #                                                                
 ANDROID_HOST=android-studio
-VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
-VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
+VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
+VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
 CLARINET_RPC=http://clarinet-devnet:20443
 FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
 FIREBASE_DATABASE_EMULATOR_HOST=firebase-emulators:9000

@@ -120,7 +120,7 @@ services:
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
     environment:
-      APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
