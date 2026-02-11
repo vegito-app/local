@@ -4,10 +4,15 @@ LOCAL_DOCKER_COMPOSE_VSCODE = $(LOCAL_DOCKER_COMPOSE) \
 
 devcontainer-vscode: ensure-vscode-store-volume
 	@echo "🟢 Starting Devcontainer VSCode..."
-	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
+	LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
 	  $(MAKE) VERSION=latest dev
 	@echo "🟢 Devcontainer VSCode is up and running."
 .PHONY: devcontainer-vscode
+
+ensure-vscode-store-volume:
+	@docker volume inspect vscode-store > /dev/null 2>&1 || docker volume create vscode-store
+	@echo "✅ Ensured VSCode store volume exists."
+.PHONY: ensure-vscode-store-volume
 
 LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES = $(LOCAL_DOCKER_COMPOSE) \
 	-f $(CURDIR)/.devcontainer/docker-compose.yml \

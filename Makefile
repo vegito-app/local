@@ -37,7 +37,6 @@ STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
@@ -91,11 +90,6 @@ example-application-docker-images-pull-parallel
 
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
-
-ensure-vscode-store-volume:
-	@docker volume inspect vscode-store > /dev/null 2>&1 || docker volume create vscode-store
-	@echo "✅ Ensured VSCode store volume exists."
-.PHONY: ensure-vscode-store-volume
 
 devcontainer: devcontainer-vscode
 .PHONY: devcontainer
