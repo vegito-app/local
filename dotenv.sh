@@ -92,13 +92,6 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 services:
   dev:
     image: ${LOCAL_BUILDER_IMAGE}
-    environment:
-      # Enable or disable the use of the local development environment.
-      - MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
-      # Enable or disable the use of the local test environment.
-      - MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-false}
-      # Enable or disable the use of the local container installation.
-      - LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-false}
     command: |
       bash -c '
         make docker-sock

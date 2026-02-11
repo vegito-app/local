@@ -37,7 +37,8 @@ STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
+
+LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
@@ -47,17 +48,17 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-LOCAL_DOCKER_COMPOSE = docker compose \
+LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
 
-LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
+LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio
 
-LOCAL_DOCKER_COMPOSE_SERVICES = \
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
   robotframework
