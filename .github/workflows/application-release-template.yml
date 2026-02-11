@@ -14,14 +14,18 @@ on:
       environment:
         required: true
         type: string
-      application_release_bucket_prefix:
-        required: false
-        type: string
         default: ${{ github.repository }}
       application_release_bucket_project_prefix:
         required: false
         type: string
         default: local
+      release_bucket_name:
+        required: true
+        type: string
+      release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
       use_registry_cache:
         required: false
         type: boolean
@@ -46,7 +50,7 @@ jobs:
     env:
       VERSION: ${{ inputs.version }}
       VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
-      VEGITO_APPLICATION_RELEASE_BUCKET: vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}
+      VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
