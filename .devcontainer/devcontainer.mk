@@ -4,7 +4,8 @@ LOCAL_DOCKER_COMPOSE_VSCODE = $(LOCAL_DOCKER_COMPOSE) \
 
 devcontainer-vscode: ensure-vscode-store-volume
 	@echo "🟢 Starting Devcontainer VSCode..."
-	  $(MAKE) dev
+	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
+	  $(MAKE) VERSION=latest dev
 	@echo "🟢 Devcontainer VSCode is up and running."
 .PHONY: devcontainer-vscode
 
@@ -14,7 +15,7 @@ LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES = $(LOCAL_DOCKER_COMPOSE) \
 
 devcontainer-vscode-github-codespaces:
 	@echo "🟢 Starting Github Codespaces VSCode environment..."
-	@LOCAL_DOCKER_COMPOSE= $(LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES) \
+	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES)" \
 	  $(MAKE) dev
 	@echo "🟢 Github Codespaces VSCode environment is up and running."
 .PHONY: devcontainer-vscode-github-codespaces

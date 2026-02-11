@@ -1,17 +1,8 @@
 services:
   dev:
-    # build:
-    #   context: .
-    #   dockerfile: .devcontainer/Dockerfile
-    #   args:
-    #     builder_image: ${LOCAL_BUILDER_IMAGE}
-
-    environment:
-      # Enable or disable the use of the local development environment.
-      MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
-      # Enable or disable the use of the local Robot Framework tests run on start.
-      MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START: ${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START:-false}
-
+    # environment:
+    #   CODESPACES: ${CODESPACES:-false}
+    #   MAKE_TESTS_ON_START: ${MAKE_TESTS_ON_START:-false}
     command: |
       bash -c '
       make docker-sock
@@ -23,10 +14,10 @@ services:
         echo "Detected '$${CODESPACE_NAME}' Codespaces environment."
         make devcontainer-codespaces
         make local-docker-buildx-setup-github-codespaces
-      else if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+      elif [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
         make devcontainer
       fi
-      if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
+      if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
         make application-mobile-wait-for-boot
         make functional-tests
       fi
