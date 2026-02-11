@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.12.0](https://github.com/vegito-app/local/compare/v1.11.0...v1.12.0) (2026-02-09)
+
+
+### Features
+
+* **devcontainer:** improve KVM group handling ([f88429e](https://github.com/vegito-app/local/commit/f88429edd307525a714f5aa6ecbbb4d50d6595d9))
+* **devcontainers:** add support for VS Code Codespaces and enhance GitHub Actions setup ([ee9a018](https://github.com/vegito-app/local/commit/ee9a018d37ef2e3b8dddd4647fa984f7530c022b))
+
 ## [1.11.0](https://github.com/vegito-app/local/compare/v1.10.0...v1.11.0) (2026-01-31)
 
 

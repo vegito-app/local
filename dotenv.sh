@@ -48,10 +48,6 @@ DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}
-LOCAL_ANDROID_STUDIO_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
-LOCAL_CLARINET_DEVNET_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
-LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
-LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS=${LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS:-3}
 #
 KVM_GID=${KVM_GID}
 #
@@ -74,8 +70,8 @@ GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 # configurations between them each others selves.
 #                                                                
 ANDROID_HOST=android-studio
-VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
-VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
+VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
+VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
 CLARINET_RPC=http://clarinet-devnet:20443
 FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
 FIREBASE_DATABASE_EMULATOR_HOST=firebase-emulators:9000
@@ -96,13 +92,6 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 services:
   dev:
     image: ${LOCAL_BUILDER_IMAGE}
-    environment:
-      # Enable or disable the use of the local development environment.
-      - MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
-      # Enable or disable the use of the local test environment.
-      - MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-false}
-      # Enable or disable the use of the local container installation.
-      - LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-false}
     command: |
       bash -c '
         make docker-sock

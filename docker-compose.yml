@@ -12,7 +12,6 @@ services:
       MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
       LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
-
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -25,23 +24,6 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      # chsh -s $(which zsh) ${USER:-$(whoami)}
-      make docker-sock
-      until docker info; do
-        echo "Waiting for Docker to be ready..."
-        sleep 1
-      done
-      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
-        make dev
-      fi
-      if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
-        make application-mobile-wait-for-boot
-        make functional-tests
-      fi
-      sleep infinity
-      '
 
   firebase-emulators:
     tty: true
@@ -118,7 +100,6 @@ services:
       '
   vault-dev:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
-
     cap_add:
       - IPC_LOCK
     environment:
@@ -138,7 +119,7 @@ services:
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
     environment:
-      APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
