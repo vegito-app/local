@@ -18,7 +18,7 @@ local-android-emulator-wait-for-boot:
 	@echo "VALUE  LOCAL_ANDROID_ADB = '$(LOCAL_ANDROID_ADB)'"
 	@echo "------------------------------------"
 	@$(LOCAL_ANDROID_ADB) wait-for-device
-	$(LOCAL_ANDROID_ADB) shell getprop sys.boot_completed | grep -m 1 '1'
+	@$(LOCAL_ANDROID_ADB) shell getprop sys.boot_completed | grep -m 1 '1'
 .PHONY: local-android-emulator-wait-for-boot
 
 local-android-emulator-logs:
