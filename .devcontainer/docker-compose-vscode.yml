@@ -2,15 +2,26 @@ services:
   dev:
     volumes:
       - vscode-store:/vscode
+      - ${PWD}:${PWD}:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev:/dev
+      - /lib/modules:/lib/modules:ro
   android-studio:
     volumes:
       - vscode-store:/vscode
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+
   clarinet-devnet:
     volumes:
       - vscode-store:/vscode
+      - /dev:/dev
+      - /lib/modules:/lib/modules
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
 
   robotframework:
     volumes:
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       - vscode-store:/vscode
 
   example-application-backend:

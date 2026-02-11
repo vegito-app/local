@@ -12,22 +12,22 @@ ifeq ($(UNAME_M), aarch64)
   GOARCH = arm64
 endif
 
-APPLICATION_BACKEND_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/backend
-APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
-APPLICATION_BACKEND_VENDOR = $(APPLICATION_BACKEND_DIR)/vendor
+VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/backend
+VEGITO_EXAMPLE_APPLICATION_BACKEND_INSTALL_BIN = $(HOME)/go/bin/backend
+VEGITO_EXAMPLE_APPLICATION_BACKEND_VENDOR = $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)/vendor
 
-$(APPLICATION_BACKEND_VENDOR):
+$(VEGITO_EXAMPLE_APPLICATION_BACKEND_VENDOR):
 	@$(MAKE) go-application/backend-mod-vendor
 
-example-application-backend-run: $(APPLICATION_BACKEND_INSTALL_BIN)
-	@$(APPLICATION_BACKEND_INSTALL_BIN)
+example-application-backend-run: $(VEGITO_EXAMPLE_APPLICATION_BACKEND_INSTALL_BIN)
+	@$(VEGITO_EXAMPLE_APPLICATION_BACKEND_INSTALL_BIN)
 .PHONY: example-application-backend-run
 
-$(APPLICATION_BACKEND_INSTALL_BIN): example-application-backend-install
+$(VEGITO_EXAMPLE_APPLICATION_BACKEND_INSTALL_BIN): example-application-backend-install
 
 example-application-backend-install:
 	@echo Installing backend...
-	cd $(APPLICATION_BACKEND_DIR) \
+	cd $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR) \
 	  && go install -a -ldflags "-linkmode external -extldflags -static"
 	#   && go install -a -ldflags "-linkmode external"
 	@echo Installed backend.
@@ -35,5 +35,5 @@ example-application-backend-install:
 
 example-application-backend-container-up: example-application-backend-container-rm
 	@echo "Starting backend application container..."
-	$(APPLICATION_BACKEND_DIR)/container-up.sh
+	$(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)/container-up.sh
 .PHONY: example-application-backend-container-up

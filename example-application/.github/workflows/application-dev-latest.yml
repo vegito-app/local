@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     name: Build and Push Images
-    uses: vegito-app/local/.github/workflows/build-images.yml@v1.11.0
+    uses: vegito-app/local/.github/workflows/build-images.yml@main
     strategy:
       matrix:
         environment: [dev]
@@ -20,6 +20,7 @@ jobs:
       android_release_keystore_path: mobile/android/release-key.keystore
       android_release_keystore_base64_path: mobile/android/release-key.keystore.base64
       android_release_keystore_store_pass_base64_path: mobile/android/release-key.keystore.storepass.base64
+      release_bucket_name: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
 
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
@@ -33,7 +34,7 @@ jobs:
     needs:
       - build
     name: Run Tests
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.11.0
+    uses: vegito-app/local/.github/workflows/functional-tests.yml@main
     strategy:
       matrix:
         environment: [dev]
@@ -41,6 +42,7 @@ jobs:
       version: dev-latest
       environment: ${{ matrix.environment }}
       functional-tests-output-dir: tests/output
+      release_bucket_name: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

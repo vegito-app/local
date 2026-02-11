@@ -217,6 +217,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	  $(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
+	      LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
 	      VERSION=$(LOCAL_VERSION)

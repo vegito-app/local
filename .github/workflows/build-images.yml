@@ -8,6 +8,13 @@ on:
       environment:
         required: true
         type: string
+      release_bucket_name:
+        required: true
+        type: string
+      release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
       application_release_bucket_prefix:
         required: false
         type: string
@@ -69,6 +76,7 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
+      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
 
     outputs:
       image_tags_md: ${{ steps.build_and_push_images.outputs.image_tags_md }}
@@ -125,7 +133,7 @@ jobs:
 
       - name: Upload images-build.log to GCS
         run: |
-          gcloud storage cp images-build.log gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/images-build.log
+          gcloud storage cp images-build.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/images-build.log
 
       - name: Cleanup Sensitive Files
         if: always()
@@ -142,6 +150,7 @@ jobs:
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
+      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -171,7 +180,7 @@ jobs:
       - name: Generate index.json for release root
         run: |
           echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
-          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
+          for f in $(gcloud storage ls "gs://${{ env.VEGITO_RELEASE_BUCKET }}/v*/metadata.json" 2>/dev/null || true); do
             version=$(basename $(dirname "$f"))
             echo "  {\"version\": \"$version\"}," >> index.json
           done
@@ -180,9 +189,9 @@ jobs:
 
       - name: Upload docker tags and index to GCS
         run: |
-          gcloud storage cp docker-tags.md gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/docker-tags.md
+          gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md
           if [ -f index.json ]; then
-            gcloud storage cp index.json gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/index.json
+            gcloud storage cp index.json gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/index.json
           fi
 
   upload-android-artifacts:
@@ -197,6 +206,7 @@ jobs:
       LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-signed-aligned.apk
       LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-signed.aab
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -232,6 +242,6 @@ jobs:
 
       - name: Upload signed APK, AAB, and keystore SHA1 to GCS
         run: |
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk
+          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab
+          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1

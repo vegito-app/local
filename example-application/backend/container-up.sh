@@ -21,7 +21,7 @@ trap kill_jobs EXIT
 
 # Start docker-compose up in the background
 echo "🚢 Launching backend compose in background..."
-${APPLICATION_BACKEND_DIR}/docker-compose-up.sh &
+${VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR}/docker-compose-up.sh &
 compose_pid=$!
 
 # Start waiting for ports in a background subshell
