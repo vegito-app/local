@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -euo pipefail
+
+
+caches_refresh_success=false
+# 🧹 Function called at the end of the script to check for success
+check_success() {
+    if [ $caches_refresh_success = true ]; then
+        echo "♻️ Clarinet Devnet caches refreshed successfully."
+    else
+        echo "❌ Clarinet Devnet caches refresh failed."
+    fi
+}
+
+# 🚨 Register cleanup function to run on script exit
+trap check_success EXIT
+
+# Local Container Cache
+local_container_cache=${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/clarinet-devnet}
+mkdir -p $local_container_cache
+
+# local docker rootless cache 
+LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.share/docker
+mkdir -p $local_container_cache/dockerd
+mkdir -p ${HOME}/.share/
+ln -s $local_container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+
+# Bash history
+BASH_HISTORY_PATH=${HOME}/.bash_history
+mkdir -p ${local_container_cache}
+rm -f $BASH_HISTORY_PATH
+ln -sfn ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
+
+cat <<EOF >> ~/.bashrc
+export HISTSIZE=50000
+export HISTFILESIZE=100000
+export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
+export DOCKER_CONFIG=${local_container_cache}/.docker
+export DOCKER_BUILDKIT=1
+EOF
+
+# Git config (optional but useful)
+GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
+if [ -f "$GIT_CONFIG_GLOBAL" ]; then
+  mkdir -p ${local_container_cache}/git
+  rsync -av "$GIT_CONFIG_GLOBAL" ${local_container_cache}/git/
+  rm -f "$GIT_CONFIG_GLOBAL"
+  ln -s ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
+fi
+
+clarinet_devnet_dir=${LOCAL_CLARINET_DEVNET_DIR:-${PWD}}
+
+caches_refresh_success=true

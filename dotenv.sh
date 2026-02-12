@@ -3,7 +3,7 @@
 # This script is run on the host as devcontainer 'initializeCommand' 
 # (cf. https://containers.dev/implementors/json_reference/#lifecycle-scripts)
 
-set -eu
+set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
@@ -11,13 +11,21 @@ projectName=${VEGITO_PROJECT_NAME:-vegito-local}
 projectUser=${VEGITO_PROJECT_USER:-local-developer-id}
 localDockerComposeProjectName=${VEGITO_COMPOSE_PROJECT_NAME:-$projectName-$projectUser}
 
-GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}}
+DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
+
+GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID}}
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
-# Ensure the current working directory exists.
-# Create default local .env file with minimum required values to start.
-localDotenvFile=${currentWorkingDir}/.env
 
+if [ -e /dev/kvm ]; then
+  KVM_GID=$(stat -c '%g' /dev/kvm)
+else
+  KVM_GID=""
+fi
+
+# Ensure the current working directory exists.
+# Create default .env file with minimum required values to start.
+localDotenvFile=${currentWorkingDir}/.env
 [ -f ${localDotenvFile} ] || cat <<EOF > ${localDotenvFile}
 ######################################################################## 
 # After setting up values in this file, rebuild the local containers.  #
@@ -25,25 +33,23 @@ localDotenvFile=${currentWorkingDir}/.env
 #  
 # Please set the values in this section according to your personnal values.
 #------------------------------------------------------- 
-# Please set the values in this section according to your personnal settings.
 # 
 # Trigger the local project display name in Docker Compose.
 COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
-# 
 # Make sure to set the correct values for using your personnal credentials IAM permissions. 
-VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-developer-id}
+VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 # 
-# Trigger the local project display name in Docker Compose.
-COMPOSE_PROJECT_NAME=${VEGITO_COMPOSE_PROJECT_NAME:-vegito-repo-${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}}
-# 
+GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
-#
-DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
-DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
-DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${projectName}:builder-latest
+DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
+DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
+DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
+# 
+LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}
+#
+KVM_GID=${KVM_GID}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -64,100 +70,83 @@ GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 # configurations between them each others selves.
 #                                                                
 ANDROID_HOST=android-studio
-APPLICATION_BACKEND_URL=http://application-backend:8080
-APPLICATION_BACKEND_DEBUG_URL=http://application-backend:8888
+VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
+VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
 CLARINET_RPC=http://clarinet-devnet:20443
 FIREBASE_AUTH_EMULATOR_HOST=firebase-emulators:9099
 FIREBASE_DATABASE_EMULATOR_HOST=firebase-emulators:9000
-FIREBASE_STORAGE_EMULATOR_HOST=firebase-emulators:9199
 FIREBASE_PUBSUB_EMULATOR_HOST=firebase-emulators:8085
+FIREBASE_STORAGE_EMULATOR_HOST=firebase-emulators:9199
 FIRESTORE_EMULATOR_HOST=firebase-emulators:8090
 VAULT_ADDR=http://vault-dev:8200
-VAULT_DEV_ROOT_TOKEN_ID=root
 VAULT_DEV_LISTEN_ADDRESS=http://vault-dev:8200
+VAULT_DEV_ROOT_TOKEN_ID=root
 #----------------------------------------------------------------|
 #________________________________________________________________|
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
 # The file is created in the current working directory or the specified WORKING_DIR environment variable.
-dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-override.yml
+dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.yml
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
-  application-backend:
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-/${PWD}/infra/dev/google_application_credentials.json}
-      LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/${GOOGLE_CLOUD_PROJECT_ID}:builder-latest
-      MAKE_DEV_ON_START=true
-      LOCAL_APPLICATION_TESTS_RUN_ON_START=true
-
   dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}/docker-repository-public/vegito-app:builder-latest
+    image: ${LOCAL_BUILDER_IMAGE}
     command: |
       bash -c '
         make docker-sock
         if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
           make dev
         fi
-        if [ "$${LOCAL_APPLICATION_TESTS_RUN_ON_START}" = "true" ] ; then
-          until make local-application-tests-check-env ; do
-            echo "[application-tests] Waiting for environment to be ready..."
-            sleep 5
-          done
-          make application-tests
+        if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
+          make application-mobile-wait-for-boot
+          make functional-tests
         fi
-        sudo chsh -s /usr/bin/zsh root
-        sudo chsh -s /usr/bin/zsh vegito
         sleep infinity
       '
+
+  example-application-mobile:
+    working_dir: ${PWD}/example-application/mobile
+    environment:
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
+
+  example-application-tests:
+    working_dir: ${PWD}/example-application/tests
+    environment:
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
+
   android-studio:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-latest
     environment:
-      - LOCAL_APPLICATION_TESTS_MOBILE_IMAGES_DIR=${PWD}/application/tests/mobile_images
-      - LOCAL_ANDROID_STUDIO_ON_START=true
-      - LOCAL_ANDROID_STUDIO_CACHES_REFRESH=true
-      - LOCAL_ANDROID_STUDIO_APPIUM_EMULATOR_AVD_ON_START=true
-      - LOCAL_ANDROID_STUDIO_APK_PATH=mobile/build/app/outputs/flutter-apk/app-release.apk
+      LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
+      LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
+      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
+    working_dir: ${PWD}/example-application/mobile
 
-    working_dir: ${PWD}/mobile
-    command: |
-      bash -c '
-
-      # sdkmanager \
-      # "platforms;android-30" \
-      # "platforms;android-36" \
-      # "sources;android-36" \
-      # "build-tools;30.0.1" \
-      # "build-tools;35.0.0" \
-      # "build-tools;36.0.0" \
-      # "system-images;android-34;google_apis;x86_64"
-
-      # sdkmanager --install "system-images;android-33;google_apis;x86_64"
-
-      # echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-33;google_apis;x86_64" -d "pixel"
-      # echo "no" | avdmanager create avd -n Pixel_6_Playstore -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_6"
-      # echo "no" | avdmanager create avd -n Pixel_6_ApiOnly -k "system-images;android-34;google_apis;x86_64" -d "pixel_6"
-      
-      sleep infinity
-      '
-  vault-dev:
-    working_dir: ${PWD}
-    
-  application-tests:
-    working_dir: ${PWD}/tests
+  clarinet-devnet:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-latest
     environment:
-      LOCAL_APPLICATION_TESTS_DIR: ${PWD}/tests
+      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
+      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
+  robotframework:
+    working_dir: ${PWD}/example-application/tests
+    environment:
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
+      LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE:-${PWD}/.containers/robotframework}
+      LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: ${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}
+  
   firebase-emulators:
-    environment:
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION=vegetable-images-validated-backend
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_VALIDATED_BACKEND_SUBSCRIPTION_DEBUG=vegetable-images-validated-backend-debug
-      LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC=vegetable-images-created
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
+      
+  vault-dev:
+    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-latest
+    working_dir: ${PWD}/example-application/
     command: |
       bash -c '
-      set -eu
-      
-      make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
-      
+      set -euo pipefail
+      ./vault-init.sh
       sleep infinity
       '
 EOF
@@ -166,51 +155,120 @@ dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
 dockerComposeNetworksOverride=${WORKING_DIR:-${PWD}}/.docker-compose-networks-override.yml
 [ -f $dockerComposeNetworksOverride ] || cat <<EOF > $dockerComposeNetworksOverride
 networks:
-  ${dockerNetworkName}:
+  dev:
     driver: bridge
-    
+
 services:
   dev:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - devcontainer
+    ports:
+      # Docker daemon
+      - 2375
 
-  application-backend:
+  example-application-backend:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
-          - application-backend
+          - example-application-backend
+    ports:
+      # HTTP
+      - 8080
+
+  example-application-mobile:
+    networks:
+      dev:
+        aliases:
+          - example-application-mobile
+    ports:
+      # VNC
+      # - 5900
+      # Xpra
+      - 5901
+      # ADB
+      # - 5037
+
+  example-application-tests:
+    networks:
+      dev:
+        aliases:
+          - example-application-tests
 
   firebase-emulators:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - firebase-emulators
+    ports:
+      # UI
+      - 4000
+      # Hub
+      # - 4400
+      # Firebase Reserved
+      # - 4500
+      # Functions
+      # - 5001
+      # Pub/Sub
+      # - 8085
+      # Firestore
+      # - 8090
+      # Database
+      # - 9000
+      # Login CLI
+      # - 9005
+      # Auth
+      # - 9099
+      # Firebase Reserved
+      # - 9150
+      # Storage
+      # - 9199
+      # Firebase Triggers
+      # - 9299
 
   clarinet-devnet:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - clarinet-devnet
+    ports:
+      # Docker daemon
+      - 2375
 
   android-studio:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - android-studio
-
+    ports:
+      # VNC
+      # - 5900
+      # Xpra
+      - 5901
+      # ADB
+      # - 5037
+      # Flutter Tools
+      - 9100
   vault-dev:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
           - vault-dev
+    ports:
+      # Server HTTP API
+      # - 8200
+      # UI
+      - 8201
 
-  application-tests:
+  robotframework:
     networks:
-      ${dockerNetworkName}:
+      dev:
         aliases:
-          - application-tests
+          - robotframework
+    ports:
+      # HTTP
+      - 8080
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
@@ -221,6 +279,12 @@ services:
   android-studio:
     # environment:
     #  LOCAL_ANDROID_GPU_MODE=host
+    # runtime: nvidia
+    # devices:
+    #   - /dev/nvidia0
+  example-application-mobile:
+    # environment:
+    #  LOCAL_ANDROID_GPU_MODE: host
     # runtime: nvidia
     # devices:
     #   - /dev/nvidia0

@@ -1,0 +1,31 @@
+services:
+  dev:
+    # build:
+    #   context: .
+    #   dockerfile: .devcontainer/Dockerfile
+    #   args:
+    #     builder_image: ${LOCAL_BUILDER_IMAGE}
+    volumes:
+      - vscode-store:/vscode
+  android-studio:
+    volumes:
+      - vscode-store:/vscode
+  clarinet-devnet:
+    volumes:
+      - vscode-store:/vscode
+
+  robotframework:
+    volumes:
+      - vscode-store:/vscode
+
+  example-application-backend:
+    volumes:
+      - vscode-store:/vscode
+
+  example-application-mobile:
+    volumes:
+      - vscode-store:/vscode
+volumes:
+  vscode-store:
+    external: true
+    name: vscode
