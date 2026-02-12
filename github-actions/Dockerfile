@@ -1,4 +1,7 @@
-FROM debian:bookworm
+ARG local_docker_hub_repository_private=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-private
+ARG debian_image=debian:latest
+
+FROM ${debian_image}
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -185,13 +188,18 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     curl -L -o /tmp/gitleaks.tar.gz $url \
     && tar -xvzf /tmp/gitleaks.tar.gz -C /usr/local/bin \
     && rm /tmp/gitleaks.tar.gz \
-    && gitleaks version
+    && gitleaks version \
+    && sudo apt-get update && sudo apt-get install -y \
+    imagemagick \
+    qrencode
 
 USER ${non_root_user}
 COPY entrypoint.sh /gha-entrypoint.sh
 ENTRYPOINT ["/gha-entrypoint.sh"]
 
 ENV RUNNER_WORKDIR=/runner/_work
+ENV RUNNER_BUILD_CACHE=/runner/_work/.containers
 RUN mkdir ${RUNNER_WORKDIR}
+RUN mkdir ${RUNNER_BUILD_CACHE}
 RUN chown ${non_root_user}:${non_root_user} ${RUNNER_WORKDIR}
 RUN chmod o+rw ${RUNNER_WORKDIR}

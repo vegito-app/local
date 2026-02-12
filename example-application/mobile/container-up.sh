@@ -2,7 +2,7 @@
 
 set -uo pipefail
 
-CONTAINER_NAME="application-mobile"
+CONTAINER_NAME="example-application-mobile"
 PORTS_TO_WAIT_FOR=(\
   5900 \
   5901 \
@@ -24,7 +24,7 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 echo "📱 Launching mobile compose in background..."
-${LOCAL_EXAMPLE_APPLICATION_MOBILE_DIR}/docker-compose-up.sh &
+${VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR}/docker-compose-up.sh &
 compose_pid=$!
 
 # Start waiting for ports in a background subshell

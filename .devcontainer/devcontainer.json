@@ -3,21 +3,56 @@
   "dockerComposeFile": [
     "../docker-compose.yml",
     "../example-application/docker-compose.yml",
-    // "./docker-compose.yml",
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
-    "../.docker-compose-gpu-override.yml"
+    "../.docker-compose-gpu-override.yml",
+    "./docker-compose.yml",
+    "./docker-compose-vscode.yml"
   ],
   "runServices": [
     "dev"
   ],
+  "containerEnv": {
+    "MAKE_DEV_ON_START": "true",
+    "MAKE_TESTS_ON_START": "false",
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "DEV_GOOGLE_CLOUD_PROJECT_ID": "moov-dev-439608",
+    "LOCAL_ANDROID_STUDIO_CACHES_REFRESH": "true",
+    "LOCAL_ANDROID_STUDIO_CONTAINER_CACHE": "${localWorkspaceFolder}/.containers/android-studio",
+    "LOCAL_ANDROID_STUDIO_ON_START": "true",
+    "LOCAL_CLARINET_DEVNET_CACHES_REFRESH": "true",
+    "LOCAL_CONTAINER_INSTALL": "true",
+    "LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH": "true"
+  },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
-      "env": {
-        "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
+      // 🚫 Empêche VSCode de rechercher ou indexer ces dossiers lourds
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.git": true,
+        "**/.devcontainer": false,
+        "**/.containers": true,
+        "**/.next": true,
+        "**/.cache": true
+      },
+      // 💤 Désactive la surveillance en temps réel sur ces dossiers
+      "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.git/**": true,
+        "**/.cache/**": true
+      },
+      // 💨 (optionnel) Réduit la charge sur la recherche globale
+      "search.followSymlinks": false,
+      // 🧠 (optionnel) Exclut les node_modules de l’explorateur de fichiers
+      "files.exclude": {
+        "**/node_modules": true
       },
       "editor.fontLigatures": false,
       "editor.formatOnSave": true,
@@ -38,16 +73,31 @@
           "color": "terminal.ansiRed"
         }
       },
+      "diffEditor.hideUnchangedRegions.enabled": false,
+      "workbench.activityBar.location": "top",
+      "window.customTitleBarVisibility": "windowed",
       "terminal.integrated.defaultProfile.linux": "bash",
       "window.commandCenter": false,
-      "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      // "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+      // "workbench.colorTheme": "Hacker Red",
+      // "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
+      "workbench.colorTheme": "Hacker Red",
+      // "workbench.colorTheme": "Low Eye Strain Light Contrast",
       "workbench.iconTheme": "material-icon-theme",
+      "material-icon-theme.folders.theme": "specific",
       "workbench.layoutControl.enabled": false,
       "zenMode.centerLayout": false,
       "zenMode.hideLineNumbers": false,
       "diffEditor.ignoreTrimWhitespace": false,
       "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "workbench.editor.editorActionsLocation": "titleBar",
+      "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
       },
       "vsicons.dontShowNewVersionMessage": true,
       "files.autoSave": "onFocusChange",
@@ -217,6 +267,7 @@
         "hashicorp.terraform",
         "huang-an-sheng.firebase-web-app-snippets",
         "jsayol.firebase-explorer",
+        "lakshits11.best-themes-redefined",
         "luanpotter.dart-import",
         "marcelovelasquez.flutter-tree",
         "MarufHassan.flutter-snippets",
@@ -234,8 +285,15 @@
         "shd101wyy.markdown-preview-enhanced",
         "standard.vscode-standard",
         "toba.vsfire",
-        "tylerharris.terraform-link-docs"
+        "tylerharris.terraform-link-docs",
+        "cosmicsarthak.cosmicsarthak-neon-theme",
+        "xynny.hackerred"
       ]
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+      ".github/workflows/application-main-release.yml",
+      ".github/workflows/application-dev-latest.yml",
+    ],
+    "robotcode.disableExtension": true
   }
 }

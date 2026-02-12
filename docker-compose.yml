@@ -12,39 +12,18 @@ services:
       MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
       LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
-
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
+    devices:
+      - /dev/kvm
     privileged: true
     cap_add:
       - SYS_ADMIN
       - NET_ADMIN
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      # chsh -s $(which zsh) ${USER:-$(whoami)}
-      make docker-sock
-      until docker info; do
-        echo "Waiting for Docker to be ready..."
-        sleep 1
-      done
-      if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
-        make dev
-      fi
-      if [ "$${MAKE_LOCAL_ROBOTFRAMEWORK_TESTS_RUN_ON_START}" = "true" ] ; then
-        until make local-robotframework-tests-check-env ; do
-          echo "[application-tests] Waiting for environment to be ready..."
-          sleep 5
-        done
-        make robotframework-tests
-      fi
-
-
-      sleep infinity
-      '
 
   firebase-emulators:
     tty: true
@@ -59,14 +38,6 @@ services:
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      set -eu
-
-      make local-firebase-emulators-pubsub-init local-firebase-emulators-pubsub-check
-
-      sleep infinity
-      '
 
   clarinet-devnet:
     tty: true
@@ -77,7 +48,6 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
-      LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
@@ -100,19 +70,17 @@ services:
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
     env_file:
       - .env
-    entrypoint: ${PWD}/android/studio/entrypoint.sh
+    entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ANDROID_APK_PATH: ${LOCAL_ANDROID_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
-      LOCAL_ANDROID_APK_RELEASE_PATH: ${LOCAL_ANDROID_APK_RELEASE_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
+      LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
       DISPLAY: "${DISPLAY:-:20}"
       FLUTTER: flutter
       CHROME_LOG_FILE: /tmp/chrome_debug.log
-      LOCAL_ANDROID_EMULATOR_AVD_ON_START: false
+      LOCAL_ANDROID_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
-      LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
+      LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-true}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
@@ -122,7 +90,7 @@ services:
       - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
-      - kvm
+      - ${KVM_GID}
     devices:
       - /dev/kvm
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
@@ -131,42 +99,8 @@ services:
       set -eu
       sleep infinity
       '
-  android-appium:
-    tty: true
-    cap_add:
-      - SYS_ADMIN
-    image: ${LOCAL_ANDROID_APPIUM_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-appium-latest}
-    env_file:
-      - .env
-    environment:
-      LOCAL_WORKSPACE: ${PWD}
-      LOCAL_ANDROID_APK_RELEASE_PATH: ${LOCAL_ANDROID_APK_RELEASE_PATH:-build/app/outputs/flutter-apk/app-debug.apk}
-      DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
-      DISPLAY: "${DISPLAY:-:20}"
-      LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START: true
-      LOCAL_ANDROID_APPIUM_LOG_LEVEL: DEBUG
-      LOCAL_ANDROID_APPIUM_CONTAINER_CACHE: ${LOCAL_ANDROID_APPIUM_CONTAINER_CACHE:-${PWD}/.containers/android-appium}
-      LOCAL_ANDROID_GPU_MODE: ${LOCAL_ANDROID_APPIUM_ANDROID_GPU_MODE:-swiftshader_indirect}
-      LOCAL_ANDROID_AVD_NAME: ${LOCAL_ANDROID_APPIUM_ANDROID_AVD_NAME:-Pixel_8_Intel}
-      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
-    privileged: true
-    volumes:
-      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
-      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
-    group_add:
-      - render
-      - kvm
-    devices:
-      - /dev/kvm
-    working_dir: ${PWD}/example-application/mobile
-    command: |
-      bash -c '
-      set -eu
-      sleep infinity
-      '
   vault-dev:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
-
     cap_add:
       - IPC_LOCK
     environment:
@@ -182,15 +116,15 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     working_dir: ${PWD}/application
     tty: true
-  
-  robotframework-tests:
+  robotframework:
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
     environment:
-      APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
+
     env_file:
       - .env
     volumes:

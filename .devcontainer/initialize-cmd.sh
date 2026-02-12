@@ -33,13 +33,17 @@ cat <<'EOF' > ${envrcFile}
 #
 # Note: This file is not sourced automatically. 
 # It is used by .devcontainer/initialize-cmd.sh to generate other files.
-
-export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-local-user-id}
+# You can source it manually if needed.
+# Example:
+#   source .devcontainer/.envrc
+#   dotenv.sh
+#
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
+export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 EOF
 fi
 
-. ${WORKING_DIR}/.devcontainer/.envrc
+. ${envrcFile}
 
 echo "Initializing .env file"
 ${WORKING_DIR}/dotenv.sh
@@ -81,6 +85,17 @@ workspaceFile=${PWD}/vscode.code-workspace
   "settings": {}
 }
 EOF
+
+
+testsLaunchDebug=${PWD}/example-application/tests/.vscode/settings.json
+if [ ! -f $testsLaunchDebug ] ;  then
+mkdir -p $(dirname $testsLaunchDebug)
+cat <<'EOF' > $testsLaunchDebug
+{
+    "robotcode.disableExtension": false
+}
+EOF
+fi
 
 backendLaunchDebug=${PWD}/example-application/backend/.vscode/launch.json
 if [ ! -f $backendLaunchDebug ] ;  then

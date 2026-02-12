@@ -3,7 +3,16 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 LOCAL_BUILDER_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-$(VERSION)
 LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github-actions
+LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+
+LOCAL_DOTENV_FILE ?= .env
+
+local-dotenv: $(LOCAL_DOTENV_FILE)
+.PHONY: local-dotenv
+
+$(LOCAL_DOTENV_FILE):
+	@echo "📝 Generating .env file for local development..."
+	@$(LOCAL_DIR)/dotenv.sh
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
@@ -64,11 +73,12 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
+
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
-  vault-dev \
-  firebase-emulators \
   clarinet-devnet \
-  robotframework-tests
+  firebase-emulators \
+  vault-dev \
+  robotframework
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -87,6 +97,11 @@ local-docker-compose-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-imag
 local-docker-compose-images-push: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-push) local-dev-container-image-push
 .PHONY: local-docker-compose-images-push
 
+local-docker-compose-network-rm-dev: 
+	@echo "🗑️  Removing the docker network used"
+	@-docker network rm $(COMPOSE_PROJECT_NAME)_dev
+.PHONY: local-docker-compose-network-rm-dev
+
 local-dev-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull)
 .PHONY: local-dev-images-pull
 
@@ -95,6 +110,9 @@ local-containers-up: $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
 local-containers-rm: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-rm)
 .PHONY: local-containers-rm
+
+local-containers-logs: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-logs)
+.PHONY: local-containers-logs
 
 $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull):
 	@echo "⬇︎ Pulling image for $(@:local-%-image-pull=%)..."
@@ -139,7 +157,7 @@ $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-container-sh):
 
 local-dev-container:
 	@echo "⬆︎ Bringing up dev container..."
-	@$(LOCAL_DOCKER_COMPOSE) up -d dev
+	@$(LOCAL_DOCKER_COMPOSE) up -d --remove-orphans dev
 .PHONY: local-dev-container
 
 local-dev-container-rm:
@@ -157,7 +175,7 @@ local-container-config-show:
 
 local-dev-container-image-pull:
 	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
-	$(LOCAL_DOCKER_COMPOSE) pull dev
+	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
 
 local-dev-container-image-push:
@@ -177,30 +195,28 @@ local-dev-container-logs-f:
 
 # Local Docker Compose Services for CI
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
-  vault-dev \
-  firebase-emulators \
-  clarinet-devnet \
-  robotframework-tests
+  robotframework
 
+#   clarinet-devnet
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
-LOCAL_DEV_CONTAINER_RUN = $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
+LOCAL_DEV_CONTAINER_RUN = \
+  LOCAL_CONTAINER_INSTALL=false \
+  MAKE_DEV_ON_START=false \
+  $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
-LOCAL_CONTAINERS_OPERATIONS_CI = up rm
+LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
-	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
-	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
-	  $(LOCAL_DEV_CONTAINER_RUN) \
+	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE)"
+	@$(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
+	      LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
-	      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE=$(LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_VERSION) \
-	      LOCAL_CLARINET_DEVNET_IMAGE=$(LOCAL_CLARINET_DEVNET_IMAGE_VERSION) \
-	      LOCAL_FIREBASE_EMULATORS_IMAGE=$(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION) \
-	      LOCAL_VAULT_DEV_IMAGE=$(LOCAL_VAULT_DEV_IMAGE_VERSION)
+	      VERSION=$(LOCAL_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk

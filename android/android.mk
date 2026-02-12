@@ -124,15 +124,9 @@ local-android-docker-images-push-parallel:
 .PHONY: local-android-docker-images-push-parallel
 
 LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
-LOCAL_ANDROID_CONTAINER_EXEC ?= $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
+LOCAL_ANDROID_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
 
 LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
-
-local-android-app-sha1-fingerprint:
-	@echo "Android Emulator SHA1 fingerprint:" 
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
-.PHONY: local-android-emulator-app-sha1-fingerprint
 
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
@@ -175,33 +169,36 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 ################################################################################
 LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION).apk
 LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-aligned.apk
-LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-signed-aligned.apk
+LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH ?= $(LOCAL_ANDROID_DIR)/app-release-$(VERSION)-signed-aligned.apk
 
 local-android-align-apk: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 .PHONY: local-android-verify-apk
 
+LOCAL_ANDROID_ZIPALIGN ?= $(LOCAL_ANDROID_CONTAINER_EXEC) zipalign
+
  $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH)
 	@echo "🧰 Aligning APK: $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH)..."
 	@if [ -f $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH) ]; then rm -f $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH); fi
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  zipalign -v -p 4 $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH) $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
+	@$(LOCAL_ANDROID_ZIPALIGN) -v -p 4 $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_PATH) $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 
-local-android-sign-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH) 
-.PHONY: local-android-sign-apksign
+local-android-sign-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) 
+.PHONY: local-android-sign-apk
 
-$(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
-	@echo "🔐 Signing APK with apksigner using keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH): $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  apksigner sign \
-	    --ks $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
-	    --ks-pass pass:$(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
-	    --out $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH) \
+LOCAL_ANDROID_APKSIGNER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) apksigner
+
+$(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH): $(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
+	@echo "🔐 Signing APK with apksigner using keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH): $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."
+	@$(LOCAL_ANDROID_APKSIGNER) sign \
+	  --ks $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
+	  --ks-pass pass:$(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
+	  --out $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH) \
 		$(LOCAL_ANDROID_RELEASE_APK_UNSIGNED_ALIGNED_PATH)
 
-local-android-verify-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)
-	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  apksigner verify --verbose $(LOCAL_ANDROID_RELEASE_APK_SIGNED_PATH)
+LOCAL_ANDROID_APKSIGNER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) apksigner
+
+local-android-verify-apk: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
+	@echo "🔍 Verifying APK signature for: $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)..."
+	@$(LOCAL_ANDROID_APKSIGNER) verify --verbose $(LOCAL_ANDROID_RELEASE_APK_SIGNED_ALIGNED_PATH)
 .PHONY: local-android-verify-apk
 
 ################################################################################
@@ -217,10 +214,11 @@ $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_ALIGNED_PATH):
 local-android-sign-aab: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
 .PHONY: local-android-sign-aab
 
+LOCAL_ANDROID_JARSIGNER ?= $(LOCAL_ANDROID_CONTAINER_EXEC) jarsigner
+
 $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH): $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_ALIGNED_PATH)
 	@echo "📦 Signing AAB with keystore: $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
+	@$(LOCAL_ANDROID_JARSIGNER) -sigalg SHA256withRSA -digestalg SHA-256 \
 	    -keystore $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) \
 	    -storepass $(shell cat $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) | base64 --decode) \
 	    $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_ALIGNED_PATH) $(LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME)
@@ -228,6 +226,49 @@ $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH): $(LOCAL_ANDROID_RELEASE_AAB_UNSIGNED_A
 
 local-android-verify-aab: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
 	@echo "🔍 Verifying AAB signature for: $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)..."
-	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
-	  jarsigner -verify -verbose -certs $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
+	@$(LOCAL_ANDROID_JARSIGNER) -verify -verbose -certs $(LOCAL_ANDROID_RELEASE_AAB_SIGNED_PATH)
 .PHONY: local-android-verify-aab
+
+################################################################################
+# ANDROID MOBILE IMAGE EXTRACTION
+################################################################################
+LOCAL_ANDROID_MOBILE_DIR ?= $(LOCAL_ANDROID_DIR)
+LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_ANDROID_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
+LOCAL_ANDROID_MOBILE_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}
+
+local-android-mobile-image-tag-apk-extract:
+	@echo "Creating temp container from image $(LOCAL_ANDROID_MOBILE_IMAGE)"
+	@container_id=$$(docker create $(LOCAL_ANDROID_MOBILE_IMAGE)) && \
+	  echo "Copying APK from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).apk $(LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ APK extracted to $(LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH)"
+.PHONY: local-android-mobile-image-tag-apk-extract
+
+LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH ?= ${LOCAL_ANDROID_MOBILE_DIR}/app-release-$(VERSION)-extract.aab
+
+local-android-mobile-image-tag-aab-extract:
+	@echo "Creating temp container from image $(LOCAL_ANDROID_MOBILE_IMAGE)"
+	@container_id=$$(docker create $(LOCAL_ANDROID_MOBILE_IMAGE)) && \
+	  echo "Copying AAB from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release-$(VERSION).aab $(LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ AAB extracted to $(LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH)"
+.PHONY: local-android-mobile-image-tag-aab-extract
+
+LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH ?= ${LOCAL_ANDROID_MOBILE_DIR}/release-${VERSION}-key.keystore.sha1
+
+local-android-mobile-image-tag-keystore-sha1-extract:
+	@echo "Creating temp container from image $(LOCAL_ANDROID_MOBILE_IMAGE)"
+	@container_id=$$(docker create $(LOCAL_ANDROID_MOBILE_IMAGE)) && \
+	  echo "Copying keystore SHA1 from container $$container_id..." && \
+	  docker cp $$container_id:/build/output/app-release-${VERSION}-key.keystore.sha1 $(LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH) && \
+	  docker rm $$container_id > /dev/null && \
+	  echo "✅ Keystore SHA1 extracted to $(LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH)"
+.PHONY: local-android-mobile-image-tag-keystore-sha1-extract
+
+local-android-mobile-image-tag-release-extract: \
+local-android-mobile-image-tag-aab-extract \
+local-android-mobile-image-tag-apk-extract \
+local-android-mobile-image-tag-keystore-sha1-extract
+.PHONY: local-android-mobile-image-tag-release-extract

@@ -1,4 +1,6 @@
-FROM debian:bookworm
+ARG debian_image=debian:latest
+
+FROM ${debian_image}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -11,6 +13,13 @@ RUN apt-get update && apt-get install -y \
     menu-xdg xpra \
     qemu-kvm aapt sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Basic tools
+RUN apt-get update && apt-get install -y \
+    bash-completion git htop gnupg jq netcat-openbsd \
+    rsync socat tree unzip vim wget xz-utils \
+    locales net-tools \
+    && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
 
 # NVIDIA
 RUN export DEBIAN_FRONTEND=noninteractive ; \
@@ -55,7 +64,7 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     fi
 
 COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
-COPY --chown=android:android display-start-xpra.sh /usr/local/bin/
+COPY --chown=android:android display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=android:android display-start.sh /usr/local/bin/
 COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
 COPY --chown=android:android entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
@@ -64,14 +73,14 @@ COPY --chown=android:android openbox-setup.sh /usr/local/bin/
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \
     /usr/local/bin/android-emulator-entrypoint.sh \
-    /usr/local/bin/display-start-xpra.sh \
+    /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
     /usr/local/bin/emulator-data-load.sh \
     /usr/local/bin/openbox-setup.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV LOCAL_ANDROID_APK_RELEASE_PATH=${default_apk_path}
+ENV LOCAL_ANDROID_DEBUG_APK_PATH=${default_apk_path}
 
 # 🖥️ Display Variables
 ARG default_display=20

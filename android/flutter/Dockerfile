@@ -1,5 +1,7 @@
+ARG debian_image=debian:latest
 ARG android_apk_emulator_image=vegito-local/vegito-local:android-apk-emulator-latest
-FROM debian:bookworm
+
+FROM ${debian_image}
 FROM ${android_apk_emulator_image} AS apk-builder
 
 USER root
@@ -17,9 +19,15 @@ ARG non_root_user=android
 USER ${non_root_user}
 
 # Flutter SDK
+ARG flutter_version
 ENV FLUTTER_HOME=/home/${non_root_user}/flutter
 ENV PATH="${PATH}:${FLUTTER_HOME}/bin"
+# tar -xf ~/Downloads/flutter_linux_${flutter_version}-stable.tar.xz -C ~/home/${non_root_user}
 RUN git clone -b stable https://github.com/flutter/flutter.git $FLUTTER_HOME && \
+    cd $FLUTTER_HOME && \
+    git checkout $flutter_version && \
+    flutter config --no-analytics && \
+    flutter precache && \
     flutter doctor
 
 # Android SDK complete (NDK + build-tools)

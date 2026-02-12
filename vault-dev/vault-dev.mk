@@ -4,7 +4,7 @@ LOCAL_VAULT_DEV_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):vault-dev-lat
 LOCAL_VAULT_DEV_DIR ?= $(LOCAL_DIR)/vault-dev
 
 local-vault-dev-container-up: local-vault-dev-container-rm
-	@VERSION=latest $(LOCAL_VAULT_DEV_DIR)/docker-compose-up.sh &
+	@$(LOCAL_VAULT_DEV_DIR)/container-up.sh
 	@$(LOCAL_DOCKER_COMPOSE) logs vault-dev
 	@echo
 	@echo Started Androïd studio display: 
