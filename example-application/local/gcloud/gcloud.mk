@@ -191,10 +191,10 @@ gcloud-images-delete-all-public:
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all-public
 
-gcloud-backend-image-delete:
-	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE_LATEST)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(APPLICATION_BACKEND_IMAGE_LATEST)
-.PHONY: gcloud-backend-image-delete
+vegito-example-application-backend-gcloud-image-delete:
+	@echo "🗑️  Deleting backend image $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)
+.PHONY: vegito-example-application-backend-gcloud-image-delete
 
 gcloud-auth-func-logs:
 	@echo "📜 Reading logs for Cloud Function: utrade-us-central1-identity-platform..."

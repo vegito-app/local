@@ -3,7 +3,16 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-latest
 LOCAL_BUILDER_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-$(VERSION)
 LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_GITHUB_ACTIONS_DIR = $(LOCAL_DIR)/github-actions
+LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+
+LOCAL_DOTENV_FILE ?= .env
+
+local-dotenv: $(LOCAL_DOTENV_FILE)
+.PHONY: local-dotenv
+
+$(LOCAL_DOTENV_FILE):
+	@echo "📝 Generating .env file for local development..."
+	@$(LOCAL_DIR)/dotenv.sh
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
@@ -185,9 +194,6 @@ local-dev-container-logs-f:
 .PHONY: local-dev-container-logs-f
 
 # Local Docker Compose Services for CI
-#   vault-dev \
-#   firebase-emulators \
-#   clarinet-devnet
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
   robotframework
 
@@ -195,7 +201,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
 LOCAL_DEV_CONTAINER_RUN = \
-  LOCAL_CONTAINER_INSTALL=0 \
+  LOCAL_CONTAINER_INSTALL=false \
   MAKE_DEV_ON_START=false \
   $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
@@ -207,6 +213,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	@$(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
+	      LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE)" \
 	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
 	      LOCAL_VAULT_AUDIT_INIT=false \
 	      VERSION=$(LOCAL_VERSION)

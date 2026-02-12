@@ -56,14 +56,18 @@ jobs:
       - name: Push git tag
         run: |
           git push origin "${{ inputs.version }}"
-      - uses: actions/download-artifact@v4
-        with:
-          name: release-notes
-          path: .
+
+      - name: Download release notes from GCS
+        run: |
+          mkdir -p ./release-notes
+          gcloud storage cp \
+            gs://vegito-app-dev-github-actions-ci-artifacts-private/${{ inputs.version }}/CHANGELOG.md \
+            ./release-notes/${{ inputs.release_notes_path }}
+
       - name: Create GitHub Release
         if: ${{ inputs.create_github_release }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "${{ inputs.version }}"
           name: ${{ inputs.release_title }}
-          body_path: ${{ inputs.release_notes_path }}
+          body_path: ./release-notes/${{ inputs.release_notes_path }}

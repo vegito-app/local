@@ -44,11 +44,3 @@
 # 	  -H "Content-Type: application/json" \
 # 	  -d '{ "topic": "projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics/$(LOCAL_FIREBASE_EMULATORS_PUBSUB_VEGETABLE_IMAGES_CREATED_TOPIC)" }'|echo
 # .PHONY: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_SUBSCRIPTIONS:%=local-firebase-emulators-pubsub-subscriptions-create-%)
-
-# local-firebase-emulators-pubsub-check:
-# 	@echo "📋 Listing local Pub/Sub topics:"
-# 	@curl -s http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics | jq .
-# 	@echo
-# 	@echo "📋 Listing local Pub/Sub subscriptions:"
-# 	@curl -s http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions | jq .
-# .PHONY: local-firebase-emulators-pubsub-check

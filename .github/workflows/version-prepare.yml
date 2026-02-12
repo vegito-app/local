@@ -8,6 +8,20 @@
 name: Version Prepare (Reusable)
 on:
   workflow_call:
+    inputs:
+      environment:
+        description: "Environment"
+        required: true
+        type: string
+      release_bucket_name:
+        description: "GCS bucket name for releases"
+        required: true
+        type: string
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
     outputs:
       version:
         description: "Version number generated"
@@ -15,14 +29,23 @@ on:
       changelog:
         description: "Generated changelog content"
         value: ${{ jobs.define_version.outputs.changelog }}
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   define_version:
     name: Define VERSION ✨
     runs-on: self-hosted
+    environment: ${{ inputs.environment }}
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       changelog: ${{ steps.define_version.outputs.CHANGELOG_NEW }}
@@ -31,6 +54,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
 
       - name: Define VERSION and Tag 🏷
         id: define_version
@@ -58,9 +89,8 @@ jobs:
         run: |
           cat CHANGELOG.md
 
-      - name: Upload New Changes Changelog
-        uses: actions/upload-artifact@v4
-        with:
-          name: version-changelog
-          path: |
-            CHANGELOG.md
+      - name: Upload New Changes Changelog to GCS
+        run: |
+          GCS_PATH="gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ steps.define_version.outputs.version }}"
+          echo "Uploading changelog to $GCS_PATH"
+          gcloud storage cp CHANGELOG.md "$GCS_PATH/CHANGELOG.md"

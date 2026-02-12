@@ -1,4 +1,7 @@
 name: Trivy Scan Docker Image
+permissions:
+  id-token: write
+  contents: read
 on:
   workflow_call:
     inputs:
@@ -19,6 +22,19 @@ on:
         description: "Exit code when vulnerabilities are found"
         required: false
         default: "1"
+        type: string
+      release_bucket_name:
+        description: "GCS bucket name for artifacts"
+        required: true
+        type: string
+      release_bucket_prefix:
+        description: "GCS bucket prefix (usually repository)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      version:
+        description: "Release version (used as GCS path)"
+        required: true
         type: string
 
     secrets:
@@ -41,6 +57,8 @@ jobs:
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
+      VERSION: ${{ inputs.version }}
 
     steps:
       - name: Checkout repository
@@ -75,9 +93,9 @@ jobs:
           severity: ${{ inputs.severity }}
           version: v0.68.2
 
-      - name: Upload Trivy HTML report
+      - name: Upload Trivy HTML report to GCS
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report-${{ inputs.environment }}
-          path: trivy-report.html
+        run: |
+          DEST="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
+          echo "Uploading trivy-report.html to $DEST"
+          gcloud storage cp trivy-report.html "$DEST"

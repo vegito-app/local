@@ -3,16 +3,26 @@
   "dockerComposeFile": [
     "../docker-compose.yml",
     "../example-application/docker-compose.yml",
-    // "./docker-compose.yml",
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
-    "../.docker-compose-gpu-override.yml"
+    "../.docker-compose-gpu-override.yml",
+    "./docker-compose.yml",
+    "./docker-compose-vscode.yml"
   ],
   "runServices": [
     "dev"
   ],
   "containerEnv": {
-    "FLUTTER_ROOT": "${localWorkspaceFolder}/android/studio/.containers/android-studio/flutter"
+    "MAKE_DEV_ON_START": "true",
+    "MAKE_TESTS_ON_START": "false",
+    "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "DEV_GOOGLE_CLOUD_PROJECT_ID": "moov-dev-439608",
+    "LOCAL_ANDROID_STUDIO_CACHES_REFRESH": "true",
+    "LOCAL_ANDROID_STUDIO_CONTAINER_CACHE": "${localWorkspaceFolder}/.containers/android-studio",
+    "LOCAL_ANDROID_STUDIO_ON_START": "true",
+    "LOCAL_CLARINET_DEVNET_CACHES_REFRESH": "true",
+    "LOCAL_CONTAINER_INSTALL": "true",
+    "LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH": "true"
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
@@ -45,6 +55,7 @@
         "**/node_modules": true
       },
       "editor.fontLigatures": false,
+      "editor.formatOnSave": true,
       "editor.inlineSuggest.enabled": true,
       "explorer.confirmDelete": false,
       "files.hotExit": "onExitAndWindowClose",
@@ -278,6 +289,11 @@
         "cosmicsarthak.cosmicsarthak-neon-theme",
         "xynny.hackerred"
       ]
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+      ".github/workflows/application-main-release.yml",
+      ".github/workflows/application-dev-latest.yml",
+    ],
+    "robotcode.disableExtension": true
   }
 }

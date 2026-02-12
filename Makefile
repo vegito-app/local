@@ -35,9 +35,10 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(EXAMPLE_APPLICATION_TESTS_DIR)/robot
+LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
+
+LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
@@ -47,24 +48,34 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-LOCAL_DOCKER_COMPOSE = docker compose \
+LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
 
-LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
+LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio
 
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+  firebase-emulators \
+  vault-dev \
+  robotframework
+#   clarinet-devnet \
+
+-include android.mk
 -include local.mk
 -include git.mk
 -include nodejs.mk
 -include go.mk
+-include .devcontainer/devcontainer.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
 
+dotenv: local-dotenv
+.PHONY: dotenv
 
 images: docker-images
 .PHONY: images
@@ -72,11 +83,25 @@ images: docker-images
 images-ci: docker-images-ci
 .PHONY: images-ci
 
-images-pull: local-docker-images-pull-parallel local-android-docker-images-pull-parallel example-application-docker-images-pull-parallel
+images-pull: \
+local-docker-images-pull-parallel \
+local-android-docker-images-pull-parallel \
+example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
+
+ensure-vscode-store-volume:
+	@docker volume inspect vscode-store > /dev/null 2>&1 || docker volume create vscode-store
+	@echo "✅ Ensured VSCode store volume exists."
+.PHONY: ensure-vscode-store-volume
+
+devcontainer: devcontainer-vscode
+.PHONY: devcontainer
+
+devcontainer-codespaces: devcontainer-vscode-codespaces
+.PHONY: devcontainer-codespaces
 
 dev: \
 local-containers-up \
@@ -85,7 +110,10 @@ example-application-backend-container-up \
 example-application-mobile-container-up
 .PHONY: dev
 
-dev-rm: example-application-containers-rm local-containers-rm local-android-containers-rm
+dev-rm: \
+example-application-containers-rm \
+local-containers-rm \
+local-android-containers-rm
 .PHONY: dev-rm
 
 dev-ci: \
@@ -96,7 +124,9 @@ example-application-mobile-container-up-ci
 	@echo "🟢 Development environment is up and running in CI mode."
 .PHONY: dev-ci
 
-application-mobile-image-extract-android-artifacts: example-application-mobile-extract-android-artifacts
+application-mobile-image-extract-android-artifacts: \
+example-application-mobile-image-pull \
+example-application-mobile-extract-android-artifacts
 	@echo "✅ Extracted Android release artifacts successfully."
 .PHONY: application-mobile-image-extract-android-artifacts
 
@@ -132,7 +162,7 @@ functional-tests: local-robotframework-container-exec
 
 functional-tests-ci: example-application-tests-container-up
 	@echo "End-to-end tests completed successfully."
-.PHONY: functional-tests
+.PHONY: functional-tests-ci
 
 test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
