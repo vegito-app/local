@@ -21,13 +21,14 @@ LOCAL_ROBOTFRAMEWORK_ROBOT ?= $(LOCAL_DOCKER_COMPOSE) exec robotframework robot
 
 local-robotframework-container-exec:
 	@echo "📝 Running robotframework..."
-	@$(LOCAL_ROBOTFRAMEWORK_ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) robot
+	@$(LOCAL_ROBOTFRAMEWORK_ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR) robot
 .PHONY: local-robotframework-container-exec
 
 local-robotframework-container-exec-ci: local-dev-container-image-pull
 	@echo "Using dev container image: $(LOCAL_BUILDER_IMAGE)"
 	@$(LOCAL_DEV_CONTAINER_RUN) \
 	  make local-robotframework-container-exec \
-	    LOCAL_ROBOTFRAMEWORK_TESTS_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)
+	    LOCAL_ROBOTFRAMEWORK_TESTS_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) \
+	    LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR)
 	@echo "End-to-end tests completed successfully in CI."
 .PHONY: local-robotframework-container-exec-ci
