@@ -50,21 +50,6 @@ on:
         description: "Path to the prepared release notes file"
         value: ${{ jobs.prepare-notes.outputs.notes_path }}
 
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
-        required: true
-      WORKLOAD_IDENTITY_POOL_ID:
-        required: true
-      WORKLOAD_IDENTITY_PROVIDER_ID:
-        required: true
-
-    outputs:
-      release_notes_path:
-        description: "Path to the prepared release notes file"
-        value: ${{ jobs.prepare-notes.outputs.notes_path }}
-
 jobs:
   prepare-notes:
     name: Prepare Release Notes
@@ -79,12 +64,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - name: Download version changelog from GCS
         run: |
           gs_path="gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ github.repository }}/${{ inputs.version }}"
           gcloud storage cp "$gs_path/CHANGELOG.md" ./CHANGELOG.md || true
-        
+
       - name: Prepare release notes
         id: notes
         run: |
@@ -131,7 +116,6 @@ jobs:
           fi
 
           echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT
-
 
       # Plus d'upload artifact, les RELEASE_NOTES seront téléchargées depuis GCS dans l'autre job
 
