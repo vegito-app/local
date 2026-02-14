@@ -91,7 +91,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: ${{ inputs.severity }}
-          version: v0.68.2
+          version: v0.69.1
 
       - name: Upload Trivy HTML report to GCS
         if: always()

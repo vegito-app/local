@@ -81,7 +81,10 @@ LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACH
 
 # Create symlink for container build cache
 mkdir -p "$LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE"
-ln -sf "$LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE" "$WORKSPACE"
+if [[ "$LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE" != "$WORKSPACE/.containers" ]]; then
+  echo 🔗 Linking Buildx cache directory to runner workspace
+  ln -sf "$LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE" "$WORKSPACE/.containers"
+fi
 
 # Launch the runner
 echo 🚀 Starting GitHub Actions Runner
