@@ -39,8 +39,6 @@ on:
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
-        required: true
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
         required: true
       WORKLOAD_IDENTITY_PROVIDER:
@@ -127,8 +125,8 @@ jobs:
     env:
       VERSION: ${{ inputs.version }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
       GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
