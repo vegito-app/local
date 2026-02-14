@@ -7,6 +7,11 @@ on:
         type: string
         default: main
 
+      environment:
+        description: "The environment to deploy to (e.g., prod, staging)"
+        type: string
+        required: true
+
       version:
         description: "Semantic version without leading v (ex: 1.2.3)"
         type: string
@@ -40,13 +45,23 @@ on:
         type: string
         default: ${{ github.repository }}
 
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   finalize:
     runs-on: self-hosted
     name: Finalize Version
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout clean
@@ -54,6 +69,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ inputs.release_branch }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
 
       - name: Configure git identity
         run: |
