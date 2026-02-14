@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.14.0](https://github.com/vegito-app/local/compare/v1.13.0...v1.14.0) (2026-02-14)
+
+
+### Features
+
+* **ci:** enhance workflow with configurable release bucket options ([f7c5582](https://github.com/vegito-app/local/commit/f7c55827f348bb984b42ec0b6da242a0a6ed2da1))
+* **robotframework:** add output directory and CI execution target ([87bdda1](https://github.com/vegito-app/local/commit/87bdda1e64daab33b2af15618a63391f50c95d4c))
+
 ## [1.13.0](https://github.com/vegito-app/local/compare/v1.12.0...v1.13.0) (2026-02-12)
 
 
