@@ -29,6 +29,17 @@ on:
         required: false
         default: ""
 
+      release_bucket_name:
+        description: "GCS bucket name for releases"
+        required: true
+        type: string
+
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
 permissions:
   contents: write
 
@@ -61,7 +72,7 @@ jobs:
         run: |
           mkdir -p ./release-notes
           gcloud storage cp \
-            gs://vegito-app-dev-github-actions-ci-artifacts-private/${{ inputs.version }}/CHANGELOG.md \
+            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/CHANGELOG.md \
             ./release-notes/${{ inputs.release_notes_path }}
 
       - name: Create GitHub Release

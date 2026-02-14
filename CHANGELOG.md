@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.14.0](https://github.com/vegito-app/local/compare/v1.13.0...v1.14.0) (2026-02-14)
+
+
+### Features
+
+* **ci:** enhance workflow with configurable release bucket options ([f7c5582](https://github.com/vegito-app/local/commit/f7c55827f348bb984b42ec0b6da242a0a6ed2da1))
+* **robotframework:** add output directory and CI execution target ([87bdda1](https://github.com/vegito-app/local/commit/87bdda1e64daab33b2af15618a63391f50c95d4c))
+
+## [1.13.0](https://github.com/vegito-app/local/compare/v1.12.0...v1.13.0) (2026-02-12)
+
+
+### Features
+
+* **devcontainer:** enhance vscode integration and update environment settings ([e364dc5](https://github.com/vegito-app/local/commit/e364dc52b36fef02e73a44f05bc3e188ccad0bdf))
+* **devcontainers:** add support for VS Code Codespaces and enhance GitHub Actions setup ([5539a07](https://github.com/vegito-app/local/commit/5539a07b50d1dd20b369dc85196efbf2bd3755b3))
+* **workflow:** add configurable bucket naming for GCS uploads ([a3b0077](https://github.com/vegito-app/local/commit/a3b0077a5a9122c708371a2d99010c5bfcd46aa9))
+
 ## [1.12.0](https://github.com/vegito-app/local/compare/v1.11.0...v1.12.0) (2026-02-09)
 
 
