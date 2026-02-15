@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.15.0](https://github.com/vegito-app/local/compare/v1.14.0...v1.15.0) (2026-02-14)
+
+
+### Features
+
+* **ci:** add Google Cloud authentication to version-finalize workflow ([b2c4d67](https://github.com/vegito-app/local/commit/b2c4d679ae3443a5f5c96e7fa304cd6f167abb66))
+
 ## [1.14.0](https://github.com/vegito-app/local/compare/v1.13.0...v1.14.0) (2026-02-14)
 
 
