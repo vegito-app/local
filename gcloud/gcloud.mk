@@ -106,9 +106,9 @@ gcloud-project-set:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-project-set
 
-gcloud-auth-serviceaccount-activate:
-	@echo "🔧 Activating local service account: $(GOOGLE_APPLICATION_CREDENTIALS)..."
-	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
+gcloud-auth-serviceaccount-activate: $(GOOGLE_APPLICATION_CREDENTIALS)
+	@echo "🔧 Activating local service account: $< ..."
+	@$(GCLOUD) auth activate-service-account --key-file="$<"
 .PHONY: gcloud-auth-serviceaccount-activate
 
 # ADC (Application Default Credentials: https://cloud.google.com/docs/authentication/provide-credentials-adc?hl=en)
