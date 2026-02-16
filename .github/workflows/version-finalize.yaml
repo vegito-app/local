@@ -96,7 +96,7 @@ jobs:
         run: |
           mkdir -p ./release-notes
           gcloud storage cp \
-            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/CHANGELOG.md \
+            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/${{ inputs.release_notes_path }} \
             ./release-notes/${{ inputs.release_notes_path }}
 
       - name: Create GitHub Release
