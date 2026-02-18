@@ -67,7 +67,6 @@ local-android-emulator-avd-restart:
 	    echo "[*] Restarting AVD..." ; \
 	    exec android-emulator-avd-start.sh ; \
 	  '
-
 .PHONY: local-android-emulator-avd-restart
 
 local-android-emulator-kernel:
