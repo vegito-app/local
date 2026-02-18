@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.15.3](https://github.com/vegito-app/local/compare/v1.15.2...v1.15.3) (2026-02-17)
+
+### [1.15.2](https://github.com/vegito-app/local/compare/v1.15.1...v1.15.2) (2026-02-17)
+
+
+### Bug Fixes
+
+* **workflow:** correct path for release notes in version-finalize ([f599fcb](https://github.com/vegito-app/local/commit/f599fcb5004130b42b6c60d92aafc6cc1d325a47))
+
+### [1.15.1](https://github.com/vegito-app/local/compare/v1.15.0...v1.15.1) (2026-02-16)
+
 ## [1.15.0](https://github.com/vegito-app/local/compare/v1.14.0...v1.15.0) (2026-02-14)
 
 

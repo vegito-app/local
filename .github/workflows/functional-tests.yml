@@ -96,20 +96,20 @@ jobs:
       - name: Upload Logs to GCS
         if: always()
         run: |
-          if ! gcloud storage cp containers.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/containers.log; then
+          if ! gcloud storage cp containers.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/containers.log; then
             echo "::warning::Failed to upload containers.log to GCS for env=${INFRA_ENV}, version=${VERSION}"
           fi
-          if ! gcloud storage cp setup.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/setup.log; then
+          if ! gcloud storage cp setup.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/setup.log; then
             echo "::warning::Failed to upload setup.log to GCS for env=${INFRA_ENV}, version=${VERSION}"
           fi
-          if ! gcloud storage cp tests.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/tests.log; then
+          if ! gcloud storage cp tests.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/tests.log; then
             echo "::warning::Failed to upload tests.log to GCS for env=${INFRA_ENV}, version=${VERSION}"
           fi
 
       - name: Upload Test Results to GCS
         if: always()
         run: |
-          gcloud storage cp -r ${{ inputs.functional-tests-output-dir }} gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/
+          gcloud storage cp -r ${{ inputs.functional-tests-output-dir }} gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/
 
       - name: Cleanup Docker Environment
         if: always()
