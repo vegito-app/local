@@ -350,9 +350,9 @@ jobs:
           gcloud storage cp ./artifacts/images-build.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/images-build.html" --quiet
           # Upload dev logs uniquement si env == dev
           if [ "$INFRA_ENV" = "dev" ]; then
-            gcloud storage cp ./artifacts/tests.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests.html" --quiet || true
-            gcloud storage cp ./artifacts/setup.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/setup.html" --quiet || true
-            gcloud storage cp ./artifacts/containers.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/containers.html" --quiet
+            gcloud storage cp ./artifacts/tests.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/tests.html" --quiet || true
+            gcloud storage cp ./artifacts/setup.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/setup.html" --quiet || true
+            gcloud storage cp ./artifacts/containers.html "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/containers.html" --quiet
           fi
 
           gcloud storage cp ./artifacts/qr-code.png "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/qr-code.png" --quiet
