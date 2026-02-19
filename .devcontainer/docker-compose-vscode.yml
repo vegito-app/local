@@ -6,11 +6,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
+
   android-studio:
     volumes:
       - vscode-store:/vscode
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
-      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
 
   clarinet-devnet:
     volumes:
