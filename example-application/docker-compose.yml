@@ -1,0 +1,64 @@
+services:
+  example-application-backend:
+    build:
+      context: ${PWD}
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    image: ${VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:example-application-backend-latest}
+    env_file:
+      - .env
+    environment:
+      LOCAL_WORKSPACE: ${PWD}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-${PWD}/infra/google-cloud-credentials.json}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
+      GCLOUD_PROJECT_ID: ${GCLOUD_PROJECT_ID:-${GOOGLE_CLOUD_PROJECT_ID}}
+      UI_CONFIG_FIREBASE_SECRET_ID: ${UI_CONFIG_FIREBASE_SECRET_ID:-projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-config-web/versions/2}
+      UI_CONFIG_GOOGLEMAPS_SECRET_ID: ${UI_CONFIG_GOOGLEMAPS_SECRET_ID:-projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/google-maps-api-key/versions/1}
+      VAULT_ADDR: http://vault-dev:8200
+      VAULT_TOKEN: root
+    volumes:
+      - ${PWD}:${PWD}:cached
+    networks:
+      dev:
+        aliases:
+          - application-backend
+
+  example-application-mobile:
+    cap_add:
+      - SYS_ADMIN
+    image: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:example-application-mobile-latest}
+    env_file:
+      - .env
+    environment:
+      LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/tests/mobile_images}
+      LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: ${LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH:-local/android/mobile-screenshot.png}
+    privileged: true
+    volumes:
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+    working_dir: ${PWD}/mobile
+      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+    group_add:
+      - render
+      - ${KVM_GID}
+    devices:
+      - /dev/kvm
+    networks:
+      dev:
+        aliases:
+          - application-mobile
+
+  example-application-tests:
+    tty: true
+    image: ${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:example-application-tests-latest}
+    environment:
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://application-backend:8888
+      LOCAL_WORKSPACE: ${PWD}
+      LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
+      STORAGE_EMULATOR_HOST: http://${FIREBASE_STORAGE_EMULATOR_HOST:-firebase-emulators:9199}
+    volumes:
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+    working_dir: ${PWD}/tests
+    networks:
+      dev:
+        aliases:
+          - application-tests

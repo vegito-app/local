@@ -1,0 +1,96 @@
+# This workflow PREPARES a release:
+# - computes next semantic version using standard-version
+# - generates CHANGELOG.md
+# - exposes VERSION and CHANGELOG as outputs
+# - DOES NOT push commits or tags
+# Tag push must be handled by a dedicated finalize workflow.
+
+name: Version Prepare (Reusable)
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment"
+        required: true
+        type: string
+      release_bucket_name:
+        description: "GCS bucket name for releases"
+        required: true
+        type: string
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+    outputs:
+      version:
+        description: "Version number generated"
+        value: ${{ jobs.define_version.outputs.version }}
+      changelog:
+        description: "Generated changelog content"
+        value: ${{ jobs.define_version.outputs.changelog }}
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  define_version:
+    name: Define VERSION ✨
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    outputs:
+      version: ${{ steps.define_version.outputs.VERSION }}
+      changelog: ${{ steps.define_version.outputs.CHANGELOG_NEW }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Define VERSION and Tag 🏷
+        id: define_version
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
+          # Bump the version based on commit messages (default patch bump)
+          touch CHANGELOG.old.md
+          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.old.md; fi
+          rm -f CHANGELOG.md
+          git fetch --tags
+          echo "Commit release bump and tag will be pushed after build success"
+          standard-version --skip.commit
+          echo "CHANGELOG_NEW<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "📝 CHANGELOG (new only):"
+          VERSION=$(git describe --tags --abbrev=7 --match 'v*')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "📦 Prepared version: $VERSION (not pushed)"
+
+      - name: Show New Changes log
+        run: |
+          cat CHANGELOG.md
+
+      - name: Upload New Changes Changelog to GCS
+        run: |
+          GCS_PATH="gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ steps.define_version.outputs.version }}"
+          echo "Uploading changelog to $GCS_PATH"
+          gcloud storage cp CHANGELOG.md "$GCS_PATH/CHANGELOG.md"
