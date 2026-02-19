@@ -10,7 +10,6 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
-      LOCAL_BUILDER_IMAGE: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
     volumes:
       - ${PWD}:${PWD}:cached
@@ -86,7 +85,7 @@ services:
     privileged: true
     volumes:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
-      - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+      # - /var/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
     group_add:
       - render
       - ${KVM_GID}

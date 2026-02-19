@@ -106,9 +106,9 @@ gcloud-project-set:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-project-set
 
-gcloud-auth-serviceaccount-activate:
-	@echo "🔧 Activating local service account: $(GOOGLE_APPLICATION_CREDENTIALS)..."
-	@$(GCLOUD) auth activate-service-account --key-file="$(GOOGLE_APPLICATION_CREDENTIALS)"
+gcloud-auth-serviceaccount-activate: $(GOOGLE_APPLICATION_CREDENTIALS)
+	@echo "🔧 Activating local service account: $< ..."
+	@$(GCLOUD) auth activate-service-account --key-file="$<"
 .PHONY: gcloud-auth-serviceaccount-activate
 
 # ADC (Application Default Credentials: https://cloud.google.com/docs/authentication/provide-credentials-adc?hl=en)
@@ -162,31 +162,31 @@ gcloud-images-list-public:
 .PHONY: gcloud-images-list-public
 
 gcloud-images-list-tags:
-	@echo "🏷️  Listing tags for image base $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)
+	@echo "🏷️  Listing tags for image base $(VEGITO_PRIVATE_REPOSITORY)..."
+	@$(GCLOUD) container images list-tags $(VEGITO_PRIVATE_REPOSITORY)
 .PHONY: gcloud-images-list-tags
 
 gcloud-images-list-tags-public:
-	@echo "🏷️  Listing tags for public image base $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)
+	@echo "🏷️  Listing tags for public image base $(VEGITO_PUBLIC_REPOSITORY)..."
+	@$(GCLOUD) container images list-tags $(VEGITO_PUBLIC_REPOSITORY)
 .PHONY: gcloud-images-list-tags-public
 
 gcloud-images-delete-all:
-	@echo "🗑️  Deleting all images from repository $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
+	@echo "🗑️  Deleting all images from repository $(VEGITO_PRIVATE_REPOSITORY)..."
 	$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
-    $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE) \
+    $(VEGITO_PRIVATE_REPOSITORY) \
     | uniq \
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all
 
 gcloud-images-delete-all-public:
-	@echo "🗑️  Deleting all images from public repository $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
+	@echo "🗑️  Deleting all images from public repository $(VEGITO_PUBLIC_REPOSITORY)..."
 	@$(GCLOUD) artifacts docker images list \
     --project=$(GOOGLE_CLOUD_PROJECT_ID) \
     --format='get(package)' \
-    $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE) \
+    $(VEGITO_PUBLIC_REPOSITORY) \
     | uniq \
     | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY: gcloud-images-delete-all-public
