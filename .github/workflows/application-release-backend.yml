@@ -15,7 +15,11 @@ on:
         required: true
         type: string
 
-      application_release_bucket_prefix:
+      release_bucket_name:
+        required: true
+        type: string
+
+      release_bucket_prefix:
         required: false
         type: string
         default: ${{ github.repository }}
@@ -63,9 +67,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+          
       - name: Download version changelog from GCS
         run: |
-          gs_path="gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ github.repository }}/${{ inputs.version }}"
+          gs_path="gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}"
           gcloud storage cp "$gs_path/CHANGELOG.md" ./CHANGELOG.md || true
 
       - name: Prepare release notes
@@ -74,7 +87,7 @@ jobs:
           NOTES_PATH=RELEASE_NOTES.md
           VERSION="${{ inputs.version }}"
           VEGITO_APPLICATION_RELEASE_PROJECT="${{ inputs.application_release_bucket_project_prefix }}"
-          VEGITO_APPLICATION_RELEASE_BUCKET="vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.application_release_bucket_prefix }}"
+          VEGITO_APPLICATION_RELEASE_BUCKET="${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}"
           BASE_URL="https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}"
 
           echo "# 🚀 Backend Release ${VERSION}" > ${NOTES_PATH}
@@ -113,6 +126,10 @@ jobs:
             echo "_No changelog file found._" >> ${NOTES_PATH}
           fi
 
+          echo "Uploading RELEASE_NOTES.md to GCS"
+          gcloud storage cp "${NOTES_PATH}" \
+            "gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_NOTES.md"
+
           echo "path=${NOTES_PATH}" >> $GITHUB_OUTPUT
 
       # Plus d'upload artifact, les RELEASE_NOTES seront téléchargées depuis GCS dans l'autre job
@@ -129,8 +146,7 @@ jobs:
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
-      GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      GCS_BUCKET_NAME: vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts
+      VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -153,7 +169,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/build artifacts/dev artifacts/tests artifacts/rf-reports
-          gs_path="gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gs_path="gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}"
           # Release notes
           gcloud storage cp "$gs_path/RELEASE_NOTES.md" "artifacts/RELEASE_NOTES.md" || true
           # Build log
@@ -172,7 +188,7 @@ jobs:
       # Conversion des logs bruts en HTML (dev seulement)
       - name: Convert build and dev logs to HTML
         run: |
-          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gs_path="${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}"
 
           if [ -f ./artifacts/dev/containers.log ]; then
             echo "<html><body><pre>" > ./artifacts/dev/containers.html
@@ -197,8 +213,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-
-          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
+          gs_path="${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}"
           METADATA_PATH=metadata.json
 
           cat <<EOF > $METADATA_PATH
