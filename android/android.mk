@@ -177,7 +177,6 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 	  base64 $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) > $(LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH); \
 	  printf "%s" "$$storepass" | base64 > $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) \
 	'
-
 ################################################################################
 # ANDROID MOBILE IMAGE EXTRACTION
 ################################################################################
