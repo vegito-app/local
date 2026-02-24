@@ -89,7 +89,7 @@ COPY --from=builder /home/android/src/local/android/app-release.keystore.sha1  /
 
 COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 
-ARG android_package_name=dev.vegito.app.android
+ARG android_package_name
 
 ENV LOCAL_ANDROID_DEBUG_APK_PATH=/build/output/app-debug-${version}.apk
 ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true

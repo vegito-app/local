@@ -73,11 +73,17 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_
   default     = "${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME" {
+  description = "Package name for the Android application"
+  default     = "${INFRA_ENV}.vegito.app.android"
+}
+
 target "example-application-mobile" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
     version                 = VERSION
+    android_package_name    = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
   }
   secret = [
     {
@@ -113,6 +119,7 @@ target "example-application-mobile-ci" {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
     version                 = VERSION
+    android_package_name    = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
   }
   secret = [
     {
