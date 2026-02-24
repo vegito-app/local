@@ -98,4 +98,7 @@ jobs:
         run: |
           DEST="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
           echo "Uploading trivy-report.html to $DEST"
-          gcloud storage cp trivy-report.html "$DEST"
+          gcloud storage cp \
+            --content-type=text/html \
+            trivy-report.html \
+            "$DEST"
