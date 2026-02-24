@@ -109,7 +109,18 @@ jobs:
       - name: Upload Test Results to GCS
         if: always()
         run: |
-          gcloud storage cp -r ${{ inputs.functional-tests-output-dir }} gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/
+          gcloud storage cp \
+            --content-type=text/html \
+            ${{ inputs.functional-tests-output-dir }}/report.html \
+            gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/output/report.html || true
+          gcloud storage cp \
+            --content-type=text/html \
+            ${{ inputs.functional-tests-output-dir }}/log.html \
+            gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/output/log.html || true
+          gcloud storage cp \
+            --content-type=application/xml \
+            ${{ inputs.functional-tests-output-dir }}/output.xml \
+            gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ env.VERSION }}/functional-tests/output/output.xml || true
 
       - name: Cleanup Docker Environment
         if: always()

@@ -34,11 +34,49 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            def keystoreB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH")
+                    ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH") }()
+            def storePassB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH")
+                    ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH") }()
+            def keyPassB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH")
+                    ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH") }()
+            def keyAliasValue = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME")
+                    ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME") }()
+
+            // --- keystore (écrit dans buildDir) ---
+            def keystoreFile = new File(buildDir, "release.keystore")
+            keystoreFile.parentFile.mkdirs()
+
+            if (!keystoreFile.exists()) {
+                def b64 = new File(keystoreB64File).getText("UTF-8").trim()
+                keystoreFile.bytes = b64.decodeBase64()
+            }
+
+            // --- passwords ---
+            def storePasswordDecoded = new String(
+                    new File(storePassB64File).text.decodeBase64()
+            ).trim()
+
+            def keyPasswordDecoded = new String(
+                    new File(keyPassB64File).text.decodeBase64()
+            ).trim()
+
+            storeFile keystoreFile
+            storePassword storePasswordDecoded
+            keyAlias keyAliasValue
+            keyPassword keyPasswordDecoded
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }
