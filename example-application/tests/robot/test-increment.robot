@@ -8,7 +8,7 @@ Test Teardown     Capture Page Screenshot
 ${REMOTE_URL}         http://example-application-mobile:4723
 ${PLATFORM_NAME}      Android
 ${DEVICE_NAME}        emulator-5554
-${APP_PACKAGE}        dev.vegito.app.android
+${APP_PACKAGE}        %{VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME=dev.vegito.app.android}
 ${APP_ACTIVITY}       .MainActivity
 ${TIMEOUT}            10s
 

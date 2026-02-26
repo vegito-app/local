@@ -35,6 +35,10 @@ on:
         required: false
         type: string
         default: .android.release-key.keystore.storepass.base64
+      android_release_keystore_alias_name:
+        required: false
+        type: string
+        default: vegito-local-release
       images_ci_build_groups:
         required: false
         type: string
@@ -76,6 +80,7 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
       VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
 
     outputs:

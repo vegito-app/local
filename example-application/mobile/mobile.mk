@@ -1,6 +1,6 @@
 VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/mobile
 
-VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME ?= vegito-example-application-local-release
+VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME ?= $(LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME)
 VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH ?= $(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR)/android/release-key.keystore
 VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH).base64
 VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH ?= $(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR)/android/release-key.keystore.storepass.base64
@@ -13,9 +13,14 @@ example-application-mobile-container-up: example-application-mobile-container-rm
 	@$(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR)/container-up.sh
 .PHONY: example-application-mobile-container-up
 
+
 VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER ?= cd $(VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR) && $(LOCAL_DOCKER_COMPOSE) exec \
- android-studio \
- flutter
+ -e VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME) \
+ -e VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH) \
+ -e VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH) \
+ -e VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) \
+  android-studio \
+  flutter
 
 example-application-mobile-flutter-create:
 	@$(VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER) create . --org $(LOCAL_ANDROID_PACKAGE_NAME) --description "Vegito Android Application" --platforms android,ios --no-pub
@@ -26,7 +31,7 @@ example-application-mobile-flutter-create:
 	@echo "For building the application, use 'make example-application-mobile-flutter-build' followed by the desired build type (e.g., apk, ios)"
 	@echo "For cleaning the project, use 'make example-application-mobile-flutter-clean'"
 	@echo "For running tests, use 'make example-application-mobile-flutter-tests' or 'make example-application-mobile-flutter-tests-buildrunner' for build_runner tests"
-	@echo "For uninstalling the app from the emulator, use 'make flutter-app-uninstall'"
+	@echo "For uninstalling the app from the emulator, use 'make example-application-mobile-flutter-app-uninstall'"
 	@echo "For preparing the app for running on the emulator, use 'make example-application-mobile-flutter-run-prepare'"
 .PHONY: example-application-mobile-flutter-create
 
@@ -49,17 +54,17 @@ example-application-mobile-flutter-tests-ci: example-application-mobile-flutter-
 LOCAL_EXAMPLE_APPLICATION_DART ?= $(LOCAL_ANDROID_CONTAINER_EXEC) dart
 
 example-application-mobile-flutter-tests-buildrunner:
-	@$(DART) run build_runner test --delete-conflicting-outputs
+	@$(LOCAL_EXAMPLE_APPLICATION_DART) run build_runner test --delete-conflicting-outputs
 .PHONY: example-application-mobile-flutter-tests-buildrunner
 
 example-application-mobile-flutter-analyze:
 	@$(VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER) analyze
 .PHONY: example-application-mobile-flutter-analyze
 
-flutter-app-uninstall:
+example-application-mobile-flutter-app-uninstall:
 	@echo "Uninstalling the app from the emulator"
 	@$(ADB) uninstall dev.vegito.app.android || true
-.PHONY: flutter-app-uninstall
+.PHONY: example-application-mobile-flutter-app-uninstall
 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS = apk ios appbundle
 
@@ -83,7 +88,7 @@ $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-
 	@echo "Build for $(@:example-application-mobile-flutter-build-%-debug=%) completed successfully"
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDS:%=example-application-mobile-flutter-build-%-debug)
 
-example-application-mobile-flutter-run-prepare: flutter-app-uninstall example-application-mobile-flutter-pub-get
+example-application-mobile-flutter-run-prepare: example-application-mobile-flutter-app-uninstall example-application-mobile-flutter-pub-get
 .PHONY: example-application-mobile-flutter-run-prepare	
 
 VEGITO_EXAMPLE_APPLICATION_MOBILE_FLAVORS ?= dev staging prod
