@@ -106,14 +106,10 @@ jobs:
           echo "" >> ${NOTES_PATH}
           echo "## 🧪 CI Logs & Build Reports" >> ${NOTES_PATH}
           echo "" >> ${NOTES_PATH}
-          echo "- 🛠️ **Images Build Log (raw)**: ${BASE_URL}/build/images-build.log" >> ${NOTES_PATH}
-          echo "- 🛠️ **Images Build Log (HTML)**: ${BASE_URL}/build/images-build.html" >> ${NOTES_PATH}
+          echo "- 🛠️ **Images Build Log (raw)**: ${BASE_URL}/images-build.log" >> ${NOTES_PATH}
           echo "- 🧰 **Dev Containers Log (raw)**: ${BASE_URL}/dev/containers.log" >> ${NOTES_PATH}
-          echo "- 🧰 **Dev Containers Log (HTML)**: ${BASE_URL}/dev/containers.html" >> ${NOTES_PATH}
-          echo "- 🔧 **Dev Setup Log (raw)**: ${BASE_URL}/dev-setup/setup.log" >> ${NOTES_PATH}
-          echo "- 🔧 **Dev Setup Log (HTML)**: ${BASE_URL}/dev-setup/setup.html" >> ${NOTES_PATH}
+          echo "- 🔧 **Dev Setup Log (raw)**: ${BASE_URL}/dev/setup.log" >> ${NOTES_PATH}
           echo "- 🧪 **Functional Tests Log (raw)**: ${BASE_URL}/dev/tests.log" >> ${NOTES_PATH}
-          echo "- 🧪 **Functional Tests Log (HTML)**: ${BASE_URL}/dev/tests.html" >> ${NOTES_PATH}
           echo "" >> ${NOTES_PATH}
           echo "---" >> ${NOTES_PATH}
           echo "" >> ${NOTES_PATH}
@@ -173,7 +169,7 @@ jobs:
           # Release notes
           gcloud storage cp "$gs_path/RELEASE_NOTES.md" "artifacts/RELEASE_NOTES.md" || true
           # Build log
-          gcloud storage cp "$gs_path/build/images-build.log" "artifacts/build/images-build.log" || true
+          gcloud storage cp "$gs_path/images-build.log" "artifacts/build/images-build.log" || true
           # Dev logs (dev only)
           gcloud storage cp "$gs_path/dev/containers.log" "artifacts/dev/containers.log" || true
           gcloud storage cp "$gs_path/dev/setup.log" "artifacts/dev/setup.log" || true
@@ -184,29 +180,6 @@ jobs:
           gcloud storage cp "$gs_path/tests/output.xml" "artifacts/tests/output.xml" || true
           # Trivy report
           gcloud storage cp "$gs_path/trivy/trivy-report.html" "artifacts/trivy-report.html" || true
-
-      # Conversion des logs bruts en HTML (dev seulement)
-      - name: Convert build and dev logs to HTML
-        run: |
-          gs_path="${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}"
-
-          if [ -f ./artifacts/dev/containers.log ]; then
-            echo "<html><body><pre>" > ./artifacts/dev/containers.html
-            cat ./artifacts/dev/containers.log >> ./artifacts/dev/containers.html
-            echo "</pre></body></html>" >> ./artifacts/dev/containers.html
-          fi
-
-          if [ -f ./artifacts/dev/setup.log ]; then
-            echo "<html><body><pre>" > ./artifacts/dev/setup.html
-            cat ./artifacts/dev/setup.log >> ./artifacts/dev/setup.html
-            echo "</pre></body></html>" >> ./artifacts/dev/setup.html
-          fi
-
-          if [ -f ./artifacts/build/images-build.log ]; then
-            echo "<html><body><pre>" > ./artifacts/build/images-build.html
-            cat ./artifacts/build/images-build.log >> ./artifacts/build/images-build.html
-            echo "</pre></body></html>" >> ./artifacts/build/images-build.html
-          fi
 
       - name: Generate and upload metadata.json
         env:
@@ -224,7 +197,7 @@ jobs:
             "artifactsBase": "https://storage.googleapis.com/${gs_path}",
             "releaseNotes": "https://storage.googleapis.com/${gs_path}/RELEASE_NOTES.md",
             "security": {
-              "trivyReport": "https://storage.googleapis.com/${gs_path}/trivy-report.html"
+              "trivyReport": "https://storage.googleapis.com/${gs_path}/trivy/trivy-report.html"
             },
             "tests": {
               "robotReport": "https://storage.googleapis.com/${gs_path}/tests/report.html",
@@ -232,15 +205,11 @@ jobs:
               "robotXml": "https://storage.googleapis.com/${gs_path}/tests/output.xml"
             },
             "build": {
-              "imagesBuildHtml": "https://storage.googleapis.com/${gs_path}/build/images-build.html",
-              "imagesBuildLog": "https://storage.googleapis.com/${gs_path}/build/images-build.log"
+              "imagesBuildLog": "https://storage.googleapis.com/${gs_path}/images-build.log"
             },
             "development": {
-              "functionalTestsHtml": "https://storage.googleapis.com/${gs_path}/dev/tests.html",
               "functionalTestsLog": "https://storage.googleapis.com/${gs_path}/dev/tests.log",
-              "containersHtml": "https://storage.googleapis.com/${gs_path}/dev/containers.html",
               "containersLog": "https://storage.googleapis.com/${gs_path}/dev/containers.log",
-              "devSetupHtml": "https://storage.googleapis.com/${gs_path}/dev/setup.html",
               "devSetupLog": "https://storage.googleapis.com/${gs_path}/dev/setup.log"
             }
           }

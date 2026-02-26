@@ -68,6 +68,12 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 -include git.mk
 -include nodejs.mk
 -include go.mk
+
+LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
+$(LOCAL_DOCKER_COMPOSE_SERVICES) \
+$(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
+$(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+
 -include .devcontainer/devcontainer.mk
 
 node-modules: local-node-modules

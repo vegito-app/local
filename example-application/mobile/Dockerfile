@@ -42,7 +42,8 @@ COPY --from=android android.mk android/
 ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore
 ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH=${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.base64
 ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH=${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=vegito-local-release
+ARG keystore_alias_name=vegito-local-release
+ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name}
 
 # Prepare empty keystore files with correct permissions. They will be populated in the next step.
 RUN mkdir -p /home/android/.android && \
@@ -65,22 +66,24 @@ RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
     echo -n "$SHA1" > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
     mv ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 /home/android/src/local/android/app-release.keystore.sha1
 
-ARG keystore_alias_name=vegito-local-release
 
+ARG environment
 RUN \
     VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER="cd mobile && flutter" \
+    INFRA_ENV=${environment} \
     make \
     example-application-mobile-flutter-android-release
 
 RUN \
     VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER="cd mobile && flutter" \
+    INFRA_ENV=${environment} \
     make \
     example-application-mobile-flutter-build-apk-debug
 
 FROM ${apk_runner_appium_image} AS runner
 
 ARG version
-ARG environment=dev
+ARG environment
 
 COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release-${version}.apk
 COPY --from=builder /home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release-${version}.aab
@@ -89,7 +92,7 @@ COPY --from=builder /home/android/src/local/android/app-release.keystore.sha1  /
 
 COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 
-ARG android_package_name=dev.vegito.app.android
+ARG android_package_name
 
 ENV LOCAL_ANDROID_DEBUG_APK_PATH=/build/output/app-debug-${version}.apk
 ENV LOCAL_ANDROID_APPIUM_EMULATOR_AVD_ON_START=true

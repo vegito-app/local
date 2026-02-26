@@ -44,6 +44,7 @@ permissions:
 
 jobs:
   create-github-release:
+    needs: [upload-release-to-gcs]
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
@@ -87,10 +88,10 @@ jobs:
           echo '<div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">' >> RELEASE_BODY.md
           echo '  <div style="text-align: center;">' >> RELEASE_BODY.md
           echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/qr-code.png\" alt=\"QR Code\" width=\"140\" height=\"140\"/>" >> RELEASE_BODY.md
-          echo "    <div>➡️ <a href=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk\">Download APK</a></div>" >> RELEASE_BODY.md
+          echo "    <div>➡️ <a href=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk\">Download APK</a></div>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '  <div>' >> RELEASE_BODY.md
-          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/mobile/android-preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
+          echo "    <img src=\"https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-preview.png\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
           echo '  </div>' >> RELEASE_BODY.md
           echo '</div>' >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
@@ -98,13 +99,13 @@ jobs:
           echo "" >> RELEASE_BODY.md
           echo "## 📦 [Production] Artifacts (GCS)" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
-          echo "- 🔗 [Download APK](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.apk)" >> RELEASE_BODY.md
-          echo "- 🔗 [Download AAB](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.aab)" >> RELEASE_BODY.md
-          echo "- 🔗 [Android Release Keystore SHA1](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/app-release.keystore.sha1)" >> RELEASE_BODY.md
-          echo "- 🧪 [Test Report (Robot Framework)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/report.html)" >> RELEASE_BODY.md
-          echo "- 🧪 [Test Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html)" >> RELEASE_BODY.md
-          echo "- 📊 [Test Output (XML)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/output.xml)" >> RELEASE_BODY.md
-          echo "- 🧾 [Build Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build/images-build.html)" >> RELEASE_BODY.md
+          echo "- 🔗 [Download APK](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk)" >> RELEASE_BODY.md
+          echo "- 🔗 [Download AAB](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab)" >> RELEASE_BODY.md
+          echo "- 🔗 [Android Release Keystore SHA1](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1)" >> RELEASE_BODY.md
+          echo "- 🧪 [Test Report (Robot Framework)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/report.html)" >> RELEASE_BODY.md
+          echo "- 🧪 [Test Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/log.html)" >> RELEASE_BODY.md
+          echo "- 📊 [Test Output (XML)](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/output.xml)" >> RELEASE_BODY.md
+          echo "- 🧾 [Build Log](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/images-build.html)" >> RELEASE_BODY.md
           echo "- 🧾 [Docker Tags](https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/docker-tags.md)" >> RELEASE_BODY.md
           echo "_Generated automatically by Vegito CI/CD pipeline 🧱_" >> RELEASE_BODY.md
           echo "# 🚀 Release $VERSION" >> RELEASE_BODY.md
@@ -135,15 +136,15 @@ jobs:
           mkdir -p "$tests_dir"
 
           gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/report.html" \
+            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/report.html" \
             "$tests_dir/report.html" || true
 
           gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html" \
+            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/log.html" \
             "$tests_dir/log.html" || true
 
           gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/output.xml" \
+            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/output.xml" \
             "$tests_dir/output.xml" || true
 
       - name: Append environment-specific information to changelog
@@ -176,9 +177,9 @@ jobs:
             if [ -d "$tests_dir" ]; then
               if [ -f "$tests_dir/report.html" ] || [ -f "$tests_dir/log.html" ] || [ -f "$tests_dir/output.xml" ]; then
                 echo "**Robot Framework Tests:**" >> RELEASE_BODY.md
-                [ -f "$tests_dir/report.html" ] && echo "- 🧪 Test Report: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/report.html" >> RELEASE_BODY.md
-                [ -f "$tests_dir/log.html" ] && echo "- 🧪 Test Log: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/log.html" >> RELEASE_BODY.md
-                [ -f "$tests_dir/output.xml" ] && echo "- 📊 Test Output (XML): https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests/output.xml" >> RELEASE_BODY.md
+                [ -f "$tests_dir/report.html" ] && echo "- 🧪 Test Report: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/report.html" >> RELEASE_BODY.md
+                [ -f "$tests_dir/log.html" ] && echo "- 🧪 Test Log: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/log.html" >> RELEASE_BODY.md
+                [ -f "$tests_dir/output.xml" ] && echo "- 📊 Test Output (XML): https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/output.xml" >> RELEASE_BODY.md
                 echo "" >> RELEASE_BODY.md
               fi
             fi
@@ -187,6 +188,17 @@ jobs:
       - name: Show Release Body preview
         run: |
           cat RELEASE_BODY.md
+
+      - name: Verify critical artifacts exist in GCS
+        run: |
+          set -euo pipefail
+          echo "🔎 Verifying critical artifacts in GCS before creating release..."
+
+          gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
+          gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
+          gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/report.html"
+
+          echo "✅ All critical artifacts found."
 
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
