@@ -60,6 +60,10 @@ on:
         required: true
       ANDROID_RELEASE_KEYSTORE_STORE_PASS:
         required: true
+      FACEBOOK_APP_ID:
+        required: false
+      FACEBOOK_CLIENT_TOKEN:
+        required: false
 
 permissions:
   id-token: write
@@ -82,6 +86,8 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
       VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
+      LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+      LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
 
     outputs:
       image_tags_md: ${{ steps.build_and_push_images.outputs.image_tags_md }}
