@@ -124,9 +124,9 @@ local-android-docker-images-push-parallel:
 .PHONY: local-android-docker-images-push-parallel
 
 LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
+
 LOCAL_ANDROID_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
 
-LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
 
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
@@ -140,6 +140,9 @@ LOCAL_ANDROID_RELEASE_KEYSTORE_DNAME ?= CN=Vegito, OU=Dev, O=Vegito, L=Paris, S=
 LOCAL_ANDROID_RELEASE_KEYSTORE_PATH ?= $(LOCAL_ANDROID_DIR)/$(LOCAL_ANDROID_PACKAGE_NAME)-release-key.keystore
 LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH = $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH).base64
 LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH = $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH).storepass.base64
+
+LOCAL_ANDROID_FACEBOOK_APP_ID ?= vegito-local-facebook-app-id
+LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN ?= vegito-local-facebook-client-token
 
 local-android-release-keystore: 
 	@$(MAKE) $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH)

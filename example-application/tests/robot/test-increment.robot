@@ -32,7 +32,7 @@ Reset State And Return Home
     Open Application    ${REMOTE_URL}    
     ...    platformName=${PLATFORM_NAME}    
     ...    automationName=UiAutomator2    
-    ...    appPackage=${APP_PACKAGE}    
+    ...    appPackage=${APP_PACKAGE}
     ...    appActivity=${APP_ACTIVITY}    
     ...    noReset=false
     ...    fullReset=false
