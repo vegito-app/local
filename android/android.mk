@@ -124,9 +124,9 @@ local-android-docker-images-push-parallel:
 .PHONY: local-android-docker-images-push-parallel
 
 LOCAL_ANDROID_CONTAINER_NAME ?= android-studio
+
 LOCAL_ANDROID_CONTAINER_EXEC = $(LOCAL_DOCKER_COMPOSE) exec $(LOCAL_ANDROID_CONTAINER_NAME)
 
-LOCAL_ANDROID_AVD_NAME ?= Pixel_8_Intel
 
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
