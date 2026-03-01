@@ -77,7 +77,7 @@ local-android-emulator-kernel:
 	@echo "Showing emulator kernel..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Showing emulator kernel..." ; \
-	  emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
+	  emulator -avd $(LOCAL_ANDROID_EMULATOR_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
 	  echo "[*] Emulator kernel shown." ; \
 	'
 .PHONY: local-android-emulator-kernel
