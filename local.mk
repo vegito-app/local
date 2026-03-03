@@ -73,7 +73,6 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 
-
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   firebase-emulators \
@@ -213,10 +212,9 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	@$(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-	      LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE)" \
-	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
-	      LOCAL_VAULT_AUDIT_INIT=false \
-	      VERSION=$(LOCAL_VERSION)
+	      VERSION=$(LOCAL_VERSION) \
+		  INFRA_ENV=$(INFRA_ENV) \
+		  GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk

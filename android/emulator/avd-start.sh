@@ -40,7 +40,7 @@ if [[ -z "$apk_path" ]]; then
     exit 1
   fi
 fi
-avd_name="${LOCAL_ANDROID_AVD_NAME:-Pixel_8_Pro}"
+avd_name="${LOCAL_ANDROID_EMULATOR_AVD_NAME:-Pixel_8_Pro}"
 gpu_mode="${LOCAL_ANDROID_gpu_mode:-swiftshader_indirect}"
 
 # 📛 Détection du nom du package si non fourni
