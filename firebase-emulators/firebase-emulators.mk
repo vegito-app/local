@@ -34,13 +34,12 @@ $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON):
 	@$(LOCAL_FIREBASE_EMULATORS_DIR)/firebase-emulators-config-create-json.sh
 
 local-firebase-emulators-start: local-firebase-emulators-install local-firebase-emulators-config-json
-	unset GOOGLE_APPLICATION_CREDENTIALS || true ; \
-	  $(FIREBASE_EMULATORS) emulators:start \
-	    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
-	    --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
-	    --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \
-	    --log-verbosity DEBUG \
-	    --only $(FIREBASE_EMULATORS_SERVICES)
+	$(FIREBASE_EMULATORS) emulators:start \
+	  --project=$(GOOGLE_CLOUD_PROJECT_ID) \
+	  --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
+	  --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \
+	  --log-verbosity DEBUG \
+	  --only $(FIREBASE_EMULATORS_SERVICES)
 .PHONY: local-firebase-emulators-start
 
 local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-container-up local-firebase-emulators-container-logs
