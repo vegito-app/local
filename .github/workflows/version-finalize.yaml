@@ -7,6 +7,11 @@ on:
         type: string
         default: main
 
+      environment:
+        description: "The environment to deploy to (e.g., prod, staging)"
+        type: string
+        required: true
+
       version:
         description: "Semantic version without leading v (ex: 1.2.3)"
         type: string
@@ -56,6 +61,7 @@ jobs:
   finalize:
     runs-on: self-hosted
     name: Finalize Version
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout clean
@@ -90,7 +96,7 @@ jobs:
         run: |
           mkdir -p ./release-notes
           gcloud storage cp \
-            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/CHANGELOG.md \
+            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/${{ inputs.release_notes_path }} \
             ./release-notes/${{ inputs.release_notes_path }}
 
       - name: Create GitHub Release
