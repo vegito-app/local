@@ -44,7 +44,7 @@ local-android-emulator-adb-devices-list:
 
 local-android-emulator-app-uninstall:
 	@echo "Uninstalling the app from the emulator"
-	@$(LOCAL_ANDROID_ADB) uninstall dev.vegito.app.android || true
+	@$(LOCAL_ANDROID_ADB) uninstall $(LOCAL_ANDROID_PACKAGE_NAME) || true
 .PHONY: local-android-emulator-app-uninstall
 
 local-android-emulator-avd-start:
@@ -76,7 +76,7 @@ local-android-emulator-kernel:
 	@echo "Showing emulator kernel..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Showing emulator kernel..." ; \
-	  emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
+	  emulator -avd $$LOCAL_ANDROID_EMULATOR_AVD_NAME -no-snapshot-save -wipe-data -show-kernel ; \
 	  echo "[*] Emulator kernel shown." ; \
 	'
 .PHONY: local-android-emulator-kernel
