@@ -78,6 +78,8 @@ jobs:
 
       - name: Configure Cloud SDK and Docker
         run: |
+          env
+          echo INFRA_ENV=${INFRA_ENV} make gcloud-config-set-project
           make gcloud-config-set-project
           make gcloud-auth-docker
 
@@ -92,6 +94,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: ${{ inputs.severity }}
+          version: v0.69.3
 
       - name: Upload Trivy HTML report to GCS
         if: always()
