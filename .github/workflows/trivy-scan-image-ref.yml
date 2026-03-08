@@ -59,6 +59,7 @@ jobs:
       IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
       VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       VERSION: ${{ inputs.version }}
+      INFRA_ENV: ${{ inputs.environment }}
 
     steps:
       - name: Checkout repository
@@ -91,7 +92,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: ${{ inputs.severity }}
-          version: v0.69.1
+          version: v0.69.3
 
       - name: Upload Trivy HTML report to GCS
         if: always()
