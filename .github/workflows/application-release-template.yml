@@ -118,41 +118,53 @@ jobs:
       - name: Download environment artifacts from GCS (minimal)
         run: |
           set -euo pipefail
-          env_artifacts_dir="./artifacts/${{ inputs.environment }}"
-          mkdir -p "$env_artifacts_dir"
 
-          gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/docker-tags.md" \
-            "$env_artifacts_dir/docker-tags.md" || true
+          for env in prod staging dev; do
+            bucket="${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}"
+            env_artifacts_dir="./artifacts/${env}"
+            mkdir -p "$env_artifacts_dir"
 
-          gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1" \
-            "$env_artifacts_dir/android-mobile-release-${VERSION}-key.keystore.sha1" || true
+            echo "📦 Fetching artifacts for environment: $env"
+
+            gcloud storage cp \
+              "gs://${bucket}/${VERSION}/docker-tags.md" \
+              "$env_artifacts_dir/docker-tags.md" || true
+
+            gcloud storage cp \
+              "gs://${bucket}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1" \
+              "$env_artifacts_dir/android-mobile-release-${VERSION}-key.keystore.sha1" || true
+          done
 
       - name: Download Robot Framework artifacts from GCS
         run: |
           set -euo pipefail
-          tests_dir="./artifacts/${{ inputs.environment }}/tests"
-          mkdir -p "$tests_dir"
 
-          gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/report.html" \
-            "$tests_dir/report.html" || true
+          for env in prod staging dev; do
+            bucket="${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}"
+            tests_dir="./artifacts/${env}/tests"
+            mkdir -p "$tests_dir"
 
-          gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/log.html" \
-            "$tests_dir/log.html" || true
+            echo "🧪 Fetching Robot Framework artifacts for environment: $env"
 
-          gcloud storage cp \
-            "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/output.xml" \
-            "$tests_dir/output.xml" || true
+            gcloud storage cp \
+              "gs://${bucket}/${VERSION}/functional-tests/output/report.html" \
+              "$tests_dir/report.html" || true
+
+            gcloud storage cp \
+              "gs://${bucket}/${VERSION}/functional-tests/output/log.html" \
+              "$tests_dir/log.html" || true
+
+            gcloud storage cp \
+              "gs://${bucket}/${VERSION}/functional-tests/output/output.xml" \
+              "$tests_dir/output.xml" || true
+          done
 
       - name: Append environment-specific information to changelog
         run: |
           set -euo pipefail
           for env in prod staging dev; do
             echo -e "\n\n---\n\n" >> RELEASE_BODY.md
-            echo "### [$env] Environment Artifacts:" >> RELEASE_BODY.md
+            echo "### 🌍 Environment: $env" >> RELEASE_BODY.md
             echo "" >> RELEASE_BODY.md
             
             # Append Android keystore SHA1 if available
@@ -177,9 +189,10 @@ jobs:
             if [ -d "$tests_dir" ]; then
               if [ -f "$tests_dir/report.html" ] || [ -f "$tests_dir/log.html" ] || [ -f "$tests_dir/output.xml" ]; then
                 echo "**Robot Framework Tests:**" >> RELEASE_BODY.md
-                [ -f "$tests_dir/report.html" ] && echo "- 🧪 Test Report: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/report.html" >> RELEASE_BODY.md
-                [ -f "$tests_dir/log.html" ] && echo "- 🧪 Test Log: https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/log.html" >> RELEASE_BODY.md
-                [ -f "$tests_dir/output.xml" ] && echo "- 📊 Test Output (XML): https://storage.googleapis.com/${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/functional-tests/output/output.xml" >> RELEASE_BODY.md
+                bucket="${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}"
+                [ -f "$tests_dir/report.html" ] && echo "- 🧪 Test Report: https://storage.googleapis.com/${bucket}/${VERSION}/functional-tests/output/report.html" >> RELEASE_BODY.md
+                [ -f "$tests_dir/log.html" ] && echo "- 🧪 Test Log: https://storage.googleapis.com/${bucket}/${VERSION}/functional-tests/output/log.html" >> RELEASE_BODY.md
+                [ -f "$tests_dir/output.xml" ] && echo "- 📊 Test Output (XML): https://storage.googleapis.com/${bucket}/${VERSION}/functional-tests/output/output.xml" >> RELEASE_BODY.md
                 echo "" >> RELEASE_BODY.md
               fi
             fi
@@ -368,3 +381,48 @@ jobs:
           fi
 
           gcloud storage cp ./artifacts/qr-code.png "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/qr-code.png" --quiet
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+      - name: Source dynamic env vars
+        run: |
+          if [ -f "/runner/_work/${HOSTNAME}/gha-env-vars" ]; then
+            echo "📦 Loading env from /runner/_work/${HOSTNAME}/gha-env-vars"
+            cat "/runner/_work/${HOSTNAME}/gha-env-vars" >> $GITHUB_ENV
+          else
+            echo "⚠️ gha-env-vars not found in expected path"
+          fi
+      - name: Generate index.json for release root
+        run: |
+          set -euo pipefail
+
+          ROOT_BUCKET="${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}"
+
+          echo '{"versions": [' > index.json
+
+          first=true
+          for f in $(gcloud storage ls "gs://${ROOT_BUCKET}/*/metadata.json" 2>/dev/null || true); do
+            version=$(basename $(dirname "$f"))
+
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo "," >> index.json
+            fi
+
+            echo "  {\"version\": \"$version\"}" >> index.json
+          done
+
+          echo ']}' >> index.json
+      - name: Upload docker tags and index to GCS
+        run: |
+          ROOT_BUCKET="${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}"
+          if [ -f index.json ]; then
+            gcloud storage cp index.json gs://${ROOT_BUCKET}/index.json
+          fi

@@ -11,9 +11,12 @@ jobs:
   version:
     name: Generate Version and Changelog
     uses: ./.github/workflows/version-prepare.yml
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
     with:
-      environment: prod
-      release_bucket_name: vegito-app-prod-github-actions-ci-artifacts
+      environment: ${{ matrix.environment }}
+      release_bucket_name: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
     secrets:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
@@ -92,7 +95,7 @@ jobs:
     name: Application Release Build 🚀
     uses: ./.github/workflows/application-release-template.yml
     with:
-      environment: dev
+      environment: prod
       version: ${{ needs.version.outputs.version }}
       release_bucket_name: vegito-app-dev-github-actions-ci-artifacts
     secrets:
