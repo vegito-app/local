@@ -23,15 +23,7 @@ on:
         required: false
         type: string
         default: ${{ github.repository }}
-      dev_release_bucket:
-        required: false
-        type: string
-        default: vegito-app-dev-github-actions-ci-artifacts-private
-      staging_release_bucket:
-        required: false
-        type: string
-        default: vegito-app-staging-github-actions-ci-artifacts-private
-      prod_release_bucket:
+      release_bucket:
         required: false
         type: string
         default: vegito-app-prod-github-actions-ci-artifacts-private
@@ -60,7 +52,7 @@ jobs:
     env:
       VERSION: ${{ inputs.version }}
       VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
-      VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.prod_release_bucket }}/${{ inputs.release_bucket_prefix }}
+      VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.release_bucket }}/${{ inputs.release_bucket_prefix }}
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
@@ -100,105 +92,96 @@ jobs:
           echo "" >> RELEASE_BODY.md
           echo "## 📦 Build Artifacts (Vegito)" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
-          
-          for env in prod staging dev; do
 
-            case "$env" in
-              prod) bucket="${{ inputs.prod_release_bucket }}/${{ inputs.release_bucket_prefix }}" ;;
-              staging) bucket="${{ inputs.staging_release_bucket }}/${{ inputs.release_bucket_prefix }}" ;;
-              dev) bucket="${{ inputs.dev_release_bucket }}/${{ inputs.release_bucket_prefix }}" ;;
-            esac
+          # Skip environment if no metadata exists
+          if ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build-metadata.json" >/dev/null 2>&1 \
+            && ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests-metadata.json" >/dev/null 2>&1 \
+            && ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/security-metadata.json" >/dev/null 2>&1; then
+            continue
+          fi
+        
+          echo -e "\n---\n" >> RELEASE_BODY.md
+          echo "### 🌍 Environment: $env" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
 
-            # Skip environment if no metadata exists
-            if ! gcloud storage ls "gs://${bucket}/${VERSION}/build-metadata.json" >/dev/null 2>&1 \
-              && ! gcloud storage ls "gs://${bucket}/${VERSION}/tests-metadata.json" >/dev/null 2>&1 \
-              && ! gcloud storage ls "gs://${bucket}/${VERSION}/security-metadata.json" >/dev/null 2>&1; then
-              continue
-            fi
-          
-            echo -e "\n---\n" >> RELEASE_BODY.md
-            echo "### 🌍 Environment: $env" >> RELEASE_BODY.md
+          build=$(gcloud storage cat "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build-metadata.json" 2>/dev/null || echo "{}")
+          tests=$(gcloud storage cat "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests-metadata.json" 2>/dev/null || echo "{}")
+          security=$(gcloud storage cat "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/security-metadata.json" 2>/dev/null || echo "{}")
+
+          metadata=$(echo "$build $tests $security" | jq -s 'add')
+
+          if [ "$metadata" = "null" ] || [ -z "$metadata" ]; then
+            echo "_No metadata found for this environment._" >> RELEASE_BODY.md
+            continue
+          fi
+
+          apk=$(echo "$metadata" | jq -r '.apk // empty')
+          aab=$(echo "$metadata" | jq -r '.aab // empty')
+          sha1_url=$(echo "$metadata" | jq -r '.androidKeystoreSha1 // empty')
+          docker_tags_url=$(echo "$metadata" | jq -r '.dockerTags // empty')
+          robot_report=$(echo "$metadata" | jq -r '.robotReport // empty')
+          robot_log=$(echo "$metadata" | jq -r '.robotLog // empty')
+          robot_xml=$(echo "$metadata" | jq -r '.robotXml // empty')
+          thumbnail=$(echo "$metadata" | jq -r '.thumbnail // empty')
+          qr=$(echo "$metadata" | jq -r '.qr // empty')
+          security_report=$(echo "$metadata" | jq -r '.securityReport // empty')
+
+          if [ -n "$apk" ]; then
             echo "" >> RELEASE_BODY.md
+            echo "### 📱 Download and Preview" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+            echo "<div style=\"display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;\">" >> RELEASE_BODY.md
+            echo "<div style=\"text-align: center;\">" >> RELEASE_BODY.md
 
-            build=$(gcloud storage cat "gs://${bucket}/${VERSION}/build-metadata.json" 2>/dev/null || echo "{}")
-            tests=$(gcloud storage cat "gs://${bucket}/${VERSION}/tests-metadata.json" 2>/dev/null || echo "{}")
-            security=$(gcloud storage cat "gs://${bucket}/${VERSION}/security-metadata.json" 2>/dev/null || echo "{}")
-
-            metadata=$(echo "$build $tests $security" | jq -s 'add')
-
-            if [ "$metadata" = "null" ] || [ -z "$metadata" ]; then
-              echo "_No metadata found for this environment._" >> RELEASE_BODY.md
-              continue
+            if [ -n "$qr" ]; then
+              echo "<img src=\"$qr\" alt=\"QR Code\" width=\"140\" height=\"140\"/>" >> RELEASE_BODY.md
             fi
 
-            apk=$(echo "$metadata" | jq -r '.apk // empty')
-            aab=$(echo "$metadata" | jq -r '.aab // empty')
-            sha1_url=$(echo "$metadata" | jq -r '.androidKeystoreSha1 // empty')
-            docker_tags_url=$(echo "$metadata" | jq -r '.dockerTags // empty')
-            robot_report=$(echo "$metadata" | jq -r '.robotReport // empty')
-            robot_log=$(echo "$metadata" | jq -r '.robotLog // empty')
-            robot_xml=$(echo "$metadata" | jq -r '.robotXml // empty')
-            thumbnail=$(echo "$metadata" | jq -r '.thumbnail // empty')
-            qr=$(echo "$metadata" | jq -r '.qr // empty')
-            security_report=$(echo "$metadata" | jq -r '.securityReport // empty')
+            echo "<div>➡️ <a href=\"$apk\">Download APK</a></div>" >> RELEASE_BODY.md
+            echo "</div>" >> RELEASE_BODY.md
 
-            if [ -n "$apk" ]; then
-              echo "" >> RELEASE_BODY.md
-              echo "### 📱 Download and Preview" >> RELEASE_BODY.md
-              echo "" >> RELEASE_BODY.md
-              echo "<div style=\"display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;\">" >> RELEASE_BODY.md
-              echo "<div style=\"text-align: center;\">" >> RELEASE_BODY.md
-
-              if [ -n "$qr" ]; then
-                echo "<img src=\"$qr\" alt=\"QR Code\" width=\"140\" height=\"140\"/>" >> RELEASE_BODY.md
-              fi
-
-              echo "<div>➡️ <a href=\"$apk\">Download APK</a></div>" >> RELEASE_BODY.md
+            if [ -n "$thumbnail" ]; then
+              echo "<div>" >> RELEASE_BODY.md
+              echo "<img src=\"$thumbnail\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
               echo "</div>" >> RELEASE_BODY.md
-
-              if [ -n "$thumbnail" ]; then
-                echo "<div>" >> RELEASE_BODY.md
-                echo "<img src=\"$thumbnail\" alt=\"App Screenshot\" style=\"max-height: 160px; border: 1px solid #ccc;\"/>" >> RELEASE_BODY.md
-                echo "</div>" >> RELEASE_BODY.md
-              fi
-
-              echo "</div>" >> RELEASE_BODY.md
-              echo "" >> RELEASE_BODY.md
             fi
 
-            if [ -n "$aab" ]; then
-              echo "- 📦 AAB: $aab" >> RELEASE_BODY.md
-            fi
+            echo "</div>" >> RELEASE_BODY.md
+            echo "" >> RELEASE_BODY.md
+          fi
 
-            if [ -n "$sha1_url" ]; then
-              echo "" >> RELEASE_BODY.md
-              echo "**Android Release Keystore SHA1:**" >> RELEASE_BODY.md
-              echo '```' >> RELEASE_BODY.md
-              curl -s "$sha1_url" >> RELEASE_BODY.md || true
-              echo '' >> RELEASE_BODY.md
-              echo '```' >> RELEASE_BODY.md
-            fi
+          if [ -n "$aab" ]; then
+            echo "- 📦 AAB: $aab" >> RELEASE_BODY.md
+          fi
 
-            if [ -n "$docker_tags_url" ]; then
-              echo "" >> RELEASE_BODY.md
-              echo "**Docker images published:**" >> RELEASE_BODY.md
-              curl -s "$docker_tags_url" >> RELEASE_BODY.md || true
-            fi
+          if [ -n "$sha1_url" ]; then
+            echo "" >> RELEASE_BODY.md
+            echo "**Android Release Keystore SHA1:**" >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+            curl -s "$sha1_url" >> RELEASE_BODY.md || true
+            echo '' >> RELEASE_BODY.md
+            echo '```' >> RELEASE_BODY.md
+          fi
 
-            if [ -n "$robot_report" ]; then
-              echo "" >> RELEASE_BODY.md
-              echo "**Robot Framework Tests:**" >> RELEASE_BODY.md
-              echo "- 🧪 Test Report: $robot_report" >> RELEASE_BODY.md
-              echo "- 🧪 Test Log: $robot_log" >> RELEASE_BODY.md
-              echo "- 📊 Test Output (XML): $robot_xml" >> RELEASE_BODY.md
-            fi
+          if [ -n "$docker_tags_url" ]; then
+            echo "" >> RELEASE_BODY.md
+            echo "**Docker images published:**" >> RELEASE_BODY.md
+            curl -s "$docker_tags_url" >> RELEASE_BODY.md || true
+          fi
 
-            if [ -n "$security_report" ]; then
-              echo "" >> RELEASE_BODY.md
-              echo "**Security Scan Report:**" >> RELEASE_BODY.md
-              echo "- 🔒 Security Report: $security_report" >> RELEASE_BODY.md
-            fi
-          done
+          if [ -n "$robot_report" ]; then
+            echo "" >> RELEASE_BODY.md
+            echo "**Robot Framework Tests:**" >> RELEASE_BODY.md
+            echo "- 🧪 Test Report: $robot_report" >> RELEASE_BODY.md
+            echo "- 🧪 Test Log: $robot_log" >> RELEASE_BODY.md
+            echo "- 📊 Test Output (XML): $robot_xml" >> RELEASE_BODY.md
+          fi
+
+          if [ -n "$security_report" ]; then
+            echo "" >> RELEASE_BODY.md
+            echo "**Security Scan Report:**" >> RELEASE_BODY.md
+            echo "- 🔒 Security Report: $security_report" >> RELEASE_BODY.md
+          fi
 
       - name: Show Release Body preview
         run: |

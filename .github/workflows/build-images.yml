@@ -75,7 +75,7 @@ jobs:
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
-      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref_name }}-${{ github.run_id }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -216,7 +216,16 @@ jobs:
 
       - name: Extract signed APK & AAB releases and keystore SHA1 from images
         id: extract_apk_aab
-        run: make application-mobile-image-extract-android-artifacts
+        run: |
+          if make -qp 2>/dev/null | grep -q "^application-mobile-image-extract-android-artifacts:"; then
+            echo "📦 Android artifacts target detected — extracting artifacts"
+            make application-mobile-image-extract-android-artifacts
+          else
+            echo "ℹ️ No Android mobile build in this repository — skipping extraction"
+            touch ${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }} \
+                  ${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }} \
+                  ${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }} || true
+          fi
 
       - name: Upload signed APK, AAB, and keystore SHA1 to GCS
         run: |
@@ -266,15 +275,26 @@ jobs:
           gcloud storage cp "${BASE}/build-metadata.json" existing-build-metadata.json 2>/dev/null || echo "{}" > existing-build-metadata.json
 
           # Android-specific metadata
-          cat <<EOF > android-metadata.json
-          {
-            "apk": "${APK}",
-            "aab": "${AAB}",
-            "androidKeystoreSha1": "${SHA1}",
-            "qr": "${QR}",
-            "thumbnail": "${THUMBNAIL}"
+          jq -n \
+            --arg apk "$APK" \
+            --arg aab "$AAB" \
+            --arg sha1 "$SHA1" \
+            --arg qr "$QR" \
+            --arg thumb "$THUMBNAIL" \
+          '{
+            android: (
+              {
+                apk: $apk,
+                aab: $aab,
+                keystoreSha1: $sha1,
+                qr: $qr,
+                thumbnail: $thumb
+              }
+              | with_entries(select(.value != ""))
+            )
           }
-          EOF
+          | if (.android | length) == 0 then del(.android) else . end' \
+          > android-metadata.json
 
           # Merge existing metadata with Android metadata
           jq -s '.[0] * .[1]' existing-build-metadata.json android-metadata.json > build-metadata.json
