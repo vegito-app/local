@@ -157,11 +157,10 @@ jobs:
           APK="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
           AAB="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab"
           SHA1="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1"
-          DOCKER="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
-          BUILD="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/images-build.log"
 
           mkdir -p artifacts
 
+          # Generate QR code only if APK exists
           if gcloud storage ls "${BASE}/android-mobile-release-${VERSION}-signed-aligned.apk" >/dev/null 2>&1; then
             qrencode -o artifacts/qr-code.png "$APK"
             gcloud storage cp artifacts/qr-code.png ${BASE}/qr-code.png || true
@@ -170,18 +169,23 @@ jobs:
             QR=""
           fi
 
-          cat <<EOF > build-metadata.json
+          # Download existing build metadata if present
+          gcloud storage cp "${BASE}/build-metadata.json" existing-build-metadata.json 2>/dev/null || echo "{}" > existing-build-metadata.json
+
+          # Create Android-specific metadata
+          cat <<EOF > android-metadata.json
           {
-            "version": "${VERSION}",
             "apk": "${APK}",
             "aab": "${AAB}",
             "androidKeystoreSha1": "${SHA1}",
-            "dockerTags": "${DOCKER}",
-            "buildImagesLog": "${BUILD}",
             "qr": "${QR}"
           }
           EOF
 
+          # Merge metadata (build + android)
+          jq -s '.[0] * .[1]' existing-build-metadata.json android-metadata.json > build-metadata.json
+
+          # Upload merged metadata
           gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
 
   upload-android-artifacts:

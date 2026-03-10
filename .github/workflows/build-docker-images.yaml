@@ -13,6 +13,18 @@ on:
         required: true
         type: string
 
+      release_bucket_name:
+        description: "GCS bucket where build artifacts are stored"
+        required: false
+        type: string
+        default: vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts-private
+
+      release_bucket_prefix:
+        description: "Prefix path inside the bucket (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -65,7 +77,13 @@ jobs:
 
       - name: Upload images-build.log to GCS
         run: |
-          gcloud storage cp images-build.log gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/images-build.log
+          BUCKET="${{ inputs.release_bucket_name }}"
+          PREFIX="${{ inputs.release_bucket_prefix }}"
+          VERSION="${{ inputs.version }}"
+
+          if ! gcloud storage cp images-build.log "gs://${BUCKET}/${PREFIX}/${VERSION}/images-build.log" ; then
+            echo "::warning::upload failed for images-build.log"
+          fi
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
@@ -77,4 +95,38 @@ jobs:
 
       - name: Upload docker-tags.md to GCS
         run: |
-          gcloud storage cp docker-tags.md gs://vegito-app-${{ inputs.environment }}-github-actions-ci-artifacts/${{ inputs.version }}/docker-tags.md
+          BUCKET="${{ inputs.release_bucket_name }}"
+          PREFIX="${{ inputs.release_bucket_prefix }}"
+          VERSION="${{ inputs.version }}"
+
+          if ! gcloud storage cp docker-tags.md "gs://${BUCKET}/${PREFIX}/${VERSION}/docker-tags.md" ; then
+            echo "::warning::upload failed for docker-tags.md"
+          fi
+
+      - name: Generate build metadata
+        run: |
+          set -euo pipefail
+
+          BUCKET="${{ inputs.release_bucket_name }}"
+          PREFIX="${{ inputs.release_bucket_prefix }}"
+          VERSION="${{ inputs.version }}"
+
+          BASE_URL="https://storage.googleapis.com/${BUCKET}/${PREFIX}/${VERSION}"
+
+          cat <<EOF > build-metadata.json
+          {
+            "buildLog": "${BASE_URL}/images-build.log",
+            "buildImagesLog": "${BASE_URL}/images-build.log",
+            "dockerTags": "${BASE_URL}/docker-tags.md"
+          }
+          EOF
+
+      - name: Upload build metadata
+        run: |
+          BUCKET="${{ inputs.release_bucket_name }}"
+          PREFIX="${{ inputs.release_bucket_prefix }}"
+          VERSION="${{ inputs.version }}"
+
+          if ! gcloud storage cp build-metadata.json "gs://${BUCKET}/${PREFIX}/${VERSION}/build-metadata.json" ; then
+            echo "::warning::upload failed for build-metadata.json"
+          fi

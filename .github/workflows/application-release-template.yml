@@ -100,14 +100,22 @@ jobs:
           echo "" >> RELEASE_BODY.md
           echo "## 📦 Build Artifacts (Vegito)" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
-
+          
           for env in prod staging dev; do
+
             case "$env" in
               prod) bucket="${{ inputs.prod_release_bucket }}/${{ inputs.release_bucket_prefix }}" ;;
               staging) bucket="${{ inputs.staging_release_bucket }}/${{ inputs.release_bucket_prefix }}" ;;
               dev) bucket="${{ inputs.dev_release_bucket }}/${{ inputs.release_bucket_prefix }}" ;;
             esac
 
+            # Skip environment if no metadata exists
+            if ! gcloud storage ls "gs://${bucket}/${VERSION}/build-metadata.json" >/dev/null 2>&1 \
+              && ! gcloud storage ls "gs://${bucket}/${VERSION}/tests-metadata.json" >/dev/null 2>&1 \
+              && ! gcloud storage ls "gs://${bucket}/${VERSION}/security-metadata.json" >/dev/null 2>&1; then
+              continue
+            fi
+          
             echo -e "\n---\n" >> RELEASE_BODY.md
             echo "### 🌍 Environment: $env" >> RELEASE_BODY.md
             echo "" >> RELEASE_BODY.md

@@ -1,6 +1,8 @@
 VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
+COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER) 
+
 ifdef VERSION
 LOCAL_VERSION := $(VERSION)
 endif
@@ -46,6 +48,7 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
 	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
