@@ -148,12 +148,50 @@ jobs:
           # Suppression sécurisée des fichiers sensibles
           shred -u ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}* || true
 
+      - name: Generate metadata.json and QR code
+        run: |
+          set -euo pipefail
+
+          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
+
+          APK="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
+          AAB="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab"
+          SHA1="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1"
+          DOCKER="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
+          BUILD="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/images-build.log"
+
+          mkdir -p artifacts
+
+          if gcloud storage ls "${BASE}/android-mobile-release-${VERSION}-signed-aligned.apk" >/dev/null 2>&1; then
+            qrencode -o artifacts/qr-code.png "$APK"
+            gcloud storage cp artifacts/qr-code.png ${BASE}/qr-code.png || true
+            QR="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/qr-code.png"
+          else
+            QR=""
+          fi
+
+          cat <<EOF > build-metadata.json
+          {
+            "version": "${VERSION}",
+            "apk": "${APK}",
+            "aab": "${AAB}",
+            "androidKeystoreSha1": "${SHA1}",
+            "dockerTags": "${DOCKER}",
+            "buildImagesLog": "${BUILD}",
+            "qr": "${QR}"
+          }
+          EOF
+
+          gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
+
   upload-android-artifacts:
     needs: build-and-push
     name: Upload Android Release Artifacts for ${{ inputs.environment }} 🧱
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
+      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
@@ -166,6 +204,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Source dynamic env vars
+        run: |
+          if [ -f $GITHUB_WORKSPACE/../../gha-env-vars ]; then
+          echo "📦 Loading env from $GITHUB_WORKSPACE/../../gha-env-vars"
+          cat $GITHUB_WORKSPACE/../../gha-env-vars >> $GITHUB_ENV
+          else
+          echo "⚠️ gha-env-vars not found"
+          fi
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -190,3 +237,39 @@ jobs:
           gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk
           gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab
           gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+
+      - name: Generate metadata.json and QR code
+        run: |
+          set -euo pipefail
+
+          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
+
+          APK="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
+          AAB="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab"
+          SHA1="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1"
+          DOCKER="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
+          BUILD="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/images-build.log"
+
+          mkdir -p artifacts
+
+          if gcloud storage ls "${BASE}/android-mobile-release-${VERSION}-signed-aligned.apk" >/dev/null 2>&1; then
+            qrencode -o artifacts/qr-code.png "$APK"
+            gcloud storage cp artifacts/qr-code.png ${BASE}/qr-code.png || true
+            QR="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/qr-code.png"
+          else
+            QR=""
+          fi
+
+          cat <<EOF > build-metadata.json
+          {
+            "version": "${VERSION}",
+            "apk": "${APK}",
+            "aab": "${AAB}",
+            "androidKeystoreSha1": "${SHA1}",
+            "dockerTags": "${DOCKER}",
+            "buildImagesLog": "${BUILD}",
+            "qr": "${QR}"
+          }
+          EOF
+
+          gcloud storage cp build-metadata.json ${BASE}/build-metadata.json

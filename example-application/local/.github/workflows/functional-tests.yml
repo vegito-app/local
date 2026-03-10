@@ -34,9 +34,10 @@ jobs:
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
+      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       INFRA_ENV: ${{ inputs.environment }}
       LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: android-mobile-${{ inputs.environment }}-${{ inputs.version }}-screenshot.png
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
     steps:
       - name: Checkout repository

@@ -103,3 +103,19 @@ jobs:
             --content-type=text/html \
             trivy-report.html \
             "$DEST"
+
+      - name: Publish security metadata
+        run: |
+          set -euo pipefail
+
+          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
+
+          REPORT="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
+
+          cat <<EOF > security-metadata.json
+          {
+            "securityReport": "${REPORT}"
+          }
+          EOF
+
+          gcloud storage cp security-metadata.json ${BASE}/security-metadata.json
