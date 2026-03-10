@@ -134,13 +134,17 @@ jobs:
 
       - name: Upload images-build.log to GCS
         run: |
-          gcloud storage cp images-build.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/images-build.log
+          if ! gcloud storage cp images-build.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/images-build.log; then
+            echo "::warning::failed to upload images-build.log"
+          fi
 
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
         run: |
           make docker-build-tags-list-ci-md > docker-tags.md
-          gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md
+          if ! gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md; then
+            echo "::warning::failed to upload docker-tags.md"
+          fi
 
       - name: Cleanup Sensitive Files
         if: always()
@@ -154,38 +158,16 @@ jobs:
 
           BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
 
-          APK="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
-          AAB="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab"
-          SHA1="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1"
+          BUILD_LOG="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/images-build.log"
+          DOCKER_TAGS="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
 
-          mkdir -p artifacts
-
-          # Generate QR code only if APK exists
-          if gcloud storage ls "${BASE}/android-mobile-release-${VERSION}-signed-aligned.apk" >/dev/null 2>&1; then
-            qrencode -o artifacts/qr-code.png "$APK"
-            gcloud storage cp artifacts/qr-code.png ${BASE}/qr-code.png || true
-            QR="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/qr-code.png"
-          else
-            QR=""
-          fi
-
-          # Download existing build metadata if present
-          gcloud storage cp "${BASE}/build-metadata.json" existing-build-metadata.json 2>/dev/null || echo "{}" > existing-build-metadata.json
-
-          # Create Android-specific metadata
-          cat <<EOF > android-metadata.json
+          cat <<EOF > build-metadata.json
           {
-            "apk": "${APK}",
-            "aab": "${AAB}",
-            "androidKeystoreSha1": "${SHA1}",
-            "qr": "${QR}"
+            "buildImagesLog": "${BUILD_LOG}",
+            "dockerTags": "${DOCKER_TAGS}"
           }
           EOF
 
-          # Merge metadata (build + android)
-          jq -s '.[0] * .[1]' existing-build-metadata.json android-metadata.json > build-metadata.json
-
-          # Upload merged metadata
           gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
 
   upload-android-artifacts:
@@ -238,9 +220,17 @@ jobs:
 
       - name: Upload signed APK, AAB, and keystore SHA1 to GCS
         run: |
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+          if ! gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk; then
+            echo "::warning::APK upload failed"
+          fi
+
+          if ! gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab; then
+            echo "::warning::AAB upload failed"
+          fi
+
+          if ! gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1; then
+            echo "::warning::Keystore SHA1 upload failed"
+          fi
 
       - name: Generate metadata.json and QR code
         run: |
@@ -251,11 +241,10 @@ jobs:
           APK="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
           AAB="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab"
           SHA1="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1"
-          DOCKER="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
-          BUILD="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/images-build.log"
 
           mkdir -p artifacts
 
+          # Generate QR code only if APK exists
           if gcloud storage ls "${BASE}/android-mobile-release-${VERSION}-signed-aligned.apk" >/dev/null 2>&1; then
             qrencode -o artifacts/qr-code.png "$APK"
             gcloud storage cp artifacts/qr-code.png ${BASE}/qr-code.png || true
@@ -264,16 +253,31 @@ jobs:
             QR=""
           fi
 
-          cat <<EOF > build-metadata.json
+          # Detect and upload thumbnail preview if present
+          THUMBNAIL_FILE="android-mobile-preview.png"
+          if [ -f "$THUMBNAIL_FILE" ]; then
+            gcloud storage cp "$THUMBNAIL_FILE" ${BASE}/android-mobile-preview.png || true
+            THUMBNAIL="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-preview.png"
+          else
+            THUMBNAIL=""
+          fi
+
+          # Download existing metadata if present
+          gcloud storage cp "${BASE}/build-metadata.json" existing-build-metadata.json 2>/dev/null || echo "{}" > existing-build-metadata.json
+
+          # Android-specific metadata
+          cat <<EOF > android-metadata.json
           {
-            "version": "${VERSION}",
             "apk": "${APK}",
             "aab": "${AAB}",
             "androidKeystoreSha1": "${SHA1}",
-            "dockerTags": "${DOCKER}",
-            "buildImagesLog": "${BUILD}",
-            "qr": "${QR}"
+            "qr": "${QR}",
+            "thumbnail": "${THUMBNAIL}"
           }
           EOF
 
+          # Merge existing metadata with Android metadata
+          jq -s '.[0] * .[1]' existing-build-metadata.json android-metadata.json > build-metadata.json
+
+          # Upload merged metadata
           gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
