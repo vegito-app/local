@@ -57,9 +57,9 @@ on:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
       ANDROID_RELEASE_KEYSTORE:
-        required: true
+        required: false
       ANDROID_RELEASE_KEYSTORE_STORE_PASS:
-        required: true
+        required: false
       FACEBOOK_APP_ID:
         required: false
       FACEBOOK_CLIENT_TOKEN:

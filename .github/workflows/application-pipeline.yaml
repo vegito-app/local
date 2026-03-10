@@ -1,0 +1,126 @@
+name: Vegito Application Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+      functional_tests_dir:
+        required: false
+        type: string
+        default: tests/robot/output
+      images_to_scan:
+        required: false
+        type: string
+        default: application-backend
+      release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      test_environment:
+        required: false
+        type: string
+        default: prod
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      ANDROID_RELEASE_KEYSTORE:
+        required: false
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
+        required: false
+      FACEBOOK_APP_ID:
+        required: false
+      FACEBOOK_CLIENT_TOKEN:
+        required: false
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  TEST_ENV: ${{ inputs.test_environment }}
+
+jobs:
+  version:
+    name: Generate Version and Changelog
+    uses: ./.github/workflows/version-prepare.yml
+
+    with:
+      environment: prod
+      release_bucket_name: vegito-app-prod-github-actions-ci-artifacts-private
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  # build:
+  #   name: Build Images
+  #   needs: version
+  #   uses: ./.github/workflows/build-images.yml
+
+  #   strategy:
+  #     matrix:
+  #       environment: [dev, staging, prod]
+
+  #   with:
+  #     version: ${{ needs.version.outputs.version }}
+  #     environment: ${{ matrix.environment }}
+  #     release_bucket_name: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts-private
+  #     release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+  #   secrets: inherit
+
+  # tests:
+  #   name: Run Functional Tests
+  #   # needs: [build, version]
+  #   needs: [version]
+  #   uses: ./.github/workflows/functional-tests.yml
+
+  #   with:
+  #     version: ${{ needs.version.outputs.version }}
+  #     environment: ${{ inputs.test_environment }}
+  #     functional-tests-output-dir: ${{ inputs.functional_tests_dir }}
+  #     release_bucket_name: vegito-app-${{ inputs.test_environment }}-github-actions-ci-artifacts-private
+  #     release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+  #   secrets: inherit
+
+  trivy:
+    name: Security Scan (Trivy)
+    needs: [version]
+
+    strategy:
+      matrix:
+        image: ${{ fromJson(format('["{0}"]', inputs.images_to_scan)) }}
+
+    uses: ./.github/workflows/trivy-scan-image-ref.yml
+
+    with:
+      environment: prod
+      image-ref: docker-repository-public/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version.outputs.version }}
+      # image-ref: docker-repository-private/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version.outputs.version }}
+      severity: CRITICAL,HIGH
+      exit-code: "1"
+      release_bucket_name: vegito-app-prod-github-actions-ci-artifacts-private
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      version: ${{ needs.version.outputs.version }}
+
+    secrets: inherit
+
+  release:
+    name: Create Consolidated Release
+    needs: [trivy, version]
+    uses: ./.github/workflows/application-release-template.yml
+
+    with:
+      environment: prod
+      version: ${{ needs.version.outputs.version }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
