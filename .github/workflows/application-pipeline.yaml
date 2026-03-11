@@ -1,0 +1,130 @@
+name: Vegito Application Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+      project_docker_repository:
+        required: false
+        type: string
+        default: docker-repository-public
+      functional_tests_dir:
+        required: false
+        type: string
+        default: tests/robot/output
+      images_to_scan:
+        required: false
+        type: string
+        default: '["application-backend"]'
+      release_bucket_name:
+        required: true
+        type: string
+      release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      environment:
+        required: false
+        type: string
+        default: prod
+    outputs:
+      version:
+        description: "The version generated for this release"
+        value: ${{ jobs.version.outputs.version }}
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      ANDROID_RELEASE_KEYSTORE:
+        required: false
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
+        required: false
+      FACEBOOK_APP_ID:
+        required: false
+      FACEBOOK_CLIENT_TOKEN:
+        required: false
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  TEST_ENV: ${{ inputs.environment }}
+
+jobs:
+  version:
+    name: Generate Version and Changelog
+    uses: ./.github/workflows/version-prepare.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      release_bucket_name: ${{ inputs.release_bucket_name }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  build:
+    name: Build Images
+    needs: version
+    uses: ./.github/workflows/build-images.yml
+
+    with:
+      version: ${{ needs.version.outputs.version }}
+      environment: ${{ inputs.environment }}
+      release_bucket_name: ${{ inputs.release_bucket_name }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  tests:
+    name: Run Functional Tests
+    needs: [build, version]
+    uses: ./.github/workflows/functional-tests.yml
+
+    with:
+      version: ${{ needs.version.outputs.version }}
+      environment: ${{ inputs.environment }}
+      functional-tests-output-dir: ${{ inputs.functional_tests_dir }}
+      release_bucket_name: ${{ inputs.release_bucket_name }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  trivy:
+    name: Security Scan (Trivy)
+    needs: [version, build]
+
+    strategy:
+      matrix:
+        image: ${{ fromJson(inputs.images_to_scan) }}
+    uses: ./.github/workflows/trivy-scan-image-ref.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      image-ref: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version.outputs.version }}
+      severity: CRITICAL,HIGH
+      exit-code: "1"
+      release_bucket_name: ${{ inputs.release_bucket_name }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      version: ${{ needs.version.outputs.version }}
+
+    secrets: inherit
+
+  release:
+    name: Create Consolidated Release
+    needs: [tests, trivy, version]
+    uses: ./.github/workflows/application-release-template.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      version: ${{ needs.version.outputs.version }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
