@@ -2,7 +2,7 @@ VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
-
+# LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
 ifdef VERSION
 LOCAL_VERSION := $(VERSION)
 endif

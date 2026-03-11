@@ -27,14 +27,6 @@ on:
         required: false
         type: string
         default: .android.release-key.keystore
-      android_release_keystore_base64_path:
-        required: false
-        type: string
-        default: .android.release-key.keystore.base64
-      android_release_keystore_store_pass_base64_path:
-        required: false
-        type: string
-        default: .android.release-key.keystore.storepass.base64
       android_release_keystore_alias_name:
         required: false
         type: string
@@ -82,8 +74,8 @@ jobs:
       INFRA_ENV: ${{ inputs.environment }}
       USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
+      LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.base64
+      LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.storepass.base64
       LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
       VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
