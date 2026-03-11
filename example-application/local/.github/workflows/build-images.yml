@@ -67,8 +67,6 @@ jobs:
       INFRA_ENV: ${{ inputs.environment }}
       USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_base64_path }}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_store_pass_base64_path }}
 
     outputs:
       image_tags_md: ${{ steps.build_and_push_images.outputs.image_tags_md }}
