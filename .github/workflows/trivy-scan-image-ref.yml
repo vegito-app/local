@@ -40,11 +40,9 @@ on:
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
         required: true
-      WORKLOAD_IDENTITY_POOL_ID:
-        required: true
-      WORKLOAD_IDENTITY_PROVIDER_ID:
+      WORKLOAD_IDENTITY_PROVIDER:
         required: true
 
 jobs:
@@ -53,12 +51,13 @@ jobs:
     environment: ${{ inputs.environment }}
     name: Trivy Scan (${{ inputs.environment }})
     env:
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
       VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       VERSION: ${{ inputs.version }}
+      INFRA_ENV: ${{ inputs.environment }}
 
     steps:
       - name: Checkout repository
@@ -91,7 +90,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: ${{ inputs.severity }}
-          version: v0.69.1
+          version: v0.69.3
 
       - name: Upload Trivy HTML report to GCS
         if: always()
@@ -102,3 +101,19 @@ jobs:
             --content-type=text/html \
             trivy-report.html \
             "$DEST"
+
+      - name: Publish security metadata
+        run: |
+          set -euo pipefail
+
+          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
+
+          REPORT="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
+
+          cat <<EOF > security-metadata.json
+          {
+            "securityReport": "${REPORT}"
+          }
+          EOF
+
+          gcloud storage cp security-metadata.json ${BASE}/security-metadata.json

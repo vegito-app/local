@@ -57,9 +57,9 @@ on:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
       ANDROID_RELEASE_KEYSTORE:
-        required: true
+        required: false
       ANDROID_RELEASE_KEYSTORE_STORE_PASS:
-        required: true
+        required: false
       FACEBOOK_APP_ID:
         required: false
       FACEBOOK_CLIENT_TOKEN:
@@ -75,7 +75,7 @@ jobs:
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
-      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref_name }}-${{ github.run_id }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -89,8 +89,6 @@ jobs:
       LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
       LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
 
-    outputs:
-      image_tags_md: ${{ steps.build_and_push_images.outputs.image_tags_md }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -134,17 +132,19 @@ jobs:
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log
 
+      - name: Upload images-build.log to GCS
+        run: |
+          if ! gcloud storage cp images-build.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/images-build.log; then
+            echo "::warning::failed to upload images-build.log"
+          fi
+
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
         run: |
           make docker-build-tags-list-ci-md > docker-tags.md
-          echo "tags_md<<EOF" >> $GITHUB_OUTPUT
-          cat docker-tags.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Upload images-build.log to GCS
-        run: |
-          gcloud storage cp images-build.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/images-build.log
+          if ! gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md; then
+            echo "::warning::failed to upload docker-tags.md"
+          fi
 
       - name: Cleanup Sensitive Files
         if: always()
@@ -152,58 +152,23 @@ jobs:
           # Suppression sécurisée des fichiers sensibles
           shred -u ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}* || true
 
-  upload-release-images:
-    needs: build-and-push
-    name: Upload Release Images for ${{ inputs.environment }} 🧱
-    runs-on: self-hosted
-    environment: ${{ inputs.environment }}
-    env:
-      VERSION: ${{ inputs.version }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      INFRA_ENV: ${{ inputs.environment }}
-      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-          token_format: "access_token"
-          export_environment_variables: true
-      - name: Source dynamic env vars
+      - name: Generate metadata.json and QR code
         run: |
-          if [ -f "/runner/_work/${HOSTNAME}/gha-env-vars" ]; then
-            echo "📦 Loading env from /runner/_work/${HOSTNAME}/gha-env-vars"
-            cat "/runner/_work/${HOSTNAME}/gha-env-vars" >> $GITHUB_ENV
-          else
-            echo "⚠️ gha-env-vars not found in expected path"
-          fi
+          set -euo pipefail
 
-      - name: Generate docker image tag list for ${{ inputs.environment }}
-        run: |
-          make docker-build-tags-list-ci-md > docker-tags.md
+          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
 
-      - name: Generate index.json for release root
-        run: |
-          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
-          for f in $(gcloud storage ls "gs://${{ env.VEGITO_RELEASE_BUCKET }}/v*/metadata.json" 2>/dev/null || true); do
-            version=$(basename $(dirname "$f"))
-            echo "  {\"version\": \"$version\"}," >> index.json
-          done
-          sed -i '$ s/},/}/' index.json || true
-          echo ']}' >> index.json
+          BUILD_LOG="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/images-build.log"
+          DOCKER_TAGS="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/docker-tags.md"
 
-      - name: Upload docker tags and index to GCS
-        run: |
-          gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md
-          if [ -f index.json ]; then
-            gcloud storage cp index.json gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/index.json
-          fi
+          cat <<EOF > build-metadata.json
+          {
+            "buildImagesLog": "${BUILD_LOG}",
+            "dockerTags": "${DOCKER_TAGS}"
+          }
+          EOF
+
+          gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
 
   upload-android-artifacts:
     needs: build-and-push
@@ -211,6 +176,8 @@ jobs:
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
+      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref }}-${{ github.run_id }}
+      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
@@ -226,11 +193,11 @@ jobs:
 
       - name: Source dynamic env vars
         run: |
-          if [ -f /runner/gha-env-vars ]; then
-            echo "📦 Loading env from /runner/gha-env-vars"
-            cat $GITHUB_WORKSPACE/../../gha-env-vars >> $GITHUB_ENV
+          if [ -f $GITHUB_WORKSPACE/../../gha-env-vars ]; then
+          echo "📦 Loading env from $GITHUB_WORKSPACE/../../gha-env-vars"
+          cat $GITHUB_WORKSPACE/../../gha-env-vars >> $GITHUB_ENV
           else
-            echo "⚠️ gha-env-vars not found"
+          echo "⚠️ gha-env-vars not found"
           fi
 
       - name: Authenticate to Google Cloud
@@ -249,10 +216,88 @@ jobs:
 
       - name: Extract signed APK & AAB releases and keystore SHA1 from images
         id: extract_apk_aab
-        run: make application-mobile-image-extract-android-artifacts
+        run: |
+          if make -qp 2>/dev/null | grep -q "^application-mobile-image-extract-android-artifacts:"; then
+            echo "📦 Android artifacts target detected — extracting artifacts"
+            make application-mobile-image-extract-android-artifacts
+          else
+            echo "ℹ️ No Android mobile build in this repository — skipping extraction"
+            touch ${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }} \
+                  ${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }} \
+                  ${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }} || true
+          fi
 
       - name: Upload signed APK, AAB, and keystore SHA1 to GCS
         run: |
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab
-          gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+          if ! gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed-aligned.apk; then
+            echo "::warning::APK upload failed"
+          fi
+
+          if ! gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-signed.aab; then
+            echo "::warning::AAB upload failed"
+          fi
+
+          if ! gcloud storage cp "${{ env.LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH }}" gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/android-mobile-release-${{ inputs.version }}-key.keystore.sha1; then
+            echo "::warning::Keystore SHA1 upload failed"
+          fi
+
+      - name: Generate metadata.json and QR code
+        run: |
+          set -euo pipefail
+
+          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
+
+          APK="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed-aligned.apk"
+          AAB="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-signed.aab"
+          SHA1="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-release-${VERSION}-key.keystore.sha1"
+
+          mkdir -p artifacts
+
+          # Generate QR code only if APK exists
+          if gcloud storage ls "${BASE}/android-mobile-release-${VERSION}-signed-aligned.apk" >/dev/null 2>&1; then
+            qrencode -o artifacts/qr-code.png "$APK"
+            gcloud storage cp artifacts/qr-code.png ${BASE}/qr-code.png || true
+            QR="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/qr-code.png"
+          else
+            QR=""
+          fi
+
+          # Detect and upload thumbnail preview if present
+          THUMBNAIL_FILE="android-mobile-preview.png"
+          if [ -f "$THUMBNAIL_FILE" ]; then
+            gcloud storage cp "$THUMBNAIL_FILE" ${BASE}/android-mobile-preview.png || true
+            THUMBNAIL="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/android-mobile-preview.png"
+          else
+            THUMBNAIL=""
+          fi
+
+          # Download existing metadata if present
+          gcloud storage cp "${BASE}/build-metadata.json" existing-build-metadata.json 2>/dev/null || echo "{}" > existing-build-metadata.json
+
+          # Android-specific metadata
+          jq -n \
+            --arg apk "$APK" \
+            --arg aab "$AAB" \
+            --arg sha1 "$SHA1" \
+            --arg qr "$QR" \
+            --arg thumb "$THUMBNAIL" \
+          '{
+            android: (
+              {
+                apk: $apk,
+                aab: $aab,
+                keystoreSha1: $sha1,
+                qr: $qr,
+                thumbnail: $thumb
+              }
+              | with_entries(select(.value != ""))
+            )
+          }
+          | if (.android | length) == 0 then del(.android) else . end' \
+          > android-metadata.json
+
+          # Merge existing metadata with Android metadata
+          jq -s '.[0] * .[1]' existing-build-metadata.json android-metadata.json > build-metadata.json
+
+          # Upload merged metadata
+          gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
