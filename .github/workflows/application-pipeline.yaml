@@ -29,6 +29,10 @@ on:
         required: false
         type: string
         default: prod
+      android_release_keystore_path:
+        required: false
+        type: string
+        default: .android.release-key.keystore
     outputs:
       version:
         description: "The version generated for this release"
@@ -80,6 +84,7 @@ jobs:
       environment: ${{ inputs.environment }}
       release_bucket_name: ${{ inputs.release_bucket_name }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
 
     secrets: inherit
 
@@ -125,6 +130,7 @@ jobs:
     with:
       environment: ${{ inputs.environment }}
       version: ${{ needs.version.outputs.version }}
+      release_bucket_name: ${{ inputs.release_bucket_name }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
 
     secrets: inherit

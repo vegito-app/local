@@ -15,15 +15,11 @@ on:
         required: true
         type: string
         default: ${{ github.repository }}
-      application_release_bucket_project_prefix:
-        required: false
-        type: string
-        default: local
       release_bucket_prefix:
         required: false
         type: string
         default: ${{ github.repository }}
-      release_bucket:
+      release_bucket_name:
         required: false
         type: string
         default: vegito-app-prod-github-actions-ci-artifacts-private
@@ -45,14 +41,12 @@ permissions:
 
 jobs:
   create-github-release:
-    needs: []
     name: Create Consolidated GitHub Release ✨
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
       VERSION: ${{ inputs.version }}
-      VEGITO_APPLICATION_RELEASE_PROJECT: ${{ inputs.application_release_bucket_project_prefix }}
-      VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.release_bucket }}/${{ inputs.release_bucket_prefix }}
+      VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
     steps:
       - name: Checkout repository
@@ -99,7 +93,7 @@ jobs:
             && ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/security-metadata.json" >/dev/null 2>&1; then
             continue
           fi
-        
+
           echo -e "\n---\n" >> RELEASE_BODY.md
           echo "### 🌍 Environment: $env" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md

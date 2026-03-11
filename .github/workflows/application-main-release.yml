@@ -15,10 +15,10 @@ jobs:
     with:
       environment: dev
       functional_tests_dir: tests/robot/output
-      images_to_scan: example-application-backend
+      images_to_scan: '["example-application-backend"]'
       project: vegito-local
       release_bucket_name: vegito-app-dev-github-actions-ci-artifacts
-
+      android_release_keystore_path: example-application/mobile/android/release-key.keystore
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
@@ -41,6 +41,8 @@ jobs:
     with:
       version: ${{ needs.pipeline.outputs.version }}
       environment: ${{ matrix.environment }}
+      android_release_keystore_path: example-application/mobile/android/release-key.keystore
+
       release_bucket_name: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
 
     secrets:
