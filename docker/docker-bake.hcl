@@ -139,10 +139,15 @@ group "local-services-ci" {
   targets = [
     "local-android-services-ci",
     "clarinet-devnet-ci",
+    "clarinet-devnet-latest-ci",
     "firebase-emulators-ci",
+    "firebase-emulators-latest-ci",
     "github-actions-runner-ci",
+    "github-actions-runner-latest-ci",
     "vault-dev-ci",
+    "vault-dev-latest-ci",
     "robotframework-ci",
+    "robotframework-latest-ci",
   ]
 }
 

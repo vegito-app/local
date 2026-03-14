@@ -40,16 +40,30 @@ target "robotframework-ci" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI}" : "",
+    "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}",
+  ]
+  cache-to = []
+  platforms = platforms
+}
+
+target "robotframework-latest-ci" {
+  args = {
+    debian_image = DEBIAN_IMAGE_VERSION
+  }
+  context    = "${LOCAL_DIR}/robotframework"
+  dockerfile = "Dockerfile"
+  tags = [
     LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}",
-    LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
