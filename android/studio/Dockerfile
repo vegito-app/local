@@ -36,7 +36,7 @@ RUN npm install appium@3.0.0-rc.2 && \
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 ARG android_studio_version
-RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz" && \
+RUN curl -o /tmp/android-studio.tar.gz -L https://edgedl.me.gvt1.com/android/studio/ide-zips/${android_studio_version}/android-studio-panda3-canary4-linux.tar.gz && \
   tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
   mv /tmp/android-studio ${STUDIO_PATH} && rm /tmp/android-studio.tar.gz
 
