@@ -44,10 +44,7 @@ target "local-android-emulator-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
   ]
-  cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline",
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-  ]
+  cache-to = []
   platforms = platforms
 }
 
