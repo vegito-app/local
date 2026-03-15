@@ -29,9 +29,9 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "firebase-emulators-ci" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
-    debian_image  = DEBIAN_IMAGE_VERSION
+  contexts = {
+    builder_image = "target:local-project-builder-ci"
+    debian_image  = "target:local-debian-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -41,14 +41,14 @@ target "firebase-emulators-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
   ]
-  cache-to = []
+  cache-to  = []
   platforms = platforms
 }
 
 target "firebase-emulators-latest-ci" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
-    debian_image  = DEBIAN_IMAGE_VERSION
+  contexts = {
+    builder_image = "target:local-project-builder-ci"
+    debian_image  = "target:local-debian-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -65,9 +65,9 @@ target "firebase-emulators-latest-ci" {
 }
 
 target "firebase-emulators" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
-    debian_image  = DEBIAN_IMAGE_LATEST
+  contexts = {
+    builder_image = "target:local-project-builder-ci"
+    debian_image  = "target:local-debian-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [

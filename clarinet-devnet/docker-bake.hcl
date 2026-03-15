@@ -33,13 +33,15 @@ variable "CLARINET_VERSION" {
 }
 
 target "clarinet-devnet-ci" {
+  contexts = {
+    builder_image              = "target:local-project-builder-ci"
+    debian_image               = "target:local-debian-ci"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless-ci"
+    rust_image                 = "target:local-rust-ci"
+  }
   args = {
-    builder_image              = LOCAL_BUILDER_IMAGE_VERSION
-    clarinet_version           = CLARINET_VERSION
-    debian_image               = DEBIAN_IMAGE_VERSION
-    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_VERSION
-    docker_version             = DOCKER_VERSION
-    rust_image                 = RUST_IMAGE_VERSION
+    clarinet_version = CLARINET_VERSION
+    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -50,18 +52,20 @@ target "clarinet-devnet-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI}" : LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
     "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
   ]
-  cache-to = []
+  cache-to  = []
   platforms = platforms
 }
 
 target "clarinet-devnet-latest-ci" {
+  contexts = {
+    builder_image              = "target:local-project-builder-ci"
+    debian_image               = "target:local-debian-ci"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless-ci"
+    rust_image                 = "target:local-rust-ci"
+  }
   args = {
-    builder_image              = LOCAL_BUILDER_IMAGE_VERSION
-    clarinet_version           = CLARINET_VERSION
-    debian_image               = DEBIAN_IMAGE_VERSION
-    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_VERSION
-    docker_version             = DOCKER_VERSION
-    rust_image                 = RUST_IMAGE_VERSION
+    clarinet_version = CLARINET_VERSION
+    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -79,13 +83,15 @@ target "clarinet-devnet-latest-ci" {
 }
 
 target "clarinet-devnet" {
+  contexts = {
+    builder_image              = "target:local-project-builder-ci"
+    debian_image               = "target:local-debian-ci"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless-ci"
+    rust_image                 = "target:local-rust-ci"
+  }
   args = {
-    builder_image              = LOCAL_BUILDER_IMAGE_LATEST
-    clarinet_version           = CLARINET_VERSION
-    debian_image               = DEBIAN_IMAGE_LATEST
-    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_LATEST
-    docker_version             = DOCKER_VERSION
-    rust_image                 = RUST_IMAGE_LATEST
+    clarinet_version = CLARINET_VERSION
+    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
