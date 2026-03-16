@@ -14,7 +14,7 @@ on:
       environment:
         required: true
         type: string
-        default: ${{ github.repository }}
+        default: prod
       release_bucket_prefix:
         required: false
         type: string
@@ -48,6 +48,7 @@ jobs:
       VERSION: ${{ inputs.version }}
       VEGITO_APPLICATION_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
+      INFRA_ENV: ${{ inputs.environment }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -91,27 +92,28 @@ jobs:
           if ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build-metadata.json" >/dev/null 2>&1 \
             && ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests-metadata.json" >/dev/null 2>&1 \
             && ! gcloud storage ls "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/security-metadata.json" >/dev/null 2>&1; then
-            continue
+            echo "_No metadata found for this environment._" >> RELEASE_BODY.md
+            exit 0
           fi
 
           echo -e "\n---\n" >> RELEASE_BODY.md
-          echo "### 🌍 Environment: $env" >> RELEASE_BODY.md
+          echo "### 🌍 Environment: ${INFRA_ENV}" >> RELEASE_BODY.md
           echo "" >> RELEASE_BODY.md
 
           build=$(gcloud storage cat "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/build-metadata.json" 2>/dev/null || echo "{}")
           tests=$(gcloud storage cat "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/tests-metadata.json" 2>/dev/null || echo "{}")
           security=$(gcloud storage cat "gs://${VEGITO_APPLICATION_RELEASE_BUCKET}/${VERSION}/security-metadata.json" 2>/dev/null || echo "{}")
 
-          metadata=$(echo "$build $tests $security" | jq -s 'add')
+          metadata=$(jq -s 'reduce .[] as $item ({}; . * $item)' <<<"$build $tests $security")
 
           if [ "$metadata" = "null" ] || [ -z "$metadata" ]; then
             echo "_No metadata found for this environment._" >> RELEASE_BODY.md
-            continue
+            exit 0
           fi
 
           apk=$(echo "$metadata" | jq -r '.apk // empty')
           aab=$(echo "$metadata" | jq -r '.aab // empty')
-          sha1_url=$(echo "$metadata" | jq -r '.androidKeystoreSha1 // empty')
+          sha1_url=$(echo "$metadata" | jq -r '.android.keystoreSha1 // empty')
           docker_tags_url=$(echo "$metadata" | jq -r '.dockerTags // empty')
           robot_report=$(echo "$metadata" | jq -r '.robotReport // empty')
           robot_log=$(echo "$metadata" | jq -r '.robotLog // empty')
@@ -194,6 +196,7 @@ jobs:
     name: Finalize and Push Release Tag
     runs-on: self-hosted
     needs: [create-github-release]
+    environment: ${{ inputs.environment }}
     if: success()
     steps:
       - name: Checkout repository
