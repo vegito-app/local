@@ -1,46 +1,15 @@
+GOOGLE_CLOUD_DIR ?= $(CURDIR)
+GOOGLE_CLOUD_PROJECT_ID ?= $(DEV_GOOGLE_CLOUD_PROJECT_ID)
 GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 
-ifeq ($(INFRA_ENV),prod)
-
-GOOGLE_CLOUD_PROJECT_NAME   = $(PROD_GOOGLE_CLOUD_PROJECT_NAME)
-GOOGLE_CLOUD_PROJECT_ID     = $(PROD_GOOGLE_CLOUD_PROJECT_ID)
-GOOGLE_CLOUD_PROJECT_NUMBER = $(PROD_GOOGLE_CLOUD_PROJECT_NUMBER)
-else ifeq ($(INFRA_ENV),staging)
-
-GOOGLE_CLOUD_PROJECT_NAME   = $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)
-GOOGLE_CLOUD_PROJECT_ID     = $(STAGING_GOOGLE_CLOUD_PROJECT_ID)
-GOOGLE_CLOUD_PROJECT_NUMBER = $(STAGING_GOOGLE_CLOUD_PROJECT_NUMBER)
-else ifeq ($(INFRA_ENV),dev)
-
-GOOGLE_CLOUD_PROJECT_NAME   = $(DEV_GOOGLE_CLOUD_PROJECT_NAME)
-GOOGLE_CLOUD_PROJECT_ID     = $(DEV_GOOGLE_CLOUD_PROJECT_ID)
-GOOGLE_CLOUD_PROJECT_NUMBER = $(DEV_GOOGLE_CLOUD_PROJECT_NUMBER)
-
-else
-  $(error Invalid INFRA_ENV: $(INFRA_ENV))
-endif
-
-GOOGLE_CLOUD_REGION = europe-west1
-
 GCLOUD_PROJET_USER_ID ?= ${PROJECT_USER}
-
-GOOGLE_CLOUD_PROJECT_ID ?= $(DEV_GOOGLE_CLOUD_PROJECT_ID)
-
 GCLOUD_DEVELOPER_SERVICE_ACCOUNT ?= $(GCLOUD_PROJET_USER_ID)-$(INFRA_ENV)@$(GOOGLE_CLOUD_PROJECT_ID).iam.gserviceaccount.com
-
-GOOGLE_CLOUD_DIR ?= $(CURDIR)
-
-GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/gcloud-credentials.json
-
-$(GOOGLE_APPLICATION_CREDENTIALS):
-	@$(MAKE) gcloud-application-credentials
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
 VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 
 GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
-
 # The project currently accepts this number of maximum keys in use per service account.
 # If this limit is reach, creation of new credentials will fail living a message in the console like:
 # 'ERROR: (gcloud.iam.service-accounts.keys.create) FAILED_PRECONDITION: Precondition check failed.'
@@ -48,6 +17,8 @@ GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 # Local developer current keys in use can be listed using 'make gcloud-user-iam-sa-keys-list'
 # Old keys can be erased using 'make gcloud-user-iam-sa-keys-clean-oldest-3'
 PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT ?=  10
+
+GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/gcloud-credentials.json
 
 gcloud-application-credentials: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@echo "✅ Application credentials are ready at $<"
@@ -198,27 +169,6 @@ $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%):
 	  REPO=$(@:gcloud-docker-registry-cleanup-%=%) \
 	  $(GOOGLE_CLOUD_DIR)/docker-registry-cleanup.sh
 .PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%)
-
-vegito-example-application-backend-gcloud-image-delete:
-	@echo "🗑️  Deleting backend image $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)..."
-	@$(GCLOUD) container images delete --force-delete-tags $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)
-.PHONY: vegito-example-application-backend-gcloud-image-delete
-
-gcloud-auth-func-logs:
-	@echo "📜 Reading logs for Cloud Function: utrade-us-central1-identity-platform..."
-	@$(GCLOUD) logging read "resource.type=cloud_function AND resource.labels.function_name=utrade-us-central1-identity-platform"
-.PHONY: gcloud-auth-func-logs
-
-gcloud-auth-func-deploy:
-	@echo "🚀 Deploying Cloud Function: my-pubsub-function to region $(GOOGLE_CLOUD_REGION)..."
-	@$(GCLOUD) functions deploy my-pubsub-function \
-	  --gen2 \
-	  --region=$(GOOGLE_CLOUD_REGION) \
-	  --runtime=go122 \
-	  --source=$(CURDIR)/gcloud/auth \
-	  --entry-point=idp.go \
-	  --trigger-http
-.PHONY: gcloud-auth-func-deploy
 
 GOOGLE_SERVICES_API = serviceusage cloudbilling
 
