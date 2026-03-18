@@ -92,12 +92,36 @@ jobs:
         run: |
           git push origin "${{ inputs.version }}"
 
-      - name: Download release notes from GCS
+      - name: Download release notes and metadata from GCS
         run: |
           mkdir -p ./release-notes
+
+          # Download main CHANGELOG
           gcloud storage cp \
             gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/${{ inputs.release_notes_path }} \
             ./release-notes/${{ inputs.release_notes_path }}
+
+          # Download optional GCloud metadata
+          gcloud storage cp \
+            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/gcloud-*.md \
+            ./release-notes/ 2>/dev/null || true
+
+      - name: Append GCloud metadata to release notes
+        run: |
+          NOTES_FILE="./release-notes/${{ inputs.release_notes_path }}"
+
+          if ls ./release-notes/gcloud-*.md >/dev/null 2>&1; then
+            echo "" >> "$NOTES_FILE"
+            echo "---" >> "$NOTES_FILE"
+            echo "" >> "$NOTES_FILE"
+            echo "## 🌐 GCloud Infrastructure State" >> "$NOTES_FILE"
+            echo "" >> "$NOTES_FILE"
+
+            for f in ./release-notes/gcloud-*.md; do
+              cat "$f" >> "$NOTES_FILE"
+              echo "" >> "$NOTES_FILE"
+            done
+          fi
 
       - name: Create GitHub Release
         if: ${{ inputs.create_github_release }}
