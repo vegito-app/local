@@ -1,4 +1,3 @@
-
 GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 
@@ -34,10 +33,13 @@ GOOGLE_CLOUD_DIR ?= $(CURDIR)
 
 GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/gcloud-credentials.json
 
-GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
-
 $(GOOGLE_APPLICATION_CREDENTIALS):
 	@$(MAKE) gcloud-application-credentials
+
+VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
+
+GCLOUD := gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
 # The project currently accepts this number of maximum keys in use per service account.
 # If this limit is reach, creation of new credentials will fail living a message in the console like:
@@ -47,7 +49,12 @@ $(GOOGLE_APPLICATION_CREDENTIALS):
 # Old keys can be erased using 'make gcloud-user-iam-sa-keys-clean-oldest-3'
 PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT ?=  10
 
-gcloud-application-credentials:
+gcloud-application-credentials: $(GOOGLE_APPLICATION_CREDENTIALS)
+	@echo "✅ Application credentials are ready at $<"
+.PHONY: gcloud-application-credentials
+
+$(GOOGLE_APPLICATION_CREDENTIALS):
+	@echo "🔐 Generating application credentials for service account $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
 	@$(GCLOUD) iam service-accounts keys create $(GOOGLE_APPLICATION_CREDENTIALS) \
 	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)  \
 	&& if [ !  -f $(GOOGLE_APPLICATION_CREDENTIALS) ] ; then \
@@ -57,7 +64,6 @@ gcloud-application-credentials:
 	  echo \* ☑️ Then, use \'make $@\' or \'make gcloud-auth-login\' to retry. ; \
 	fi \
 	|| rm $(GOOGLE_APPLICATION_CREDENTIALS)
-.PHONY: gcloud-application-credentials
 
 gcloud-auth-login:
 	@echo "🔐 Logging in to gcloud..."
@@ -151,45 +157,47 @@ gcloud-config-set-project:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY:gcloud-config-set-project
 
-gcloud-images-list:
-	@echo "📦 Listing all images in repository $(VEGITO_PRIVATE_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(VEGITO_PRIVATE_REPOSITORY)
+GCLOUD_DOCKER_REPOSITORIES := $(VEGITO_PUBLIC_REPOSITORY) $(VEGITO_PRIVATE_REPOSITORY)
+
+gcloud-images-list: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list)
 .PHONY: gcloud-images-list
 
-gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
-	@$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
-.PHONY: gcloud-images-list-public
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list):
+	@echo "📦 Listing all images in repository $(@:gcloud-%-images-list=%)..."
+	@$(GCLOUD) container images list --repository=$(@:gcloud-%-images-list=%)
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list)
 
-gcloud-images-list-tags:
-	@echo "🏷️  Listing tags for image base $(VEGITO_PRIVATE_REPOSITORY)..."
-	@$(GCLOUD) container images list-tags $(VEGITO_PRIVATE_REPOSITORY)
+gcloud-images-list-tags: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list-tags)
 .PHONY: gcloud-images-list-tags
 
-gcloud-images-list-tags-public:
-	@echo "🏷️  Listing tags for public image base $(VEGITO_PUBLIC_REPOSITORY)..."
-	@$(GCLOUD) container images list-tags $(VEGITO_PUBLIC_REPOSITORY)
-.PHONY: gcloud-images-list-tags-public
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list-tags):
+	@echo "🏷️  Listing tags for image base $(@:gcloud-%-images-list-tags=%)..."
+	@$(GCLOUD) container images list-tags $(@:gcloud-%-images-list-tags=%)
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list-tags)
 
-gcloud-images-delete-all:
-	@echo "🗑️  Deleting all images from repository $(VEGITO_PRIVATE_REPOSITORY)..."
-	$(GCLOUD) artifacts docker images list \
-    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
-    --format='get(package)' \
-    $(VEGITO_PRIVATE_REPOSITORY) \
-    | uniq \
-    | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: gcloud-images-delete-all
+gcloud-images-delete-all-tags: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-delete-all-tags)
+.PHONY: gcloud-images-delete-all-tags
 
-gcloud-images-delete-all-public:
-	@echo "🗑️  Deleting all images from public repository $(VEGITO_PUBLIC_REPOSITORY)..."
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-delete-all-tags):
+	@echo "🗑️  Deleting all images from repository $(@:gcloud-%-images-delete-all-tags=%)..."
 	@$(GCLOUD) artifacts docker images list \
-    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
-    --format='get(package)' \
-    $(VEGITO_PUBLIC_REPOSITORY) \
-    | uniq \
-    | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: gcloud-images-delete-all-public
+      --project=$(GOOGLE_CLOUD_PROJECT_ID) \
+      --format='get(package)' \
+      $(@:gcloud-%-images-delete-all-tags=%) \
+      | uniq \
+      | xargs -I {} $(GCLOUD) artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-delete-all-tags)
+
+gcloud-docker-registry-cleanup: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%)
+.PHONY: gcloud-docker-registry-cleanup
+
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%):
+	@echo "🗑️  Deleting all images without 'latest' or 'current' tags from repository $*..."
+	@PROJECT=$(GOOGLE_CLOUD_PROJECT_ID) \
+	  REGION=$(GOOGLE_CLOUD_REGION) \
+	  REPO=$(@:gcloud-docker-registry-cleanup-%=%) \
+	  $(GOOGLE_CLOUD_DIR)/docker-registry-cleanup.sh
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%)
 
 vegito-example-application-backend-gcloud-image-delete:
 	@echo "🗑️  Deleting backend image $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)..."
