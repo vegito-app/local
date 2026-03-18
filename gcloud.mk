@@ -1,16 +1,3 @@
-
-DEV_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-dev
-DEV_GOOGLE_CLOUD_PROJECT_ID     ?= $(DEV_GOOGLE_CLOUD_PROJECT_NAME)-439608
-DEV_GOOGLE_CLOUD_PROJECT_NUMBER ?= 203475703228
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
-PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
-PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
-
 GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 
@@ -18,6 +5,7 @@ VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+VEGITO_LOCAL_PRIVATE_IMAGES_BASE ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
 VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 
@@ -148,45 +136,47 @@ gcloud-config-set-project:
 	@$(GCLOUD) config set project $(GOOGLE_CLOUD_PROJECT_ID)
 .PHONY:gcloud-config-set-project
 
-gcloud-images-list:
-	@echo "📦 Listing all images in repository $(VEGITO_PRIVATE_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(VEGITO_PRIVATE_REPOSITORY)
+GCLOUD_DOCKER_REPOSITORIES := $(VEGITO_PUBLIC_REPOSITORY) $(VEGITO_PRIVATE_REPOSITORY)
+
+gcloud-images-list: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list)
 .PHONY: gcloud-images-list
 
-gcloud-images-list-public:
-	@echo "📦 Listing all images in public repository $(VEGITO_PUBLIC_REPOSITORY)..."
-	$(GCLOUD) container images list --repository=$(VEGITO_PUBLIC_REPOSITORY)
-.PHONY: gcloud-images-list-public
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list):
+	@echo "📦 Listing all images in repository $(@:gcloud-%-images-list=%)..."
+	@$(GCLOUD) container images list --repository=$(@:gcloud-%-images-list=%)
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list)
 
-gcloud-images-list-tags:
-	@echo "🏷️  Listing tags for image base $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)
+gcloud-images-list-tags: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list-tags)
 .PHONY: gcloud-images-list-tags
 
-gcloud-images-list-tags-public:
-	@echo "🏷️  Listing tags for public image base $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
-	@$(GCLOUD) container images list-tags $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)
-.PHONY: gcloud-images-list-tags-public
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list-tags):
+	@echo "🏷️  Listing tags for image base $(@:gcloud-%-images-list-tags=%)..."
+	@$(GCLOUD) container images list-tags $(@:gcloud-%-images-list-tags=%)
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-list-tags)
 
-gcloud-images-delete-all:
-	@echo "🗑️  Deleting all images from repository $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE)..."
-	$(GCLOUD) artifacts docker images list \
-    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
-    --format='get(package)' \
-    $(VEGITO_APPLICATION_PRIVATE_IMAGES_BASE) \
-    | uniq \
-    | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: gcloud-images-delete-all
+gcloud-images-delete-all-tags: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-delete-all-tags)
+.PHONY: gcloud-images-delete-all-tags
 
-gcloud-images-delete-all-public:
-	@echo "🗑️  Deleting all images from public repository $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)..."
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-delete-all-tags):
+	@echo "🗑️  Deleting all images from repository $(@:gcloud-%-images-delete-all-tags=%)..."
 	@$(GCLOUD) artifacts docker images list \
-    --project=$(GOOGLE_CLOUD_PROJECT_ID) \
-    --format='get(package)' \
-    $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE) \
-    | uniq \
-    | xargs -I {} gcloud artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: gcloud-images-delete-all-public
+      --project=$(GOOGLE_CLOUD_PROJECT_ID) \
+      --format='get(package)' \
+      $(@:gcloud-%-images-delete-all-tags=%) \
+      | uniq \
+      | xargs -I {} $(GCLOUD) artifacts docker images delete {} --delete-tags --quiet --project=$(GOOGLE_CLOUD_PROJECT_ID)
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-%-images-delete-all-tags)
+
+gcloud-docker-registry-cleanup: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%)
+.PHONY: gcloud-docker-registry-cleanup
+
+$(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%):
+	@echo "🗑️  Deleting all images without 'latest' or 'current' tags from repository $*..."
+	@PROJECT=$(GOOGLE_CLOUD_PROJECT_ID) \
+	  REGION=$(GOOGLE_CLOUD_REGION) \
+	  REPO=$(@:gcloud-docker-registry-cleanup-%=%) \
+	  $(GOOGLE_CLOUD_DIR)/docker-registry-cleanup.sh
+.PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%)
 
 gcloud-backend-image-delete:
 	@echo "🗑️  Deleting backend image $(APPLICATION_BACKEND_IMAGE_LATEST)..."
