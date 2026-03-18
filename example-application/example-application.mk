@@ -18,10 +18,30 @@ example-application-dotenv: $(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE)
 $(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE):
 	@echo "📝 Generating .env file for local development..."
 	@$(VEGITO_EXAMPLE_APPLICATION_DIR)/dotenv.sh
+	@echo ".env file generated at $@"
 
+EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS ?= \
+  example-application-builders \
+  example-application-services \
+  example-application-applications
 
-example-application-docker-images:
-	@$(MAKE) -j $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
+EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
+  example-application-builders-ci \
+  example-application-services-ci \
+  example-application-applications-ci
+
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI): docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $@
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $@
+.PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=example-application-%-ci)
+
+example-application-docker-images-host-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS)
+.PHONY: example-application-docker-images-host-arch
+
+example-application-docker-images-multi-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI)
+.PHONY: example-application-docker-images-multi-arch
+
+example-application-docker-images: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 .PHONY: example-application-docker-images
 
 $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image): docker-buildx-setup

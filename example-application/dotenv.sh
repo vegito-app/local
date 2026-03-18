@@ -33,7 +33,7 @@ COMPOSE_PROJECT_NAME=${localDockerComposeProjectName}
 VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 # 
 LOCAL_VERSION=${LOCAL_VERSION}
-LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${LOCAL_VERSION}}
+LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/example-application:builder-latest}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 # 
@@ -82,7 +82,7 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${LOCAL_VERSION}}
+    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/example-application:builder-latest}
     command: |
       bash -c '
         make docker-sock
