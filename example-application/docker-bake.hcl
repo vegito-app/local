@@ -21,55 +21,58 @@ variable "EXAMPLE_APPLICATION_PRIVATE_IMAGES_BASE" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/example-application"
 }
 
-group "example-application-builders" {
+group "vegito-example-application-builders" {
   targets = [
-    "example-application-builder",
+    "vegito-example-application-builder",
   ]
 }
 
-group "example-application-builders-ci" {
+group "vegito-example-application-builders-ci" {
   targets = [
-    "example-application-builder-ci",
-    "example-application-builder-latest-ci",
+    "vegito-example-application-builder-ci",
+    "vegito-example-application-builder-latest-ci",
   ]
 }
 
-group "example-application-services" {
+group "vegito-example-application-services" {
   targets = [
-    "example-application-backend",
+    "vegito-example-application-backend",
   ]
 }
 
-group "example-application-services-ci" {
+group "vegito-example-application-services-ci" {
   targets = [
-    "example-application-backend-ci",
-    "example-application-backend-latest-ci",
+    "vegito-example-application-backend-ci",
+    "vegito-example-application-backend-latest-ci",
   ]
 }
 
-group "example-application-applications" {
+group "vegito-example-application-applications" {
   targets = [
-    "example-application-mobile",
-    "example-application-tests",
+    "vegito-example-application-mobile",
+    "vegito-example-application-tests",
   ]
 }
 
-group "example-application-applications-ci" {
+group "vegito-example-application-applications-ci" {
   targets = [
-    "example-application-mobile-ci",
-    "example-application-mobile-latest-ci",
-    "example-application-tests-ci",
-    "example-application-tests-latest-ci",
+    "vegito-example-application-mobile-ci",
+    "vegito-example-application-mobile-latest-ci",
+    "vegito-example-application-tests-ci",
+    "vegito-example-application-tests-latest-ci",
 
   ]
 }
 
+variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+}
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE}:builder-${VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}" : ""
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
-  default = "${EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE}:builder-latest"
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-latest"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -77,11 +80,11 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE" {
-  default = "${EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE}/cache/example-application-builder"
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}/cache/example-application-builder"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE}/cache/example-application-builder/ci"
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}/cache/example-application-builder/ci"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -95,14 +98,14 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE}:dev-${VERSION}" : ""
+  default = notequal("latest", VERSION) ? "${EXAMPLE_APPLICATION_IMAGES_BASE}:dev-${VERSION}" : ""
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
-  default = "${EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE}:dev-latest"
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:dev-latest"
 }
 
-target "example-application-builder" {
+target "vegito-example-application-builder" {
   args = {
     local_builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
@@ -122,9 +125,9 @@ target "example-application-builder" {
   ]
 }
 
-target "example-application-builder-ci" {
+target "vegito-example-application-builder-ci" {
   dockerfile = "Dockerfile"
-  context    = EXAMPLE_APPLICATION_DIR
+  context    = VEGITO_EXAMPLE_APPLICATION_DIR
   args = {
     local_builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }
@@ -138,9 +141,9 @@ target "example-application-builder-ci" {
   cache-to = []
 }
 
-target "example-application-builder-latest-ci" {
+target "vegito-example-application-builder-latest-ci" {
   dockerfile = "Dockerfile"
-  context    = EXAMPLE_APPLICATION_DIR
+  context    = VEGITO_EXAMPLE_APPLICATION_DIR
   args = {
     local_builder_image = LOCAL_BUILDER_IMAGE_VERSION
   }

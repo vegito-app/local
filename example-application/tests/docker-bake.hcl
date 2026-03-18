@@ -36,7 +36,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ"
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "example-application-tests-ci" {
+target "vegito-example-application-tests-ci" {
   args = {
     robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
   }
@@ -49,11 +49,11 @@ target "example-application-tests-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}",
   ]
-  cache-to = []
+  cache-to  = []
   platforms = platforms
 }
 
-target "example-application-tests" {
+target "vegito-example-application-tests" {
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
   args = {
@@ -73,7 +73,7 @@ target "example-application-tests" {
   ]
 }
 
-target "example-application-tests-latest-ci" {
+target "vegito-example-application-tests-latest-ci" {
   args = {
     robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
   }

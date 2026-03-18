@@ -82,7 +82,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME" {
   default     = "${INFRA_ENV}.vegito.app.android"
 }
 
-target "example-application-mobile" {
+target "vegito-example-application-mobile" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
@@ -121,7 +121,7 @@ target "example-application-mobile" {
   ]
 }
 
-target "example-application-mobile-ci" {
+target "vegito-example-application-mobile-ci" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
@@ -155,7 +155,7 @@ target "example-application-mobile-ci" {
   platforms = ["linux/amd64"]
 }
 
-target "example-application-mobile-latest-ci" {
+target "vegito-example-application-mobile-latest-ci" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE

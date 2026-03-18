@@ -98,28 +98,45 @@ variable "platforms" {
   ]
 }
 
+# Groups are used to build incrementally the images in the correct order:
+# - Dockerhub: the base images that we replicate to our private repository
+# - Runners: the most basic level, they are used to run the services and applications
+# - Builders: used to build the services, applications and the local development environments
+# - Services: the dependencies of the applications, they are used to run the applications
+# - Applications: the end products that we want to run and test
+group "local-dockerhub-ci" {
+  targets = [
+    "local-debian-ci",
+    "local-docker-dind-rootless-ci",
+    "local-golang-alpine-ci",
+    "local-rust-ci",
+  ]
+}
+
 group "local-runners" {
   targets = [
     "local-android-runners",
+    "local-builder",
   ]
 }
 
 group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
+    "local-builder-ci",
   ]
 }
 
 group "local-builders" {
   targets = [
-    "local-project-builder",
+    "vegito-example-application-builders",
     "local-android-builders",
   ]
 }
 
 group "local-builders-ci" {
   targets = [
-    "local-project-builder-ci",
+    "vegito-example-application-builders-ci",
     "local-android-builders-ci",
   ]
 }
@@ -159,16 +176,7 @@ group "local-applications" {
 
 group "local-applications-ci" {
   targets = [
-    "example-application-ci",
-  ]
-}
-
-group "local-dockerhub-ci" {
-  targets = [
-    "local-debian-ci",
-    "local-docker-dind-rootless-ci",
-    "local-golang-alpine-ci",
-    "local-rust-ci",
+    "vegito-example-application-ci",
   ]
 }
 

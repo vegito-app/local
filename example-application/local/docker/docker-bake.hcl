@@ -119,7 +119,7 @@ group "local-builders" {
 
 group "local-builders-ci" {
   targets = [
-    "local-project-builder-ci",
+    "local-builder-ci",
     "local-android-builders-ci",
   ]
 }
@@ -154,7 +154,7 @@ group "local-applications" {
 
 group "local-applications-ci" {
   targets = [
-    "example-application-ci",
+    "vegito-example-application-ci",
   ]
 }
 
