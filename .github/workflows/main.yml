@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   version:
-    uses: vegito-app/local/.github/workflows/version-prepare.yml@v1.17.0
+    uses: vegito-app/local/.github/workflows/version-prepare.yml@main
     with:
       environment: prod
       release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -68,7 +68,7 @@ jobs:
   release-metadata:
     needs: [version]
 
-    uses: vegito-app/local/.github/workflows/release-metadata.yaml@v1.17.0
+    uses: vegito-app/local/.github/workflows/release-metadata.yaml@main
 
     with:
       environment: prod
@@ -80,7 +80,7 @@ jobs:
   finalize:
     needs: [release-metadata]
 
-    uses: vegito-app/local/.github/workflows/version-finalize.yaml@v1.17.0
+    uses: vegito-app/local/.github/workflows/version-finalize.yaml@main
 
     with:
       environment: prod
