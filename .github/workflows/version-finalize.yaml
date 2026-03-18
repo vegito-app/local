@@ -17,6 +17,11 @@ on:
         type: string
         required: true
 
+      changelog:
+        description: "Changelog content for the release"
+        type: string
+        required: true
+
       release_title:
         description: "Optional GitHub Release title"
         type: string
@@ -29,16 +34,20 @@ on:
         required: false
         default: ""
 
-      release_bucket_name:
-        description: "GCS bucket name for releases"
-        required: true
-        type: string
-
       release_bucket_prefix:
         description: "Bucket prefix (usually repository name)"
         required: false
         type: string
         default: ${{ github.repository }}
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: true
+        type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
 
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
@@ -76,15 +85,56 @@ jobs:
 
       - name: Download consolidated release body from GCS
         run: |
+          set -euo pipefail
           mkdir -p ./release-notes
 
-          gcloud storage cp \
-            "gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md" \
-            ./release-notes/RELEASE_BODY.md
+          while IFS=":" read -r env bucket; do
+            env="${env#"${env%%[![:space:]]*}"}"
+            env="${env%"${env##*[![:space:]]}"}"
+
+            bucket="${bucket#"${bucket%%[![:space:]]*}"}"
+            bucket="${bucket%"${bucket##*[![:space:]]}"}"
+
+            [[ -z "$env" || "$env" == \#* ]] && continue
+            [[ -z "$bucket" ]] && continue
+
+            gcloud storage cp \
+              "gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md" \
+              "./release-notes/RELEASE_BODY-${env}.md" || true
+          done <<< "${{ inputs.env_bucket_map }}"
+          
+          echo "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+
+          metadata_started=false
+          for file in ./release-notes/RELEASE_BODY-*.md; do
+            [ -e "$file" ] || continue
+
+            if [ "$metadata_started" = false ]; then
+              {
+                echo ""
+                echo "---"
+                echo ""
+                echo "## 🌍 Consolidated Environment Metadata"
+                echo ""
+              } >> ./release-notes/FINAL_RELEASE_BODY.md
+
+              metadata_started=true
+            fi
+
+            env="${file##*/RELEASE_BODY-}"
+            env="${env%.md}"
+
+            {
+              echo "### ${env}"
+              echo ""
+              cat "$file"
+              echo ""
+            } >> ./release-notes/FINAL_RELEASE_BODY.md
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "${{ inputs.version }}"
           name: ${{ inputs.release_title != '' && inputs.release_title || format('Release {0}', inputs.version) }}
-          body_path: ./release-notes/RELEASE_BODY.md
+          body_path: ./release-notes/FINAL_RELEASE_BODY.md
