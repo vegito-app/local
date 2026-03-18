@@ -136,7 +136,7 @@ group "local-builders" {
 
 group "local-builders-ci" {
   targets = [
-    "vegito-example-application-builders-ci",
+    "vegito-example-application-builder-ci",
     "local-android-builders-ci",
   ]
 }

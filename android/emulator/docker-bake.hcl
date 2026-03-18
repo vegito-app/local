@@ -32,19 +32,23 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-latest"
 }
 
+variable "LOCAL_ANDROID_EMULATOR_IMAGE_VERSION" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}"
+}
+
 target "local-android-emulator-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   args = {
     debian_image = DEBIAN_IMAGE_VERSION
   }
   tags = [
-    LOCAL_ANDROID_EMULATOR_VERSION,
+    LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
   ]
-  cache-to = []
+  cache-to  = []
   platforms = platforms
 }
 
@@ -73,7 +77,7 @@ target "local-android-emulator" {
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
-    LOCAL_ANDROID_EMULATOR_VERSION,
+    LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}" : "",

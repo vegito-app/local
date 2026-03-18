@@ -26,9 +26,9 @@ EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS ?= \
   applications
 
 EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
-  builders-ci \
-  services-ci \
-  applications-ci
+  builders \
+  services \
+  applications
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $@

@@ -64,7 +64,7 @@ target "local-builder-ci" {
   context    = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
-    notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
+    LOCAL_BUILDER_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
@@ -129,7 +129,7 @@ target "local-builder" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
-    notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
+    LOCAL_BUILDER_IMAGE_VERSION
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}" : "",

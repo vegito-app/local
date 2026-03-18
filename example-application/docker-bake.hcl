@@ -68,7 +68,7 @@ variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
 }
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}" : ""
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
@@ -97,13 +97,6 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${EXAMPLE_APPLICATION_IMAGES_BASE}:dev-${VERSION}" : ""
-}
-
-variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
-  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:dev-latest"
-}
 
 target "vegito-example-application-builder" {
   args = {
