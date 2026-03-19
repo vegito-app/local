@@ -84,7 +84,6 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.base64
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.storepass.base64
       LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
-      VEGITO_RELEASE_BUCKET: ""
       LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
       LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
 
