@@ -46,7 +46,6 @@ variable "FLUTTER_VERSION" {
 
 target "local-android-flutter-ci" {
   args = {
-    debian_image               = DEBIAN_IMAGE_VERSION
     flutter_version            = FLUTTER_VERSION
     android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
     android_ndk_version        = ANDROID_NDK_VERSION
@@ -89,7 +88,6 @@ target "local-android-flutter-latest-ci" {
 
 target "local-android-flutter" {
   args = {
-    debian_image               = DEBIAN_IMAGE_LATEST
     flutter_version            = FLUTTER_VERSION
     android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
     android_ndk_version        = ANDROID_NDK_VERSION

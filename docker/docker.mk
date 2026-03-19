@@ -49,11 +49,27 @@ LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS ?= \
   services \
   applications
 
+DOCKER_HUB_IMAGES = \
+  docker-dind-rootless \
+  debian \
+  golang-alpine \
+  rust 
+
+local-docker-hub-images-update:	
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-dockerhub-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-dockerhub-ci
+.PHONY: local-docker-hub-images-update
+
+$(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
+.PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
+
 local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 .PHONY: local-docker-group-tags-list-ci
 
 $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | tee | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 
 # Build all images (CI)
@@ -113,19 +129,3 @@ docker-local-buildx-cache-clean:
 	  done \
 	'
 .PHONY: docker-local-buildx-cache-clean
-
-DOCKER_HUB_IMAGES = \
-  docker-dind-rootless \
-  debian \
-  golang-alpine \
-  rust 
-
-local-docker-hub-images-update:	
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-dockerhub-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-dockerhub-ci
-.PHONY: local-docker-hub-images-update
-
-$(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
-.PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)

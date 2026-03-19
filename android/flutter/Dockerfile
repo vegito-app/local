@@ -1,7 +1,5 @@
-ARG debian_image=debian:latest
 ARG android_apk_emulator_image=vegito-local/vegito-local:android-apk-emulator-latest
 
-FROM ${debian_image}
 FROM ${android_apk_emulator_image} AS apk-builder
 
 USER root

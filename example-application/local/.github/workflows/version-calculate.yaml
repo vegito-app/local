@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   calc:
+    name: Calculate Version
     runs-on: self-hosted
     outputs:
       version: ${{ steps.calc.outputs.version }}
