@@ -25,32 +25,34 @@ variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder/ci"
 }
 
-variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/vault-dev"
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder"
 }
 
-variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for clarinet image build"
-  default     = "type=local,mode=max,dest=${LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,mode=max,dest=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   description = "local read cache for clarinet image build (cannot be used before first write)"
-  default     = "type=local,src=${LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+  default     = "type=local,src=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_DIR" {
   default = "."
 }
 
-target "local-project-builder-ci" {
+target "local-builder-ci" {
+  contexts = {
+    debian = "target:local-debian-ci"
+    go     = "target:local-golang-alpine-ci"
+  }
   args = {
-    debian_image           = DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
     gitleaks_version       = GITLEAKS_VERSION
-    go_image               = GO_IMAGE_VERSION
     go_version             = GO_VERSION
     k9s_version            = K9S_VERSION
     kubectl_version        = KUBECTL_VERSION
@@ -62,29 +64,26 @@ target "local-project-builder-ci" {
   context    = LOCAL_DIR
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_BUILDER_IMAGE_LATEST,
-    notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
+    LOCAL_BUILDER_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE
-  ]
+  cache-to  = []
   platforms = platforms
 }
 
-target "local-project-builder" {
+target "local-builder-latest-ci" {
+  contexts = {
+    debian = "target:local-debian-ci"
+    go     = "target:local-golang-alpine-ci"
+  }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
     gitleaks_version       = GITLEAKS_VERSION
-    debian_image           = DEBIAN_IMAGE_LATEST
-    go_image               = GO_IMAGE_LATEST
     go_version             = GO_VERSION
     k9s_version            = K9S_VERSION
     kubectl_version        = KUBECTL_VERSION
@@ -97,14 +96,47 @@ target "local-project-builder" {
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
-    notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
-    LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-builder" {
+  contexts = {
+    debian = "target:local-debian-ci"
+    go     = "target:local-golang-alpine-ci"
+  }
+  args = {
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
+    gitleaks_version       = GITLEAKS_VERSION
+    go_version             = GO_VERSION
+    k9s_version            = K9S_VERSION
+    kubectl_version        = KUBECTL_VERSION
+    node_version           = NODE_VERSION
+    nvm_version            = NVM_VERSION
+    oh_my_zsh_version      = OH_MY_ZSH_VERSION
+    terraform_version      = TERRAFORM_VERSION
+  }
+  context    = LOCAL_DIR
+  dockerfile = "Dockerfile"
+  tags = [
+    LOCAL_BUILDER_IMAGE_LATEST,
+    LOCAL_BUILDER_IMAGE_VERSION
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
+    LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+  ]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
 }

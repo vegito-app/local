@@ -1,0 +1,39 @@
+services:
+  dev:
+    # build:
+    #   context: .
+    #   dockerfile: .devcontainer/Dockerfile
+    #   args:
+    #     builder_image: ${LOCAL_BUILDER_IMAGE}
+    environment:
+      #  CODESPACES ou CODESPACE_NAME est défini
+      CODESPACES: ${CODESPACES:-true}
+      CODESPACE_NAME: ${CODESPACE_NAME:-""}
+    volumes:
+      - /var/lib/docker/codespacemount/.persistedshare:/var/lib/docker/codespacemount/.persistedshare
+      - /dev:/dev
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /mnt/containerTmp:/tmp
+      - /.codespaces/agent/mount/cache:/vscode
+      - /var/lib/docker/codespacemount/workspace:/workspaces
+      - /root/.codespaces/shared:/workspaces/.codespaces/shared
+      - /lib/modules:/lib/modules:ro
+
+  android-studio:
+    volumes:
+      - /.codespaces/agent/mount/cache:/vscode
+  clarinet-devnet:
+    volumes:
+      - /.codespaces/agent/mount/cache:/vscode
+
+  robotframework:
+    volumes:
+      - /.codespaces/agent/mount/cache:/vscode
+
+  example-application-backend:
+    volumes:
+      - /.codespaces/agent/mount/cache:/vscode
+
+  example-application-mobile:
+    volumes:
+      - /.codespaces/agent/mount/cache:/vscode

@@ -29,12 +29,6 @@ bg_pids=($!)
 # Example: export LOCAL_WORKSPACE=/path/to/your/local/workspace
 current_workspace=$PWD
 
-# Needed with Github Codespaces which can change the workspace mount specified inside docker-compose.yml working directory
-# to match the one used by Codespaces.
-# You can ignore this with local vscode "Remote - Containers" extension which is using the same workspace mount as specified
-# inside docker-compose.yml working directory.
-# You can override the default location by setting the LOCAL_WORKSPACE environment variable.
-# Example: export LOCAL_WORKSPACE=/path/to/your/local/workspace
 LOCAL_WORKSPACE=${LOCAL_WORKSPACE:-/workspaces/vegito-app/local}
 if [ "$current_workspace" != "$LOCAL_WORKSPACE" ] ; then
     sudo ln -s $current_workspace $LOCAL_WORKSPACE 2>&1 || true

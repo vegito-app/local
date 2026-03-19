@@ -1,0 +1,106 @@
+name: Finalize Release
+
+on:
+  workflow_call:
+    inputs:
+      release_branch:
+        type: string
+        default: main
+
+      environment:
+        description: "The environment to deploy to (e.g., prod, staging)"
+        type: string
+        required: true
+
+      version:
+        description: "Semantic version without leading v (ex: 1.2.3)"
+        type: string
+        required: true
+
+      release_notes_path:
+        description: "Path to release notes file"
+        type: string
+        required: false
+        default: ""
+
+      release_bucket_name:
+        description: "GCS bucket name for releases"
+        required: true
+        type: string
+
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  finalize:
+    runs-on: self-hosted
+    name: Finalize Release
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout clean
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.release_branch }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Download release notes and metadata from GCS
+        run: |
+          mkdir -p ./release-notes
+
+          # Download main CHANGELOG
+          gcloud storage cp \
+            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/${{ inputs.release_notes_path }} \
+            ./release-notes/${{ inputs.release_notes_path }}
+
+          # Download optional GCloud metadata
+          gcloud storage cp \
+            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/gcloud-*.md \
+            ./release-notes/ 2>/dev/null || true
+
+      - name: Append GCloud metadata to release notes
+        run: |
+          NOTES_FILE="./release-notes/${{ inputs.release_notes_path }}"
+
+          if ls ./release-notes/gcloud-*.md >/dev/null 2>&1; then
+            echo "" >> "$NOTES_FILE"
+            echo "---" >> "$NOTES_FILE"
+            echo "" >> "$NOTES_FILE"
+            echo "## 🌐 GCloud Infrastructure State" >> "$NOTES_FILE"
+            echo "" >> "$NOTES_FILE"
+
+            for f in ./release-notes/gcloud-*.md; do
+              [ -e "$f" ] || continue
+              cat "$f" >> "$NOTES_FILE"
+            done
+          fi
+
+      - name: Upload consolidated release notes to GCS
+        run: |
+          gcloud storage cp \
+            "./release-notes/${{ inputs.release_notes_path }}" \
+            "gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md"

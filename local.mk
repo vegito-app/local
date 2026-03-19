@@ -58,8 +58,8 @@ local-project-builder-image: docker-buildx-setup
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-builder-ci
 .PHONY: local-project-builder-image-ci
 
 local-gcloud-builder-image-delete:
@@ -72,7 +72,6 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
-
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
@@ -213,9 +212,9 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	@$(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-	      LOCAL_CLARINET_DEVNET_CACHES_REFRESH=false \
-	      LOCAL_VAULT_AUDIT_INIT=false \
-	      VERSION=$(LOCAL_VERSION)
+	      VERSION=$(LOCAL_VERSION) \
+		  INFRA_ENV=$(INFRA_ENV) \
+		  GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk

@@ -62,6 +62,14 @@ bg_pids+=("$!")
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
 
+if [ -e /dev/kvm ]; then
+  KVM_GID_EXPECTED=$(stat -c '%g' /dev/kvm)
+  if ! id -G | tr ' ' '\n' | grep -qx "$KVM_GID_EXPECTED"; then
+    echo "❌ ERROR: android user is not in /dev/kvm group ($KVM_GID_EXPECTED)"
+    exit 1
+  fi
+fi
+
 if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "true" ]; then
     android-emulator-avd-start.sh &
     # Don't track this PID as the script will exit after starting the emulator if it is restarted (using 'make local-android-emulator-avd-restart' for example)
@@ -100,10 +108,6 @@ alias gd='git diff'
 alias gl='git log --oneline --graph --decorate'
 alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock build'
 alias run-android='flutter run -d android'
-
-# Some linux distibution like Codespaces are requiring this additionnaly to the docker group addition.
-sudo chown root:kvm /dev/kvm
-sudo chmod 660 /dev/kvm
 
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 

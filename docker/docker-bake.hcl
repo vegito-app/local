@@ -20,7 +20,7 @@ variable "DOCKERHUB_REPLICA_VERSION" {
 }
 variable "GO_VERSION" {
   description = "current Go version"
-  default     = "1.25.5"
+  default     = "1.26.0"
 }
 
 variable "NODE_VERSION" {
@@ -98,28 +98,45 @@ variable "platforms" {
   ]
 }
 
+# Groups are used to build incrementally the images in the correct order:
+# - Dockerhub: the base images that we replicate to our private repository
+# - Runners: the most basic level, they are used to run the services and applications
+# - Builders: used to build the services, applications and the local development environments
+# - Services: the dependencies of the applications, they are used to run the applications
+# - Applications: the end products that we want to run and test
+group "local-dockerhub-ci" {
+  targets = [
+    "local-debian-ci",
+    "local-docker-dind-rootless-ci",
+    "local-golang-alpine-ci",
+    "local-rust-ci",
+  ]
+}
+
 group "local-runners" {
   targets = [
     "local-android-runners",
+    "local-builder",
   ]
 }
 
 group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
+    "local-builder-ci",
   ]
 }
 
 group "local-builders" {
   targets = [
-    "local-project-builder",
+    "vegito-example-application-builders",
     "local-android-builders",
   ]
 }
 
 group "local-builders-ci" {
   targets = [
-    "local-project-builder-ci",
+    "vegito-example-application-builder-ci",
     "local-android-builders-ci",
   ]
 }
@@ -139,10 +156,15 @@ group "local-services-ci" {
   targets = [
     "local-android-services-ci",
     "clarinet-devnet-ci",
+    "clarinet-devnet-latest-ci",
     "firebase-emulators-ci",
+    "firebase-emulators-latest-ci",
     "github-actions-runner-ci",
+    "github-actions-runner-latest-ci",
     "vault-dev-ci",
+    "vault-dev-latest-ci",
     "robotframework-ci",
+    "robotframework-latest-ci",
   ]
 }
 
@@ -154,16 +176,7 @@ group "local-applications" {
 
 group "local-applications-ci" {
   targets = [
-    "example-applications-ci",
-  ]
-}
-
-group "local-dockerhub-ci" {
-  targets = [
-    "local-debian-ci",
-    "local-docker-dind-rootless-ci",
-    "local-golang-alpine-ci",
-    "local-rust-ci",
+    "vegito-example-application-ci",
   ]
 }
 

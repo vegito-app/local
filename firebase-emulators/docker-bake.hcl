@@ -18,7 +18,7 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
   default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/firebase-emulators"
 }
 
-variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   description = "local write cache for clarinet image build"
   default     = "type=local,mode=max,dest=${LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
@@ -29,31 +29,45 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 target "firebase-emulators-ci" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
-    debian_image  = DEBIAN_IMAGE_VERSION
+  contexts = {
+    builder_image = "target:local-builder-ci"
+    debian_image  = "target:local-debian-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
-    LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
-    LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to  = []
+  platforms = platforms
+}
+
+target "firebase-emulators-latest-ci" {
+  contexts = {
+    builder_image = "target:local-builder-ci"
+    debian_image  = "target:local-debian-ci"
+  }
+  context = "${LOCAL_DIR}/firebase-emulators"
+  tags = [
+    LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI}" : "",
+    "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
 target "firebase-emulators" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
-    debian_image  = DEBIAN_IMAGE_LATEST
+  contexts = {
+    builder_image = "target:local-builder-ci"
+    debian_image  = "target:local-debian-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -66,6 +80,6 @@ target "firebase-emulators" {
     "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
   ]
 }

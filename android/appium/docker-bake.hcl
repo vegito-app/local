@@ -43,17 +43,31 @@ target "local-android-appium-ci" {
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
-    LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI}" : "",
     "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-    LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+  ]
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-android-appium-latest-ci" {
+  args = {
+    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
+    builder_image              = LOCAL_ANDROID_EMULATOR_VERSION
+  }
+  context = LOCAL_ANDROID_APPIUM_DIR
+  tags = [
+    LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI}" : "",
+    "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }

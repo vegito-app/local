@@ -1,257 +1,91 @@
-permissions:
-  id-token: write
-  contents: write
-name: Build and Push Release Docker Images And Artifacts 📦
+name: GCloud Infrastructure Release
+
 on:
   push:
     branches:
       - main
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency:
+  group: gcloud-release
+  cancel-in-progress: true
+
 jobs:
-  build-release-change-log:
-    name: Build Release Change Log  🧱
-    runs-on: self-hosted
-    outputs:
-      version: ${{ steps.define_version.outputs.VERSION }}
-      changelog: ${{ steps.define_version.outputs.CHANGELOG }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Define VERSION
-        id: define_version
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "build-and-push-images-action@github.com"
-          # Bump the version based on commit messages (default patch bump)
-          standard-version
-          version=$(git describe --tags --abbrev=7 --match 'v*')
-          echo "VERSION=$version"
-          echo "Commit release bump and tag will be pushed after build success"
-          echo "VERSION=${version}" >> $GITHUB_ENV
-          echo "VERSION=${version}" >> $GITHUB_OUTPUT
-          git fetch --tags
-          echo "## Changelog for ${version}" > CHANGELOG.new.md
+  version:
+    uses: vegito-app/local/.github/workflows/version-metadata.yml@main
+    with:
+      environment: prod
+      release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+    secrets: inherit
 
-          conventional-changelog -p angular -r 1 >> CHANGELOG.new.md
-          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.new.md; fi
-          mv CHANGELOG.new.md CHANGELOG.md
-          cat CHANGELOG.md
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+  collect-gcp-infos:
+    needs: version
 
-  build-release-infos:
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         environment: [dev, staging, prod]
-    name: Build GCP project info for ${{ matrix.environment }} 🧱
+
     runs-on: self-hosted
-    needs: build-release-change-log
     environment: ${{ matrix.environment }}
+
     env:
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      VERSION: ${{ needs.build-release-change-log.outputs.version }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
-    outputs:
-      version: ${{ needs.build-release-change-log.outputs.version }}
-      changelog: ${{ needs.build-release-change-log.outputs.changelog }}
+      VERSION: ${{ needs.version.outputs.version }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
         with:
-          fetch-depth: 0
-      - name: Use VERSION
-        run: echo "Current version is ${{ env.VERSION }}"
-      - name: Authenticate to Google Cloud via Workload Identity Federation
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
-          token_format: "access_token"
-          export_environment_variables: true
-      - name: Set up Cloud SDK
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+
+      - name: Collect GCP metadata
         run: |
           make gcloud-config-set-project
-      - name: 🐳 Retrieve GCP project informations
-        run: |
-          mkdir -p artifacts/metadata
+
+          mkdir -p artifacts
+
           {
-            echo "### 🐳 [ ${{ matrix.environment }} ] Docker Repositories (GCR/GAR)"
+            echo "### 🐳 [${{ matrix.environment }}] Docker Repositories"
             echo ""
-            echo "#### [ ${{ matrix.environment }} ] Public Repository"
-            echo "\`\`\`bash"
-            make gcloud-images-list-public
-            echo "\`\`\`"
+            make gcloud-docker-repository-public-images-list-public
             echo ""
-            echo "#### [ ${{ matrix.environment }} ] Private Repository"
-            echo "\`\`\`bash"
-            make gcloud-images-list
-            echo "\`\`\`"
-            echo ""
-            echo "#### Enabled APIs"
-            echo "\`\`\`bash"
-            make gcloud-services-list-enabled
-            echo "\`\`\`"
-            echo ""
-          } | tee artifacts/metadata/gcloud-${{ matrix.environment }}-infos.md
+            make gcloud-docker-repository-private-images-list-private
+          } > artifacts/gcloud-${{ matrix.environment }}.md
 
-      - name: Upload metadata as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: gcloud-metadata-${{ env.VERSION }}-${{ matrix.environment }}
-          path: |
-            artifacts/metadata/gcloud-${{ matrix.environment }}-infos.md
+      - name: Upload metadata to GCS
+        run: |
+          BUCKET=vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          gcloud storage cp artifacts/gcloud-${{ matrix.environment }}.md \
+            gs://${BUCKET}/${GITHUB_REPOSITORY}/${VERSION}/
 
-  create-consolidated-release:
-    name: Create Consolidated GitHub Release ✨
-    runs-on: self-hosted
-    needs:
-      - build-release-change-log
-      - build-release-infos
-    env:
-      VERSION: ${{ needs.build-release-infos.outputs.version }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Write changelog from previous step
-        run: |
-          echo "${{ needs.build-release-infos.outputs.changelog }}" > CHANGELOG.md
-      - name: Ensure artifacts directory exists
-        run: mkdir -p ./artifacts
-      - name: Download all artifacts 📥
-        uses: actions/download-artifact@v4
-        with:
-          path: ./artifacts
-      - name: Append GCP project infos to changelog
-        run: |
-          echo -e "\n\n---\n\n" >> CHANGELOG.md
-          echo "### 🐳 Docker Images (GCR/GAR)" >> CHANGELOG.md
-          find ./artifacts -type f -name "gcloud-*-infos.md" -exec cat {} \; >> CHANGELOG.md
-      - name: Create GitHub Release ✨
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: main-${{ env.VERSION }}
-          name: Release ${{ env.VERSION }}
-          body_path: ./CHANGELOG.md
-          files: |
-            ./artifacts/**/*.md
-            ./artifacts/**/*.MD
-            CHANGELOG.md
+  release-metadata:
+    needs: [version]
 
-  upload-docker-tags-to-gcs:
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    name: Upload Docker Tags to GCS
-    runs-on: self-hosted
-    needs: [create-consolidated-release, build-release-infos]
-    environment: ${{ matrix.environment }}
-    env:
-      VERSION: ${{ needs.build-release-infos.outputs.version }}
-      VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ matrix.environment }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      INFRA_ENV: ${{ matrix.environment }}
-      GCS_BUCKET: gs://vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      GCS_BUCKET_NAME: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set VERSION
-        run: echo "VERSION=${{ env.VERSION }}" >> $GITHUB_ENV
-      - name: Authenticate to Google Cloud via Workload Identity Federation
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
-          token_format: "access_token"
-          export_environment_variables: true
-      - name: Download gcloud-metadata artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: gcloud-metadata-${{ env.VERSION }}-${{ matrix.environment }}
-          path: .
-      - name: Generate index.json for release root
-        run: |
-          echo '{"env": "'"${INFRA_ENV}"'", "versions": [' > index.json
-          for f in $(gcloud storage ls "gs://${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/v*/metadata.json" 2>/dev/null || true); do
-            version=$(basename $(dirname "$f"))
-            echo "  {\"version\": \"$version\"}," >> index.json
-          done
-          sed -i '$ s/},/}/' index.json || true
-          echo ']}' >> index.json
-      - name: Upload Docker Tags and Index to GCS
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          gs_path_github_repo="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}"
-          gcloud storage cp gcloud-${{ matrix.environment }}-infos.md "gs://$gs_path_github_repo/${VERSION}/gcloud-infos.md" --quiet
-          gcloud storage cp index.json "gs://$gs_path_github_repo/index.json" --quiet
+    uses: vegito-app/local/.github/workflows/release-metadata.yml@main
 
-      - name: Upload metadata.json and APK/AAB to GCS
-        run: |
-          gs_path="${GCS_BUCKET_NAME}/${GITHUB_REPOSITORY}/${VERSION}"
-          mkdir -p temp_metadata
-          METADATA_PATH=temp_metadata/metadata.json
-          cat <<EOF > $METADATA_PATH
-          {
-            "version": "${VERSION}",
-            "changelog": "https://storage.googleapis.com/${gs_path}/CHANGELOG.md",
-            "dockerImages": "https://storage.googleapis.com/${gs_path}/docker-images.md",
-          }
-          EOF
+    with:
+      environment: prod
+      version: ${{ needs.version.outputs.version }}
+      release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
 
-          gcloud storage cp "$METADATA_PATH" "gs://$gs_path/metadata.json" --quiet
+    secrets: inherit
 
-  release-finalize:
-    name: Finalize and Push Release Tag
-    runs-on: self-hosted
-    needs:
-      - create-consolidated-release
-    if: success()
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  finalize:
+    needs: [release-metadata]
 
-      - name: Reset to clean state
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
+    uses: vegito-app/local/.github/workflows/version-finalize.yml@main
 
-      - name: 🔍 Run Gitleaks (non-blocking)
-        run: |
-          gitleaks detect \
-            --source . \
-            --report-path ./artifacts/security/gitleaks-report.json \
-            --log-opts "--all" \
-            --exit-code 1 || true
-      - name: Upload Gitleaks report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitleaks-report
-          path: ./artifacts/security/gitleaks-report.json
-      # - name: Fail if leaks found
-      #   run: |
-      #     if grep -q '"line":' gitleaks-report.json; then
-      #       echo "🚨 Secrets found, stopping build!"
-      #       exit 1
-      #     fi
-      - name: Recreate version tag
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "build-and-push-images-action@github.com"
-          standard-version
+    with:
+      environment: prod
+      version: ${{ needs.version.outputs.version }}
+      release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      release_title: "GCloud Infrastructure v${{ needs.version.outputs.version }}"
 
-      - name: Push tag if all builds succeeded
-        run: |
-          git push origin HEAD --follow-tags
+    secrets: inherit

@@ -20,6 +20,7 @@ group "local-android-runners-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator-ci",
+    "local-android-emulator-latest-ci",
   ]
 }
 
@@ -35,7 +36,9 @@ group "local-android-builders-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-flutter-ci",
+    "local-android-flutter-latest-ci",
     "local-android-appium-ci",
+    "local-android-appium-latest-ci",
   ]
 }
 
@@ -43,6 +46,7 @@ group "local-android-services" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-studio",
+    "local-android-studio-latest-ci"
   ]
 }
 
@@ -65,7 +69,9 @@ group "local-android" {
 group "local-android-ci" {
   targets = [
     "local-android-appium-ci",
+    "local-android-appium-latest-ci",
     "local-android-emulator-ci",
+    "local-android-emulator-latest-ci",
     "local-android-flutter-ci",
     "local-android-studio-ci"
   ]
