@@ -84,13 +84,17 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): docker-buildx
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
-LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST ?= container.mac-m1.local
-LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-m1
+LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
+
+# LOCAL_DOCKER_BUILDX_ARM_BUILDER ?= vegito-arm-builder.local
+# LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=ssh://$(LOCAL_DOCKER_BUILDX_ARM_BUILDER)
+
+LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
 
 # Ajout d'un context docker distant pour le Mac
 docker-context-arm:
 	@docker context inspect $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
-	docker context create $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=ssh://$(LOCAL_DOCKER_BUILDX_ARM_BUILDER_SSH_HOST)"
+	docker context create $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
 .PHONY: docker-context-arm
 
 docker-context-arm-rm:
@@ -104,12 +108,24 @@ docker-clean-all:
 	  docker-local-buildx-cache-clean
 .PHONY: docker-clean-all
 
-docker-buildx-setup: #docker-context-arm
-	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
-	  docker buildx create --name $(LOCAL_DOCKER_BUILDX_NAME) --driver docker-container --use --platform linux/amd64
-# 	@-docker buildx create --name $(LOCAL_DOCKER_BUILDX_NAME) --append $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --platform linux/arm64
-	@-docker buildx inspect --bootstrap
-.PHONY: docker-buildx-setup
+docker-buildx-setup: docker-context-arm
+	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
+	  docker context use default && \
+	  docker buildx create \
+	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	    --driver docker-container \
+	    --use \
+	    --platform linux/amd64; \
+	}
+
+	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
+	  docker buildx create \
+	    --append \
+	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	    $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) \
+	    --platform linux/arm64
+
+	@docker buildx inspect --bootstrap
 
 docker-buildx-rm:
 	@-docker buildx rm $(LOCAL_DOCKER_BUILDX_NAME)
