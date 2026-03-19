@@ -9,29 +9,39 @@ on:
         description: "Full Docker image reference to scan"
         required: true
         type: string
+
       environment:
         description: "GitHub environment to use (for secrets/vars)"
         required: true
         type: string
+
       severity:
         description: "Comma-separated severities to fail on"
         required: false
         default: "CRITICAL,HIGH"
         type: string
+
       exit-code:
         description: "Exit code when vulnerabilities are found"
         required: false
         default: "1"
         type: string
-      release_bucket_name:
-        description: "GCS bucket name for artifacts"
-        required: true
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
         type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+
       release_bucket_prefix:
         description: "GCS bucket prefix (usually repository)"
         required: false
         type: string
         default: ${{ github.repository }}
+
       version:
         description: "Release version (used as GCS path)"
         required: true
@@ -79,6 +89,33 @@ jobs:
           make gcloud-config-set-project
           make gcloud-auth-docker
 
+      - name: Resolve release bucket from env_bucket_map
+        id: resolve_bucket
+        run: |
+          set -euo pipefail
+
+          resolve_bucket() {
+            local target_env="$1"
+            while IFS=":" read -r env bucket; do
+              env="${env#"${env%%[![:space:]]*}"}"   # ltrim
+              env="${env%"${env##*[![:space:]]}"}"   # rtrim
+              bucket="${bucket#"${bucket%%[![:space:]]*}"}"
+              bucket="${bucket%"${bucket##*[![:space:]]}"}"
+              [[ -z "$env" || "$env" == \#* ]] && continue
+              [[ -z "$bucket" ]] && continue
+              if [ "$env" = "$target_env" ]; then
+                echo "$bucket"
+                return 0
+              fi
+            done <<< "${{ inputs.env_bucket_map }}"
+            return 1
+          }
+
+          BUCKET=$(resolve_bucket "${{ inputs.environment }}") || {
+            echo "❌ No bucket found for environment: ${{ inputs.environment }}"; exit 1; }
+
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+
       - name: Run Trivy scan (HTML report)
         uses: aquasecurity/trivy-action@0.33.1
         with:
@@ -93,9 +130,14 @@ jobs:
           version: v0.69.3
 
       - name: Upload Trivy HTML report to GCS
+        env:
+          VERSION: ${{ env.VERSION }}
+          BUCKET: ${{ steps.resolve_bucket.outputs.bucket }}
+          PREFIX: ${{ inputs.release_bucket_prefix }}
         if: always()
         run: |
-          DEST="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
+          gs_path="gs://${BUCKET}/${PREFIX}/${VERSION}/security"
+          DEST="${gs_path}/trivy-report.html"
           echo "Uploading trivy-report.html to $DEST"
           gcloud storage cp \
             --content-type=text/html \
@@ -103,12 +145,17 @@ jobs:
             "$DEST"
 
       - name: Publish security metadata
+        env:
+          VERSION: ${{ env.VERSION }}
+          BUCKET: ${{ steps.resolve_bucket.outputs.bucket }}
+          PREFIX: ${{ inputs.release_bucket_prefix }}
         run: |
           set -euo pipefail
 
-          BASE="gs://${VEGITO_RELEASE_BUCKET}/${VERSION}"
+          gs_path="gs://${BUCKET}/${PREFIX}/${VERSION}/security"
+          DEST="${gs_path}/security-metadata.json"
 
-          REPORT="https://storage.googleapis.com/${VEGITO_RELEASE_BUCKET}/${VERSION}/security/trivy-report.html"
+          REPORT="https://storage.googleapis.com/${BUCKET}/${PREFIX}/${VERSION}/security/trivy-report.html"
 
           cat <<EOF > security-metadata.json
           {
@@ -116,4 +163,4 @@ jobs:
           }
           EOF
 
-          gcloud storage cp security-metadata.json ${BASE}/security-metadata.json
+          gcloud storage cp security-metadata.json ${DEST}

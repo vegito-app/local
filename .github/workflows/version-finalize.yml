@@ -28,12 +28,6 @@ on:
         required: false
         default: ""
 
-      release_notes_path:
-        description: "Path to release notes file"
-        type: string
-        required: false
-        default: ""
-
       release_bucket_prefix:
         description: "Bucket prefix (usually repository name)"
         required: false
@@ -42,7 +36,7 @@ on:
 
       env_bucket_map:
         description: "YAML mapping of environment to release bucket"
-        required: true
+        required: false
         type: string
         default: |
           dev: vegito-app-dev-github-actions-ci-artifacts-private
@@ -54,7 +48,7 @@ on:
         required: true
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
         required: true
 
 permissions:
@@ -78,7 +72,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER }}
           project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
@@ -98,11 +92,14 @@ jobs:
             [[ -z "$env" || "$env" == \#* ]] && continue
             [[ -z "$bucket" ]] && continue
 
-            gcloud storage cp \
+            if ! gcloud storage cp \
               "gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md" \
-              "./release-notes/RELEASE_BODY-${env}.md" || true
+              "./release-notes/RELEASE_BODY-${env}.md" ; \
+            then
+              echo "⚠️ Failed to fetch ${env} metadata"
+            fi
           done <<< "${{ inputs.env_bucket_map }}"
-          
+
           echo "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
 
           metadata_started=false

@@ -15,7 +15,7 @@ Le workflow `main-release-template.yml` a été conçu pour être **réutilisé 
 
 ### 📦 Exemple d'utilisation dans un dépôt externe :
 
-```yaml
+```yml
 # .github/workflows/deploy.yml
 name: Reuse Vegito Release Workflow
 

@@ -10,14 +10,13 @@ on:
 
 jobs:
   pipeline:
-    uses: ./.github/workflows/application-pipeline.yaml
+    uses: ./.github/workflows/application-pipeline.yml
 
     with:
       environment: dev
       functional_tests_dir: example-application/tests/output
       images_to_scan: '["example-application-backend"]'
       project: vegito-local
-      release_bucket_name: vegito-app-dev-github-actions-ci-artifacts
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
@@ -27,6 +26,7 @@ jobs:
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER: github-actions-release-reader@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
       WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
 
   build-staging-prod:
@@ -42,8 +42,6 @@ jobs:
       version: ${{ needs.pipeline.outputs.version }}
       environment: ${{ matrix.environment }}
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
-
-      release_bucket_name: vegito-app-${{ matrix.environment }}-github-actions-ci-artifacts
 
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}

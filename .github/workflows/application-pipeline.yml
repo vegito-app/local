@@ -18,13 +18,20 @@ on:
         required: false
         type: string
         default: '["application-backend"]'
-      release_bucket_name:
-        required: true
-        type: string
       release_bucket_prefix:
         required: false
         type: string
         default: ${{ github.repository }}
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
+        type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+
       environment:
         required: false
         type: string
@@ -36,13 +43,15 @@ on:
     outputs:
       version:
         description: "The version generated for this release"
-        value: ${{ jobs.version.outputs.version }}
+        value: ${{ jobs.version-changelog.outputs.version }}
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
       GOOGLE_CLOUD_PROJECT_NUMBER:
         required: true
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
         required: true
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -63,26 +72,33 @@ env:
   TEST_ENV: ${{ inputs.environment }}
 
 jobs:
-  version:
-    name: Generate Version and Changelog
-    uses: ./.github/workflows/version-prepare.yml
+  version-changelog:
+    uses: ./.github/workflows/version-changelog.yml
+    secrets: inherit
+
+  version-metadata:
+    needs: version-changelog
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    uses: ./.github/workflows/version-metadata.yml
 
     with:
-      environment: ${{ inputs.environment }}
-      release_bucket_name: ${{ inputs.release_bucket_name }}
-      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      environment: ${{ matrix.environment }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
 
     secrets: inherit
 
   build:
     name: Build Images
-    needs: version
+    needs: version-changelog
     uses: ./.github/workflows/build-images.yml
 
     with:
-      version: ${{ needs.version.outputs.version }}
+      version: ${{ needs.version-changelog.outputs.version }}
       environment: ${{ inputs.environment }}
-      release_bucket_name: ${{ inputs.release_bucket_name }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
       android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
 
@@ -90,21 +106,21 @@ jobs:
 
   tests:
     name: Run Functional Tests
-    needs: [build, version]
+    needs: [build, version-changelog]
     uses: ./.github/workflows/functional-tests.yml
 
     with:
-      version: ${{ needs.version.outputs.version }}
+      version: ${{ needs.version-changelog.outputs.version }}
       environment: ${{ inputs.environment }}
       functional-tests-output-dir: ${{ inputs.functional_tests_dir }}
-      release_bucket_name: ${{ inputs.release_bucket_name }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
 
     secrets: inherit
 
   trivy:
     name: Security Scan (Trivy)
-    needs: [version, build]
+    needs: [version-changelog, build]
 
     strategy:
       matrix:
@@ -113,24 +129,38 @@ jobs:
 
     with:
       environment: ${{ inputs.environment }}
-      image-ref: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version.outputs.version }}
+      image-ref: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
       severity: CRITICAL,HIGH
       exit-code: "1"
-      release_bucket_name: ${{ inputs.release_bucket_name }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
-      version: ${{ needs.version.outputs.version }}
+      version: ${{ needs.version-changelog.outputs.version }}
 
     secrets: inherit
 
   release:
-    name: Create Consolidated Release
-    needs: [tests, trivy, version]
-    uses: ./.github/workflows/application-release-template.yml
+    name: Create Consolidated Release Notes
+    needs: [tests, trivy, version-changelog]
+    uses: ./.github/workflows/application-release-metadata.yml
 
     with:
       environment: ${{ inputs.environment }}
-      version: ${{ needs.version.outputs.version }}
-      release_bucket_name: ${{ inputs.release_bucket_name }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  finalize:
+    name: Finalize Release
+    needs: [tests, trivy, version-changelog]
+    uses: ./.github/workflows/version-finalize.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
 
     secrets: inherit
