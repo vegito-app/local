@@ -50,8 +50,8 @@ $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image): d
 .PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image)
 
 example-application-docker-images-ci:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push vegito-example-application-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-applications-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push vegito-example-application-applications-ci
 .PHONY: example-application-docker-images-ci
 
 $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image-ci): docker-buildx-setup

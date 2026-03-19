@@ -4,6 +4,11 @@ FROM ${builder_image} AS build
 RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
+RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
+    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
+
+    make vegito-go-images-mod-download
+
 COPY --from=approot Makefile .
 COPY --from=approot local/local.mk local/
 COPY --from=approot git.mk .
@@ -25,6 +30,11 @@ COPY --from=appfrontend src frontend/src
 COPY --from=appfrontend webpack.server.js frontend/
 
 RUN make -j example-application-frontend-build example-application-frontend-bundle
+
+RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
+    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
+
+    make vegito-go-images-mod-download
 
 # backend
 RUN mkdir -p backend

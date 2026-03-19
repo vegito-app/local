@@ -29,7 +29,13 @@ local-go-mod-download: $(LOCAL_GO_MODULES:%=local-go-%-mod-download)
 .PHONY: local-go-mod-download
 
 $(LOCAL_GO_MODULES:%=local-go-%-mod-download):
-	@cd $(LOCAL_DIR)/$(@:local-go-%-mod-download=%) && go mod download
+	@for i in 1 2 3; do \
+	  cd $(LOCAL_DIR)/$(@:local-go-%-mod-download=%) && \
+	    GOPROXY=https://proxy.golang.org,direct go mod download && \ exit 0; \
+	    echo "retry $$i"; \
+	  sleep 5; \
+	done; \
+	exit 1;
 .PHONY: $(LOCAL_GO_MODULES:%=local-go-%-mod-download) 
 
 local-go-mod-upgrade: $(LOCAL_GO_MODULES:%=local-go-%-mod-upgrade)
