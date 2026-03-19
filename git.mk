@@ -1,4 +1,4 @@
-GIT_SUBTREE_DIRS := gcloud
+GIT_SUBTREE_DIRS := gcloud example-application
 
 git-subtree-pull: $(GIT_SUBTREE_DIRS:%=git-subtree-%-pull)
 .PHONY: git-subtree-pull
@@ -11,7 +11,6 @@ git-subtree-status:
 	@git status
 .PHONY: git-subtree-status
 
-# VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VERSION)
 VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
 VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud example-application
