@@ -7,15 +7,15 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner/ci"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -47,7 +47,7 @@ group "local-service" {
 
 target "github-actions-runner-ci" {
   args = {
-    debian_image           = DEBIAN_IMAGE_VERSION
+    debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -66,13 +66,13 @@ target "github-actions-runner-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}" : "",
     "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
   ]
-  cache-to = []
+  cache-to  = []
   platforms = platforms
 }
 
 target "github-actions-runner-latest-ci" {
   args = {
-    debian_image           = DEBIAN_IMAGE_VERSION
+    debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -99,7 +99,7 @@ target "github-actions-runner-latest-ci" {
 
 target "github-actions-runner" {
   args = {
-    debian_image           = DEBIAN_IMAGE_LATEST
+    debian_image           = LOCAL_DEBIAN_IMAGE_LATEST
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION

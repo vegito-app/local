@@ -83,10 +83,6 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE" {
   default = "${EXAMPLE_APPLICATION_IMAGES_BASE}/cache/example-application-builder"
 }
 
-variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}/cache/example-application-builder/ci"
-}
-
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
   description = "local write cache for example-application-builder image build"
   default     = "type=local,mode=max,dest=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
@@ -128,7 +124,7 @@ target "vegito-example-application-builder-ci" {
     EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
   ]
   cache-to = []
@@ -144,11 +140,11 @@ target "vegito-example-application-builder-latest-ci" {
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
   ]
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = platforms
 }

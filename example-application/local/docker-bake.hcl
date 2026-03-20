@@ -18,11 +18,7 @@ variable "LOCAL_BUILDER_IMAGE_LATEST" {
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder"
-}
-
-variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/builder/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/builder"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -45,7 +41,7 @@ variable "LOCAL_DIR" {
 
 target "local-builder-ci" {
   args = {
-    debian_image           = DEBIAN_IMAGE_VERSION
+    debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -66,13 +62,13 @@ target "local-builder-ci" {
     notequal("", VERSION) ? LOCAL_BUILDER_IMAGE_VERSION : "",
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
     LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }
@@ -83,7 +79,7 @@ target "local-project-builder" {
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
     gitleaks_version       = GITLEAKS_VERSION
-    debian_image           = DEBIAN_IMAGE_LATEST
+    debian_image           = LOCAL_DEBIAN_IMAGE_LATEST
     go_image               = GO_IMAGE_LATEST
     go_version             = GO_VERSION
     k9s_version            = K9S_VERSION

@@ -3,11 +3,7 @@ variable "LOCAL_ANDROID_EMULATOR_VERSION" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-android-emulator"
-}
-
-variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/local-android-emulator/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/local-android-emulator"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_DIR" {
@@ -35,20 +31,20 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_LATEST" {
 target "local-android-emulator-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   args = {
-    debian_image = DEBIAN_IMAGE_VERSION
+    debian_image = LOCAL_DEBIAN_IMAGE_VERSION
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
     LOCAL_ANDROID_EMULATOR_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
     LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline",
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
   platforms = platforms
 }
@@ -56,7 +52,7 @@ target "local-android-emulator-ci" {
 target "local-android-emulator" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   args = {
-    debian_image = DEBIAN_IMAGE_LATEST
+    debian_image = LOCAL_DEBIAN_IMAGE_LATEST
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,

@@ -148,13 +148,13 @@ group "local-services-ci" {
 
 group "local-applications" {
   targets = [
-    "example-applications",
+    "example-applications-applications",
   ]
 }
 
 group "local-applications-ci" {
   targets = [
-    "vegito-example-application-ci",
+    "vegito-example-application-applications-ci",
   ]
 }
 
@@ -185,18 +185,18 @@ target "local-docker-dind-rootless-ci" {
   platforms  = platforms
 }
 
-variable "DEBIAN_IMAGE_LATEST" {
+variable "LOCAL_DEBIAN_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:latest"
 }
 
-variable "DEBIAN_IMAGE_VERSION" {
+variable "LOCAL_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
 }
 
 target "local-debian-ci" {
   tags = [
-    DEBIAN_IMAGE_LATEST,
-    DEBIAN_IMAGE_VERSION,
+    LOCAL_DEBIAN_IMAGE_LATEST,
+    LOCAL_DEBIAN_IMAGE_VERSION,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "debian.Dockerfile"

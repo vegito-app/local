@@ -6,12 +6,8 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
 }
 
-variable "LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-appium"
-}
-
-variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-appium/ci"
+variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-appium"
 }
 
 variable "LOCAL_ANDROID_APPIUM_DIR" {
@@ -37,57 +33,76 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
 }
 
 target "local-android-appium-ci" {
-  args = {
-    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
-    builder_image              = LOCAL_ANDROID_EMULATOR_VERSION
+  contexts = {
+    builder_image = "target:local-android-emulator-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI}" : "",
-    "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+    ]
+  )
   cache-to  = []
   platforms = platforms
 }
 
 target "local-android-appium-latest-ci" {
-  args = {
-    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE
-    builder_image              = LOCAL_ANDROID_EMULATOR_VERSION
+  contexts = {
+    builder_image = "target:local-android-emulator-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
     LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI}" : "",
-    "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+    ]
+  )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
 target "local-android-appium" {
-  args = {
-    android_apk_emulator_image = LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST
-    builder_image              = LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
+  contexts = {
+    builder_image = "target:local-android-emulator"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
     LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE}" : "",
-    LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_REGISTRY_CACHE_IMAGE},mode=max" : LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-  ]
+  cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
 }

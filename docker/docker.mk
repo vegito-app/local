@@ -2,9 +2,13 @@ GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
+VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-cache
+VEGITO_LOCAL_CACHE_IMAGES_BASE = $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
-VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE = $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
 
 docker-login: gcloud-auth-docker
 	@docker login $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
@@ -108,7 +112,9 @@ docker-clean-all:
 	  docker-local-buildx-cache-clean
 .PHONY: docker-clean-all
 
-docker-buildx-setup: docker-context-arm
+LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
+
+docker-buildx-setup:
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
@@ -118,14 +124,18 @@ docker-buildx-setup: docker-context-arm
 	    --platform linux/amd64; \
 	}
 
+ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
+	@$(MAKE) docker-context-arm
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	  docker buildx create \
 	    --append \
 	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
 	    $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) \
 	    --platform linux/arm64
+endif
 
 	@docker buildx inspect --bootstrap
+.PHONY: docker-buildx-setup
 
 docker-buildx-rm:
 	@-docker buildx rm $(LOCAL_DOCKER_BUILDX_NAME)
