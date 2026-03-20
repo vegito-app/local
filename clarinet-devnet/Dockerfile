@@ -9,7 +9,9 @@ RUN apk add --no-cache \
     wget musl-dev build-base \
     linux-headers 
 
-RUN wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarinet_version}.tar.gz && \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarinet_version}.tar.gz && \
     tar -xf v${clarinet_version}.tar.gz && \
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
