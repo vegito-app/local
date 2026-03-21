@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   calc:
+    name: Calculate Version and Changelog
     runs-on: self-hosted
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
@@ -24,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - name: Define VERSION and Tag 🏷
         id: define_version
         run: |

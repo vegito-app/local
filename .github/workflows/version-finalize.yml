@@ -39,10 +39,10 @@ on:
         required: false
         type: string
         default: |
-          dev: vegito-app-dev-github-actions-ci-artifacts-private
-          staging: vegito-app-staging-github-actions-ci-artifacts-private
           prod: vegito-app-prod-github-actions-ci-artifacts-private
-
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -81,8 +81,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ./release-notes
+          rm -f ./release-notes/*
 
           echo "🔎 Fetching release metadata from GCS..."
+          files=()
 
           while IFS=":" read -r env bucket; do
             env="${env#"${env%%[![:space:]]*}"}"
@@ -101,6 +103,7 @@ jobs:
             if gcloud storage ls "$OBJECT" >/dev/null 2>&1; then
               echo "✔ Found ${env} metadata"
               gcloud storage cp "$OBJECT" "./release-notes/RELEASE_BODY-${env}.md"
+              files+=("./release-notes/RELEASE_BODY-${env}.md")
             else
               echo "⚠️ No metadata found for ${env} (${OBJECT})"
             fi
@@ -110,24 +113,15 @@ jobs:
           echo "📝 Generating final release body..."
 
           echo "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🌍 Consolidated Environment Metadata"
+            echo ""
+          } >> ./release-notes/FINAL_RELEASE_BODY.md
 
-          metadata_started=false
-
-          shopt -s nullglob
-          for file in ./release-notes/RELEASE_BODY-*.md; do
-
-            if [ "$metadata_started" = false ]; then
-              {
-                echo ""
-                echo "---"
-                echo ""
-                echo "## 🌍 Consolidated Environment Metadata"
-                echo ""
-              } >> ./release-notes/FINAL_RELEASE_BODY.md
-
-              metadata_started=true
-            fi
-
+          for file in "${files[@]}"; do
             env="${file##*/RELEASE_BODY-}"
             env="${env%.md}"
 
@@ -137,7 +131,6 @@ jobs:
               cat "$file"
               echo ""
             } >> ./release-notes/FINAL_RELEASE_BODY.md
-
           done
 
       - name: Create GitHub Release ✨
@@ -146,3 +139,21 @@ jobs:
           tag_name: "${{ inputs.version }}"
           name: ${{ inputs.release_title != '' && inputs.release_title || format('Release {0}', inputs.version) }}
           body_path: ./release-notes/FINAL_RELEASE_BODY.md
+
+      - name: Restore CHANGELOG.md
+        run: |
+          echo "${{ inputs.changelog }}" > CHANGELOG.md
+
+      - name: Commit and tag release
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
+          git add CHANGELOG.md || true
+          git commit -m "chore(release): ${{ inputs.version }}" || echo "No changes to commit"
+
+          git tag ${{ inputs.version }} || echo "Tag already exists"
+
+      - name: Push commit and tag
+        run: |
+          git push origin HEAD --follow-tags
