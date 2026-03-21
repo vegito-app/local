@@ -82,6 +82,8 @@ jobs:
           set -euo pipefail
           mkdir -p ./release-notes
 
+          echo "🔎 Fetching release metadata from GCS..."
+
           while IFS=":" read -r env bucket; do
             env="${env#"${env%%[![:space:]]*}"}"
             env="${env%"${env##*[![:space:]]}"}"
@@ -92,19 +94,27 @@ jobs:
             [[ -z "$env" || "$env" == \#* ]] && continue
             [[ -z "$bucket" ]] && continue
 
-            if ! gcloud storage cp \
-              "gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md" \
-              "./release-notes/RELEASE_BODY-${env}.md" ; \
-            then
-              echo "⚠️ Failed to fetch ${env} metadata"
+            OBJECT="gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md"
+
+            echo "→ Checking ${OBJECT}"
+
+            if gcloud storage ls "$OBJECT" >/dev/null 2>&1; then
+              echo "✔ Found ${env} metadata"
+              gcloud storage cp "$OBJECT" "./release-notes/RELEASE_BODY-${env}.md"
+            else
+              echo "⚠️ No metadata found for ${env} (${OBJECT})"
             fi
+
           done <<< "${{ inputs.env_bucket_map }}"
+
+          echo "📝 Generating final release body..."
 
           echo "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
 
           metadata_started=false
+
+          shopt -s nullglob
           for file in ./release-notes/RELEASE_BODY-*.md; do
-            [ -e "$file" ] || continue
 
             if [ "$metadata_started" = false ]; then
               {
@@ -127,6 +137,7 @@ jobs:
               cat "$file"
               echo ""
             } >> ./release-notes/FINAL_RELEASE_BODY.md
+
           done
 
       - name: Create GitHub Release ✨
