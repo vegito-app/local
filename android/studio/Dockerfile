@@ -1,4 +1,4 @@
-FROM android_apk_builder_image
+FROM flutter
 USER root
 
 # Make /bin/sh point to bash (and not dash)

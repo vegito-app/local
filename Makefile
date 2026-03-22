@@ -71,6 +71,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 -include git.mk
 -include nodejs.mk
 -include go.mk
+-include example-application/go.mk
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
 $(LOCAL_DOCKER_COMPOSE_SERVICES) \
