@@ -42,7 +42,7 @@ on:
           prod: vegito-app-prod-github-actions-ci-artifacts-private
           staging: vegito-app-staging-github-actions-ci-artifacts-private
           dev: vegito-app-dev-github-actions-ci-artifacts-private
-          
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -112,7 +112,7 @@ jobs:
 
           echo "📝 Generating final release body..."
 
-          echo "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
           {
             echo ""
             echo "---"
@@ -139,20 +139,19 @@ jobs:
           tag_name: "${{ inputs.version }}"
           name: ${{ inputs.release_title != '' && inputs.release_title || format('Release {0}', inputs.version) }}
           body_path: ./release-notes/FINAL_RELEASE_BODY.md
+          draft: false
+          prerelease: false
+          # generate_release_notes: false
 
-      - name: Restore CHANGELOG.md
-        run: |
-          echo "${{ inputs.changelog }}" > CHANGELOG.md
-
-      - name: Commit and tag release
+      - name: Create final version tag 🏷
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
 
-          git add CHANGELOG.md || true
-          git commit -m "chore(release): ${{ inputs.version }}" || echo "No changes to commit"
+          VERSION="${{ inputs.version }}"
 
-          git tag ${{ inputs.version }} || echo "Tag already exists"
+          echo "🏷 Creating tag on final commit: $VERSION"
+          git tag -a "$VERSION" -m "Release $VERSION"
 
       - name: Push commit and tag
         run: |
