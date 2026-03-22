@@ -2,12 +2,12 @@ GOOGLE_CLOUD_DIR ?= $(CURDIR)
 
 GCLOUD ?= gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
--include auth.mk
--include compute.mk
--include docker.mk
--include firebase.mk
--include iam.mk
--include user.mk
+-include $(GOOGLE_CLOUD_DIR)/auth.mk
+-include $(GOOGLE_CLOUD_DIR)/compute.mk
+-include $(GOOGLE_CLOUD_DIR)/docker.mk
+-include $(GOOGLE_CLOUD_DIR)/firebase.mk
+-include $(GOOGLE_CLOUD_DIR)/iam.mk
+-include $(GOOGLE_CLOUD_DIR)/user.mk
 
 gcloud-project-set:
 	@echo "🔧 Configuring current project to $(GOOGLE_CLOUD_PROJECT_ID)."
