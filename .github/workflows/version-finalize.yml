@@ -133,6 +133,17 @@ jobs:
             } >> ./release-notes/FINAL_RELEASE_BODY.md
           done
 
+      - name: Create final release commit and tag 🏷
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
+          standard-version
+
+      - name: Push commit and tag
+        run: |
+          git push origin HEAD --follow-tags
+
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         with:
@@ -141,18 +152,3 @@ jobs:
           body_path: ./release-notes/FINAL_RELEASE_BODY.md
           draft: false
           prerelease: false
-          # generate_release_notes: false
-
-      - name: Create final version tag 🏷
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "build-and-push-images-action@github.com"
-
-          VERSION="${{ inputs.version }}"
-
-          echo "🏷 Creating tag on final commit: $VERSION"
-          git tag -a "$VERSION" -m "Release $VERSION"
-
-      - name: Push commit and tag
-        run: |
-          git push origin HEAD --follow-tags
