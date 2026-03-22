@@ -197,7 +197,7 @@ group "local-applications" {
 
 group "local-applications-ci" {
   targets = [
-    "vegito-example-application-ci",
+    "vegito-example-application-applications-ci",
   ]
 }
 
