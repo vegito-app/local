@@ -1,9 +1,16 @@
 {
   "name": "Vegito Dev Container",
-  "image": "europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:builder-latest",
-  "mounts": [
-    "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind,consistency=cached"
+  "dockerComposeFile": [
+    "./docker-compose.yml",
   ],
+  "runServices": [
+    "dev"
+  ],
+  "containerEnv": {
+    "LOCAL_CONTAINER_INSTALL": "true",
+  },
+  "service": "dev",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",
   "workspaceFolder": "${localWorkspaceFolder}",
   "customizations": {
     "vscode": {
