@@ -1,0 +1,117 @@
+name: Version Prepare (Reusable)
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Precomputed semantic version"
+        required: false
+        type: string
+        default: ""
+
+      changelog:
+        description: "Precomputed changelog content"
+        required: false
+        type: string
+        default: ""
+
+      environment:
+        description: "Environment"
+        required: true
+        type: string
+
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
+        type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  update_version:
+    name: Upload VERSION Metadata ✨
+    runs-on: self-hosted
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Resolve release bucket from env_bucket_map
+        id: resolve_bucket
+        run: |
+          set -euo pipefail
+
+          TARGET_ENV="${{ inputs.environment }}"
+          BUCKET=""
+
+          while IFS=":" read -r env bucket; do
+            env=$(echo "$env" | tr -d ' ')
+            bucket=$(echo "$bucket" | tr -d ' ')
+
+            [[ -z "$env" || "$env" == \#* ]] && continue
+            [[ -z "$bucket" ]] && continue
+
+            if [ "$env" = "$TARGET_ENV" ]; then
+              BUCKET="$bucket"
+              break
+            fi
+          done <<< "${{ inputs.env_bucket_map }}"
+
+          if [ -z "$BUCKET" ]; then
+            echo "❌ No bucket found for environment: $TARGET_ENV"
+            exit 1
+          fi
+
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Initialize release body
+        run: |
+          echo "## 🧩 Version: ${{ inputs.version }}" > RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+
+      - name: Upload New Changes Changelog to GCS
+        run: |
+          set -euo pipefail
+
+          BUCKET="${{ steps.resolve_bucket.outputs.bucket }}"
+          PREFIX="${{ inputs.release_bucket_prefix }}"
+          VERSION="${{ inputs.version }}"
+
+          if [ "${{ inputs.changelog }}" != "" ]; then
+            GCS_PATH="gs://${BUCKET}/${PREFIX}/${VERSION}/precomputed-changelog"
+            echo "Uploading precomputed changelog to $GCS_PATH"
+            echo "${{ inputs.changelog }}" > changelog.md
+            gcloud storage cp changelog.md "$GCS_PATH/${GITHUB_RUN_ID}.md"
+          else
+            echo "No precomputed changelog provided, skipping upload to GCS."
+          fi

@@ -8,9 +8,16 @@ on:
       environment:
         required: true
         type: string
-      release_bucket_name:
-        required: true
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
         type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+
       release_bucket_prefix:
         required: false
         type: string
@@ -77,7 +84,6 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.base64
       LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.storepass.base64
       LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
-      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
       LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
 
@@ -109,6 +115,37 @@ jobs:
           project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
+
+      - name: Resolve release bucket from env_bucket_map
+        id: resolve_bucket
+        run: |
+          set -euo pipefail
+
+          resolve_bucket() {
+            local target_env="$1"
+            while IFS=":" read -r env bucket; do
+              env="${env#"${env%%[![:space:]]*}"}"   # ltrim
+              env="${env%"${env##*[![:space:]]}"}"   # rtrim
+              bucket="${bucket#"${bucket%%[![:space:]]*}"}"
+              bucket="${bucket%"${bucket##*[![:space:]]}"}"
+              [[ -z "$env" || "$env" == \#* ]] && continue
+              [[ -z "$bucket" ]] && continue
+              if [ "$env" = "$target_env" ]; then
+                echo "$bucket"
+                return 0
+              fi
+            done <<< "${{ inputs.env_bucket_map }}"
+            return 1
+          }
+
+          BUCKET=$(resolve_bucket "${{ inputs.environment }}") || {
+            echo "❌ No bucket found for environment: ${{ inputs.environment }}"; exit 1; }
+
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Export VEGITO_RELEASE_BUCKET
+        run: |
+          echo "VEGITO_RELEASE_BUCKET=${{ steps.resolve_bucket.outputs.bucket }}/${{ inputs.release_bucket_prefix }}" >> $GITHUB_ENV
 
       - name: Configure Cloud SDK and Docker
         run: |
@@ -176,7 +213,7 @@ jobs:
       LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-signed-aligned.apk
       LOCAL_ANDROID_MOBILE_IMAGE_AAB_RELEASE_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-signed.aab
       LOCAL_ANDROID_MOBILE_KEYSTORE_SHA1_EXTRACT_PATH: android-mobile-release-${{ inputs.version }}-key.keystore.sha1
-      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
+      VEGITO_RELEASE_BUCKET: ""
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -200,6 +237,37 @@ jobs:
           project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
+
+      - name: Resolve release bucket from env_bucket_map
+        id: resolve_bucket
+        run: |
+          set -euo pipefail
+
+          resolve_bucket() {
+            local target_env="$1"
+            while IFS=":" read -r env bucket; do
+              env="${env#"${env%%[![:space:]]*}"}"   # ltrim
+              env="${env%"${env##*[![:space:]]}"}"   # rtrim
+              bucket="${bucket#"${bucket%%[![:space:]]*}"}"
+              bucket="${bucket%"${bucket##*[![:space:]]}"}"
+              [[ -z "$env" || "$env" == \#* ]] && continue
+              [[ -z "$bucket" ]] && continue
+              if [ "$env" = "$target_env" ]; then
+                echo "$bucket"
+                return 0
+              fi
+            done <<< "${{ inputs.env_bucket_map }}"
+            return 1
+          }
+
+          BUCKET=$(resolve_bucket "${{ inputs.environment }}") || {
+            echo "❌ No bucket found for environment: ${{ inputs.environment }}"; exit 1; }
+
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Export VEGITO_RELEASE_BUCKET
+        run: |
+          echo "VEGITO_RELEASE_BUCKET=${{ steps.resolve_bucket.outputs.bucket }}/${{ inputs.release_bucket_prefix }}" >> $GITHUB_ENV
 
       - name: Ensure fresh .env
         run: |

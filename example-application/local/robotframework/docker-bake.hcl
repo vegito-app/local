@@ -11,11 +11,7 @@ variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST" {
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/robotframework"
-}
-
-variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/robotframework/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/robotframework"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -34,7 +30,7 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 target "robotframework-ci" {
   args = {
-    debian_image = DEBIAN_IMAGE_VERSION
+    debian_image = LOCAL_DEBIAN_IMAGE_VERSION
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -43,13 +39,13 @@ target "robotframework-ci" {
     LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}",
     LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }
@@ -58,7 +54,7 @@ target "robotframework" {
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
   args = {
-    debian_image = DEBIAN_IMAGE_VERSION
+    debian_image = LOCAL_DEBIAN_IMAGE_VERSION
   }
   tags = [
     LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,

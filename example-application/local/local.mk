@@ -58,8 +58,8 @@ local-project-builder-image: docker-buildx-setup
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-builder-ci
 .PHONY: local-project-builder-image-ci
 
 local-gcloud-builder-image-delete:

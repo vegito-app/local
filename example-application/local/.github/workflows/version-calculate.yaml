@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   calc:
+    name: Define VERSION ✨
     runs-on: self-hosted
     outputs:
       version: ${{ steps.calc.outputs.version }}

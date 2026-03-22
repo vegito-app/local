@@ -32,53 +32,31 @@ COPY --chown=${non_root_user}:${non_root_user} lib mobile/lib/
 
 COPY --from=android android.mk android/
 
-# Build APK and AAB signed release with the provided keystore and keystore password
-# The keystore file and the keystore password must be provided as build secrets
-# Example:
-#   --secret id=keystore,src=path/to/keystore/file
-#   --secret id=keystore_store_pass,src=path/to/keystore/password
-# See https://docs.docker.com/engine/reference/commandline/buildx_build/#setting-secrets
-# and https://docs.docker.com/engine/reference/commandline/buildx_build/#use-mount
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/.android/release.keystore
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH=${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.base64
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH=${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64
-ARG keystore_alias_name=vegito-local-release
-ENV VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name}
+ARG keystore_alias_name
 
-# Prepare empty keystore files with correct permissions. They will be populated in the next step.
-RUN mkdir -p /home/android/.android && \
-    touch ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
+RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore.base64 \
+    --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.keystore.storepass.base64 \
+    export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/android-release.keystore && \
+    export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name} && \
+    export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH=${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
+    sudo base64 --decode /tmp/release.keystore.base64 > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
     chmod 600 ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
-    touch ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH} && \
-    chmod 600 ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH} && \
-    touch ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
-    chmod 600 ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1
-
-RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore \
-    --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.storepass \
-    sudo cat /tmp/release.keystore > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH} && \
-    sudo cat /tmp/release.storepass > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH} && \
-    SHA1=$(keytool -list -v \
-    -keystore $(cat ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH} | base64 --decode) \
-    -storepass $(cat ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH} | base64 --decode) \
-    | grep 'SHA1:' | awk '{print $2}') && \
+    sudo cat /tmp/release.keystore.storepass.base64 > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH} && \
+    export VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER="cd mobile && flutter" && \
+    # Build the Flutter application release APK and AAB for distribution
+    make example-application-mobile-flutter-android-release && \
+    # Build the Flutter application debug APK
+    make example-application-mobile-flutter-build-apk-debug && \
+    # Extract the SHA1 fingerprint from the provided Android Keystore
+    SHA1="$(keytool -list -v \
+    -alias ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME} \
+    -keystore ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} \
+    -storepass "$(base64 --decode ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH})" \
+    | sed -n 's/.*SHA1: //p' | head -n1)" && \
+    test -n "$SHA1" && \
     echo "Local Android Keystore SHA1 fingerprint: $SHA1" && \
     echo -n "$SHA1" > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
-    mv ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 /home/android/src/local/android/app-release.keystore.sha1
-
-
-ARG environment
-RUN \
-    VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER="cd mobile && flutter" \
-    INFRA_ENV=${environment} \
-    make \
-    example-application-mobile-flutter-android-release
-
-RUN \
-    VEGITO_EXAMPLE_APPLICATION_MOBILE_FLUTTER="cd mobile && flutter" \
-    INFRA_ENV=${environment} \
-    make \
-    example-application-mobile-flutter-build-apk-debug
+    rm -f ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}
 
 FROM ${apk_runner_appium_image} AS runner
 
@@ -88,7 +66,7 @@ ARG environment
 COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release-${version}.apk
 COPY --from=builder /home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release-${version}.aab
 
-COPY --from=builder /home/android/src/local/android/app-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
+COPY --from=builder /home/android/android-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
 
 COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 

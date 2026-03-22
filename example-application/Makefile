@@ -65,10 +65,12 @@ node-modules: local-node-modules
 dotenv: example-application-dotenv
 .PHONY: dotenv
 
-images: example-application-docker-images
+images: example-application-docker-images-host-arch
 .PHONY: images
 
-images-ci: example-application-docker-images-ci
+images-ci: \
+example-application-builders-ci \
+example-application-docker-images-multi-arch
 .PHONY: images-ci
 
 images-pull: \
