@@ -7,15 +7,11 @@ variable "LOCAL_ANDROID_FLUTTER_IMAGE_LATEST" {
 }
 
 variable "LOCAL_ANDROID_FLUTTER_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-flutter"
-}
-
-variable "LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-flutter/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-flutter"
 }
 
 variable "LOCAL_ANDROID_APK_RUNNER_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-flutter"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-flutter"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_DIR" {
@@ -56,13 +52,13 @@ target "local-android-flutter-ci" {
     LOCAL_ANDROID_FLUTTER_VERSION,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
     LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
   ]
   platforms = platforms
 }

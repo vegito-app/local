@@ -15,11 +15,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/example-application-tests"
-}
-
-variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/example-application-tests/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/example-application-tests"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -36,7 +32,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ"
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "example-application-tests-ci" {
+target "vegito-example-application-tests-ci" {
   args = {
     robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
   }
@@ -44,21 +40,16 @@ target "example-application-tests-ci" {
   dockerfile = "Dockerfile"
   tags = [
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_VERSION,
-    VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST,
   ]
   cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI}" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}",
-    VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
-  cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE_CI},mode=max" : VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE
-  ]
+  cache-to  = []
   platforms = platforms
 }
 
-target "example-application-tests" {
+target "vegito-example-application-tests" {
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
   args = {
@@ -76,4 +67,23 @@ target "example-application-tests" {
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
+}
+
+target "vegito-example-application-tests-latest-ci" {
+  args = {
+    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
+  }
+  context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
+  dockerfile = "Dockerfile"
+  tags = [
+    VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : "",
+    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}",
+  ]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
 }

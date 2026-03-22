@@ -90,7 +90,7 @@ jobs:
       - test-dev
       - build-staging-prod
     name: Application Release Build 🚀
-    uses: ./.github/workflows/application-release-template.yml
+    uses: ./.github/workflows/application-release-metadata.yml
     with:
       environment: dev
       version: ${{ needs.version.outputs.version }}

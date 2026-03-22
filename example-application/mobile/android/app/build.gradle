@@ -36,8 +36,10 @@ android {
 
     signingConfigs {
         release {
-            def keystoreB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH")
-                    ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH") }()
+            def keystoreFile = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH")
+                    ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH") }()
+            // def keystoreB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH")
+            //         ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_BASE64_PATH") }()
             def storePassB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH")
                     ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH") }()
             def keyPassB64File = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH")
@@ -45,14 +47,14 @@ android {
             def keyAliasValue = System.getenv("VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME")
                     ?: { throw new GradleException("Missing VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME") }()
 
-            // --- keystore (écrit dans buildDir) ---
-            def keystoreFile = new File(buildDir, "release.keystore")
-            keystoreFile.parentFile.mkdirs()
+            // // --- keystore (écrit dans buildDir) ---
+            // def keystoreFile = new File(buildDir, "release.keystore")
+            // keystoreFile.parentFile.mkdirs()
 
-            if (!keystoreFile.exists()) {
-                def b64 = new File(keystoreB64File).getText("UTF-8").trim()
-                keystoreFile.bytes = b64.decodeBase64()
-            }
+            // if (!keystoreFile.exists()) {
+            //     def b64 = new File(keystoreB64File).getText("UTF-8").trim()
+            //     keystoreFile.bytes = b64.decodeBase64()
+            // }
 
             // --- passwords ---
             def storePasswordDecoded = new String(
@@ -63,7 +65,7 @@ android {
                     new File(keyPassB64File).text.decodeBase64()
             ).trim()
 
-            storeFile keystoreFile
+            storeFile file(keystoreFile)
             storePassword storePasswordDecoded
             keyAlias keyAliasValue
             keyPassword keyPasswordDecoded

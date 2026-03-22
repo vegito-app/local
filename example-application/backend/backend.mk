@@ -37,3 +37,8 @@ example-application-backend-container-up: example-application-backend-container-
 	@echo "Starting backend application container..."
 	$(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)/container-up.sh
 .PHONY: example-application-backend-container-up
+
+vegito-example-application-backend-gcloud-image-delete:
+	@echo "🗑️  Deleting backend image $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)..."
+	@$(GCLOUD) container images delete --force-delete-tags $(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST)
+.PHONY: vegito-example-application-backend-gcloud-image-delete

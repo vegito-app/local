@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.16.0](https://github.com/vegito-app/local/compare/v1.15.4...v1.16.0) (2026-03-16)
+
+
+### Features
+
+* **android:** add optional Facebook app ID and client token configurations ([ebcb015](https://github.com/vegito-app/local/commit/ebcb0158634b05048cc6f4e3b4ee16e03aed3207))
+* **build:** introduce separate targets for latest CI images ([764dbf8](https://github.com/vegito-app/local/commit/764dbf81956b3edf24bd59f2c93b0513bfed8a96))
+* **ci:** add alias name for Android release keystore in build workflow ([8a59e8c](https://github.com/vegito-app/local/commit/8a59e8c766ed11197312abdcadef1a27d01b23e5))
+* **dotenv:** add android package name environment variable ([034a7a3](https://github.com/vegito-app/local/commit/034a7a3bfb6ae14f49888267829e64a4d5ad998c))
+* **emulators:** update export metadata and add storage export ([02f5f44](https://github.com/vegito-app/local/commit/02f5f44fc6402e4c11e96778a4f7d2d319518a00))
+* **makefile:** add dynamic compose project name configuration ([86fad2f](https://github.com/vegito-app/local/commit/86fad2f7ec0dc7321eeb07ff1b430873a266137a))
+* **workflow:** add android keystore path to CI configurations ([338e2cc](https://github.com/vegito-app/local/commit/338e2cc9f57ae75cf341ba0426a12a1869efeebd))
+* **workflow:** add INFRA_ENV variable and update Trivy version ([4747925](https://github.com/vegito-app/local/commit/474792537af0aedf2eaf7155033e1a5385efb1b3))
+
+
+### Bug Fixes
+
+* **android-studio:** update Android Studio download URL for Canary version ([202128a](https://github.com/vegito-app/local/commit/202128a7b4a5f9367407dc19b3bbb1d2011541b1))
+
 ### [1.15.4](https://github.com/vegito-app/local/compare/v1.15.3...v1.15.4) (2026-02-24)
 
 ### [1.15.3](https://github.com/vegito-app/local/compare/v1.15.2...v1.15.3) (2026-02-18)

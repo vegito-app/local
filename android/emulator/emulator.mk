@@ -60,6 +60,7 @@ local-android-emulator-avd-restart:
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
+	  echo "[*] Killing emulator & adb..." ; \
 	  pkill -x emulator ; \
 	  pkill -x qemu-system ; \
 	  pkill -x adb ; \
@@ -133,6 +134,7 @@ local-android-emulator-app-sha1:
 	  apksigner verify --print-certs /tmp/app.apk; \
 	'
 .PHONY: local-android-emulator-app-sha1
+
 local-android-emulator-crash:
 	@echo "Fetching Android Emulator crash logs..."
 	@$(LOCAL_ANDROID_ADB) logcat -v brief AndroidRuntime:E *:S

@@ -9,7 +9,6 @@ services:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
-      MAKE_DEV_ON_START: ${MAKE_DEV_ON_START:-true}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
     volumes:
       - ${PWD}:${PWD}:cached

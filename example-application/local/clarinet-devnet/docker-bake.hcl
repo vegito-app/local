@@ -7,11 +7,7 @@ variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/clarinet-devnet"
-}
-
-variable "LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/clarinet-devnet/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/clarinet-devnet"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -36,7 +32,7 @@ target "clarinet-devnet-ci" {
   args = {
     builder_image              = LOCAL_BUILDER_IMAGE_VERSION
     clarinet_version           = CLARINET_VERSION
-    debian_image               = DEBIAN_IMAGE_VERSION
+    debian_image               = LOCAL_DEBIAN_IMAGE_VERSION
     docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_VERSION
     docker_version             = DOCKER_VERSION
     rust_image                 = RUST_IMAGE_VERSION
@@ -53,8 +49,8 @@ target "clarinet-devnet-ci" {
     LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
   ]
   platforms = platforms
 }
@@ -63,7 +59,7 @@ target "clarinet-devnet" {
   args = {
     builder_image              = LOCAL_BUILDER_IMAGE_LATEST
     clarinet_version           = CLARINET_VERSION
-    debian_image               = DEBIAN_IMAGE_LATEST
+    debian_image               = LOCAL_DEBIAN_IMAGE_LATEST
     docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_LATEST
     docker_version             = DOCKER_VERSION
     rust_image                 = RUST_IMAGE_LATEST

@@ -4,7 +4,7 @@ services:
       context: ${PWD}
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    image: ${VEGITO_EXAMPLE_VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:example-application-backend-latest}
+    image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:example-application-backend-latest}
     env_file:
       - .env
     environment:

@@ -1,0 +1,154 @@
+name: Version Finalize (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      release_branch:
+        type: string
+        default: main
+
+      environment:
+        description: "The environment to deploy to (e.g., prod, staging)"
+        type: string
+        required: true
+
+      version:
+        description: "Semantic version without leading v (ex: 1.2.3)"
+        type: string
+        required: true
+
+      changelog:
+        description: "Changelog content for the release"
+        type: string
+        required: true
+
+      release_title:
+        description: "Optional GitHub Release title"
+        type: string
+        required: false
+        default: ""
+
+      release_bucket_prefix:
+        description: "Bucket prefix (usually repository name)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
+        type: string
+        default: |
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
+        required: true
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  finalize:
+    runs-on: self-hosted
+    name: Finalize Release ✨
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout clean
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.release_branch }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER }}
+          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
+
+      - name: Download consolidated release body from GCS
+        run: |
+          set -euo pipefail
+          mkdir -p ./release-notes
+          rm -f ./release-notes/*
+
+          echo "🔎 Fetching release metadata from GCS..."
+          files=()
+
+          while IFS=":" read -r env bucket; do
+            env="${env#"${env%%[![:space:]]*}"}"
+            env="${env%"${env##*[![:space:]]}"}"
+
+            bucket="${bucket#"${bucket%%[![:space:]]*}"}"
+            bucket="${bucket%"${bucket##*[![:space:]]}"}"
+
+            [[ -z "$env" || "$env" == \#* ]] && continue
+            [[ -z "$bucket" ]] && continue
+
+            OBJECT="gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md"
+
+            echo "→ Checking ${OBJECT}"
+
+            if gcloud storage ls "$OBJECT" >/dev/null 2>&1; then
+              echo "✔ Found ${env} metadata"
+              gcloud storage cp "$OBJECT" "./release-notes/RELEASE_BODY-${env}.md"
+              files+=("./release-notes/RELEASE_BODY-${env}.md")
+            else
+              echo "⚠️ No metadata found for ${env} (${OBJECT})"
+            fi
+
+          done <<< "${{ inputs.env_bucket_map }}"
+
+          echo "📝 Generating final release body..."
+
+          printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🌍 Consolidated Environment Metadata"
+            echo ""
+          } >> ./release-notes/FINAL_RELEASE_BODY.md
+
+          for file in "${files[@]}"; do
+            env="${file##*/RELEASE_BODY-}"
+            env="${env%.md}"
+
+            {
+              echo "### ${env}"
+              echo ""
+              cat "$file"
+              echo ""
+            } >> ./release-notes/FINAL_RELEASE_BODY.md
+          done
+
+      - name: Create final release commit and tag 🏷
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
+          standard-version
+
+      - name: Push commit and tag
+        run: |
+          git push origin HEAD --follow-tags
+
+      - name: Create GitHub Release ✨
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ inputs.version }}"
+          name: ${{ inputs.release_title != '' && inputs.release_title || format('Release {0}', inputs.version) }}
+          body_path: ./release-notes/FINAL_RELEASE_BODY.md
+          draft: false
+          prerelease: false
