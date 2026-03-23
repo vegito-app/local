@@ -23,6 +23,10 @@ variable "GO_VERSION" {
   default     = "1.26.0"
 }
 
+variable "TRIVY_VERSION" {
+  default = "0.69.3"
+}
+
 variable "NODE_VERSION" {
   description = "current Node version"
   default     = "22.14.0"
@@ -138,6 +142,7 @@ group "local-runners" {
   targets = [
     "local-android-runners",
     "local-builder",
+    "local-trivy"
   ]
 }
 
@@ -145,6 +150,7 @@ group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
     "local-builder-ci",
+    "local-trivy-ci"
   ]
 }
 

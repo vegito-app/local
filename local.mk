@@ -18,7 +18,8 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
   robotframework \
   firebase-emulators \
-  vault-dev
+  vault-dev \
+  trivy
 
 local-docker-images-pull-parallel: local-docker-compose-images-pull-parallel local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
@@ -69,6 +70,7 @@ local-gcloud-builder-image-delete:
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
@@ -77,7 +79,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   firebase-emulators \
   vault-dev \
-  robotframework
+  robotframework \
+  trivy
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -194,15 +197,16 @@ local-dev-container-logs-f:
 
 # Local Docker Compose Services for CI
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
-  robotframework
-
+  robotframework \
 #   clarinet-devnet
+
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
 LOCAL_DEV_CONTAINER_RUN = \
   LOCAL_CONTAINER_INSTALL=false \
   MAKE_DEV_ON_START=false \
-  $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
+  $(LOCAL_DOCKER_COMPOSE) run --rm \
+  $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
 LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 
@@ -224,3 +228,4 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
+-include $(LOCAL_DIR)/trivy/trivy.mk

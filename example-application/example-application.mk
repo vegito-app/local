@@ -65,6 +65,14 @@ $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-ci):
 	| jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
 
+example-application-docker-scan-tags-ci: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci)
+.PHONY: example-application-docker-scan-tags-ci
+
+$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci): docker-buildx-setup
+	@$(MAKE) local-trivy-image-scan \
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE)/vegito-local/$(@:example-application-%-docker-scan-tags-ci=%)
+.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
+
 VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
   backend \
   mobile \
