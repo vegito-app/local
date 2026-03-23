@@ -5,11 +5,6 @@ VEGITO_EXAMPLE_APPLICATION_DIR ?= $(CURDIR)
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/mobile/mobile.mk
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/tests/tests.mk
 
-APPLICATION_DOCKER_BUILDX_BAKE_IMAGES := \
-  backend \
-  mobile \
-  tests
-
 VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE ?= $(VEGITO_EXAMPLE_APPLICATION_DIR)/.env
 
 example-application-dotenv: $(VEGITO_EXAMPLE_APPLICATION_DOTENV_FILE)
@@ -25,6 +20,9 @@ EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS ?= \
   services \
   applications
 
+example-application-docker-images-host-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%)
+.PHONY: example-application-docker-images-host-arch
+
 EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
   builders \
   services \
@@ -35,54 +33,54 @@ $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-appli
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $@
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci)
 
-example-application-docker-images-host-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%)
-.PHONY: example-application-docker-images-host-arch
-
 example-application-docker-images-multi-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci)
 .PHONY: example-application-docker-images-multi-arch
 
-example-application-docker-images: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image)
+APPLICATION_DOCKER_BUILDX_BAKE_IMAGES := \
+  backend \
+  mobile \
+  tests
+
+example-application-docker-images: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 .PHONY: example-application-docker-images
 
-$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image): docker-buildx-setup
+$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image): docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
-.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image)
+.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 
-example-application-docker-images-ci:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-applications-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push vegito-example-application-applications-ci
+example-application-docker-images-ci: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 .PHONY: example-application-docker-images-ci
 
-$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image-ci): docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
-.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-image-ci)
+$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=vegito-%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=vegito-%-ci)
+.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 
-example-application-docker-tags-list-ci: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-docker-tags-list-ci)
+example-application-docker-tags-list-ci: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-list-ci)
 .PHONY: example-application-docker-tags-list-ci
 
-$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-docker-tags-ci): docker-buildx-setup
-	@$($(LOCAL_DOCKER_BUILDX_BAKE)) --print $(@:%-docker-tags=%-ci) 2>/dev/null \
+$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-ci): docker-buildx-setup
+	@$($(LOCAL_DOCKER_BUILDX_BAKE)) --print $(@:vegito-%-docker-tags=%-ci) 2>/dev/null \
 	| jq -r '.target | to_entries[] | .value.tags[]'
-.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=vegito-example-application-%-docker-group-tags-ci)
+.PHONY: $(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
 
 VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
-  example-application-backend \
-  example-application-mobile \
-  example-application-tests
+  backend \
+  mobile \
+  tests
 
-example-application-containers-rm: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
+example-application-containers-rm: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm)
 .PHONY: example-application-containers-rm
 
-example-application-containers-up: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up)
+example-application-containers-up: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-up)
 .PHONY: example-application-containers-up
 
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES):
-	@$(MAKE) $(@:%=%-container-up)
+	@$(MAKE) $(@:%=example-application-%-container-up)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci): local-dev-container-image-pull
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-up-ci): local-dev-container-image-pull
 	@echo "Running operation 'example-application-containers-$(@:example-application-containers-%-container-up-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
@@ -92,54 +90,54 @@ $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci): local
 	      LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME) \
 	      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-backend-$(VERSION) \
 	      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-up-ci)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-up-ci)
 
-example-application-containers-logs: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs)
+example-application-containers-logs: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs)
 .PHONY: example-application-containers-logs
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm):
 	@echo "🗑️  Removing container for $(@:%-container-rm=%)..."
 	@$(MAKE) $(@:%-rm=%-stop)
 	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:%-container-rm=%)
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm-ci): 
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm-ci): 
 	@echo "🗑️  Removing container for $(@:%-container-rm-ci=%)..."
 	@echo $(MAKE) $(@:%-rm-ci=%-stop)
 	@echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:%-container-rm-ci=%)
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-rm-ci)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm-ci)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-start):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-start):
 	@echo "▶️ Starting $(@:%-container-start=%)..."
 	@-$(LOCAL_DOCKER_COMPOSE) start $(@:%-container-start=%) 2>/dev/null
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-start)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-start)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-stop):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-stop):
 	@echo "🛑 Stopping container for $(@:%-container-stop=%)..."
 	@-$(LOCAL_DOCKER_COMPOSE) stop $(@:%-container-stop=%) 2>/dev/null
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-stop)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-stop)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs):
 	@echo "🗒️ Showing logs for $(@:%-container-logs=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) logs $(@:%-container-logs=%)
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs-f):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs-f):
 	@echo "📝 Following logs for $(@:%-container-logs-f=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) logs --follow $(@:%-container-logs-f=%)
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-logs-f)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs-f)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-sh):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-sh):
 	@echo "💻 Opening bash shell for $(@:%-container-sh=%)..."
 	@$(LOCAL_DOCKER_COMPOSE) exec -it $(@:%-container-sh=%) bash
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-container-sh)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-sh)
 
-$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-image-pull):
+$(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull):
 	@echo Pulling the container image for $(@:%-image-pull=%)
 	$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
-.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-image-pull)
+.PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull)
 
-example-application-docker-compose-images-pull: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=%-image-pull)
+example-application-docker-compose-images-pull: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull)
 .PHONY: example-application-docker-compose-images-pull
 
 example-application-docker-images-pull: 
