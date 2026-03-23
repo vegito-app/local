@@ -22,6 +22,10 @@ on:
         required: false
         type: string
         default: ${{ github.repository }}
+      use_registry_cache:
+        required: false
+        type: boolean
+        default: false
 
       env_bucket_map:
         description: "YAML mapping of environment to release bucket"
@@ -101,6 +105,7 @@ jobs:
       env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
       android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
+      use_registry_cache: ${{ inputs.use_registry_cache }}
 
     secrets: inherit
 

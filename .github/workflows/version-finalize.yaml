@@ -1,4 +1,4 @@
-name: Finalize Release
+name: Version Finalize (Reusable)
 
 on:
   workflow_call:
@@ -16,6 +16,17 @@ on:
         description: "Semantic version without leading v (ex: 1.2.3)"
         type: string
         required: true
+
+      create_github_release:
+        description: "Whether to create a GitHub Release"
+        type: boolean
+        default: false
+
+      release_title:
+        description: "GitHub Release title"
+        type: string
+        required: false
+        default: ""
 
       release_notes_path:
         description: "Path to release notes file"
@@ -49,7 +60,7 @@ permissions:
 jobs:
   finalize:
     runs-on: self-hosted
-    name: Finalize Release
+    name: Finalize Version
     environment: ${{ inputs.environment }}
 
     steps:
@@ -68,39 +79,30 @@ jobs:
           token_format: "access_token"
           export_environment_variables: true
 
-      - name: Download release notes and metadata from GCS
+      - name: Configure git identity
+        run: |
+          git config --global user.name "Vegito Release Bot"
+          git config --global user.email "release@vegito.app"
+
+      - name: Create annotated git tag
+        run: |
+          git tag -a "${{ inputs.version }}" -m "${{ inputs.release_title }}"
+
+      - name: Push git tag
+        run: |
+          git push origin "${{ inputs.version }}"
+
+      - name: Download release notes from GCS
         run: |
           mkdir -p ./release-notes
-
-          # Download main CHANGELOG
           gcloud storage cp \
             gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/${{ inputs.release_notes_path }} \
             ./release-notes/${{ inputs.release_notes_path }}
 
-          # Download optional GCloud metadata
-          gcloud storage cp \
-            gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/gcloud-*.md \
-            ./release-notes/ 2>/dev/null || true
-
-      - name: Append GCloud metadata to release notes
-        run: |
-          NOTES_FILE="./release-notes/${{ inputs.release_notes_path }}"
-
-          if ls ./release-notes/gcloud-*.md >/dev/null 2>&1; then
-            echo "" >> "$NOTES_FILE"
-            echo "---" >> "$NOTES_FILE"
-            echo "" >> "$NOTES_FILE"
-            echo "## 🌐 GCloud Infrastructure State" >> "$NOTES_FILE"
-            echo "" >> "$NOTES_FILE"
-
-            for f in ./release-notes/gcloud-*.md; do
-              [ -e "$f" ] || continue
-              cat "$f" >> "$NOTES_FILE"
-            done
-          fi
-
-      - name: Upload consolidated release notes to GCS
-        run: |
-          gcloud storage cp \
-            "./release-notes/${{ inputs.release_notes_path }}" \
-            "gs://${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md"
+      - name: Create GitHub Release
+        if: ${{ inputs.create_github_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ inputs.version }}"
+          name: ${{ inputs.release_title }}
+          body_path: ./release-notes/${{ inputs.release_notes_path }}

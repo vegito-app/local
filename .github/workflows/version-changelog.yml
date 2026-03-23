@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   calc:
+    name: Calculate Version and Changelog
     runs-on: self-hosted
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
@@ -24,34 +25,41 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - name: Define VERSION and Tag 🏷
         id: define_version
         run: |
+          set -euo pipefail
+
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
 
-          # Bump the version based on commit messages (default patch bump)
-          touch CHANGELOG.old.md
-          if [ -f CHANGELOG.md ]; then cat CHANGELOG.md >> CHANGELOG.old.md; fi
-          rm -f CHANGELOG.md
           git fetch --tags
-          echo "Commit release bump and tag will be pushed after build success"
-          standard-version --skip.commit
+
+          echo "🔧 Running standard-version (source of truth)"
+
+          standard-version
+
+          VERSION=$(git describe --tags --abbrev=0 --match 'v*')
+
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+          echo "## Changelog for ${VERSION}" > CHANGELOG.new.md
+
+          conventional-changelog -p angular -r 1 >> CHANGELOG.new.md
+
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> CHANGELOG.new.md
+          fi
+
+          mv CHANGELOG.new.md CHANGELOG.md
+
           echo "CHANGELOG_NEW<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          echo "📝 CHANGELOG (new only):"
-          # Determine version safely even if no tags exist yet
-          if git describe --tags --abbrev=0 --match 'v*' >/dev/null 2>&1; then
-            VERSION=$(git describe --tags --abbrev=0 --match 'v*')
-          else
-            # First release fallback when no tags exist
-            VERSION="v0.1.0"
-          fi
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-          echo "📦 Prepared version: $VERSION (not pushed)"
+
+          echo "📦 Prepared version: $VERSION (commit + tag local, not pushed yet)"
 
       - run: echo "📦 Version = ${{ steps.define_version.outputs.VERSION }}"
       - name: Show New Changes log

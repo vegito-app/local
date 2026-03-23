@@ -49,7 +49,6 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
@@ -71,6 +70,9 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 -include git.mk
 -include nodejs.mk
 -include go.mk
+
+LOCAL_GO_MODULES += \
+ $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
 $(LOCAL_DOCKER_COMPOSE_SERVICES) \

@@ -39,9 +39,9 @@ on:
         required: false
         type: string
         default: |
-          dev: vegito-app-dev-github-actions-ci-artifacts-private
-          staging: vegito-app-staging-github-actions-ci-artifacts-private
           prod: vegito-app-prod-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
 
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
@@ -58,7 +58,7 @@ permissions:
 jobs:
   finalize:
     runs-on: self-hosted
-    name: Finalize Release
+    name: Finalize Release ✨
     environment: ${{ inputs.environment }}
 
     steps:
@@ -81,6 +81,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ./release-notes
+          rm -f ./release-notes/*
+
+          echo "🔎 Fetching release metadata from GCS..."
+          files=()
 
           while IFS=":" read -r env bucket; do
             env="${env#"${env%%[![:space:]]*}"}"
@@ -92,32 +96,32 @@ jobs:
             [[ -z "$env" || "$env" == \#* ]] && continue
             [[ -z "$bucket" ]] && continue
 
-            if ! gcloud storage cp \
-              "gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md" \
-              "./release-notes/RELEASE_BODY-${env}.md" ; \
-            then
-              echo "⚠️ Failed to fetch ${env} metadata"
+            OBJECT="gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md"
+
+            echo "→ Checking ${OBJECT}"
+
+            if gcloud storage ls "$OBJECT" >/dev/null 2>&1; then
+              echo "✔ Found ${env} metadata"
+              gcloud storage cp "$OBJECT" "./release-notes/RELEASE_BODY-${env}.md"
+              files+=("./release-notes/RELEASE_BODY-${env}.md")
+            else
+              echo "⚠️ No metadata found for ${env} (${OBJECT})"
             fi
+
           done <<< "${{ inputs.env_bucket_map }}"
 
-          echo "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          echo "📝 Generating final release body..."
 
-          metadata_started=false
-          for file in ./release-notes/RELEASE_BODY-*.md; do
-            [ -e "$file" ] || continue
+          printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🌍 Consolidated Environment Metadata"
+            echo ""
+          } >> ./release-notes/FINAL_RELEASE_BODY.md
 
-            if [ "$metadata_started" = false ]; then
-              {
-                echo ""
-                echo "---"
-                echo ""
-                echo "## 🌍 Consolidated Environment Metadata"
-                echo ""
-              } >> ./release-notes/FINAL_RELEASE_BODY.md
-
-              metadata_started=true
-            fi
-
+          for file in "${files[@]}"; do
             env="${file##*/RELEASE_BODY-}"
             env="${env%.md}"
 
@@ -129,9 +133,22 @@ jobs:
             } >> ./release-notes/FINAL_RELEASE_BODY.md
           done
 
-      - name: Create GitHub Release
+      - name: Create final release commit and tag 🏷
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
+          standard-version
+
+      - name: Push commit and tag
+        run: |
+          git push origin HEAD --follow-tags
+
+      - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "${{ inputs.version }}"
           name: ${{ inputs.release_title != '' && inputs.release_title || format('Release {0}', inputs.version) }}
           body_path: ./release-notes/FINAL_RELEASE_BODY.md
+          draft: false
+          prerelease: false

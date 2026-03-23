@@ -1,6 +1,4 @@
-ARG android_apk_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-flutter-latest
-FROM ${android_apk_builder_image}
-
+FROM flutter
 USER root
 
 # Make /bin/sh point to bash (and not dash)

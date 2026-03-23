@@ -47,8 +47,8 @@ permissions:
   id-token: write
 
 jobs:
-  define_version:
-    name: Define VERSION ✨
+  update_version:
+    name: Upload VERSION Metadata ✨
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     steps:

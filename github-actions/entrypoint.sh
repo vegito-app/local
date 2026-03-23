@@ -42,8 +42,11 @@ trap cleanup SIGHUP SIGINT SIGTERM
 
 # Create a dedicated Buildx builder if it doesn't exist
 if ! docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-  echo 🔧 Creating local Buildx builder: $LOCAL_DOCKER_BUILDX_NAME
-  docker buildx create --name "$LOCAL_DOCKER_BUILDX_NAME" --driver docker-container --use || true
+  echo "🔧 Using existing Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
+  docker buildx use "$LOCAL_DOCKER_BUILDX_NAME" || {
+    echo "⚠️ Builder not found, creating fallback"
+    docker buildx create --name "$LOCAL_DOCKER_BUILDX_NAME" --driver docker-container --use || true
+  }
 fi
 
 docker buildx use "$LOCAL_DOCKER_BUILDX_NAME"

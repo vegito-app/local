@@ -11,11 +11,7 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio"
-}
-
-variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/android-studio/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-studio"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -38,70 +34,93 @@ variable "ANDROID_STUDIO_VERSION" {
 
 target "local-android-studio-ci" {
   args = {
-    android_studio_version    = ANDROID_STUDIO_VERSION
-    android_apk_builder_image = LOCAL_ANDROID_FLUTTER_IMAGE_LATEST
+    android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
     "appium" : "${LOCAL_DIR}/android/appium",
+    flutter = "target:local-android-flutter-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI}" : "",
-    "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
-    # LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  ]
-  cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI},mode=max" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+    ]
+  )
+  cache-to  = []
   platforms = platforms
 }
 
 target "local-android-studio-latest-ci" {
   args = {
-    android_studio_version    = ANDROID_STUDIO_VERSION
-    android_apk_builder_image = LOCAL_ANDROID_FLUTTER_IMAGE_LATEST
+    android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
     "appium" : "${LOCAL_DIR}/android/appium",
+    flutter = "target:local-android-flutter-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI}" : "",
-    "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
-    # LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+    ]
+  )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE_CI},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
 target "local-android-studio" {
   args = {
-    android_studio_version    = ANDROID_STUDIO_VERSION
-    android_apk_builder_image = LOCAL_ANDROID_FLUTTER_IMAGE_LATEST
+    android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
+    flutter = "target:local-android-flutter"
     "appium" : "${LOCAL_DIR}/android/appium",
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     LOCAL_ANDROID_STUDIO_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}" : "",
-    LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-  ]
+  cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
 }

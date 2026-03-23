@@ -14,15 +14,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  version:
-    uses: vegito-app/local/.github/workflows/version-metadata.yml@main
-    with:
-      environment: prod
-      release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+  version-changelog:
+    uses: vegito-app/local/.github/workflows/version-changelog.yml@main
     secrets: inherit
 
+  version-metadata:
+    needs: version-changelog
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    uses: vegito-app/local/.github/workflows/version-metadata.yml@main
+
+    with:
+      environment: ${{ matrix.environment }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
+
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+
   collect-gcp-infos:
-    needs: version
+    needs: version-changelog
 
     continue-on-error: true
     strategy:
@@ -34,58 +48,76 @@ jobs:
     environment: ${{ matrix.environment }}
 
     env:
-      VERSION: ${{ needs.version.outputs.version }}
-
+      VERSION: ${{ needs.version-changelog.outputs.version }}
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_REGION: ${{ secrets.GOOGLE_CLOUD_REGION }}
+      INFRA_ENV: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: google-github-actions/auth@v2
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
-          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-actions-main@${{ env.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
+          export_environment_variables: true
 
       - name: Collect GCP metadata
         run: |
           make gcloud-config-set-project
 
+      - run: |
           mkdir -p artifacts
 
+          OUTPUT=artifacts/RELEASE_BODY.md
+
           {
-            echo "### 🐳 [${{ matrix.environment }}] Docker Repositories"
+            echo "## 🌐 GCloud Infrastructure State"
             echo ""
-            make gcloud-docker-repository-public-images-list-public
-            echo ""
-            make gcloud-docker-repository-private-images-list-private
-          } > artifacts/gcloud-${{ matrix.environment }}.md
 
-      - name: Upload metadata to GCS
+            echo "### 🐳 Docker Repositories"
+            echo ""
+
+            echo "#### Public"
+            echo "\`\`\`bash"
+            make gcloud-docker-repository-public-images-list
+            echo "\`\`\`"
+            echo ""
+
+            echo "#### Private"
+            echo "\`\`\`bash"
+            make gcloud-docker-repository-private-images-list
+            echo "\`\`\`"
+            echo ""
+
+            echo "### 🌐 Enabled APIs"
+            echo ""
+            echo "\`\`\`bash"
+            make gcloud-services-list-enabled
+            echo "\`\`\`"
+            echo ""
+
+          } > "$OUTPUT"
+
+      - name: Upload release notes to GCS
         run: |
-          BUCKET=vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-          gcloud storage cp artifacts/gcloud-${{ matrix.environment }}.md \
-            gs://${BUCKET}/${GITHUB_REPOSITORY}/${VERSION}/
-
-  release-metadata:
-    needs: [version]
-
-    uses: vegito-app/local/.github/workflows/release-metadata.yml@main
-
-    with:
-      environment: prod
-      version: ${{ needs.version.outputs.version }}
-      release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-
-    secrets: inherit
+          BUCKET=vegito-app-${{ env.INFRA_ENV }}-github-actions-ci-artifacts-private
+          gs_path=gs://${BUCKET}/${{ github.repository }}/${VERSION}/
+          gcloud storage cp artifacts/RELEASE_BODY.md \
+            ${gs_path}
 
   finalize:
-    needs: [release-metadata]
-
+    needs: [version-metadata, version-changelog]
     uses: vegito-app/local/.github/workflows/version-finalize.yml@main
-
     with:
       environment: prod
-      version: ${{ needs.version.outputs.version }}
-      release_bucket_name: vegito-ci-artifacts-${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      release_title: "GCloud Infrastructure v${{ needs.version.outputs.version }}"
-
-    secrets: inherit
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
+      release_title: "GCloud Infrastructure Release ${{ needs.version-changelog.outputs.version }}"
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER: github-actions-release-reader@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
