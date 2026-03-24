@@ -53,7 +53,7 @@ gcloud-auth-login-email: gcloud-auth-login gcloud-project-set
 	  echo Please activate the current user account usage manually: ; \
 	  echo \* gcloud config set account \<user@address-email.com\> ; \
 	else \
-		$(MAKE) gcloud-auth-config-set-account-user-email ; \
+	  $(MAKE) gcloud-auth-config-set-account-user-email ; \
 	fi
 .PHONY: gcloud-auth-login-email
 
