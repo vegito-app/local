@@ -35,8 +35,8 @@ $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-list):
 $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm):
 	@echo 📋 removing keys of service account $(@:gcloud-%-serviceaccount-keys-rm=%)
 	@-$(GCLOUD) iam service-accounts keys delete $$KEY \
-			--iam-account=$(@:gcloud-%-serviceaccount-keys-rm=%) \
-			--quiet;
+	  --iam-account=$(@:gcloud-%-serviceaccount-keys-rm=%) \
+	  --quiet;
 .PHONY: $(GCLOUD_SERVICE_ACCOUNTS:%=gcloud-%-serviceaccount-keys-rm)
 
 gcloud-user-iam-sa-keys-list: gcloud-$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)-serviceaccount-keys-list
@@ -45,27 +45,27 @@ gcloud-user-iam-sa-keys-list: gcloud-$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)-service
 gcloud-user-iam-sa-keys-clean-oldest-3:
 	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
 	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
-		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-		--format="value(name)" --sort-by=validAfterTime | head -n 3) \
+	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+	  --format="value(name)" --sort-by=validAfterTime | head -n 3) \
 	&& for KEY in $$KEYS; do \
-		echo "🗑️ Suppression de la clé $$KEY..."; \
-		$(GCLOUD) iam service-accounts keys delete $$KEY \
-			--project=$(GOOGLE_CLOUD_PROJECT_ID) \
-			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-			--quiet; \
+	  echo "🗑️ Suppression de la clé $$KEY..."; \
+	  $(GCLOUD) iam service-accounts keys delete $$KEY \
+	  --project=$(GOOGLE_CLOUD_PROJECT_ID) \
+	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+	  --quiet; \
 	done
 .PHONY: gcloud-user-iam-sa-keys-clean-oldest-3
 
 gcloud-user-iam-sa-keys-clean-all:
 	@echo "🔐 Récupération des clés pour $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
 	@KEYS=$$($(GCLOUD) iam service-accounts keys list \
-		--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-		--format="value(name)"); \
+	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+	  --format="value(name)"); \
 	for KEY in $$KEYS; do \
-		echo "🗑️ Suppression de la clé $$KEY..."; \
-		$(GCLOUD) iam service-accounts keys delete $$KEY \
-			--iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
-			--quiet; \
+	  echo "🗑️ Suppression de la clé $$KEY..."; \
+	  $(GCLOUD) iam service-accounts keys delete $$KEY \
+	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+	  --quiet; \
 	done
 .PHONY: gcloud-user-iam-sa-keys-clean-all
 
