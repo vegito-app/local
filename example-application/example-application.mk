@@ -69,8 +69,11 @@ example-application-docker-scan-tags-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAK
 .PHONY: example-application-docker-scan-tags-ci
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci): docker-buildx-setup
-	$(MAKE) local-trivy-image-scan \
-	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):$(@:%-docker-scan-tags-ci=%)-$(VERSION)
+	@echo "Running Trivy scan for image: $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):$(@:%-docker-scan-tags-ci=%)-$(VERSION)"
+	@echo "Report: $(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html"
+	@$(MAKE) local-trivy-image-scan \
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):$(@:%-docker-scan-tags-ci=%)-$(VERSION) \
+	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=$(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
 
 VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES ?= \
@@ -104,13 +107,13 @@ example-application-containers-logs: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE
 .PHONY: example-application-containers-logs
 
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm):
-	@echo "🗑️  Removing container for $(@:%-container-rm=%)..."
+	@echo "🗑️ Removing container for $(@:%-container-rm=%)..."
 	@$(MAKE) $(@:%-rm=%-stop)
 	@$(LOCAL_DOCKER_COMPOSE) rm -f $(@:%-container-rm=%)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm)
 
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm-ci): 
-	@echo "🗑️  Removing container for $(@:%-container-rm-ci=%)..."
+	@echo "🗑️ Removing container for $(@:%-container-rm-ci=%)..."
 	@echo $(MAKE) $(@:%-rm-ci=%-stop)
 	@echo $(LOCAL_DOCKER_COMPOSE) rm -f $(@:%-container-rm-ci=%)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-rm-ci)

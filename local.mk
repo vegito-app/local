@@ -70,6 +70,14 @@ local-gcloud-builder-image-delete:
 	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
 .PHONY: local-gcloud-builder-image-delete
 
+local-project-builder-image-trivy-scan: docker-buildx-setup
+	@echo "Running Trivy scan for image: $(LOCAL_BUILDER_IMAGE)""
+	@echo "	🗒️ Report: local-project-builder-$(VERSION)-trivy-report.html"
+	@$(MAKE) local-trivy-image-scan \
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_BUILDER_IMAGE) \
+	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=local-project-builder-$(VERSION)-trivy-report.html
+.PHONY: local-project-builder-image-trivy-scan
+
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
   -f $(LOCAL_DIR)/trivy/docker-compose.yml \

@@ -4,8 +4,6 @@ LOCAL_TRIVY_DIR ?= $(LOCAL_DIR)/trivy
 LOCAL_TRIVY_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):trivy-$(VERSION)
 LOCAL_TRIVY_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):trivy-latest
 
-TRIVY_EXIT_CODE ?= 0
-
 local-trivy-container-up: local-trivy-container-rm
 	@$(LOCAL_TRIVY_DIR)/container-up.sh
 	@$(LOCAL_DOCKER_COMPOSE) logs trivy
@@ -16,20 +14,29 @@ local-trivy-container-up: local-trivy-container-rm
 
 LOCAL_TRIVY ?= $(LOCAL_DOCKER_COMPOSE) run --rm trivy
 
-LOCAL_TRIVY_IMAGE_SCAN_INPUT ?= $(LOCAL_TRIVY_IMAGE_LATEST)
-LOCAL_TRIVY_OUTPUT ?= trivy-report.html
+LOCAL_TRIVY_IMAGE_SCAN_INPUT ?= $(LOCAL_BUILDER_IMAGE)
+LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML ?= trivy-report.html
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY ?= CRITICAL,HIGH
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE ?= 1
 
-local-trivy-image-scan:
-	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)"
-	$(LOCAL_TRIVY) version
-	$(LOCAL_TRIVY) image \
+local-trivy-version:
+	@echo "🔎 Checking Trivy version..."
+	@-$(LOCAL_TRIVY) version 2>/dev/null
+.PHONY:  local-trivy-version
+
+local-trivy-image-scan: local-trivy-version
+	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT) using Trivy:"
+	@echo "	🗒️ Report: $(LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML)"
+	@echo "	🗒️ Severity: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY)"
+	@echo "	🗒️ Exit code: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE)"
+	@$(LOCAL_TRIVY) image \
 	  --format template \
 	  --template "@.github/templates/trivy-html.tpl.html" \
-	  --output trivy-report.html \
-	  --exit-code $${TRIVY_EXIT_CODE} \
+	  --output $(LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML) \
+	  --exit-code $(LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE) \
 	  --ignore-unfixed \
 	  --scanners vuln \
-	  --severity "$${INPUT_SEVERITY:-CRITICAL,HIGH}" \
+	  --severity "$(LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY)" \
 	  $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)
 .PHONY: local-trivy-image-scan
 
