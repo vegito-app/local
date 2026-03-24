@@ -25,19 +25,14 @@ RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --
     && apt-get install -y trivy=${trivy_version} \
     && rm -rf /var/lib/apt/lists/*
 
-ENV HOME=/home/${non_root_user}
-USER ${non_root_user}
-RUN sudo chown -R ${non_root_user}:${non_root_user} ${HOME}
-
-WORKDIR ${HOME}
-
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN sudo chmod +x /usr/local/bin/entrypoint.sh
-
-WORKDIR ${HOME}
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+ENV HOME=/home/${non_root_user}
+WORKDIR ${HOME}
+RUN chown -R ${non_root_user}:${non_root_user} ${HOME}
 USER ${non_root_user}
 ENTRYPOINT ["trivy"]

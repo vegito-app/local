@@ -21,7 +21,9 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   vault-dev \
   trivy
 
-local-docker-images-pull-parallel: local-docker-compose-images-pull-parallel local-android-docker-images-pull-parallel
+local-docker-images-pull-parallel: \
+local-docker-compose-images-pull-parallel \
+local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
 
 local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
@@ -215,10 +217,10 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE)"
 	@$(LOCAL_DEV_CONTAINER_RUN) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
+	      GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
+	      INFRA_ENV=$(INFRA_ENV) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-	      VERSION=$(LOCAL_VERSION) \
-		  INFRA_ENV=$(INFRA_ENV) \
-		  GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS)
+	      VERSION=$(LOCAL_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk

@@ -1,7 +1,10 @@
+
 LOCAL_TRIVY_DIR ?= $(LOCAL_DIR)/trivy
 
 LOCAL_TRIVY_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):trivy-$(VERSION)
 LOCAL_TRIVY_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):trivy-latest
+
+TRIVY_EXIT_CODE ?= 0
 
 local-trivy-container-up: local-trivy-container-rm
 	@$(LOCAL_TRIVY_DIR)/container-up.sh
@@ -11,23 +14,23 @@ local-trivy-container-up: local-trivy-container-rm
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: local-trivy-container-up
 
-LOCAL_TRIVY ?= $(LOCAL_DOCKER_COMPOSE) run trivy --rm \
-  $(LOCAL_TRIVY_IMAGE_LATEST) trivy 
+LOCAL_TRIVY ?= $(LOCAL_DOCKER_COMPOSE) run --rm trivy
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT ?= $(LOCAL_TRIVY_IMAGE_LATEST)
 LOCAL_TRIVY_OUTPUT ?= trivy-report.html
 
 local-trivy-image-scan:
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)"
-	@$(LOCAL_TRIVY) image \
-    --format template \
-    --template "@.github/templates/trivy-html.tpl.html" \
-    --output trivy-report.html \
-    --exit-code $${INPUT_EXIT_CODE:-1} \
-    --ignore-unfixed \
-    --vuln-type os,library \
-    --severity "$${INPUT_SEVERITY:-CRITICAL,HIGH}" \
-    $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)
+	$(LOCAL_TRIVY) version
+	$(LOCAL_TRIVY) image \
+	  --format template \
+	  --template "@.github/templates/trivy-html.tpl.html" \
+	  --output trivy-report.html \
+	  --exit-code $${TRIVY_EXIT_CODE} \
+	  --ignore-unfixed \
+	  --scanners vuln \
+	  --severity "$${INPUT_SEVERITY:-CRITICAL,HIGH}" \
+	  $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)
 .PHONY: local-trivy-image-scan
 
 local-trivy-image-scan-ci:	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
@@ -35,7 +38,7 @@ local-trivy-image-scan-ci:	@echo "Running operation 'local-containers-$(@:local-
 	@echo "Using container: $(LOCAL_BUILDER_IMAGE)"
 	@$(LOCAL_DEV_CONTAINER_RUN) \
 	  make local-trivy-image-scan \
-	    LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_TRIVY_IMAGE_SCAN_INPUT) \
-      LOCAL_TRIVY_CACHES_REFRESH=$(LOCAL_TRIVY_CACHES_REFRESH)
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_TRIVY_IMAGE_SCAN_INPUT) \
+	  LOCAL_TRIVY_CACHES_REFRESH=$(LOCAL_TRIVY_CACHES_REFRESH)
 .PHONY: local-trivy-image-scan-ci
 

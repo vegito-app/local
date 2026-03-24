@@ -150,7 +150,8 @@ group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
     "local-builder-ci",
-    "local-trivy-ci"
+    "trivy-ci",
+    "trivy-latest-ci",
   ]
 }
 
