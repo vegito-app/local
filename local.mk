@@ -41,28 +41,23 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-image=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image-push=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-push=%)
-.PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
-
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
 local-project-builder-image: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print project-builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load project-builder
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print project-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push project-builder-ci
 .PHONY: local-project-builder-image-ci
 
 local-gcloud-builder-image-delete:

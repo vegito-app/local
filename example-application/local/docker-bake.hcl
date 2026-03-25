@@ -39,7 +39,7 @@ variable "LOCAL_DIR" {
   default = "."
 }
 
-target "local-builder-ci" {
+target "local-project-builder-ci" {
   args = {
     debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
