@@ -51,13 +51,13 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
 local-project-builder-image: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print project-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load project-builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print project-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push project-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
 
 local-gcloud-builder-image-delete:

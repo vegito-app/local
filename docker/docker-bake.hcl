@@ -20,7 +20,7 @@ variable "DOCKERHUB_REPLICA_VERSION" {
 }
 variable "GO_VERSION" {
   description = "current Go version"
-  default     = "1.26.0"
+  default     = "1.26.1"
 }
 
 variable "TRIVY_VERSION" {
