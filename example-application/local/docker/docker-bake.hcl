@@ -119,7 +119,7 @@ group "local-builders" {
 
 group "local-builders-ci" {
   targets = [
-    "local-builder-ci",
+    "local-project-builder-ci",
     "local-android-builders-ci",
   ]
 }

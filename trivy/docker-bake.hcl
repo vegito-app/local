@@ -20,7 +20,7 @@ variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   default = "type=local,mode=max,dest=${LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "trivy-ci" {
+target "local-trivy-ci" {
   contexts = {
     debian = "target:local-debian-ci"
   }
@@ -44,7 +44,7 @@ target "trivy-ci" {
   platforms = platforms
 }
 
-target "trivy-latest-ci" {
+target "local-trivy-latest-ci" {
   contexts = {
     debian = "target:local-debian-ci"
   }
@@ -70,7 +70,7 @@ target "trivy-latest-ci" {
   platforms = platforms
 }
 
-target "trivy" {
+target "local-trivy" {
   contexts = {
     debian = "target:local-debian-ci"
   }
