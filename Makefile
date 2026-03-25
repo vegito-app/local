@@ -46,12 +46,13 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+	$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+  	-f $(CURDIR)/trivy/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -62,8 +63,11 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
-  robotframework
+  robotframework \
+  trivy
 #   clarinet-devnet \
+
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
 
 -include android.mk
 -include local.mk
@@ -75,9 +79,11 @@ LOCAL_GO_MODULES += \
  $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
-$(LOCAL_DOCKER_COMPOSE_SERVICES) \
-$(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
-$(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+  firebase-emulators \
+  vault-dev \
+  robotframework \
+  $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
+  $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
 
 -include .devcontainer/devcontainer.mk
 

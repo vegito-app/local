@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   version-changelog:
-    uses: vegito-app/local/.github/workflows/version-changelog.yml@main
+    uses: vegito-app/local/.github/workflows/version-changelog.yml@v1.17.0
     secrets: inherit
 
   version-metadata:
@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
-    uses: vegito-app/local/.github/workflows/version-metadata.yml@main
+    uses: vegito-app/local/.github/workflows/version-metadata.yml@v1.17.0
 
     with:
       environment: ${{ matrix.environment }}
@@ -111,7 +111,7 @@ jobs:
 
   finalize:
     needs: [version-metadata, version-changelog]
-    uses: vegito-app/local/.github/workflows/version-finalize.yml@main
+    uses: vegito-app/local/.github/workflows/version-finalize.yml@v1.17.0
     with:
       environment: prod
       version: ${{ needs.version-changelog.outputs.version }}

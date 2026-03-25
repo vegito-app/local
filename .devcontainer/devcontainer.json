@@ -22,7 +22,8 @@
     "LOCAL_ANDROID_STUDIO_ON_START": "true",
     "LOCAL_CLARINET_DEVNET_CACHES_REFRESH": "true",
     "LOCAL_CONTAINER_INSTALL": "true",
-    "LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH": "true"
+    "LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH": "true",
+    "LOCAL_TRIVY_CACHES_REFRESH": "true"
   },
   "service": "dev",
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/initialize-cmd.sh",

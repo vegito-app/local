@@ -5,20 +5,20 @@ LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):github-a
 
 # Build image for local run. This target will not push an image to the distant registry.
 local-github-actions-runner-image: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print github-actions-runner
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load github-actions-runner
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-github-actions-runner
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-github-actions-runner
 .PHONY: local-github-actions-runner-image
 
 # Build image for local run and push it.
 local-github-actions-runner-image-push: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print github-actions-runner
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push github-actions-runner
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-github-actions-runner
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-github-actions-runner
 .PHONY: local-github-actions-runner-image-push
 
 # This target will build and push a multi architecture image.
 local-github-actions-runner-image-ci: docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print github-actions-runner-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push github-actions-runner-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-github-actions-runner-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-github-actions-runner-ci
 .PHONY: local-github-actions-runner-image-ci
 
 LOCAL_GITHUB_ACTIONS_RUNNER_URL ?= https://github.com/organizations/vegito-app/settings/actions/runners

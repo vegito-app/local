@@ -23,6 +23,10 @@ variable "GO_VERSION" {
   default     = "1.26.0"
 }
 
+variable "TRIVY_VERSION" {
+  default = "0.69.3"
+}
+
 variable "NODE_VERSION" {
   description = "current Node version"
   default     = "22.14.0"
@@ -137,14 +141,17 @@ group "local-dockerhub-ci" {
 group "local-runners" {
   targets = [
     "local-android-runners",
-    "local-builder",
+    "local-project-builder",
+    "local-trivy"
   ]
 }
 
 group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
-    "local-builder-ci",
+    "local-project-builder-ci",
+    "local-trivy-ci",
+    "local-trivy-latest-ci",
   ]
 }
 
@@ -158,6 +165,7 @@ group "local-builders" {
 group "local-builders-ci" {
   targets = [
     "vegito-example-application-builder-ci",
+    "vegito-example-application-builder-latest-ci",
     "local-android-builders-ci",
   ]
 }
@@ -165,27 +173,27 @@ group "local-builders-ci" {
 group "local-services" {
   targets = [
     "local-android-services",
-    "clarinet-devnet",
-    "firebase-emulators",
-    "github-actions-runner",
-    "vault-dev",
-    "robotframework",
+    "local-clarinet-devnet",
+    "local-firebase-emulators",
+    "local-github-actions-runner",
+    "local-vault-dev",
+    "local-robotframework",
   ]
 }
 
 group "local-services-ci" {
   targets = [
     "local-android-services-ci",
-    "clarinet-devnet-ci",
-    "clarinet-devnet-latest-ci",
-    "firebase-emulators-ci",
-    "firebase-emulators-latest-ci",
-    "github-actions-runner-ci",
-    "github-actions-runner-latest-ci",
-    "vault-dev-ci",
-    "vault-dev-latest-ci",
-    "robotframework-ci",
-    "robotframework-latest-ci",
+    "local-clarinet-devnet-ci",
+    "local-clarinet-devnet-latest-ci",
+    "local-firebase-emulators-ci",
+    "local-firebase-emulators-latest-ci",
+    "local-github-actions-runner-ci",
+    "local-github-actions-runner-latest-ci",
+    "local-vault-dev-ci",
+    "local-vault-dev-latest-ci",
+    "local-robotframework-ci",
+    "local-robotframework-latest-ci",
   ]
 }
 
@@ -198,6 +206,7 @@ group "local-applications" {
 group "local-applications-ci" {
   targets = [
     "vegito-example-application-applications-ci",
+    "vegito-example-application-applications-latest-ci",
   ]
 }
 

@@ -50,6 +50,59 @@ ${WORKING_DIR}/.devcontainer/dotenv.sh
 
 CONTAINERS_CACHE_DIR=${PWD}/.containers
 mkdir -p ${CONTAINERS_CACHE_DIR}
-
 # Cache of container 'dev'
 mkdir -p ${CONTAINERS_CACHE_DIR}/dev
+
+# Vscode
+settingsFile=${PWD}/.vscode/settings.json
+[ -f $settingsFile ] || cat <<'EOF' > $settingsFile
+{
+    "editor.fontLigatures": false,
+    "editor.formatOnSave": true,
+    "editor.inlineSuggest.enabled": true,
+    "explorer.confirmDelete": false,
+    "genieai.enableConversationHistory": true,
+    "genieai.openai.model": "gpt-4",
+    "genieai.promptPrefix.addComments-enabled": false,
+    "git.enabled": true,
+    "go.toolsManagement.autoUpdate": true,
+    "remote.autoForwardPortsSource": "process",
+    "search.showLineNumbers": true,
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-debian",
+            "color": "terminal.ansiRed"
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "window.commandCenter": false,
+    "workbench.colorTheme": "Banana Ripe",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.layoutControl.enabled": false,
+    "zenMode.centerLayout": false,
+    "zenMode.hideLineNumbers": false,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "files.autoSave": "onFocusChange",
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off",
+    },
+    "workbench.activityBar.location": "top",
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/application-main-release.yml",
+        ".github/workflows/application-dev-latest.yml",
+        ".github/workflows/main.yml"
+    ]
+}
+EOF
+fi

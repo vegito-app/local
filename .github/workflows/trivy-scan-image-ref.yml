@@ -64,8 +64,6 @@ jobs:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
-      VEGITO_RELEASE_BUCKET: ${{ inputs.release_bucket_name }}/${{ inputs.release_bucket_prefix }}
       VERSION: ${{ inputs.version }}
       INFRA_ENV: ${{ inputs.environment }}
 
@@ -116,18 +114,22 @@ jobs:
 
           echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
 
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          make dotenv
+
       - name: Run Trivy scan (HTML report)
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          image-ref: ${{ env.IMAGE_REF }}
-          format: template
-          template: "@.github/templates/trivy-html.tpl.html"
-          output: trivy-report.html
-          exit-code: ${{ inputs.exit-code }}
-          ignore-unfixed: true
-          vuln-type: os,library
-          severity: ${{ inputs.severity }}
-          version: v0.69.3
+        env:
+          IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+        run: |
+          echo "🔎 Running Trivy scan on ${LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE}"
+          make local-trivy-image-scan \
+            LOCAL_TRIVY_IMAGE_SCAN_INPUT=${IMAGE_REF} \
+            LOCAL_TRIVY_CACHES_REFRESH=true \
+            LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY=${{ inputs.severity }} \
+            LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE=${{ inputs.exit-code }} \
+            LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=trivy-report.html
 
       - name: Upload Trivy HTML report to GCS
         env:

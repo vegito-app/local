@@ -42,7 +42,7 @@ variable "LOCAL_DIR" {
   default = "."
 }
 
-target "local-builder-ci" {
+target "local-project-builder-ci" {
   contexts = {
     debian = "target:local-debian-ci"
     go     = "target:local-golang-alpine-ci"
@@ -77,7 +77,7 @@ target "local-builder-ci" {
   platforms = platforms
 }
 
-target "local-builder-latest-ci" {
+target "local-project-builder-latest-ci" {
   contexts = {
     debian = "target:local-debian-latest-ci"
     go     = "target:local-golang-alpine-latest-ci"
@@ -117,7 +117,7 @@ target "local-builder-latest-ci" {
   platforms = platforms
 }
 
-target "local-builder" {
+target "local-project-builder" {
   contexts = {
     debian = "target:local-debian"
     go     = "target:local-golang-alpine"
