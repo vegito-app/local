@@ -52,7 +52,7 @@ target "local-firebase-emulators-ci" {
 
 target "local-firebase-emulators-latest-ci" {
   contexts = {
-    builder_image = "target:local-builder-latest-ci"
+    builder_image = "target:local-project-builder-latest-ci"
     debian_image  = "target:local-debian-latest-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
