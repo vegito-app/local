@@ -28,7 +28,7 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "robotframework-ci" {
+target "local-robotframework-ci" {
   contexts = {
     debian_image = "target:local-debian-ci"
   }
@@ -49,7 +49,7 @@ target "robotframework-ci" {
   platforms = platforms
 }
 
-target "robotframework-latest-ci" {
+target "local-robotframework-latest-ci" {
   contexts = {
     debian_image = "target:local-debian-latest-ci"
   }
@@ -72,7 +72,7 @@ target "robotframework-latest-ci" {
   platforms = platforms
 }
 
-target "robotframework" {
+target "local-robotframework" {
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
   contexts = {

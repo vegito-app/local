@@ -28,9 +28,9 @@ variable "CLARINET_VERSION" {
   default = "2.12.0"
 }
 
-target "clarinet-devnet-ci" {
+target "local-clarinet-devnet-ci" {
   contexts = {
-    builder_image              = "target:local-builder-ci"
+    builder_image              = "target:local-project-builder-ci"
     debian_image               = "target:local-debian-ci"
     docker_dind_rootless_image = "target:local-docker-dind-rootless-ci"
     rust_image                 = "target:local-rust-ci"
@@ -61,9 +61,9 @@ target "clarinet-devnet-ci" {
   platforms = platforms
 }
 
-target "clarinet-devnet-latest-ci" {
+target "local-clarinet-devnet-latest-ci" {
   contexts = {
-    builder_image              = "target:local-builder-latest-ci"
+    builder_image              = "target:local-project-builder-latest-ci"
     debian_image               = "target:local-debian-latest-ci"
     docker_dind_rootless_image = "target:local-docker-dind-rootless-latest-ci"
     rust_image                 = "target:local-rust-latest-ci"
@@ -96,7 +96,7 @@ target "clarinet-devnet-latest-ci" {
   platforms = platforms
 }
 
-target "clarinet-devnet" {
+target "local-clarinet-devnet" {
   contexts = {
     builder_image              = "target:local-builder"
     debian_image               = "target:local-debian"

@@ -16,6 +16,13 @@ DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
 GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID}}
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
+
+if [ -e /dev/kvm ]; then
+  KVM_GID=$(stat -c '%g' /dev/kvm)
+else
+  KVM_GID=""
+fi
+
 # Ensure the current working directory exists.
 # Create default .env file with minimum required values to start.
 localDotenvFile=${currentWorkingDir}/.env
@@ -41,6 +48,8 @@ GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
+# 
+KVM_GID=${KVM_GID}
 # 
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}

@@ -16,6 +16,13 @@ DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
 GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID}}
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
+
+if [ -e /dev/kvm ]; then
+  KVM_GID=$(stat -c '%g' /dev/kvm)
+else
+  KVM_GID=""
+fi
+
 # Ensure the current working directory exists.
 # Create default .env file with minimum required values to start.
 localDotenvFile=${currentWorkingDir}/.env
@@ -40,7 +47,7 @@ DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secre
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
-LOCAL_BUILDER_IMAGE=europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}
+KVM_GID=${KVM_GID}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -82,14 +89,7 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE}
-    environment:
-      # Enable or disable the use of the local development environment.
-      - MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
-      # Enable or disable the use of the local test environment.
-      - MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-false}
-      # Enable or disable the use of the local container installation.
-      - LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-false}
+    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}}
     command: |
       bash -c '
         make docker-sock
@@ -134,9 +134,16 @@ services:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
       LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE:-${PWD}/.containers/robotframework}
       LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: ${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}
   
   firebase-emulators:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
+  
+  trivy:
+    environment:
+      LOCAL_TRIVY_CONTAINER_CACHE: ${LOCAL_TRIVY_CONTAINER_CACHE:-${PWD}/.containers/trivy}
+      LOCAL_TRIVY_CACHES_REFRESH: ${LOCAL_TRIVY_CACHES_REFRESH:-false}
+
   vault-dev:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-latest
     working_dir: ${PWD}/example-application/

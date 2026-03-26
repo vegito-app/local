@@ -4,16 +4,22 @@ FROM ${builder_image} AS build
 RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
-RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
-    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
-
-    make vegito-go-images-mod-download
-
 COPY --from=approot Makefile .
 COPY --from=approot local/local.mk local/
 COPY --from=approot git.mk .
 COPY --from=approot nodejs.mk .
 COPY --from=approot go.mk .
+
+# backend
+RUN mkdir -p backend
+
+COPY backend.mk backend/
+COPY go.sum backend/
+COPY go.mod backend/
+
+RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
+    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
+    make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download
 
 COPY --from=approot example-application.mk .
 
@@ -31,20 +37,7 @@ COPY --from=appfrontend webpack.server.js frontend/
 
 RUN make -j example-application-frontend-build example-application-frontend-bundle
 
-RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
-    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
-
-    make vegito-go-images-mod-download
-
 # backend
-RUN mkdir -p backend
-
-COPY backend.mk backend/
-COPY go.sum backend/
-COPY go.mod backend/
-
-RUN make example-application-go-backend-mod-download
-
 COPY internal backend/internal
 COPY http backend/http
 COPY log backend/log

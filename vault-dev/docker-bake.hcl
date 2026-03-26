@@ -24,7 +24,7 @@ variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "vault-dev-ci" {
+target "local-vault-dev-ci" {
   contexts = {
     debian = "target:local-debian-ci"
   }
@@ -45,7 +45,7 @@ target "vault-dev-ci" {
   platforms = platforms
 }
 
-target "vault-dev-latest-ci" {
+target "local-vault-dev-latest-ci" {
   contexts = {
     debian = "target:local-debian-ci"
   }
@@ -68,7 +68,7 @@ target "vault-dev-latest-ci" {
   platforms = platforms
 }
 
-target "vault-dev" {
+target "local-vault-dev" {
   contexts = {
     debian = "target:local-debian"
   }

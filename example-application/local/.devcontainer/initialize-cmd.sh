@@ -39,14 +39,6 @@ cat <<'EOF' > ${envrcFile}
 #   dotenv.sh
 #
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
-export LOCAL_ANDROID_STUDIO_CACHES_REFRESH=${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-true}
-export LOCAL_ANDROID_STUDIO_ON_START=${LOCAL_ANDROID_STUDIO_ON_START:-true}
-export LOCAL_CLARINET_DEVNET_CACHES_REFRESH=${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
-export LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-true}
-export LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH=${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-true}
-export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
-export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true} # Whether to run 'make dev' on container startup.
-export MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-true}
 export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 EOF
 fi
@@ -55,6 +47,98 @@ fi
 
 echo "Initializing .env file"
 ${WORKING_DIR}/dotenv.sh
+
+# Vscode
+settingsFile=${PWD}/.vscode/settings.json
+[ -f $settingsFile ] || cat <<'EOF' > $settingsFile
+{
+    // 🚫 Empêche VSCode de rechercher ou indexer ces dossiers lourds
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.git": true,
+        "**/.devcontainer": false,
+        "**/.containers": true,
+        "**/.next": true,
+        "**/.cache": true
+    },
+    // 💤 Désactive la surveillance en temps réel sur ces dossiers
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "**/.git/**": true,
+        "**/.cache/**": true
+    },
+    // 💨 (optionnel) Réduit la charge sur la recherche globale
+    "search.followSymlinks": false,
+    // 🧠 (optionnel) Exclut les node_modules de l’explorateur de fichiers
+    "files.exclude": {
+        "**/node_modules": true
+    },
+    "editor.fontLigatures": false,
+    "editor.formatOnSave": true,
+    "editor.inlineSuggest.enabled": true,
+    "explorer.confirmDelete": false,
+    "genieai.enableConversationHistory": true,
+    "genieai.openai.model": "gpt-4",
+    "genieai.promptPrefix.addComments-enabled": false,
+    "git.enabled": true,
+    "go.toolsManagement.autoUpdate": true,
+    "remote.autoForwardPortsSource": "process",
+    "search.showLineNumbers": true,
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-debian",
+            "color": "terminal.ansiRed"
+        }
+    },
+    "diffEditor.hideUnchangedRegions.enabled": false,
+    "workbench.activityBar.location": "top",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "window.commandCenter": false,
+    // "workbench.colorTheme": "Dark Theme - JetBrains IDE",
+    // "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
+    "workbench.colorTheme": "Low Eye Strain Neon",
+    // "workbench.colorTheme": "Dark Yellow",
+    // "workbench.colorTheme": "Low Eye Strain Light Contrast",
+    // "workbench.colorTheme": "Low Eye Strain Light Contrast",
+    "workbench.iconTheme": "material-icon-theme",
+    "material-icon-theme.folders.theme": "specific",
+    "workbench.layoutControl.enabled": false,
+    "zenMode.centerLayout": false,
+    "zenMode.hideLineNumbers": false,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "workbench.editor.editorActionsLocation": "titleBar",
+    "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "files.autoSave": "onFocusChange",
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off",
+    },
+    "dart.flutterSdkPath": "${localWorkspaceFolder}/.containers/android-studio/flutter",
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/application-main-release.yml",
+        ".github/workflows/application-dev-latest.yml"
+    ],
+}
+EOF
 
 # Vscode
 workspaceFile=${PWD}/vscode.code-workspace

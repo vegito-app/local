@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/vegito-app/gcloud/compare/v1.1.0...v1.2.0) (2026-03-22)
+
+
+### Features
+
+* **build:** enhance Google Cloud integration with Makefile updates ([2e919f2](https://github.com/vegito-app/gcloud/commit/2e919f22adb6ddd245ac5a0574065b02c2a063dc))
+* **devcontainer:** update dev container setup to use docker-compose ([0c1611d](https://github.com/vegito-app/gcloud/commit/0c1611d83c5ca2c31c9c00be2fa2cefffdb875b6))
+* **gcloud:** add automated docker registry cleanup script ([7f9f7c0](https://github.com/vegito-app/gcloud/commit/7f9f7c0e5e58814641864f46e649f75435758120))
+
 ## 1.1.0 (2025-10-13)
 
 

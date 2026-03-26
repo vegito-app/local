@@ -1,6 +1,4 @@
-ARG debian_image=debian:latest
-
-FROM ${debian_image}
+FROM debian_image
 
 ENV DEBIAN_FRONTEND=noninteractive
 

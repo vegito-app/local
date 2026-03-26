@@ -1,6 +1,8 @@
 VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
+COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
+# LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
 ifdef VERSION
 LOCAL_VERSION := $(VERSION)
 endif
@@ -37,38 +39,53 @@ STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
+LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+	$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-LOCAL_DOCKER_COMPOSE = docker compose \
+LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
-	-f $(CURDIR)/.devcontainer/docker-compose.yml \
+  	-f $(CURDIR)/trivy/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
 
-LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
+LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio
 
-LOCAL_DOCKER_COMPOSE_SERVICES = \
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
-  robotframework
+  robotframework \
+  trivy
 #   clarinet-devnet \
+
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
 
 -include android.mk
 -include local.mk
 -include git.mk
 -include nodejs.mk
 -include go.mk
+
+LOCAL_GO_MODULES += \
+ $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
+
+LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
+  firebase-emulators \
+  vault-dev \
+  robotframework \
+  $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
+  $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+
+-include .devcontainer/devcontainer.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
@@ -91,14 +108,11 @@ example-application-docker-images-pull-parallel
 images-push: local-docker-images-push local-application-docker-images-push
 .PHONY: images-push
 
-ensure-vscode-volume:
-	@docker volume inspect vscode > /dev/null 2>&1 || docker volume create vscode
-	@echo "✅ Ensured VSCode volume exists."
-.PHONY: ensure-vscode-volume
+devcontainer: devcontainer-vscode
+.PHONY: devcontainer
 
-dev-vscode: ensure-vscode-volume dev
-	@echo "🟢 Development VSCode environment is up and running."
-.PHONY: dev-vscode
+devcontainer-codespaces: devcontainer-vscode-codespaces
+.PHONY: devcontainer-codespaces
 
 dev: \
 local-containers-up \
@@ -159,7 +173,7 @@ functional-tests: local-robotframework-container-exec
 
 functional-tests-ci: example-application-tests-container-up
 	@echo "End-to-end tests completed successfully."
-.PHONY: functional-tests
+.PHONY: functional-tests-ci
 
 test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."

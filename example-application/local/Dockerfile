@@ -1,14 +1,12 @@
-ARG go_image=golang-alpine:latest
-ARG debian_image=debian:latest
-
-FROM ${go_image} AS go-build
+FROM go AS go-build
 
 COPY proxy proxy
 
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-FROM ${debian_image}
+# FROM ${debian_image}
+FROM debian
 
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
