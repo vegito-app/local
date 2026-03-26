@@ -10,7 +10,7 @@ endif
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
 # Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION ?= v1.11.0
+LOCAL_VERSION ?= v1.17.0
 
 export
 
@@ -47,7 +47,7 @@ images: example-application-docker-images-host-arch
 .PHONY: images
 
 images-ci: \
-example-application-builders-ci \
+vegito-example-application-builders-ci \
 example-application-docker-images-multi-arch
 .PHONY: images-ci
 

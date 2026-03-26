@@ -28,41 +28,84 @@ variable "CLARINET_VERSION" {
   default = "2.12.0"
 }
 
-target "clarinet-devnet-ci" {
+target "local-clarinet-devnet-ci" {
+  contexts = {
+    builder_image              = "target:local-project-builder-ci"
+    debian_image               = "target:local-debian-ci"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless-ci"
+    rust_image                 = "target:local-rust-ci"
+  }
   args = {
-    builder_image              = LOCAL_BUILDER_IMAGE_VERSION
-    clarinet_version           = CLARINET_VERSION
-    debian_image               = LOCAL_DEBIAN_IMAGE_VERSION
-    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_VERSION
-    docker_version             = DOCKER_VERSION
-    rust_image                 = RUST_IMAGE_VERSION
+    clarinet_version = CLARINET_VERSION
+    docker_version   = DOCKER_VERSION
+  }
+  context    = "${LOCAL_DIR}/clarinet-devnet"
+  dockerfile = "Dockerfile"
+  tags = [
+    LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
+  ]
+  cache-from = concat(
+    [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-clarinet-devnet-latest-ci" {
+  contexts = {
+    builder_image              = "target:local-builder-latest-ci"
+    debian_image               = "target:local-debian-latest-ci"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless-latest-ci"
+    rust_image                 = "target:local-rust-latest-ci"
+  }
+  args = {
+    clarinet_version = CLARINET_VERSION
+    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
-    LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE_CI}" : LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
-    "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
-    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  ]
+  cache-from = concat(
+    [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
-target "clarinet-devnet" {
+target "local-clarinet-devnet" {
+  contexts = {
+    builder_image              = "target:local-builder"
+    debian_image               = "target:local-debian"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless"
+    rust_image                 = "target:local-rust"
+  }
   args = {
-    builder_image              = LOCAL_BUILDER_IMAGE_LATEST
-    clarinet_version           = CLARINET_VERSION
-    debian_image               = LOCAL_DEBIAN_IMAGE_LATEST
-    docker_dind_rootless_image = DOCKER_DIND_ROOTLESS_IMAGE_LATEST
-    docker_version             = DOCKER_VERSION
-    rust_image                 = RUST_IMAGE_LATEST
+    clarinet_version = CLARINET_VERSION
+    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -70,12 +113,20 @@ target "clarinet-devnet" {
     LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
     LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}" : "",
-    LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-  ]
+  cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE] : []
+  )
 }

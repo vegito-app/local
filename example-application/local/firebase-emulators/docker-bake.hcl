@@ -7,7 +7,7 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST" {
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/firebase-emulators"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/cache/firebase-emulators"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -15,53 +15,98 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
-  description = "local write cache for clarinet image build"
+  description = "local write cache for firebase emulators image build"
   default     = "type=local,mode=max,dest=${LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for clarinet image build (cannot be used before first write)"
+  description = "local read cache for firebase emulators image build (cannot be used before first write)"
   default     = "type=local,src=${LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "firebase-emulators-ci" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
-    debian_image  = LOCAL_DEBIAN_IMAGE_VERSION
+target "local-firebase-emulators-ci" {
+  contexts = {
+    builder_image = "target:local-project-builder-ci"
+    debian_image  = "target:local-debian-ci"
+  }
+  context = "${LOCAL_DIR}/firebase-emulators"
+  tags = [
+    LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-firebase-emulators-latest-ci" {
+  contexts = {
+    builder_image = "target:local-builder-latest-ci"
+    debian_image  = "target:local-debian-latest-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
     LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
-    LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
-    LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
-target "firebase-emulators" {
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_LATEST
-    debian_image  = LOCAL_DEBIAN_IMAGE_LATEST
+target "local-firebase-emulators" {
+  contexts = {
+    builder_image = "target:local-builder"
+    debian_image  = "target:local-debian"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
     LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : null,
-    LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
-  ]
+  cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : []
+  )
 }

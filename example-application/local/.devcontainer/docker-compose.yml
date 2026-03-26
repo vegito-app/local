@@ -1,31 +1,25 @@
 services:
   dev:
-    # build:
-    #   context: .
-    #   dockerfile: .devcontainer/Dockerfile
-    #   args:
-    #     builder_image: ${LOCAL_BUILDER_IMAGE}
-    volumes:
-      - vscode-store:/vscode
-  android-studio:
-    volumes:
-      - vscode-store:/vscode
-  clarinet-devnet:
-    volumes:
-      - vscode-store:/vscode
-
-  robotframework:
-    volumes:
-      - vscode-store:/vscode
-
-  example-application-backend:
-    volumes:
-      - vscode-store:/vscode
-
-  example-application-mobile:
-    volumes:
-      - vscode-store:/vscode
-volumes:
-  vscode-store:
-    external: true
-    name: vscode
+    # environment:
+    #   CODESPACES: ${CODESPACES:-false}
+    #   MAKE_TESTS_ON_START: ${MAKE_TESTS_ON_START:-false}
+    command: |
+      bash -c '
+      make docker-sock
+      until docker info; do
+        echo "Waiting for Docker to be ready..."
+        sleep 1
+      done
+      if [ "$${CODESPACES}" = "true" ] ; then
+        echo "Detected '$${CODESPACE_NAME}' Codespaces environment."
+        make devcontainer-codespaces
+        make local-docker-buildx-setup-github-codespaces
+      elif [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        make devcontainer
+      fi
+      if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
+        make application-mobile-wait-for-boot
+        make functional-tests
+      fi
+      sleep infinity
+      '

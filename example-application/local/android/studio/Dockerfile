@@ -1,7 +1,8 @@
-ARG flutter=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-flutter-latest
-FROM ${flutter}
-
+FROM flutter
 USER root
+
+# Make /bin/sh point to bash (and not dash)
+RUN ln -sf /usr/bin/bash /bin/sh
 
 # NodeJS for Appium
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
@@ -17,9 +18,6 @@ RUN ARCH="$(dpkg --print-architecture)" && \
   apt-get update && apt-get install -y chromium ; \
   fi
 
-# Make /bin/sh point to bash (and not dash)
-RUN ln -sf /usr/bin/bash /bin/sh
-
 ARG non_root_user=android
 USER ${non_root_user}
 
@@ -28,7 +26,6 @@ WORKDIR ${HOME}
 
 ENV PATH=${HOME}/node_modules/.bin:${PATH}
 
-# Appium
 RUN npm install appium@3.0.0-rc.2 && \
   appium driver install uiautomator2
 
@@ -36,7 +33,8 @@ RUN npm install appium@3.0.0-rc.2 && \
 ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 ARG android_studio_version
-RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz" && \
+# RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz" && \
+RUN curl -o /tmp/android-studio.tar.gz -L https://edgedl.me.gvt1.com/android/studio/ide-zips/${android_studio_version}/android-studio-panda3-canary4-linux.tar.gz && \
   tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
   mv /tmp/android-studio ${STUDIO_PATH} && rm /tmp/android-studio.tar.gz
 
@@ -55,6 +53,13 @@ RUN chmod +x \
   /usr/local/bin/caches-refresh.sh \
   /usr/local/bin/android-studio.sh \
   /usr/local/bin/android-studio-entrypoint.sh
+
+USER root
+
+# Make /bin/sh point to bash (and not dash)
+RUN ln -sf /usr/bin/bash /bin/sh
+
+USER ${non_root_user}
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]

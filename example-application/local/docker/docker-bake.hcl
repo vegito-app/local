@@ -20,7 +20,11 @@ variable "DOCKERHUB_REPLICA_VERSION" {
 }
 variable "GO_VERSION" {
   description = "current Go version"
-  default     = "1.25.5"
+  default     = "1.26.1"
+}
+
+variable "TRIVY_VERSION" {
+  default = "0.69.3"
 }
 
 variable "NODE_VERSION" {
@@ -78,12 +82,20 @@ variable "INFRA_ENV" {
   default     = "dev"
 }
 
+variable "VEGITO_CACHE_REPOSITORY" {
+  default = "docker-repository-cache"
+}
+
+variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/vegito-local"
+}
+
 variable "VEGITO_PRIVATE_REPOSITORY" {
-  default = "${INFRA_ENV}-docker-repository"
+  default = "docker-repository-private"
 }
 
 variable "VEGITO_PUBLIC_REPOSITORY" {
-  default = "${INFRA_ENV}-docker-repository-public"
+  default = "docker-repository-public"
 }
 
 variable "GOOGLE_CLOUD_PROJECT_ID" {
@@ -98,28 +110,62 @@ variable "platforms" {
   ]
 }
 
+# Groups are used to build incrementally the images in the correct order:
+# - Dockerhub: the base images that we replicate to our private repository
+# - Runners: the most basic level, they are used to run the services and applications
+# - Builders: used to build the services, applications and the local development environments
+# - Services: the dependencies of the applications, they are used to run the applications
+# - Applications: the end products that we want to run and test
+group "local-dockerhub" {
+  targets = [
+    "local-debian",
+    "local-docker-dind-rootless",
+    "local-golang-alpine",
+    "local-rust",
+  ]
+}
+
+group "local-dockerhub-ci" {
+  targets = [
+    "local-debian-ci",
+    "local-debian-latest-ci",
+    "local-docker-dind-rootless-ci",
+    "local-docker-dind-rootless-latest-ci",
+    "local-golang-alpine-ci",
+    "local-golang-alpine-latest-ci",
+    "local-rust-ci",
+    "local-rust-latest-ci",
+  ]
+}
+
 group "local-runners" {
   targets = [
     "local-android-runners",
+    "local-project-builder",
+    "local-trivy"
   ]
 }
 
 group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
+    "local-project-builder-ci",
+    "local-trivy-ci",
+    "local-trivy-latest-ci",
   ]
 }
 
 group "local-builders" {
   targets = [
-    "local-project-builder",
+    "vegito-example-application-builders",
     "local-android-builders",
   ]
 }
 
 group "local-builders-ci" {
   targets = [
-    "local-project-builder-ci",
+    "vegito-example-application-builder-ci",
+    "vegito-example-application-builder-latest-ci",
     "local-android-builders-ci",
   ]
 }
@@ -127,22 +173,27 @@ group "local-builders-ci" {
 group "local-services" {
   targets = [
     "local-android-services",
-    "clarinet-devnet",
-    "firebase-emulators",
-    "github-actions-runner",
-    "vault-dev",
-    "robotframework",
+    "local-clarinet-devnet",
+    "local-firebase-emulators",
+    "local-github-actions-runner",
+    "local-vault-dev",
+    "local-robotframework",
   ]
 }
 
 group "local-services-ci" {
   targets = [
     "local-android-services-ci",
-    "clarinet-devnet-ci",
-    "firebase-emulators-ci",
-    "github-actions-runner-ci",
-    "vault-dev-ci",
-    "robotframework-ci",
+    "local-clarinet-devnet-ci",
+    "local-clarinet-devnet-latest-ci",
+    "local-firebase-emulators-ci",
+    "local-firebase-emulators-latest-ci",
+    "local-github-actions-runner-ci",
+    "local-github-actions-runner-latest-ci",
+    "local-vault-dev-ci",
+    "local-vault-dev-latest-ci",
+    "local-robotframework-ci",
+    "local-robotframework-latest-ci",
   ]
 }
 
@@ -158,15 +209,6 @@ group "local-applications-ci" {
   ]
 }
 
-group "local-dockerhub-ci" {
-  targets = [
-    "local-debian-ci",
-    "local-docker-dind-rootless-ci",
-    "local-golang-alpine-ci",
-    "local-rust-ci",
-  ]
-}
-
 variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest"
 }
@@ -175,14 +217,76 @@ variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${DOCKERHUB_REPLICA_VERSION}"
 }
 
+variable "LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/cache/debian"
+}
+
+variable "LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/cache/golang-alpine"
+}
+
+variable "LOCAL_RUST_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/cache/rust"
+}
+
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/cache/docker-dind-rootless"
+}
+
 target "local-docker-dind-rootless-ci" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
     DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
-  platforms  = platforms
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+    ]
+  )
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-docker-dind-rootless-latest-ci" {
+  tags = [
+    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "docker-dind-rootless.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-docker-dind-rootless" {
+  tags = [
+    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
+    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "docker-dind-rootless.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = []
 }
 
 variable "LOCAL_DEBIAN_IMAGE_LATEST" {
@@ -200,7 +304,53 @@ target "local-debian-ci" {
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "debian.Dockerfile"
-  platforms  = platforms
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-debian-latest-ci" {
+  tags = [
+    LOCAL_DEBIAN_IMAGE_LATEST,
+  ]
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "debian.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-debian" {
+  tags = [
+    LOCAL_DEBIAN_IMAGE_LATEST,
+  ]
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "debian.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = []
 }
 
 variable "GO_IMAGE_LATEST" {
@@ -213,12 +363,60 @@ variable "GO_IMAGE_VERSION" {
 
 target "local-golang-alpine-ci" {
   tags = [
-    GO_IMAGE_LATEST,
     GO_IMAGE_VERSION,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
-  platforms  = platforms
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${GO_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-golang-alpine-latest-ci" {
+  tags = [
+    GO_IMAGE_LATEST,
+  ]
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "golang-alpine.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${GO_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-golang-alpine" {
+  tags = [
+    GO_IMAGE_VERSION,
+    GO_IMAGE_LATEST,
+  ]
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "golang-alpine.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${GO_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = []
 }
 
 variable "RUST_IMAGE_LATEST" {
@@ -231,10 +429,56 @@ variable "RUST_IMAGE_VERSION" {
 
 target "local-rust-ci" {
   tags = [
+    RUST_IMAGE_VERSION,
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "rust.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${RUST_IMAGE_LATEST}"
+    ]
+  )
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-rust-latest-ci" {
+  tags = [
+    RUST_IMAGE_LATEST,
+  ]
+  context    = "${LOCAL_DIR}/docker"
+  dockerfile = "rust.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${RUST_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-rust" {
+  tags = [
     RUST_IMAGE_LATEST,
     RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
-  platforms  = platforms
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    [
+      "type=inline,ref=${RUST_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = []
 }
