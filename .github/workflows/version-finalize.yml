@@ -50,6 +50,8 @@ on:
         required: true
       GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
         required: true
+      GCP_RELEASE_READER_PROJECT_ID:
+        required: true
 
 permissions:
   contents: write
@@ -73,7 +75,7 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER }}
-          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_RELEASE_READER_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
 
