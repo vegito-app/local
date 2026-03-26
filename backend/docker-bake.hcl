@@ -21,12 +21,9 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/example-application-backend"
+  default = "${EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}/cache/example-application-backend"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_APP_PUBLIC_IMAGES_BASE}/cache/example-application-backend/ci"
-}
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
   default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend"
 }
@@ -41,7 +38,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "example-application-backend-ci" {
+target "vegito-example-application-backend-ci" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
@@ -52,16 +49,36 @@ target "example-application-backend-ci" {
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
+    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}",
+  ]
+  cache-to = []
+  platforms = [
+    "linux/amd64",
+  ]
+  push = true
+}
+
+target "vegito-example-application-backend-latest-ci" {
+  context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
+  contexts = {
+    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
+    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+  }
+  args = {
+    builder_image = LOCAL_BUILDER_IMAGE_VERSION
+  }
+  tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}",
-    VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline",
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = [
     "linux/amd64",
@@ -69,7 +86,7 @@ target "example-application-backend-ci" {
   push = true
 }
 
-target "example-application-backend" {
+target "vegito-example-application-backend" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR

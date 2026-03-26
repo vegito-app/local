@@ -198,6 +198,8 @@ COPY entrypoint.sh /gha-entrypoint.sh
 ENTRYPOINT ["/gha-entrypoint.sh"]
 
 ENV RUNNER_WORKDIR=/runner/_work
+ENV RUNNER_BUILD_CACHE=/runner/_work/.containers
 RUN mkdir ${RUNNER_WORKDIR}
+RUN mkdir ${RUNNER_BUILD_CACHE}
 RUN chown ${non_root_user}:${non_root_user} ${RUNNER_WORKDIR}
 RUN chmod o+rw ${RUNNER_WORKDIR}

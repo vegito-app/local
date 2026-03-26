@@ -18,7 +18,7 @@ local-android-emulator-wait-for-boot:
 	@echo "VALUE  LOCAL_ANDROID_ADB = '$(LOCAL_ANDROID_ADB)'"
 	@echo "------------------------------------"
 	@$(LOCAL_ANDROID_ADB) wait-for-device
-	$(LOCAL_ANDROID_ADB) shell getprop sys.boot_completed | grep -m 1 '1'
+	@$(LOCAL_ANDROID_ADB) shell getprop sys.boot_completed | grep -m 1 '1'
 .PHONY: local-android-emulator-wait-for-boot
 
 local-android-emulator-logs:
@@ -44,7 +44,7 @@ local-android-emulator-adb-devices-list:
 
 local-android-emulator-app-uninstall:
 	@echo "Uninstalling the app from the emulator"
-	@$(LOCAL_ANDROID_ADB) uninstall dev.vegito.app.android || true
+	@$(LOCAL_ANDROID_ADB) uninstall $(LOCAL_ANDROID_PACKAGE_NAME) || true
 .PHONY: local-android-emulator-app-uninstall
 
 local-android-emulator-avd-start:
@@ -60,6 +60,7 @@ local-android-emulator-avd-restart:
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
 	$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
+	  echo "[*] Killing emulator & adb..." ; \
 	  pkill -x emulator ; \
 	  pkill -x qemu-system ; \
 	  pkill -x adb ; \
@@ -76,7 +77,7 @@ local-android-emulator-kernel:
 	@echo "Showing emulator kernel..."
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  echo "[*] Showing emulator kernel..." ; \
-	  emulator -avd $(LOCAL_ANDROID_AVD_NAME) -no-snapshot-save -wipe-data -show-kernel ; \
+	  emulator -avd $$LOCAL_ANDROID_EMULATOR_AVD_NAME -no-snapshot-save -wipe-data -show-kernel ; \
 	  echo "[*] Emulator kernel shown." ; \
 	'
 .PHONY: local-android-emulator-kernel
@@ -133,6 +134,7 @@ local-android-emulator-app-sha1:
 	  apksigner verify --print-certs /tmp/app.apk; \
 	'
 .PHONY: local-android-emulator-app-sha1
+
 local-android-emulator-crash:
 	@echo "Fetching Android Emulator crash logs..."
 	@$(LOCAL_ANDROID_ADB) logcat -v brief AndroidRuntime:E *:S

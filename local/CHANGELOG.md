@@ -2,6 +2,70 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.16.0](https://github.com/vegito-app/local/compare/v1.15.4...v1.16.0) (2026-03-16)
+
+
+### Features
+
+* **android:** add optional Facebook app ID and client token configurations ([ebcb015](https://github.com/vegito-app/local/commit/ebcb0158634b05048cc6f4e3b4ee16e03aed3207))
+* **build:** introduce separate targets for latest CI images ([764dbf8](https://github.com/vegito-app/local/commit/764dbf81956b3edf24bd59f2c93b0513bfed8a96))
+* **ci:** add alias name for Android release keystore in build workflow ([8a59e8c](https://github.com/vegito-app/local/commit/8a59e8c766ed11197312abdcadef1a27d01b23e5))
+* **dotenv:** add android package name environment variable ([034a7a3](https://github.com/vegito-app/local/commit/034a7a3bfb6ae14f49888267829e64a4d5ad998c))
+* **emulators:** update export metadata and add storage export ([02f5f44](https://github.com/vegito-app/local/commit/02f5f44fc6402e4c11e96778a4f7d2d319518a00))
+* **makefile:** add dynamic compose project name configuration ([86fad2f](https://github.com/vegito-app/local/commit/86fad2f7ec0dc7321eeb07ff1b430873a266137a))
+* **workflow:** add android keystore path to CI configurations ([338e2cc](https://github.com/vegito-app/local/commit/338e2cc9f57ae75cf341ba0426a12a1869efeebd))
+* **workflow:** add INFRA_ENV variable and update Trivy version ([4747925](https://github.com/vegito-app/local/commit/474792537af0aedf2eaf7155033e1a5385efb1b3))
+
+
+### Bug Fixes
+
+* **android-studio:** update Android Studio download URL for Canary version ([202128a](https://github.com/vegito-app/local/commit/202128a7b4a5f9367407dc19b3bbb1d2011541b1))
+
+### [1.15.4](https://github.com/vegito-app/local/compare/v1.15.3...v1.15.4) (2026-02-24)
+
+### [1.15.3](https://github.com/vegito-app/local/compare/v1.15.2...v1.15.3) (2026-02-18)
+
+### [1.15.2](https://github.com/vegito-app/local/compare/v1.15.1...v1.15.2) (2026-02-17)
+
+
+### Bug Fixes
+
+* **workflow:** correct path for release notes in version-finalize ([f599fcb](https://github.com/vegito-app/local/commit/f599fcb5004130b42b6c60d92aafc6cc1d325a47))
+
+### [1.15.1](https://github.com/vegito-app/local/compare/v1.15.0...v1.15.1) (2026-02-16)
+
+## [1.15.0](https://github.com/vegito-app/local/compare/v1.14.0...v1.15.0) (2026-02-14)
+
+
+### Features
+
+* **ci:** add Google Cloud authentication to version-finalize workflow ([b2c4d67](https://github.com/vegito-app/local/commit/b2c4d679ae3443a5f5c96e7fa304cd6f167abb66))
+
+## [1.14.0](https://github.com/vegito-app/local/compare/v1.13.0...v1.14.0) (2026-02-14)
+
+
+### Features
+
+* **ci:** enhance workflow with configurable release bucket options ([f7c5582](https://github.com/vegito-app/local/commit/f7c55827f348bb984b42ec0b6da242a0a6ed2da1))
+* **robotframework:** add output directory and CI execution target ([87bdda1](https://github.com/vegito-app/local/commit/87bdda1e64daab33b2af15618a63391f50c95d4c))
+
+## [1.13.0](https://github.com/vegito-app/local/compare/v1.12.0...v1.13.0) (2026-02-12)
+
+
+### Features
+
+* **devcontainer:** enhance vscode integration and update environment settings ([e364dc5](https://github.com/vegito-app/local/commit/e364dc52b36fef02e73a44f05bc3e188ccad0bdf))
+* **devcontainers:** add support for VS Code Codespaces and enhance GitHub Actions setup ([5539a07](https://github.com/vegito-app/local/commit/5539a07b50d1dd20b369dc85196efbf2bd3755b3))
+* **workflow:** add configurable bucket naming for GCS uploads ([a3b0077](https://github.com/vegito-app/local/commit/a3b0077a5a9122c708371a2d99010c5bfcd46aa9))
+
+## [1.12.0](https://github.com/vegito-app/local/compare/v1.11.0...v1.12.0) (2026-02-09)
+
+
+### Features
+
+* **devcontainer:** improve KVM group handling ([f88429e](https://github.com/vegito-app/local/commit/f88429edd307525a714f5aa6ecbbb4d50d6595d9))
+* **devcontainers:** add support for VS Code Codespaces and enhance GitHub Actions setup ([ee9a018](https://github.com/vegito-app/local/commit/ee9a018d37ef2e3b8dddd4647fa984f7530c022b))
+
 ## [1.11.0](https://github.com/vegito-app/local/compare/v1.10.0...v1.11.0) (2026-01-31)
 
 

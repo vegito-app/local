@@ -148,8 +148,8 @@ func debug(r *http.Request) {
 	r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	// Afficher le corps de manière formatée pour un meilleur débogage
 	var prettyJSON bytes.Buffer
-	error := json.Indent(&prettyJSON, bodyBytes, "", "\t")
-	if error != nil {
+
+	if err := json.Indent(&prettyJSON, bodyBytes, "", "\t"); err != nil {
 		log.Error().Err(err).Msg("JSON parse")
 		return
 	}

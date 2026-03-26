@@ -1,6 +1,4 @@
-ARG debian_image=debian:latest
-
-FROM ${debian_image}
+FROM debian_image
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -88,7 +86,7 @@ ENV DISPLAY=:${default_display}
 
 # Enable AVD on start by default
 ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
-ENV LOCAL_ANDROID_AVD_NAME=Pixel_8_Intel
+ENV LOCAL_ANDROID_EMULATOR_AVD_NAME=Pixel_8_Intel
 ENV LOCAL_ANDROID_EMULATOR_DATA=tests/mobile_images
 ENV LOCAL_ANDROID_GPU_MODE=swiftshader_indirect
 ENV LOCAL_ANDROID_CONTAINER_DISPLAY_START=true

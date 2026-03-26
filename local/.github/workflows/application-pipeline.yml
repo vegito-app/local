@@ -1,0 +1,171 @@
+name: Vegito Application Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+      project_docker_repository:
+        required: false
+        type: string
+        default: docker-repository-public
+      functional_tests_dir:
+        required: false
+        type: string
+        default: tests/robot/output
+      images_to_scan:
+        required: false
+        type: string
+        default: '["application-backend"]'
+      release_bucket_prefix:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      use_registry_cache:
+        required: false
+        type: boolean
+        default: false
+
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
+        type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+
+      environment:
+        required: false
+        type: string
+        default: prod
+      android_release_keystore_path:
+        required: false
+        type: string
+        default: .android.release-key.keystore
+    outputs:
+      version:
+        description: "The version generated for this release"
+        value: ${{ jobs.version-changelog.outputs.version }}
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID:
+        required: true
+      GOOGLE_CLOUD_PROJECT_NUMBER:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+        required: true
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
+        required: true
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      ANDROID_RELEASE_KEYSTORE:
+        required: false
+      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
+        required: false
+      FACEBOOK_APP_ID:
+        required: false
+      FACEBOOK_CLIENT_TOKEN:
+        required: false
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  TEST_ENV: ${{ inputs.environment }}
+
+jobs:
+  version-changelog:
+    uses: ./.github/workflows/version-changelog.yml
+    secrets: inherit
+
+  version-metadata:
+    needs: version-changelog
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    uses: ./.github/workflows/version-metadata.yml
+
+    with:
+      environment: ${{ matrix.environment }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
+
+    secrets: inherit
+
+  build:
+    name: Build Images
+    needs: version-changelog
+    uses: ./.github/workflows/build-images.yml
+
+    with:
+      version: ${{ needs.version-changelog.outputs.version }}
+      environment: ${{ inputs.environment }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
+      use_registry_cache: ${{ inputs.use_registry_cache }}
+
+    secrets: inherit
+
+  tests:
+    name: Run Functional Tests
+    needs: [build, version-changelog]
+    uses: ./.github/workflows/functional-tests.yml
+
+    with:
+      version: ${{ needs.version-changelog.outputs.version }}
+      environment: ${{ inputs.environment }}
+      functional-tests-output-dir: ${{ inputs.functional_tests_dir }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  trivy:
+    name: Security Scan (Trivy)
+    needs: [version-changelog, build]
+
+    strategy:
+      matrix:
+        image: ${{ fromJson(inputs.images_to_scan) }}
+    uses: ./.github/workflows/trivy-scan-image-ref.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      image-ref: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
+      severity: CRITICAL,HIGH
+      exit-code: "1"
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      version: ${{ needs.version-changelog.outputs.version }}
+
+    secrets: inherit
+
+  release:
+    name: Create Consolidated Release Notes
+    needs: [tests, trivy, version-changelog]
+    uses: ./.github/workflows/application-release-metadata.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+
+    secrets: inherit
+
+  finalize:
+    name: Finalize Release
+    needs: [tests, trivy, version-changelog]
+    uses: ./.github/workflows/version-finalize.yml
+
+    with:
+      environment: ${{ inputs.environment }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      version: ${{ needs.version-changelog.outputs.version }}
+      changelog: ${{ needs.version-changelog.outputs.changelog }}
+
+    secrets: inherit
