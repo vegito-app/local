@@ -139,6 +139,11 @@ services:
   firebase-emulators:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
   
+  trivy:
+    environment:
+      LOCAL_TRIVY_CONTAINER_CACHE: ${LOCAL_TRIVY_CONTAINER_CACHE:-${PWD}/.containers/trivy}
+      LOCAL_TRIVY_CACHES_REFRESH: ${LOCAL_TRIVY_CACHES_REFRESH:-false}
+
   vault-dev:
     image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-latest
     working_dir: ${PWD}/example-application/

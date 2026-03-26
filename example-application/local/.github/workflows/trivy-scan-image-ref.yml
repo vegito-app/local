@@ -9,29 +9,50 @@ on:
         description: "Full Docker image reference to scan"
         required: true
         type: string
+
       environment:
         description: "GitHub environment to use (for secrets/vars)"
         required: true
         type: string
+
       severity:
         description: "Comma-separated severities to fail on"
         required: false
         default: "CRITICAL,HIGH"
         type: string
+
       exit-code:
         description: "Exit code when vulnerabilities are found"
         required: false
         default: "1"
         type: string
 
+      env_bucket_map:
+        description: "YAML mapping of environment to release bucket"
+        required: false
+        type: string
+        default: |
+          dev: vegito-app-dev-github-actions-ci-artifacts-private
+          staging: vegito-app-staging-github-actions-ci-artifacts-private
+          prod: vegito-app-prod-github-actions-ci-artifacts-private
+
+      release_bucket_prefix:
+        description: "GCS bucket prefix (usually repository)"
+        required: false
+        type: string
+        default: ${{ github.repository }}
+
+      version:
+        description: "Release version (used as GCS path)"
+        required: true
+        type: string
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
         required: true
-      WORKLOAD_IDENTITY_POOL_ID:
-        required: true
-      WORKLOAD_IDENTITY_PROVIDER_ID:
+      WORKLOAD_IDENTITY_PROVIDER:
         required: true
 
 jobs:
@@ -40,10 +61,11 @@ jobs:
     environment: ${{ inputs.environment }}
     name: Trivy Scan (${{ inputs.environment }})
     env:
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+      VERSION: ${{ inputs.version }}
+      INFRA_ENV: ${{ inputs.environment }}
 
     steps:
       - name: Checkout repository
@@ -65,33 +87,82 @@ jobs:
           make gcloud-config-set-project
           make gcloud-auth-docker
 
+      - name: Resolve release bucket from env_bucket_map
+        id: resolve_bucket
+        run: |
+          set -euo pipefail
+
+          resolve_bucket() {
+            local target_env="$1"
+            while IFS=":" read -r env bucket; do
+              env="${env#"${env%%[![:space:]]*}"}"   # ltrim
+              env="${env%"${env##*[![:space:]]}"}"   # rtrim
+              bucket="${bucket#"${bucket%%[![:space:]]*}"}"
+              bucket="${bucket%"${bucket##*[![:space:]]}"}"
+              [[ -z "$env" || "$env" == \#* ]] && continue
+              [[ -z "$bucket" ]] && continue
+              if [ "$env" = "$target_env" ]; then
+                echo "$bucket"
+                return 0
+              fi
+            done <<< "${{ inputs.env_bucket_map }}"
+            return 1
+          }
+
+          BUCKET=$(resolve_bucket "${{ inputs.environment }}") || {
+            echo "❌ No bucket found for environment: ${{ inputs.environment }}"; exit 1; }
+
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Ensure fresh .env
+        run: |
+          rm -f .env
+          make dotenv
+
       - name: Run Trivy scan (HTML report)
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          image-ref: ${{ env.IMAGE_REF }}
-          format: template
-          template: "@.github/templates/trivy-html.tpl.html"
-          output: trivy-report.html
-          exit-code: ${{ inputs.exit-code }}
-          ignore-unfixed: true
-          vuln-type: os,library
-          severity: ${{ inputs.severity }}
-          version: v0.68.2
+        env:
+          IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+        run: |
+          echo "🔎 Running Trivy scan on ${LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE}"
+          make local-trivy-image-scan \
+            LOCAL_TRIVY_IMAGE_SCAN_INPUT=${IMAGE_REF} \
+            LOCAL_TRIVY_CACHES_REFRESH=true \
+            LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY=${{ inputs.severity }} \
+            LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE=${{ inputs.exit-code }} \
+            LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=trivy-report.html
 
       - name: Upload Trivy HTML report to GCS
+        env:
+          VERSION: ${{ env.VERSION }}
+          BUCKET: ${{ steps.resolve_bucket.outputs.bucket }}
+          PREFIX: ${{ inputs.release_bucket_prefix }}
         if: always()
-        shell: bash
         run: |
-          if [[ "${{ inputs.environment }}" == "dev" ]]; then
-            BUCKET="vegito-app-dev-github-actions-ci-artifacts"
-          elif [[ "${{ inputs.environment }}" == "staging" ]]; then
-            BUCKET="vegito-app-staging-github-actions-ci-artifacts"
-          elif [[ "${{ inputs.environment }}" == "prod" ]]; then
-            BUCKET="vegito-app-prod-github-actions-ci-artifacts"
-          else
-            echo "Unknown environment: ${{ inputs.environment }}"
-            exit 1
-          fi
-          DEST="gs://${BUCKET}/${{ inputs.environment }}/trivy-report-${{ github.sha }}.html"
+          gs_path="gs://${BUCKET}/${PREFIX}/${VERSION}/security"
+          DEST="${gs_path}/trivy-report.html"
           echo "Uploading trivy-report.html to $DEST"
-          gcloud storage cp trivy-report.html "$DEST"
+          gcloud storage cp \
+            --content-type=text/html \
+            trivy-report.html \
+            "$DEST"
+
+      - name: Publish security metadata
+        env:
+          VERSION: ${{ env.VERSION }}
+          BUCKET: ${{ steps.resolve_bucket.outputs.bucket }}
+          PREFIX: ${{ inputs.release_bucket_prefix }}
+        run: |
+          set -euo pipefail
+
+          gs_path="gs://${BUCKET}/${PREFIX}/${VERSION}/security"
+          DEST="${gs_path}/security-metadata.json"
+
+          REPORT="https://storage.googleapis.com/${BUCKET}/${PREFIX}/${VERSION}/security/trivy-report.html"
+
+          cat <<EOF > security-metadata.json
+          {
+            "securityReport": "${REPORT}"
+          }
+          EOF
+
+          gcloud storage cp security-metadata.json ${DEST}

@@ -10,7 +10,7 @@ endif
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
 # Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION ?= v1.11.0
+LOCAL_VERSION ?= v1.17.0
 
 export
 
@@ -32,28 +32,6 @@ STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
 STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
 STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
 
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
-
-LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
-	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker-bake.hcl \
-	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
-	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(CURDIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
-
-LOCAL_DOCKER_COMPOSE = docker compose \
-    -f $(CURDIR)/docker-compose.yml \
-    -f $(LOCAL_DIR)/docker-compose.yml \
-    -f $(CURDIR)/.docker-compose-services-override.yml \
-    -f $(CURDIR)/.docker-compose-networks-override.yml \
-    -f $(CURDIR)/.docker-compose-gpu-override.yml
-
-LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
-  studio
-
 -include example-application.mk
 -include nodejs.mk
 -include go.mk
@@ -69,7 +47,7 @@ images: example-application-docker-images-host-arch
 .PHONY: images
 
 images-ci: \
-example-application-builders-ci \
+vegito-example-application-builders-ci \
 example-application-docker-images-multi-arch
 .PHONY: images-ci
 
