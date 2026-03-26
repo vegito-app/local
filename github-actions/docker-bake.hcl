@@ -45,7 +45,7 @@ group "local-service" {
   targets = ["github-actions-runner-local"]
 }
 
-target "github-actions-runner-ci" {
+target "local-github-actions-runner-ci" {
   args = {
     debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -70,7 +70,7 @@ target "github-actions-runner-ci" {
   platforms = platforms
 }
 
-target "github-actions-runner-latest-ci" {
+target "local-github-actions-runner-latest-ci" {
   args = {
     debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -97,7 +97,7 @@ target "github-actions-runner-latest-ci" {
   platforms = platforms
 }
 
-target "github-actions-runner" {
+target "local-github-actions-runner" {
   args = {
     debian_image           = LOCAL_DEBIAN_IMAGE_LATEST
     docker_buildx_version  = DOCKER_BUILDX_VERSION
