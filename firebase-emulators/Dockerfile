@@ -1,8 +1,9 @@
 ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
-ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:builder-latest
 ARG debian_image=debian:latest
-FROM ${builder_image} AS builder
-FROM ${debian_image}
+ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:builder-latest
+
+FROM builder_image AS builder
+FROM debian_image
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
