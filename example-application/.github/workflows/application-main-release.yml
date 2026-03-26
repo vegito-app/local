@@ -20,6 +20,7 @@ jobs:
       android_release_keystore_path: mobile/android/release-key.keystore
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
+      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE }}
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}

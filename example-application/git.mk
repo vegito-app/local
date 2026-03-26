@@ -63,6 +63,7 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 LOCAL_DOCKER_COMPOSE = docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(LOCAL_DIR)/docker-compose.yml \
+    -f $(LOCAL_DIR)/trivy/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
