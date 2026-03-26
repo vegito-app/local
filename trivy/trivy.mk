@@ -24,6 +24,8 @@ local-trivy-version:
 	@-$(LOCAL_TRIVY) version 2>/dev/null
 .PHONY:  local-trivy-version
 
+LOCAL_TRIVY_TEMPLATE ?= $(LOCAL_DIR)/.github/templates/trivy-html.tpl.html
+
 local-trivy-image-scan: local-trivy-version local-trivy-pull-scan-input-image
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT) using Trivy:"
 	@echo "	🗒️ Report: $(LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML)"
@@ -31,7 +33,7 @@ local-trivy-image-scan: local-trivy-version local-trivy-pull-scan-input-image
 	@echo "	🗒️ Exit code: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE)"
 	@$(LOCAL_TRIVY) image \
 	  --format template \
-	  --template "@.github/templates/trivy-html.tpl.html" \
+	  --template "@$(LOCAL_TRIVY_TEMPLATE)" \
 	  --output $(LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML) \
 	  --exit-code $(LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE) \
 	  --ignore-unfixed \
