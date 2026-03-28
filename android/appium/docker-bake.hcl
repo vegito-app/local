@@ -34,7 +34,7 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
 
 target "local-android-appium-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-ci"
+    builder_image = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -56,7 +56,7 @@ target "local-android-appium-ci" {
 
 target "local-android-appium-latest-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-ci"
+    builder_image = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
