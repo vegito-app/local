@@ -26,7 +26,7 @@ local-trivy-version:
 
 LOCAL_TRIVY_TEMPLATE ?= $(LOCAL_DIR)/.github/templates/trivy-html.tpl.html
 
-local-trivy-image-scan: local-trivy-version
+local-trivy-image-scan: local-trivy-version local-trivy-pull-scan-input-image
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT) using Trivy:"
 	@echo "	🗒️ Report: $(LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML)"
 	@echo "	🗒️ Severity: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY)"
@@ -41,6 +41,11 @@ local-trivy-image-scan: local-trivy-version
 	  --severity "$(LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY)" \
 	  $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)
 .PHONY: local-trivy-image-scan
+
+local-trivy-pull-scan-input-image:
+	@echo "🔎 Pulling image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)"
+	@docker pull $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)
+.PHONY: local-trivy-pull-scan-input-image
 
 local-trivy-image-scan-ci:	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)"

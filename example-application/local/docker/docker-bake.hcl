@@ -147,7 +147,6 @@ group "local-runners-ci" {
     "local-android-runners-ci",
     "local-project-builder-ci",
     "local-trivy-ci",
-    "local-trivy-latest-ci",
   ]
 }
 
@@ -161,7 +160,6 @@ group "local-builders" {
 group "local-builders-ci" {
   targets = [
     "vegito-example-application-builder-ci",
-    "vegito-example-application-builder-latest-ci",
     "local-android-builders-ci",
   ]
 }
@@ -181,15 +179,9 @@ group "local-services-ci" {
   targets = [
     "local-android-services-ci",
     "local-clarinet-devnet-ci",
-    "local-clarinet-devnet-latest-ci",
     "local-firebase-emulators-ci",
-    "local-firebase-emulators-latest-ci",
     "local-github-actions-runner-ci",
-    "local-github-actions-runner-latest-ci",
-    "local-vault-dev-ci",
-    "local-vault-dev-latest-ci",
     "local-robotframework-ci",
-    "local-robotframework-latest-ci",
   ]
 }
 
@@ -236,7 +228,7 @@ group "local-docker-dind-rootless-ci" {
   ]
 }
 
-target "local-docker-dind-rootless-latest-ci" {
+target "local-docker-dind-rootless-version-ci" {
   tags = [
     DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
@@ -300,7 +292,14 @@ variable "LOCAL_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
 }
 
-target "local-debian-ci" {
+group "local-debian-ci" {
+  targets = [
+    "local-debian-version-ci",
+    "local-debian-latest-ci",
+  ]
+}
+
+target "local-debian-version-ci" {
   tags = [
     LOCAL_DEBIAN_IMAGE_LATEST,
     LOCAL_DEBIAN_IMAGE_VERSION,
@@ -364,7 +363,14 @@ variable "GO_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${DOCKERHUB_REPLICA_VERSION}"
 }
 
-target "local-golang-alpine-ci" {
+group "local-golang-alpine-ci" {
+  targets = [
+    "local-golang-alpine-version-ci",
+    "local-golang-alpine-latest-ci",
+  ]
+}
+
+target "local-golang-alpine-version-ci" {
   tags = [
     GO_IMAGE_VERSION,
   ]
@@ -430,7 +436,14 @@ variable "RUST_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${DOCKERHUB_REPLICA_VERSION}"
 }
 
-target "local-rust-ci" {
+group "local-rust-ci" {
+  targets = [
+    "local-rust-version-ci",
+    "local-rust-latest-ci",
+  ]
+}
+
+target "local-rust-version-ci" {
   tags = [
     RUST_IMAGE_VERSION,
   ]

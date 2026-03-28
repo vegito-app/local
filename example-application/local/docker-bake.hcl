@@ -42,10 +42,17 @@ variable "LOCAL_DIR" {
   default = "."
 }
 
-target "local-project-builder-ci" {
+group "local-project-builder-ci" {
+  targets = [
+    "local-project-builder-version-ci",
+    "local-project-builder-latest-ci",
+  ]
+}
+
+target "local-project-builder-version-ci" {
   contexts = {
-    debian = "target:local-debian-ci"
-    go     = "target:local-golang-alpine-ci"
+    debian = "target:local-debian-version-ci"
+    go     = "target:local-golang-alpine-version-ci"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
