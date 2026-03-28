@@ -32,7 +32,7 @@ target "local-clarinet-devnet-ci" {
   contexts = {
     builder_image              = "target:local-project-builder-ci"
     debian_image               = "target:local-debian-ci"
-    docker_dind_rootless_image = "target:local-docker-dind-rootless-ci"
+    docker_dind_rootless_image = "target:local-docker-dind-rootless-version-ci"
     rust_image                 = "target:local-rust-ci"
   }
   args = {

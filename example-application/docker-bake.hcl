@@ -30,7 +30,6 @@ group "vegito-example-application-builders" {
 group "vegito-example-application-builders-ci" {
   targets = [
     "vegito-example-application-builder-ci",
-    "vegito-example-application-builder-latest-ci",
   ]
 }
 
@@ -43,7 +42,6 @@ group "vegito-example-application-services" {
 group "vegito-example-application-services-ci" {
   targets = [
     "vegito-example-application-backend-ci",
-    "vegito-example-application-backend-latest-ci",
   ]
 }
 
@@ -57,9 +55,7 @@ group "vegito-example-application-applications" {
 group "vegito-example-application-applications-ci" {
   targets = [
     "vegito-example-application-mobile-ci",
-    "vegito-example-application-mobile-latest-ci",
     "vegito-example-application-tests-ci",
-    "vegito-example-application-tests-latest-ci",
 
   ]
 }
@@ -114,7 +110,14 @@ target "vegito-example-application-builder" {
   ]
 }
 
-target "vegito-example-application-builder-ci" {
+group "vegito-example-application-builder-ci" {
+  targets = [
+    "vegito-example-application-builder-version-ci",
+    "vegito-example-application-builder-latest-ci",
+  ]
+}
+
+target "vegito-example-application-builder-version-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   args = {

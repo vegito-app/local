@@ -128,13 +128,9 @@ group "local-dockerhub" {
 group "local-dockerhub-ci" {
   targets = [
     "local-debian-ci",
-    "local-debian-latest-ci",
     "local-docker-dind-rootless-ci",
-    "local-docker-dind-rootless-latest-ci",
     "local-golang-alpine-ci",
-    "local-golang-alpine-latest-ci",
     "local-rust-ci",
-    "local-rust-latest-ci",
   ]
 }
 
@@ -233,7 +229,14 @@ variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_CACHE_REPOSITORY}/cache/docker-dind-rootless"
 }
 
-target "local-docker-dind-rootless-ci" {
+group "local-docker-dind-rootless-ci" {
+  targets = [
+    "local-docker-dind-rootless-version-ci",
+    "local-docker-dind-rootless-latest-ci",
+  ]
+}
+
+target "local-docker-dind-rootless-latest-ci" {
   tags = [
     DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]

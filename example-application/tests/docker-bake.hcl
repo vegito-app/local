@@ -32,7 +32,14 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ"
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "vegito-example-application-tests-ci" {
+group "vegito-example-application-tests-ci" {
+  targets = [
+    "vegito-example-application-tests-version-ci",
+    "vegito-example-application-tests-latest-ci",
+  ]
+}
+
+target "vegito-example-application-tests-version-ci" {
   args = {
     robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
   }

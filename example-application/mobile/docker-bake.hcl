@@ -117,7 +117,14 @@ target "vegito-example-application-mobile" {
   ]
 }
 
-target "vegito-example-application-mobile-ci" {
+group "vegito-example-application-mobile-ci" {
+  targets = [
+    "vegito-example-application-mobile-version-ci",
+    "vegito-example-application-mobile-latest-ci",
+  ]
+}
+
+target "vegito-example-application-mobile-version-ci" {
   args = {
     apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
     apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE

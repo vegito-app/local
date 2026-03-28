@@ -24,9 +24,16 @@ variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "local-vault-dev-ci" {
+group "local-vault-dev-ci" {
+  targets = [
+    "local-vault-dev-version-ci",
+    "local-vault-dev-latest-ci",
+  ]
+}
+
+target "local-vault-dev-version-ci" {
   contexts = {
-    debian = "target:local-debian-ci"
+    debian = "target:local-debian-version-ci"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
@@ -47,7 +54,7 @@ target "local-vault-dev-ci" {
 
 target "local-vault-dev-latest-ci" {
   contexts = {
-    debian = "target:local-debian-ci"
+    debian = "target:local-debian-version-ci"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
