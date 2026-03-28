@@ -37,17 +37,18 @@ variable "GITHUB_ACTION_RUNNER_VERSION" {
   default     = "2.330.0"
 }
 
-group "service" {
-  targets = ["github-actions-runner"]
+group "local-github-actions-runner-ci" {
+  targets = [
+    "local-github-actions-runner-version-ci",
+    "local-github-actions-runner-latest-ci",
+  ]
 }
 
-group "local-service" {
-  targets = ["github-actions-runner-local"]
-}
-
-target "local-github-actions-runner-ci" {
+target "local-github-actions-runner-version-ci" {
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
   args = {
-    debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -71,8 +72,10 @@ target "local-github-actions-runner-ci" {
 }
 
 target "local-github-actions-runner-latest-ci" {
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
   args = {
-    debian_image           = LOCAL_DEBIAN_IMAGE_VERSION
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -98,8 +101,10 @@ target "local-github-actions-runner-latest-ci" {
 }
 
 target "local-github-actions-runner" {
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
   args = {
-    debian_image           = LOCAL_DEBIAN_IMAGE_LATEST
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION

@@ -10,14 +10,17 @@ on:
         required: false
         type: string
         default: docker-repository-public
+
       functional_tests_dir:
         required: false
         type: string
         default: tests/robot/output
+
       images_to_scan:
         required: false
         type: string
         default: '["application-backend"]'
+
       release_bucket_prefix:
         required: false
         type: string
@@ -53,16 +56,23 @@ on:
         required: true
       GOOGLE_CLOUD_PROJECT_NUMBER:
         required: true
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
         required: true
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
         required: true
-      WORKLOAD_IDENTITY_PROVIDER:
+
+      RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID:
         required: true
+      RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      RELEASE_READER_GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
+        required: true
+
       ANDROID_RELEASE_KEYSTORE:
         required: false
       ANDROID_RELEASE_KEYSTORE_STORE_PASS:
         required: false
+
       FACEBOOK_APP_ID:
         required: false
       FACEBOOK_CLIENT_TOKEN:
@@ -168,4 +178,7 @@ jobs:
       version: ${{ needs.version-changelog.outputs.version }}
       changelog: ${{ needs.version-changelog.outputs.changelog }}
 
-    secrets: inherit
+    secrets:
+      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
