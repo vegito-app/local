@@ -74,10 +74,13 @@ node-modules: local-node-modules
 dotenv: local-dotenv
 .PHONY: dotenv
 
-images: docker-images
+images: local-docker-images
 .PHONY: images
 
-images-ci: docker-images-ci
+images-ci: \
+local-docker-images-ci \
+vegito-example-application-builders-ci \
+example-application-docker-images-multi-arch
 .PHONY: images-ci
 
 images-pull: \
