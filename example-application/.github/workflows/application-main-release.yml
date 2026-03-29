@@ -15,9 +15,11 @@ jobs:
     with:
       environment: dev
       functional_tests_dir: example-application/tests/output
-      images_to_scan: '["example-application-backend"]'
-      project: vegito-local
-      android_release_keystore_path: example-application/mobile/android/release-key.keystore
+      images_to_scan: '["backend"]'
+      project: example-application
+      android_release_keystore_path: mobile/android/release-key.keystore
+      env_bucket_map: |
+        dev: vegito-app-dev-github-actions-ci-artifacts
       use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
