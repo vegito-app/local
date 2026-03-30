@@ -42,7 +42,14 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "vegito-example-application-backend-ci" {
+group "vegito-example-application-backend-ci" {
+  targets = [
+    "vegito-example-application-backend-version-ci",
+    "vegito-example-application-backend-latest-ci",
+  ]
+}
+
+target "vegito-example-application-backend-version-ci" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR

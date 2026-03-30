@@ -40,7 +40,7 @@ docker-buildx-setup-github-codespaces:
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=1048576 \
 	  --use
 	@-docker buildx inspect --bootstrap
-.PHONY: docker-buildx-setup-github-codespaces
+.PHONY: local-docker-buildx-setup-github-codespaces
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
