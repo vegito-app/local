@@ -15,7 +15,7 @@ local-android-docker-images:
 	@$(MAKE) -j $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
 .PHONY: local-android-docker-images
 
-$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): local-docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake group $(@:%-group=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group=%)
 	@echo Building and pushing the docker images for buildx bake group $(@:%-group=%)
@@ -25,7 +25,7 @@ $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): docker-buildx-setup
 local-android-docker-images-ci: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci)
 .PHONY: local-android-docker-images-ci
 
-$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): local-docker-buildx-setup
 	@echo Showing CI docker images build configuration for buildx bake group $(@:%-group-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group-ci=%-ci)
 	@echo Building and pushing the docker images for buildx bake group $(@:%-group-ci=%-ci)
@@ -38,14 +38,14 @@ LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
   flutter \
   studio
 
-$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): local-docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake target $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@echo Building and loading the docker image for buildx bake target $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image)
 
-$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): local-docker-buildx-setup
 	@echo Showing CI build configuration for docker bake target $(@:%-image-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
 	@echo Building and pushing the docker image for buildx bake target $(@:%-image-ci=%-ci)
