@@ -40,22 +40,22 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-project-builder-image: docker-buildx-setup
+local-project-builder-image: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
 .PHONY: local-project-builder-image
 
-local-project-builder-image-ci: docker-buildx-setup
+local-project-builder-image-ci: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
@@ -65,7 +65,7 @@ local-gcloud-builder-image-delete:
 	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
 .PHONY: local-gcloud-builder-image-delete
 
-local-project-builder-image-trivy-scan: docker-buildx-setup
+local-project-builder-image-trivy-scan: local-docker-buildx-setup
 	@echo "Running Trivy scan for image: $(LOCAL_BUILDER_IMAGE)""
 	@echo "	🗒️ Report: local-project-builder-$(VERSION)-trivy-report.html"
 	@$(MAKE) local-trivy-image-scan \

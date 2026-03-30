@@ -38,7 +38,7 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
 docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
 .PHONY: docker-images
 
-$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-images=local-%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
@@ -82,7 +82,7 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
 docker-images-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 .PHONY: docker-images-ci
 
-$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
@@ -135,7 +135,7 @@ ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 endif
 
 	@docker buildx inspect --bootstrap
-.PHONY: docker-buildx-setup
+.PHONY: local-docker-buildx-setup
 
 docker-buildx-rm:
 	@-docker buildx rm $(LOCAL_DOCKER_BUILDX_NAME)
