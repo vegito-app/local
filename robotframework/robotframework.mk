@@ -20,7 +20,7 @@ local-robotframework-container-exec:
 
 local-robotframework-container-exec-ci: local-dev-container-image-pull
 	@echo "Using dev container image: $(LOCAL_BUILDER_IMAGE)"
-	@$(LOCAL_DEV_CONTAINER_RUN) \
+	@$(LOCAL_DEV_CONTAINER_RUN_CI) \
 	  make local-robotframework-container-exec \
 	    LOCAL_ROBOTFRAMEWORK_TESTS_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_DIR) \
 	    LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR=$(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR)

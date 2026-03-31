@@ -50,7 +50,7 @@ local-trivy-pull-scan-input-image:
 local-trivy-image-scan-ci:	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT)"
 	@echo "Using container: $(LOCAL_BUILDER_IMAGE)"
-	@$(LOCAL_DEV_CONTAINER_RUN) \
+	@$(LOCAL_DEV_CONTAINER_RUN_CI) \
 	  make local-trivy-image-scan \
 	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_TRIVY_IMAGE_SCAN_INPUT) \
 	  LOCAL_TRIVY_CACHES_REFRESH=$(LOCAL_TRIVY_CACHES_REFRESH)
