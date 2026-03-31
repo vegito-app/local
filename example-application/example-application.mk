@@ -196,5 +196,5 @@ example-application-docker-images-push-parallel:
 
 example-application-docker-group-tags-list-ci: 
 	@echo "Listing all tags for example-application docker images in CI..." >&2
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: example-application-docker-group-tags-list-ci

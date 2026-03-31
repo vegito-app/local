@@ -25,6 +25,14 @@ variable "VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE" {
   default = "${VEGITO_CACHE_REPOSITORY}/example-application"
 }
 
+group "vegito-example-application-ci" {
+  targets = [
+    "vegito-example-application-builders-ci",
+    "vegito-example-application-services-ci",
+    "vegito-example-application-applications-ci",
+  ]
+}
+
 group "vegito-example-application-builders" {
   targets = [
     "vegito-example-application-builder",
@@ -37,7 +45,7 @@ group "vegito-example-application-builders-ci" {
   ]
 }
 
-group "vegito-services" {
+group "vegito-example-application-services" {
   targets = [
     "vegito-example-application-backend",
   ]
@@ -49,7 +57,7 @@ group "vegito-example-application-services-ci" {
   ]
 }
 
-group "vegito-applications" {
+group "vegito-example-application-applications" {
   targets = [
     "vegito-example-application-mobile",
     "vegito-example-application-tests",
