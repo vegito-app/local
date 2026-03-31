@@ -169,7 +169,7 @@ jobs:
 
   finalize:
     name: Finalize Release
-    needs: [tests, trivy, version-changelog]
+    needs: [release, version-changelog]
     uses: ./.github/workflows/version-finalize.yml
 
     with:

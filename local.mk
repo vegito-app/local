@@ -208,7 +208,6 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
 # Use this to run commands in the dev container	in CI
-# 
 LOCAL_DEV_CONTAINER_RUN_CI = \
   LOCAL_CONTAINER_INSTALL=false \
   MAKE_DEV_ON_START=false \

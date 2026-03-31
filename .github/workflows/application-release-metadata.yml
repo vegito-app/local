@@ -145,15 +145,15 @@ jobs:
             exit 0
           fi
 
-          apk=$(echo "$metadata" | jq -r '.apk // empty')
-          aab=$(echo "$metadata" | jq -r '.aab // empty')
+          apk=$(echo "$metadata" | jq -r '.android.apk // empty')
+          aab=$(echo "$metadata" | jq -r '.android.aab // empty')
           sha1_url=$(echo "$metadata" | jq -r '.android.keystoreSha1 // empty')
           docker_tags_url=$(echo "$metadata" | jq -r '.dockerTags // empty')
           robot_report=$(echo "$metadata" | jq -r '.robotReport // empty')
           robot_log=$(echo "$metadata" | jq -r '.robotLog // empty')
           robot_xml=$(echo "$metadata" | jq -r '.robotXml // empty')
           thumbnail=$(echo "$metadata" | jq -r '.thumbnail // empty')
-          qr=$(echo "$metadata" | jq -r '.qr // empty')
+          qr=$(echo "$metadata" | jq -r '.android.qr // empty')
           security_report=$(echo "$metadata" | jq -r '.securityReport // empty')
 
           if [ -n "$apk" ]; then
