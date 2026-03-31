@@ -208,10 +208,9 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
 # Use this to run commands in the dev container	in CI
+# 
 LOCAL_DEV_CONTAINER_RUN_CI = \
-  # Do not install local container caches (tweak container entrypoint to avoid this)
   LOCAL_CONTAINER_INSTALL=false \
-  # Do not call `make dev` to start the dev environment (tweak container entrypoint to avoid this)
   MAKE_DEV_ON_START=false \
   $(LOCAL_DOCKER_COMPOSE) run --rm \
   $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
