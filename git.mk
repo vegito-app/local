@@ -76,6 +76,13 @@ LOCAL_GO_MODULES = \
 	proxy \
 	$(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
 
+LOCAL_DOCKER_COMPOSE_SERVICES ?= \
+  firebase-emulators \
+  robotframework \
+#   vault-dev \
+#   trivy
+#   clarinet-devnet \
+
 -include $(LOCAL_DIR)/local.mk
 # Android High-Level targets
 -include $(LOCAL_DIR)/android.mk
