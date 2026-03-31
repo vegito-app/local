@@ -26,9 +26,6 @@ local-docker-compose-images-pull-parallel \
 local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
 
-local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
-.PHONY: local-docker-images-push
-
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
