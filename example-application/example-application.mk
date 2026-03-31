@@ -103,11 +103,9 @@ $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-con
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
 	  LOCAL_ANDROID_GPU_MODE=swiftshader_indirect \
-	  $(LOCAL_DEV_CONTAINER_RUN) \
+	  $(LOCAL_DEV_CONTAINER_RUN_CI) \
 	    make $(@:%-ci=%) \
-	      LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME) \
-	      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE)
-	      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE)
+	      VERSION=$(VERSION)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-up-ci)
 
 example-application-containers-logs: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs)
@@ -186,11 +184,9 @@ $(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): l
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
 	  LOCAL_ANDROID_GPU_MODE=swiftshader_indirect \
-	  $(LOCAL_DEV_CONTAINER_RUN) \
+	  $(LOCAL_DEV_CONTAINER_RUN_CI) \
 	    make example-application-containers-$(@:example-application-containers-%-ci=%) \
-	      LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME) \
-	      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-backend-$(VERSION) \
-	      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
+	      VERSION=$(VERSION)
 .PHONY: $(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci)
 
 example-application-docker-images-push-parallel: 
