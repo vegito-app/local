@@ -14,7 +14,7 @@ jobs:
 
     with:
       environment: dev
-      functional_tests_dir: example-application/tests/output
+      functional_tests_dir: tests/output
       images_to_scan: '["backend"]'
       project: example-application
       android_release_keystore_path: mobile/android/release-key.keystore
