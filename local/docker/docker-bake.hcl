@@ -181,6 +181,7 @@ group "local-services-ci" {
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
+    "local-vault-dev-ci",
     "local-robotframework-ci",
   ]
 }
