@@ -207,7 +207,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
 
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
-LOCAL_DEV_CONTAINER_RUN = \
+# Use this to run commands in the dev container	in CI
+LOCAL_DEV_CONTAINER_RUN_CI = \
   LOCAL_CONTAINER_INSTALL=false \
   MAKE_DEV_ON_START=false \
   $(LOCAL_DOCKER_COMPOSE) run --rm \
@@ -218,7 +219,7 @@ LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE)"
-	@$(LOCAL_DEV_CONTAINER_RUN) \
+	@$(LOCAL_DEV_CONTAINER_RUN_CI) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
 	      INFRA_ENV=$(INFRA_ENV) \
