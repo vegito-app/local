@@ -183,6 +183,7 @@ group "local-services-ci" {
     "local-github-actions-runner-ci",
     "local-vault-dev-ci",
     "local-robotframework-ci",
+    "vegito-example-application-services-ci",
   ]
 }
 
