@@ -67,7 +67,7 @@ group "local-android-ci" {
   targets = [
     "local-android-appium-ci",
     "local-android-emulator-ci",
-    # "local-android-flutter-ci",
+    "local-android-flutter-ci",
     "local-android-studio-ci"
   ]
 }
