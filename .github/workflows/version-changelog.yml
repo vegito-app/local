@@ -35,6 +35,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
           git fetch --tags
 
           echo "🔧 Running standard-version (source of truth)"
@@ -76,4 +79,4 @@ jobs:
       - name: Show New Changes log
         run: |
           echo "📝 Changelog:"
-          echo " ${{ steps.define_version.outputs.CHANGELOG_NEW }}"
+          printf "%s\n" "${{ steps.define_version.outputs.CHANGELOG_NEW }}"
