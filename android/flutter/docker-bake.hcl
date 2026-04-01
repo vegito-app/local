@@ -40,7 +40,14 @@ variable "FLUTTER_VERSION" {
   default = "3.35.6"
 }
 
-target "local-android-flutter-ci" {
+group "local-android-flutter-ci" {
+  targets = [
+    "local-android-flutter-version-ci",
+    "local-android-flutter-latest-ci"
+  ]
+}
+
+target "local-android-flutter-version-ci" {
   args = {
     flutter_version     = FLUTTER_VERSION
     android_ndk_version = ANDROID_NDK_VERSION

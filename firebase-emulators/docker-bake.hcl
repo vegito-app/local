@@ -24,7 +24,14 @@ variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "local-firebase-emulators-ci" {
+group "local-firebase-emulators-ci" {
+  targets = [
+    "local-firebase-emulators-version-ci",
+    "local-firebase-emulators-latest-ci",
+  ]
+}
+
+target "local-firebase-emulators-version-ci" {
   contexts = {
     builder_image = "target:local-project-builder-version-ci"
     debian_image  = "target:local-debian-version-ci"
@@ -80,7 +87,7 @@ target "local-firebase-emulators-latest-ci" {
 
 target "local-firebase-emulators" {
   contexts = {
-    builder_image = "target:local-builder"
+    builder_image = "target:local-project-builder"
     debian_image  = "target:local-debian"
   }
   context = "${LOCAL_DIR}/firebase-emulators"

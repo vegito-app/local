@@ -9,9 +9,12 @@ on:
       changelog:
         description: "Generated changelog content"
         value: ${{ jobs.calc.outputs.changelog }}
+      commit_sha:
+        description: "Commit SHA of the release commit"
+        value: ${{ jobs.calc.outputs.commit_sha }}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   calc:
@@ -20,6 +23,7 @@ jobs:
     outputs:
       version: ${{ steps.define_version.outputs.VERSION }}
       changelog: ${{ steps.define_version.outputs.CHANGELOG_NEW }}
+      commit_sha: ${{ steps.define_version.outputs.COMMIT_SHA }}
 
     steps:
       - uses: actions/checkout@v4
@@ -30,9 +34,6 @@ jobs:
         id: define_version
         run: |
           set -euo pipefail
-
-          git config --global user.name "GitHub Action"
-          git config --global user.email "build-and-push-images-action@github.com"
 
           git fetch --tags
 
@@ -45,19 +46,29 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^)
+
           echo "## Changelog for ${VERSION}" > CHANGELOG.new.md
+          echo "" >> CHANGELOG.new.md
 
-          conventional-changelog -p angular -r 1 >> CHANGELOG.new.md
+          CHANGES=$(git log ${LAST_TAG}..HEAD --pretty=format:"* %s (%h)")
 
-          if [ -f CHANGELOG.md ]; then
-            cat CHANGELOG.md >> CHANGELOG.new.md
+          if [ -z "$CHANGES" ]; then
+            CHANGES="* No changes in this release"
           fi
+
+          echo "$CHANGES" >> CHANGELOG.new.md
 
           mv CHANGELOG.new.md CHANGELOG.md
 
           echo "CHANGELOG_NEW<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+          COMMIT_SHA=$(git rev-parse HEAD)
+
+          git push origin "refs/tags/${VERSION}"
+          echo "COMMIT_SHA=${COMMIT_SHA}" >> $GITHUB_OUTPUT
 
           echo "📦 Prepared version: $VERSION (commit + tag local, not pushed yet)"
 

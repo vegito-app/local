@@ -105,7 +105,7 @@ target "local-clarinet-devnet-latest-ci" {
 
 target "local-clarinet-devnet" {
   contexts = {
-    builder_image              = "target:local-builder"
+    builder_image              = "target:local-project-builder"
     debian_image               = "target:local-debian"
     docker_dind_rootless_image = "target:local-docker-dind-rootless"
     rust_image                 = "target:local-rust"
