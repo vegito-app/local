@@ -10,7 +10,7 @@ on:
 
 jobs:
   pipeline:
-    uses: vegito-app/local/.github/workflows/application-pipeline.yml@main
+    uses: vegito-app/local/.github/workflows/application-pipeline.yml@v1.18.0
 
     with:
       environment: dev
@@ -39,7 +39,7 @@ jobs:
   build-staging-prod:
     name: Build Images
     needs: pipeline
-    uses: vegito-app/local/.github/workflows/build-images.yml@main
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.18.0
 
     strategy:
       matrix:
