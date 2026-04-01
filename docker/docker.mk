@@ -86,6 +86,11 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 
+local-docker-images-release-ci:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release-ci
+.PHONY: local-docker-images-release-ci
+
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
 

@@ -77,10 +77,7 @@ dotenv: local-dotenv
 images: local-docker-images
 .PHONY: images
 
-images-ci: \
-local-docker-images-ci \
-vegito-example-application-builders-ci \
-example-application-docker-images-multi-arch
+images-ci: local-docker-images-release-ci
 .PHONY: images-ci
 
 images-pull: \

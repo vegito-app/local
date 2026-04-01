@@ -199,6 +199,13 @@ group "local-applications-ci" {
   ]
 }
 
+group "local-release-ci" {
+  targets = [
+    "local-services-ci",
+    "local-applications-ci"
+  ]
+}
+
 variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest"
 }
