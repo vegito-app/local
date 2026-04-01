@@ -32,14 +32,22 @@ variable "ANDROID_STUDIO_VERSION" {
   default = "2025.3.3.4"
 }
 
-target "local-android-studio-ci" {
+group "local-android-studio-ci" {
+  description = "Build and push Android Studio images"
+  targets = [
+    "local-android-studio-version-ci",
+    "local-android-studio-latest-ci",
+  ]
+}
+
+target "local-android-studio-version-ci" {
   args = {
     android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
     "appium" : "${LOCAL_DIR}/android/appium",
-    flutter = "target:local-android-flutter-ci"
+    flutter = "target:local-android-flutter-version-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_VERSION,
@@ -67,7 +75,7 @@ target "local-android-studio-latest-ci" {
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
     "appium" : "${LOCAL_DIR}/android/appium",
-    flutter = "target:local-android-flutter-ci"
+    flutter = "target:local-android-flutter-latest-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
