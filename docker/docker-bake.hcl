@@ -188,7 +188,7 @@ group "local-services-ci" {
 
 group "local-applications" {
   targets = [
-    "example-applications",
+    "vegito-example-application-applications",
   ]
 }
 
