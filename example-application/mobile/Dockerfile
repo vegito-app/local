@@ -16,8 +16,9 @@ RUN mkdir ${HOME}/src \
 
 WORKDIR ${HOME}/src 
 
+COPY --from=local local.mk local/
+
 COPY --from=approot Makefile .
-COPY --from=approot local/local.mk local/
 COPY --from=approot local/android/android.mk local/android/
 COPY --from=approot git.mk .
 

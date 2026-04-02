@@ -52,9 +52,10 @@ group "vegito-example-application-backend-ci" {
 target "vegito-example-application-backend-version-ci" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
-    gobuilder = "target:vegito-example-application-builder"
+    approot     = VEGITO_EXAMPLE_APPLICATION_DIR
+    appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    local       = LOCAL_DIR
+    gobuilder   = "target:vegito-example-application-builder-version-ci"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
@@ -73,9 +74,10 @@ target "vegito-example-application-backend-version-ci" {
 target "vegito-example-application-backend-latest-ci" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
-    gobuilder = "target:vegito-example-application-builder"
+    approot     = VEGITO_EXAMPLE_APPLICATION_DIR
+    appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    local       = LOCAL_DIR
+    gobuilder   = "target:vegito-example-application-builder-version-ci"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST,
@@ -96,9 +98,10 @@ target "vegito-example-application-backend-latest-ci" {
 target "vegito-example-application-backend" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
-    gobuilder = "target:vegito-example-application-builder"
+    approot     = VEGITO_EXAMPLE_APPLICATION_DIR
+    appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    local       = LOCAL_DIR
+    gobuilder   = "target:vegito-example-application-builder-version-ci"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,

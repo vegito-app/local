@@ -111,6 +111,7 @@ target "vegito-example-application-mobile" {
   contexts = {
     android = LOCAL_ANDROID_DIR
     approot = VEGITO_EXAMPLE_APPLICATION_DIR
+    local   = LOCAL_DIR
     builder = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT
     runner  = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT
   }
@@ -156,6 +157,7 @@ target "vegito-example-application-mobile-version-ci" {
   contexts = {
     android = LOCAL_ANDROID_DIR
     approot = VEGITO_EXAMPLE_APPLICATION_DIR
+    local   = LOCAL_DIR
     builder = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT
     runner  = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT
   }
@@ -191,6 +193,7 @@ target "vegito-example-application-mobile-latest-ci" {
   contexts = {
     android = LOCAL_ANDROID_DIR
     approot = VEGITO_EXAMPLE_APPLICATION_DIR
+    local   = LOCAL_DIR
     builder = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT
     runner  = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT
   }

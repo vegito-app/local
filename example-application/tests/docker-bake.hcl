@@ -46,7 +46,7 @@ group "vegito-example-application-tests-ci" {
 
 target "vegito-example-application-tests-version-ci" {
   contexts = {
-    robotframework = VEGITO_EXAMPLE_APPLICATION_ROBOTFRAMEWORK_CONTEXT
+    robotframework = VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
@@ -65,7 +65,7 @@ target "vegito-example-application-tests" {
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
   contexts = {
-    robotframework = VEGITO_EXAMPLE_APPLICATION_ROBOTFRAMEWORK_CONTEXT
+    robotframework = VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE,
@@ -83,7 +83,7 @@ target "vegito-example-application-tests" {
 
 target "vegito-example-application-tests-latest-ci" {
   contexts = {
-    robotframework = VEGITO_EXAMPLE_APPLICATION_ROBOTFRAMEWORK_CONTEXT
+    robotframework = VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
