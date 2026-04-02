@@ -1,6 +1,5 @@
 ARG apk_runner_appium_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-appium-latest
-ARG apk_builder_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-flutter-latest
-FROM ${apk_builder_image} AS builder
+FROM  builder
 
 ARG non_root_user=android
 ARG builder_home=/home/${non_root_user}

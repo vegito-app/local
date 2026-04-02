@@ -76,4 +76,4 @@ jobs:
       - name: Show New Changes log
         run: |
           echo "📝 Changelog:"
-          echo " ${{ steps.define_version.outputs.CHANGELOG_NEW }}"
+          printf "%s\n" "${{ steps.define_version.outputs.CHANGELOG_NEW }}"

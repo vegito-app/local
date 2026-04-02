@@ -207,19 +207,19 @@ variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
 }
 
 variable "LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/debian"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian"
 }
 
 variable "LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/golang-alpine"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/golang-alpine"
 }
 
 variable "LOCAL_RUST_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/rust"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/rust"
 }
 
 variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/docker-dind-rootless"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/docker-dind-rootless"
 }
 
 group "local-docker-dind-rootless-ci" {
