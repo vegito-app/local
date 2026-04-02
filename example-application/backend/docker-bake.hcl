@@ -75,6 +75,7 @@ target "vegito-example-application-backend-latest-ci" {
   contexts = {
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
     "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    "local" : LOCAL_DIR
     gobuilder = "target:vegito-example-application-builder"
   }
   tags = [
@@ -98,6 +99,7 @@ target "vegito-example-application-backend" {
   contexts = {
     "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
     "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    "local" : LOCAL_DIR
     gobuilder = "target:vegito-example-application-builder"
   }
   tags = [
