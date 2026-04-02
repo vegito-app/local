@@ -2,6 +2,10 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_DIR" {
   default = "${VEGITO_EXAMPLE_APPLICATION_DIR}/tests"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT" {
+  default = "docker-image://${VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE}/tests"
+}
+
 variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE" {
   default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}:tests"
 }
@@ -41,8 +45,8 @@ group "vegito-example-application-tests-ci" {
 }
 
 target "vegito-example-application-tests-version-ci" {
-  args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
+  contexts = {
+    robotframework = VEGITO_EXAMPLE_APPLICATION_ROBOTFRAMEWORK_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
@@ -60,8 +64,8 @@ target "vegito-example-application-tests-version-ci" {
 target "vegito-example-application-tests" {
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"
-  args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
+  contexts = {
+    robotframework = VEGITO_EXAMPLE_APPLICATION_ROBOTFRAMEWORK_CONTEXT
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE,
@@ -78,8 +82,8 @@ target "vegito-example-application-tests" {
 }
 
 target "vegito-example-application-tests-latest-ci" {
-  args = {
-    robotframework_image = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
+  contexts = {
+    robotframework = VEGITO_EXAMPLE_APPLICATION_ROBOTFRAMEWORK_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
   dockerfile = "Dockerfile"

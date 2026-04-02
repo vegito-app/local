@@ -78,6 +78,10 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
   default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT" {
+  default = "docker-image://${EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION}"
+}
+
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
   default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-latest"
 }
@@ -102,8 +106,8 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 
 target "vegito-example-application-builder" {
-  args = {
-    local_builder_image = LOCAL_BUILDER_IMAGE_VERSION
+  contexts = {
+    builder = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   dockerfile = "Dockerfile"
@@ -131,8 +135,8 @@ group "vegito-example-application-builder-ci" {
 target "vegito-example-application-builder-version-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
-  args = {
-    local_builder_image = LOCAL_BUILDER_IMAGE_VERSION
+  contexts = {
+    builder = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
   }
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
@@ -147,8 +151,8 @@ target "vegito-example-application-builder-version-ci" {
 target "vegito-example-application-builder-latest-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
-  args = {
-    local_builder_image = LOCAL_BUILDER_IMAGE_VERSION
+  contexts = {
+    builder = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
   }
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST
