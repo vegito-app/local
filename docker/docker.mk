@@ -116,18 +116,25 @@ local-docker-clean-all:
 	  docker-local-buildx-cache-clean
 .PHONY: local-docker-clean-all
 
+
+LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
+
+ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER),true)
+LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
+endif
+
 LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
 
 local-docker-buildx-setup:
-	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
+	docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
-	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
-	    --driver docker-container \
-	    --use \
-	    --platform linux/amd64; \
+	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	  --driver docker-container \
+	  --use \
+	  $(LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	  --platform linux/amd64; \
 	}
-
 ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	@$(MAKE) docker-context-arm
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
