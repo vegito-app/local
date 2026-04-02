@@ -101,6 +101,8 @@ jobs:
       environment: ${{ matrix.environment }}
       version: ${{ needs.version-changelog.outputs.version }}
       changelog: ${{ needs.version-changelog.outputs.changelog }}
+      env_bucket_map: ${{ inputs.env_bucket_map }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
 
     secrets: inherit
 
@@ -175,6 +177,7 @@ jobs:
     with:
       environment: ${{ inputs.environment }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
+      release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
       version: ${{ needs.version-changelog.outputs.version }}
       changelog: ${{ needs.version-changelog.outputs.changelog }}
       commit_sha: ${{ needs.version-changelog.outputs.commit_sha }}
