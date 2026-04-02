@@ -3,8 +3,9 @@ FROM gobuilder AS build
 RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
+COPY --from=local local.mk local/
+
 COPY --from=approot Makefile .
-COPY --from=approot local/local.mk local/
 COPY --from=approot git.mk .
 COPY --from=approot nodejs.mk .
 COPY --from=approot go.mk .
