@@ -1,5 +1,4 @@
-ARG local_builder_image=vegito-app:builder-latest
-FROM ${local_builder_image}
+FROM builder
 
 ARG non_root_user=vegito
 USER ${non_root_user}

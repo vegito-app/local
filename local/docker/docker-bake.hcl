@@ -183,6 +183,7 @@ group "local-services-ci" {
     "local-github-actions-runner-ci",
     "local-vault-dev-ci",
     "local-robotframework-ci",
+    "vegito-example-application-services-ci",
   ]
 }
 
@@ -195,6 +196,13 @@ group "local-applications" {
 group "local-applications-ci" {
   targets = [
     "vegito-example-application-applications-ci",
+  ]
+}
+
+group "local-release-ci" {
+  targets = [
+    "local-services-ci",
+    "local-applications-ci"
   ]
 }
 
