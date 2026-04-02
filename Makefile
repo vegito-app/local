@@ -19,15 +19,20 @@ export
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
-	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker-bake.hcl \
-	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
-	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+LOCAL_DOCKER_BUILDX_BAKE ?= \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT=target:local-android-flutter-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT=target:local-android-appium-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT=target:local-robotframework-version-ci \
+  docker buildx bake \
+  -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker-bake.hcl \
+  $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
+  $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+  -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
+  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
@@ -77,10 +82,7 @@ dotenv: local-dotenv
 images: local-docker-images
 .PHONY: images
 
-images-ci: \
-local-docker-images-ci \
-vegito-example-application-builders-ci \
-example-application-docker-images-multi-arch
+images-ci: local-docker-images-release-ci
 .PHONY: images-ci
 
 images-pull: \
