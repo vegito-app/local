@@ -1,5 +1,4 @@
-ARG builder_image="vegito-local:local-builder-latest"
-FROM ${builder_image} AS build
+FROM gobuilder AS build
 
 RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
@@ -35,7 +34,7 @@ COPY --from=appfrontend public frontend/public
 COPY --from=appfrontend src frontend/src
 COPY --from=appfrontend webpack.server.js frontend/
 
-RUN make -j example-application-frontend-build example-application-frontend-bundle
+RUN make -j example-application-frontend-build
 
 # backend
 COPY internal backend/internal

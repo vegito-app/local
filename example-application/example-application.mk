@@ -52,8 +52,8 @@ example-application-docker-images: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAG
 .PHONY: example-application-docker-images
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image): local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=vegito-%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=vegito-%)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 
 example-application-docker-images-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
