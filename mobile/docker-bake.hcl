@@ -44,12 +44,12 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST" {
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${LOCAL_VERSION}"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST" {
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE_LATEST" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
 }
@@ -80,11 +80,13 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT" {
-  default = "target:vegito-example-application-mobile-builder"
+  description = "Builder context (target:... or docker-image://...)"
+  default     = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT" {
-  default = "target:vegito-example-application-mobile-runner"
+  description = "Runner context (target:... or docker-image://...)"
+  default     = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE}"
 }
 
 target "vegito-example-application-mobile" {
@@ -169,7 +171,7 @@ target "vegito-example-application-mobile-version-ci" {
 
 target "vegito-example-application-mobile-latest-ci" {
   args = {
-    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
+    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE
     version                 = VERSION
     android_package_name    = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
     environment             = INFRA_ENV
