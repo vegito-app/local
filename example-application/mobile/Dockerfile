@@ -1,5 +1,4 @@
-ARG apk_runner_appium_image=europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/vegito-local:android-appium-latest
-FROM  builder
+FROM  builder as build
 
 ARG non_root_user=android
 ARG builder_home=/home/${non_root_user}
@@ -17,9 +16,9 @@ RUN mkdir ${HOME}/src \
 WORKDIR ${HOME}/src 
 
 COPY --from=local local.mk local/
+COPY --from=local android/android.mk local/android/
 
 COPY --from=approot Makefile .
-COPY --from=approot local/android/android.mk local/android/
 COPY --from=approot git.mk .
 
 COPY --from=approot example-application.mk .
@@ -58,17 +57,17 @@ RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore.base64 \
     echo -n "$SHA1" > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.sha1 && \
     rm -f ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}
 
-FROM ${apk_runner_appium_image} AS runner
+FROM runner
 
 ARG version
 ARG environment
 
-COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release-${version}.apk
-COPY --from=builder /home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release-${version}.aab
+COPY --from=build /home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release-${version}.apk
+COPY --from=build /home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release-${version}.aab
 
-COPY --from=builder /home/android/android-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
+COPY --from=build /home/android/android-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
 
-COPY --from=builder /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
+COPY --from=build /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 
 ARG android_package_name
 

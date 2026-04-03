@@ -150,7 +150,7 @@ $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-con
 
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull):
 	@echo Pulling the container image for $(@:%-image-pull=%)
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull)
 
 example-application-docker-compose-images-pull: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull)
