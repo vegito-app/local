@@ -170,7 +170,7 @@ jobs:
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
         run: |
-          make docker-build-tags-list-ci-md > docker-tags.md
+          make docker-tags-md-ci > docker-tags.md
           if ! gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md; then
             echo "::warning::failed to upload docker-tags.md"
           fi
