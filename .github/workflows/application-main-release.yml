@@ -10,7 +10,7 @@ on:
 
 jobs:
   pipeline:
-    uses: vegito-app/local/.github/workflows/application-pipeline.yml@v1.18.0
+    uses: ./.github/workflows/application-pipeline.yml
 
     with:
       environment: dev
