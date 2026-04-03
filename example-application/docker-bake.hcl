@@ -13,48 +13,168 @@ variable "INFRA_ENV" {
   default     = "dev"
 }
 
-variable "VEGITO_APP_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-app"
+variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
 }
 
-variable "VEGITO_APP_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-app"
+variable "EXAMPLE_APPLICATION_PRIVATE_IMAGES_BASE" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/example-application"
 }
 
-variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${LOCAL_VERSION}"
+variable "VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/example-application"
 }
 
-group "example-application" {
+group "vegito-example-application-ci" {
   targets = [
-    "example-application-backend",
-    "example-application-mobile",
-    "example-application-tests",
+    "vegito-example-application-builders-ci",
+    "vegito-example-application-services-ci",
+    "vegito-example-application-applications-ci",
   ]
 }
 
-group "example-application-ci" {
+group "vegito-example-application-builders" {
   targets = [
-    "example-application-backend-ci",
-    "example-application-mobile-ci",
-    "example-application-tests-ci",
+    "vegito-example-application-builder",
   ]
 }
 
-# docker buildx bake
-# /workspaces/vegito-app/local/docker/docker-bake.hcl
-# /workspaces/vegito-app/local/docker-bake.hcl
-# /workspaces/vegito-app/local/clarinet-devnet/docker-bake.hcl
-# /workspaces/vegito-app/local/robotframework/docker-bake.hcl
-# /workspaces/vegito-app/local/firebase-emulators/docker-bake.hcl
-# /workspaces/vegito-app/local/vault-dev/docker-bake.hcl
-# /workspaces/vegito-app/local/android/docker-bake.hcl
-# /workspaces/vegito-app/local/android/appium/docker-bake.hcl
-# /workspaces/vegito-app/local/android/emulator/docker-bake.hcl
-# /workspaces/vegito-app/local/android/flutter/docker-bake.hcl
-# /workspaces/vegito-app/local/android/studio/docker-bake.hcl
-# /workspaces/vegito-app/local/example-application/docker-bake.hcl
-# /workspaces/vegito-app/local/example-application/backend/docker-bake.hcl
-# /workspaces/vegito-app/local/example-application/mobile/docker-bake.hcl
-# /workspaces/vegito-app/local/example-application/tests/docker-bake.hcl
-# /workspaces/vegito-app/local/github-actions/docker-bake.hcl --print local-applications-ci
+group "vegito-example-application-builders-ci" {
+  targets = [
+    "vegito-example-application-builder-ci",
+  ]
+}
+
+group "vegito-example-application-services" {
+  targets = [
+    "vegito-example-application-backend",
+  ]
+}
+
+group "vegito-example-application-services-ci" {
+  targets = [
+    "vegito-example-application-backend-ci",
+  ]
+}
+
+group "vegito-example-application-applications" {
+  targets = [
+    "vegito-example-application-mobile",
+    "vegito-example-application-tests",
+  ]
+}
+
+group "vegito-example-application-applications-ci" {
+  targets = [
+    "vegito-example-application-mobile-ci",
+    "vegito-example-application-tests-ci",
+  ]
+}
+
+group "vegito-example-application-release-ci" {
+  targets = [
+    "vegito-example-application-services-ci",
+    "vegito-example-application-applications-ci"
+  ]
+}
+
+variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+}
+
+variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}"
+}
+
+variable "EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT" {
+  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+}
+
+variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
+  default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-latest"
+}
+
+variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE}/builder"
+}
+
+variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+  description = "local write cache for example-application-builder image build"
+  default     = "type=local,mode=max,dest=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  description = "local read cache for example-application-builder image build (cannot be used before first write)"
+  default     = "type=local,src=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI" {
+  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+}
+
+target "vegito-example-application-builder" {
+  contexts = {
+    builder = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+  }
+  context    = VEGITO_EXAMPLE_APPLICATION_DIR
+  dockerfile = "Dockerfile"
+  tags = [
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
+    notequal("", VERSION) ? EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION : "",
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
+    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+  ]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+  ]
+}
+
+group "vegito-example-application-builder-ci" {
+  targets = [
+    "vegito-example-application-builder-version-ci",
+    "vegito-example-application-builder-latest-ci",
+  ]
+}
+
+target "vegito-example-application-builder-version-ci" {
+  dockerfile = "Dockerfile"
+  context    = VEGITO_EXAMPLE_APPLICATION_DIR
+  contexts = {
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI
+  }
+  tags = [
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
+    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+  ]
+  cache-to  = []
+  platforms = platforms
+}
+
+target "vegito-example-application-builder-latest-ci" {
+  dockerfile = "Dockerfile"
+  context    = VEGITO_EXAMPLE_APPLICATION_DIR
+  contexts = {
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI
+  }
+  tags = [
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
+    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+  ]
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+  ]
+  platforms = platforms
+}

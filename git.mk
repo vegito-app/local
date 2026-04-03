@@ -1,4 +1,4 @@
-GIT_SUBTREE_DIRS := gcloud
+GIT_SUBTREE_DIRS := gcloud example-application
 
 git-subtree-pull: $(GIT_SUBTREE_DIRS:%=git-subtree-%-pull)
 .PHONY: git-subtree-pull
@@ -11,7 +11,6 @@ git-subtree-status:
 	@git status
 .PHONY: git-subtree-status
 
-# VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VERSION)
 VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
 VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud example-application
@@ -27,19 +26,19 @@ git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-r
 # ------------------------------------------
 # Subtree ./google-cloud
 # ------------------------------------------
-git-subtree-google-cloud-pull:
+git-subtree-gcloud-pull:
 	@echo "⬇︎ Pulling the gcloud subtree..."
-	@git subtree pull --prefix google-cloud \
+	@git subtree pull --prefix gcloud \
 	  git@github.com:vegito-app/gcloud.git main --squash
 	@echo "Gcloud subtree pulled successfully."
-.PHONY: git-subtree-google-cloud-pull
+.PHONY: git-subtree-gcloud-pull
 
-git-subtree-google-cloud-push:
+git-subtree-gcloud-push:
 	@echo "⬆︎ Pushing changes from the gcloud subtree..."
-	@git subtree push --prefix google-cloud \
-	  git@github.com:vegito-app/google-cloud.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
-	@echo "Google Cloud subtree pushed successfully."
-.PHONY: git-subtree-google-cloud-push
+	@git subtree push --prefix gcloud \
+	  git@github.com:vegito-app/gcloud.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "Gcloud subtree pushed successfully."
+.PHONY: git-subtree-gcloud-push
 
 GOOGLE_CLOUD_DIR := $(LOCAL_DIR)/gcloud
 -include $(GOOGLE_CLOUD_DIR)/gcloud.mk
@@ -63,6 +62,10 @@ git-subtree-example-application-push:
 .PHONY: git-subtree-example-application-push
 
 VEGITO_EXAMPLE_APPLICATION_DIR = $(LOCAL_DIR)/example-application
+
+VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-backend
+VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile
+VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-tests
 
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------

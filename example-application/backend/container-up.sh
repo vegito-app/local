@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-CONTAINER_NAME="application-backend"
+CONTAINER_NAME="example-application-backend"
 PORTS_TO_WAIT_FOR=(8080)
 
 bg_pids=()

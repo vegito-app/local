@@ -20,6 +20,7 @@ group "local-android-runners-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator-ci",
+    "local-android-emulator-latest-ci",
   ]
 }
 

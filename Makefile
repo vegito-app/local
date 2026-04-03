@@ -1,6 +1,8 @@
 VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
+COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
+# LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
 ifdef VERSION
 LOCAL_VERSION := $(VERSION)
 endif
@@ -15,41 +17,27 @@ VERSION ?= $(LOCAL_VERSION)
 
 export
 
-INFRA_PROJECT_NAME := moov
-
-DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
-
-DEV_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-dev
-DEV_GOOGLE_CLOUD_PROJECT_ID     ?= $(DEV_GOOGLE_CLOUD_PROJECT_NAME)-439608
-DEV_GOOGLE_CLOUD_PROJECT_NUMBER ?= 203475703228
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
-PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
-PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
-	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker-bake.hcl \
-	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
-	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+LOCAL_DOCKER_BUILDX_BAKE ?= \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
+  docker buildx bake \
+  -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker-bake.hcl \
+  $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
+  $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+  -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
+  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+  	-f $(CURDIR)/trivy/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -60,19 +48,28 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
-  robotframework
+  robotframework \
+  trivy
 #   clarinet-devnet \
 
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
+
+-include gcloud.mk
+-include go.mk
+-include nodejs.mk
 -include android.mk
 -include local.mk
 -include git.mk
--include nodejs.mk
--include go.mk
+
+LOCAL_GO_MODULES += \
+ $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
-$(LOCAL_DOCKER_COMPOSE_SERVICES) \
-$(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
-$(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+  firebase-emulators \
+  vault-dev \
+  robotframework \
+  $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
+  $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
 
 -include .devcontainer/devcontainer.mk
 
@@ -82,10 +79,10 @@ node-modules: local-node-modules
 dotenv: local-dotenv
 .PHONY: dotenv
 
-images: docker-images
+images: local-docker-images
 .PHONY: images
 
-images-ci: docker-images-ci
+images-ci: local-docker-images-release-ci
 .PHONY: images-ci
 
 images-pull: \
@@ -168,14 +165,5 @@ test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
 .PHONY: test-local
 
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
-	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" ; \
-	done
-.PHONY: docker-build-tags-list-ci-md
+docker-tags-md-ci: docker-build-tags-list-ci-md
+.PHONY: docker-tags-md-ci

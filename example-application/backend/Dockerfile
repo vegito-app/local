@@ -1,14 +1,25 @@
-ARG builder_image="vegito-local:local-builder-latest"
-FROM ${builder_image} AS build
+FROM gobuilder AS build
 
 RUN mkdir ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
+COPY --from=local local.mk local/
+
 COPY --from=approot Makefile .
-COPY --from=approot local/local.mk local/
 COPY --from=approot git.mk .
 COPY --from=approot nodejs.mk .
 COPY --from=approot go.mk .
+
+# backend
+RUN mkdir -p backend
+
+COPY backend.mk backend/
+COPY go.sum backend/
+COPY go.mod backend/
+
+RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
+    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
+    make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download
 
 COPY --from=approot example-application.mk .
 
@@ -24,17 +35,9 @@ COPY --from=appfrontend public frontend/public
 COPY --from=appfrontend src frontend/src
 COPY --from=appfrontend webpack.server.js frontend/
 
-RUN make -j example-application-frontend-build example-application-frontend-bundle
+RUN make -j example-application-frontend-build
 
 # backend
-RUN mkdir -p backend
-
-COPY backend.mk backend/
-COPY go.sum backend/
-COPY go.mod backend/
-
-RUN make example-application-go-backend-mod-download
-
 COPY internal backend/internal
 COPY http backend/http
 COPY log backend/log
@@ -77,12 +80,13 @@ ARG builder_home=/home/${non_root_user}
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /home/${non_root_user}/src/frontend/build/ /frontend/build
+COPY --from=build /home/${non_root_user}/src/frontend/build-ssr/ /frontend/build-ssr
 COPY --from=build /home/${non_root_user}/src/frontend/public/ /frontend/public
 COPY --from=build /home/${non_root_user}/go/bin/backend /backend
 
 ENV FRONTEND_BUILD_DIR=/frontend/build \
     FRONTEND_PUBLIC_DIR=/frontend/public \
-    UI_JAVASCRIPT_SOURCE_FILE=/frontend/build/bundle.js
+    UI_JAVASCRIPT_SOURCE_FILE=/frontend/build-ssr/bundle.js
 
 ENTRYPOINT ["/backend"]
 EXPOSE 8080

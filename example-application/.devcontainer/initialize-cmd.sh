@@ -44,7 +44,8 @@ export LOCAL_ANDROID_STUDIO_ON_START=${LOCAL_ANDROID_STUDIO_ON_START:-true}
 export LOCAL_CLARINET_DEVNET_CACHES_REFRESH=${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-true}
 export LOCAL_CONTAINER_INSTALL=${LOCAL_CONTAINER_INSTALL:-true}
 export LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH=${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-true}
-export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-true}
+export MAKE_DEV_ON_START=${MAKE_DEV_ON_START:-false}
+export LOCAL_VERSION=${LOCAL_VERSION:-v1.18.0}
 export MAKE_TESTS_ON_START=${MAKE_TESTS_ON_START:-true}
 export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 EOF
@@ -111,7 +112,7 @@ cat <<'EOF' > $backendLaunchDebug
                 "GCLOUD_PROJECT_ID": "moov-dev-439608",
                 "FRONTEND_BUILD_DIR": "../frontend/build",
                 "FRONTEND_PUBLIC_DIR": "../frontend/public",
-                "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
+                "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build-ssr/bundle.js",
                 "FIRESTORE_EMULATOR_HOST": "localhost:8090",
                 "VAULT_ADDR": "http://localhost:8200",
                 "VAULT_TOKEN": "root",

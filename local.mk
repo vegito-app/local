@@ -18,13 +18,13 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
   robotframework \
   firebase-emulators \
-  vault-dev
+  vault-dev \
+  trivy
 
-local-docker-images-pull-parallel: local-docker-compose-images-pull-parallel local-android-docker-images-pull-parallel
+local-docker-images-pull-parallel: \
+local-docker-compose-images-pull-parallel \
+local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
-
-local-docker-images-push: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push) local-builder-image-push
-.PHONY: local-docker-images-push
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
@@ -37,27 +37,22 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-image=%)
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image-push=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-push=%)
-.PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-push)
-
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-image-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-%-image-ci=%-ci)
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-project-builder-image: docker-buildx-setup
+local-project-builder-image: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
 .PHONY: local-project-builder-image
 
-local-project-builder-image-ci: docker-buildx-setup
+local-project-builder-image-ci: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
@@ -67,8 +62,17 @@ local-gcloud-builder-image-delete:
 	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
 .PHONY: local-gcloud-builder-image-delete
 
+local-project-builder-image-trivy-scan: local-docker-buildx-setup
+	@echo "Running Trivy scan for image: $(LOCAL_BUILDER_IMAGE)""
+	@echo "	🗒️ Report: local-project-builder-$(VERSION)-trivy-report.html"
+	@$(MAKE) local-trivy-image-scan \
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_BUILDER_IMAGE) \
+	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=local-project-builder-$(VERSION)-trivy-report.html
+.PHONY: local-project-builder-image-trivy-scan
+
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
@@ -77,7 +81,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   firebase-emulators \
   vault-dev \
-  robotframework
+  robotframework \
+  trivy
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -194,27 +199,29 @@ local-dev-container-logs-f:
 
 # Local Docker Compose Services for CI
 LOCAL_DOCKER_COMPOSE_SERVICES_CI ?= \
-  robotframework
-
+  robotframework \
 #   clarinet-devnet
+
 LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 
-LOCAL_DEV_CONTAINER_RUN = \
+# Use this to run commands in the dev container	in CI
+LOCAL_DEV_CONTAINER_RUN_CI = \
   LOCAL_CONTAINER_INSTALL=false \
   MAKE_DEV_ON_START=false \
-  $(LOCAL_DOCKER_COMPOSE) run --rm $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
+  $(LOCAL_DOCKER_COMPOSE) run --rm \
+  $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
 LOCAL_CONTAINERS_OPERATIONS_CI = up rm logs
 
 $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-image-pull
 	@echo "Running operation 'local-containers-$(@:local-containers-%-ci=%)' for all local containers in CI..."
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE)"
-	@$(LOCAL_DEV_CONTAINER_RUN) \
+	@$(LOCAL_DEV_CONTAINER_RUN_CI) \
 	    make local-containers-$(@:local-containers-%-ci=%) \
+	      GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
+	      INFRA_ENV=$(INFRA_ENV) \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-	      VERSION=$(LOCAL_VERSION) \
-		  INFRA_ENV=$(INFRA_ENV) \
-		  GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS)
+	      VERSION=$(LOCAL_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/docker/docker.mk
@@ -224,3 +231,4 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
+-include $(LOCAL_DIR)/trivy/trivy.mk

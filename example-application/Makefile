@@ -10,50 +10,13 @@ endif
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
 # Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION ?= v1.11.0
+LOCAL_VERSION ?= v1.19.0
+
+LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):robotframework-$(LOCAL_VERSION)
 
 export
 
-INFRA_PROJECT_NAME := moov
-
-DEV_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-dev
-DEV_GOOGLE_CLOUD_PROJECT_ID     ?= $(DEV_GOOGLE_CLOUD_PROJECT_NAME)-439608
-DEV_GOOGLE_CLOUD_PROJECT_NUMBER ?= 203475703228
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
-PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
-PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR := $(LOCAL_DIR)/robotframework
-
-LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
-	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker-bake.hcl \
-	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
-	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(CURDIR)/docker-bake.hcl \
-	$(APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
-
-LOCAL_DOCKER_COMPOSE = docker compose \
-    -f $(CURDIR)/docker-compose.yml \
-    -f $(LOCAL_DIR)/docker-compose.yml \
-    -f $(CURDIR)/.docker-compose-services-override.yml \
-    -f $(CURDIR)/.docker-compose-networks-override.yml \
-    -f $(CURDIR)/.docker-compose-gpu-override.yml
-
-LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
-  studio
-
+-include gcloud.mk
 -include example-application.mk
 -include nodejs.mk
 -include go.mk
@@ -65,16 +28,21 @@ node-modules: local-node-modules
 dotenv: example-application-dotenv
 .PHONY: dotenv
 
-images: example-application-docker-images
+images: example-application-docker-images-host-arch
 .PHONY: images
 
-images-ci: example-application-docker-images-ci
+images-ci: example-application-release-ci
 .PHONY: images-ci
 
-images-pull: \
+images-pull-ci: \
 local-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
+
+images-pull-ci:
+	@$(MAKE) images-pull \
+	  LOCAL_DOCKER_COMPOSE_SERVICES=$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)
+.PHONY: images-pull-ci
 
 images-push: \
 local-docker-images-push \
@@ -96,7 +64,7 @@ local-android-containers-rm
 .PHONY: dev-rm
 
 dev-ci: \
-images-pull \
+images-pull-ci \
 local-containers-up-ci \
 example-application-backend-container-up-ci \
 example-application-mobile-container-up-ci \

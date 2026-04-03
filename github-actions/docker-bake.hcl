@@ -7,15 +7,15 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}/cache/github-actions-runner/ci"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner/ci"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -37,17 +37,45 @@ variable "GITHUB_ACTION_RUNNER_VERSION" {
   default     = "2.330.0"
 }
 
-group "service" {
-  targets = ["github-actions-runner"]
+group "local-github-actions-runner-ci" {
+  targets = [
+    "local-github-actions-runner-version-ci",
+    "local-github-actions-runner-latest-ci",
+  ]
 }
 
-group "local-service" {
-  targets = ["github-actions-runner-local"]
-}
-
-target "github-actions-runner-ci" {
+target "local-github-actions-runner-version-ci" {
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
   args = {
-    debian_image           = DEBIAN_IMAGE_VERSION
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
+    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
+    gitleaks_version       = GITLEAKS_VERSION
+    kubectl_version        = KUBECTL_VERSION
+    node_version           = NODE_VERSION
+    nvm_version            = NVM_VERSION
+    terraform_version      = TERRAFORM_VERSION
+  }
+  context = "${LOCAL_DIR}/github-actions"
+  tags = [
+    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
+  ]
+  cache-from = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}" : "",
+    "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
+  ]
+  cache-to  = []
+  platforms = platforms
+}
+
+target "local-github-actions-runner-latest-ci" {
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
+  args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -61,23 +89,22 @@ target "github-actions-runner-ci" {
   context = "${LOCAL_DIR}/github-actions"
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
-    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}" : "",
     "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
-    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
   ]
   cache-to = [
-    # USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : "type=inline"
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
 
-target "github-actions-runner" {
+target "local-github-actions-runner" {
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
   args = {
-    debian_image           = DEBIAN_IMAGE_LATEST
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
