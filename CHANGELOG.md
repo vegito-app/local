@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.18.0](https://github.com/vegito-app/local/compare/v1.17.0...v1.18.0) (2026-04-03)
+
+
+### Features
+
+* **build-context:** use dynamic context for Dockerfile build ([31dd964](https://github.com/vegito-app/local/commit/31dd9644f43ee7b79484ec513042537f50677d96))
+* **ci/cd:** add environment and release bucket mapping to GitHub application pipeline ([d43cc49](https://github.com/vegito-app/local/commit/d43cc4936a4726cc22425f60930dae98a8137111))
+* **ci:** add staging and prod environments to Github Actions workflow ([7761672](https://github.com/vegito-app/local/commit/7761672f7ed19cadff5285cad39275e9ddc1a5bf))
+* **docker:** add option to enable RAM builder in Docker buildx ([6c9ede0](https://github.com/vegito-app/local/commit/6c9ede0e1cc688a1ac22d1af2c90662f200e7266))
+* **docker:** add vegito-example-application-services-ci to local-services-ci group ([159ff53](https://github.com/vegito-app/local/commit/159ff5344cbcaeba7d48b209bcd0e91261b78b08))
+* **docker:** enable local-android-flutter-ci target in bake file ([99dae0c](https://github.com/vegito-app/local/commit/99dae0ca0a2ba7bcf1988363d619c7e258c14062))
+* **docker:** streamline CI Docker images build process ([5ae43bf](https://github.com/vegito-app/local/commit/5ae43bf821b03ca16a73a8e64e6c434bd69f3994))
+* **frontend-build:** migrate to server-side rendering (SSR) ([4640d6c](https://github.com/vegito-app/local/commit/4640d6c65990a64f31a0cdbd2c801137dffd780f))
+* **github-actions:** change 'echo' to 'printf' for new changelogs in version-changelog.yml ([dbaefbf](https://github.com/vegito-app/local/commit/dbaefbfa4f83f312af15194e042fbd3be23731a5))
+* **github-actions:** configure git user for standard-version in version-changelog.yml ([c9b2cfb](https://github.com/vegito-app/local/commit/c9b2cfb71e0fb0b636f017cd2d1df68e2dbe6f59))
+* **github-workflows:** enhance versioning process with accurate commit SHA ([b24972c](https://github.com/vegito-app/local/commit/b24972c64b115021bb82a5b3164c2950c901493c))
+* **release-workflow:** enhance release note generation with security metadata ([dd0b780](https://github.com/vegito-app/local/commit/dd0b7803a109160ee259d4e75c33f7f37dd1aaca))
+
+
+### Bug Fixes
+
+* **docker:** rename 'example-applications' to 'vegito-example-application-applications' ([aeb07e8](https://github.com/vegito-app/local/commit/aeb07e870541f368657f79073303fb65ec417106))
+
 ## [1.17.0](https://github.com/vegito-app/local/compare/v1.16.0...v1.17.0) (2026-04-01)
 
 

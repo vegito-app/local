@@ -101,11 +101,13 @@ LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
 
 # Ajout d'un context docker distant pour le Mac
 local-docker-context-arm:
+	@echo "🔨  Creating buildx context $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME)"
 	@docker context inspect $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	docker context create $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
 .PHONY: local-docker-context-arm
 
 local-docker-context-arm-rm:
+	@echo "🔨  Removing buildx context $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME)"
 	@docker context rm $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) || true
 .PHONY: local-docker-context-arm-rm
 
@@ -116,18 +118,26 @@ local-docker-clean-all:
 	  docker-local-buildx-cache-clean
 .PHONY: local-docker-clean-all
 
+
+LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
+
+ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER),true)
+LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
+endif
+
 LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
 
 local-docker-buildx-setup:
+	@echo "🔨  Creating buildx context $(LOCAL_DOCKER_BUILDX_NAME)"
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
-	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
-	    --driver docker-container \
-	    --use \
-	    --platform linux/amd64; \
+	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	  --driver docker-container \
+	  --use \
+	  $(LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	  --platform linux/amd64; \
 	}
-
 ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	@$(MAKE) docker-context-arm
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
@@ -142,10 +152,12 @@ endif
 .PHONY: local-docker-buildx-setup
 
 local-docker-buildx-rm:
+	@echo "🔨  Removing buildx context $(LOCAL_DOCKER_BUILDX_NAME)"
 	@-docker buildx rm $(LOCAL_DOCKER_BUILDX_NAME)
 .PHONY: local-docker-buildx-rm
 
 local-docker-buildx-clean:
+	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@docker buildx prune --all --force
 .PHONY: local-docker-buildx-clean
 

@@ -20,10 +20,10 @@ export
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
-  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT=target:local-android-flutter-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT=target:local-android-appium-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT=target:local-project-builder-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT=target:local-robotframework-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker-bake.hcl \

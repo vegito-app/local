@@ -215,7 +215,7 @@ cat <<'EOF' > $backendLaunchDebug
                 "GCLOUD_PROJECT_ID": "${GOOGLE_CLOUD_PROJECT_ID}",
                 "FRONTEND_BUILD_DIR": "../frontend/build",
                 "FRONTEND_PUBLIC_DIR": "../frontend/public",
-                "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build/bundle.js",
+                "UI_JAVASCRIPT_SOURCE_FILE": "../frontend/build-ssr/bundle.js",
                 "FIRESTORE_EMULATOR_HOST": "localhost:8090",
                 "VAULT_ADDR": "http://localhost:8200",
                 "VAULT_TOKEN": "root",
