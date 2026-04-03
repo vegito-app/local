@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/vegito-app/example-application/compare/v1.6.1...v1.7.0) (2026-04-03)
+
+
+### Features
+
+* **build-system:** support server-side rendering with updated build path ([a39aa3f](https://github.com/vegito-app/example-application/commit/a39aa3f6411c886857bf44cd62152704e059d830))
+
+
+### Bug Fixes
+
+* **tests-build:** update Robot Framework context variable names ([a8fe8fc](https://github.com/vegito-app/example-application/commit/a8fe8fc5bd1c87623bb3eaf105f74434da41d9bf))
+
 ### [1.6.1](https://github.com/vegito-app/example-application/compare/v1.6.0...v1.6.1) (2026-03-31)
 
 ## [1.6.0](https://github.com/vegito-app/example-application/compare/v1.5.0...v1.6.0) (2026-03-31)

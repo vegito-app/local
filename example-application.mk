@@ -64,6 +64,11 @@ $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=vegito-%-ci)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 
+example-application-release-ci:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push vegito-example-application-release-ci
+.PHONY: example-application-release-ci
+
 example-application-docker-tags-list-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-list-ci)
 .PHONY: example-application-docker-tags-list-ci
 

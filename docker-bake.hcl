@@ -71,6 +71,13 @@ group "vegito-example-application-applications-ci" {
   ]
 }
 
+group "vegito-example-application-release-ci" {
+  targets = [
+    "vegito-example-application-services-ci",
+    "vegito-example-application-applications-ci"
+  ]
+}
+
 variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
 }
