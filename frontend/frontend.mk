@@ -9,7 +9,7 @@ example-application-frontend-build-client: $(VEGITO_EXAMPLE_APPLICATION_FRONTEND
 
 $(FRONTEND_BUILD_DIR): example-application-frontend-build
 
-UI_JAVASCRIPT_SOURCE_FILE = $(VEGITO_EXAMPLE_APPLICATION_FRONTEND_DIR)/build/bundle.js
+UI_JAVASCRIPT_SOURCE_FILE = $(VEGITO_EXAMPLE_APPLICATION_FRONTEND_DIR)/build-ssr/bundle.js
 
 example-application-frontend-build-server: $(UI_JAVASCRIPT_SOURCE_FILE)
 .PHONY: example-application-frontend-build-server

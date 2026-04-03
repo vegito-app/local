@@ -74,12 +74,13 @@ group "vegito-example-application-applications-ci" {
 variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
 }
+
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
   default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT" {
-  default = "docker-image://${EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION}"
+variable "EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT" {
+  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
@@ -104,10 +105,13 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI" {
+  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+}
 
 target "vegito-example-application-builder" {
   contexts = {
-    builder = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
+    builder = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
   }
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   dockerfile = "Dockerfile"
@@ -136,7 +140,7 @@ target "vegito-example-application-builder-version-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   contexts = {
-    builder = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI
   }
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
@@ -145,14 +149,15 @@ target "vegito-example-application-builder-version-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
   ]
-  cache-to = []
+  cache-to  = []
+  platforms = platforms
 }
 
 target "vegito-example-application-builder-latest-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   contexts = {
-    builder = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI
   }
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST
