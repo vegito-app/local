@@ -42,6 +42,10 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI" {
+  default = "target:vegito-example-application-builder-version-ci"
+}
+
 group "vegito-example-application-backend-ci" {
   targets = [
     "vegito-example-application-backend-version-ci",
@@ -55,7 +59,7 @@ target "vegito-example-application-backend-version-ci" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = "target:vegito-example-application-builder-version-ci"
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
@@ -77,7 +81,7 @@ target "vegito-example-application-backend-latest-ci" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = "target:vegito-example-application-builder-version-ci"
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST,
@@ -101,7 +105,7 @@ target "vegito-example-application-backend" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = "target:vegito-example-application-builder-version-ci"
+    gobuilder   = "docker-image://${EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION}"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
