@@ -3,7 +3,7 @@ LOCAL_FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
 FIREBASE_EMULATORS = cd $(LOCAL_FIREBASE_EMULATORS_DIR) && firebase
 # This is a comma separated list of emulator names.
 # Valid options are: ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
-FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub,database
+LOCAL_FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub,database
 LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/auth_functions
 LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
 LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
@@ -39,7 +39,7 @@ local-firebase-emulators-start: local-firebase-emulators-install local-firebase-
 	  --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
 	  --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \
 	  --log-verbosity DEBUG \
-	  --only $(FIREBASE_EMULATORS_SERVICES)
+	  --only $(LOCAL_FIREBASE_EMULATORS_SERVICES)
 .PHONY: local-firebase-emulators-start
 
 local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-container-up local-firebase-emulators-container-logs
