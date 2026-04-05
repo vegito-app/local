@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.20.0](https://github.com/vegito-app/local/compare/v1.19.1...v1.20.0) (2026-04-05)
+
+
+### Features
+
+* **devops:** improve customization and consistency in container setups ([c1cd4f1](https://github.com/vegito-app/local/commit/c1cd4f161d81b149e841d67454c0df3478c6a26d))
+* **docker:** Enable Docker Buildx for MacOS in Makefile ([adff393](https://github.com/vegito-app/local/commit/adff393c615046782c52c9c96ee6562d7cdb4a55))
+* **Dockerfile:** enhance permissions management and directory creation for non-root user ([e3c6b06](https://github.com/vegito-app/local/commit/e3c6b06f8e577d20b3b4fc5439048aac972202ad))
+
+
+### Bug Fixes
+
+* **docker:** update docker context command in buildx setup ([3ce7624](https://github.com/vegito-app/local/commit/3ce7624e536f81d84dce9a3b2456be731752aab3))
+
 ### [1.19.1](https://github.com/vegito-app/local/compare/v1.19.0...v1.19.1) (2026-04-03)
 
 ## [1.19.0](https://github.com/vegito-app/local/compare/v1.18.0...v1.19.0) (2026-04-03)
