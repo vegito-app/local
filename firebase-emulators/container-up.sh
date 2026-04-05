@@ -3,7 +3,7 @@
 set -euo pipefail
 
 CONTAINER_NAME="firebase-emulators"
-PORTS_TO_WAIT_FOR=${PORTS_TO_WAIT_FOR:-"4000 5001 8085 8090 9099 9000 9199"}
+PORTS_TO_WAIT_FOR=${LOCAL_FIREBASE_EMULATORS_PORTS_TO_WAIT_FOR:-"4000 5001 8085 8090 9099 9000 9199"}
 
 # Convert space-separated string to bash array
 read -ra PORTS <<< "$PORTS_TO_WAIT_FOR"
