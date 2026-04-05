@@ -9,18 +9,14 @@ endif
 
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
-# Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION ?= v1.19.0
-
-LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):robotframework-$(LOCAL_VERSION)
-
 export
 
--include gcloud.mk
 -include example-application.mk
+-include local.mk
+-include gcloud.mk
+-include git.mk
 -include nodejs.mk
 -include go.mk
--include git.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
