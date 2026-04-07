@@ -54,12 +54,12 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
 
--include gcloud.mk
--include go.mk
--include nodejs.mk
--include android.mk
 -include local.mk
+-include gcloud.mk
+-include android.mk
 -include git.mk
+-include nodejs.mk
+-include go.mk
 
 LOCAL_GO_MODULES += \
  $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
@@ -165,14 +165,5 @@ test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
 .PHONY: test-local
 
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
-	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" ; \
-	done
-.PHONY: docker-build-tags-list-ci-md
+docker-tags-md-ci: docker-build-tags-list-ci-md
+.PHONY: docker-tags-md-ci

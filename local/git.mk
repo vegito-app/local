@@ -40,8 +40,8 @@ git-subtree-gcloud-push:
 	@echo "Gcloud subtree pushed successfully."
 .PHONY: git-subtree-gcloud-push
 
-GOOGLE_CLOUD_DIR := $(LOCAL_DIR)/gcloud
--include $(GOOGLE_CLOUD_DIR)/gcloud.mk
+VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
+-include $(VEGITO_GCLOUD_DIR)/gcloud.mk
 # ------------------------------------------
 
 # ------------------------------------------

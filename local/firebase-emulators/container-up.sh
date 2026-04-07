@@ -3,7 +3,10 @@
 set -euo pipefail
 
 CONTAINER_NAME="firebase-emulators"
-PORTS_TO_WAIT_FOR=(4000 5001 8085 8090 9099 9000 9199)
+PORTS_TO_WAIT_FOR=${LOCAL_FIREBASE_EMULATORS_PORTS_TO_WAIT_FOR:-"4000 5001 8085 8090 9099 9000 9199"}
+
+# Convert space-separated string to bash array
+read -ra PORTS <<< "$PORTS_TO_WAIT_FOR"
 
 bg_pids=()
 compose_pid=
@@ -25,7 +28,7 @@ compose_pid=$!
 
 # Start waiting for ports in a background subshell
 {
-  for port in "${PORTS_TO_WAIT_FOR[@]}"; do
+  for port in "${PORTS[@]}"; do
     until nc -z $CONTAINER_NAME $port; do
       echo "⏳ Waiting for $CONTAINER_NAME on port $port..."
       sleep 1

@@ -67,12 +67,12 @@ Authentication with `gcloud` can be done in two ways:
 
 ---
 
-### ⚠️ Important — Set `PROJECT_USER` in `.env`
+### ⚠️ Important — Set `VEGITO_PROJECT_USER` in `.env`
 
-To ensure service account (SA) names are generated correctly, you must define the `PROJECT_USER` variable in your local `.env` file, for example:
+To ensure service account (SA) names are generated correctly, you must define the `VEGITO_PROJECT_USER` variable in your local `.env` file, for example:
 
 ```dotenv
-PROJECT_USER=david-berichon
+VEGITO_PROJECT_USER=david-berichon
 ```
 
 > 🐳 This `.env` file is automatically propagated into the environment after rebuilding the container (`Rebuild Container` via DevContainer), followed by a `make dev`.
