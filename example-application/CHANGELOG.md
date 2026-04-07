@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.2](https://github.com/vegito-app/example-application/compare/v1.7.1...v1.7.2) (2026-04-07)
+
+
+### Bug Fixes
+
+* **docker:** ensure permissions and directory creation for Go cache ([f49ec7b](https://github.com/vegito-app/example-application/commit/f49ec7bb86cd690012c5816a47a0ca80d5112260))
+* **security:** patch CVE-2026-34986 in go-jose (DoS via JWE panic) ([08927e5](https://github.com/vegito-app/example-application/commit/08927e5296617b37f1d3c61120a3d429810cb446))
+
 ### [1.7.1](https://github.com/vegito-app/example-application/compare/v1.7.0...v1.7.1) (2026-04-03)
 
 ## [1.7.0](https://github.com/vegito-app/example-application/compare/v1.6.1...v1.7.0) (2026-04-03)
