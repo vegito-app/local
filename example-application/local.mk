@@ -71,6 +71,6 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 # Android High-Level targets
 -include $(LOCAL_DIR)/android.mk
 
-GOOGLE_CLOUD_DIR ?= $(LOCAL_DIR)/gcloud
--include $(GOOGLE_CLOUD_DIR)/gcloud.mk
+VEGITO_GCLOUD_DIR ?= $(LOCAL_DIR)/gcloud
+-include $(VEGITO_GCLOUD_DIR)/gcloud.mk
 # ----------------------------------------------------------
