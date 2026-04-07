@@ -35,6 +35,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          git config --global user.name "GitHub Action"
+          git config --global user.email "build-and-push-images-action@github.com"
+
           git fetch --tags
 
           echo "🔧 Running standard-version (source of truth)"
