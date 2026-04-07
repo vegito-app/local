@@ -1,5 +1,5 @@
 # Version of the vegito-app/local development environment images to use:
-LOCAL_VERSION ?= v1.20.0
+LOCAL_VERSION ?= v1.20.1
 # ------------------------------------------
 # Subtree ./local
 # ___________________________________________
