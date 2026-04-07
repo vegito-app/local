@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.21.0](https://github.com/vegito-app/local/compare/v1.20.2...v1.21.0) (2026-04-07)
+
+
+### Features
+
+* **trivy:** move environment variables to docker-compose file ([4719ca3](https://github.com/vegito-app/local/commit/4719ca3d37118bf70dd90d51c1467be70c962ec1))
+
 ### [1.20.2](https://github.com/vegito-app/local/compare/v1.20.1...v1.20.2) (2026-04-07)
 
 ### [1.20.1](https://github.com/vegito-app/local/compare/v1.20.0...v1.20.1) (2026-04-07)
