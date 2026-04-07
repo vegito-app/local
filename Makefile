@@ -54,12 +54,12 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
 
--include gcloud.mk
--include go.mk
--include nodejs.mk
--include android.mk
 -include local.mk
+-include gcloud.mk
+-include android.mk
 -include git.mk
+-include nodejs.mk
+-include go.mk
 
 LOCAL_GO_MODULES += \
  $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)

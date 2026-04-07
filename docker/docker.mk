@@ -151,7 +151,7 @@ local-docker-buildx-setup:
 	  --platform linux/amd64; \
 	}
 ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
-	@$(MAKE) docker-context-arm
+	@$(MAKE) local-docker-context-arm
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	  docker buildx create \
 	    --append \
