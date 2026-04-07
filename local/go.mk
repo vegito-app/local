@@ -15,7 +15,8 @@ endif
 
 LOCAL_GO_MODULES ?= \
 	$(LOCAL_DIR)/firebase-emulators/auth_functions \
-	$(LOCAL_DIR)/proxy
+	$(LOCAL_DIR)/proxy \
+	$(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
 
 local-go-mod-tidy: $(LOCAL_GO_MODULES:%=local-go-%-mod-tidy)
 .PHONY: local-go-mod-tidy
