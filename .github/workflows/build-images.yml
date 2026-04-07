@@ -8,7 +8,10 @@ on:
       environment:
         required: true
         type: string
-
+      has_mobile:
+        required: false
+        type: boolean
+        default: true
       env_bucket_map:
         description: "YAML mapping of environment to release bucket"
         required: false
@@ -200,6 +203,7 @@ jobs:
           gcloud storage cp build-metadata.json ${BASE}/build-metadata.json
 
   upload-android-artifacts:
+    if: inputs.has_mobile == true
     needs: build-and-push
     name: Upload Android Release Artifacts for ${{ inputs.environment }} 🧱
     runs-on: self-hosted
