@@ -112,9 +112,9 @@ LOCAL_GITHUB_ACT_SECRET_FILE ?= $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret
 
 $(LOCAL_GITHUB_ACT_SECRET_FILE):
 	@-rm -f $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>&1
-	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
-	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/staging/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
-	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/prod/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
+	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
+	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/staging/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
+	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/prod/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
 
 LOCAL_GITHUB_WORKFLOWS := \
   dev.yml \

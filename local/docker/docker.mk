@@ -86,18 +86,6 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
 
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
-	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" ; \
-	done
-.PHONY: docker-build-tags-list-ci-md
-
 local-docker-images-release-ci:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release-ci
@@ -151,7 +139,7 @@ local-docker-buildx-setup:
 	  --platform linux/amd64; \
 	}
 ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
-	@$(MAKE) local-docker-context-arm
+	@$(MAKE) docker-context-arm
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	  docker buildx create \
 	    --append \

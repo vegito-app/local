@@ -2,16 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [1.19.1](https://github.com/vegito-app/local/compare/v1.19.0...v1.19.1) (2026-04-03)
-
-## [1.19.0](https://github.com/vegito-app/local/compare/v1.18.0...v1.19.0) (2026-04-03)
-
-
-### Features
-
-* **docker:** add new targets to local-release-ci group ([10ab452](https://github.com/vegito-app/local/commit/10ab4525ea30dd871771a0ba56a3cc770a952e52))
-* **github-actions:** integrate application-pipeline locally ([cfa0d1e](https://github.com/vegito-app/local/commit/cfa0d1ec85cf491b3d23b7d630e39516789cfeea))
-
 ## [1.18.0](https://github.com/vegito-app/local/compare/v1.17.0...v1.18.0) (2026-04-03)
 
 

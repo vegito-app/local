@@ -201,8 +201,6 @@ group "local-applications-ci" {
 
 group "local-release-ci" {
   targets = [
-    "local-runners-ci",
-    "local-builders-ci",
     "local-services-ci",
     "local-applications-ci"
   ]

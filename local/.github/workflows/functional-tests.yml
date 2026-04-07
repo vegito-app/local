@@ -20,11 +20,6 @@ on:
         type: string
         default: "android-studio-emulator"
 
-      has_mobile:
-        required: false
-        type: boolean
-        default: true
-
       env_bucket_map:
         description: "YAML mapping of environment to release bucket"
         required: false
@@ -120,24 +115,22 @@ jobs:
             make local-container-config-show
             make dev-ci
           ) 2>&1 | tee setup.log
-
       - name: Run Application Tests
         run: |
           set -euo pipefail
           make functional-tests-ci 2>&1 | tee tests.log
 
       - name: Generate Mobile Preview Screenshot
-        if: inputs.has_mobile == true
         run: |
           make application-mobile-screenshot
           mv ${{ env.LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH }} android-mobile-preview.png
 
       - name: Upload Mobile Preview Screenshot to GCS
-        if: inputs.has_mobile == true
         env:
           VERSION: ${{ env.VERSION }}
           BUCKET: ${{ steps.resolve_bucket.outputs.bucket }}
           PREFIX: ${{ inputs.release_bucket_prefix }}
+
         run: |
           gs_path="gs://${BUCKET}/${PREFIX}/${VERSION}"
           DEST="${gs_path}/android-mobile-preview.png"
