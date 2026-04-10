@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_EMULATOR_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE" {

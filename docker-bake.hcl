@@ -1,9 +1,3 @@
-variable "USE_REGISTRY_CACHE" {
-  default = false
-}
-variable "ENABLE_LOCAL_CACHE" {
-  default = false
-}
 variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
 }
@@ -13,7 +7,7 @@ variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
 }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}"
 }
 
 variable "LOCAL_BUILDER_IMAGE_LATEST" {
@@ -28,7 +22,7 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
   default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder"
 }
 
-variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
+variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   description = "local write cache for clarinet image build"
   default     = "type=local,mode=max,dest=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
@@ -69,11 +63,18 @@ target "local-project-builder-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      "type=local,src=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ}"
+    ] : [],
     [
       "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -105,6 +106,9 @@ target "local-project-builder-latest-ci" {
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      "type=local,src=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ}"
+    ] : [],
     [
       "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
@@ -112,7 +116,6 @@ target "local-project-builder-latest-ci" {
   )
   cache-to = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline",
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
   ]
   platforms = platforms
 }
@@ -142,12 +145,12 @@ target "local-project-builder" {
     LOCAL_BUILDER_IMAGE_VERSION
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
@@ -157,7 +160,6 @@ target "local-project-builder" {
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE,
-      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
     ] : []
   )
 }

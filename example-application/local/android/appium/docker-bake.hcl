@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_APPIUM_IMAGE_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {

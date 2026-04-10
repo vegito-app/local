@@ -1,5 +1,5 @@
 variable "LOCAL_CLARINET_DEVNET_IMAGE_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
@@ -45,11 +45,13 @@ target "local-clarinet-devnet-ci" {
     LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
   cache-from = concat(
-    [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
@@ -57,7 +59,11 @@ target "local-clarinet-devnet-ci" {
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -78,11 +84,13 @@ target "local-clarinet-devnet-latest-ci" {
     LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
   ]
   cache-from = concat(
-    [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
@@ -90,9 +98,14 @@ target "local-clarinet-devnet-latest-ci" {
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -114,12 +127,12 @@ target "local-clarinet-devnet" {
     LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ] : [],
     [
       "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
@@ -127,6 +140,11 @@ target "local-clarinet-devnet" {
     ]
   )
   cache-to = concat(
-    ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE] : []
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
   )
 }

@@ -1,7 +1,7 @@
 
 
 variable "LOCAL_TRIVY_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-${VERSION}"
 }
 
 variable "LOCAL_TRIVY_IMAGE_LATEST" {

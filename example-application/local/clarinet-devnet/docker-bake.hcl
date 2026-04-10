@@ -1,5 +1,5 @@
 variable "LOCAL_CLARINET_DEVNET_IMAGE_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
