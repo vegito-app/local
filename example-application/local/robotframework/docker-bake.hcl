@@ -3,7 +3,7 @@ variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGES_BASE" {
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST" {

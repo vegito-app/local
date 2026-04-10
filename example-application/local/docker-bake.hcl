@@ -13,7 +13,7 @@ variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
 }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}"
 }
 
 variable "LOCAL_BUILDER_IMAGE_LATEST" {

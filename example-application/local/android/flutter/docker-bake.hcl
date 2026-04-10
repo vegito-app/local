@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_FLUTTER_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_LATEST" {

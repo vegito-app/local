@@ -4,7 +4,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-${VERSION}" 
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST" {
@@ -107,14 +107,25 @@ target "vegito-example-application-mobile" {
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}" : "",
-    VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : []
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : [],
+  )
 }
 
 target "vegito-example-application-mobile-ci" {
@@ -144,11 +155,22 @@ target "vegito-example-application-mobile-ci" {
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}",
-  ]
-  platforms = ["linux/amd64"]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : [],
+  )
 }
 
 target "vegito-example-application-mobile-latest-ci" {
@@ -178,12 +200,24 @@ target "vegito-example-application-mobile-latest-ci" {
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = ["linux/amd64"]
 }

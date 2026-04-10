@@ -3,7 +3,7 @@ variable "LOCAL_ANDROID_STUDIO_DIR" {
 }
 
 variable "LOCAL_ANDROID_STUDIO_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {

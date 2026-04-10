@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_APPIUM_IMAGE_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
@@ -45,12 +45,19 @@ target "local-android-appium-ci" {
       "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -67,14 +74,22 @@ target "local-android-appium-latest-ci" {
       "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
     ]
   )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -88,12 +103,12 @@ target "local-android-appium" {
     LOCAL_ANDROID_APPIUM_IMAGE_VERSION,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
