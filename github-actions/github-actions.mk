@@ -110,8 +110,6 @@ local-github-actions-runner-container-rm: local-github-actions-runner-remove-tok
 LOCAL_GITHUB_WORKFLOWS_DIR ?= $(LOCAL_DIR)/.github-actions/github-actionsworkflows/
 LOCAL_GITHUB_ACT_SECRET_FILE ?= $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret
 
-INFRA_DIR ?= $(VEGITO_INFRA_DIR)
-
 $(LOCAL_GITHUB_ACT_SECRET_FILE):
 	@-rm -f $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>&1
 	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
