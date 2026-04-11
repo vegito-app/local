@@ -1,4 +1,4 @@
-LOCAL_DOCKER_COMPOSE_VSCODE = $(LOCAL_DOCKER_COMPOSE) \
+LOCAL_DOCKER_COMPOSE_VSCODE ?= $(LOCAL_DOCKER_COMPOSE) \
 	-f $(CURDIR)/.devcontainer/docker-compose.yml \
 	-f $(CURDIR)/.devcontainer/docker-compose-vscode.yml
 
@@ -17,7 +17,7 @@ ensure-vscode-store-volume:
 	@echo "✅ Ensured VSCode store volume exists."
 .PHONY: ensure-vscode-store-volume
 
-LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES = $(LOCAL_DOCKER_COMPOSE) \
+LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES ?= $(LOCAL_DOCKER_COMPOSE) \
 	-f $(CURDIR)/.devcontainer/docker-compose.yml \
 	-f $(CURDIR)/.devcontainer/docker-compose-vscode-codespaces.yml
 
@@ -40,7 +40,7 @@ docker-buildx-setup-github-codespaces:
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=1048576 \
 	  --use
 	@-docker buildx inspect --bootstrap
-.PHONY: docker-buildx-setup-github-codespaces
+.PHONY: local-docker-buildx-setup-github-codespaces
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= $(LOCAL_DOCKER_COMPOSE_SERVICES)
 

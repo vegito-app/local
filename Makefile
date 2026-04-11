@@ -17,37 +17,22 @@ VERSION ?= $(LOCAL_VERSION)
 
 export
 
-INFRA_PROJECT_NAME := moov
-
-DEV_GOOGLE_CLOUD_PROJECT_ID := moov-dev-439608
-
-DEV_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-dev
-DEV_GOOGLE_CLOUD_PROJECT_ID     ?= $(DEV_GOOGLE_CLOUD_PROJECT_NAME)-439608
-DEV_GOOGLE_CLOUD_PROJECT_NUMBER ?= 203475703228
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
-PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
-PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 
-LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake \
-	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker-bake.hcl \
-	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
-	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
-	-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-	$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+LOCAL_DOCKER_BUILDX_BAKE ?= \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
+  docker buildx bake \
+  -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker-bake.hcl \
+  $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
+  $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+  -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
+  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
@@ -69,8 +54,9 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
 
--include android.mk
 -include local.mk
+-include gcloud.mk
+-include android.mk
 -include git.mk
 -include nodejs.mk
 -include go.mk
@@ -93,10 +79,10 @@ node-modules: local-node-modules
 dotenv: local-dotenv
 .PHONY: dotenv
 
-images: docker-images
+images: local-docker-images
 .PHONY: images
 
-images-ci: docker-images-ci
+images-ci: local-docker-images-release-ci
 .PHONY: images-ci
 
 images-pull: \
@@ -179,14 +165,5 @@ test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
 .PHONY: test-local
 
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
-	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" ; \
-	done
-.PHONY: docker-build-tags-list-ci-md
+docker-tags-md-ci: docker-build-tags-list-ci-md
+.PHONY: docker-tags-md-ci

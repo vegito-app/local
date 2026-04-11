@@ -13,9 +13,9 @@ export WORKING_DIR=${PWD}
 envrcFile=${WORKING_DIR}/.devcontainer/.envrc
 
 echo "Initializing .envrc file"
-if [ ! -f ${envrcFile} ] ; then
+
 # Note: This file is sourced by the devcontainer, do not put any commands that have side effects here.
-cat <<'EOF' > ${envrcFile}
+[ -f ${envrcFile} ] || cat <<'EOF' > ${envrcFile}
 # Developer local settings keeper file.
 #
 # In case you want to regenerate the .env, .docker-compose-services.override.yml, etc.
@@ -41,7 +41,6 @@ cat <<'EOF' > ${envrcFile}
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
 export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
 EOF
-fi
 
 . ${envrcFile}
 
@@ -105,4 +104,3 @@ settingsFile=${PWD}/.vscode/settings.json
     ]
 }
 EOF
-fi

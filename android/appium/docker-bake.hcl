@@ -32,9 +32,16 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
 }
 
-target "local-android-appium-ci" {
+group "local-android-appium-ci" {
+  targets = [
+    "local-android-appium-version-ci",
+    "local-android-appium-latest-ci"
+  ]
+}
+
+target "local-android-appium-version-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-ci"
+    builder_image = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -63,7 +70,7 @@ target "local-android-appium-ci" {
 
 target "local-android-appium-latest-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-ci"
+    builder_image = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [

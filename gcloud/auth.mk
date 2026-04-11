@@ -1,4 +1,4 @@
-GOOGLE_APPLICATION_CREDENTIALS ?= $(GOOGLE_CLOUD_DIR)/gcloud-credentials.json
+GOOGLE_APPLICATION_CREDENTIALS ?= $(VEGITO_GCLOUD_DIR)/gcloud-credentials.json
 
 gcloud-application-credentials: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@echo "✅ Application credentials are ready at $<"
@@ -13,9 +13,9 @@ gcloud-application-credentials: $(GOOGLE_APPLICATION_CREDENTIALS)
 PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT ?=  10
 
 $(GOOGLE_APPLICATION_CREDENTIALS):
-	@echo "🔐 Generating application credentials for service account $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
+	@echo "🔐 Generating application credentials for service account $(VEGITO_GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."
 	@$(GCLOUD) iam service-accounts keys create $(GOOGLE_APPLICATION_CREDENTIALS) \
-	  --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)  \
+	  --iam-account=$(VEGITO_GCLOUD_DEVELOPER_SERVICE_ACCOUNT)  \
 	&& if [ !  -f $(GOOGLE_APPLICATION_CREDENTIALS) ] ; then \
 	  echo Check if you do not have more than $(PRIVATE_KEYS_PER_SERVICE_ACCOUNT_PROJECT_LIMIT)	keys in use: ; \
 	  echo \* 👉 check limit exceeded: \'make gcloud-user-iam-sa-keys-list\'. ; \
@@ -34,12 +34,12 @@ gcloud-auth-reset:
 .PHONY: gcloud-auth-reset
 
 gcloud-auth-login-sa:
-	@if [ ! -f $(GOOGLE_APPLICATION_CREDENTIALS) ]; then \
+	if [ ! -f $(GOOGLE_APPLICATION_CREDENTIALS) ]; then \
 	  echo "🔐 No existing SA key found, logging in as user..."; \
 	  gcloud auth login --project=$(GOOGLE_CLOUD_PROJECT_ID); \
-	  echo "🔑 Creating key for $(GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."; \
+	  echo "🔑 Creating key for $(VEGITO_GCLOUD_DEVELOPER_SERVICE_ACCOUNT)..."; \
 	  gcloud iam service-accounts keys create $(GOOGLE_APPLICATION_CREDENTIALS) \
-	    --iam-account=$(GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
+	    --iam-account=$(VEGITO_GCLOUD_DEVELOPER_SERVICE_ACCOUNT) \
 	    --project=$(GOOGLE_CLOUD_PROJECT_ID); \
 	fi
 	@echo "✅ Activating service account credentials..."; \
@@ -86,13 +86,13 @@ ROOT_ADMIN_SERVICE_ACCOUNT = root-admin@$(GOOGLE_CLOUD_PROJECT_ID).iam.gservicea
 # set INFRA_ENV=prod in the environment to use root admin service account
 gcloud-root-admin-credentials:
 	INFRA_ENV=prod \
-	GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
+	VEGITO_GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
 	$(MAKE) gcloud-application-credentials
 .PHONY: gcloud-root-admin-credentials
 
 # set INFRA_ENV=prod in the environment to use root admin service account
 gcloud-root-admin-credentials-revoke:
-	@GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
+	@VEGITO_GCLOUD_DEVELOPER_SERVICE_ACCOUNT=$(ROOT_ADMIN_SERVICE_ACCOUNT) \
 	$(MAKE) gcloud-user-iam-sa-keys-clean-all
 .PHONY: gcloud-root-admin-credentials-revoke
 

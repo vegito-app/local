@@ -1,5 +1,7 @@
 VEGITO_EXAMPLE_APPLICATION_DIR ?= $(CURDIR)
 
+VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/example-application
+
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/frontend/frontend.mk
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/backend/backend.mk
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/mobile/mobile.mk
@@ -23,7 +25,7 @@ EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS ?= \
 example-application-docker-images-host-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%)
 .PHONY: example-application-docker-images-host-arch
 
-$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=example-application-%): docker-buildx-setup
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=example-application-%): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%=vegito-%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%=vegito-%)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=example-application-%)
@@ -33,7 +35,7 @@ EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
   services \
   applications
 
-$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci): docker-buildx-setup
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $@
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $@
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci)
@@ -49,23 +51,28 @@ EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES ?= \
 example-application-docker-images: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 .PHONY: example-application-docker-images
 
-$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image): docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image): local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=vegito-%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=vegito-%)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 
 example-application-docker-images-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 .PHONY: example-application-docker-images-ci
 
-$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): docker-buildx-setup
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=vegito-%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=vegito-%-ci)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 
+example-application-release-ci:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push vegito-example-application-release-ci
+.PHONY: example-application-release-ci
+
 example-application-docker-tags-list-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-list-ci)
 .PHONY: example-application-docker-tags-list-ci
 
-$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-ci): docker-buildx-setup
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-ci): local-docker-buildx-setup
 	@$($(LOCAL_DOCKER_BUILDX_BAKE)) --print $(@:vegito-%-docker-tags=%-ci) 2>/dev/null \
 	| jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
@@ -73,7 +80,7 @@ $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-t
 example-application-docker-scan-tags-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci)
 .PHONY: example-application-docker-scan-tags-ci
 
-$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci): docker-buildx-setup
+$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci): local-docker-buildx-setup
 	@echo "Running Trivy scan for image: $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):$(@:%-docker-scan-tags-ci=%)-$(VERSION)"
 	@echo "Report: $(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html"
 	@$(MAKE) local-trivy-image-scan \
@@ -101,11 +108,9 @@ $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-con
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
 	  LOCAL_ANDROID_GPU_MODE=swiftshader_indirect \
-	  $(LOCAL_DEV_CONTAINER_RUN) \
+	  $(LOCAL_DEV_CONTAINER_RUN_CI) \
 	    make $(@:%-ci=%) \
-	      LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME) \
-	      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-backend-$(VERSION) \
-	      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
+	      VERSION=$(VERSION)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-up-ci)
 
 example-application-containers-logs: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-container-logs)
@@ -150,7 +155,7 @@ $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-con
 
 $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull):
 	@echo Pulling the container image for $(@:%-image-pull=%)
-	$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
+	@$(LOCAL_DOCKER_COMPOSE) pull $(@:%-image-pull=%)
 .PHONY: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull)
 
 example-application-docker-compose-images-pull: $(VEGITO_EXAMPLE_APPLICATION_DOCKER_COMPOSE_SERVICES:%=example-application-%-image-pull)
@@ -184,11 +189,9 @@ $(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci): l
 	@echo "Using builder image: $(LOCAL_BUILDER_IMAGE_VERSION)"
 	@LOCAL_BUILDER_IMAGE=$(LOCAL_BUILDER_IMAGE_VERSION) \
 	  LOCAL_ANDROID_GPU_MODE=swiftshader_indirect \
-	  $(LOCAL_DEV_CONTAINER_RUN) \
+	  $(LOCAL_DEV_CONTAINER_RUN_CI) \
 	    make example-application-containers-$(@:example-application-containers-%-ci=%) \
-	      LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME) \
-	      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-backend-$(VERSION) \
-	      VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-mobile-$(VERSION)
+	      VERSION=$(VERSION)
 .PHONY: $(LOCAL_CONTAINERS_GROUP_OPERATIONS_CI:%=example-application-containers-%-ci)
 
 example-application-docker-images-push-parallel: 
@@ -198,5 +201,5 @@ example-application-docker-images-push-parallel:
 
 example-application-docker-group-tags-list-ci: 
 	@echo "Listing all tags for example-application docker images in CI..." >&2
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: example-application-docker-group-tags-list-ci

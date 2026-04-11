@@ -3,14 +3,19 @@ const path = require('path');
 
 
 module.exports = {
-    target: 'web',
+    target: 'node',
   entry: './src/serverEntry.js',
 
-  mode: 'development',  
+  mode: 'production',  
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'build'),
-    publicPath: '/ui/', // note the trailing slash
+    path: path.resolve(__dirname, 'build-ssr'),
+    publicPath: '/ui/',
+    globalObject: 'global',
+    chunkLoading: 'require',
+  },
+  optimization: {
+    runtimeChunk: false,
   },
   module: {
     rules: [

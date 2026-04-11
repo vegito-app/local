@@ -1,4 +1,3 @@
-GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 GCLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
 # Use this target to configure the Docker pluggin of Vscode if credential-helper cannot help.
@@ -51,5 +50,5 @@ $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%):
 	@PROJECT=$(GOOGLE_CLOUD_PROJECT_ID) \
 	  REGION=$(GOOGLE_CLOUD_REGION) \
 	  REPO=$(GCLOUD_PROJECT_DOCKER_REGISTRY)/$(@:gcloud-docker-registry-cleanup-%=%) \
-	  $(GOOGLE_CLOUD_DIR)/docker-registry-cleanup.sh
+	  $(VEGITO_GCLOUD_DIR)/docker-registry-cleanup.sh
 .PHONY: $(GCLOUD_DOCKER_REPOSITORIES:%=gcloud-docker-registry-cleanup-%)

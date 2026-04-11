@@ -4,19 +4,19 @@ LOCAL_GITHUB_ACTIONS_DIR ?= $(CURDIR)
 LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):github-actions-runner-$(VERSION)
 
 # Build image for local run. This target will not push an image to the distant registry.
-local-github-actions-runner-image: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+local-github-actions-runner-image: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-github-actions-runner
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-github-actions-runner
 .PHONY: local-github-actions-runner-image
 
 # Build image for local run and push it.
-local-github-actions-runner-image-push: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) docker-buildx-setup
+local-github-actions-runner-image-push: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-github-actions-runner
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-github-actions-runner
 .PHONY: local-github-actions-runner-image-push
 
 # This target will build and push a multi architecture image.
-local-github-actions-runner-image-ci: docker-buildx-setup
+local-github-actions-runner-image-ci: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-github-actions-runner-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-github-actions-runner-ci
 .PHONY: local-github-actions-runner-image-ci
@@ -112,9 +112,9 @@ LOCAL_GITHUB_ACT_SECRET_FILE ?= $(LOCAL_GITHUB_WORKFLOWS_DIR)/.secret
 
 $(LOCAL_GITHUB_ACT_SECRET_FILE):
 	@-rm -f $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>&1
-	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
-	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/staging/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
-	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(INFRA_DIR)/environments/prod/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
+	@-echo DEV_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE)
+	@-echo STAGING_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/staging/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null 
+	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/prod/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
 
 LOCAL_GITHUB_WORKFLOWS := \
   dev.yml \

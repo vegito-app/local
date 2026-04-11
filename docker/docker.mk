@@ -1,4 +1,3 @@
-GOOGLE_CLOUD_REGION ?= europe-west1
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
 VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
@@ -38,7 +37,7 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
 docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
 .PHONY: docker-images
 
-$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-images=local-%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
@@ -79,13 +78,30 @@ $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
 # Build all images (CI)
 # In this variant, images are built and pushed to the remote registry.
 # Groups are built sequentially to ensure each image uses the latest version of its base image.
-docker-images-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
-.PHONY: docker-images-ci
+local-docker-images-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
+.PHONY: local-docker-images-ci
 
-$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
+
+docker-build-tags-list-ci-md:
+	@echo "### 🐳 Docker Images Built (excluding latest):"
+	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
+	  echo "#### Group: '$$group'" ; \
+	 $(MAKE) local-$$group-docker-group-tags-list-ci \
+	 | grep -vE 'latest$$' \
+	 | grep -v 'make\[1\]\:' \
+	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
+	  echo "" ; \
+	done
+.PHONY: docker-build-tags-list-ci-md
+
+local-docker-images-release-ci:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release-ci
+.PHONY: local-docker-images-release-ci
 
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
@@ -96,36 +112,46 @@ LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
 
 # Ajout d'un context docker distant pour le Mac
-docker-context-arm:
+local-docker-context-arm:
+	@echo "🔨  Creating buildx context $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME)"
 	@docker context inspect $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	docker context create $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
-.PHONY: docker-context-arm
+.PHONY: local-docker-context-arm
 
-docker-context-arm-rm:
+local-docker-context-arm-rm:
+	@echo "🔨  Removing buildx context $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME)"
 	@docker context rm $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) || true
-.PHONY: docker-context-arm-rm
+.PHONY: local-docker-context-arm-rm
 
-docker-clean-all:
+local-docker-clean-all:
 	@$(MAKE) -j \
 	  docker-clean \
 	  docker-buildx-clean \
 	  docker-local-buildx-cache-clean
-.PHONY: docker-clean-all
+.PHONY: local-docker-clean-all
+
+
+LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
+
+ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER),true)
+LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
+endif
 
 LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
 
-docker-buildx-setup:
+local-docker-buildx-setup:
+	@echo "🔨  Creating buildx context $(LOCAL_DOCKER_BUILDX_NAME)"
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
-	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
-	    --driver docker-container \
-	    --use \
-	    --platform linux/amd64; \
+	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	  --driver docker-container \
+	  --use \
+	  $(LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	  --platform linux/amd64; \
 	}
-
 ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
-	@$(MAKE) docker-context-arm
+	@$(MAKE) local-docker-context-arm
 	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	  docker buildx create \
 	    --append \
@@ -135,17 +161,19 @@ ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 endif
 
 	@docker buildx inspect --bootstrap
-.PHONY: docker-buildx-setup
+.PHONY: local-docker-buildx-setup
 
-docker-buildx-rm:
+local-docker-buildx-rm:
+	@echo "🔨  Removing buildx context $(LOCAL_DOCKER_BUILDX_NAME)"
 	@-docker buildx rm $(LOCAL_DOCKER_BUILDX_NAME)
-.PHONY: docker-buildx-rm
+.PHONY: local-docker-buildx-rm
 
-docker-buildx-clean:
+local-docker-buildx-clean:
+	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@docker buildx prune --all --force
-.PHONY: docker-buildx-clean
+.PHONY: local-docker-buildx-clean
 
-docker-local-buildx-cache-clean: 
+local-docker-local-buildx-cache-clean: 
 	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@bash -c '\
 	  for i in $$(find . -name "docker-buildx-cache" -type d) ; do \
@@ -154,4 +182,4 @@ docker-local-buildx-cache-clean:
 		rm -rf $$i ; \
 	  done \
 	'
-.PHONY: docker-local-buildx-cache-clean
+.PHONY: local-docker-local-buildx-cache-clean

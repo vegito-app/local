@@ -1,8 +1,0 @@
-*credentials.json
-vscode*
-gitleaks-report.json
-.vscode
-._*
-.containers
-.env
-.envrc

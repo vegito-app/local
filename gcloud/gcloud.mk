@@ -1,13 +1,13 @@
-GOOGLE_CLOUD_DIR ?= $(CURDIR)
+VEGITO_GCLOUD_DIR ?= $(CURDIR)
 
 GCLOUD ?= gcloud --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
--include $(GOOGLE_CLOUD_DIR)/auth.mk
--include $(GOOGLE_CLOUD_DIR)/compute.mk
--include $(GOOGLE_CLOUD_DIR)/docker.mk
--include $(GOOGLE_CLOUD_DIR)/firebase.mk
--include $(GOOGLE_CLOUD_DIR)/iam.mk
--include $(GOOGLE_CLOUD_DIR)/user.mk
+-include $(VEGITO_GCLOUD_DIR)/auth.mk
+-include $(VEGITO_GCLOUD_DIR)/compute.mk
+-include $(VEGITO_GCLOUD_DIR)/docker.mk
+-include $(VEGITO_GCLOUD_DIR)/firebase.mk
+-include $(VEGITO_GCLOUD_DIR)/iam.mk
+-include $(VEGITO_GCLOUD_DIR)/user.mk
 
 gcloud-project-set:
 	@echo "🔧 Configuring current project to $(GOOGLE_CLOUD_PROJECT_ID)."
