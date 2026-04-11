@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_EMULATOR_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE" {
@@ -53,11 +53,18 @@ target "local-android-emulator-version-ci" {
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -74,14 +81,22 @@ target "local-android-emulator-latest-ci" {
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}",
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -96,12 +111,12 @@ target "local-android-emulator" {
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",

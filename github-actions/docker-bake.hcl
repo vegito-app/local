@@ -1,13 +1,9 @@
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-${VERSION}"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-latest"
-}
-
-variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
@@ -63,11 +59,22 @@ target "local-github-actions-runner-version-ci" {
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}" : "",
-    "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
-  ]
-  cache-to  = []
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
@@ -90,13 +97,25 @@ target "local-github-actions-runner-latest-ci" {
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}" : "",
-    "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max" : "type=inline"
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -120,12 +139,23 @@ target "local-github-actions-runner" {
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE}" : "",
-    LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max" : LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
 }

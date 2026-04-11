@@ -7,7 +7,6 @@ variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE" {
-  # default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:tests-${VERSION}" : ""
   default = "${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE}-${VERSION}"
 }
 
@@ -54,30 +53,22 @@ target "vegito-example-application-tests-version-ci" {
   tags = [
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}",
-  ]
-  cache-to  = []
-  platforms = platforms
-}
-
-target "vegito-example-application-tests-latest-ci" {
-  contexts = {
-    robotframework = VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI
-  }
-  context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
-  dockerfile = "Dockerfile"
-  tags = [
-    VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST,
-  ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -91,12 +82,54 @@ target "vegito-example-application-tests" {
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE,
     VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : "",
-    VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}",
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
+}
+
+target "vegito-example-application-tests-latest-ci" {
+  contexts = {
+    robotframework = VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI
+  }
+  context    = VEGITO_EXAMPLE_APPLICATION_TESTS_DIR
+  dockerfile = "Dockerfile"
+  tags = [
+    VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST,
   ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}" : VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : []
+  )
+  platforms = platforms
 }

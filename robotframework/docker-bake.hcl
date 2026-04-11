@@ -3,7 +3,7 @@ variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGES_BASE" {
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST" {
@@ -48,11 +48,18 @@ target "local-robotframework-version-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
@@ -68,6 +75,9 @@ target "local-robotframework-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
@@ -90,11 +100,11 @@ target "local-robotframework" {
     LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"

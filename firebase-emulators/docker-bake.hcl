@@ -1,5 +1,5 @@
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-${VERSION}"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST" {
@@ -44,6 +44,9 @@ target "local-firebase-emulators-version-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
@@ -53,7 +56,11 @@ target "local-firebase-emulators-version-ci" {
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
@@ -70,6 +77,9 @@ target "local-firebase-emulators-latest-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
@@ -79,9 +89,14 @@ target "local-firebase-emulators-latest-ci" {
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -96,11 +111,11 @@ target "local-firebase-emulators" {
     LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"

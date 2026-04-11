@@ -1,7 +1,5 @@
-
-
 variable "LOCAL_TRIVY_IMAGE_VERSION" {
-  default = notequal("latest", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-${VERSION}"
 }
 
 variable "LOCAL_TRIVY_IMAGE_LATEST" {
@@ -18,6 +16,10 @@ variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
 
 variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
   default = "type=local,mode=max,dest=${LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 group "local-trivy-ci" {
@@ -43,11 +45,18 @@ target "local-trivy-version-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_TRIVY_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
@@ -66,6 +75,9 @@ target "local-trivy-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_TRIVY_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
@@ -91,11 +103,11 @@ target "local-trivy" {
     LOCAL_TRIVY_IMAGE_VERSION,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_TRIVY_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
       "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
