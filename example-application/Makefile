@@ -9,33 +9,14 @@ endif
 
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
-# Version of the vegito-app/local development environment images to use.
-LOCAL_VERSION ?= v1.17.0
-
 export
 
-INFRA_PROJECT_NAME := moov
-
-DEV_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-dev
-DEV_GOOGLE_CLOUD_PROJECT_ID     ?= $(DEV_GOOGLE_CLOUD_PROJECT_NAME)-439608
-DEV_GOOGLE_CLOUD_PROJECT_NUMBER ?= 203475703228
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
-PROD_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)
-PROD_GOOGLE_CLOUD_PROJECT_ID     ?= $(PROD_GOOGLE_CLOUD_PROJECT_NAME)-438615
-PROD_GOOGLE_CLOUD_PROJECT_NUMBER ?= 378762893981
-
-STAGING_GOOGLE_CLOUD_PROJECT_NAME   ?= $(INFRA_PROJECT_NAME)-staging
-STAGING_GOOGLE_CLOUD_PROJECT_ID     ?= $(STAGING_GOOGLE_CLOUD_PROJECT_NAME)-440506
-STAGING_GOOGLE_CLOUD_PROJECT_NUMBER ?= 326118600145
-
 -include example-application.mk
+-include local.mk
+-include gcloud.mk
+-include git.mk
 -include nodejs.mk
 -include go.mk
--include git.mk
 
 node-modules: local-node-modules
 .PHONY: node-modules
@@ -46,15 +27,18 @@ dotenv: example-application-dotenv
 images: example-application-docker-images-host-arch
 .PHONY: images
 
-images-ci: \
-vegito-example-application-builders-ci \
-example-application-docker-images-multi-arch
+images-ci: example-application-release-ci
 .PHONY: images-ci
 
-images-pull: \
+images-pull-ci: \
 local-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
+
+images-pull-ci:
+	@$(MAKE) images-pull \
+	  LOCAL_DOCKER_COMPOSE_SERVICES=$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)
+.PHONY: images-pull-ci
 
 images-push: \
 local-docker-images-push \
@@ -76,7 +60,7 @@ local-android-containers-rm
 .PHONY: dev-rm
 
 dev-ci: \
-images-pull \
+images-pull-ci \
 local-containers-up-ci \
 example-application-backend-container-up-ci \
 example-application-mobile-container-up-ci \
@@ -128,11 +112,5 @@ application-mobile-dump: example-application-mobile-dump
 	@echo "✅ Dumped mobile application successfully."
 .PHONY: application-mobile-dum
 
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@$(MAKE) example-application-docker-group-tags-list-ci 2>/dev/null \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" 
-.PHONY: docker-build-tags-list-ci-md
+docker-tags-md-ci: docker-build-tags-list-ci-md
+.PHONY: docker-tags-md-ci

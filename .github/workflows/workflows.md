@@ -1,19 +1,19 @@
 # 🌱 Vegito CI/CD Workflow Template – `main-release-template.yml`
 
-Ce fichier décrit le fonctionnement et les possibilités de réutilisation du workflow GitHub Actions `main-release-template.yml` présent dans ce dépôt.
+This document describes how the `main-release-template.yml` GitHub Actions workflow works and how it can be reused across repositories.
 
 ---
 
-## 🔁 Réutilisation du Workflow
+## 🔁 Workflow Reusability
 
-Le workflow `main-release-template.yml` a été conçu pour être **réutilisé par tous les dépôts de l'organisation `vegito-app`**, et notamment ceux disposant :
+The `main-release-template.yml` workflow is designed to be **reused across all repositories in the `vegito-app` organization**, especially those that include:
 
-- d'un Makefile compatible (`build-release-images`, `extract-release-artifacts`, etc.)
-- d'un projet backend (Go, Cloud Run)
-- d'un projet mobile (Flutter, Android)
-- d'une logique de tagging (`standard-version`) et de publication
+- a compatible Makefile (`build-release-images`, `extract-release-artifacts`, etc.)
+- a backend project (Go, Cloud Run)
+- a mobile project (Flutter, Android)
+- a release/tagging logic (`standard-version` or equivalent)
 
-### 📦 Exemple d'utilisation dans un dépôt externe :
+### 📦 Example usage in an external repository:
 
 ```yml
 # .github/workflows/deploy.yml
@@ -36,27 +36,76 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-⸻
+---
 
-### 🚀 Fonctionnement Général
+## 🚀 General Workflow Overview
 
-Le workflow est structuré autour des étapes suivantes :
+The workflow is structured around the following steps:
 
-    1. 🐳 Build des images Docker multi-env
-    2. 📱 Extraction d’artefacts Android (APK, AAB)
-    3. 📝 Génération automatique de changelog (CHANGELOG.md)
-    4. 🏷️ Création d’une release GitHub incluant les artefacts
-    5. ☁️ Publication des métadonnées sur Google Cloud Storage (GCS)
-    6. 🧼 Nettoyage des conteneurs et environnements temporaires
+1. 🐳 Build multi-environment Docker images
+2. 📱 Extract Android artifacts (APK, AAB)
+3. 📝 Automatically generate changelog (`CHANGELOG.md`)
+4. 🏷️ Create a GitHub release including artifacts
+5. ☁️ Publish metadata to Google Cloud Storage (GCS)
+6. 🧼 Cleanup temporary containers and environments
 
-Chaque environnement (dev, staging, prod) utilise ses propres secrets et configurations injectées automatiquement.
+Each environment (dev, staging, prod) uses its own configuration and secrets.
 
-⸻
+---
 
-### 🔎 Accès aux Releases publiées
+## 🔎 Access to Published Releases
 
-Les versions publiées, leurs artefacts, les changelogs, les APK et les tags Docker sont disponibles sur la page publique :
+Published versions, artifacts, changelogs, APKs, and Docker tags are available at:
 
 🔗 https://release.vegito.app
 
-Cette page est générée à partir des fichiers index.json et metadata.json poussés dans GCS par ce workflow.
+This page is generated from `index.json` and `metadata.json` files pushed to GCS by this workflow.
+
+---
+
+## 🧠 Design Philosophy
+
+### [application-pipeline.yml](application-pipeline.yml)
+This workflow is intentionally kept **simple, generic, and agnostic**.
+
+It acts as a **wrapper (or orchestration layer)** around reusable internal workflows.
+
+### Key principles:
+
+- ❌ No complex business logic in this wrapper
+- ❌ No public/private release handling logic here
+- ❌ No repository-specific behavior
+
+- ✅ Reusable core logic lives in dedicated workflows:
+  - `version-finalize.yml`
+  - `version-metadata.yml`
+  - other specialized workflows
+
+- ✅ This file only orchestrates execution
+
+---
+
+## 🔧 Customization Strategy
+
+If a repository requires specific behavior (for example: filtered public releases, custom metadata, or additional steps):
+
+👉 It is expected to:
+
+- either **compose additional jobs around this workflow**
+- or **create a custom wrapper workflow**
+
+This keeps the base workflow:
+
+- stable
+- maintainable
+- reusable across all projects
+
+---
+
+## 📌 Summary
+
+This workflow is a **thin abstraction layer** that:
+
+- standardizes CI/CD across Vegito projects
+- delegates complex logic to reusable components
+- avoids over-engineering and conditional complexity

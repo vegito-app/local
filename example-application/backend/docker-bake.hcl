@@ -9,11 +9,11 @@ variable "VERSION" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-backend"
+  default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}:backend"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE" {
-  default = notequal("dev", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-backend-${VERSION}" 
+  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE}-${VERSION}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
@@ -21,11 +21,15 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
-  default = "${EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}/cache/example-application-backend"
+  default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE}/backend"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_DIR}/backend/.containers/buildx-cache"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend"
+  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_DIR}/backend"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -38,14 +42,24 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "vegito-example-application-backend-ci" {
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI" {
+  default = "target:vegito-example-application-builder-version-ci"
+}
+
+group "vegito-example-application-backend-ci" {
+  targets = [
+    "vegito-example-application-backend-version-ci",
+    "vegito-example-application-backend-latest-ci",
+  ]
+}
+
+target "vegito-example-application-backend-version-ci" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
-  }
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
+    approot     = VEGITO_EXAMPLE_APPLICATION_DIR
+    appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    local       = LOCAL_DIR
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
@@ -75,11 +89,10 @@ target "vegito-example-application-backend-ci" {
 target "vegito-example-application-backend-latest-ci" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
-  }
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
+    approot     = VEGITO_EXAMPLE_APPLICATION_DIR
+    appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    local       = LOCAL_DIR
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST,
@@ -112,11 +125,10 @@ target "vegito-example-application-backend-latest-ci" {
 target "vegito-example-application-backend" {
   context = VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR
   contexts = {
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
-    "appfrontend" : "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
-  }
-  args = {
-    builder_image = LOCAL_BUILDER_IMAGE_VERSION
+    approot     = VEGITO_EXAMPLE_APPLICATION_DIR
+    appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
+    local       = LOCAL_DIR
+    gobuilder   = "docker-image://${EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION}"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,

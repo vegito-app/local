@@ -67,13 +67,15 @@ L’authentification `gcloud` peut se faire de deux manières :
 
 ---
 
-### ⚠️ Important — Définir `PROJECT_USER` dans `.env`
+### ⚠️ Important — Définir `VEGITO_PROJECT_USER` dans `.env`
 
-Pour que les noms des comptes de service (SA) soient correctement générés, tu dois définir la variable `PROJECT_USER` dans le fichier `.env` local, par exemple :
+Pour que les noms des comptes de service (SA) soient correctement générés, tu dois définir la variable `VEGITO_PROJECT_USER` dans le fichier `.env` local, par exemple :
 
-VEGITO_PROJECT_USER=user-id
+VEGITO_VEGITO_PROJECT_USER=user-id
+
 ```
 
 > 🐳 Ce fichier `.env` est propagé automatiquement à l’environnement après une reconstruction du conteneur (`Rebuild Container` via DevContainer) suivie d’un `make dev`.
 
 Sans cette variable, les commandes peuvent générer des identifiants erronés comme `user-id-here-dev@...`, entraînant des erreurs `NOT_FOUND: Unknown service account`.
+```

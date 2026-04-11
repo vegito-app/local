@@ -132,13 +132,9 @@ group "local-dockerhub" {
 group "local-dockerhub-ci" {
   targets = [
     "local-debian-ci",
-    "local-debian-latest-ci",
     "local-docker-dind-rootless-ci",
-    "local-docker-dind-rootless-latest-ci",
     "local-golang-alpine-ci",
-    "local-golang-alpine-latest-ci",
     "local-rust-ci",
-    "local-rust-latest-ci",
   ]
 }
 
@@ -155,7 +151,6 @@ group "local-runners-ci" {
     "local-android-runners-ci",
     "local-project-builder-ci",
     "local-trivy-ci",
-    "local-trivy-latest-ci",
   ]
 }
 
@@ -169,7 +164,6 @@ group "local-builders" {
 group "local-builders-ci" {
   targets = [
     "vegito-example-application-builder-ci",
-    "vegito-example-application-builder-latest-ci",
     "local-android-builders-ci",
   ]
 }
@@ -189,27 +183,32 @@ group "local-services-ci" {
   targets = [
     "local-android-services-ci",
     "local-clarinet-devnet-ci",
-    "local-clarinet-devnet-latest-ci",
     "local-firebase-emulators-ci",
-    "local-firebase-emulators-latest-ci",
     "local-github-actions-runner-ci",
-    "local-github-actions-runner-latest-ci",
     "local-vault-dev-ci",
-    "local-vault-dev-latest-ci",
     "local-robotframework-ci",
-    "local-robotframework-latest-ci",
+    "vegito-example-application-services-ci",
   ]
 }
 
 group "local-applications" {
   targets = [
-    "example-applications",
+    "vegito-example-application-applications",
   ]
 }
 
 group "local-applications-ci" {
   targets = [
     "vegito-example-application-applications-ci",
+  ]
+}
+
+group "local-release-ci" {
+  targets = [
+    "local-runners-ci",
+    "local-builders-ci",
+    "local-services-ci",
+    "local-applications-ci"
   ]
 }
 
@@ -222,19 +221,19 @@ variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
 }
 
 variable "LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/debian"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian"
 }
 
 variable "LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/golang-alpine"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/golang-alpine"
 }
 
 variable "LOCAL_RUST_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/rust"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/rust"
 }
 
 variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/cache/docker-dind-rootless"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/docker-dind-rootless"
 }
 
 variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -249,8 +248,14 @@ variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default = "type=local,src=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
+group "local-docker-dind-rootless-ci" {
+  targets = [
+    "local-docker-dind-rootless-version-ci",
+    "local-docker-dind-rootless-latest-ci",
+  ]
+}
 
-target "local-docker-dind-rootless-ci" {
+target "local-docker-dind-rootless-version-ci" {
   tags = [
     DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
@@ -343,7 +348,14 @@ variable "LOCAL_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
 }
 
-target "local-debian-ci" {
+group "local-debian-ci" {
+  targets = [
+    "local-debian-version-ci",
+    "local-debian-latest-ci",
+  ]
+}
+
+target "local-debian-version-ci" {
   tags = [
     LOCAL_DEBIAN_IMAGE_LATEST,
     LOCAL_DEBIAN_IMAGE_VERSION,
@@ -436,7 +448,14 @@ variable "LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default = "type=local,src=${LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "local-golang-alpine-ci" {
+group "local-golang-alpine-ci" {
+  targets = [
+    "local-golang-alpine-version-ci",
+    "local-golang-alpine-latest-ci",
+  ]
+}
+
+target "local-golang-alpine-version-ci" {
   tags = [
     GO_IMAGE_VERSION,
   ]
@@ -527,7 +546,14 @@ variable "LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default = "type=local,src=${LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "local-rust-ci" {
+group "local-rust-ci" {
+  targets = [
+    "local-rust-version-ci",
+    "local-rust-latest-ci",
+  ]
+}
+
+target "local-rust-version-ci" {
   tags = [
     RUST_IMAGE_VERSION,
   ]

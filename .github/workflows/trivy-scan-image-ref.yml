@@ -50,9 +50,9 @@ on:
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN:
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
         required: true
-      WORKLOAD_IDENTITY_PROVIDER:
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
         required: true
 
 jobs:
@@ -61,8 +61,8 @@ jobs:
     environment: ${{ inputs.environment }}
     name: Trivy Scan (${{ inputs.environment }})
     env:
-      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       VERSION: ${{ inputs.version }}
       INFRA_ENV: ${{ inputs.environment }}
@@ -76,8 +76,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN }}
+          workload_identity_provider: ${{ env.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
           project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: access_token
           export_environment_variables: true

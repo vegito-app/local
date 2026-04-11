@@ -28,9 +28,16 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default     = "type=local,src=${LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "local-robotframework-ci" {
+group "local-robotframework-ci" {
+  targets = [
+    "local-robotframework-version-ci",
+    "local-robotframework-latest-ci",
+  ]
+}
+
+target "local-robotframework-version-ci" {
   contexts = {
-    debian_image = "target:local-debian-ci"
+    debian_image = "target:local-debian-version-ci"
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"

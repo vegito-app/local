@@ -3,16 +3,20 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR" {
   default     = "${VEGITO_EXAMPLE_APPLICATION_DIR}/mobile"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}:mobile"
+}
+
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-${VERSION}" 
+  default = "${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE}-${VERSION}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:example-application-mobile-latest"
+  default = "${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE}-latest"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile"
+  default = "${VEGITO_EXAMPLE_APPLICATION_DIR}/mobile/.containers/buildx-cache"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -25,13 +29,8 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
   default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_STUDIO_IMAGE" {
-  description = "Android Studio image to use for mobile application builds"
-  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest"
-}
-
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/example-application-mobile"
+  default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE}/mobile"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
@@ -44,12 +43,12 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST" {
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE" {
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${LOCAL_VERSION}"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE_LATEST" {
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE_LATEST" {
   description = "Android Studio image to use for mobile application builds"
   default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
 }
@@ -71,21 +70,30 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME" {
   description = "Alias name for the Android release keystore"
-  default     = "vegito-example-application-local-release"
+  default     = "vegito-local-release"
 }
+
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME" {
   description = "Package name for the Android application"
   default     = "${INFRA_ENV}.vegito.app.android"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI" {
+  description = "Builder context (target:... or docker-image://...)"
+  default     = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI" {
+  description = "Runner context (target:... or docker-image://...)"
+  default     = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE}"
+}
+
 target "vegito-example-application-mobile" {
   args = {
-    apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
-    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
-    version                 = VERSION
-    android_package_name    = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
-    environment             = INFRA_ENV
-    keystore_alias_name     = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME
+    version              = VERSION
+    android_package_name = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
+    environment          = INFRA_ENV
+    keystore_alias_name  = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME
   }
 
   secret = [
@@ -100,8 +108,11 @@ target "vegito-example-application-mobile" {
   ]
   context = VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR
   contexts = {
-    "android" : LOCAL_ANDROID_DIR
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
+    android = LOCAL_ANDROID_DIR
+    approot = VEGITO_EXAMPLE_APPLICATION_DIR
+    local   = LOCAL_DIR
+    builder = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE}"
+    runner  = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE}"
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
@@ -128,14 +139,19 @@ target "vegito-example-application-mobile" {
   )
 }
 
-target "vegito-example-application-mobile-ci" {
+group "vegito-example-application-mobile-ci" {
+  targets = [
+    "vegito-example-application-mobile-version-ci",
+    "vegito-example-application-mobile-latest-ci",
+  ]
+}
+
+target "vegito-example-application-mobile-version-ci" {
   args = {
-    apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
-    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
-    version                 = VERSION
-    android_package_name    = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
-    environment             = INFRA_ENV
-    keystore_alias_name     = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME
+    version              = VERSION
+    android_package_name = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
+    environment          = INFRA_ENV
+    keystore_alias_name  = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME
   }
   secret = [
     {
@@ -149,8 +165,11 @@ target "vegito-example-application-mobile-ci" {
   ]
   context = VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR
   contexts = {
-    "android" : LOCAL_ANDROID_DIR
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
+    android = LOCAL_ANDROID_DIR
+    approot = VEGITO_EXAMPLE_APPLICATION_DIR
+    local   = LOCAL_DIR
+    builder = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI
+    runner  = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_TAG,
@@ -175,8 +194,7 @@ target "vegito-example-application-mobile-ci" {
 
 target "vegito-example-application-mobile-latest-ci" {
   args = {
-    apk_builder_image       = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE
-    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_APPIUM_IMAGE
+    apk_runner_appium_image = VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE
     version                 = VERSION
     android_package_name    = VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME
     environment             = INFRA_ENV
@@ -194,8 +212,11 @@ target "vegito-example-application-mobile-latest-ci" {
   ]
   context = VEGITO_EXAMPLE_APPLICATION_MOBILE_DIR
   contexts = {
-    "android" : LOCAL_ANDROID_DIR
-    "approot" : VEGITO_EXAMPLE_APPLICATION_DIR
+    android = LOCAL_ANDROID_DIR
+    approot = VEGITO_EXAMPLE_APPLICATION_DIR
+    local   = LOCAL_DIR
+    builder = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI
+    runner  = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,

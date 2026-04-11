@@ -10,32 +10,38 @@ on:
 
 jobs:
   pipeline:
-    uses: vegito-app/local/.github/workflows/application-pipeline.yml@main
+    uses: ./.github/workflows/application-pipeline.yml
 
     with:
       environment: dev
       functional_tests_dir: tests/output
-      images_to_scan: '["example-application-backend"]'
-      project: vegito-local
+      images_to_scan: '["backend"]'
+      project: example-application
       android_release_keystore_path: mobile/android/release-key.keystore
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
-      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE }}
+        staging: vegito-app-staging-github-actions-ci-artifacts
+        prod: vegito-app-prod-github-actions-ci-artifacts
+      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
       FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
+      # Main Service Account
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER: github-actions-release-reader@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      # Release Reader Service Account
+      RELEASE_READER_GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
+      RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GCP_RELEASE_READER_PROJECT_ID }}
+      RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.RELEASE_READER_GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
 
   build-staging-prod:
     name: Build Images
     needs: pipeline
-    uses: vegito-app/local/.github/workflows/build-images.yml@main
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.19.0
 
     strategy:
       matrix:
@@ -45,6 +51,7 @@ jobs:
       version: ${{ needs.pipeline.outputs.version }}
       environment: ${{ matrix.environment }}
       android_release_keystore_path: mobile/android/release-key.keystore
+      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
 
       env_bucket_map: |
         staging: vegito-app-staging-github-actions-ci-artifacts
@@ -56,5 +63,5 @@ jobs:
       FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_MAIN: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-      WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

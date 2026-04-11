@@ -43,12 +43,23 @@ on:
           staging: vegito-app-staging-github-actions-ci-artifacts-private
           dev: vegito-app-dev-github-actions-ci-artifacts-private
 
+      commit_sha:
+        description: "Commit SHA of the release commit"
+        type: string
+        required: true
+
+      public_release:
+        description: "Optional public release body"
+        type: string
+        required: false
+        default: ""
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
-      WORKLOAD_IDENTITY_PROVIDER:
+      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
         required: true
-      GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER:
+      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
         required: true
 
 permissions:
@@ -71,8 +82,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SA_KEY_GITHUB_ACTIONS_RELEASE_READER }}
+          workload_identity_provider: ${{ secrets.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
           project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
@@ -97,6 +108,7 @@ jobs:
             [[ -z "$bucket" ]] && continue
 
             OBJECT="gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/RELEASE_BODY.md"
+            SECURITY_OBJECT="gs://${bucket}/${{ inputs.release_bucket_prefix }}/${{ inputs.version }}/security/security-metadata.json"
 
             echo "→ Checking ${OBJECT}"
 
@@ -108,41 +120,97 @@ jobs:
               echo "⚠️ No metadata found for ${env} (${OBJECT})"
             fi
 
+            if gcloud storage ls "$SECURITY_OBJECT" >/dev/null 2>&1; then
+              echo "🔐 Found ${env} security metadata"
+              gcloud storage cp "$SECURITY_OBJECT" "./release-notes/SECURITY-${env}.json"
+              files+=("./release-notes/SECURITY-${env}.json")
+            else
+              echo "⚠️ No security metadata found for ${env} (${SECURITY_OBJECT})"
+            fi
+
           done <<< "${{ inputs.env_bucket_map }}"
 
           echo "📝 Generating final release body..."
 
-          printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
-          {
-            echo ""
-            echo "---"
-            echo ""
-            echo "## 🌍 Consolidated Environment Metadata"
-            echo ""
-          } >> ./release-notes/FINAL_RELEASE_BODY.md
-
-          for file in "${files[@]}"; do
-            env="${file##*/RELEASE_BODY-}"
-            env="${env%.md}"
-
+          if [ -n "${{ inputs.public_release }}" ]; then
             {
-              echo "### ${env}"
+              echo "## 📦 Release ${{ inputs.version }}"
               echo ""
-              cat "$file"
+              echo "### ✨ Changes"
+              echo ""
+              printf "%s\n" "${{ inputs.changelog }}"
+              echo ""
+              echo "---"
+              echo "### 🏗️ Infrastructure"
+              printf "%s\n" "${{ inputs.public_release }}"
+            } > ./release-notes/FINAL_RELEASE_BODY.md
+          else
+            printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          fi
+
+          if [ -z "${{ inputs.public_release }}" ]; then
+            {
+              echo ""
+              echo "---"
+              echo ""
+              echo "## 🌍 Consolidated Environment Metadata"
               echo ""
             } >> ./release-notes/FINAL_RELEASE_BODY.md
-          done
+          fi
 
-      - name: Create final release commit and tag 🏷
+          if ! command -v jq >/dev/null 2>&1; then
+            echo "⚠️ jq not found, raw JSON will be displayed"
+          fi
+
+          if [ -z "${{ inputs.public_release }}" ]; then
+            for file in "${files[@]}"; do
+              filename="$(basename "$file")"
+
+              if [[ "$filename" == RELEASE_BODY-* ]]; then
+                env="${filename#RELEASE_BODY-}"
+                env="${env%.md}"
+
+                {
+                  echo "### ${env}"
+                  echo ""
+                  cat "$file"
+                  echo ""
+                } >> ./release-notes/FINAL_RELEASE_BODY.md
+
+              elif [[ "$filename" == SECURITY-* ]]; then
+                env="${filename#SECURITY-}"
+                env="${env%.json}"
+
+                REPORT_URL=$(jq -r '.securityReport' "$file" 2>/dev/null || echo "")
+
+                {
+                  echo "#### 🔐 Security Report (${env})"
+                  echo ""
+                  if [ -n "$REPORT_URL" ]; then
+                    echo "- 🔍 [View Trivy Report](${REPORT_URL})"
+                  else
+                    echo "- ⚠️ Unable to parse security metadata"
+                    echo "\n\n\`\`\`json"
+                    cat "$file"
+                    echo "\n\`\`\`"
+                  fi
+                  echo ""
+                } >> ./release-notes/FINAL_RELEASE_BODY.md
+
+              fi
+            done
+          fi
+
+      - name: Checkout release commit 🏷
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "build-and-push-images-action@github.com"
+          git fetch --tags
+          git checkout ${{ inputs.commit_sha }}
 
-          standard-version
-
-      - name: Push commit and tag
+      - name: Push commit to branch
         run: |
-          git push origin HEAD --follow-tags
+          git push origin HEAD:${{ inputs.release_branch }} --follow-tags
 
       - name: Create GitHub Release ✨
         uses: softprops/action-gh-release@v2

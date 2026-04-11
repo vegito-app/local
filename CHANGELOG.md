@@ -2,6 +2,97 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.21.0](https://github.com/vegito-app/local/compare/v1.20.2...v1.21.0) (2026-04-08)
+
+
+### Features
+
+* **workflows:** add option for public release details in version-finalize.yml ([e8ab099](https://github.com/vegito-app/local/commit/e8ab099ab7f8e848c6b597a1d9ce37d931561d63))
+
+### [1.20.2](https://github.com/vegito-app/local/compare/v1.20.1...v1.20.2) (2026-04-07)
+
+### [1.20.1](https://github.com/vegito-app/local/compare/v1.20.0...v1.20.1) (2026-04-07)
+
+## [1.20.0](https://github.com/vegito-app/local/compare/v1.19.1...v1.20.0) (2026-04-07)
+
+
+### Features
+
+* **devops:** improve customization and consistency in container setups ([c1cd4f1](https://github.com/vegito-app/local/commit/c1cd4f161d81b149e841d67454c0df3478c6a26d))
+* **Dockerfile:** enhance permissions management and directory creation for non-root user ([e3c6b06](https://github.com/vegito-app/local/commit/e3c6b06f8e577d20b3b4fc5439048aac972202ad))
+* **github-actions:** add conditional mobile workflows ([f30ed68](https://github.com/vegito-app/local/commit/f30ed68c61f9723d7a137ec10ac3764b9f3eab3e))
+
+
+### Bug Fixes
+
+* **docker:** update docker context command in buildx setup ([3ce7624](https://github.com/vegito-app/local/commit/3ce7624e536f81d84dce9a3b2456be731752aab3))
+* **security:** patch CVE-2026-34986 in go-jose (DoS via JWE panic) ([e7861c1](https://github.com/vegito-app/local/commit/e7861c1c7e22610b0c197e647fafe7150b0356ca))
+
+### [1.19.1](https://github.com/vegito-app/local/compare/v1.19.0...v1.19.1) (2026-04-03)
+
+## [1.19.0](https://github.com/vegito-app/local/compare/v1.18.0...v1.19.0) (2026-04-03)
+
+
+### Features
+
+* **docker:** add new targets to local-release-ci group ([10ab452](https://github.com/vegito-app/local/commit/10ab4525ea30dd871771a0ba56a3cc770a952e52))
+* **github-actions:** integrate application-pipeline locally ([cfa0d1e](https://github.com/vegito-app/local/commit/cfa0d1ec85cf491b3d23b7d630e39516789cfeea))
+
+## [1.18.0](https://github.com/vegito-app/local/compare/v1.17.0...v1.18.0) (2026-04-03)
+
+
+### Features
+
+* **build-context:** use dynamic context for Dockerfile build ([31dd964](https://github.com/vegito-app/local/commit/31dd9644f43ee7b79484ec513042537f50677d96))
+* **ci/cd:** add environment and release bucket mapping to GitHub application pipeline ([d43cc49](https://github.com/vegito-app/local/commit/d43cc4936a4726cc22425f60930dae98a8137111))
+* **ci:** add staging and prod environments to Github Actions workflow ([7761672](https://github.com/vegito-app/local/commit/7761672f7ed19cadff5285cad39275e9ddc1a5bf))
+* **docker:** add option to enable RAM builder in Docker buildx ([6c9ede0](https://github.com/vegito-app/local/commit/6c9ede0e1cc688a1ac22d1af2c90662f200e7266))
+* **docker:** add vegito-example-application-services-ci to local-services-ci group ([159ff53](https://github.com/vegito-app/local/commit/159ff5344cbcaeba7d48b209bcd0e91261b78b08))
+* **docker:** enable local-android-flutter-ci target in bake file ([99dae0c](https://github.com/vegito-app/local/commit/99dae0ca0a2ba7bcf1988363d619c7e258c14062))
+* **docker:** streamline CI Docker images build process ([5ae43bf](https://github.com/vegito-app/local/commit/5ae43bf821b03ca16a73a8e64e6c434bd69f3994))
+* **frontend-build:** migrate to server-side rendering (SSR) ([4640d6c](https://github.com/vegito-app/local/commit/4640d6c65990a64f31a0cdbd2c801137dffd780f))
+* **github-actions:** change 'echo' to 'printf' for new changelogs in version-changelog.yml ([dbaefbf](https://github.com/vegito-app/local/commit/dbaefbfa4f83f312af15194e042fbd3be23731a5))
+* **github-actions:** configure git user for standard-version in version-changelog.yml ([c9b2cfb](https://github.com/vegito-app/local/commit/c9b2cfb71e0fb0b636f017cd2d1df68e2dbe6f59))
+* **github-workflows:** enhance versioning process with accurate commit SHA ([b24972c](https://github.com/vegito-app/local/commit/b24972c64b115021bb82a5b3164c2950c901493c))
+* **release-workflow:** enhance release note generation with security metadata ([dd0b780](https://github.com/vegito-app/local/commit/dd0b7803a109160ee259d4e75c33f7f37dd1aaca))
+
+
+### Bug Fixes
+
+* **docker:** rename 'example-applications' to 'vegito-example-application-applications' ([aeb07e8](https://github.com/vegito-app/local/commit/aeb07e870541f368657f79073303fb65ec417106))
+
+## [1.17.0](https://github.com/vegito-app/local/compare/v1.16.0...v1.17.0) (2026-04-01)
+
+
+### Features
+
+* **backend:** add target to delete backend image in GCloud ([ce80df3](https://github.com/vegito-app/local/commit/ce80df3fb9c31046c42ee08325aa0a92b6a51b59))
+* **build-config:** Enhance Android and Docker configurations ([21a12e6](https://github.com/vegito-app/local/commit/21a12e6e96db1794004a274228797658d544514b))
+* **build:** improve caching and retry logic for Go module downloads ([6d61ecd](https://github.com/vegito-app/local/commit/6d61ecdcfd75ff3c2b2a35253b3656d3cb2c0c61))
+* **CI/CD:** add Google Cloud Project ID to GitHub functional tests workflow ([7e0713a](https://github.com/vegito-app/local/commit/7e0713a9023776ee9cfc7c56e736c14e09857965))
+* **ci:** adjust dependencies and metadata extraction ([fb7a1f8](https://github.com/vegito-app/local/commit/fb7a1f86bdd69b290ddff75c0bba2abf4e25fd10))
+* **CI:** update GitHub actions workflow with environment-specific artifact buckets ([10d3d6d](https://github.com/vegito-app/local/commit/10d3d6d22c02ea1571f276afd5fadd20a221d538))
+* **CI:** use separate make target for running commands in CI ([ad8fde0](https://github.com/vegito-app/local/commit/ad8fde0b0ce950326b8cb79362ce8f6185721ed1))
+* **dependencies:** update multiple Go dependencies ([b523c5c](https://github.com/vegito-app/local/commit/b523c5c74804540142704500f33e5c560347a731))
+* **docker-bake:** replace debian_image argument with context in Docker targets ([f3b2225](https://github.com/vegito-app/local/commit/f3b2225247398fff434a885b2d3d90021d9a6dd1))
+* **docker-bake:** split local-firebase-emulators-ci into version and latest targets ([daadc04](https://github.com/vegito-app/local/commit/daadc045da14c90aba0f8e55409b0e91fd20fde2))
+* **docker:** add local-vault-dev-ci to local-services-ci group ([363d0a7](https://github.com/vegito-app/local/commit/363d0a72bed244fd4ee8ce4d4b4fb0ff06196c50))
+* **docker:** introduce Dockerfile and update build configurations ([524752b](https://github.com/vegito-app/local/commit/524752b1aebf829983bd4a7a045462862490a0c4))
+* **docker:** refactor target groups for CI in Appium, Flutter and Studio ([c683550](https://github.com/vegito-app/local/commit/c683550387b14db7b8f39d7cb8ebb046e256fcde))
+* **docker:** update default Go version in docker-bake.hcl ([0f6194c](https://github.com/vegito-app/local/commit/0f6194cef8673015298de97ff31a81d79f34d126))
+* **github-actions:** add new required env variable for workflows ([416858a](https://github.com/vegito-app/local/commit/416858a3ee13514c84e9eecfcd0fb79b1d78ad20))
+* **trivy:** add image pull step before scan ([ed34235](https://github.com/vegito-app/local/commit/ed34235bae357fb186a3ba152171d59f6b0bc0db))
+* **trivy:** add Trivy vulnerability scanner integration ([a7301e6](https://github.com/vegito-app/local/commit/a7301e6dbcdb68c7d3239d289e8cea09c81680c7))
+* **workflow:** improve release metadata fetching in version-finalize ([0e46802](https://github.com/vegito-app/local/commit/0e468025be590107b9e5b94392d83ec32180b719))
+* **workflows:** enhance release notes with GCloud metadata ([9d76ad9](https://github.com/vegito-app/local/commit/9d76ad9c585d5d16331efaa34b15e7dd0ca0771d))
+* **workflows:** introduce use_registry_cache variable in workflows ([5b5b56d](https://github.com/vegito-app/local/commit/5b5b56dc704b9388785e3dad416bd8f298b984cc))
+
+
+### Bug Fixes
+
+* **config:** fix environment redundant name prefix ([a8d3fcf](https://github.com/vegito-app/local/commit/a8d3fcf16de9a39460e1eae5dc7d164cabe36073))
+* **docker:** correct target name in local-applications-ci group ([2019d1b](https://github.com/vegito-app/local/commit/2019d1bbefdc0d50f5524ab07cdda0bd484f68ac))
+
 ## [1.16.0](https://github.com/vegito-app/local/compare/v1.15.4...v1.16.0) (2026-03-16)
 
 

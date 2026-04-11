@@ -32,10 +32,18 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}"
 }
 
-target "local-android-emulator-ci" {
+group "local-android-emulator-ci" {
+  description = "Build and push Android Emmulator images"
+  targets = [
+    "local-android-emulator-version-ci",
+    "local-android-emulator-latest-ci",
+  ]
+}
+
+target "local-android-emulator-version-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "target:local-debian-ci"
+    debian_image = "target:local-debian-version-ci"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
