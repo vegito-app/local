@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.22.0](https://github.com/vegito-app/local/compare/v1.21.0...v1.22.0) (2026-04-11)
+
+
+### Features
+
+* **docker:** enhance docker cache configuration and simplify image versioning ([46f2efd](https://github.com/vegito-app/local/commit/46f2efd40c5ae8e6113874eef59797d99f0433a0))
+* **firebase-emulators:** enhance setup and initialization process ([0194e2c](https://github.com/vegito-app/local/commit/0194e2c3c317ae4fb1a3c581fdd335dd91364f41))
+
 ## [1.21.0](https://github.com/vegito-app/local/compare/v1.20.2...v1.21.0) (2026-04-08)
 
 
