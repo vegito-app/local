@@ -17,6 +17,7 @@ COPY backend.mk backend/
 COPY go.sum backend/
 COPY go.mod backend/
 
+ARG non_root_user=vegito
 RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
     --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
     make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download
