@@ -37,7 +37,7 @@ group "local-robotframework-ci" {
 
 target "local-robotframework-version-ci" {
   contexts = {
-    debian_image = "target:local-debian-version-ci"
+    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -65,7 +65,7 @@ target "local-robotframework-version-ci" {
 
 target "local-robotframework-latest-ci" {
   contexts = {
-    debian_image = "target:local-debian-latest-ci"
+    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -93,7 +93,7 @@ target "local-robotframework" {
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
   contexts = {
-    debian_image = "target:local-debian"
+    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,

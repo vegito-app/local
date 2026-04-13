@@ -45,8 +45,8 @@ group "local-project-builder-ci" {
 
 target "local-project-builder-version-ci" {
   contexts = {
-    debian = "target:local-debian-version-ci"
-    go     = "target:local-golang-alpine-version-ci"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    go     = "docker-image://${LOCAL_GO_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -87,8 +87,8 @@ target "local-project-builder-version-ci" {
 
 target "local-project-builder-latest-ci" {
   contexts = {
-    debian = "target:local-debian-latest-ci"
-    go     = "target:local-golang-alpine-latest-ci"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    go     = "docker-image://${LOCAL_GO_IMAGE_LATEST}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -129,8 +129,8 @@ target "local-project-builder-latest-ci" {
 
 target "local-project-builder" {
   contexts = {
-    debian = "target:local-debian"
-    go     = "target:local-golang-alpine"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    go     = "docker-image://${LOCAL_GO_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION

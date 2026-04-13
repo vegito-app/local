@@ -42,7 +42,7 @@ group "local-github-actions-runner-ci" {
 
 target "local-github-actions-runner-version-ci" {
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -80,7 +80,7 @@ target "local-github-actions-runner-version-ci" {
 
 target "local-github-actions-runner-latest-ci" {
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -121,7 +121,7 @@ target "local-github-actions-runner-latest-ci" {
 
 target "local-github-actions-runner" {
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION

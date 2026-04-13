@@ -43,7 +43,7 @@ group "local-android-emulator-ci" {
 target "local-android-emulator-version-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "target:local-debian-version-ci"
+    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -71,7 +71,7 @@ target "local-android-emulator-version-ci" {
 target "local-android-emulator-latest-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "target:local-debian-latest-ci"
+    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -104,7 +104,7 @@ target "local-android-emulator" {
 
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "target:local-debian"
+    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,

@@ -212,11 +212,11 @@ group "local-release-ci" {
   ]
 }
 
-variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest"
 }
 
-variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${DOCKERHUB_REPLICA_VERSION}"
 }
 
@@ -257,7 +257,7 @@ group "local-docker-dind-rootless-ci" {
 
 target "local-docker-dind-rootless-version-ci" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
@@ -269,7 +269,7 @@ target "local-docker-dind-rootless-version-ci" {
       "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -282,7 +282,7 @@ target "local-docker-dind-rootless-version-ci" {
 
 target "local-docker-dind-rootless-latest-ci" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
@@ -294,7 +294,7 @@ target "local-docker-dind-rootless-latest-ci" {
       "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -305,8 +305,8 @@ target "local-docker-dind-rootless-latest-ci" {
 
 target "local-docker-dind-rootless" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
-    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
@@ -318,7 +318,7 @@ target "local-docker-dind-rootless" {
       "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -357,7 +357,6 @@ group "local-debian-ci" {
 
 target "local-debian-version-ci" {
   tags = [
-    LOCAL_DEBIAN_IMAGE_LATEST,
     LOCAL_DEBIAN_IMAGE_VERSION,
   ]
   context    = LOCAL_DOCKER_DIR
@@ -428,11 +427,11 @@ target "local-debian" {
   )
 }
 
-variable "GO_IMAGE_LATEST" {
+variable "LOCAL_GO_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest"
 }
 
-variable "GO_IMAGE_VERSION" {
+variable "LOCAL_GO_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${DOCKERHUB_REPLICA_VERSION}"
 }
 
@@ -456,8 +455,9 @@ group "local-golang-alpine-ci" {
 }
 
 target "local-golang-alpine-version-ci" {
+
   tags = [
-    GO_IMAGE_VERSION,
+    LOCAL_GO_IMAGE_VERSION,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -469,7 +469,7 @@ target "local-golang-alpine-version-ci" {
       LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${GO_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -480,7 +480,7 @@ target "local-golang-alpine-version-ci" {
 
 target "local-golang-alpine-latest-ci" {
   tags = [
-    GO_IMAGE_LATEST,
+    LOCAL_GO_IMAGE_LATEST,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -492,7 +492,7 @@ target "local-golang-alpine-latest-ci" {
       LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${GO_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -503,8 +503,8 @@ target "local-golang-alpine-latest-ci" {
 
 target "local-golang-alpine" {
   tags = [
-    GO_IMAGE_VERSION,
-    GO_IMAGE_LATEST,
+    LOCAL_GO_IMAGE_VERSION,
+    LOCAL_GO_IMAGE_LATEST,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -516,7 +516,7 @@ target "local-golang-alpine" {
       LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${GO_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -526,11 +526,11 @@ target "local-golang-alpine" {
   )
 }
 
-variable "RUST_IMAGE_LATEST" {
+variable "LOCAL_RUST_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/rust:latest"
 }
 
-variable "RUST_IMAGE_VERSION" {
+variable "LOCAL_RUST_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${DOCKERHUB_REPLICA_VERSION}"
 }
 
@@ -555,7 +555,7 @@ group "local-rust-ci" {
 
 target "local-rust-version-ci" {
   tags = [
-    RUST_IMAGE_VERSION,
+    LOCAL_RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
@@ -567,7 +567,7 @@ target "local-rust-version-ci" {
       LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${RUST_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_RUST_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -580,7 +580,7 @@ target "local-rust-version-ci" {
 
 target "local-rust-latest-ci" {
   tags = [
-    RUST_IMAGE_LATEST,
+    LOCAL_RUST_IMAGE_LATEST,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
@@ -592,7 +592,7 @@ target "local-rust-latest-ci" {
       LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${RUST_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_RUST_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -603,8 +603,8 @@ target "local-rust-latest-ci" {
 
 target "local-rust" {
   tags = [
-    RUST_IMAGE_LATEST,
-    RUST_IMAGE_VERSION,
+    LOCAL_RUST_IMAGE_LATEST,
+    LOCAL_RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
@@ -616,7 +616,7 @@ target "local-rust" {
       LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${RUST_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_RUST_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
