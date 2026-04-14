@@ -73,6 +73,7 @@ group "vegito-example-application-applications-ci" {
 
 group "vegito-example-application-release-ci" {
   targets = [
+    "vegito-example-application-builders-ci",
     "vegito-example-application-services-ci",
     "vegito-example-application-applications-ci"
   ]

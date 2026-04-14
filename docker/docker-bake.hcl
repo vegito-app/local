@@ -138,32 +138,40 @@ group "local-dockerhub-ci" {
   ]
 }
 
+group "local-tools" {
+  targets = [
+    "local-trivy",
+  ]
+}
+
+group "local-tools-ci" {
+  targets = [
+    "local-trivy-ci",
+  ]
+}
+
 group "local-runners" {
   targets = [
     "local-android-runners",
-    "local-project-builder",
-    "local-trivy"
   ]
 }
 
 group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
-    "local-project-builder-ci",
-    "local-trivy-ci",
   ]
 }
 
 group "local-builders" {
   targets = [
-    "vegito-example-application-builders",
+    "local-project-builder",
     "local-android-builders",
   ]
 }
 
 group "local-builders-ci" {
   targets = [
-    "vegito-example-application-builder-ci",
+    "local-project-builder-ci",
     "local-android-builders-ci",
   ]
 }
@@ -205,10 +213,13 @@ group "local-applications-ci" {
 
 group "local-release-ci" {
   targets = [
+    "local-tools-ci",
     "local-runners-ci",
     "local-builders-ci",
     "local-services-ci",
-    "local-applications-ci"
+    "local-applications-ci",
+
+    "vegito-example-application-release-ci",
   ]
 }
 
