@@ -95,9 +95,14 @@ target "local-trivy-latest-ci" {
       "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
     ]
   )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_TRIVY_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_TRIVY_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : []
+  )
   platforms = platforms
 }
 
