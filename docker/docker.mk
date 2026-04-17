@@ -1,17 +1,33 @@
-GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
+LOCAL_DOCKER_DIR ?= $(LOCAL_DIR)/docker
+include $(LOCAL_DOCKER_DIR)/dockerhub.mk
+
+GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
+GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
+
 VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
-VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-cache
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
+
+VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
 VEGITO_LOCAL_CACHE_IMAGES_BASE = $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
-VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
+VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE = $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
-VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
+local-docker-login-gcr: gcloud-auth-docker local-docker-login
+	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
+	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
+.PHONY: local-docker-login-gcr
 
-docker-login: gcloud-auth-docker
-	@docker login $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: docker-login
+local-docker-login:
+ifeq ($(DOCKERHUB_ENABLE),1) 
+	@echo "Logging into Docker Hub"
+	@$(MAKE) local-docker-login-dockerhub 
+else
+	@echo "Logging into Google Cloud Registry"
+	@$(MAKE) local-docker-login-gcr
+endif
+.PHONY: local-docker-login
 
 docker-sock:
 	sudo chmod o+rw /var/run/docker.sock
