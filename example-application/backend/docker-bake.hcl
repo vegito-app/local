@@ -80,7 +80,7 @@ target "vegito-example-application-backend-version-ci" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_VERSION_CONTEXT_CI
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,

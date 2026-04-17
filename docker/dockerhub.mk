@@ -1,4 +1,4 @@
-ifneq ($(DOCKERHUB_ENABLE),1)
+ifeq ($(DOCKERHUB_ENABLED),1)
 # Use the dbndev Docker Hub account
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= docker.io/dbndev
 

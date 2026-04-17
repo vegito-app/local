@@ -20,7 +20,7 @@ local-docker-login-gcr: gcloud-auth-docker local-docker-login
 .PHONY: local-docker-login-gcr
 
 local-docker-login:
-ifeq ($(DOCKERHUB_ENABLE),1) 
+ifeq ($(DOCKERHUB_ENABLED),1) 
 	@echo "Logging into Docker Hub"
 	@$(MAKE) local-docker-login-dockerhub 
 else
