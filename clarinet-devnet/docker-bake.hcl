@@ -65,26 +65,26 @@ target "local-clarinet-devnet-version-ci" {
   tags = [
     LOCAL_CLARINET_DEVNET_IMAGE_VERSION,
   ]
-  # cache-from = concat(
-  #   USE_REGISTRY_CACHE ? [
-  #     "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
-  #     "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
-  #     "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
-  #   ] : [],
-  #   ENABLE_LOCAL_CACHE ? [
-  #     LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
-  #   ] : [],
-  #   [
-  #     "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
-  #     "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-  #     "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
-  #   ]
-  # )
-  # cache-to = concat(
-  #   ENABLE_LOCAL_CACHE ? [
-  #     LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
-  #   ] : []
-  # )
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
+      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
+    ] : []
+  )
   platforms = platforms
 }
 
