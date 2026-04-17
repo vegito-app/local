@@ -164,3 +164,6 @@ test-local: example-application-tests-robot-all
 
 docker-tags-md-ci: docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
+
+docker-login: local-docker-login
+.PHONY: docker-login
