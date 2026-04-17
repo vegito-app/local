@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.23.0](https://github.com/vegito-app/local/compare/v1.22.0...v1.23.0) (2026-04-17)
+
+
+### Features
+
+* **docker-config:** update builder contexts and image references ([5c12e9a](https://github.com/vegito-app/local/commit/5c12e9ad8d6d035d7240e85ed7c728db1129fd54))
+* **docker:** add Docker Hub integration support ([e45fee3](https://github.com/vegito-app/local/commit/e45fee3b399036281a8af43bbad9717549ea2713))
+* **docker:** enable caching in clarinet-devnet Docker configuration ([0856de8](https://github.com/vegito-app/local/commit/0856de8887a0d81ab78ca81ba159d491ec68e2f1))
+* **dockerfile:** add tmux to installed packages ([f6e6d19](https://github.com/vegito-app/local/commit/f6e6d19ef13ca12f2d64cfa344837cf9c3aebcc3))
+
+
+### Bug Fixes
+
+* **docker:** correct target names in docker Makefile and HCL file ([07146dd](https://github.com/vegito-app/local/commit/07146dda2b89dbb9b57b21df0ae0c8e6579d7b5e))
+
 ## [1.22.0](https://github.com/vegito-app/local/compare/v1.21.0...v1.22.0) (2026-04-14)
 
 
