@@ -409,7 +409,8 @@ target "local-debian-latest-ci" {
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
   ]
   platforms = platforms
 }
@@ -507,7 +508,8 @@ target "local-golang-alpine-latest-ci" {
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
   ]
   platforms = platforms
 }
@@ -607,7 +609,8 @@ target "local-rust-latest-ci" {
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
   ]
   platforms = platforms
 }

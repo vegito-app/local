@@ -141,7 +141,10 @@ target "local-project-builder-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
   platforms = platforms
 }

@@ -135,7 +135,10 @@ target "vegito-example-application-backend-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
   platforms = [
     "linux/amd64",
