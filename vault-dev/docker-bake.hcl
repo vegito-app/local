@@ -99,7 +99,10 @@ target "local-vault-dev-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
   platforms = platforms
 }

@@ -113,7 +113,10 @@ target "vegito-example-application-tests" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
 }
 

@@ -109,7 +109,10 @@ target "local-firebase-emulators-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
   platforms = platforms
 }

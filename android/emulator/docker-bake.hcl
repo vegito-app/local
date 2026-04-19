@@ -109,7 +109,10 @@ target "local-android-emulator-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
   platforms = platforms
 }
