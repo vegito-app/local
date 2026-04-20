@@ -78,7 +78,7 @@ XPRA_BIND="0.0.0.0:${XPRA_PORT}"
 echo "🌀 Starting Xpra on $DISPLAY (HTML5: http://${XPRA_BIND}/)"
 # --no-daemon to keep it in foreground (so the script stays attached)
 xpra start "$DISPLAY" \
-  --start-child=openbox-session \
+  --use-display \
   --bind-tcp="$XPRA_BIND" \
   --html=on \
   --no-daemon \
