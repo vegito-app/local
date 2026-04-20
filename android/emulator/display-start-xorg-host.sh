@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+# Nettoyage du flag d'état à chaque arrêt
+rm -f /tmp/.xdisplay-ready
 # ================================
 #  SAFE REMOTE DISPLAY FOR CONTAINER
 #  - Uses Xvfb (virtual framebuffer)
@@ -12,6 +14,7 @@ set -euo pipefail
 # 📌 Track background PIDs
 bg_pids=()
 kill_jobs() {
+  rm -f /tmp/.xdisplay-ready
   echo "🧼 Cleaning up background processes..."
   for pid in "${bg_pids[@]:-}"; do
     kill "$pid" 2>/dev/null || true
@@ -22,7 +25,8 @@ trap kill_jobs EXIT
 
 # 🧰 Runtime dir (for X sockets etc.)
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-mkdir -p "$XDG_RUNTIME_DIR"
+sudo mkdir -p "$XDG_RUNTIME_DIR"
+sudo chown "$(id -u):$(id -g)" "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
 
 # 🖥️ Defaults (overridable)
@@ -105,6 +109,9 @@ done
 
 # Final status
 echo "✅ Xpra HTML5 ready on http://${XPRA_BIND}/"
+
+# Création d'un flag indiquant que tout le display est prêt
+echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xdisplay-ready
 
 # Keep the script alive while xpra is running
 wait "$XPRA_PID" || true
