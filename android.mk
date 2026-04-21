@@ -1,8 +1,8 @@
 ################################################################################
 # ANDROID HIGH LEVEL TARGETS
 ################################################################################
-VEGITO_MOBILE_CONTAINER_NAME = example-application-mobile
-VEGITO_ANDROID_STUDIO_CONTAINER_NAME = android-studio
+VEGITO_MOBILE_CONTAINER_NAME ?= example-application-mobile
+VEGITO_ANDROID_STUDIO_CONTAINER_NAME ?= android-studio
 
 ################################################################################
 # ANDROID LOGS
