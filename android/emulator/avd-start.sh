@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -41,7 +41,7 @@ if [[ -z "$apk_path" ]]; then
   fi
 fi
 avd_name="${LOCAL_ANDROID_EMULATOR_AVD_NAME:-Pixel_8_Pro}"
-gpu_mode="${LOCAL_ANDROID_gpu_mode:-swiftshader_indirect}"
+gpu_mode="${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}"
 
 # 📛 Détection du nom du package si non fourni
 if [[ -z "${LOCAL_ANDROID_PACKAGE_NAME:-}" ]]; then
@@ -80,8 +80,7 @@ emulator -avd "${avd_name}" \
   ${accel_args} \
   -noaudio -no-snapshot-load \
   -no-boot-anim \
-  -wipe-data \
-  -qemu &
+  -wipe-data &
 emulator_pid=$!
 bg_pids+=($emulator_pid)
 
@@ -116,7 +115,6 @@ emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
 echo "Loading test data from: ${emulator_data}"
 
 emulator-data-load.sh "${emulator_data}"
-
 
 # 🔐 Injection du token App Check si fourni
 if [[ "$apk_path" == *"release.apk" && -n "${FIREBASE_APP_CHECK_DEBUG_TOKEN:-}" ]]; then
