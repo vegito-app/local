@@ -73,9 +73,13 @@ if xdpyinfo >/dev/null 2>&1; then
   headless_args=${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-""}
 fi
 
+
 echo "Starting AVD named: ${avd_name} (gpu=${gpu_mode})"
 emulator -avd "${avd_name}" \
   -gpu "${gpu_mode}" \
+  -cores 4 \
+  -netdelay none \
+  -netspeed full \
   ${headless_args} \
   ${accel_args} \
   -noaudio -no-snapshot-load \
@@ -84,32 +88,29 @@ emulator -avd "${avd_name}" \
 emulator_pid=$!
 bg_pids+=($emulator_pid)
 
-# Wait for device and boot completion
-adb wait-for-device
+echo "⏳ Waiting for adb device..."
+
+# 1. Device visible + online
+until adb get-state 2>/dev/null | grep -q "device"; do
+  echo "⏳ adb not ready..."
+  sleep 2
+done
+
+# 2. Boot terminé
+echo "⏳ Waiting for Android boot..."
+timeout 300 bash -c '
 until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do
-  echo "⏳ Waiting for Android to report boot_completed..."
+  sleep 2
+done
+'
+
+# 3. Shell réellement OK
+echo "⏳ Waiting for adb shell..."
+until adb shell echo ok 2>/dev/null | grep -q "ok"; do
   sleep 2
 done
 
-# 🔄 Attente que le device soit en ligne (plus offline)
-echo "🧪 Waiting for adb to become 'device' (not 'offline')..."
-while true; do
-  state=$(adb get-state 2>/dev/null || echo unknown)
-  if [[ "$state" == "device" ]]; then
-    echo "✅ ADB reports device is online."
-    break
-  fi
-  echo "⏳ Current ADB state: $state"
-  sleep 2
-done
-
-# ⏳ Vérifie que adb shell est réactif
-echo "🔍 Checking ADB shell responsiveness..."
-until adb shell echo ok | grep -q "ok"; do
-  echo "⏳ Waiting for ADB shell to respond..."
-  sleep 2
-done
-echo "✅ ADB shell is responsive."
+echo "✅ Emulator fully ready"
 
 emulator_data="${LOCAL_ANDROID_EMULATOR_DATA:-./images}"
 echo "Loading test data from: ${emulator_data}"

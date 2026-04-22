@@ -80,7 +80,6 @@ COPY --chown=android:android display-start.sh /usr/local/bin/
 COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
 COPY --chown=android:android entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
 COPY --chown=android:android openbox-setup.sh /usr/local/bin/
-COPY --chown=${non_root_user}:${non_root_user} audio-start.sh /usr/local/bin/
 
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \
@@ -88,8 +87,7 @@ RUN chmod +x \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
     /usr/local/bin/emulator-data-load.sh \
-    /usr/local/bin/openbox-setup.sh \
-    /usr/local/bin/audio-start.sh
+    /usr/local/bin/openbox-setup.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk

@@ -5,6 +5,14 @@ set -euxo pipefail
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready
 
+# 📦 Prepare user runtime (useful for xpra sockets)
+export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
+dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/bus --fork
+export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus
+
 # 📌 List of PIDs of background processes
 bg_pids=()
 
@@ -130,15 +138,15 @@ xrandr --query
 # Add the custom mode if it doesn't exist
 echo "🔧 Adding custom mode if needed..."
 xrandr --newmode "$custom_mode_name" $custom_modeline_params || true
-xrandr --addmode HDMI-0 "$custom_mode_name" || true
-xrandr --addmode DP-0 "$custom_mode_name" || true
+# xrandr --addmode HDMI-0 "$custom_mode_name" || true
+# xrandr --addmode DP-0 "$custom_mode_name" || true
 
 # Try to set the resolution using different methods
 echo "🎯 Setting display resolution to $resolution with DPI $dpi"
 
 # Method 1: Direct mode setting
-xrandr --output HDMI-0 --mode "$custom_mode_name" --primary || \
-xrandr --output DP-0 --mode "$custom_mode_name" --primary || \
+# xrandr --output HDMI-0 --mode "$custom_mode_name" --primary || \
+# xrandr --output DP-0 --mode "$custom_mode_name" --primary || \
 xrandr -s "$resolution" --dpi "$dpi" || \
 echo "⚠️ Could not set resolution using standard methods"
 
@@ -161,29 +169,35 @@ echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
 
 ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
 if [ "$ENABLE_AUDIO" = "1" ]; then
-    echo "🔊 Audio enabled"
+    echo "🔊 Audio enabled (xpra managed)"
     XPRA_AUDIO_FLAGS="--pulseaudio=yes --speaker=on --microphone=off"
 else
     echo "🔇 Audio disabled"
     XPRA_AUDIO_FLAGS="--pulseaudio=no --speaker=off --microphone=off"
 fi
 
+export XPRA_SOCKET_DIR="$XDG_RUNTIME_DIR/xpra"
+mkdir -p "$XPRA_SOCKET_DIR"
+
 echo "🌀 Starting Xpra on $display with Openbox session..."
 xpra start-desktop "$display" \
-  --use-display  \
-  --bind-tcp=0.0.0.0:5901   \
+  --use-display \
+  --socket-dir="$XPRA_SOCKET_DIR" \
+  --bind-tcp=0.0.0.0:5901 \
   ${XPRA_AUDIO_FLAGS} \
   --desktop-scaling=auto \
-  --dpi="$dpi"   \
+  --dpi="$dpi" \
   --env=DISPLAY="$display" \
   --html=on \
   --min-size="$resolution" \
-  --no-daemon   \
-  --no-mdns   \
+  --no-daemon \
+  --no-mdns \
   --notifications=no \
   --resize-display=yes \
   --webcam=no &
 xpra_pid=$!
+
+export PULSE_SERVER=$(find /tmp/runtime-$(id -u)/xpra -name native | head -1)
 
 # Start openbox session
 # openbox-setup.sh
