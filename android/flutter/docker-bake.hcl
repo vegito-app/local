@@ -142,7 +142,7 @@ target "local-android-flutter" {
     android_ndk_version = ANDROID_NDK_VERSION
   }
   contexts = {
-    android_apk_emulator_image = "target:local-android-emulator-version-ci"
+    android_apk_emulator_image = "target:local-android-emulator"
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
