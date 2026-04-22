@@ -114,6 +114,7 @@ services:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
+      - SYS_NICE
     environment:
       LOCAL_WORKSPACE: ${LOCAL_WORKSPACE:-${PWD}}
       VAULT_DATA: ${VAULT_DATA:-${PWD}/vault/file}

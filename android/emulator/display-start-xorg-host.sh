@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready
@@ -22,9 +22,9 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 # 📦 Prepare user runtime (useful for xpra sockets)
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-sudo mkdir -p "$XDG_RUNTIME_DIR"
-sudo chmod o+rw -R "$XDG_RUNTIME_DIR"
+export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
 
 # 🖥️ Default parameters
 default_resolution="1920x1080"
@@ -159,13 +159,20 @@ until pgrep -f "x11vnc -display $display" > /dev/null; do
 done
 echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
 
+ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
+if [ "$ENABLE_AUDIO" = "1" ]; then
+    echo "🔊 Audio enabled"
+    XPRA_AUDIO_FLAGS="--pulseaudio=yes --speaker=on --microphone=off"
+else
+    echo "🔇 Audio disabled"
+    XPRA_AUDIO_FLAGS="--pulseaudio=no --speaker=off --microphone=off"
+fi
+
 echo "🌀 Starting Xpra on $display with Openbox session..."
 xpra start-desktop "$display" \
   --use-display  \
   --bind-tcp=0.0.0.0:5901   \
-  --dbus-control=no \
-  --dbus-launch='' \
-  --dbus-proxy=no \
+  ${XPRA_AUDIO_FLAGS} \
   --desktop-scaling=auto \
   --dpi="$dpi"   \
   --env=DISPLAY="$display" \

@@ -61,12 +61,26 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_8" ; \
     fi
 
+ARG enable_audio=1
+ENV ENABLE_AUDIO=${enable_audio}
+RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
+    sudo apt-get update && sudo apt-get install -y \
+    pulseaudio pulseaudio-utils \
+    gstreamer1.0-tools \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    && sudo rm -rf /var/lib/apt/lists/* ; \
+    fi
+
 COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
 COPY --chown=android:android display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=android:android display-start.sh /usr/local/bin/
 COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
 COPY --chown=android:android entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
 COPY --chown=android:android openbox-setup.sh /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} audio-start.sh /usr/local/bin/
 
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \
@@ -74,7 +88,8 @@ RUN chmod +x \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
     /usr/local/bin/emulator-data-load.sh \
-    /usr/local/bin/openbox-setup.sh
+    /usr/local/bin/openbox-setup.sh \
+    /usr/local/bin/audio-start.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
