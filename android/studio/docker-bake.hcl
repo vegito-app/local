@@ -43,7 +43,7 @@ variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
 }
 
 variable "ANDROID_STUDIO_VERSION" {
-  default = "2025.3.3.4"
+  default = "2025.3.4.6/android-studio-panda4"
 }
 
 group "local-android-studio-ci" {
