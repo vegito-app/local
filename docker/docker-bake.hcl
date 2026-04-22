@@ -18,10 +18,12 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
+
 variable "DOCKERHUB_REPLICA_VERSION" {
   description = "current git tag or commit version"
   default     = VERSION
 }
+
 variable "GO_VERSION" {
   description = "current Go version"
   default     = "1.26.1"
