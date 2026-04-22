@@ -56,5 +56,5 @@ $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor):
 .PHONY: $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor) 
 
 $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor-rm):
-	@rm -rf $(LOCAL_DIR)/$(@:local-go-%-mod-vendor-rm=%)/vendor
+	@rm -rf $(@:local-go-%-mod-vendor-rm=%)/vendor
 .PHONY: $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor-rm) 
