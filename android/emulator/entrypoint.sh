@@ -17,6 +17,11 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
+# 📦 Prepare user runtime (useful for xpra sockets)
+export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
 if [ ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}" in
     "host")
