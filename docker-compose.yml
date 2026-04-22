@@ -11,6 +11,7 @@ services:
       LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
       DOCKERHUB_ENABLED: ${DOCKERHUB_ENABLED}
+      ENABLE_LOCAL_CACHE: ${ENABLE_LOCAL_CACHE}
       DOCKERHUB_PAT: ${DOCKERHUB_PAT}
       DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
     volumes:
@@ -71,6 +72,7 @@ services:
     tty: true
     cap_add:
       - SYS_ADMIN
+      - SYS_NICE
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest}
     env_file:
       - .env
@@ -82,7 +84,7 @@ services:
       DISPLAY: "${DISPLAY:-:20}"
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}
-      # LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS: ${VEGITO_MOBILE_LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-"-no-window"}
+      # LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS: ${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-"-no-window"}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
@@ -104,6 +106,7 @@ services:
       - ${KVM_GID}
     devices:
       - /dev/kvm
+      - /dev/dri
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
     command: |
       bash -c '
