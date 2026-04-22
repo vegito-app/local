@@ -61,6 +61,9 @@ target "local-vault-dev-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
     [
       "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}"
     ]
