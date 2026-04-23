@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready

@@ -34,10 +34,6 @@ variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
   default = "type=local,src=${LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
-variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  default = "type=local,src=${LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
-}
-
 group "local-trivy-ci" {
   targets = [
     "local-trivy-version-ci",
@@ -65,7 +61,7 @@ target "local-trivy-version-ci" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     ENABLE_LOCAL_CACHE ? [
-      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
       "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
