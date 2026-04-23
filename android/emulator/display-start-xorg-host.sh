@@ -4,15 +4,6 @@ set -euxo pipefail
 
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready
-
-# 📦 Prepare user runtime (useful for xpra sockets)
-export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
-mkdir -p "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR"
-
-dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/bus --fork
-export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus
-
 # 📌 List of PIDs of background processes
 bg_pids=()
 
