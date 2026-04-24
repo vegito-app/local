@@ -76,11 +76,25 @@ node-modules: local-node-modules
 dotenv: local-dotenv
 .PHONY: dotenv
 
-images: local-docker-images
+# Local/dev: build all images without pushing them.
+# Tags are generated for all configured registries.
+images: local-docker-images-multi-registry-release
 .PHONY: images
 
-images-ci: local-docker-images-release-ci
+# Local/dev: build images in smaller groups without pushing them.
+# Useful when full parallel builds are too heavy for the workstation.
+images-groups-build: local-docker-images
+.PHONY: images-groups-build
+
+# CI: build and push all images in parallel.
+# Fastest path; requires runners with enough CPU, RAM and disk I/O.
+images-ci: local-docker-images-multi-registry-release-ci
 .PHONY: images-ci
+
+# CI: build and push images in smaller groups.
+# Safer on constrained runners; slower than the full parallel path.
+images-groups-build-ci: local-docker-images-ci
+.PHONY: images-groups-build-ci
 
 images-pull: \
 local-docker-images-pull-parallel \

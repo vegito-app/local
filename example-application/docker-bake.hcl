@@ -71,6 +71,13 @@ group "vegito-example-application-applications-ci" {
   ]
 }
 
+group "vegito-example-application-release" {
+  targets = [
+    "vegito-example-application-services",
+    "vegito-example-application-applications"
+  ]
+}
+
 group "vegito-example-application-release-ci" {
   targets = [
     "vegito-example-application-services-ci",
@@ -138,7 +145,7 @@ target "vegito-example-application-builder" {
   dockerfile = "Dockerfile"
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
-    notequal("", VERSION) ? EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION : "",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",

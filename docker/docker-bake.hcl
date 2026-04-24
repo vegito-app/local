@@ -213,6 +213,18 @@ group "local-applications-ci" {
   ]
 }
 
+group "local-release" {
+  targets = [
+    "local-tools",
+    "local-runners",
+    "local-builders",
+    "local-services",
+    "local-applications",
+
+    "vegito-example-application-release",
+  ]
+}
+
 group "local-release-ci" {
   targets = [
     "local-tools-ci",

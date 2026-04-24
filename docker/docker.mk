@@ -58,6 +58,15 @@ $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): local-docker-buildx
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
 
+VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
+
+local-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-%-release)
+	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
+.PHONY: local-docker-images-multi-registry-release
+
+local-docker-images-gcr-release: local-docker-images-release
+.PHONY: local-docker-images-gcr-release
+
 # Build all images (CI)
 # In this variant, images are built and pushed to the remote registry.
 local-docker-images-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
@@ -67,6 +76,13 @@ $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-bui
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
+
+local-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-release-%-ci)
+	@echo "✅ CI Built and pushed images to all registries successfully."
+.PHONY: local-docker-images-multi-registry-release-ci
+
+local-docker-gcr-images-ci: local-docker-images-ci
+.PHONY: local-docker-gcr-images-ci
 
 local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 .PHONY: local-docker-group-tags-list-ci
@@ -102,6 +118,11 @@ $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
 .PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
+
+local-docker-images-release:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release
+.PHONY: local-docker-images-release
 
 local-docker-images-release-ci:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci

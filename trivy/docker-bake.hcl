@@ -85,7 +85,7 @@ target "local-trivy-latest-ci" {
   context    = "${LOCAL_DIR}/trivy"
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_TRIVY_IMAGE_LATEST,
+    LOCAL_TRIVY_IMAGE_LATEST
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
