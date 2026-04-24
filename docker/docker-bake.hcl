@@ -30,7 +30,7 @@ variable "GO_VERSION" {
 }
 
 variable "TRIVY_VERSION" {
-  default = "0.69.3"
+  default = "0.70.0"
 }
 
 variable "NODE_VERSION" {
