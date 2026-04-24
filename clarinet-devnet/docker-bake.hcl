@@ -165,9 +165,6 @@ target "local-clarinet-devnet" {
     ]
   )
   cache-to = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE},mode=max"
-    ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []
