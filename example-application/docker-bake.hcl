@@ -201,6 +201,17 @@ target "vegito-example-application-builder-latest-ci" {
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
   ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ?[
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+    ]
+  )
   cache-to = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE},mode=max"
