@@ -2,6 +2,10 @@ variable "USE_REGISTRY_CACHE" {
   default = false
 }
 
+variable "ENABLE_LOCAL_CACHE" {
+  default = false
+}
+
 variable "LOCAL_DOCKER_DIR" {
   default = "${LOCAL_DIR}/docker"
 }
@@ -14,10 +18,12 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "dev"
 }
+
 variable "DOCKERHUB_REPLICA_VERSION" {
   description = "current git tag or commit version"
   default     = VERSION
 }
+
 variable "GO_VERSION" {
   description = "current Go version"
   default     = "1.26.1"
@@ -134,32 +140,40 @@ group "local-dockerhub-ci" {
   ]
 }
 
+group "local-tools" {
+  targets = [
+    "local-trivy",
+  ]
+}
+
+group "local-tools-ci" {
+  targets = [
+    "local-trivy-ci",
+  ]
+}
+
 group "local-runners" {
   targets = [
     "local-android-runners",
-    "local-project-builder",
-    "local-trivy"
   ]
 }
 
 group "local-runners-ci" {
   targets = [
     "local-android-runners-ci",
-    "local-project-builder-ci",
-    "local-trivy-ci",
   ]
 }
 
 group "local-builders" {
   targets = [
-    "vegito-example-application-builders",
+    "local-project-builder",
     "local-android-builders",
   ]
 }
 
 group "local-builders-ci" {
   targets = [
-    "vegito-example-application-builder-ci",
+    "local-project-builder-ci",
     "local-android-builders-ci",
   ]
 }
@@ -201,18 +215,21 @@ group "local-applications-ci" {
 
 group "local-release-ci" {
   targets = [
+    "local-tools-ci",
     "local-runners-ci",
     "local-builders-ci",
     "local-services-ci",
-    "local-applications-ci"
+    "local-applications-ci",
+
+    "vegito-example-application-release-ci",
   ]
 }
 
-variable "DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:latest"
 }
 
-variable "DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${DOCKERHUB_REPLICA_VERSION}"
 }
 
@@ -232,6 +249,18 @@ variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/docker-dind-rootless"
 }
 
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/docker-dind-rootless"
+}
+
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
 group "local-docker-dind-rootless-ci" {
   targets = [
     "local-docker-dind-rootless-version-ci",
@@ -241,34 +270,44 @@ group "local-docker-dind-rootless-ci" {
 
 target "local-docker-dind-rootless-version-ci" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
   cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
 target "local-docker-dind-rootless-latest-ci" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
   cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -279,20 +318,39 @@ target "local-docker-dind-rootless-latest-ci" {
 
 target "local-docker-dind-rootless" {
   tags = [
-    DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
-    DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
+    LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "docker-dind-rootless.Dockerfile"
   cache-from = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     ]
   )
-  cache-to = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
+}
+
+variable "LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian"
+}
+
+variable "LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 variable "LOCAL_DEBIAN_IMAGE_LATEST" {
@@ -312,7 +370,6 @@ group "local-debian-ci" {
 
 target "local-debian-version-ci" {
   tags = [
-    LOCAL_DEBIAN_IMAGE_LATEST,
     LOCAL_DEBIAN_IMAGE_VERSION,
   ]
   context    = LOCAL_DOCKER_DIR
@@ -321,11 +378,18 @@ target "local-debian-version-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
@@ -339,12 +403,16 @@ target "local-debian-latest-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
   ]
   platforms = platforms
 }
@@ -359,19 +427,38 @@ target "local-debian" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : []
+  )
 }
 
-variable "GO_IMAGE_LATEST" {
+variable "LOCAL_GO_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest"
 }
 
-variable "GO_IMAGE_VERSION" {
+variable "LOCAL_GO_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${DOCKERHUB_REPLICA_VERSION}"
+}
+
+variable "LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/golang-alpine"
+}
+
+variable "LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 group "local-golang-alpine-ci" {
@@ -382,8 +469,9 @@ group "local-golang-alpine-ci" {
 }
 
 target "local-golang-alpine-version-ci" {
+
   tags = [
-    GO_IMAGE_VERSION,
+    LOCAL_GO_IMAGE_VERSION,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -391,8 +479,11 @@ target "local-golang-alpine-version-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
-      "type=inline,ref=${GO_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -403,7 +494,7 @@ target "local-golang-alpine-version-ci" {
 
 target "local-golang-alpine-latest-ci" {
   tags = [
-    GO_IMAGE_LATEST,
+    LOCAL_GO_IMAGE_LATEST,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -411,20 +502,24 @@ target "local-golang-alpine-latest-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
-      "type=inline,ref=${GO_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
   ]
   platforms = platforms
 }
 
 target "local-golang-alpine" {
   tags = [
-    GO_IMAGE_VERSION,
-    GO_IMAGE_LATEST,
+    LOCAL_GO_IMAGE_VERSION,
+    LOCAL_GO_IMAGE_LATEST,
   ]
   context    = LOCAL_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -432,19 +527,38 @@ target "local-golang-alpine" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
-      "type=inline,ref=${GO_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_GO_IMAGE_LATEST}"
     ]
   )
-  cache-to = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : []
+  )
 }
 
-variable "RUST_IMAGE_LATEST" {
+variable "LOCAL_RUST_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/rust:latest"
 }
 
-variable "RUST_IMAGE_VERSION" {
+variable "LOCAL_RUST_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/rust:${DOCKERHUB_REPLICA_VERSION}"
+}
+
+variable "LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/rust"
+}
+
+variable "LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
 group "local-rust-ci" {
@@ -456,7 +570,7 @@ group "local-rust-ci" {
 
 target "local-rust-version-ci" {
   tags = [
-    RUST_IMAGE_VERSION,
+    LOCAL_RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
@@ -464,17 +578,24 @@ target "local-rust-version-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
-      "type=inline,ref=${RUST_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_RUST_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
   platforms = platforms
 }
 
 target "local-rust-latest-ci" {
   tags = [
-    RUST_IMAGE_LATEST,
+    LOCAL_RUST_IMAGE_LATEST,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
@@ -482,20 +603,24 @@ target "local-rust-latest-ci" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
-      "type=inline,ref=${RUST_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_RUST_IMAGE_LATEST}"
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
   ]
   platforms = platforms
 }
 
 target "local-rust" {
   tags = [
-    RUST_IMAGE_LATEST,
-    RUST_IMAGE_VERSION,
+    LOCAL_RUST_IMAGE_LATEST,
+    LOCAL_RUST_IMAGE_VERSION,
   ]
   context    = "${LOCAL_DIR}/docker"
   dockerfile = "rust.Dockerfile"
@@ -503,9 +628,16 @@ target "local-rust" {
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_RUST_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
     [
-      "type=inline,ref=${RUST_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_RUST_IMAGE_LATEST}"
     ]
   )
-  cache-to = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : []
+  )
 }

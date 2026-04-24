@@ -46,7 +46,7 @@ fi
 . ${envrcFile}
 
 echo "Initializing .env file"
-${WORKING_DIR}/dotenv.sh
+make dotenv
 
 # Vscode
 settingsFile=${PWD}/.vscode/settings.json

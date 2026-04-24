@@ -1,12 +1,14 @@
 services:
   trivy:
     tty: true
-    image: ${LOCAL_TRIVY_IMAGE_LATEST:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:trivy-latest}
+    image: ${LOCAL_TRIVY_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-latest}
     env_file:
       - .env
     environment:
-      LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
+      LOCAL_WORKSPACE: ${PWD}
+      LOCAL_TRIVY_CACHES_REFRESH: ${LOCAL_TRIVY_CACHES_REFRESH:-false}
+      LOCAL_TRIVY_CONTAINER_CACHE: ${LOCAL_TRIVY_CONTAINER_CACHE:-${PWD}/.containers/trivy}
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock

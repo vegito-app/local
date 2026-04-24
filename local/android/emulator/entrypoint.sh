@@ -17,6 +17,15 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
+# 📦 Prepare user runtime (useful for xpra sockets)
+export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
+# start a minimal dbus session (required by pulseaudio/xpra)
+dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/dbus --fork
+export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/dbus
+
 if [ ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 case "${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}" in
     "host")

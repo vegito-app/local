@@ -1,4 +1,4 @@
-LOCAL_GO_VERSION = 1.26
+GO_VERSION = 1.26.2
 
 UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_M), x86_64)
@@ -22,7 +22,7 @@ local-go-mod-tidy: $(LOCAL_GO_MODULES:%=local-go-%-mod-tidy)
 .PHONY: local-go-mod-tidy
 
 $(LOCAL_GO_MODULES:%=local-go-%-mod-tidy):
-	@cd $(@:local-go-%-mod-tidy=%) && go mod tidy -v -go=$(LOCAL_GO_VERSION)
+	@cd $(@:local-go-%-mod-tidy=%) && go mod tidy -v -go=$(GO_VERSION)
 .PHONY: $(LOCAL_GO_MODULES:%=local-go-%-mod-tidy)
 
 local-go-mod-download: $(LOCAL_GO_MODULES:%=local-go-%-mod-download)
@@ -56,5 +56,5 @@ $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor):
 .PHONY: $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor) 
 
 $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor-rm):
-	@rm -rf $(LOCAL_DIR)/$(@:local-go-%-mod-vendor-rm=%)/vendor
+	@rm -rf $(@:local-go-%-mod-vendor-rm=%)/vendor
 .PHONY: $(LOCAL_GO_MODULES:%=local-go-%-mod-vendor-rm) 

@@ -30,6 +30,11 @@ on:
         type: boolean
         default: false
 
+      has_mobile:
+        required: false
+        type: boolean
+        default: true
+
       env_bucket_map:
         description: "YAML mapping of environment to release bucket"
         required: false
@@ -132,6 +137,7 @@ jobs:
       functional-tests-output-dir: ${{ inputs.functional_tests_dir }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
+      has_mobile: ${{ inputs.has_mobile }}
 
     secrets: inherit
 

@@ -61,9 +61,6 @@ LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example
 -include nodejs.mk
 -include go.mk
 
-LOCAL_GO_MODULES += \
- $(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
-
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
@@ -167,3 +164,6 @@ test-local: example-application-tests-robot-all
 
 docker-tags-md-ci: docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
+
+docker-login: local-docker-login
+.PHONY: docker-login

@@ -61,6 +61,23 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_8" ; \
     fi
 
+ARG enable_audio=1
+ENV ENABLE_AUDIO=${enable_audio}
+RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
+    sudo apt-get update && sudo apt-get install -y \
+    pulseaudio pulseaudio-utils \
+    gstreamer1.0-tools \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    python3-gi \
+    python3-gst-1.0 \
+    gir1.2-gstreamer-1.0 \
+    gir1.2-gst-plugins-base-1.0 \
+    && sudo rm -rf /var/lib/apt/lists/* ; \
+    fi
+
 COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
 COPY --chown=android:android display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=android:android display-start.sh /usr/local/bin/

@@ -117,9 +117,8 @@ $(LOCAL_GITHUB_ACT_SECRET_FILE):
 	@-echo PRODUCTION_GCLOUD_SERVICE_KEY=$$(jq -c . $(LOCAL_INFRA_DIR)/environments/prod/google-cloud-credentials.json) >> $(LOCAL_GITHUB_ACT_SECRET_FILE) 2>/dev/null
 
 LOCAL_GITHUB_WORKFLOWS := \
-  dev.yml \
-  dev-feature.yml \
-  main.yml
+  application-dev-release.yml \
+  application-main-release.yml
 
 LOCAL_GITHUB_ACT := act --secret-file $(LOCAL_GITHUB_ACT_SECRET_FILE) \
 	 -P self-hosted=$(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE) \

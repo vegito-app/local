@@ -1,5 +1,5 @@
 # Version of the vegito-app/local development environment images to use:
-LOCAL_VERSION ?= v1.20.1
+LOCAL_VERSION ?= v1.22.0
 # ------------------------------------------
 # Subtree ./local
 # ___________________________________________
@@ -10,7 +10,7 @@ LOCAL_VERSION ?= v1.20.1
 git-subtree-local-pull:
 	@echo "⬇︎ Pulling the local subtree..."
 	@git subtree pull --prefix local \
-	  git@github.com:vegito-app/local.git $(LOCAL_VERSION) --squash
+	  git@github.com:vegito-app/local.git main --squash
 	@echo "Local subtree pulled successfully."
 .PHONY: git-subtree-local-pull
 

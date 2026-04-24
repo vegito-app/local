@@ -42,6 +42,7 @@ VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
+LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE}
 # 
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
@@ -89,7 +90,7 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:builder-${VERSION:-latest}}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION:-latest}}
     command: |
       bash -c '
         make docker-sock
@@ -114,7 +115,7 @@ services:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
 
   android-studio:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
@@ -123,7 +124,7 @@ services:
     working_dir: ${PWD}/example-application/mobile
 
   clarinet-devnet:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-latest
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
@@ -137,15 +138,10 @@ services:
       VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}
   
   firebase-emulators:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-latest
   
-  trivy:
-    environment:
-      LOCAL_TRIVY_CONTAINER_CACHE: ${LOCAL_TRIVY_CONTAINER_CACHE:-${PWD}/.containers/trivy}
-      LOCAL_TRIVY_CACHES_REFRESH: ${LOCAL_TRIVY_CACHES_REFRESH:-false}
-
   vault-dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-latest
     working_dir: ${PWD}/example-application/
     command: |
       bash -c '

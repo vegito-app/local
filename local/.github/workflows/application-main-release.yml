@@ -15,6 +15,7 @@ jobs:
     with:
       environment: dev
       functional_tests_dir: example-application/tests/output
+      has_mobile: true
       images_to_scan: '["example-application-backend"]'
       project: vegito-local
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
@@ -23,11 +24,10 @@ jobs:
         dev: vegito-app-dev-github-actions-ci-artifacts
         staging: vegito-app-staging-github-actions-ci-artifacts
         prod: vegito-app-prod-github-actions-ci-artifacts
+
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
-      FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
-      FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
       # Main Service Account
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
