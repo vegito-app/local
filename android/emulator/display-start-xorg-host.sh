@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready
@@ -147,17 +147,6 @@ xrandr --fb "${width}x${height}"
 echo "✅ Display configuration after change:"
 xrandr --query | head -10
 
-echo "🌀 Starting x11vnc on $display..."
-x11vnc -display "$display" -nopw -noxdamage -shared -forever -repeat &
-x11vnc_bg_pid=$!
-bg_pids+=("$x11vnc_bg_pid")
-
-until pgrep -f "x11vnc -display $display" > /dev/null; do 
-  echo "⏳ Waiting for x11vnc to start on $display...";
-  sleep 1; 
-done
-echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
-
 ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
 if [ "$ENABLE_AUDIO" = "1" ]; then
     echo "🔊 Audio enabled (xpra managed)"
@@ -170,44 +159,62 @@ fi
 export XPRA_SOCKET_DIR="$XDG_RUNTIME_DIR/xpra"
 mkdir -p "$XPRA_SOCKET_DIR"
 
+DISPLAY_MODE="${DISPLAY_MODE:-xpra}"
+
+if [ "$DISPLAY_MODE" = "xpra" ]; then
+
 echo "🌀 Starting Xpra on $display with Openbox session..."
-xpra start-desktop "$display" \
-  --use-display  \
-  --socket-dir="$XPRA_SOCKET_DIR" \
-  --bind-tcp=0.0.0.0:5901   \
-  ${XPRA_AUDIO_FLAGS} \
-  --desktop-scaling=auto \
-  --dpi="$dpi"   \
-  --env=DISPLAY="$display" \
-  --html=on \
-  --min-size="$resolution" \
-  --no-daemon   \
-  --no-mdns   \
-  --notifications=no \
-  --resize-display=yes \
-  --webcam=no &
-xpra_pid=$!
+    xpra start-desktop "$display" \
+    --use-display \
+    --start-child=openbox-session \
+    --exit-with-children \
+    --socket-dir="$XPRA_SOCKET_DIR" \
+    --socket-dirs="$XPRA_SOCKET_DIR" \
+    --bind-tcp=0.0.0.0:5901 \
+    ${XPRA_AUDIO_FLAGS} \
+    --desktop-scaling=auto \
+    --dpi="$dpi" \
+    --env=DISPLAY="$display" \
+    --html=on \
+    --min-size="$resolution" \
+    --no-daemon \
+    --no-mdns \
+    --notifications=no \
+    --resize-display=yes \
+    --webcam=no &
+    display_pid=$!
 
-export PULSE_SERVER=$(find /tmp/runtime-$(id -u)/xpra -name native | head -1)
+    XPRA_SOCKET="$XPRA_SOCKET_DIR/$(hostname)-${display#:}"
 
-# Start openbox session
-# openbox-setup.sh
-openbox-session &
-bg_pids+=("$!")
+    until [ -S "$XPRA_SOCKET" ]; do
+        echo "⏳ Waiting for xpra socket..."
+        sleep 1
+    done
+    echo "🌀 Xpra started successfully on $display with Openbox session."
 
-until pgrep -f "openbox-session" > /dev/null; do 
-  echo "⏳ Waiting for Openbox session to start...";
-  sleep 1; 
-done
+elif [ "$DISPLAY_MODE" = "vnc" ]; then
 
-until pgrep -f "xpra start-desktop $display" > /dev/null; do 
-  echo "⏳ Waiting for Xpra to start on $display...";
-  sleep 1; 
-done
-echo "🌀 Xpra started successfully on $display with Openbox session."
+    echo "🌀 Starting x11vnc..."
+    echo "🌀 Starting x11vnc on $display..."
+    x11vnc -display "$display" -nopw -noxdamage -shared -forever -repeat &
+    display_pid=$!
+
+    until pgrep -f "x11vnc -display $display" > /dev/null; do 
+    echo "⏳ Waiting for x11vnc to start on $display...";
+    sleep 1; 
+    done
+    echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
+    
+    openbox-session &
+    bg_pids+=("$!")
+
+else
+    echo "⚠️ Invalid display mode. Please choose 'xpra' or 'vnc'."
+fi
+
 
 # Création d'un flag indiquant que tout le display est prêt
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xdisplay-ready
 
-wait "$x11vnc_bg_pid" "$xpra_pid" || true
+wait "$display_pid" || true
 echo "🛑 Session ended."
