@@ -168,9 +168,6 @@ target "local-github-actions-runner" {
     ]
   )
   cache-to = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max"
-    ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []

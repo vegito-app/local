@@ -170,9 +170,6 @@ target "vegito-example-application-backend" {
     ]
   )
   cache-to = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max"
-    ] : [],
     ENABLE_LOCAL_CACHE ? [
       VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []
