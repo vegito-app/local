@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.22.0](https://github.com/vegito-app/local/compare/v1.21.0...v1.22.0) (2026-04-14)
+
+
+### Features
+
+* **docker-bake:** separate cache variables for version and latest builds ([a24df04](https://github.com/vegito-app/local/commit/a24df04bd8e6774936e268aba918dd93f95c08b3))
+* **docker:** comment out 'dockerhub' from CI build groups ([d7ea04f](https://github.com/vegito-app/local/commit/d7ea04f175e1a9bc2e72fe0cb59af237f783ef40))
+* **docker:** enhance docker cache configuration and simplify image versioning ([46f2efd](https://github.com/vegito-app/local/commit/46f2efd40c5ae8e6113874eef59797d99f0433a0))
+* **docker:** introduce non-root user for Docker backend build ([0fd21b3](https://github.com/vegito-app/local/commit/0fd21b3a9f06f21dd209d25c3037e3cce861675b))
+* **firebase-emulators:** enhance setup and initialization process ([0194e2c](https://github.com/vegito-app/local/commit/0194e2c3c317ae4fb1a3c581fdd335dd91364f41))
+* **github-actions:** add local cache enable option in docker-compose ([1a39557](https://github.com/vegito-app/local/commit/1a395574bbc8b2429f50b800003f254085611ac2))
+
+
+### Bug Fixes
+
+* **docker:** align local caching in docker bake config files ([95b3103](https://github.com/vegito-app/local/commit/95b3103b1c8b73130d3c431eda40797530e6315e))
+* **dockerfile:** ensure non-root user owns go cache directories ([4c065e8](https://github.com/vegito-app/local/commit/4c065e8b318d72dc1263dfc71a60e99a2c9a387c))
+* **security:** patch CVE-2026-32282 in go ([d9fa045](https://github.com/vegito-app/local/commit/d9fa045d381b1e02f1fda35827742fb01de80d33))
+
+## [1.21.0](https://github.com/vegito-app/local/compare/v1.20.2...v1.21.0) (2026-04-08)
+
+
+### Features
+
+* **workflows:** add option for public release details in version-finalize.yml ([e8ab099](https://github.com/vegito-app/local/commit/e8ab099ab7f8e848c6b597a1d9ce37d931561d63))
+
+### [1.20.2](https://github.com/vegito-app/local/compare/v1.20.1...v1.20.2) (2026-04-07)
+
+### [1.20.1](https://github.com/vegito-app/local/compare/v1.20.0...v1.20.1) (2026-04-07)
+
+## [1.20.0](https://github.com/vegito-app/local/compare/v1.19.1...v1.20.0) (2026-04-07)
+
+
+### Features
+
+* **devops:** improve customization and consistency in container setups ([c1cd4f1](https://github.com/vegito-app/local/commit/c1cd4f161d81b149e841d67454c0df3478c6a26d))
+* **Dockerfile:** enhance permissions management and directory creation for non-root user ([e3c6b06](https://github.com/vegito-app/local/commit/e3c6b06f8e577d20b3b4fc5439048aac972202ad))
+* **github-actions:** add conditional mobile workflows ([f30ed68](https://github.com/vegito-app/local/commit/f30ed68c61f9723d7a137ec10ac3764b9f3eab3e))
+
+
+### Bug Fixes
+
+* **docker:** update docker context command in buildx setup ([3ce7624](https://github.com/vegito-app/local/commit/3ce7624e536f81d84dce9a3b2456be731752aab3))
+* **security:** patch CVE-2026-34986 in go-jose (DoS via JWE panic) ([e7861c1](https://github.com/vegito-app/local/commit/e7861c1c7e22610b0c197e647fafe7150b0356ca))
+
 ### [1.19.1](https://github.com/vegito-app/local/compare/v1.19.0...v1.19.1) (2026-04-03)
 
 ## [1.19.0](https://github.com/vegito-app/local/compare/v1.18.0...v1.19.0) (2026-04-03)

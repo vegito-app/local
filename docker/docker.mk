@@ -1,17 +1,33 @@
-GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.dev
+LOCAL_DOCKER_DIR ?= $(LOCAL_DIR)/docker
+include $(LOCAL_DOCKER_DIR)/dockerhub.mk
+
+GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
+GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
+
 VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
 
-VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-cache
-VEGITO_LOCAL_CACHE_IMAGES_BASE = $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
 
-VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-public
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE = $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
+VEGITO_LOCAL_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
-VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)/docker-repository-private
+VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
-docker-login: gcloud-auth-docker
-	@docker login $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
-.PHONY: docker-login
+local-docker-login-gcr: gcloud-auth-docker local-docker-login
+	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
+	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
+.PHONY: local-docker-login-gcr
+
+local-docker-login:
+ifeq ($(DOCKERHUB_ENABLED),1) 
+	@echo "Logging into Docker Hub"
+	@$(MAKE) local-docker-login-dockerhub 
+else
+	@echo "Logging into Google Cloud Registry"
+	@$(MAKE) local-docker-login-gcr
+endif
+.PHONY: local-docker-login
 
 docker-sock:
 	sudo chmod o+rw /var/run/docker.sock
@@ -23,8 +39,9 @@ docker-clean:
 
 # Groups are used to manage the build process. 
 # If an image is built in a group, all images in that group are built together.
-# If an image depends on another image as base, the groups must be built in the correct order (cf. docker-images-ci).
 LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
+  dockerhub \
+  tools \
   runners \
   builders \
   services \
@@ -33,24 +50,42 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
 # The build does not push images to a remote registry.
-# Groups are not built sequentially, so images may not use the latest version of their base image.
-docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
-.PHONY: docker-images
+loaco-docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
+.PHONY: local-docker-images
 
 $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-images=local-%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
 
-# Groups are used to manage the build process in CI. 
-# If an image is built in a group, all images in that group are built together.
-# If an image depends on another image as base, the groups must be built in the correct
-LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS ?= \
-  dockerhub \
-  runners \
-  builders \
-  services \
-  applications
+# Build all images (CI)
+# In this variant, images are built and pushed to the remote registry.
+local-docker-images-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
+.PHONY: local-docker-images-ci
+
+$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
+.PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
+
+local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
+.PHONY: local-docker-group-tags-list-ci
+
+$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
+
+docker-build-tags-list-ci-md:
+	@echo "### 🐳 Docker Images Built (excluding latest):"
+	@set -e; for group in $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS); do \
+	  echo "#### Group: '$$group'" ; \
+	 $(MAKE) local-$$group-docker-group-tags-list-ci \
+	 | grep -vE 'latest$$' \
+	 | grep -v 'make\[1\]\:' \
+	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
+	  echo "" ; \
+	done
+.PHONY: docker-build-tags-list-ci-md
 
 DOCKER_HUB_IMAGES = \
   docker-dind-rootless \
@@ -68,36 +103,6 @@ $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
 .PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
 
-local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
-.PHONY: local-docker-group-tags-list-ci
-
-$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
-.PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
-
-# Build all images (CI)
-# In this variant, images are built and pushed to the remote registry.
-# Groups are built sequentially to ensure each image uses the latest version of its base image.
-local-docker-images-ci: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
-.PHONY: local-docker-images-ci
-
-$(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
-.PHONY: $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS:%=local-%-docker-images-ci)
-
-docker-build-tags-list-ci-md:
-	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS); do \
-	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
-	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
-	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
-	  echo "" ; \
-	done
-.PHONY: docker-build-tags-list-ci-md
-
 local-docker-images-release-ci:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release-ci
@@ -105,9 +110,6 @@ local-docker-images-release-ci:
 
 LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
-
-# LOCAL_DOCKER_BUILDX_ARM_BUILDER ?= vegito-arm-builder.local
-# LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=ssh://$(LOCAL_DOCKER_BUILDX_ARM_BUILDER)
 
 LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
 
@@ -129,7 +131,6 @@ local-docker-clean-all:
 	  docker-buildx-clean \
 	  docker-local-buildx-cache-clean
 .PHONY: local-docker-clean-all
-
 
 LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
 

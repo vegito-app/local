@@ -15,7 +15,7 @@ LOCAL_ROBOTFRAMEWORK_ROBOT ?= $(LOCAL_DOCKER_COMPOSE) exec robotframework robot
 
 local-robotframework-container-exec:
 	@echo "📝 Running robotframework..."
-	@$(LOCAL_ROBOTFRAMEWORK_ROBOT) --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR) robot
+	@$(LOCAL_ROBOTFRAMEWORK_ROBOT) --exitonfailure --outputdir $(LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR) robot
 .PHONY: local-robotframework-container-exec
 
 local-robotframework-container-exec-ci: local-dev-container-image-pull

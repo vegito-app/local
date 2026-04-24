@@ -4,12 +4,16 @@ volumes:
 services:
   dev:
     tty: true
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-latest}
     env_file:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
+      DOCKERHUB_ENABLED: ${DOCKERHUB_ENABLED}
+      ENABLE_LOCAL_CACHE: ${ENABLE_LOCAL_CACHE}
+      DOCKERHUB_PAT: ${DOCKERHUB_PAT}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -25,7 +29,7 @@ services:
 
   firebase-emulators:
     tty: true
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -43,7 +47,7 @@ services:
   clarinet-devnet:
     tty: true
     privileged: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -68,7 +72,8 @@ services:
     tty: true
     cap_add:
       - SYS_ADMIN
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:android-studio-latest}
+      - SYS_NICE
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest}
     env_file:
       - .env
     entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
@@ -79,7 +84,7 @@ services:
       DISPLAY: "${DISPLAY:-:20}"
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}
-      # LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS: ${VEGITO_MOBILE_LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-"-no-window"}
+      # LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS: ${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-"-no-window"}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
@@ -101,6 +106,7 @@ services:
       - ${KVM_GID}
     devices:
       - /dev/kvm
+      - /dev/dri
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
     command: |
       bash -c '
@@ -108,7 +114,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
     environment:
@@ -126,7 +132,7 @@ services:
     tty: true
   robotframework:
     tty: true
-    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/vegito-local:robotframework-latest}
+    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}

@@ -34,7 +34,7 @@ ENV STUDIO_PATH=${HOME}/android-studio
 ENV PATH=${STUDIO_PATH}/bin:${PATH}
 ARG android_studio_version
 # RUN curl -o /tmp/android-studio.tar.gz -L "https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${android_studio_version}/android-studio-${android_studio_version}-linux.tar.gz" && \
-RUN curl -o /tmp/android-studio.tar.gz -L https://edgedl.me.gvt1.com/android/studio/ide-zips/${android_studio_version}/android-studio-panda3-canary4-linux.tar.gz && \
+RUN curl -o /tmp/android-studio.tar.gz -L https://edgedl.me.gvt1.com/android/studio/ide-zips/${android_studio_version}-linux.tar.gz && \
   tar -xzf /tmp/android-studio.tar.gz -C /tmp/ && \
   mv /tmp/android-studio ${STUDIO_PATH} && rm /tmp/android-studio.tar.gz
 
@@ -63,3 +63,15 @@ USER ${non_root_user}
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]
+
+# Install nvidia tools for monitoring GPU usage in Android Studio
+RUN sudo apt install -y nvtop pipx \
+  && pipx ensurepath \
+  && pipx install nvitop
+
+RUN sudo apt-get update && sudo apt-get install -y locales \
+  && sudo rm -rf /var/lib/apt/lists/* && \
+  sudo dpkg-reconfigure locales && \
+  sudo locale-gen en_US.UTF-8 
+
+ENV LANG=en_US.UTF-8

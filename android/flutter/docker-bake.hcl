@@ -1,5 +1,5 @@
 variable "LOCAL_ANDROID_FLUTTER_VERSION" {
-  default = notequal("", VERSION) ? "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-${VERSION}" : ""
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_LATEST" {
@@ -18,18 +18,32 @@ variable "LOCAL_ANDROID_FLUTTER_DIR" {
   default = "${LOCAL_ANDROID_DIR}/flutter"
 }
 
-variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter"
+variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter-version"
 }
 
-variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for local-android-flutter image build"
-  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter-latest"
 }
 
-variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for local-android-flutter image build (cannot be used before first write)"
-  default     = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
+  description = "local write cache (version) for local-android-flutter image build"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
+  description = "local write cache (latest) for local-android-flutter image build"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION" {
+  description = "local read cache (version)"
+  default     = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
+  description = "local read cache (latest)"
+  default     = "type=local,src=${LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
 variable "ANDROID_NDK_VERSION" {
@@ -65,12 +79,19 @@ target "local-android-flutter-version-ci" {
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to  = []
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
+    ] : []
+  )
   platforms = platforms
 }
 
@@ -80,7 +101,7 @@ target "local-android-flutter-latest-ci" {
     android_ndk_version = ANDROID_NDK_VERSION
   }
   contexts = {
-    android_apk_emulator_image = "target:local-android-emulator-version-ci"
+    android_apk_emulator_image = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
@@ -92,15 +113,26 @@ target "local-android-flutter-latest-ci" {
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
       "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : [],
+    [
+      "type=inline"
+    ]
+  )
   platforms = platforms
 }
 
@@ -110,7 +142,7 @@ target "local-android-flutter" {
     android_ndk_version = ANDROID_NDK_VERSION
   }
   contexts = {
-    android_apk_emulator_image = "target:local-android-emulator-version-ci"
+    android_apk_emulator_image = "target:local-android-emulator"
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
@@ -118,13 +150,13 @@ target "local-android-flutter" {
     LOCAL_ANDROID_FLUTTER_VERSION,
   ]
   cache-from = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
@@ -134,7 +166,7 @@ target "local-android-flutter" {
   )
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
-      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE
+      LOCAL_ANDROID_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []
   )
 }

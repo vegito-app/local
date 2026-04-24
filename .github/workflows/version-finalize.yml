@@ -48,6 +48,12 @@ on:
         type: string
         required: true
 
+      public_release:
+        description: "Optional public release body"
+        type: string
+        required: false
+        default: ""
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -126,55 +132,74 @@ jobs:
 
           echo "📝 Generating final release body..."
 
-          printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
-          {
-            echo ""
-            echo "---"
-            echo ""
-            echo "## 🌍 Consolidated Environment Metadata"
-            echo ""
-          } >> ./release-notes/FINAL_RELEASE_BODY.md
+          if [ -n "${{ inputs.public_release }}" ]; then
+            {
+              echo "## 📦 Release ${{ inputs.version }}"
+              echo ""
+              echo "### ✨ Changes"
+              echo ""
+              printf "%s\n" "${{ inputs.changelog }}"
+              echo ""
+              echo "---"
+              echo "### 🏗️ Infrastructure"
+              printf "%s\n" "${{ inputs.public_release }}"
+            } > ./release-notes/FINAL_RELEASE_BODY.md
+          else
+            printf "%s\n" "${{ inputs.changelog }}" > ./release-notes/FINAL_RELEASE_BODY.md
+          fi
+
+          if [ -z "${{ inputs.public_release }}" ]; then
+            {
+              echo ""
+              echo "---"
+              echo ""
+              echo "## 🌍 Consolidated Environment Metadata"
+              echo ""
+            } >> ./release-notes/FINAL_RELEASE_BODY.md
+          fi
 
           if ! command -v jq >/dev/null 2>&1; then
             echo "⚠️ jq not found, raw JSON will be displayed"
           fi
 
-          for file in "${files[@]}"; do
-            filename="$(basename "$file")"
+          if [ -z "${{ inputs.public_release }}" ]; then
+            for file in "${files[@]}"; do
+              filename="$(basename "$file")"
 
-            if [[ "$filename" == RELEASE_BODY-* ]]; then
-              env="${filename#RELEASE_BODY-}"
-              env="${env%.md}"
+              if [[ "$filename" == RELEASE_BODY-* ]]; then
+                env="${filename#RELEASE_BODY-}"
+                env="${env%.md}"
 
-              {
-                echo "### ${env}"
-                echo ""
-                cat "$file"
-                echo ""
-              } >> ./release-notes/FINAL_RELEASE_BODY.md
-
-            elif [[ "$filename" == SECURITY-* ]]; then
-              env="${filename#SECURITY-}"
-              env="${env%.json}"
-
-              REPORT_URL=$(jq -r '.securityReport' "$file" 2>/dev/null || echo "")
-
-              {
-                echo "#### 🔐 Security Report (${env})"
-                echo ""
-                if [ -n "$REPORT_URL" ]; then
-                  echo "- 🔍 [View Trivy Report](${REPORT_URL})"
-                else
-                  echo "- ⚠️ Unable to parse security metadata"
-                  echo "\n\n\`\`\`json"
+                {
+                  echo "### ${env}"
+                  echo ""
                   cat "$file"
-                  echo "\n\`\`\`"
-                fi
-                echo ""
-              } >> ./release-notes/FINAL_RELEASE_BODY.md
+                  echo ""
+                } >> ./release-notes/FINAL_RELEASE_BODY.md
 
-            fi
-          done
+              elif [[ "$filename" == SECURITY-* ]]; then
+                env="${filename#SECURITY-}"
+                env="${env%.json}"
+
+                REPORT_URL=$(jq -r '.securityReport' "$file" 2>/dev/null || echo "")
+
+                {
+                  echo "#### 🔐 Security Report (${env})"
+                  echo ""
+                  if [ -n "$REPORT_URL" ]; then
+                    echo "- 🔍 [View Trivy Report](${REPORT_URL})"
+                  else
+                    echo "- ⚠️ Unable to parse security metadata"
+                    echo "\n\n\`\`\`json"
+                    cat "$file"
+                    echo "\n\`\`\`"
+                  fi
+                  echo ""
+                } >> ./release-notes/FINAL_RELEASE_BODY.md
+
+              fi
+            done
+          fi
 
       - name: Checkout release commit 🏷
         run: |
