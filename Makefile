@@ -15,6 +15,10 @@ endif
 
 VERSION ?= $(LOCAL_VERSION)
 
+# Temporary override of DOCKERHUB_ENABLED 
+# Remove when GCR is back
+DOCKERHUB_ENABLED := true
+
 export
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
