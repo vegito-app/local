@@ -40,7 +40,7 @@ RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
     python3-gi \
     python3-gst-1.0 \
     gir1.2-gstreamer-1.0 \
-    gir1.2-gst-plugins-base-1.0 \
+    gir1.2-gst-plugins-base-1.0 ; \
     fi
 
 # 👤 Create non-root user
