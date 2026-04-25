@@ -9,8 +9,8 @@ RUN apk add --no-cache \
     wget musl-dev build-base \
     linux-headers 
 
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
+RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-git,target=/usr/local/cargo/git,sharing=locked \
     wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarinet_version}.tar.gz && \
     tar -xf v${clarinet_version}.tar.gz && \
     cd clarinet-${clarinet_version}  && \
@@ -24,7 +24,9 @@ COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh /usr/local/bin/
 COPY --from=docker-dind /usr/local/bin/modprobe /usr/local/bin/
 COPY --from=rust-build /usr/local/cargo/bin/clarinet /usr/local/bin
 
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     bash-completion \
     curl \
     git \

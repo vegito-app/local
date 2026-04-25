@@ -1,6 +1,9 @@
 FROM debian
 
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     curl \
     git \
     gpg \
@@ -14,13 +17,15 @@ RUN apt-get update && apt-get install -y \
 ARG TARGETPLATFORM
 
 # GCP CLI
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
     && apt-get update && apt-get install -y \
     google-cloud-cli-gke-gcloud-auth-plugin \
-    google-cloud-sdk \
-    && rm -rf /var/lib/apt/lists/* 
+    google-cloud-sdk
 
 # Terraform
 ARG terraform_version
@@ -30,13 +35,15 @@ RUN curl -OL https://releases.hashicorp.com/terraform/${terraform_version}/terra
 
 # kubectl
 ARG kubectl_version
-RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null \
+
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null \
     && curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null \
     && chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
     && chmod 644 /etc/apt/sources.list.d/kubernetes.list \
     && apt-get update \
-    && apt-get install -y kubectl \
-    && rm -rf /var/lib/apt/lists/* 
+    && apt-get install -y kubectl
 
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
@@ -139,7 +146,9 @@ ENV NVM_DIR=${HOME}/nvm
 ARG nvm_version
 ARG node_version
 
-RUN set -e ; \
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked \
+    set -e ; \
     # 
     mkdir -p ${NVM_DIR} ; \
     #
@@ -154,8 +163,7 @@ RUN set -e ; \
     standard-version \
     conventional-changelog \
     conventional-changelog-angular \
-    npm ; \
-    rm -rf ${HOME}/.npm 
+    npm
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
@@ -173,7 +181,10 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
 
 ARG gitleaks_version=8.28.0
 
-RUN case "$TARGETPLATFORM" in "linux/amd64") \
+
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    case "$TARGETPLATFORM" in "linux/amd64") \
     url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" ; \
     ;; \
     "linux/arm64") \
@@ -186,7 +197,7 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     && tar -xvzf /tmp/gitleaks.tar.gz -C /usr/local/bin \
     && rm /tmp/gitleaks.tar.gz \
     && gitleaks version \
-    && sudo apt-get update && sudo apt-get install -y \
+    && apt-get update && apt-get install -y \
     imagemagick \
     qrencode
 

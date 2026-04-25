@@ -3,7 +3,9 @@ FROM builder_image AS builder
 USER root
 
 # NodeJS for Appium
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs 
 
 ARG non_root_user=android
@@ -14,7 +16,9 @@ WORKDIR ${HOME}
 
 ENV PATH=${HOME}/node_modules/.bin:${PATH}
 
-RUN npm install appium@3.0.0-rc.2 && \
+RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked \
+    --mount=type=cache,id=local-appium-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked \
+    npm install appium@3.0.0-rc.2 && \
     appium driver install uiautomator2
 
 # 📥 Entrypoint to launch emulator + APK

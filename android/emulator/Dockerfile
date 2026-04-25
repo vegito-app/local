@@ -5,7 +5,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 USER root
 
 # ⚙️ Install minimum dependencies
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     curl unzip x11vnc xvfb xinit openbox xorg xdg-utils openjdk-17-jre \
     libgtk-3-dev libvulkan1 libpulse0 libasound2 fonts-liberation \
     menu-xdg xpra \
@@ -13,7 +16,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Basic tools
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     bash-completion git htop gnupg jq netcat-openbsd \
     rsync socat tree unzip vim wget xz-utils \
     locales net-tools \
@@ -63,8 +69,10 @@ RUN ARCH="$(dpkg --print-architecture)" && \
 
 ARG enable_audio=1
 ENV ENABLE_AUDIO=${enable_audio}
+
+USER root
 RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
-    sudo apt-get update && sudo apt-get install -y \
+    apt-get update && apt-get install -y \
     pulseaudio pulseaudio-utils \
     gstreamer1.0-tools \
     gstreamer1.0-plugins-base \
@@ -75,8 +83,10 @@ RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
     python3-gst-1.0 \
     gir1.2-gstreamer-1.0 \
     gir1.2-gst-plugins-base-1.0 \
-    && sudo rm -rf /var/lib/apt/lists/* ; \
+    && rm -rf /var/lib/apt/lists/* ; \
     fi
+
+USER ${non_root_user}
 
 COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
 COPY --chown=android:android display-start-xorg-host.sh /usr/local/bin/

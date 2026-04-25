@@ -1,6 +1,9 @@
 FROM debian_image
 
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     adb \
     curl \
     htop \
@@ -12,12 +15,12 @@ RUN apt-get update && apt-get install -y \
     socat \
     tree \
     procps \
-    python3 python3-pip python3-venv \
-    && rm -rf /var/lib/apt/lists/*
+    python3 python3-pip python3-venv
 
 RUN python3 -m venv /opt/venv
 
-RUN /opt/venv/bin/pip install --no-cache-dir \
+RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-pip-cache,target=/home/${non_root_user}/.cache/pip,sharing=locked \
+    /opt/venv/bin/pip install \
     firebase-admin \
     robotframework \
     robotframework-appiumlibrary \

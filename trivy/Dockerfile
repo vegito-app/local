@@ -2,7 +2,10 @@ FROM debian
 
 ARG non_root_user=trivy
 
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     wget \
     sudo \
     ca-certificates \
