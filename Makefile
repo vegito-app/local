@@ -17,7 +17,7 @@ VERSION ?= $(LOCAL_VERSION)
 
 # Temporary override of DOCKERHUB_ENABLED 
 # Remove when GCR is back
-DOCKERHUB_ENABLED := true
+DOCKERHUB_ENABLED = 1
 
 export
 
