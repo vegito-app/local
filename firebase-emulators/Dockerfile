@@ -50,15 +50,19 @@ RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,t
     rm -rf /tmp/* /var/tmp/*
 
 ARG non_root_user=firebase
+ARG uid=1000
+ARG gid=1000
 
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
 
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
+
+RUN ln -sf /usr/bin/bash /bin/sh
 
 USER ${non_root_user}
 
@@ -66,7 +70,9 @@ ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version=0.40.1
 ARG node_version=22.14.0
-RUN set -e ; \
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+    set -e ; \
     # 
     mkdir -p ${NVM_DIR} ; \
     #
@@ -81,8 +87,7 @@ RUN set -e ; \
     depcheck \
     npm-check-updates \
     npm-check \
-    npm ; \
-    rm -rf ${HOME}/.npm 
+    npm
 
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
@@ -96,10 +101,6 @@ COPY container-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-cache
 COPY entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
 COPY firebase-emulators-config-create-json.sh /usr/local/bin/firebase-emulators-config-create-json.sh
 
-USER root
-RUN ln -sf /usr/bin/bash /bin/sh
-
-USER ${non_root_user}
 ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
 
 COPY emulators-run.sh /usr/local/bin/firebase-emulators-run.sh

@@ -9,7 +9,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
   apt-get install -y nodejs 
 
 # Google Chrome ou Chromium selon arch
-
 RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
   ARCH="$(dpkg --print-architecture)" && \
@@ -20,6 +19,23 @@ RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,targe
   else \
   apt-get update && apt-get install -y chromium ; \
   fi
+
+# Make /bin/sh point to bash (and not dash)
+RUN ln -sf /usr/bin/bash /bin/sh
+
+# Install nvidia tools for monitoring GPU usage in Android Studio
+RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+  apt-get update && apt-get install -y nvtop pipx \
+  && pipx ensurepath \
+  && pipx install nvitop
+
+RUN apt-get update && apt-get install -y locales \
+  && rm -rf /var/lib/apt/lists/* && \
+  dpkg-reconfigure locales && \
+  locale-gen en_US.UTF-8 
+
+ENV LANG=en_US.UTF-8
 
 ARG non_root_user=android
 USER ${non_root_user}
@@ -56,27 +72,6 @@ RUN chmod +x \
   /usr/local/bin/caches-refresh.sh \
   /usr/local/bin/android-studio.sh \
   /usr/local/bin/android-studio-entrypoint.sh
-
-USER root
-
-# Make /bin/sh point to bash (and not dash)
-RUN ln -sf /usr/bin/bash /bin/sh
-
-# Install nvidia tools for monitoring GPU usage in Android Studio
-RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-  apt-get update && apt-get install -y nvtop pipx \
-  && pipx ensurepath \
-  && pipx install nvitop
-
-RUN apt-get update && apt-get install -y locales \
-  && rm -rf /var/lib/apt/lists/* && \
-  dpkg-reconfigure locales && \
-  locale-gen en_US.UTF-8 
-
-ENV LANG=en_US.UTF-8
-
-USER ${non_root_user}
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["studio"]

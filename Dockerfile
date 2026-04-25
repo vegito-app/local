@@ -5,7 +5,6 @@ COPY proxy proxy
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-# FROM ${debian_image}
 FROM debian
 
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
@@ -57,8 +56,7 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
     wget \
     xz-utils \
     zip \
-    zsh \
-    && rm -rf /var/lib/apt/lists/*
+    zsh
 
 ARG oh_my_zsh_version=1.2.1
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
@@ -204,76 +202,11 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-ARG non_root_user=vegito
-
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
-
-ENV HOME=/home/${non_root_user}
-
-WORKDIR ${HOME}
-
-ENV PATH=${PATH}:${HOME}/go/bin
-
-ENV NVM_DIR=${HOME}/nvm
-
-ARG nvm_version
-ARG node_version
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked \
-    set -e ; \
-    # 
-    mkdir -p ${NVM_DIR} ; \
-    #
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
-    . ${NVM_DIR}/nvm.sh ; \
-    nvm install ${node_version} ; \
-    nvm alias default ${node_version} ; \
-    nvm use default ;  \
-    # 
-    npm install -g \
-    depcheck \
-    firebase-tools \
-    npm-check-updates \
-    npm-check \
-    npm \
-    @devcontainers/cli ; \
-    rm -rf ${HOME}/.npm 
-
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
-
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y \
     emacs-nox
 
-USER ${non_root_user}
-
-RUN emacs --batch --eval "(require 'package)" \
-    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
-    --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" \
-    --eval "(package-install 'magit)"
-# Go tools
-RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg/mod,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked \
-    GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
-    go install -v golang.org/x/tools/gopls@latest \
-    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
-    && go install -v github.com/josharian/impl@v1.4.0 \
-    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
-    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
-    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
-    && go install -v github.com/jesseduffield/lazydocker@latest \
-    "
-
-ENV PATH=${HOME}/bin:$PATH
-
-USER root
 ARG gitleaks_version=8.28.0
 
 RUN case "$TARGETPLATFORM" in "linux/amd64") \
@@ -294,14 +227,75 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
 
 RUN ln -sf /usr/bin/bash /bin/sh
 
+ARG non_root_user=vegito
+ARG uid=1000
+ARG gid=1000
+
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
+
+ENV HOME=/home/${non_root_user}
+
+WORKDIR ${HOME}
+
+ENV PATH=${PATH}:${HOME}/go/bin
+
+ENV NVM_DIR=${HOME}/nvm
+
 USER ${non_root_user}
+
+ARG nvm_version
+ARG node_version
+RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+    set -e ; \
+    # 
+    mkdir -p ${NVM_DIR} ; \
+    #
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
+    . ${NVM_DIR}/nvm.sh ; \
+    nvm install ${node_version} ; \
+    nvm alias default ${node_version} ; \
+    nvm use default ;  \
+    # 
+    npm install -g \
+    depcheck \
+    firebase-tools \
+    npm-check-updates \
+    npm-check \
+    npm \
+    @devcontainers/cli
+
+ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+
+# Install magit
+RUN emacs --batch --eval "(require 'package)" \
+    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
+    --eval "(package-initialize)" \
+    --eval "(unless package-archive-contents (package-refresh-contents))" \
+    --eval "(package-install 'magit)"
+
+# Go tools
+RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
+    GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
+    go install -v golang.org/x/tools/gopls@latest \
+    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
+    && go install -v github.com/josharian/impl@v1.4.0 \
+    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
+    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
+    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
+    && go install -v github.com/jesseduffield/lazydocker@latest \
+    && go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest \
+    "
+
+ENV PATH=${HOME}/bin:$PATH
 
 COPY container-install.sh /usr/local/bin/local-container-install.sh
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
-
-# oapi-codegen
-RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg/mod,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked \
-    go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest

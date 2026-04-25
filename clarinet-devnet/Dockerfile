@@ -110,14 +110,16 @@ RUN apt-get update && apt-get install -y \
     uidmap 
 
 ARG non_root_user=clarinet
+ARG uid=1000
+ARG gid=1000
+
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
-
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
 
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh

@@ -1,6 +1,9 @@
 FROM builder
 
 ARG non_root_user=vegito
+ARG uid=1000
+ARG gid=1000
+
 USER ${non_root_user}
 
 WORKDIR /src
@@ -14,21 +17,8 @@ COPY backend/go.mod backend/go.sum ./backend/
 RUN go work init \
     ./backend 
 
-USER root
-RUN  --mount=type=cache,id=vegito-go-mod,target=/home/${non_root_user}/go/pkg/mod,sharing=locked \
-    --mount=type=cache,id=vegito-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked \
-    chown -R ${non_root_user}:${non_root_user} \
-    /home/${non_root_user}/go/pkg/mod \
-    /home/${non_root_user}/.cache/go-build \
-    && mkdir -p /home/${non_root_user}/go/pkg/mod \
-    && chown -R ${non_root_user}:${non_root_user} \
-    /home/${non_root_user}/go/pkg/mod \
-    /home/${non_root_user}/.cache/go-build
-
-USER ${non_root_user}
-
-RUN  --mount=type=cache,id=vegito-go-mod,target=/home/${non_root_user}/go/pkg/mod,sharing=locked \
-    --mount=type=cache,id=vegito-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked \
+RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     go work sync && \
     go mod download all && \
     go build -buildmode=archive \

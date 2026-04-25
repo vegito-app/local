@@ -1,7 +1,5 @@
 FROM debian
 
-ARG non_root_user=trivy
-
 
 RUN --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -11,10 +9,15 @@ RUN --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-cache,target=/var/ca
     ca-certificates \
     gnupg \
     lsb-release \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+    curl
 
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+ARG non_root_user=trivy
+ARG uid=1000
+ARG gid=1000
+
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
     && chmod 0440 /etc/sudoers.d/${non_root_user}
 
