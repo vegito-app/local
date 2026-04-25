@@ -9,6 +9,8 @@ FROM debian
 
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
+ARG TARGETPLATFORM
+
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y \
