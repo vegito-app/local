@@ -116,6 +116,10 @@ variable "platforms" {
   ]
 }
 
+variable "LOCAL_RELEASE_BUILD_MAX_PARALLELISM" {
+  default = 2
+}
+
 # Groups are used to build incrementally the images in the correct order:
 # - Dockerhub: the base images that we replicate to our private repository
 # - Runners: the most basic level, they are used to run the services and applications
@@ -211,6 +215,16 @@ group "local-applications-ci" {
   targets = [
     "vegito-example-application-applications-ci",
   ]
+}
+group "default" {
+
+  targets = [
+    "local-release",
+    "local-release-ci",
+  ]
+
+  max_parallelism = LOCAL_RELEASE_BUILD_MAX_PARALLELISM
+
 }
 
 group "local-release" {
