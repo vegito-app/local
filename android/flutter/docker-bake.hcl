@@ -51,7 +51,7 @@ variable "ANDROID_NDK_VERSION" {
 }
 
 variable "FLUTTER_VERSION" {
-  default = "3.35.6"
+  default = "3.41.0"
 }
 
 group "local-android-flutter-ci" {
