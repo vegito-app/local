@@ -14,19 +14,15 @@ VEGITO_LOCAL_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAG
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
+ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
+
 local-docker-login-gcr: gcloud-auth-docker local-docker-login
 	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
 .PHONY: local-docker-login-gcr
 
-local-docker-login:
-ifeq ($(DOCKERHUB_ENABLED),1) 
-	@echo "Logging into Docker Hub"
-	@$(MAKE) local-docker-login-dockerhub 
-else
-	@echo "Logging into Google Cloud Registry"
-	@$(MAKE) local-docker-login-gcr
-endif
+local-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-login-%)
+	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
 .PHONY: local-docker-login
 
 docker-sock:
@@ -77,11 +73,11 @@ $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-bui
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
 
-local-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-release-%-ci)
+local-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-%-release-ci)
 	@echo "✅ CI Built and pushed images to all registries successfully."
 .PHONY: local-docker-images-multi-registry-release-ci
 
-local-docker-gcr-images-ci: local-docker-images-ci
+local-docker-images-gcr-release-ci: local-docker-images-release-ci
 .PHONY: local-docker-gcr-images-ci
 
 local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
