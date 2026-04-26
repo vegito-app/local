@@ -56,6 +56,10 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
+# Use docker.io as the default registry for local public images, but allow overriding it if needed.
+# Remove after gcr is back in shape and can be used as the default registry for local public images.
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
+
 -include local.mk
 -include gcloud.mk
 -include android.mk
