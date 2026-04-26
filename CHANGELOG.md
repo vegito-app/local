@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.23.0](https://github.com/vegito-app/local/compare/v1.22.0...v1.23.0) (2026-04-26)
+
+
+### Features
+
+* **android-emulator:** add audio support and improve emulator starting process ([e0d0c6c](https://github.com/vegito-app/local/commit/e0d0c6c8758dff663df1aa2bc04089c92f6b9b4a))
+* **android/studio:** update default Android studio version ([84bbe94](https://github.com/vegito-app/local/commit/84bbe94e51cece16580117b78e9581c195378a2e))
+* **docker-bake:** add 'type=inline' to cache configuration in various components ([63a8e51](https://github.com/vegito-app/local/commit/63a8e514efbcf643e50f5dcc8bebd9208dafa7f6))
+* **docker-compose:** update environment variables and device permissions ([3b59cc6](https://github.com/vegito-app/local/commit/3b59cc6b67d77773d8f4bdbd5194f30bbeb62ee2))
+* **docker-config:** update builder contexts and image references ([5c12e9a](https://github.com/vegito-app/local/commit/5c12e9ad8d6d035d7240e85ed7c728db1129fd54))
+* **docker:** add default group in docker-bake.hcl ([3ede667](https://github.com/vegito-app/local/commit/3ede6673efcceba78c66c968be3046a2e210c8f5))
+* **docker:** add Docker Hub integration support ([e45fee3](https://github.com/vegito-app/local/commit/e45fee3b399036281a8af43bbad9717549ea2713))
+* **docker:** add local cache reading to Docker build targets ([e7a7ea2](https://github.com/vegito-app/local/commit/e7a7ea247aff3abe9a6544c3ac5f1634dd933ce5))
+* **docker:** add local release targets to image build process ([d28176d](https://github.com/vegito-app/local/commit/d28176d72c4ea734259fd70b4085debff9d7fa11))
+* **docker:** add optional assignment for image base variables ([b45671e](https://github.com/vegito-app/local/commit/b45671e59ff92b8912b2d522344725a0559fed6b))
+* **docker:** enable caching in clarinet-devnet Docker configuration ([0856de8](https://github.com/vegito-app/local/commit/0856de8887a0d81ab78ca81ba159d491ec68e2f1))
+* **docker:** Enable DockerHub temporarily ([c30db79](https://github.com/vegito-app/local/commit/c30db7953a57bbb3ebfdcbf383bfeb8824794bff))
+* **Dockerfile:** add Nvidia and locale support ([a6b22b7](https://github.com/vegito-app/local/commit/a6b22b725e67171b914098d33ac5e6223ef31312))
+* **dockerfile:** add tmux to installed packages ([f6e6d19](https://github.com/vegito-app/local/commit/f6e6d19ef13ca12f2d64cfa344837cf9c3aebcc3))
+* **dockerfiles:** add retry option for apt-get update commands ([28006ed](https://github.com/vegito-app/local/commit/28006ed18abc9dc287c6ed59bae59bad8be4e1f9))
+* **dockerfiles:** implement build cache in Dockerfiles ([b44e0f6](https://github.com/vegito-app/local/commit/b44e0f620092fb48ecf1786b65a8f4c8d4bbcdf8))
+* **Dockerfiles:** optimize Dockerfiles and enhance non-root user support ([2aa1cef](https://github.com/vegito-app/local/commit/2aa1cef8479b3dc11e0e4f5ae235b055541afe10))
+* **docker:** multi-registry support with dynamic logging and build configuration ([4ba8d0a](https://github.com/vegito-app/local/commit/4ba8d0a12f9a05499c34ea6253cd1fb3d4cddb71))
+* **docker:** refactor NVIDIA GPU setup and driver installation script ([70b1508](https://github.com/vegito-app/local/commit/70b150802ff2539b37d90b0b8bbd3456352bf119))
+* **docker:** update emulator image target in Android Flutter Docker configuration ([9adcace](https://github.com/vegito-app/local/commit/9adcace0b277a9f07a6510785989410704e46ef2))
+* **docs:** enhance README with detailed usage and build philosophy ([fa6dd33](https://github.com/vegito-app/local/commit/fa6dd338a60c7d47e89d8686414083e831af54c9))
+* **dotenv:** add LOCAL_BUILDER_IMAGE variable for dev environment ([9a13a03](https://github.com/vegito-app/local/commit/9a13a0324a49e8664db865cd4228121555d34f32))
+* **emulator:** enhance Xorg display start script and updated GitHub actions ([fd34a0c](https://github.com/vegito-app/local/commit/fd34a0c06e6d8700a7ec258ffab7fbcc8674df2e))
+* **emulator:** implement display mode conditions and start dbus in entrypoint ([7d526f3](https://github.com/vegito-app/local/commit/7d526f328a147d384e809e2b0f3433e58469b7a1))
+* **emulator:** switch to using existing display in xorg script ([41f6afa](https://github.com/vegito-app/local/commit/41f6afa99eefd47b51b26902405e35dfe00cd388))
+* **flutter:** update Flutter version in Docker configuration ([51242ab](https://github.com/vegito-app/local/commit/51242ab8b99d6013dfcb610d74732c9f35c60212))
+* **github-actions:** add DockerHub integration to build workflow ([8fa7547](https://github.com/vegito-app/local/commit/8fa75473640cc3580fc576dcc0cf5cb41da2bf75))
+* **github-actions:** update workflow configuration ([5f9044e](https://github.com/vegito-app/local/commit/5f9044e37bf97f55b96a10c77116811c8c1ce2f4))
+* **makefile:** add temporary default registry for local public images ([a9f759f](https://github.com/vegito-app/local/commit/a9f759f2820749076f576b61931c933550f355dd))
+* **testing:** add environment variable for Android emulator headless mode ([b67763b](https://github.com/vegito-app/local/commit/b67763b3f9f3c3548f1e0624d2d55e0133875134))
+
+
+### Bug Fixes
+
+* **docker:** correct target names in docker Makefile and HCL file ([eb3e871](https://github.com/vegito-app/local/commit/eb3e871d68864be4ac0bd35f246f5eed89ec3269))
+* **docker:** correct typo in local docker image build command ([ce35bfb](https://github.com/vegito-app/local/commit/ce35bfb221eb6eab42695a78b370645c80371a82))
+
 ## [1.22.0](https://github.com/vegito-app/local/compare/v1.21.0...v1.22.0) (2026-04-14)
 
 
