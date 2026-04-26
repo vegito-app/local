@@ -5,12 +5,15 @@ COPY proxy proxy
 RUN cd proxy \
     && GOBIN=/usr/local/bin go install -v
 
-# FROM ${debian_image}
 FROM debian
 
 COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
-RUN apt-get update && apt-get install -y \
+ARG TARGETPLATFORM
+
+RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     apt-transport-https \
     bash-completion \
     btop \
@@ -55,8 +58,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     xz-utils \
     zip \
-    zsh \
-    && rm -rf /var/lib/apt/lists/*
+    zsh
 
 ARG oh_my_zsh_version=1.2.1
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
@@ -64,13 +66,14 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 ARG TARGETPLATFORM
 
 # GCP CLI
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
-    && apt-get update && apt-get install -y \
+    && apt-get -o Acquire::Retries=3 update && apt-get install -y \
     google-cloud-cli-gke-gcloud-auth-plugin \
-    google-cloud-sdk \
-    && rm -rf /var/lib/apt/lists/* 
+    google-cloud-sdk
 
 # Terraform
 ARG terraform_version=1.11.2
@@ -80,13 +83,14 @@ RUN curl -OL https://releases.hashicorp.com/terraform/${terraform_version}/terra
 
 # kubectl
 ARG kubectl_version=1.32
-RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null \
+RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null \
     && curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null \
     && chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
     && chmod 644 /etc/apt/sources.list.d/kubernetes.list \
-    && apt-get update \
-    && apt-get install -y kubectl \
-    && rm -rf /var/lib/apt/lists/* 
+    && apt-get -o Acquire::Retries=3 update \
+    && apt-get install -y kubectl
 
 # k9s
 ARG k9s_version=0.50.9
@@ -99,7 +103,7 @@ RUN case "$TARGETPLATFORM" in \
     ;; \
     *) echo >&2 "error: unsupported 'k9s' architecture ($TARGETPLATFORM)"; exit 1 ;; \
     esac; \
-    curl -Lo /tmp/k9s.deb $url && apt install /tmp/k9s.deb && rm /tmp/k9s.deb; \
+    curl -Lo /tmp/k9s.deb $url && apt-get -o Acquire::Retries=3 update && apt-get install -y /tmp/k9s.deb && rm /tmp/k9s.deb; \
     k9s version
 
 # Install Helm
@@ -200,71 +204,11 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-ARG non_root_user=vegito
+RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
+    emacs-nox
 
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
-
-ENV HOME=/home/${non_root_user}
-
-WORKDIR ${HOME}
-
-ENV PATH=${PATH}:${HOME}/go/bin
-
-ENV NVM_DIR=${HOME}/nvm
-
-ARG nvm_version
-ARG node_version
-RUN set -e ; \
-    # 
-    mkdir -p ${NVM_DIR} ; \
-    #
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
-    . ${NVM_DIR}/nvm.sh ; \
-    nvm install ${node_version} ; \
-    nvm alias default ${node_version} ; \
-    nvm use default ;  \
-    # 
-    npm install -g \
-    depcheck \
-    firebase-tools \
-    npm-check-updates \
-    npm-check \
-    npm \
-    @devcontainers/cli ; \
-    rm -rf ${HOME}/.npm 
-
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
-
-RUN apt-get update && apt-get install -y \
-    emacs-nox \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-USER ${non_root_user}
-
-RUN emacs --batch --eval "(require 'package)" \
-    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
-    --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" \
-    --eval "(package-install 'magit)"
-# Go tools
-RUN GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
-    go install -v golang.org/x/tools/gopls@latest \
-    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
-    && go install -v github.com/josharian/impl@v1.4.0 \
-    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
-    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
-    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
-    && go install -v github.com/jesseduffield/lazydocker@latest \
-    "
-
-ENV PATH=${HOME}/bin:$PATH
-
-USER root
 ARG gitleaks_version=8.28.0
 
 RUN case "$TARGETPLATFORM" in "linux/amd64") \
@@ -285,12 +229,75 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
 
 RUN ln -sf /usr/bin/bash /bin/sh
 
+ARG non_root_user=vegito
+ARG uid=1000
+ARG gid=1000
+
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
+
+ENV HOME=/home/${non_root_user}
+
+WORKDIR ${HOME}
+
+ENV PATH=${PATH}:${HOME}/go/bin
+
+ENV NVM_DIR=${HOME}/nvm
+
 USER ${non_root_user}
+
+ARG nvm_version
+ARG node_version
+RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+    set -e ; \
+    # 
+    mkdir -p ${NVM_DIR} ; \
+    #
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
+    . ${NVM_DIR}/nvm.sh ; \
+    nvm install ${node_version} ; \
+    nvm alias default ${node_version} ; \
+    nvm use default ;  \
+    # 
+    npm install -g \
+    depcheck \
+    firebase-tools \
+    npm-check-updates \
+    npm-check \
+    npm \
+    @devcontainers/cli
+
+ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+
+# Install magit
+RUN emacs --batch --eval "(require 'package)" \
+    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
+    --eval "(package-initialize)" \
+    --eval "(unless package-archive-contents (package-refresh-contents))" \
+    --eval "(package-install 'magit)"
+
+# Go tools
+RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
+    GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
+    go install -v golang.org/x/tools/gopls@latest \
+    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
+    && go install -v github.com/josharian/impl@v1.4.0 \
+    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
+    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
+    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
+    && go install -v github.com/jesseduffield/lazydocker@latest \
+    && go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest \
+    "
+
+ENV PATH=${HOME}/bin:$PATH
 
 COPY container-install.sh /usr/local/bin/local-container-install.sh
 
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
-
-# oapi-codegen
-RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest

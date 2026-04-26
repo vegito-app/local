@@ -1,9 +1,9 @@
 variable "LOCAL_CLARINET_DEVNET_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-${VERSION}"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE" {

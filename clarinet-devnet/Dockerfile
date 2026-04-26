@@ -9,8 +9,8 @@ RUN apk add --no-cache \
     wget musl-dev build-base \
     linux-headers 
 
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
+RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
+    --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-git,target=/usr/local/cargo/git,sharing=locked \
     wget -nv https://github.com/hirosystems/clarinet/archive/refs/tags/v${clarinet_version}.tar.gz && \
     tar -xf v${clarinet_version}.tar.gz && \
     cd clarinet-${clarinet_version}  && \
@@ -24,7 +24,9 @@ COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh /usr/local/bin/
 COPY --from=docker-dind /usr/local/bin/modprobe /usr/local/bin/
 COPY --from=rust-build /usr/local/cargo/bin/clarinet /usr/local/bin
 
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     bash-completion \
     curl \
     git \
@@ -101,21 +103,23 @@ RUN \
     rootlesskit --version; \
     vpnkit --version;
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get -o Acquire::Retries=3 update && apt-get install -y \
     iproute2 \
     iptables \
     procps \
     uidmap 
 
 ARG non_root_user=clarinet
+ARG uid=1000
+ARG gid=1000
+
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
-
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
 
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh

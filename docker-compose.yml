@@ -4,16 +4,16 @@ volumes:
 services:
   dev:
     tty: true
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
     env_file:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
-      DOCKERHUB_ENABLED: ${DOCKERHUB_ENABLED:-0}
-      ENABLE_LOCAL_CACHE: ${ENABLE_LOCAL_CACHE:-0}
-      DOCKERHUB_PAT: ${DOCKERHUB_PAT}
-      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      VEGITO_DOCKER_REGISTRY_MODE: ${VEGITO_DOCKER_REGISTRY_MODE}
+      VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
+      VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
+      VEGITO_DOCKERHUB_USERNAME: ${VEGITO_DOCKERHUB_USERNAME}
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -29,7 +29,7 @@ services:
 
   firebase-emulators:
     tty: true
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -47,7 +47,7 @@ services:
   clarinet-devnet:
     tty: true
     privileged: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -73,7 +73,7 @@ services:
     cap_add:
       - SYS_ADMIN
       - SYS_NICE
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
     env_file:
       - .env
     entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
@@ -114,7 +114,7 @@ services:
       sleep infinity
       '
   vault-dev:
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
     environment:
@@ -132,7 +132,7 @@ services:
     tty: true
   robotframework:
     tty: true
-    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-latest}
+    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}

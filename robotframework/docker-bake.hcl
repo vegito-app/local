@@ -1,9 +1,9 @@
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-${VERSION}"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST" {

@@ -15,6 +15,8 @@ endif
 
 VERSION ?= $(LOCAL_VERSION)
 
+VEGITO_DOCKER_REGISTRIES ?= dockerhub
+
 export
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
@@ -52,7 +54,11 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   trivy
 #   clarinet-devnet \
 
-LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
+
+# Use docker.io as the default registry for local public images, but allow overriding it if needed.
+# Remove after gcr is back in shape and can be used as the default registry for local public images.
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
 
 -include local.mk
 -include gcloud.mk
@@ -76,11 +82,25 @@ node-modules: local-node-modules
 dotenv: local-dotenv
 .PHONY: dotenv
 
-images: local-docker-images
+# Local/dev: build all images without pushing them.
+# Tags are generated for all configured registries.
+images: local-docker-images-multi-registry-release
 .PHONY: images
 
-images-ci: local-docker-images-release-ci
+# Local/dev: build images in smaller groups without pushing them.
+# Useful when full parallel builds are too heavy for the workstation.
+images-groups-build: local-docker-images
+.PHONY: images-groups-build
+
+# CI: build and push all images in parallel.
+# Fastest path; requires runners with enough CPU, RAM and disk I/O.
+images-ci: local-docker-images-multi-registry-release-ci
 .PHONY: images-ci
+
+# CI: build and push images in smaller groups.
+# Safer on constrained runners; slower than the full parallel path.
+images-groups-build-ci: local-docker-images-ci
+.PHONY: images-groups-build-ci
 
 images-pull: \
 local-docker-images-pull-parallel \

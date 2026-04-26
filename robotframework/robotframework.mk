@@ -1,6 +1,6 @@
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR ?= $(LOCAL_DIR)/example-application/tests
 LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(LOCAL_ROBOTFRAMEWORK_TESTS_DIR)/output
-LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):robotframework-$(VERSION)
+LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):robotframework-$(VERSION)
 
 local-robotframework-container-up: local-robotframework-container-rm
 	@echo "Starting robotframework tests container..."

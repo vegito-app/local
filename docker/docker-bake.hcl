@@ -30,7 +30,7 @@ variable "GO_VERSION" {
 }
 
 variable "TRIVY_VERSION" {
-  default = "0.69.3"
+  default = "0.70.0"
 }
 
 variable "NODE_VERSION" {
@@ -114,6 +114,10 @@ variable "platforms" {
     "linux/amd64",
     "linux/arm64",
   ]
+}
+
+variable "LOCAL_RELEASE_BUILD_MAX_PARALLELISM" {
+  default = 2
 }
 
 # Groups are used to build incrementally the images in the correct order:
@@ -210,6 +214,28 @@ group "local-applications" {
 group "local-applications-ci" {
   targets = [
     "vegito-example-application-applications-ci",
+  ]
+}
+group "default" {
+
+  targets = [
+    "local-release",
+    "local-release-ci",
+  ]
+
+  max_parallelism = LOCAL_RELEASE_BUILD_MAX_PARALLELISM
+
+}
+
+group "local-release" {
+  targets = [
+    "local-tools",
+    "local-runners",
+    "local-builders",
+    "local-services",
+    "local-applications",
+
+    "vegito-example-application-release",
   ]
 }
 
