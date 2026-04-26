@@ -1,9 +1,9 @@
 variable "LOCAL_ANDROID_APPIUM_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE" {
@@ -43,7 +43,7 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-appium-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
 }
 
 group "local-android-appium-ci" {

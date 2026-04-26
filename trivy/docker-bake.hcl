@@ -1,9 +1,9 @@
 variable "LOCAL_TRIVY_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-${VERSION}"
 }
 
 variable "LOCAL_TRIVY_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-latest"
 }
 
 variable "LOCAL_TRIVY_IMAGE_REGISTRY_CACHE" {

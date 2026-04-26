@@ -1,5 +1,5 @@
 LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
-LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-$(VERSION)
+LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-$(VERSION)
 
 -include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
@@ -176,7 +176,7 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 ################################################################################
 LOCAL_ANDROID_MOBILE_DIR ?= $(LOCAL_ANDROID_DIR)
 LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_ANDROID_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
-LOCAL_ANDROID_MOBILE_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}
+LOCAL_ANDROID_MOBILE_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:application-mobile-${VERSION}
 
 local-android-mobile-image-tag-apk-extract:
 	@echo "Creating temp container from image $(LOCAL_ANDROID_MOBILE_IMAGE)"

@@ -41,7 +41,7 @@ VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 # 
-LOCAL_BUILDER_IMAGE=${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION:-latest}
+LOCAL_BUILDER_IMAGE=${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${LOCAL_VERSION:-latest}
 # 
 GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest

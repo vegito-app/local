@@ -54,7 +54,7 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   trivy
 #   clarinet-devnet \
 
-LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):example-application-$(VERSION)
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
 -include local.mk
 -include gcloud.mk

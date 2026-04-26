@@ -1,9 +1,9 @@
 variable "LOCAL_ANDROID_FLUTTER_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-flutter-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-latest"
 }
 
 variable "LOCAL_ANDROID_FLUTTER_REGISTRY_CACHE_IMAGE" {

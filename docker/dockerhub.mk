@@ -31,7 +31,7 @@ local-docker-images-dockerhub-release:
 	echo "🚀 Building for $(@:local-docker-images-%=%)"
 	$(MAKE) local-docker-images-release \
 	  LOCAL_DOCKER_BUILDX_BUILD_GROUPS="$(LOCAL_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
-	  VEGITO_LOCAL_PUBLIC_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-public \
+	  VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-public \
 	  VEGITO_LOCAL_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-private \
 .PHONY: local-docker-images-dockerhub-release
 
@@ -39,6 +39,6 @@ local-docker-images-dockerhub-release-ci:
 	@echo "🚀 Building for $(@:local-docker-images-%-ci=%)"
 	@$(MAKE) local-docker-images-release-ci \
 	  LOCAL_DOCKER_BUILDX_BUILD_GROUPS="$(LOCAL_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
-	  VEGITO_LOCAL_PUBLIC_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-public \
+	  VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-public \
 	  VEGITO_LOCAL_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-private \
 .PHONY: local-docker-images-dockerhub-release-ci
