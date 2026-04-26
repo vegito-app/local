@@ -8,7 +8,7 @@ USER root
 
 RUN --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     curl unzip x11vnc xvfb xinit openbox xorg xdg-utils openjdk-17-jre \
     libgtk-3-dev libvulkan1 libpulse0 libasound2 fonts-liberation \
     menu-xdg xpra \
@@ -23,14 +23,14 @@ RUN --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-cache,tar
 # NVIDIA
 RUN export DEBIAN_FRONTEND=noninteractive ; \
     sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xserver-xorg-video-nvidia nvidia-driver mesa-utils
 
 ARG enable_audio=1
 ENV ENABLE_AUDIO=${enable_audio}
 
 RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     pulseaudio pulseaudio-utils \
     gstreamer1.0-tools \
     gstreamer1.0-plugins-base \

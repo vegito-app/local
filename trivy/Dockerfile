@@ -3,7 +3,7 @@ FROM debian
 
 RUN --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     wget \
     sudo \
     ca-certificates \

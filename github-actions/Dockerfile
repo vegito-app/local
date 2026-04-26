@@ -3,7 +3,7 @@ FROM debian
 
 RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     curl \
     git \
     gpg \
@@ -23,7 +23,7 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,targe
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
-    && apt-get update && apt-get install -y \
+    && apt-get -o Acquire::Retries=3 update && apt-get install -y \
     google-cloud-cli-gke-gcloud-auth-plugin \
     google-cloud-sdk
 
@@ -42,7 +42,7 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,targe
     && curl -fsSL https://pkgs.k8s.io/core:/stable:/v${kubectl_version}/deb/Release.key | gpg --dearmor | tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null \
     && chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
     && chmod 644 /etc/apt/sources.list.d/kubernetes.list \
-    && apt-get update \
+    && apt-get -o Acquire::Retries=3 update \
     && apt-get install -y kubectl
 
 # Install Helm
@@ -147,7 +147,7 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,targe
     && tar -xvzf /tmp/gitleaks.tar.gz -C /usr/local/bin \
     && rm /tmp/gitleaks.tar.gz \
     && gitleaks version \
-    && apt-get update && apt-get install -y \
+    && apt-get -o Acquire::Retries=3 update && apt-get install -y \
     imagemagick \
     qrencode
 

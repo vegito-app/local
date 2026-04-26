@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,targe
   dpkg -i google-chrome-stable_current_amd64.deb && \
   apt-get install -f -y && rm google-chrome-stable_current_amd64.deb ; \
   else \
-  apt-get update && apt-get install -y chromium ; \
+  apt-get -o Acquire::Retries=3 update && apt-get install -y chromium ; \
   fi
 
 # Make /bin/sh point to bash (and not dash)
@@ -26,11 +26,11 @@ RUN ln -sf /usr/bin/bash /bin/sh
 # Install nvidia tools for monitoring GPU usage in Android Studio
 RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-  apt-get update && apt-get install -y nvtop pipx \
+  apt-get -o Acquire::Retries=3 update && apt-get install -y nvtop pipx \
   && pipx ensurepath \
   && pipx install nvitop
 
-RUN apt-get update && apt-get install -y locales \
+RUN apt-get -o Acquire::Retries=3 update && apt-get install -y locales \
   && rm -rf /var/lib/apt/lists/* && \
   dpkg-reconfigure locales && \
   locale-gen en_US.UTF-8 

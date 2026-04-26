@@ -8,7 +8,7 @@ USER root
 # make, git, unzip, wget, curl, zip : miscellaneous utilities
 RUN --mount=type=cache,id=local-flutter-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-flutter-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     clang cmake ninja-build openjdk-17-jdk \
     make git unzip wget curl zip
 

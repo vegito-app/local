@@ -26,7 +26,7 @@ COPY --from=rust-build /usr/local/cargo/bin/clarinet /usr/local/bin
 
 RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     bash-completion \
     curl \
     git \
@@ -103,7 +103,7 @@ RUN \
     rootlesskit --version; \
     vpnkit --version;
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get -o Acquire::Retries=3 update && apt-get install -y \
     iproute2 \
     iptables \
     procps \
