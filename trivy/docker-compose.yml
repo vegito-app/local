@@ -1,7 +1,7 @@
 services:
   trivy:
     tty: true
-    image: ${LOCAL_TRIVY_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-latest}
+    image: ${LOCAL_TRIVY_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-latest}
     env_file:
       - .env
     environment:

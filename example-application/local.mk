@@ -1,5 +1,5 @@
 # Version of the vegito-app/local development environment images to use:
-LOCAL_VERSION ?= v1.20.1
+LOCAL_VERSION ?= v1.22.0
 # ------------------------------------------
 # Subtree ./local
 # ___________________________________________
@@ -10,7 +10,7 @@ LOCAL_VERSION ?= v1.20.1
 git-subtree-local-pull:
 	@echo "⬇︎ Pulling the local subtree..."
 	@git subtree pull --prefix local \
-	  git@github.com:vegito-app/local.git $(LOCAL_VERSION) --squash
+	  git@github.com:vegito-app/local.git main --squash
 	@echo "Local subtree pulled successfully."
 .PHONY: git-subtree-local-pull
 
@@ -30,9 +30,9 @@ LOCAL_GO_MODULES ?= \
 	$(VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR)
 
 LOCAL_GO_MODULES = \
-LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):robotframework-$(LOCAL_VERSION)
+LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):robotframework-$(LOCAL_VERSION)
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)
-LOCAL_BUILDER_IMAGE_VERSION=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):builder-${LOCAL_VERSION}
+LOCAL_BUILDER_IMAGE_VERSION=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-${LOCAL_VERSION}
 
 LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \

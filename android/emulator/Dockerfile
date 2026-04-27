@@ -5,29 +5,52 @@ ENV DEBIAN_FRONTEND=noninteractive
 USER root
 
 # ⚙️ Install minimum dependencies
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-android-emulator-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     curl unzip x11vnc xvfb xinit openbox xorg xdg-utils openjdk-17-jre \
     libgtk-3-dev libvulkan1 libpulse0 libasound2 fonts-liberation \
     menu-xdg xpra \
     qemu-kvm aapt sudo \
-    && rm -rf /var/lib/apt/lists/*
-
-# Basic tools
-RUN apt-get update && apt-get install -y \
     bash-completion git htop gnupg jq netcat-openbsd \
     rsync socat tree unzip vim wget xz-utils \
     locales net-tools \
-    && rm -rf /var/lib/apt/lists/* && dpkg-reconfigure locales
+    && locale-gen en_US.UTF-8 \
+    && dpkg-reconfigure locales
+
 
 # NVIDIA
 RUN export DEBIAN_FRONTEND=noninteractive ; \
     sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && apt-get install -y \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xserver-xorg-video-nvidia nvidia-driver mesa-utils
+
+ARG enable_audio=1
+ENV ENABLE_AUDIO=${enable_audio}
+
+RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
+    pulseaudio pulseaudio-utils \
+    gstreamer1.0-tools \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    python3-gi \
+    python3-gst-1.0 \
+    gir1.2-gstreamer-1.0 \
+    gir1.2-gst-plugins-base-1.0 ; \
+    fi
 
 # 👤 Create non-root user
 ARG non_root_user=android
-RUN useradd -m ${non_root_user} -u 1000 && \
+ARG uid=1000
+ARG gid=1000
+
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && \
     echo "${non_root_user}:${non_root_user}" | chpasswd && \
     adduser ${non_root_user} sudo && \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
@@ -59,23 +82,6 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     "system-images;android-34;google_apis_playstore;x86_64" \
     "emulator" ; \
     echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_8" ; \
-    fi
-
-ARG enable_audio=1
-ENV ENABLE_AUDIO=${enable_audio}
-RUN if [ "$ENABLE_AUDIO" = "1" ]; then \
-    sudo apt-get update && sudo apt-get install -y \
-    pulseaudio pulseaudio-utils \
-    gstreamer1.0-tools \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    python3-gi \
-    python3-gst-1.0 \
-    gir1.2-gstreamer-1.0 \
-    gir1.2-gst-plugins-base-1.0 \
-    && sudo rm -rf /var/lib/apt/lists/* ; \
     fi
 
 COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh

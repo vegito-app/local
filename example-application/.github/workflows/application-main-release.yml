@@ -10,7 +10,7 @@ on:
 
 jobs:
   pipeline:
-    uses: ./.github/workflows/application-pipeline.yml
+    uses: vegito-app/local/.github/workflows/application-pipeline.yml@v1.22.0
 
     with:
       environment: dev
@@ -18,11 +18,11 @@ jobs:
       images_to_scan: '["backend"]'
       project: example-application
       android_release_keystore_path: mobile/android/release-key.keystore
+      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
         staging: vegito-app-staging-github-actions-ci-artifacts
         prod: vegito-app-prod-github-actions-ci-artifacts
-      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
@@ -41,7 +41,7 @@ jobs:
   build-staging-prod:
     name: Build Images
     needs: pipeline
-    uses: vegito-app/local/.github/workflows/build-images.yml@v1.19.0
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.22.0
 
     strategy:
       matrix:

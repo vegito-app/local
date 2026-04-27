@@ -1,9 +1,9 @@
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:github-actions-runner-${VERSION}"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:github-actions-runner-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:github-actions-runner-latest"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
@@ -168,9 +168,6 @@ target "local-github-actions-runner" {
     ]
   )
   cache-to = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE},mode=max"
-    ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []

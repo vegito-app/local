@@ -7,7 +7,10 @@ FROM debian_image
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
-RUN apt-get update && apt-get install -y \
+
+RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
     apt-transport-https \
     ca-certificates \
     gnupg \
@@ -16,11 +19,13 @@ RUN apt-get update && apt-get install -y \
     jq \
     make \
     netcat-openbsd \
-    sudo \
-    && rm -rf /var/lib/apt/lists/*
+    sudo 
 
 # Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
-RUN set -eu; \
+
+RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    set -eu; \
     # Try to use Adoptium apt repo for this distro; fallback to tarball install if repo not available
     DIST_CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"; \
     ADOPTIUM_OK=0; \
@@ -42,18 +47,22 @@ RUN set -eu; \
     update-alternatives --install /usr/bin/java java /usr/lib/jvm/temurin-21/bin/java 1; \
     update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/temurin-21/bin/javac 1; \
     fi; \
-    apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /tmp/* /var/tmp/*
 
 ARG non_root_user=firebase
+ARG uid=1000
+ARG gid=1000
 
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
+RUN groupadd -g ${gid} ${non_root_user} \
+    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
+    && chmod 0440 /etc/sudoers.d/${non_root_user}
 
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
+
+RUN ln -sf /usr/bin/bash /bin/sh
 
 USER ${non_root_user}
 
@@ -61,7 +70,9 @@ ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version=0.40.1
 ARG node_version=22.14.0
-RUN set -e ; \
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+    set -e ; \
     # 
     mkdir -p ${NVM_DIR} ; \
     #
@@ -76,8 +87,7 @@ RUN set -e ; \
     depcheck \
     npm-check-updates \
     npm-check \
-    npm ; \
-    rm -rf ${HOME}/.npm 
+    npm
 
 
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
@@ -91,10 +101,6 @@ COPY container-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-cache
 COPY entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
 COPY firebase-emulators-config-create-json.sh /usr/local/bin/firebase-emulators-config-create-json.sh
 
-USER root
-RUN ln -sf /usr/bin/bash /bin/sh
-
-USER ${non_root_user}
 ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
 
 COPY emulators-run.sh /usr/local/bin/firebase-emulators-run.sh

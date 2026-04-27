@@ -12,21 +12,17 @@ VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-reposi
 VEGITO_LOCAL_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+
+ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
 local-docker-login-gcr: gcloud-auth-docker local-docker-login
 	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
 .PHONY: local-docker-login-gcr
 
-local-docker-login:
-ifeq ($(DOCKERHUB_ENABLED),1) 
-	@echo "Logging into Docker Hub"
-	@$(MAKE) local-docker-login-dockerhub 
-else
-	@echo "Logging into Google Cloud Registry"
-	@$(MAKE) local-docker-login-gcr
-endif
+local-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-login-%)
+	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
 .PHONY: local-docker-login
 
 docker-sock:
@@ -50,13 +46,22 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
 # The build does not push images to a remote registry.
-loaco-docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
+local-docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
 .PHONY: local-docker-images
 
 $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-images=local-%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
+
+VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
+
+local-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-%-release)
+	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
+.PHONY: local-docker-images-multi-registry-release
+
+local-docker-images-gcr-release: local-docker-images-release
+.PHONY: local-docker-images-gcr-release
 
 # Build all images (CI)
 # In this variant, images are built and pushed to the remote registry.
@@ -67,6 +72,13 @@ $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-bui
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
+
+local-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-%-release-ci)
+	@echo "✅ CI Built and pushed images to all registries successfully."
+.PHONY: local-docker-images-multi-registry-release-ci
+
+local-docker-images-gcr-release-ci: local-docker-images-release-ci
+.PHONY: local-docker-gcr-images-ci
 
 local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
 .PHONY: local-docker-group-tags-list-ci
@@ -102,6 +114,11 @@ $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
 .PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
+
+local-docker-images-release:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release
+.PHONY: local-docker-images-release
 
 local-docker-images-release-ci:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci

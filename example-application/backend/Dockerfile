@@ -18,14 +18,11 @@ COPY go.sum backend/
 COPY go.mod backend/
 
 ARG non_root_user=vegito
-USER root
-RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
-    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
-    chown -R ${non_root_user}:${non_root_user} /home/${non_root_user}/go
+ARG uid=1000
+ARG gid=1000
 
-USER ${non_root_user}
-RUN --mount=type=cache,target=/home/${non_root_user}/go/pkg/mod \
-    --mount=type=cache,target=/home/${non_root_user}/.cache/go-build \
+RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download
 
 COPY --from=approot example-application.mk .

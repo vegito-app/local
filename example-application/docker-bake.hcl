@@ -71,6 +71,13 @@ group "vegito-example-application-applications-ci" {
   ]
 }
 
+group "vegito-example-application-release" {
+  targets = [
+    "vegito-example-application-services",
+    "vegito-example-application-applications"
+  ]
+}
+
 group "vegito-example-application-release-ci" {
   targets = [
     "vegito-example-application-services-ci",
@@ -138,7 +145,7 @@ target "vegito-example-application-builder" {
   dockerfile = "Dockerfile"
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
-    notequal("", VERSION) ? EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION : "",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
@@ -146,9 +153,6 @@ target "vegito-example-application-builder" {
     "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
   ]
   cache-to = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE},mode=max"
-    ] : [],
     ENABLE_LOCAL_CACHE ? [
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []
@@ -197,17 +201,27 @@ target "vegito-example-application-builder-latest-ci" {
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+    ]
+  )
   cache-to = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE},mode=max"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
-    ] : []
+    ] : [],
+    [
+      "type=inline"
+    ]
   )
   platforms = platforms
 }

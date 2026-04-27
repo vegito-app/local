@@ -49,6 +49,10 @@ on:
         required: false
         type: string
         default: "latest"
+      docker_registry_mode:
+        required: false
+        type: string
+        default: "gcr"
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -65,6 +69,10 @@ on:
       FACEBOOK_APP_ID:
         required: false
       FACEBOOK_CLIENT_TOKEN:
+        required: false
+      VEGITO_DOCKERHUB_PAT:
+        required: false
+      VEGITO_DOCKERHUB_USERNAME:
         required: false
 
 permissions:
@@ -89,6 +97,9 @@ jobs:
       LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
       LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
       LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
+      VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
+      VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
+      VEGITO_DOCKER_REGISTRIES: ${{ inputs.docker_registry_mode }}
 
     steps:
       - name: Checkout repository

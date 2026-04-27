@@ -1,7 +1,7 @@
 GITHUB_ACTIONS_RUNNER_STACK_ID ?= $(shell echo $$RANDOM)
 GITHUB_ACTIONS_RUNNER_STACK ?= github-actions-$(GITHUB_ACTIONS_RUNNER_STACK_ID)
 LOCAL_GITHUB_ACTIONS_DIR ?= $(CURDIR)
-LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE):github-actions-runner-$(VERSION)
+LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):github-actions-runner-$(VERSION)
 
 # Build image for local run. This target will not push an image to the distant registry.
 local-github-actions-runner-image: $(LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE) local-docker-buildx-setup

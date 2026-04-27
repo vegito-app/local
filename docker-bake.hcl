@@ -1,4 +1,4 @@
-variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE" {
+variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
 }
 
@@ -7,11 +7,11 @@ variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
 }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
 }
 
 variable "LOCAL_BUILDER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {

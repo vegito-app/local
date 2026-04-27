@@ -1,9 +1,9 @@
 variable "LOCAL_TRIVY_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-${VERSION}"
 }
 
 variable "LOCAL_TRIVY_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-latest"
 }
 
 variable "LOCAL_TRIVY_IMAGE_REGISTRY_CACHE" {
@@ -85,7 +85,7 @@ target "local-trivy-latest-ci" {
   context    = "${LOCAL_DIR}/trivy"
   dockerfile = "Dockerfile"
   tags = [
-    LOCAL_TRIVY_IMAGE_LATEST,
+    LOCAL_TRIVY_IMAGE_LATEST
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
