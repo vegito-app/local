@@ -90,7 +90,7 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/example-application:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
         make docker-sock
@@ -105,7 +105,7 @@ services:
       '
 
   android-studio:
-    image: ${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:android-studio-${LOCAL_VERSION}
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
@@ -114,7 +114,7 @@ services:
     working_dir: ${PWD}/mobile
 
   clarinet-devnet:
-    image: ${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:clarinet-${LOCAL_VERSION}
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
       LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
@@ -128,11 +128,11 @@ services:
       LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: ${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}
   
   firebase-emulators:
-    image: ${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:firebase-emulators-${LOCAL_VERSION}
-
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest
+  
   vault-dev:
-    image: ${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:vault-dev-${LOCAL_VERSION}
-    working_dir: ${PWD}/
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest
+    working_dir: ${PWD}/example-application/
     command: |
       bash -c '
       set -euo pipefail
