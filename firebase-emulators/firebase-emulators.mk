@@ -8,6 +8,8 @@ LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/a
 LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
 LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
 
+include $(LOCAL_FIREBASE_EMULATORS_DIR)/pubsub.mk
+
 local-firebase-emulators-config-json: $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON)
 .PHONY: local-firebase-emulators-config-json	
 
@@ -62,9 +64,11 @@ local-firebase-emulators-start: local-firebase-emulators-install
 local-firebase-emulators-docker-compose: local-firebase-emulators-prepare local-firebase-emulators-container-up local-firebase-emulators-container-logs
 .PHONY: local-firebase-emulators-docker-compose
 
+LOCAL_FIREBASE_EMULATORS_CONTAINER_UP_SCRIPT ?= $(LOCAL_FIREBASE_EMULATORS_DIR)/container-up.sh
+
 local-firebase-emulators-container-up: local-firebase-emulators-container-rm
 	@echo "🚀 Starting Firebase emulators container with image: $(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION)"
-	@$(LOCAL_FIREBASE_EMULATORS_DIR)/container-up.sh
+	@$(LOCAL_FIREBASE_EMULATORS_CONTAINER_UP_SCRIPT)
 .PHONY: local-firebase-emulators-container-up
 
 local-firebase-emulators-pubsub-wait:
