@@ -94,12 +94,16 @@ images-groups-build: local-docker-images
 
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
-images-ci: local-docker-images-multi-registry-release-ci
+images-ci:  \
+local-docker-login \
+local-docker-images-multi-registry-release-ci
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.
 # Safer on constrained runners; slower than the full parallel path.
-images-groups-build-ci: local-docker-images-ci
+images-groups-build-ci:  \
+local-docker-login \
+local-docker-images-ci
 .PHONY: images-groups-build-ci
 
 images-pull: \
@@ -108,7 +112,10 @@ local-android-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
-images-push: local-docker-images-push local-application-docker-images-push
+images-push: \
+local-docker-login \
+local-docker-images-push \
+local-application-docker-images-push
 .PHONY: images-push
 
 devcontainer: devcontainer-vscode
