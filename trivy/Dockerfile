@@ -34,8 +34,9 @@ RUN wget https://github.com/aquasecurity/trivy/releases/download/v${trivy_versio
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+USER ${non_root_user}
+
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
-RUN chown -R ${non_root_user}:${non_root_user} ${HOME}
-USER ${non_root_user}
+
 ENTRYPOINT ["trivy"]¨

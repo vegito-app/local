@@ -60,9 +60,6 @@ target "local-trivy-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
-    ] : [],
     [
       "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
     ]
