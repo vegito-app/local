@@ -18,7 +18,8 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   robotframework \
   firebase-emulators \
   vault-dev \
-  trivy
+  stripe \
+  trivy 
 
 local-docker-images-pull-parallel: \
 local-docker-compose-images-pull-parallel \
@@ -71,6 +72,7 @@ local-project-builder-image-trivy-scan: local-docker-buildx-setup
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/stripe/docker-compose.yml \
   -f $(LOCAL_DIR)/trivy/docker-compose.yml \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
@@ -81,7 +83,8 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
   robotframework \
-  trivy
+  trivy \
+  stripe
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -230,4 +233,5 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
+-include $(LOCAL_DIR)/stripe/stripe.mk
 -include $(LOCAL_DIR)/trivy/trivy.mk

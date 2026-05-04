@@ -1,0 +1,10 @@
+services:
+  stripe:
+    tty: true
+    image: ${LOCAL_STRIPE_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-latest}
+    env_file:
+      - .env
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
+      STRIPE_DEBUG_KEY: ${LOCAL_STRIPE_DEBUG_KEY}
+  
