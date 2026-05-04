@@ -70,20 +70,3 @@ local-firebase-emulators-container-up: local-firebase-emulators-container-rm
 	@echo "🚀 Starting Firebase emulators container with image: $(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION)"
 	@$(LOCAL_FIREBASE_EMULATORS_CONTAINER_UP_SCRIPT)
 .PHONY: local-firebase-emulators-container-up
-
-local-firebase-emulators-pubsub-wait:
-	@echo "⏳ Waiting for Pub/Sub emulator..."
-	@until nc -z localhost 8085; do \
-		echo "🕒 Waiting for port 8085..."; \
-		sleep 1; \
-	done
-	@echo "✅ Pub/Sub emulator is up!"
-.PHONY: local-firebase-emulators-pubsub-wait
-
-local-firebase-emulators-pubsub-check:
-	@echo "📋 Listing local Pub/Sub topics:"
-	@curl -s http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics | jq .
-	@echo
-	@echo "📋 Listing local Pub/Sub subscriptions:"
-	@curl -s http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions | jq .
-.PHONY: local-firebase-emulators-pubsub-check
