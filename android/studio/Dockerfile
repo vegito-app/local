@@ -23,22 +23,26 @@ RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,targe
 # Make /bin/sh point to bash (and not dash)
 RUN ln -sf /usr/bin/bash /bin/sh
 
-# Install nvidia tools for monitoring GPU usage in Android Studio
-RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-  apt-get -o Acquire::Retries=3 update && apt-get install -y nvtop pipx \
-  && pipx ensurepath \
-  && pipx install nvitop
-
 RUN apt-get -o Acquire::Retries=3 update && apt-get install -y locales \
   && rm -rf /var/lib/apt/lists/* && \
   dpkg-reconfigure locales && \
   locale-gen en_US.UTF-8 
 
+RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+  apt-get -o Acquire::Retries=3 update && apt-get install -y nvtop pipx
+
 ENV LANG=en_US.UTF-8
 
 ARG non_root_user=android
+ARG uid=1000
+ARG gir=1000
+
 USER ${non_root_user}
+
+# Install nvidia tools for monitoring GPU usage in Android Studio
+RUN pipx ensurepath \
+  && pipx install nvitop
 
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
