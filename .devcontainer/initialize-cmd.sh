@@ -39,7 +39,7 @@ cat <<'EOF' > ${envrcFile}
 #   dotenv.sh
 #
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
-export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-david-berichon}
+export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-john-doe}
 EOF
 fi
 

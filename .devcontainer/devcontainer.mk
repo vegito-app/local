@@ -5,10 +5,10 @@ LOCAL_DOCKER_COMPOSE_VSCODE ?= $(LOCAL_DOCKER_COMPOSE) \
 devcontainer-vscode: \
 ensure-vscode-store-volume \
 gcloud-auth-serviceaccount-activate \
-docker-login
+local-docker-login
 	@echo "🟢 Starting Devcontainer VSCode..."
-	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
-	  $(MAKE) dev
+	LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
+	  $(MAKE) local-container-config-show dev
 	@echo "🟢 Devcontainer VSCode is up and running."
 .PHONY: devcontainer-vscode
 
@@ -23,7 +23,7 @@ LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES ?= $(LOCAL_DOCKER_COMPOSE) \
 
 devcontainer-vscode-github-codespaces: \
 gcloud-auth-serviceaccount-activate \
-docker-login
+local-docker-login
 	@echo "🟢 Starting Github Codespaces VSCode environment..."
 	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES)" \
 	  $(MAKE) dev
@@ -46,7 +46,7 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
 $(LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES:%=devcontainer-vscode-%): \
 gcloud-auth-serviceaccount-activate \
-docker-login
+local-docker-login
 	@echo "🟢 Starting $(@:devcontainer-vscode-%=%) for vscode-server ..."
 	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
 	  $(MAKE) local-container-config-show $(@:devcontainer-vscode-%=%)

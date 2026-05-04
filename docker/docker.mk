@@ -100,8 +100,8 @@ docker-build-tags-list-ci-md:
 .PHONY: docker-build-tags-list-ci-md
 
 DOCKER_HUB_IMAGES = \
-  docker-dind-rootless \
   debian \
+  docker-dind-rootless \
   golang-alpine \
   rust 
 

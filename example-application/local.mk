@@ -45,7 +45,7 @@ LOCAL_DOCKER_BUILDX_BAKE = docker buildx bake \
 	$(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-LOCAL_DOCKER_COMPOSE = docker compose \
+LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(LOCAL_DIR)/docker-compose.yml \
     -f $(LOCAL_DIR)/trivy/docker-compose.yml \
