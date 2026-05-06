@@ -23,7 +23,31 @@ trap kill_jobs EXIT
 # 📦 Prepare user runtime (useful for xpra sockets)
 export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
 mkdir -p "$XDG_RUNTIME_DIR"
+
 chmod 700 "$XDG_RUNTIME_DIR"
+
+# 🧩 Optional shared X11 socket directory (for multi-container GPU)
+ENABLE_X11_BIND="${ENABLE_X11_BIND:-1}"
+X11_SHARED_DIR=${X11_SHARED_DIR:-$LOCAL_WORKSPACES_CACHE/X11-unix}
+if [ "$ENABLE_X11_BIND" = "1" ]; then
+    echo "🔗 Using shared X11 socket directory: $X11_SHARED_DIR"
+
+    # Ensure directory exists with correct permissions
+    sudo mkdir -p "$X11_SHARED_DIR"
+    sudo chmod 1777 "$X11_SHARED_DIR"
+
+    # Ensure target exists
+    sudo mkdir -p /tmp/.X11-unix
+
+    # Bind mount (idempotent)
+    if ! findmnt -rno TARGET /tmp/.X11-unix >/dev/null 2>&1; then
+        sudo mount --bind "$X11_SHARED_DIR" /tmp/.X11-unix
+    else
+        echo "ℹ️ /tmp/.X11-unix already mounted"
+    fi
+else
+    echo "⚠️ X11 bind mount disabled"
+fi
 
 # 🖥️ Default parameters
 default_resolution="1920x1080"
@@ -52,17 +76,19 @@ xorg_config="/tmp/xorg-xpra.conf"
 
 echo "🛠️ Generating Xorg configuration file: $xorg_config"
 
+XORG_MODE="${XORG_MODE:-host}"  # "host" or "client"
+XORG_HOST="${XORG_HOST:-xorg-gpu}"
+
 # ⚙️ Write CORRECTED Xorg configuration file
 cat <<EOF | sudo tee "$xorg_config" >/dev/null
 Section "Device"
     Identifier  "Nvidia Card"
     Driver      "nvidia"
     VendorName  "NVIDIA Corporation"
-    Option      "UseDisplayDevice" "none"
-    Option      "ConnectedMonitor" "CRT-0"
-    Option      "CustomEDID" "CRT-0:/etc/X11/edid.bin"
-    Option      "IgnoreEDID" "false"
-    Option      "UseEDID" "false"
+    
+    Option "AllowEmptyInitialConfiguration" "true"
+    Option "UseDisplayDevice" "none"
+    Option "HardDPMS" "false"
 EndSection
 
 Section "Monitor"
@@ -103,16 +129,32 @@ Section "ServerLayout"
 EndSection
 EOF
 
-echo "🚀 Starting Xorg on display $display..."
-sudo Xorg "$display" -config "$xorg_config" -screen Screen0 &
-bg_pids+=("$!")
+if [ "$XORG_MODE" = "host" ]; then
+    echo "🚀 Starting Xorg on display $display (HOST mode)..."
+    sudo Xorg "$display" -config "$xorg_config" -screen Screen0 &
+    bg_pids+=("$!")
 
-until pgrep -f "Xorg $display" > /dev/null; do 
-  echo "⏳ Waiting for Xorg to start on $display...";
-  sleep 1; 
-done
+    until pgrep -f "Xorg $display" > /dev/null; do 
+      echo "⏳ Waiting for Xorg to start on $display...";
+      sleep 1; 
+    done
 
-echo "✅ Xorg started successfully on $display."
+    echo "✅ Xorg started successfully on $display."
+
+else
+    echo "🔌 Connecting to remote Xorg at $XORG_HOST (CLIENT mode)..."
+
+    # Use shared unix socket DISPLAY instead of TCP
+    export DISPLAY="${DISPLAY:-:20}"
+
+    # Wait for remote X socket to be available
+    until xdpyinfo >/dev/null 2>&1; do
+        echo "⏳ Waiting for remote Xorg ($DISPLAY)..."
+        sleep 1
+    done
+
+    echo "✅ Connected to remote Xorg at $DISPLAY"
+fi
 
 until glxinfo >/dev/null 2>&1; do
     echo "⏳ Waiting for OpenGL capabilities..."
@@ -163,8 +205,8 @@ DISPLAY_MODE="${DISPLAY_MODE:-xpra}"
 
 if [ "$DISPLAY_MODE" = "xpra" ]; then
 
-echo "🌀 Starting Xpra on $display with Openbox session..."
-    xpra start-desktop "$display" \
+echo "🌀 Starting Xpra on ${DISPLAY:-$display} with Openbox session..."
+    xpra start-desktop "${DISPLAY:-$display}" \
     --use-display \
     --start-child=openbox-session \
     --exit-with-children \
@@ -174,7 +216,7 @@ echo "🌀 Starting Xpra on $display with Openbox session..."
     ${XPRA_AUDIO_FLAGS} \
     --desktop-scaling=auto \
     --dpi="$dpi" \
-    --env=DISPLAY="$display" \
+    --env=DISPLAY="${DISPLAY:-$display}" \
     --html=on \
     --min-size="$resolution" \
     --no-daemon \
@@ -190,7 +232,7 @@ echo "🌀 Starting Xpra on $display with Openbox session..."
         echo "⏳ Waiting for xpra socket..."
         sleep 1
     done
-    echo "🌀 Xpra started successfully on $display with Openbox session."
+    echo "🌀 Xpra started successfully on ${DISPLAY:-$display} with Openbox session."
 
 elif [ "$DISPLAY_MODE" = "vnc" ]; then
 
