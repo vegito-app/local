@@ -57,7 +57,8 @@ group "local-android-emulator-ci" {
 target "local-android-emulator-version-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    # desktop_x_image = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    desktop_x_image = "target:local-desktop-x-version-ci"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -71,7 +72,7 @@ target "local-android-emulator-version-ci" {
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -85,7 +86,8 @@ target "local-android-emulator-version-ci" {
 target "local-android-emulator-latest-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    # desktop_x_image = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+    desktop_x_image = "target:local-desktop-x-latest-ci"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -100,7 +102,7 @@ target "local-android-emulator-latest-ci" {
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -121,7 +123,8 @@ target "local-android-emulator" {
 
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    # desktop_x_image = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    desktop_x_image = "target:local-desktop-x"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -137,7 +140,7 @@ target "local-android-emulator" {
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(

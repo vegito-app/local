@@ -17,28 +17,6 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-# 📦 Prepare user runtime (useful for xpra sockets)
-export XDG_RUNTIME_DIR="/tmp/runtime-$(id -u)"
-mkdir -p "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR"
-
-# start a minimal dbus session (required by pulseaudio/xpra)
-dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/dbus --fork
-export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/dbus
-
-if [ ${LOCAL_ANDROID_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
-case "${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}" in
-    "host")
-        display-start-xorg-host.sh &
-        bg_pids+=("$!")
-        ;;
-    "swiftshader_indirect" | "guest" | *)
-        display-start.sh &
-        bg_pids+=("$!")
-        ;;
-esac
-fi
-
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
 bg_pids+=("$!")
@@ -120,9 +98,11 @@ alias run-android='flutter run -d android'
 
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, waiting.   to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
-fi
+desktop-x-entrypoint.sh "$@"
+
+# if [ $# -eq 0 ]; then
+#   echo "[entrypoint] No command passed, waiting.   to keep container alive"
+#   wait "${bg_pids[@]}"
+# else
+#   exec "$@"
+# fi
