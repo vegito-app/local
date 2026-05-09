@@ -1,5 +1,6 @@
 # Local Docker Compose configuration
 LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
+LOCAL_BUILDER_X_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-x-latest
 LOCAL_DIR ?= $(CURDIR)
 
 LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
@@ -15,6 +16,7 @@ $(LOCAL_DOTENV_FILE):
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
+  desktop-x \
   robotframework \
   firebase-emulators \
   vault-dev \

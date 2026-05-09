@@ -31,7 +31,7 @@ ln -sf ${local_container_cache}/emacs $EMACS_DIR
 # GO persistence 
 # This allows you to persist your go workspace across container rebuilds.
 GOPATH=${HOME}/go
-sudo chown -R vegito:vegito $GOPATH
+sudo chown -R $USER:$USER $GOPATH
 sudo chmod -R +rw $GOPATH
 rm -rf $GOPATH
 mkdir -p ${local_container_cache}/gopath

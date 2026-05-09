@@ -10,8 +10,16 @@ variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
 }
 
+variable "LOCAL_BUILDER_X_IMAGE_VERSION" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-${VERSION}"
+}
+
 variable "LOCAL_BUILDER_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
+}
+
+variable "LOCAL_BUILDER_X_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest"
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
@@ -53,30 +61,28 @@ variable "LOCAL_DIR" {
 group "local-project-builder-ci" {
   targets = [
     "local-project-builder-version-ci",
+    "local-project-builder-x-version-ci",
     "local-project-builder-latest-ci",
+    "local-project-builder-x-latest-ci",
+  ]
+}
+
+target "local-project-builder-x-version-ci" {
+  contexts = {
+    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+  }
+  inherits = ["local-project-builder-version-ci"]
+  tags = [
+    LOCAL_BUILDER_X_IMAGE_VERSION,
   ]
 }
 
 target "local-project-builder-version-ci" {
+  inherits = ["local-project-builder-base"]
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
     go     = "docker-image://${LOCAL_GO_IMAGE_VERSION}"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    go_version             = GO_VERSION
-    k9s_version            = K9S_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    oh_my_zsh_version      = OH_MY_ZSH_VERSION
-    terraform_version      = TERRAFORM_VERSION
-  }
-  context    = LOCAL_DIR
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_VERSION,
   ]
@@ -99,32 +105,28 @@ target "local-project-builder-version-ci" {
   platforms = platforms
 }
 
-target "local-project-builder-latest-ci" {
+target "local-project-builder-x-latest-ci" {
+  inherits = ["local-project-builder-latest-ci"]
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+  }
+  tags = [
+    LOCAL_BUILDER_X_IMAGE_LATEST,
+  ]
+}
+
+target "local-project-builder-latest-ci" {
+  inherits = ["local-project-builder-base"]
+  contexts = {
     go     = "docker-image://${LOCAL_GO_IMAGE_LATEST}"
+    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
   }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    go_version             = GO_VERSION
-    k9s_version            = K9S_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    oh_my_zsh_version      = OH_MY_ZSH_VERSION
-    terraform_version      = TERRAFORM_VERSION
-  }
-  context    = LOCAL_DIR
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTR_CACHE}",
       "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
@@ -149,26 +151,23 @@ target "local-project-builder-latest-ci" {
   platforms = platforms
 }
 
+target "local-project-x-builder" {
+  inherits = ["local-project-builder"]
+  contexts = {
+    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+  }
+  tags = [
+    LOCAL_BUILDER_X_IMAGE_VERSION,
+    LOCAL_BUILDER_X_IMAGE_LATEST,
+  ]
+}
+
 target "local-project-builder" {
+  inherits = ["local-project-builder-base"]
   contexts = {
     debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
     go     = "docker-image://${LOCAL_GO_IMAGE_VERSION}"
   }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    go_version             = GO_VERSION
-    k9s_version            = K9S_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    oh_my_zsh_version      = OH_MY_ZSH_VERSION
-    terraform_version      = TERRAFORM_VERSION
-  }
-  context    = LOCAL_DIR
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
     LOCAL_BUILDER_IMAGE_VERSION
@@ -191,4 +190,22 @@ target "local-project-builder" {
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
     ] : []
   )
+}
+
+target "local-project-builder-base" {
+  args = {
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
+    gitleaks_version       = GITLEAKS_VERSION
+    go_version             = GO_VERSION
+    k9s_version            = K9S_VERSION
+    kubectl_version        = KUBECTL_VERSION
+    node_version           = NODE_VERSION
+    nvm_version            = NVM_VERSION
+    oh_my_zsh_version      = OH_MY_ZSH_VERSION
+    terraform_version      = TERRAFORM_VERSION
+  }
+  context    = LOCAL_DIR
+  dockerfile = "Dockerfile"
 }
