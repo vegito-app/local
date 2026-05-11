@@ -67,7 +67,7 @@ target "local-android-flutter-version-ci" {
     android_ndk_version = ANDROID_NDK_VERSION
   }
   contexts = {
-    android_apk_emulator_image = "target:local-android-emulator-version-ci"
+    android_emulator = "target:local-android-emulator-version-ci"
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
@@ -101,7 +101,7 @@ target "local-android-flutter-latest-ci" {
     android_ndk_version = ANDROID_NDK_VERSION
   }
   contexts = {
-    android_apk_emulator_image = "target:local-android-emulator-latest-ci"
+    android_emulator = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [
@@ -142,7 +142,7 @@ target "local-android-flutter" {
     android_ndk_version = ANDROID_NDK_VERSION
   }
   contexts = {
-    android_apk_emulator_image = "target:local-android-emulator"
+    android_emulator = "target:local-android-emulator"
   }
   context = LOCAL_ANDROID_FLUTTER_DIR
   tags = [

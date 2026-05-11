@@ -55,7 +55,7 @@ group "local-android-appium-ci" {
 
 target "local-android-appium-version-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-latest-ci"
+    android_emulator = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -84,7 +84,7 @@ target "local-android-appium-version-ci" {
 
 target "local-android-appium-latest-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-latest-ci"
+    android_emulator = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -119,7 +119,7 @@ target "local-android-appium-latest-ci" {
 
 target "local-android-appium" {
   contexts = {
-    builder_image = "target:local-android-emulator"
+    android_emulator = "target:local-android-emulator"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [

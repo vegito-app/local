@@ -1,4 +1,4 @@
-FROM android_apk_emulator_image AS apk-builder
+FROM android_emulator
 
 USER root
 
@@ -12,8 +12,19 @@ RUN --mount=type=cache,id=local-flutter-${TARGETPLATFORM}-apt-cache,target=/var/
     clang cmake ninja-build openjdk-17-jdk \
     make git unzip wget curl zip
 
-# Use non-root user to install Flutter and Android SDK
-ARG non_root_user=android
+ARG non_root_user=android-flutter
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} android-emulator \
+    && groupmod -n ${non_root_user} android-emulator \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+    
 USER ${non_root_user}
 
 # Flutter SDK

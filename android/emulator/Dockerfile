@@ -1,5 +1,22 @@
 FROM desktop_x_image
 
+USER root
+
+ARG non_root_user=android-emulator
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} desktopx \
+    && groupmod -n ${non_root_user} desktopx \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+
 # 📦 Android SDK (without build-tools or NDK)
 ENV ANDROID_SDK=${HOME}/Android/Sdk
 ENV ANDROID_HOME=${ANDROID_SDK}
@@ -23,10 +40,10 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     echo "no" | avdmanager create avd -n Pixel_8_Intel -k "system-images;android-34;google_apis_playstore;x86_64" -d "pixel_8" ; \
     fi
 
-COPY --chown=android:android avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
-COPY --chown=android:android emulator-data-load.sh /usr/local/bin/
-COPY --chown=android:android entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
-COPY --chown=android:android openbox-setup.sh /usr/local/bin/
+COPY --chown=${uid}:${gid} avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
+COPY --chown=${uid}:${gid} emulator-data-load.sh /usr/local/bin/
+COPY --chown=${uid}:${gid} entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
+COPY --chown=${uid}:${gid} openbox-setup.sh /usr/local/bin/
 
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \

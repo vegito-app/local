@@ -90,7 +90,7 @@ RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     fi
 
 # 👤 Create non-root user
-ARG non_root_user=android
+ARG non_root_user=desktopx
 ARG uid=1000
 ARG gid=1000
 
@@ -102,23 +102,32 @@ RUN groupadd -g ${gid} ${non_root_user} \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
+RUN mkdir -p /run/user/${uid} \
+    && chown ${uid}:${gid} /run/user/${uid} \
+    && chmod 700 /run/user/${uid}
+
 # 👤 Switch to non-root user
 USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-COPY --chown=android:android display-start-xorg-host.sh /usr/local/bin/
-COPY --chown=android:android display-start.sh /usr/local/bin/
-COPY --chown=android:android display-start-wayland.sh /usr/local/bin/
-COPY --chown=android:android entrypoint.sh /usr/local/bin/desktop-x-entrypoint.sh
-COPY --chown=android:android openbox-setup.sh /usr/local/bin/
+COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
+COPY --chown=desktopx:desktopx display-start.sh           /usr/local/bin/
+COPY --chown=desktopx:desktopx display-start-wayland.sh   /usr/local/bin/
+COPY --chown=desktopx:desktopx openbox-setup.sh           /usr/local/bin/
+COPY --chown=desktopx:desktopx enable-nvidia-gl.sh        /usr/local/bin/
+COPY --chown=desktopx:desktopx nvidia-gl-env.sh           /usr/local/bin/
+
+COPY --chown=desktopx:desktopx entrypoint.sh              /usr/local/bin/desktop-x-entrypoint.sh
 
 RUN chmod +x \
+    /usr/local/bin/desktop-x-entrypoint.sh \
+    /usr/local/bin/display-start-wayland.sh \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
-    /usr/local/bin/display-start-wayland.sh \
-    /usr/local/bin/openbox-setup.sh \
-    /usr/local/bin/desktop-x-entrypoint.sh
+    /usr/local/bin/enable-nvidia-gl.sh \
+    /usr/local/bin/nvidia-gl-env.sh \
+    /usr/local/bin/openbox-setup.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk

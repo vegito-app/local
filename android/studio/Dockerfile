@@ -1,4 +1,5 @@
-FROM flutter
+FROM android_flutter
+
 USER root
 
 # Make /bin/sh point to bash (and not dash)
@@ -34,9 +35,18 @@ RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,targe
 
 ENV LANG=en_US.UTF-8
 
-ARG non_root_user=android
+ARG non_root_user=android-studio
 ARG uid=1000
-ARG gir=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} android-flutter \
+  && groupmod -n ${non_root_user} android-flutter \
+  && \
+  echo "${non_root_user}:${non_root_user}" | chpasswd && \
+  adduser ${non_root_user} sudo && \
+  echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+  chmod 0440 /etc/sudoers.d/${non_root_user}
 
 USER ${non_root_user}
 
@@ -70,6 +80,8 @@ COPY --from=appium --chown=${non_root_user}:${non_root_user}  entrypoint.sh /usr
 COPY --chown=${non_root_user}:${non_root_user} caches-refresh.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} android-studio.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+
+COPY android-studio.desktop /usr/share/applications/
 
 RUN chmod +x \
   /usr/local/bin/android-appium-entrypoint.sh \

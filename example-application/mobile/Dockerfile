@@ -1,11 +1,21 @@
 FROM  builder as build
 
-ARG non_root_user=android
-ARG builder_home=/home/${non_root_user}
+USER root
+
+ARG non_root_user=android-mobile
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} android-flutter \
+    && groupmod -n ${non_root_user} android-flutter \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
 
 USER ${non_root_user}
-
-ENV HOME=${builder_home}
 
 RUN mkdir ${HOME}/src \
     ${HOME}/src/mobile \
@@ -35,7 +45,7 @@ ARG keystore_alias_name
 
 RUN --mount=type=secret,id=keystore,dst=/tmp/release.keystore.base64 \
     --mount=type=secret,id=keystore_store_pass,dst=/tmp/release.keystore.storepass.base64 \
-    export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/home/android/android-release.keystore && \
+    export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH=/${HOME}/android-release.keystore && \
     export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME=${keystore_alias_name} && \
     export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH=${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH}.storepass.base64 && \
     sudo base64 --decode /tmp/release.keystore.base64 > ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH} && \
@@ -62,12 +72,12 @@ FROM runner
 ARG version
 ARG environment
 
-COPY --from=build /home/android/src/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release-${version}.apk
-COPY --from=build /home/android/src/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release-${version}.aab
+COPY --from=build /${HOME}/src/mobile/build/app/outputs/flutter-apk/app-release.apk /build/output/app-release-${version}.apk
+COPY --from=build /${HOME}/src/mobile/build/app/outputs/bundle/release/app-release.aab /build/output/app-release-${version}.aab
 
-COPY --from=build /home/android/android-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
+COPY --from=build /${HOME}/android-release.keystore.sha1  /build/output/app-release-${version}-key.keystore.sha1
 
-COPY --from=build /home/android/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
+COPY --from=build /${HOME}/src/mobile/build/app/outputs/flutter-apk/app-debug.apk /build/output/app-debug-${version}.apk
 
 ARG android_package_name
 

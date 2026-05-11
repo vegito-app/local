@@ -61,7 +61,7 @@ target "local-android-studio-version-ci" {
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
     "appium" : "${LOCAL_DIR}/android/appium",
-    flutter = "target:local-android-flutter-version-ci"
+    android_flutter = "target:local-android-flutter-version-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_VERSION,
@@ -96,7 +96,7 @@ target "local-android-studio-latest-ci" {
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
     "appium" : "${LOCAL_DIR}/android/appium",
-    flutter = "target:local-android-flutter-latest-ci"
+    android_flutter = "target:local-android-flutter-latest-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
@@ -136,7 +136,7 @@ target "local-android-studio" {
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    flutter = "target:local-android-flutter"
+    android_flutter = "target:local-android-flutter"
     "appium" : "${LOCAL_DIR}/android/appium",
   }
   tags = [
