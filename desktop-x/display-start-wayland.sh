@@ -203,10 +203,15 @@ echo "🌀 Starting Xpra on ${DISPLAY:-$display}..."
 
 unset XPRA_SERVER_SOCKET
 unset XPRA_SESSION_DIR
-    # --encoding=h264 \
-    # --keyboard-sync=yes \
-    # --opengl=yes \
-    # --video-encoders=nvenc \
+
+if nvidia-smi >/dev/null 2>&1; then
+if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+    echo "✅ NVIDIA NVENC available"
+    XPRA_VIDEO_ENCODERS_FLAGS="--video-encoders=${XPRA_VIDEO_ENCODERS:-nvenc}" 
+else
+    echo "ℹ️ NVIDIA NVENC unavailable, using default xpra encoders"
+fi
+fi
 
 xpra start "${DISPLAY:-$display}" \
     --use-display \
@@ -215,6 +220,12 @@ xpra start "${DISPLAY:-$display}" \
     --dpi="$dpi" \
     --env=DISPLAY="${DISPLAY:-$display}" \
     --env=XPRA_NVENC_ENABLED=1 \
+    --quality="${XPRA_QUALITY:-80}" \
+    --min-quality="${XPRA_MIN_QUALITY:-30}" \
+    --speed="${XPRA_SPEED:-70}" \
+    --min-speed="${XPRA_MIN_SPEED:-30}" \
+    --encoding="${XPRA_ENCODING:-h264}" \
+    ${XPRA_VIDEO_ENCODERS_FLAGS} \
     --html=on \
     --socket-dir="$XPRA_SOCKET_DIR" \
     --socket-dirs="$XPRA_SOCKET_DIR" \
@@ -270,7 +281,6 @@ elif [ "$DISPLAY_MODE" = "vnc" ]; then
 else
     echo "⚠️ Invalid display mode. Please choose 'xpra' or 'vnc'."
 fi
-
 
 # Création d'un flag indiquant que tout le display est prêt
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xdisplay-ready

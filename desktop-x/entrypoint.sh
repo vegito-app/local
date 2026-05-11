@@ -42,8 +42,6 @@ for i in $(seq 1 10); do
     echo "⏳ Waiting for PulseAudio..."
     sleep 1
 done
-echo "PULSE_SERVER=$PULSE_SERVER"
-ls -la "$XDG_RUNTIME_DIR/pulse" || true
 
 # 🔍 Debug PulseAudio availability
 pactl info
