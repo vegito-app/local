@@ -1,18 +1,5 @@
 FROM debian
 
-RUN --mount=type=cache,id=local-vault-dev-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-vault-dev-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    curl \
-    gpg \
-    htop \
-    jq \
-    lsb-release \
-    make \
-    netcat-openbsd \
-    sudo \
-    wget
-
 ARG non_root_user=vault
 ARG uid=1000
 ARG gid=1000

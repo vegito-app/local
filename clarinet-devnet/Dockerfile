@@ -6,7 +6,7 @@ ARG TARGETPLATFORM
 
 ARG clarinet_version
 RUN apk add --no-cache \
-    wget musl-dev build-base \
+    musl-dev build-base \
     linux-headers 
 
 RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
@@ -16,7 +16,7 @@ RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
 
-FROM debian_image
+FROM debian
 
 COPY --from=project-builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/

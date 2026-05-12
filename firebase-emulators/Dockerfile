@@ -7,20 +7,6 @@ FROM debian
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
-
-RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    curl \
-    htop \
-    jq \
-    make \
-    netcat-openbsd \
-    sudo 
-
 # Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
 
 RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \

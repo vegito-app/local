@@ -23,7 +23,6 @@ RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/c
 
 USER ${non_root_user}
 
-ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
 ENV PATH=${HOME}/node_modules/.bin:${PATH}

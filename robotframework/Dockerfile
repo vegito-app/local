@@ -4,16 +4,6 @@ RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-cache,targe
     --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     adb \
-    curl \
-    htop \
-    iftop \
-    jq \
-    make \
-    netcat-openbsd \
-    sudo \
-    socat \
-    tree \
-    procps \
     python3 python3-pip python3-venv
 
 ARG non_root_user=tests

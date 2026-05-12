@@ -4,17 +4,6 @@ USER root
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=cache,id=local-stripe-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-stripe-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release \
-    procps\
-    sudo \
-    wget
-
 # Install Stripe CLI
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \

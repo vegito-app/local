@@ -11,26 +11,15 @@ COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
 
 ARG TARGETPLATFORM
 
+USER root
+
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    apt-transport-https \
-    bash-completion \
-    btop \
     build-essential \
-    ca-certificates \
-    curl \
-    dnsutils \
-    file \
     g++ \
     gcc \
     gcc \
-    git \
-    gnupg \
-    htop \
-    iftop \
-    iptables \
-    jq \
     libbz2-1.0 \
     libc6 \
     libcairo2-dev \
@@ -42,26 +31,7 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
     librsvg2-dev \
     libstdc++6 \
     lsb-release \
-    lsof \
-    make \
-    net-tools \
-    netcat-openbsd \
-    openjdk-17-jdk \
-    procps \
-    rsync \
-    socat \
-    sudo \
-    tmux \
-    tree \
-    unzip \
-    vim \
-    wget \
-    xz-utils \
-    zip \
-    zsh
-
-ARG oh_my_zsh_version=1.2.1
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
+    openjdk-17-jdk
 
 ARG TARGETPLATFORM
 
@@ -229,25 +199,28 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
 
 RUN ln -sf /usr/bin/bash /bin/sh
 
-ARG non_root_user=vegito
+ARG non_root_user=local
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
 
-ENV HOME=/home/${non_root_user}
+USER ${non_root_user}
+
+ENV USER=${non_root_user}
 
 WORKDIR ${HOME}
 
 ENV PATH=${PATH}:${HOME}/go/bin
 
 ENV NVM_DIR=${HOME}/nvm
-
-USER ${non_root_user}
 
 ARG nvm_version
 ARG node_version

@@ -1,16 +1,5 @@
 FROM debian
 
-
-RUN --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-trivy-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    wget \
-    sudo \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    curl
-
 ARG non_root_user=trivy
 ARG uid=1000
 ARG gid=1000

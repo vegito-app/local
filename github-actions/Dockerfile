@@ -1,19 +1,5 @@
 FROM debian
 
-
-RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    curl \
-    git \
-    gpg \
-    jq \
-    make \
-    sudo \
-    unzip \
-    wget \
-    netcat-openbsd
-
 ARG TARGETPLATFORM
 
 # GCP CLI

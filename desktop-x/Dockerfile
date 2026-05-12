@@ -1,6 +1,4 @@
-FROM debian_image
-
-ENV DEBIAN_FRONTEND=noninteractive
+FROM debian
 
 USER root
 
@@ -19,15 +17,7 @@ RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var
     libegl1 \
     libegl1-mesa \
     libgbm1 \
-    sudo \
-    tini \
-    bash-completion git htop gnupg jq netcat-openbsd \
-    rsync socat tree unzip vim wget xz-utils \
-    ca-certificates wget gnupg \
-    locales net-tools \
-    dbus-x11 \
-    && locale-gen en_US.UTF-8 \
-    && dpkg-reconfigure locales
+    dbus-x11
 
 RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -41,7 +31,6 @@ RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var
 # NVIDIA
 RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    export DEBIAN_FRONTEND=noninteractive ; \
     sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xserver-xorg-video-nvidia \
@@ -89,26 +78,48 @@ RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     alsa-utils; \
     fi
 
-# 👤 Create non-root user
 ARG non_root_user=desktopx
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
+# NodeJS for Appium
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs 
+
+# Google Chrome ou Chromium selon arch
+RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    ARCH="$(dpkg --print-architecture)" && \
+    if [ "$ARCH" = "amd64" ]; then \
+    curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    dpkg -i google-chrome-stable_current_amd64.deb && \
+    apt-get install -f -y && rm google-chrome-stable_current_amd64.deb ; \
+    else \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y chromium ; \
+    fi
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} debian \
+    && groupmod -n ${non_root_user} debian \
     && \
     echo "${non_root_user}:${non_root_user}" | chpasswd && \
     adduser ${non_root_user} sudo && \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
-RUN mkdir -p /run/user/${uid} \
-    && chown ${uid}:${gid} /run/user/${uid} \
-    && chmod 700 /run/user/${uid}
+# 📦 Prepare user runtime (useful for xpra / weston / pulseaudio sockets)
+ENV XDG_RUNTIME_DIR "/run/user/${uid}"
+
+RUN mkdir -p ${XDG_RUNTIME_DIR} && \
+    chmod 700 ${XDG_RUNTIME_DIR} && \
+    chown ${uid}:${gid} ${XDG_RUNTIME_DIR}
+
+# Make /bin/sh point to bash (and not dash)
+RUN ln -sf /usr/bin/bash /bin/sh
 
 # 👤 Switch to non-root user
 USER ${non_root_user}
-ENV HOME=/home/${non_root_user}
+
 WORKDIR ${HOME}
 
 COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
@@ -143,3 +154,4 @@ ENV LOCAL_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
+ENV USER=${non_root_user}
