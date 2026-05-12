@@ -19,8 +19,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
-    devices:
-      - /dev/kvm
     privileged: true
     cap_add:
       - SYS_ADMIN

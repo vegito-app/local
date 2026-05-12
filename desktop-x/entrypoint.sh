@@ -95,14 +95,6 @@ bg_pids+=("$!")
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
 
-if [ -e /dev/kvm ]; then
-  KVM_GID_EXPECTED=$(stat -c '%g' /dev/kvm)
-  if ! id -G | tr ' ' '\n' | grep -qx "$KVM_GID_EXPECTED"; then
-    echo "❌ ERROR: android user is not in /dev/kvm group ($KVM_GID_EXPECTED)"
-    exit 1
-  fi
-fi
-
 # Developer-friendly aliases
 alias gs='git status'
 alias gb='git branch'
