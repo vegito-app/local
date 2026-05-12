@@ -52,7 +52,7 @@ group "local-clarinet-devnet-ci" {
 target "local-clarinet-devnet-version-ci" {
   contexts = {
     builder_image              = "target:local-project-builder-version-ci"
-    debian_image               = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian                     = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
     docker_dind_rootless_image = "docker-image://${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION}"
     rust_image                 = "docker-image://${LOCAL_RUST_IMAGE_VERSION}"
   }
@@ -91,7 +91,7 @@ target "local-clarinet-devnet-version-ci" {
 target "local-clarinet-devnet-latest-ci" {
   contexts = {
     builder_image              = "target:local-project-builder-latest-ci"
-    debian_image               = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian               = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
     docker_dind_rootless_image = "docker-image://${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
     rust_image                 = "docker-image://${LOCAL_RUST_IMAGE_LATEST}"
   }
@@ -137,7 +137,7 @@ target "local-clarinet-devnet-latest-ci" {
 target "local-clarinet-devnet" {
   contexts = {
     builder_image              = "target:local-project-builder"
-    debian_image               = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian               = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
     docker_dind_rootless_image = "docker-image://${LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION}"
     rust_image                 = "docker-image://${LOCAL_RUST_IMAGE_VERSION}"
   }

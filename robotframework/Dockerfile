@@ -1,4 +1,4 @@
-FROM debian_image
+FROM debian
 
 RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \

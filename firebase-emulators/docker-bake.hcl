@@ -48,7 +48,7 @@ group "local-firebase-emulators-ci" {
 target "local-firebase-emulators-version-ci" {
   contexts = {
     builder_image = "target:local-project-builder-version-ci"
-    debian_image  = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian  = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -84,7 +84,7 @@ target "local-firebase-emulators-version-ci" {
 target "local-firebase-emulators-latest-ci" {
   contexts = {
     builder_image = "target:local-project-builder-latest-ci"
-    debian_image  = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian  = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -123,7 +123,7 @@ target "local-firebase-emulators-latest-ci" {
 target "local-firebase-emulators" {
   contexts = {
     builder_image = "target:local-project-builder"
-    debian_image  = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian  = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [

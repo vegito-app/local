@@ -57,7 +57,7 @@ group "local-desktop-x-ci" {
 target "local-desktop-x-version-ci" {
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_VERSION,
@@ -85,7 +85,7 @@ target "local-desktop-x-version-ci" {
 target "local-desktop-x-latest-ci" {
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_LATEST,
@@ -121,7 +121,7 @@ target "local-desktop-x" {
 
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_LATEST,
