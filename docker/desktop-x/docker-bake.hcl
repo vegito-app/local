@@ -7,7 +7,7 @@ variable "LOCAL_DESKTOP_X_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "LOCAL_DESKTOP_X_DIR" {
-  default = "${LOCAL_DIR}/desktop-x"
+  default = "${LOCAL_DOCKER_DIR}/desktop-x"
 }
 
 variable "LOCAL_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {

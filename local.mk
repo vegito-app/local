@@ -16,7 +16,6 @@ $(LOCAL_DOTENV_FILE):
 
 LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
-  desktop-x \
   robotframework \
   firebase-emulators \
   vault-dev \
@@ -30,6 +29,7 @@ local-android-docker-images-pull-parallel
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
+	-f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	-f $(LOCAL_DIR)/android/docker-bake.hcl \
 	-f $(LOCAL_DIR)/android/studio/docker-bake.hcl \
@@ -58,6 +58,26 @@ local-project-builder-image-ci: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
+
+local-project-builder-x-image: local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x
+.PHONY: local-project-builder-x-image
+
+local-project-builder-x-image-ci: local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-x-ci
+.PHONY: local-project-builder-x-image-ci
+
+local-desktop-x-image: local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x
+.PHONY: local-desktop-x-image
+
+local-desktop-x-image-ci: local-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-desktop-x-ci
+.PHONY: local-desktop-x-image-ci
 
 local-gcloud-builder-image-delete:
 	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."

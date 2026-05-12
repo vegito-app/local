@@ -29,6 +29,7 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
@@ -69,11 +70,12 @@ VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
 -include go.mk
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
+  android-studio \
   firebase-emulators \
   vault-dev \
   robotframework \
-  $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
   $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+#   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
 
 -include .devcontainer/devcontainer.mk
 
