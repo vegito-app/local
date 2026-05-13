@@ -2,22 +2,30 @@ FROM debian
 
 USER root
 
+ARG TARGETPLATFORM
+
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    curl unzip x11vnc xvfb xinit openbox xorg xdg-utils openjdk-17-jre \
-    libgtk-3-dev libvulkan1 libpulse0 libasound2 fonts-liberation \
-    menu-xdg \
-    weston \
-    xwayland \
-    wayland-protocols \
-    wayland-utils \
-    libnvidia-egl-wayland1 \
+    dbus-x11 \
     libegl1 \
     libegl1-mesa \
     libgbm1 \
-    dbus-x11
+    libgtk-3-dev libvulkan1 fonts-liberation \
+    libnvidia-egl-wayland1 \
+    menu-xdg \
+    openbox \
+    openjdk-17-jre \
+    wayland-protocols \
+    wayland-utils \
+    weston \
+    x11vnc \
+    xdg-utils \
+    xinit \
+    xorg \
+    xvfb \
+    xwayland 
 
 RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -73,9 +81,11 @@ RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "$ENABLE_AUDIO" = "1" ]; then \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
+    alsa-utils \
+    libasound2 \
     libnotify-bin \
-    pavucontrol \
-    alsa-utils; \
+    libpulse0 \
+    pavucontrol; \
     fi
 
 ARG non_root_user=desktopx
@@ -125,7 +135,6 @@ WORKDIR ${HOME}
 COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start.sh           /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start-wayland.sh   /usr/local/bin/
-COPY --chown=desktopx:desktopx openbox-setup.sh           /usr/local/bin/
 COPY --chown=desktopx:desktopx enable-nvidia-gl.sh        /usr/local/bin/
 COPY --chown=desktopx:desktopx nvidia-gl-env.sh           /usr/local/bin/
 
@@ -137,8 +146,7 @@ RUN chmod +x \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
     /usr/local/bin/enable-nvidia-gl.sh \
-    /usr/local/bin/nvidia-gl-env.sh \
-    /usr/local/bin/openbox-setup.sh
+    /usr/local/bin/nvidia-gl-env.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
@@ -154,4 +162,4 @@ ENV LOCAL_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
-ENV USER=${non_root_user}
+ENV USER ${non_root_user}

@@ -113,7 +113,7 @@ echo "✅ Weston started successfully."
 # Manual XWayland startup
 # -------------------------------------------------------------------
 
-export DISPLAY=${display}
+export DISPLAY="${display}"
 
 rm -f /tmp/.X11-unix/X${display#*:}
 rm -f /tmp/.X${display#*:}-lock
@@ -122,9 +122,7 @@ echo "🚀 Starting manual XWayland EGLStream server..."
 
 # 🖥️ XWayland
 
-export DISPLAY=${display}
-
-Xwayland ${DISPLAY} \
+Xwayland "${display}" \
     +extension GLX \
     +extension RANDR \
     +extension RENDER \
@@ -157,7 +155,7 @@ echo "✅ XWayland started successfully"
 
 if command -v glxinfo >/dev/null 2>&1; then
     echo "🔍 XWayland GLX capabilities"
-    DISPLAY=:0 glxinfo -B || true
+    glxinfo -B || true
 fi
 
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY}"
@@ -199,85 +197,22 @@ DISPLAY_MODE="${DISPLAY_MODE:-xpra}"
 
 if [ "$DISPLAY_MODE" = "xpra" ]; then
 
-echo "🌀 Starting Xpra on ${DISPLAY:-$display}..."
-
-unset XPRA_SERVER_SOCKET
-unset XPRA_SESSION_DIR
-
-if nvidia-smi >/dev/null 2>&1; then
-if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-    echo "✅ NVIDIA NVENC available"
-    XPRA_VIDEO_ENCODERS_FLAGS="--video-encoders=${XPRA_VIDEO_ENCODERS:-nvenc}" 
-else
-    echo "ℹ️ NVIDIA NVENC unavailable, using default xpra encoders"
-fi
-fi
-
-xpra start "${DISPLAY:-$display}" \
-    --use-display \
-    --resize-display=no \
-    --desktop-scaling=auto \
-    --dpi="$dpi" \
-    --env=DISPLAY="${DISPLAY:-$display}" \
-    --env=XPRA_NVENC_ENABLED=1 \
-    --quality="${XPRA_QUALITY:-80}" \
-    --min-quality="${XPRA_MIN_QUALITY:-30}" \
-    --speed="${XPRA_SPEED:-70}" \
-    --min-speed="${XPRA_MIN_SPEED:-30}" \
-    --encoding="${XPRA_ENCODING:-h264}" \
-    ${XPRA_VIDEO_ENCODERS_FLAGS} \
-    --html=on \
-    --socket-dir="$XPRA_SOCKET_DIR" \
-    --socket-dirs="$XPRA_SOCKET_DIR" \
-    --bind-tcp=0.0.0.0:5901 \
-    ${XPRA_AUDIO_FLAGS} \
-    --no-daemon \
-    --no-mdns \
-    --webcam=no &
+    xpra-start.sh &
     display_pid=$!
 
-    XPRA_SOCKET="$XPRA_SOCKET_DIR/$(hostname)-${display#:}"
-    export XPRA_SERVER_SOCKET="$XPRA_SOCKET"
-    
-    until [ -S "$XPRA_SOCKET" ]; do
-        echo "⏳ Waiting for xpra socket..."
-        sleep 1
-    done
-    echo "🌀 Xpra started successfully on ${DISPLAY:-$display}."
-    for i in $(seq 1 10); do
-    if pactl info >/dev/null 2>&1; then
-        echo "🔊 PulseAudio ready"
-        break
-    fi
+    echo "$GBM_BACKEND"
+    echo "$__GLX_VENDOR_LIBRARY_NAME"
+    echo "$__EGL_VENDOR_LIBRARY_FILENAMES"
 
-    echo "⏳ Waiting for PulseAudio..."
-    sleep 1
-done
+    glxinfo -B | grep -Ei "vendor|renderer"
 
-echo "$GBM_BACKEND"
-echo "$__GLX_VENDOR_LIBRARY_NAME"
-echo "$__EGL_VENDOR_LIBRARY_FILENAMES"
-
-glxinfo -B | grep -Ei "vendor|renderer"
-
-xpra info | grep -Ei "nvenc|device_count|gpu.encodings"
+    xpra info "socket://$XPRA_SERVER_SOCKET" | grep -Ei "nvenc|device_count|gpu.encodings"
 
 elif [ "$DISPLAY_MODE" = "vnc" ]; then
 
-    echo "🌀 Starting x11vnc..."
-    echo "🌀 Starting x11vnc on $display..."
-    x11vnc -display "$display" -nopw -noxdamage -shared -forever -repeat &
-    display_pid=$!
-
-    until pgrep -f "x11vnc -display $display" > /dev/null; do 
-    echo "⏳ Waiting for x11vnc to start on $display...";
-    sleep 1; 
-    done
-    echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
+    vnc-start.sh &
+    display_pid="$!"
     
-    openbox-session &
-    bg_pids+=("$!")
-
 else
     echo "⚠️ Invalid display mode. Please choose 'xpra' or 'vnc'."
 fi

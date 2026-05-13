@@ -26,37 +26,69 @@ eval "$(dbus-launch --sh-syntax)"
 export DBUS_SESSION_BUS_ADDRESS
 export DBUS_SESSION_BUS_PID
 
-# 🔊 Start a persistent PulseAudio daemon for the whole container session
-pulseaudio \
-    --daemonize=yes \
-    --system=false \
-    --disallow-exit \
-    --exit-idle-time=-1 \
-    --log-target=stderr
 
-for i in $(seq 1 10); do
-    if pactl info >/dev/null 2>&1; then
-        echo "🔊 PulseAudio ready"
-        break
-    fi
-    echo "⏳ Waiting for PulseAudio..."
-    sleep 1
-done
+ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
+if [ "$ENABLE_AUDIO" = "1" ]; then
+    # 🔊 Start a persistent PulseAudio daemon for the whole container session
+    pulseaudio \
+        --daemonize=yes \
+        --system=false \
+        --disallow-exit \
+        --exit-idle-time=-1 \
+        --log-target=stderr
 
-# 🔍 Debug PulseAudio availability
-pactl info
+    for i in $(seq 1 10); do
+        if pactl info >/dev/null 2>&1; then
+            echo "🔊 PulseAudio ready"
+            break
+        fi
+        echo "⏳ Waiting for PulseAudio..."
+        sleep 1
+    done
+
+    # 🔍 Debug PulseAudio availability
+    pactl info
+fi
 
 if [ ${LOCAL_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
-case "${LOCAL_DESKTOP_X_GPU_MODE:-swiftshader_indirect}" in
+
+# -------------------------------------------------------------------
+# GPU mode auto-detection
+# -------------------------------------------------------------------
+
+if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
+    echo "🔍 LOCAL_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
+
+    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
+        echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
+    else
+        export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+        echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+    fi
+fi
+
+case "${LOCAL_DESKTOP_X_GPU_MODE}" in
     "host")
+        echo "🖥️ Starting host Xorg display mode"
         display-start-xorg-host.sh &
         bg_pids+=("$!")
         ;;
+
     "wayland")
+        echo "🖥️ Starting Wayland GPU display mode"
         display-start-wayland.sh &
         bg_pids+=("$!")
         ;;
-    "swiftshader_indirect" | "guest" | *)
+
+    "swiftshader_indirect" | "guest")
+        echo "🖥️ Starting SwiftShader software rendering mode"
+        display-start.sh &
+        bg_pids+=("$!")
+        ;;
+
+    *)
+        echo "⚠️ Unknown LOCAL_DESKTOP_X_GPU_MODE='${LOCAL_DESKTOP_X_GPU_MODE}', falling back to SwiftShader"
         display-start.sh &
         bg_pids+=("$!")
         ;;

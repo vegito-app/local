@@ -1,13 +1,23 @@
+variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
+}
+
+variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
+}
+
 variable "USE_REGISTRY_CACHE" {
   default = false
+  type = bool
 }
 
 variable "ENABLE_LOCAL_CACHE" {
   default = false
+  type = bool
 }
 
 variable "LOCAL_DOCKER_DIR" {
-  default = "${LOCAL_DIR}/docker"
+  default = "."
 }
 
 variable "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
@@ -144,78 +154,18 @@ group "local-dockerhub-ci" {
   ]
 }
 
-group "local-tools" {
-  targets = [
-    "local-trivy",
-  ]
-}
-
-group "local-tools-ci" {
-  targets = [
-    "local-trivy-ci",
-  ]
-}
-
 group "local-runners" {
   targets = [
-    "local-android-runners",
+    "local-desktop-x",
   ]
 }
 
 group "local-runners-ci" {
   targets = [
-    "local-android-runners-ci",
+    "local-desktop-x-ci",
   ]
 }
 
-group "local-builders" {
-  targets = [
-    "local-project-builder",
-    "local-android-builders",
-  ]
-}
-
-group "local-builders-ci" {
-  targets = [
-    "local-project-builder-ci",
-    "local-android-builders-ci",
-  ]
-}
-
-group "local-services" {
-  targets = [
-    "local-android-services",
-    "local-clarinet-devnet",
-    "local-firebase-emulators",
-    "local-github-actions-runner",
-    "local-vault-dev",
-    "local-robotframework",
-  ]
-}
-
-group "local-services-ci" {
-  targets = [
-    "local-android-services-ci",
-    "local-clarinet-devnet-ci",
-    "local-firebase-emulators-ci",
-    "local-github-actions-runner-ci",
-    "local-vault-dev-ci",
-    "local-robotframework-ci",
-    "vegito-example-application-services-ci",
-  ]
-}
-
-group "local-applications" {
-  targets = [
-    "vegito-example-application-applications",
-  ]
-}
-
-group "local-applications-ci" {
-  targets = [
-    "vegito-example-application-applications-ci",
-  ]
-}
 group "default" {
 
   targets = [
@@ -229,25 +179,15 @@ group "default" {
 
 group "local-release" {
   targets = [
-    "local-tools",
+    "local-dockerhub",
     "local-runners",
-    "local-builders",
-    "local-services",
-    "local-applications",
-
-    "vegito-example-application-release",
   ]
 }
 
 group "local-release-ci" {
   targets = [
-    "local-tools-ci",
+    "local-dockerhub-ci",
     "local-runners-ci",
-    "local-builders-ci",
-    "local-services-ci",
-    "local-applications-ci",
-
-    "vegito-example-application-release-ci",
   ]
 }
 
@@ -298,7 +238,7 @@ target "local-docker-dind-rootless-version-ci" {
   tags = [
     LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "docker-dind-rootless.Dockerfile"
   cache-from = concat(
     ENABLE_LOCAL_CACHE ? [
@@ -323,7 +263,7 @@ target "local-docker-dind-rootless-latest-ci" {
   tags = [
     LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "docker-dind-rootless.Dockerfile"
   cache-from = concat(
     ENABLE_LOCAL_CACHE ? [
@@ -347,7 +287,7 @@ target "local-docker-dind-rootless" {
     LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION,
     LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "docker-dind-rootless.Dockerfile"
   cache-from = concat(
     ENABLE_LOCAL_CACHE ? [
@@ -598,7 +538,7 @@ target "local-rust-version-ci" {
   tags = [
     LOCAL_RUST_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "rust.Dockerfile"
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
@@ -623,7 +563,7 @@ target "local-rust-latest-ci" {
   tags = [
     LOCAL_RUST_IMAGE_LATEST,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "rust.Dockerfile"
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
@@ -648,7 +588,7 @@ target "local-rust" {
     LOCAL_RUST_IMAGE_LATEST,
     LOCAL_RUST_IMAGE_VERSION,
   ]
-  context    = "${LOCAL_DIR}/docker"
+  context    = LOCAL_DOCKER_DIR
   dockerfile = "rust.Dockerfile"
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
