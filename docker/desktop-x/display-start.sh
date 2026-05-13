@@ -31,82 +31,47 @@ display=${DISPLAY:-$default_display_number}
 dpi=${DISPLAY_DPI:-$default_dpi}
 resolution=${DISPLAY_RESOLUTION:-$default_resolution}
 
+export DISPLAY="${display}"
+
 # Lancez xvfb en arrière-plan
-Xvfb ${display} -nolisten tcp -ac -screen 0, ${resolution}x24 &
+Xvfb "${display}" -nolisten tcp -ac -screen 0, ${resolution}x24 &
 bg_pids+=("$!")
 
 timeout_xvfb=60
 for i in $(seq 1 $timeout_xvfb); do
-    if xdpyinfo -display ${display} > /dev/null 2>&1; then
+    if xdpyinfo -display "${display}" > /dev/null 2>&1; then
         break
     fi
     echo Waiting X display frame buffer
     sleep 1
 done
-if ! xdpyinfo -display ${display} > /dev/null 2>&1; then
+if ! xdpyinfo -display "${display}" > /dev/null 2>&1; then
     echo "❌ Timeout waiting for X display ${display}."
     exit 1
 fi
 
-# Lancer x11vnc en arrière-plan avec gestion d'erreur
-echo "🌀 Starting x11vnc on $display with Openbox session..."
-x11vnc -display "$display" -nopw -noxdamage -shared -forever -repeat &
-x11vnc_bg_pid=$!
-bg_pids+=("$x11vnc_bg_pid")
+DISPLAY_MODE="${DISPLAY_MODE:-xpra}"
 
-# Boucle d'attente pour permettre à x11vnc de démarrer
-until pgrep -f "x11vnc -display $display" > /dev/null; do 
-  echo "⏳ Waiting for x11vnc to start on $display...";
-  sleep 1; 
-done
-echo "✅ x11vnc running on $display → http://localhost:5900/ 🖥️"
+if [ "$DISPLAY_MODE" = "xpra" ]; then
+ 
+  xpra-start.sh &
+  display_pid="$!"
 
-# Lancer xpra en arrière-plan avec gestion d'erreur
-echo "🌀 Starting Xpra on $display with Openbox session..."
-xpra start-desktop "$display" \
-  --use-display \
-  --start-child=openbox-session \
-  --exit-with-children \
-  --bind-tcp=0.0.0.0:5901 \
-  --dbus-control= \
-  --dbus-launch \
-  --dbus-proxy= \
-  --desktop-scaling= \
-  --dpi="$dpi" \
-  --env=DISPLAY="$display \
-  --socket-dir="$XPRA_SOCKET_DIR" \
-  --socket-dirs="$XPRA_SOCKET_DIR" \
-  --html=on \
-  --min-size="$resolution \
-  --no-daemon \
-  --no-mdns \
-  --notifications= \
-  --resize-display= \
-  --webcam= &
+elif [ "$DISPLAY_MODE" = "vnc" ]; then
+ 
+    vnc-start.sh &
+    display_pid="$!"
 
-xpra_pid=$!
+    openbox-session &
+    bg_pids+=("$!")
 
-XPRA_SOCKET="$XPRA_SOCKET_DIR/$(hostname)-${display#:}"
-export XPRA_SERVER_SOCKET="$XPRA_SOCKET"
-
-until [ -S "$XPRA_SOCKET" ]; do
-    echo "⏳ Waiting for xpra socket..."
-    sleep 1
-done
-echo "🌀 Xpra started successfully on ${DISPLAY:-$display} with Openbox session."
-
-bg_pids+=("$xpra_pid")  
-
-# Boucle d'attente pour permettre à xpra de démarrer
-until pgrep -f "xpra start-desktop $display" > /dev/null; do 
-  echo "⏳ Waiting for Xpra to start on $display...";
-  sleep 1; 
-done
-echo "🌀 Xpra started successfully on $display with Openbox session."
+else
+    echo "⚠️ Invalid display mode. Please choose 'xpra' or 'vnc'."
+fi
 
 # Création d'un flag indiquant que tout le display est prêt
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xdisplay-ready
 # Garder le script en vie
 echo "🖥️  Display server is ready"
-wait "$x11vnc_bg_pid" "$xpra_pid" || true
+wait "$display_pid" || true
 echo "🛑 Session ended."
