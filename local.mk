@@ -248,7 +248,6 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	      VERSION=$(LOCAL_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
--include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android/android.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github-actions/github-actions.mk
