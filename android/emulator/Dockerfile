@@ -43,15 +43,13 @@ RUN ARCH="$(dpkg --print-architecture)" && \
 COPY --chown=${uid}:${gid} avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
 COPY --chown=${uid}:${gid} emulator-data-load.sh /usr/local/bin/
 COPY --chown=${uid}:${gid} entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
-COPY --chown=${uid}:${gid} openbox-setup.sh /usr/local/bin/
 
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \
     /usr/local/bin/android-emulator-entrypoint.sh \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
-    /usr/local/bin/emulator-data-load.sh \
-    /usr/local/bin/openbox-setup.sh
+    /usr/local/bin/emulator-data-load.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
