@@ -20,4 +20,4 @@ fi
 
 xset r on || true
 
-exec /home/android-studio/android-studio/bin/studio
+exec $HOME/android-studio/bin/studio
