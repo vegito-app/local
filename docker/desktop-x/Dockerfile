@@ -132,9 +132,10 @@ USER ${non_root_user}
 
 WORKDIR ${HOME}
 
-COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start.sh           /usr/local/bin/
+COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start-wayland.sh   /usr/local/bin/
+COPY --chown=desktopx:desktopx xpra-start.sh              /usr/local/bin/
 COPY --chown=desktopx:desktopx enable-nvidia-gl.sh        /usr/local/bin/
 COPY --chown=desktopx:desktopx nvidia-gl-env.sh           /usr/local/bin/
 
@@ -145,6 +146,7 @@ RUN chmod +x \
     /usr/local/bin/display-start-wayland.sh \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
+    /usr/local/bin/xpra-start.sh \
     /usr/local/bin/enable-nvidia-gl.sh \
     /usr/local/bin/nvidia-gl-env.sh
 
