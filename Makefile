@@ -56,6 +56,14 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   trivy
 #   clarinet-devnet \
 
+LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
+  dockerhub \
+  tools \
+  runners \
+  builders \
+  services \
+  applications
+
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.

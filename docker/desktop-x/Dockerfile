@@ -2,6 +2,8 @@ FROM debian
 
 USER root
 
+ARG TARGETPLATFORM
+
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -160,4 +162,4 @@ ENV LOCAL_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
-ENV USER=${non_root_user}
+ENV USER ${non_root_user}

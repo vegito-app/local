@@ -1,4 +1,4 @@
-LOCAL_DOCKER_DIR ?= $(LOCAL_DIR)/docker
+LOCAL_DOCKER_DIR ?= $(CURDIR)
 include $(LOCAL_DOCKER_DIR)/dockerhub.mk
 
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
@@ -37,11 +37,7 @@ docker-clean:
 # If an image is built in a group, all images in that group are built together.
 LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
   dockerhub \
-  tools \
-  runners \
-  builders \
-  services \
-  applications
+  runners
 
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
