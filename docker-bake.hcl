@@ -111,7 +111,7 @@ target "local-project-builder-latest-ci" {
   inherits = ["local-project-builder-base"]
   contexts = {
     go     = "docker-image://${LOCAL_GO_IMAGE_LATEST}"
-    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,

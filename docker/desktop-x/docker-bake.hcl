@@ -65,7 +65,6 @@ target "local-desktop-x-version-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DESKTOP_X_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
@@ -93,14 +92,12 @@ target "local-desktop-x-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DESKTOP_X_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}",
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -130,14 +127,12 @@ target "local-desktop-x" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_DESKTOP_X_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(

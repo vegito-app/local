@@ -8,12 +8,12 @@ variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
 
 variable "USE_REGISTRY_CACHE" {
   default = false
-  type = bool
+  type    = bool
 }
 
 variable "ENABLE_LOCAL_CACHE" {
   default = false
-  type = bool
+  type    = bool
 }
 
 variable "LOCAL_DOCKER_DIR" {
