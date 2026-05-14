@@ -36,4 +36,9 @@ mkdir -p ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR}
 cd ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR} && python3 -m http.server 8088 &
 bg_pids+=($!)
 
-exec "$@"
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, waiting.   to keep container alive"
+  wait "${bg_pids[@]}"
+else
+  exec "$@"
+fi

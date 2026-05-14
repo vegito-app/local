@@ -42,6 +42,9 @@ RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-pip-cache,targe
 COPY entrypoint.sh /usr/local/bin/tests-entrypoint.sh
 COPY caches-refresh.sh /usr/local/bin/robotframework-caches-refresh.sh
 
-ENV LOCAL_ROBOTFRAMEWORK_TESTS_DIR=${HOME}/robotframework
+ENV LOCAL_ROBOTFRAMEWORK_TESTS_DIR ${HOME}/robotframework
+
+WORKDIR ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR}
 
 ENTRYPOINT [ "tests-entrypoint.sh" ]
+CMD [ "robot" ]
