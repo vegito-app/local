@@ -65,17 +65,7 @@ if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
     bg_pids+=("$!")
 fi
 
-# 📥 Use Appium entrypoint to launch emulator + APK
-android-appium-entrypoint.sh appium --address 0.0.0.0 --port 4723 \
-  --session-override --log-level info \
-  --allow-insecure uiautomator2:adb_shell &
-
 bg_pids+=("$!")
 
-
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, waiting.   to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
-fi
+# Use Appium 
+android-appium-entrypoint.sh "$@"

@@ -29,13 +29,5 @@ else
     echo "[entrypoint] Existing ADB keypair detected, skipping generation."
 fi
 
-android-emulator-entrypoint.sh "android-emulator-avd-start.sh" &
-bg_pids+=($!)
-
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, waiting.   to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
-fi
+android-emulator-entrypoint.sh "$@"
 
