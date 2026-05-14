@@ -211,6 +211,10 @@ variable "LOCAL_RUST_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/rust"
 }
 
+variable "LOCAL_PYTHON_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/python"
+}
+
 variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/docker-dind-rootless"
 }
@@ -604,6 +608,116 @@ target "local-rust" {
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
       LOCAL_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : []
+  )
+}
+
+variable "LOCAL_PYTHON_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/python:latest"
+}
+
+variable "LOCAL_PYTHON_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/python:${DOCKERHUB_REPLICA_VERSION}"
+}
+
+variable "LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/python"
+}
+
+variable "LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+group "local-python-ci" {
+  targets = [
+    "local-python-version-ci",
+    "local-python-latest-ci",
+  ]
+}
+
+target "local-python-version-ci" {
+  tags = [
+    LOCAL_PYTHON_IMAGE_VERSION,
+  ]
+  contexts = {
+    debian = "target:local-debian-version-ci"
+  }
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "python.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_PYTHON_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_PYTHON_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
+  platforms = platforms
+}
+
+target "local-python-latest-ci" {
+  tags = [
+    LOCAL_PYTHON_IMAGE_LATEST,
+  ]
+  contexts = {
+    debian = "target:local-debian-latest-ci"
+  }
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "python.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_PYTHON_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_PYTHON_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = [
+    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_PYTHON_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    "type=inline"
+  ]
+  platforms = platforms
+}
+
+target "local-python" {
+  tags = [
+    LOCAL_PYTHON_IMAGE_LATEST,
+    LOCAL_PYTHON_IMAGE_VERSION,
+  ]
+  contexts = {
+    debian = "target:local-debian"
+  }
+  context    = LOCAL_DOCKER_DIR
+  dockerfile = "python.Dockerfile"
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_PYTHON_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${LOCAL_PYTHON_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
     ] : []
   )
 }
