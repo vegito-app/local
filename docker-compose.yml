@@ -107,6 +107,7 @@ services:
       - /dev/kvm
       - /dev/dri
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
+    command: /workspaces/vegito-app/local/android/studio/android-studio.sh
 
   vault-dev:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}

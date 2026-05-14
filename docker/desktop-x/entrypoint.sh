@@ -133,6 +133,10 @@ alias gb='git branch'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate'
 
-# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+if command -v nvidia-smi >/dev/null 2>&1 &&
+    nvidia-smi >/dev/null 2>&1; then
+
+    source /usr/local/bin/nvidia-gl-env.sh
+fi
 
 exec "$@"

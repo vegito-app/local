@@ -172,7 +172,7 @@ group "default" {
     "local-release",
     "local-release-ci",
   ]
-
+  pull            = true
   max_parallelism = LOCAL_RELEASE_BUILD_MAX_PARALLELISM
 
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -18,7 +18,7 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 # Start Appium runtime (critical service)
-android-appium-start.sh &
+/workspaces/vegito-app/local/android/appium/appium-start.sh &
 appium_pid="$!"
 
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" != "true" ]; then

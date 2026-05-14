@@ -1,5 +1,4 @@
-
-set -euo pipefail
+set -exuo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
@@ -16,7 +15,7 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
- "android-emulator-avd-start.sh" &
+android-emulator-avd-start.sh &
 bg_pids+=($!)
 
 appium --address 0.0.0.0 --port 4723 \
