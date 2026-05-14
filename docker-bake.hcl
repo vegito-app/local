@@ -50,11 +50,30 @@ variable "LOCAL_DIR" {
   default = "."
 }
 
+group "local-project-builders" {
+  targets = [
+    "local-project-builder",
+    "local-project-builder-x",
+  ]
+}
+
+group "local-project-builders-ci" {
+  targets = [
+    "local-project-builder-ci",
+    "local-project-builder-x-ci",
+  ]
+}
+
 group "local-project-builder-ci" {
   targets = [
     "local-project-builder-version-ci",
-    "local-project-builder-x-version-ci",
     "local-project-builder-latest-ci",
+  ]
+}
+
+group "local-project-builder-x-ci" {
+  targets = [
+    "local-project-builder-x-version-ci",
     "local-project-builder-x-latest-ci",
   ]
 }
