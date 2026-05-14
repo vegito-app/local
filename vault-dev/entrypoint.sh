@@ -36,7 +36,11 @@ if [ "${VAULT_AUDIT_INIT:-false}" = "true" ]; then
 fi
 
 if [ $# -eq 0 ]; then
-  wait "${bg_pids[@]}"
+  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  if [ "${#bg_pids[@]}" -gt 0 ]; then
+      wait "${bg_pids[@]}"
+  fi
+  echo "[entrypoint] All background processes have exited, container will stop now."
 else
   exec "$@"
 fi

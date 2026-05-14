@@ -26,7 +26,9 @@ bg_pids+=("$!")
 
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}"
+  if [ "${#bg_pids[@]}" -gt 0 ]; then
+      wait "${bg_pids[@]}"
+  fi
 else
   exec "$@"
 fi

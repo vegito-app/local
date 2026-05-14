@@ -135,9 +135,4 @@ alias gl='git log --oneline --graph --decorate'
 
 # echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, waiting.   to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
-fi
+exec "$@"
