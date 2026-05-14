@@ -82,16 +82,18 @@ xpra start "${DISPLAY}" \
     ${XPRA_VIDEO_ENCODERS_FLAGS} \
     ${XPRA_PROFILE_FLAGS} &
 
-display_pid="$!" && bg_pids+=("$!")
+display_pid="$!"
 
 XPRA_SOCKET="$XPRA_SOCKET_DIR/$(hostname)-${display#:}"
 export XPRA_SERVER_SOCKET="$XPRA_SOCKET"
 
-until [ -S "$XPRA_SERVER_SOCKET" ]; do
+until [ -S "$XPRA_SOCKET" ]; do
     echo "⏳ Waiting for xpra socket..."
     sleep 1
 done
-echo "🌀 Xpra started successfully."
+
+echo "🌀 Xpra started successfully on ${display}."
+
 if [ "$ENABLE_AUDIO" = "1" ]; then
     for i in $(seq 1 10); do
         if pactl info >/dev/null 2>&1; then
