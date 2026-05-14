@@ -162,6 +162,7 @@ local-docker-buildx-setup:
 	  --driver docker-container \
 	  --use \
 	  $(LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	  --platform linux/arm64 \
 	  --platform linux/amd64; \
 	}
 ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)

@@ -17,10 +17,23 @@ GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 
+# Autodetect KVM GID
 if [ -e /dev/kvm ]; then
   KVM_GID=$(stat -c '%g' /dev/kvm)
 else
   KVM_GID=""
+fi
+# Autodetect GPU mode
+if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
+    echo "🔍 LOCAL_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
+
+    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
+        echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
+    else
+        export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+        echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+    fi
 fi
 
 # Ensure the current working directory exists.
@@ -43,7 +56,6 @@ GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE}
-LOCAL_BUILDER_X_IMAGE=${LOCAL_BUILDER_X_IMAGE}
 # 
 LANG=${LANG}
 LANGUAGE=${LANGUAGE}
@@ -53,6 +65,7 @@ DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 KVM_GID=${KVM_GID}
+LOCAL_DESKTOP_X_GPU_MODE=${LOCAL_DESKTOP_X_GPU_MODE:-swiftshader_indirect}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -94,7 +107,6 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
         make docker-sock
@@ -171,6 +183,10 @@ services:
     ports:
       # Docker daemon
       - 2375
+      # Xpra
+      - 5901
+      # VNC
+      - 5900
 
   example-application-backend:
     networks:
@@ -188,7 +204,7 @@ services:
           - example-application-mobile
     ports:
       # VNC
-      # - 5900
+      - 5900
       # Xpra
       - 5901
       # ADB
@@ -280,20 +296,26 @@ EOF
 dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
+  dev:
+    environment:
+      LOCAL_DESKTOP_X_GPU_MODE: wayland
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
   android-studio:
-    # environment:
-    #  LOCAL_ANDROID_GPU_MODE=host
-    # runtime: nvidia
-    # devices:
-    #   - /dev/nvidia0
+    environment:
+      LOCAL_ANDROID_GPU_MODE: wayland
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
   example-application-mobile:
-    # environment:
-    #  LOCAL_ANDROID_GPU_MODE: host
-    # runtime: nvidia
-    # devices:
-    #   - /dev/nvidia0
-    # shm_size: "8gb"
-    # group_add:
-    #   - sgx
+    environment:
+      LOCAL_DESKTOP_X_GPU_MODE: wayland
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
 EOF
 

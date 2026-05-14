@@ -1,6 +1,6 @@
 # Local Docker Compose configuration
 LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
-LOCAL_BUILDER_X_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-x-latest
+
 LOCAL_DIR ?= $(CURDIR)
 
 LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
@@ -97,8 +97,14 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/stripe/docker-compose.yml \
   -f $(LOCAL_DIR)/trivy/docker-compose.yml \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
+  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
+
+ifeq ($(LOCAL_DESKTOP_X_GPU_MODE),wayland)
+	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
+endif
+ifeq ($(LOCAL_DESKTOP_X_GPU_MODE),host)
+	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
+endif
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
@@ -202,13 +208,13 @@ local-container-config-show:
 .PHONY: local-container-config-show
 
 local-dev-container-image-pull:
-	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
+	@echo "⬇︎ Pulling builder image..."
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
 
 local-dev-container-image-push:
-	@echo "⬆︎ Pushing builder image $(LOCAL_BUILDER_IMAGE)..."
-	@docker push $(LOCAL_BUILDER_IMAGE)
+	@echo "⬆︎ Pushing builder image..."
+	@$(LOCAL_DOCKER_COMPOSE) push dev
 .PHONY: local-dev-container-image-push
 
 local-dev-container-logs:
