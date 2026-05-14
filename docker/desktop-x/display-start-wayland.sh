@@ -156,6 +156,19 @@ fi
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY}"
 export WAYLAND_DEBUG=0
 
+WAYVNC_PORT=${WAYVNC_PORT:-5901}
+
+if command -v weston-terminal >/dev/null 2>&1; then
+    echo "🖥️ Launching weston-terminal..."
+    weston-terminal > /tmp/weston-terminal.log 2>&1 &
+    bg_pids+=("$!")
+elif command -v foot >/dev/null 2>&1; then
+    echo "🖥️ Launching foot terminal..."
+    foot > /tmp/foot.log 2>&1 &
+    bg_pids+=("$!")
+else
+    echo "⚠️ No Wayland terminal found (weston-terminal or foot missing)."
+fi
 
 echo "🔍 Weston GPU capabilities"
 
