@@ -38,3 +38,7 @@ COPY --chown=${uid}:${gid} entrypoint.sh /usr/local/bin/android-appium-entrypoin
 RUN chmod +x /usr/local/bin/android-appium-entrypoint.sh
 
 ENTRYPOINT ["android-appium-entrypoint.sh"]
+
+CMD [ "appium", "--address 0.0.0.0", "--port 4723" \
+    , "--session-override", "--log-level info" \
+    , "--allow-insecure", "uiautomator2:adb_shell" ]

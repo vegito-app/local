@@ -63,5 +63,5 @@ RUN chmod +x \
   /usr/local/bin/android-studio-entrypoint.sh
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
-CMD ["studio"]
+CMD ["android-studio.sh"]
 

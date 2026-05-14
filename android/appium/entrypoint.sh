@@ -29,8 +29,13 @@ else
     echo "[entrypoint] Existing ADB keypair detected, skipping generation."
 fi
 
-android-emulator-entrypoint.sh echo "✅ Android fully booted. Now launching Appium..."
+android-emulator-entrypoint.sh "android-emulator-avd-start.sh" &
+bg_pids+=($!)
 
-exec appium --address 0.0.0.0 --port 4723 \
-    --session-override --log-level info \
-    --allow-insecure uiautomator2:adb_shell
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, waiting.   to keep container alive"
+  wait "${bg_pids[@]}"
+else
+  exec "$@"
+fi
+

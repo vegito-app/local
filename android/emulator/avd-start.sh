@@ -17,6 +17,37 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
+if [ ! "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "true" ]; then
+    echo "ℹ️ Skipping AVD start as LOCAL_ANDROID_EMULATOR_AVD_ON_START is not set to true."
+    exit 0
+fi
+
+# ⏳ Attente du boot complet de l'émulateur
+echo "⏳ Waiting for full Android boot..."
+
+if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "false" ]; then
+    echo "ℹ️ Skipping AVD start as LOCAL_ANDROID_EMULATOR_AVD_ON_START is set to false."
+    exit 0
+fi
+
+adb wait-for-device
+
+until adb shell getprop sys.boot_completed | grep -q "1"; do
+echo "⏳ Android not booted yet..."
+sleep 2
+done
+
+while [[ "$(adb shell getprop init.svc.bootanim 2>/dev/null)" != *"stopped"* ]]; do
+echo "🎞️ Boot animation still running..."
+sleep 2
+done
+
+# Optionnel : check de réactivité ADB shell
+until adb shell "echo ok" | grep -q "ok"; do
+echo "🔁 Waiting for ADB shell..."
+sleep 2
+done
+
 echo "Starting adb server if not running..."
 if ! pgrep -x "adb" >/dev/null; then
   adb start-server &

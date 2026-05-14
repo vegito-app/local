@@ -15,12 +15,8 @@ kill_jobs() {
 }
 
 # 🚨 Register cleanup function to run on script exit
-
 trap kill_jobs EXIT
 
-if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
-    caches-refresh.sh
-fi
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
 mkdir -p $local_container_cache
 
@@ -64,23 +60,22 @@ else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi
 
-rm -f ~/.android/avd/*/*.lock
-rm -f ~/.android/avd/*.ini.lock
-
-(android-appium-entrypoint.sh) &
-bg_pids+=("$!")
-
-if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
-    android-studio.sh &
-    # Don't track this PID as the script will exit after if Android Studio is restarted manually.
-    # bg_pids+=("$!") 
+if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
+    caches-refresh.sh &
+    bg_pids+=("$!")
 fi
 
+# 📥 Use Appium entrypoint to launch emulator + APK
+android-appium-entrypoint.sh appium --address 0.0.0.0 --port 4723 \
+  --session-override --log-level info \
+  --allow-insecure uiautomator2:adb_shell &
+
+bg_pids+=("$!")
+
+
 if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
+  echo "[entrypoint] No command passed, waiting.   to keep container alive"
   wait "${bg_pids[@]}"
-  echo "[entrypoint] All background processes have exited, container will stop now."
 else
-  echo "[entrypoint] Executing passed command: $*"
   exec "$@"
 fi
