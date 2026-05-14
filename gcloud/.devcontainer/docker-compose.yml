@@ -27,14 +27,14 @@ services:
         echo "Waiting for Docker to be ready..."
         sleep 1
       done
-      if [ "$${CODESPACES}" = "true" ] ; then
+      if [ "$${CODESPACES:-false}" = "true" ] ; then
         echo "Detected '$${CODESPACE_NAME}' Codespaces environment."
         make devcontainer-codespaces
         make local-docker-buildx-setup-github-codespaces
-      elif [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+      elif [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
         make devcontainer
       fi
-      if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
+      if [ "$${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
         make application-mobile-wait-for-boot
         make functional-tests
       fi

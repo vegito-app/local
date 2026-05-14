@@ -17,11 +17,11 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-# Start Appium in the background
+# Start Appium runtime (critical service)
 android-appium-start.sh &
-bg_pids+=($!)
+appium_pid="$!"
 
-if [ ! "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
+if [ "${LOCAL_ANDROID_STUDIO_ON_START}" != "true" ]; then
     echo "ℹ️ Skipping Android Studio start as LOCAL_ANDROID_STUDIO_ON_START is not set to true, exit"
     exit 0
 fi
@@ -47,15 +47,12 @@ rm -f ~/.android/avd/*.ini.lock
 
 xset r on || true
 
-# Start Appium in the background
-studio &
-bg_pids+=($!)
+# Start Android Studio GUI (non critical)
+studio >/tmp/android-studio.log 2>&1 &
 
-# Keep container alive
-sleep infinity &
-bg_pids+=($!)
+echo "ℹ️ Android Studio is started as a detached GUI application."
+echo "ℹ️ Container lifecycle is tied to Appium runtime, not Studio."
 
-# Wait background processes
-if [ "${#bg_pids[@]}" -gt 0 ]; then
-    wait "${bg_pids[@]}"
-fi
+# Keep runtime alive while Appium is alive
+wait "$appium_pid"
+

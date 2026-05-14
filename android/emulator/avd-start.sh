@@ -17,7 +17,7 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-if [ ! "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" = "true" ]; then
+if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" != "true" ]; then
     echo "ℹ️ Skipping AVD start as LOCAL_ANDROID_EMULATOR_AVD_ON_START is not set to true."
     exit 0
 fi
