@@ -35,7 +35,9 @@ if [ "$current_workspace" != "$LOCAL_WORKSPACE" ] ; then
     echo "Linked current workspace $current_workspace to $LOCAL_WORKSPACE"
 fi
 
-if [ $# -eq 0 ]; then
+if [ -f /usr/local/bin/desktop-x-entrypoint.sh ]; then
+  exec /usr/local/bin/desktop-x-entrypoint.sh "$@"
+elif [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
   wait "${bg_pids[@]}"
 else

@@ -143,7 +143,7 @@ target "local-project-builder-latest-ci" {
   platforms = platforms
 }
 
-target "local-project-x-builder" {
+target "local-project-builder-x" {
   inherits = ["local-project-builder"]
   contexts = {
     debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
