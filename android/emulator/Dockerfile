@@ -1,4 +1,4 @@
-FROM desktop_x
+FROM debian
 
 USER root
 
