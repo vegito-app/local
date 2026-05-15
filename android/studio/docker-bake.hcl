@@ -46,6 +46,10 @@ variable "ANDROID_STUDIO_VERSION" {
   default = "2025.3.4.6/android-studio-panda4"
 }
 
+variable "ANDROID_NDK_VERSION" {
+  default = "27.0.12077973"
+}
+
 group "local-android-studio-ci" {
   description = "Build and push Android Studio images"
   targets = [
@@ -56,12 +60,12 @@ group "local-android-studio-ci" {
 
 target "local-android-studio-version-ci" {
   args = {
+    android_ndk_version    = ANDROID_NDK_VERSION
     android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    "appium" : "${LOCAL_DIR}/android/appium",
-    android_flutter = "target:local-android-flutter-version-ci"
+    android = "target:local-android-appium-flutter-version-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_VERSION,
@@ -77,8 +81,6 @@ target "local-android-studio-version-ci" {
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -91,12 +93,12 @@ target "local-android-studio-version-ci" {
 
 target "local-android-studio-latest-ci" {
   args = {
+    android_ndk_version    = ANDROID_NDK_VERSION
     android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    "appium" : "${LOCAL_DIR}/android/appium",
-    android_flutter = "target:local-android-flutter-latest-ci"
+    android = "target:local-android-appium-flutter-latest-ci"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
@@ -104,16 +106,12 @@ target "local-android-studio-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -132,12 +130,12 @@ target "local-android-studio-latest-ci" {
 
 target "local-android-studio" {
   args = {
+    android_ndk_version    = ANDROID_NDK_VERSION
     android_studio_version = ANDROID_STUDIO_VERSION
   }
   context = LOCAL_ANDROID_STUDIO_DIR
   contexts = {
-    android_flutter = "target:local-android-flutter"
-    "appium" : "${LOCAL_DIR}/android/appium",
+    android = "target:local-android-appium-flutter"
   }
   tags = [
     LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
@@ -146,16 +144,12 @@ target "local-android-studio" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_FLUTTER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(

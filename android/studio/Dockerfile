@@ -1,4 +1,4 @@
-FROM android_flutter
+FROM android
 
 USER root
 
@@ -26,14 +26,21 @@ USER ${non_root_user}
 
 WORKDIR ${HOME}
 
+# Android SDK complete (NDK + build-tools)
+ENV ANDROID_SDK=${HOME}/Android/Sdk
+ENV PATH=${PATH}:${ANDROID_SDK}/cmdline-tools/latest/bin:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/34.0.0
+ARG android_ndk_version
+RUN sdkmanager \
+  "build-tools;34.0.0" \
+  "platforms;android-34" \
+  "platforms;android-36" \
+  "ndk;${android_ndk_version}"
+
 # Install nvidia tools for monitoring GPU usage in Android Studio
 RUN pipx ensurepath \
   && pipx install nvitop
 
 ENV PATH=${HOME}/node_modules/.bin:${PATH}
-
-RUN npm install appium@3.0.0-rc.2 && \
-  appium driver install uiautomator2
 
 # Android Studio
 ENV STUDIO_PATH=${HOME}/android-studio
@@ -46,8 +53,8 @@ RUN curl -o /tmp/android-studio.tar.gz -L https://edgedl.me.gvt1.com/android/stu
 
 RUN flutter doctor --android-licenses && flutter doctor
 
-# 📥 Use Appium entrypoint to launch emulator + APK
-COPY --from=appium --chown=${non_root_user}:${non_root_user}  entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
+# # 📥 Use Appium entrypoint to launch emulator + APK
+# COPY --from=appium --chown=${non_root_user}:${non_root_user}  entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
 
 # Entrypoints & scripts
 COPY --chown=${non_root_user}:${non_root_user} caches-refresh.sh /usr/local/bin/
