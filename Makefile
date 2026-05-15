@@ -29,6 +29,8 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/flutter/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \

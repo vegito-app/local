@@ -3,7 +3,6 @@ LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAM
 
 -include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
--include $(LOCAL_ANDROID_DIR)/flutter/flutter.mk
 -include $(LOCAL_ANDROID_DIR)/studio/studio.mk
 
 LOCAL_ANDROID_DOCKER_BAKE_GROUPS ?= \
@@ -35,7 +34,6 @@ $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): local-docker-bui
 LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
   appium \
   emulator \
-  flutter \
   studio
 
 $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): local-docker-buildx-setup

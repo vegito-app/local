@@ -109,8 +109,8 @@ RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var
     fi
 
 # 👤 Rename non root user
-RUN usermod -l ${non_root_user} debian \
-    && groupmod -n ${non_root_user} debian \
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
     && \
     echo "${non_root_user}:${non_root_user}" | chpasswd && \
     adduser ${non_root_user} sudo && \

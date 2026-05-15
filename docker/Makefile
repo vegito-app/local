@@ -25,6 +25,8 @@ VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE ?= false
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   docker buildx bake \
   -f $(LOCAL_DOCKER_DIR)/docker-bake.hcl \
+  -f $(LOCAL_DOCKER_DIR)/debian/docker-bake.hcl \
+  -f $(LOCAL_DOCKER_DIR)/flutter/docker-bake.hcl \
   -f $(LOCAL_DOCKER_DIR)/desktop-x/docker-bake.hcl
 
 -include docker.mk

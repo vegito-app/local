@@ -166,6 +166,20 @@ group "local-runners-ci" {
   ]
 }
 
+group "local-tools-ci" {
+  targets = [
+    "local-flutter-ci",
+    "local-flutter-desktop-x-ci",
+  ]
+}
+
+gtoup "local-tools" {
+  targets = [
+    "local-flutter",
+    "local-flutter-desktop-x",
+  ]
+}
+
 group "default" {
 
   targets = [
@@ -181,6 +195,7 @@ group "local-release" {
   targets = [
     "local-dockerhub",
     "local-runners",
+    "local-tools",
   ]
 }
 
@@ -188,6 +203,7 @@ group "local-release-ci" {
   targets = [
     "local-dockerhub-ci",
     "local-runners-ci",
+    "local-tools-ci",
   ]
 }
 
@@ -197,10 +213,6 @@ variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST" {
 
 variable "LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/docker-dind-rootless:${DOCKERHUB_REPLICA_VERSION}"
-}
-
-variable "LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian"
 }
 
 variable "LOCAL_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE" {
@@ -308,106 +320,6 @@ target "local-docker-dind-rootless" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
     ] : [],
-  )
-}
-
-variable "LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian"
-}
-
-variable "LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
-  default = "type=local,mode=max,dest=${LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
-}
-
-variable "LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  default = "type=local,src=${LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
-}
-
-variable "LOCAL_DEBIAN_IMAGE_LATEST" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:latest"
-}
-
-variable "LOCAL_DEBIAN_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
-}
-
-group "local-debian-ci" {
-  targets = [
-    "local-debian-version-ci",
-    "local-debian-latest-ci",
-  ]
-}
-
-target "local-debian-version-ci" {
-  tags = [
-    LOCAL_DEBIAN_IMAGE_VERSION,
-  ]
-  context    = LOCAL_DOCKER_DIR
-  dockerfile = "debian.Dockerfile"
-  cache-from = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
-    ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
-    [
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
-    ]
-  )
-  cache-to = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
-    ] : [],
-  )
-  platforms = platforms
-}
-
-target "local-debian-latest-ci" {
-  tags = [
-    LOCAL_DEBIAN_IMAGE_LATEST,
-  ]
-  context    = LOCAL_DOCKER_DIR
-  dockerfile = "debian.Dockerfile"
-  cache-from = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
-    ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
-    [
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
-    ]
-  )
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "",
-    "type=inline"
-  ]
-  platforms = platforms
-}
-
-target "local-debian" {
-  tags = [
-    LOCAL_DEBIAN_IMAGE_LATEST,
-  ]
-  context    = LOCAL_DOCKER_DIR
-  dockerfile = "debian.Dockerfile"
-  cache-from = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
-    ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
-    [
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
-    ]
-  )
-  cache-to = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
-    ] : []
   )
 }
 

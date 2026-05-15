@@ -57,7 +57,7 @@ group "local-desktop-x-ci" {
 target "local-desktop-x-version-ci" {
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "target:local-debian-version-ci"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_VERSION,
@@ -70,7 +70,7 @@ target "local-desktop-x-version-ci" {
       LOCAL_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -84,7 +84,7 @@ target "local-desktop-x-version-ci" {
 target "local-desktop-x-latest-ci" {
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = "target:local-debian-latest-ci"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_LATEST,
@@ -118,7 +118,7 @@ target "local-desktop-x" {
 
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "target:local-debian-version-ci"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_LATEST,

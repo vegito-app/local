@@ -68,5 +68,5 @@ RUN groupadd -g ${gid} ${non_root_user} \
 
 USER ${non_root_user}
 
-ENV USER=${non_root_user}
-ENV HOME=/home/${non_root_user}
+ENV USER ${non_root_user}
+ENV HOME /home/${non_root_user}
