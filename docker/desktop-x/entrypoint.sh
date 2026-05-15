@@ -56,27 +56,30 @@ if [ ${LOCAL_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 # GPU mode auto-detection
 # -------------------------------------------------------------------
 
-if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
-    echo "🔍 LOCAL_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
-
-    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
+if command -v nvidia-smi >/dev/null 2>&1 &&
+    nvidia-smi >/dev/null 2>&1; then
+    if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
         echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
-    else
-        export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
-        echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
     fi
+fi
+
+if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
+    export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+    echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
 fi
 
 case "${LOCAL_DESKTOP_X_GPU_MODE}" in
     "host")
         echo "🖥️ Starting host Xorg display mode"
+        source /usr/local/bin/nvidia-gl-env.sh
         display-start-xorg-host.sh &
         bg_pids+=("$!")
         ;;
 
     "wayland")
         echo "🖥️ Starting Wayland GPU display mode"
+        source /usr/local/bin/nvidia-gl-env.sh
         display-start-wayland.sh &
         bg_pids+=("$!")
         ;;
@@ -94,6 +97,7 @@ case "${LOCAL_DESKTOP_X_GPU_MODE}" in
         ;;
 esac
 fi
+# -------------------------------------------------------------------
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
@@ -132,11 +136,5 @@ alias gs='git status'
 alias gb='git branch'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate'
-
-if command -v nvidia-smi >/dev/null 2>&1 &&
-    nvidia-smi >/dev/null 2>&1; then
-
-    source /usr/local/bin/nvidia-gl-env.sh
-fi
 
 exec "$@"
