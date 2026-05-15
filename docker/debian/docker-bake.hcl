@@ -3,7 +3,7 @@ variable "LOCAL_DEBIAN_VERSION" {
 }
 
 variable "LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/local-debian"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian"
 }
 
 variable "LOCAL_DEBIAN_DIR" {
@@ -34,14 +34,14 @@ variable "LOCAL_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${DOCKERHUB_REPLICA_VERSION}"
 }
 
-group "local-debian-ci" {
+group "debian-ci" {
   targets = [
-    "local-debian-version-ci",
-    "local-debian-latest-ci",
+    "debian-version-ci",
+    "debian-latest-ci",
   ]
 }
 
-target "local-debian-version-ci" {
+target "debian-version-ci" {
   tags = [
     LOCAL_DEBIAN_IMAGE_VERSION,
   ]
@@ -65,7 +65,7 @@ target "local-debian-version-ci" {
   platforms = platforms
 }
 
-target "local-debian-latest-ci" {
+target "debian-latest-ci" {
   tags = [
     LOCAL_DEBIAN_IMAGE_LATEST,
   ]
@@ -88,7 +88,7 @@ target "local-debian-latest-ci" {
   platforms = platforms
 }
 
-target "local-debian" {
+target "debian" {
   tags = [
     LOCAL_DEBIAN_IMAGE_LATEST,
   ]

@@ -22,8 +22,7 @@ docker-login-gcr: gcloud-auth-docker docker-login
 .PHONY: docker-login-gcr
 
 docker-login: $(DOCKER_REGISTRIES:%=docker-login-%)
-	@echo "🔐 Logged into: $(
-DOCKER_REGISTRIES)"
+	@echo "🔐 Logged into: $(DOCKER_REGISTRIES)"
 .PHONY: docker-login
 
 docker-sock:
@@ -101,6 +100,7 @@ VEGITO_DOCKER_IMAGES = \
   debian \
   desktop-x \
   flutter \
+  flutter-desktop-x \
   docker-dind-rootless \
   golang-alpine \
   rust 

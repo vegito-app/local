@@ -57,7 +57,7 @@ group "local-desktop-x-ci" {
 target "local-desktop-x-version-ci" {
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "target:debian-version-ci"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_VERSION,
@@ -84,7 +84,7 @@ target "local-desktop-x-version-ci" {
 target "local-desktop-x-latest-ci" {
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian = "target:local-debian-latest-ci"
+    debian = "target:debian-latest-ci"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_LATEST,
@@ -118,7 +118,7 @@ target "local-desktop-x" {
 
   context = LOCAL_DESKTOP_X_DIR
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "target:debian-version-ci"
   }
   tags = [
     LOCAL_DESKTOP_X_IMAGE_LATEST,

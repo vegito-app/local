@@ -138,7 +138,7 @@ variable "LOCAL_RELEASE_BUILD_MAX_PARALLELISM" {
 # - Applications: the end products that we want to run and test
 group "local-dockerhub" {
   targets = [
-    "local-debian",
+    "debian",
     "local-docker-dind-rootless",
     "local-golang-alpine",
     "local-rust",
@@ -147,7 +147,7 @@ group "local-dockerhub" {
 
 group "local-dockerhub-ci" {
   targets = [
-    "local-debian-ci",
+    "debian-ci",
     "local-docker-dind-rootless-ci",
     "local-golang-alpine-ci",
     "local-rust-ci",
@@ -556,7 +556,7 @@ target "local-python-version-ci" {
     LOCAL_PYTHON_IMAGE_VERSION,
   ]
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "target:debian-version-ci"
   }
   context    = LOCAL_DOCKER_DIR
   dockerfile = "python.Dockerfile"
@@ -584,7 +584,7 @@ target "local-python-latest-ci" {
     LOCAL_PYTHON_IMAGE_LATEST,
   ]
   contexts = {
-    debian = "target:local-debian-latest-ci"
+    debian = "target:debian-latest-ci"
   }
   context    = LOCAL_DOCKER_DIR
   dockerfile = "python.Dockerfile"
@@ -612,7 +612,7 @@ target "local-python" {
     LOCAL_PYTHON_IMAGE_VERSION,
   ]
   contexts = {
-    debian = "target:local-debian"
+    debian = "target:debian"
   }
   context    = LOCAL_DOCKER_DIR
   dockerfile = "python.Dockerfile"

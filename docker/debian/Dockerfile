@@ -6,8 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
 
-RUN --mount=type=cache,id=local-debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     apt-transport-https \
     bash-completion \

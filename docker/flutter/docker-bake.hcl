@@ -3,22 +3,29 @@ variable "FLUTTER_VERSION" {
   default = "3.41.0"
 }
 
-group "local-flutter-ci" {
+group "flutter-ci" {
   targets = [
-    "local-flutter-version-ci",
-    "local-flutter-latest-ci"
+    "flutter-version-ci",
+    "flutter-latest-ci"
   ]
 }
 
-target "local-flutter-base" {
+group "flutter-desktop-x-ci" {
+  targets = [
+    "flutter-desktop-x-version-ci",
+    "flutter-desktop-x-latest-ci"
+  ]
+}
+
+target "flutter-base" {
   args = {
     flutter_version = FLUTTER_VERSION
   }
   context = LOCAL_FLUTTER_DEBIAN_DIR
 }
 
-target "local-flutter-base-ci" {
-  inherits  = ["local-flutter-base"]
+target "flutter-base-ci" {
+  inherits  = ["flutter-base"]
   platforms = platforms
 }
 
@@ -38,28 +45,28 @@ variable "LOCAL_FLUTTER_DEBIAN_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/flutter"
 }
 variable "LOCAL_FLUTTER_DEBIAN_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:flutter-debian-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:flutter-${VERSION}"
 }
 
 variable "LOCAL_FLUTTER_DEBIAN_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:flutter-debian-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:flutter-latest"
 }
 
 variable "LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/flutter-debian-version"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/flutter-version"
 }
 
 variable "LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/flutter-debian-latest"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/flutter-latest"
 }
 
 variable "LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
-  description = "local write cache (version) for local-flutter image build"
+  description = "local write cache (version) for flutter image build"
   default     = "type=local,mode=max,dest=${LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
 }
 
 variable "LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
-  description = "local write cache (latest) for local-flutter image build"
+  description = "local write cache (latest) for flutter image build"
   default     = "type=local,mode=max,dest=${LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
@@ -73,10 +80,10 @@ variable "LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
   default     = "type=local,src=${LOCAL_FLUTTER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
-target "local-flutter-debian-latest-ci" {
-  inherits = ["local-flutter-base"]
+target "flutter-latest-ci" {
+  inherits = ["flutter-base"]
   contexts = {
-    debian = "target:local-debian-latest-ci"
+    debian = "target:debian-latest-ci"
   }
   tags = [
     LOCAL_FLUTTER_DEBIAN_IMAGE_LATEST,
@@ -106,10 +113,10 @@ target "local-flutter-debian-latest-ci" {
   platforms = platforms
 }
 
-target "local-flutter-debian-version-ci" {
-  inherits = ["local-flutter-base-ci"]
+target "flutter-version-ci" {
+  inherits = ["flutter-base-ci"]
   contexts = {
-    debian = "target:local-debian-version-ci"
+    debian = "target:debian-version-ci"
   }
   tags = [
     LOCAL_FLUTTER_DEBIAN_VERSION,
@@ -132,10 +139,10 @@ target "local-flutter-debian-version-ci" {
   )
 }
 
-target "local-flutter-debian" {
-  inherits = ["local-flutter-base"]
+target "flutter-debian" {
+  inherits = ["flutter-base"]
   contexts = {
-    debian = "target:local-debian"
+    debian = "target:debian"
   }
   tags = [
     LOCAL_FLUTTER_DEBIAN_IMAGE_LATEST,
@@ -188,12 +195,12 @@ variable "LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
 }
 
 variable "LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
-  description = "local write cache (version) for local-flutter image build"
+  description = "local write cache (version) for flutter image build"
   default     = "type=local,mode=max,dest=${LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
 }
 
 variable "LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
-  description = "local write cache (latest) for local-flutter image build"
+  description = "local write cache (latest) for flutter image build"
   default     = "type=local,mode=max,dest=${LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
@@ -207,8 +214,8 @@ variable "LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
   default     = "type=local,src=${LOCAL_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
-target "local-flutter-desktop-x-latest-ci" {
-  inherits = ["local-flutter-base-ci"]
+target "flutter-desktop-x-latest-ci" {
+  inherits = ["flutter-base-ci"]
   contexts = {
     debian = "target:local-desktop-x-latest-ci"
   }
@@ -242,8 +249,8 @@ target "local-flutter-desktop-x-latest-ci" {
   )
 }
 
-target "local-flutter-desktop-x-version-ci" {
-  inherits = ["local-flutter-base-ci"]
+target "flutter-desktop-x-version-ci" {
+  inherits = ["flutter-base-ci"]
   contexts = {
     debian = "target:local-desktop-x-version-ci"
   }
@@ -271,7 +278,7 @@ target "local-flutter-desktop-x-version-ci" {
   )
 }
 
-target "local-flutter-desktop-x" {
+target "flutter-desktop-x" {
   contexts = {
     debian = "target:local-desktop-x"
   }
