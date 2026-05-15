@@ -46,16 +46,15 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 
 ARG locales="en_US.UTF-8 fr_FR.UTF-8"
 
-RUN set -eux; \
+RUN set eu; \
     rm -f /etc/locale.gen; \
     for locale in ${locales}; do \
     echo "${locale} UTF-8" >> /etc/locale.gen; \
     done; \
     locale-gen
 
-ARG default_lang=en_US.UTF-8
-ENV LANG=${default_lang}
-ENV LANGUAGE=en_US:en
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 ARG non_root_user=debian
 ARG uid=1000
