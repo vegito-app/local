@@ -69,16 +69,6 @@ local-project-builder-image-ci: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
 
-local-project-builder-image: local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
-.PHONY: local-project-builder-image
-
-local-project-builder-image-ci: local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
-.PHONY: local-project-builder-image-ci
-
 local-project-builder-x-image: local-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x

@@ -1,4 +1,4 @@
-set -exuo pipefail
+set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()

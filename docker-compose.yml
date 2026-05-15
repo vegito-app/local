@@ -75,7 +75,6 @@ services:
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
     env_file:
       - .env
-    entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
