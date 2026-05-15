@@ -20,6 +20,7 @@ group "flutter-desktop-x-ci" {
 target "flutter-base" {
   args = {
     flutter_version = FLUTTER_VERSION
+    non_root_user   = "flutter"
   }
   context = LOCAL_FLUTTER_DEBIAN_DIR
 }

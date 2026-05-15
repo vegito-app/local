@@ -23,9 +23,11 @@ RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/c
 
 USER ${non_root_user}
 
-WORKDIR ${HOME}
+ENV USER ${non_root_user}
 
-ENV PATH=${HOME}/node_modules/.bin:${PATH}
+ENV PATH ${HOME}/node_modules/.bin:${PATH}
+
+WORKDIR ${HOME}
 
 RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=local-appium-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
