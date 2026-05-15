@@ -1,4 +1,4 @@
-FROM desktop_x_image
+FROM desktop_x
 
 USER root
 

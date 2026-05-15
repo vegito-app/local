@@ -61,7 +61,7 @@ group "local-android-emulator-ci" {
 target "local-android-emulator-version-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    desktop_x_image = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    desktop_x = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -89,7 +89,7 @@ target "local-android-emulator-version-ci" {
 target "local-android-emulator-latest-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    desktop_x_image = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+    desktop_x = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -125,7 +125,7 @@ target "local-android-emulator" {
 
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    desktop_x_image = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    desktop_x = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
