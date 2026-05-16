@@ -98,10 +98,10 @@ vegito-docker-build-tags-list-ci-md:
 
 VEGITO_DOCKER_IMAGES = \
   debian \
-  vegito-debian-desktop-x \
-  vegito-debian-flutter \
-  vegito-debian-flutter-desktop-x \
-  vegito-docker-dind-rootless \
+  debian-desktop-x \
+  debian-flutter \
+  debian-flutter-desktop-x \
+  docker-dind-rootless \
   golang-alpine \
   python \
   rust 
@@ -111,10 +111,10 @@ vegito-docker-hub-images-update:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push dockerhub-ci
 .PHONY: vegito-docker-hub-images-update
 
-$(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-image-update):
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:docker-%-image-update=%-ci)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:docker-%-image-update=%-ci)
-.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-image-update)
+$(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
+.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release

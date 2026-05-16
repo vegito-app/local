@@ -19,6 +19,12 @@ VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
 export
 
+
+# Use docker.io as the default registry for local public images, but allow overriding it if needed.
+# Remove after gcr is back in shape and can be used as the default registry for local public images.
+VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
+VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
+
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
@@ -39,6 +45,8 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
   $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+  
+VEGITO_DOCKER_BUILDX_BAKE = $(LOCAL_DOCKER_BUILDX_BAKE)
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \

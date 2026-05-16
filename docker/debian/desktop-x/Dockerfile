@@ -3,20 +3,28 @@ FROM debian
 USER root
 
 ARG TARGETPLATFORM
+ARG debian_version=bookworm
 
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    if [ "${debian_version}" = "trixie" ]; then \
+    JAVA_PACKAGE=default-jre; \
+    EGL_PACKAGE=libegl-mesa0; \
+    else \
+    JAVA_PACKAGE=openjdk-17-jre; \
+    EGL_PACKAGE=libegl1-mesa; \
+    fi; \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     dbus-x11 \
     libegl1 \
-    libegl1-mesa \
+    ${EGL_PACKAGE} \
     libgbm1 \
     libgtk-3-dev libvulkan1 fonts-liberation \
     libnvidia-egl-wayland1 \
     menu-xdg \
     openbox \
-    openjdk-17-jre \
+    ${JAVA_PACKAGE} \
     wayland-protocols \
     wayland-utils \
     weston \
@@ -31,7 +39,7 @@ RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     wget -O /usr/share/keyrings/xpra.asc https://xpra.org/xpra.asc && \
     wget -O /etc/apt/sources.list.d/xpra.sources \
-    https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
+    https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/${debian_version}/xpra.sources && \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xpra \
     xpra-codecs-nvidia
@@ -152,16 +160,16 @@ RUN chmod +x \
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV VEGITO_DEBIAN_DESKTOP_X_DEBUG_APK_PATH=${default_apk_path}
+ENV VEGITO_DOCKER_DEBIAN_DESKTOP_X_DEBUG_APK_PATH=${default_apk_path}
 
 # 🖥️ Display Variables
 ARG default_display=99
 ENV DISPLAY :${default_display}
 
 # Enable AVD on start by default
-ENV VEGITO_DEBIAN_DESKTOP_X_GPU_MODE=swiftshader_indirect
+ENV VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=swiftshader_indirect
 ENV VEGITO_CONTAINER_DISPLAY_START=true
 
-ENTRYPOINT ["tini", "--", "debian-desktop-x-entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
 ENV USER ${non_root_user}

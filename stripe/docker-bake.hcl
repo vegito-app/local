@@ -43,7 +43,7 @@ group "local-stripe-ci" {
 
 target "local-stripe-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/stripe"
   dockerfile = "Dockerfile"
@@ -71,7 +71,7 @@ target "local-stripe-version-ci" {
 
 target "local-stripe-latest-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
   }
   context    = "${LOCAL_DIR}/stripe"
   dockerfile = "Dockerfile"
@@ -105,7 +105,7 @@ target "local-stripe-latest-ci" {
 
 target "local-stripe" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/stripe"
   dockerfile = "Dockerfile"

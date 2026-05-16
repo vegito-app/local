@@ -111,10 +111,10 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
 
-ifeq ($(LOCAL_DESKTOP_X_GPU_MODE),wayland)
+ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),wayland)
 	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 endif
-ifeq ($(LOCAL_DESKTOP_X_GPU_MODE),host)
+ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),host)
 	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 endif
 

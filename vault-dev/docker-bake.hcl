@@ -47,7 +47,7 @@ group "local-vault-dev-ci" {
 
 target "local-vault-dev-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
@@ -78,7 +78,7 @@ target "local-vault-dev-version-ci" {
 
 target "local-vault-dev-latest-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
@@ -112,7 +112,7 @@ target "local-vault-dev-latest-ci" {
 
 target "local-vault-dev" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"

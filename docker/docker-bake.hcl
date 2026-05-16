@@ -217,11 +217,7 @@ variable "VEGITO_GOLANG_ALPINE_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_CACHE_IMAGES_BASE}/golang-alpine"
 }
 
-variable "VEGITO_RUST_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_IMAGES_BASE}/rust"
-}
-
-variable "VEGITO_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE" {
+variable "VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_CACHE_IMAGES_BASE}/python"
 }
 
@@ -321,11 +317,11 @@ target "vegito-docker-dind-rootless" {
   )
 }
 
-variable "VEGITO_GO_IMAGE_LATEST" {
+variable "VEGITO_DOCKER_ALPINE_GO_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:latest"
 }
 
-variable "VEGITO_GO_IMAGE_VERSION" {
+variable "VEGITO_DOCKER_ALPINE_GO_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/golang-alpine:${VERSION}"
 }
 
@@ -351,7 +347,7 @@ group "golang-alpine-ci" {
 target "golang-alpine-version-ci" {
 
   tags = [
-    VEGITO_GO_IMAGE_VERSION,
+    VEGITO_DOCKER_ALPINE_GO_IMAGE_VERSION,
   ]
   context    = VEGITO_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -363,7 +359,7 @@ target "golang-alpine-version-ci" {
       VEGITO_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_GO_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_ALPINE_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -374,7 +370,7 @@ target "golang-alpine-version-ci" {
 
 target "golang-alpine-latest-ci" {
   tags = [
-    VEGITO_GO_IMAGE_LATEST,
+    VEGITO_DOCKER_ALPINE_GO_IMAGE_LATEST,
   ]
   context    = VEGITO_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -386,7 +382,7 @@ target "golang-alpine-latest-ci" {
       VEGITO_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_GO_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_ALPINE_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = [
@@ -398,8 +394,8 @@ target "golang-alpine-latest-ci" {
 
 target "golang-alpine" {
   tags = [
-    VEGITO_GO_IMAGE_VERSION,
-    VEGITO_GO_IMAGE_LATEST,
+    VEGITO_DOCKER_ALPINE_GO_IMAGE_VERSION,
+    VEGITO_DOCKER_ALPINE_GO_IMAGE_LATEST,
   ]
   context    = VEGITO_DOCKER_DIR
   dockerfile = "golang-alpine.Dockerfile"
@@ -411,7 +407,7 @@ target "golang-alpine" {
       VEGITO_GOLANG_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_GO_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_ALPINE_GO_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -439,6 +435,10 @@ variable "VEGITO_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
 
 variable "VEGITO_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default = "type=local,src=${VEGITO_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "VEGITO_RUST_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/rust"
 }
 
 group "rust-ci" {

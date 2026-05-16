@@ -61,7 +61,7 @@ group "local-android-emulator-ci" {
 target "local-android-emulator-version-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian = "docker-image://${VEGITO_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -69,13 +69,13 @@ target "local-android-emulator-version-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -89,7 +89,7 @@ target "local-android-emulator-version-ci" {
 target "local-android-emulator-latest-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -97,14 +97,14 @@ target "local-android-emulator-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}",
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -125,7 +125,7 @@ target "local-android-emulator" {
 
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    debian = "docker-image://${VEGITO_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -134,14 +134,14 @@ target "local-android-emulator" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DESKTOP_X_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
@@ -199,7 +199,7 @@ variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LA
 }
 
 target "local-android-flutter-emulator-latest-ci" {
-  inherits = ["flutter-base-ci"]
+  inherits = ["vegito-debian-flutter-base-ci"]
   contexts = {
     debian = "target:local-android-emulator-latest-ci"
   }
@@ -232,7 +232,7 @@ target "local-android-flutter-emulator-latest-ci" {
 }
 
 target "local-android-flutter-emulator-version-ci" {
-  inherits = ["flutter-base-ci"]
+  inherits = ["vegito-debian-flutter-base-ci"]
   contexts = {
     debian = "target:local-android-emulator-version-ci"
   }

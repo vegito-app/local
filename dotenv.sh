@@ -24,14 +24,14 @@ else
   KVM_GID=""
 fi
 # Autodetect GPU mode
-if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
-    echo "🔍 LOCAL_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
+if [ -z "${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
+    echo "🔍 VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
 
     if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
+        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE="wayland"
         echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
     else
-        export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE="swiftshader_indirect"
         echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
     fi
 fi
@@ -65,7 +65,7 @@ DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 KVM_GID=${KVM_GID}
-LOCAL_DESKTOP_X_GPU_MODE=${LOCAL_DESKTOP_X_GPU_MODE:-swiftshader_indirect}
+VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-swiftshader_indirect}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -298,7 +298,7 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 services:
   dev:
     environment:
-      LOCAL_DESKTOP_X_GPU_MODE: wayland
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
     runtime: nvidia
     devices:
       - /dev/nvidia0
@@ -312,7 +312,7 @@ services:
     shm_size: "8gb"
   example-application-mobile:
     environment:
-      LOCAL_DESKTOP_X_GPU_MODE: wayland
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
     runtime: nvidia
     devices:
       - /dev/nvidia0
