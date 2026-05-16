@@ -12,7 +12,7 @@ RUN --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-cache,targ
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     clang cmake ninja-build openjdk-17-jdk
 
-ARG non_root_user=android-flutter
+ARG non_root_user=flutter
 ARG uid=1000
 ARG gid=1000
 
@@ -26,6 +26,8 @@ RUN usermod -l ${non_root_user} ${USER} \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
 USER ${non_root_user}
+
+ENV USER ${non_root_user}
 
 # Flutter SDK
 ARG flutter_version
