@@ -1,199 +1,205 @@
-LOCAL_DOCKER_DIR ?= $(CURDIR)
-include $(LOCAL_DOCKER_DIR)/dockerhub.mk
+VEGITO_DOCKER_DIR ?= $(CURDIR)
+include $(VEGITO_DOCKER_DIR)/dockerhub.mk
 
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
-VEGITO_LOCAL_IMAGES_BASE ?= vegito-local
+VEGITO_DOCKER_IMAGES_BASE ?= vegito
 
 VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
 
 VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
-VEGITO_LOCAL_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_LOCAL_IMAGES_BASE)
+VEGITO_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
-local-docker-login-gcr: gcloud-auth-docker local-docker-login
+vegito-docker-login-gcr: gcloud-auth-docker
 	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
-.PHONY: local-docker-login-gcr
+.PHONY: vegito-docker-login-gcr
 
-local-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-login-%)
-	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
-.PHONY: local-docker-login
+vegito-docker-login: $(DOCKER_REGISTRIES:%=vegito-docker-login-%)
+	@echo "🔐 Logged into: $(DOCKER_REGISTRIES)"
+.PHONY: vegito-docker-login
 
-docker-sock:
-	sudo chmod o+rw /var/run/docker.sock
-.PHONY: docker-sock
+vegito-docker-sock:
+	@echo "🔨  Enabling docker.sock"
+	@sudo chmod o+rw /var/run/docker.sock
+.PHONY: vegito-docker-sock
 
-docker-clean: 
+vegito-docker-clean: 
+	@echo "🧹 Cleaning up Docker..."
 	@docker system prune --all --force
-.PHONY: docker-clean
+.PHONY: vegito-docker-clean
 
 # Groups are used to manage the build process. 
 # If an image is built in a group, all images in that group are built together.
-LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
+VEGITO_DOCKER_BUILDX_BUILD_GROUPS ?= \
   dockerhub \
   runners
 
 # Build all images (dev)
 # In this variant, images are built and loaded into the local Docker daemon.
 # The build does not push images to a remote registry.
-local-docker-images: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
-.PHONY: local-docker-images
+vegito-docker-images: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
+.PHONY: vegito-docker-images
 
-$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images): local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-images=local-%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:local-%-docker-images=local-%)
-.PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images)
+$(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images): vegito-docker-buildx-setup
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images=%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
+.PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
+DOCKER_REGISTRIES ?= gcr dockerhub
 
-VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
-
-local-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-%-release)
+vegito-docker-images-multi-registry-release: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
 	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
-.PHONY: local-docker-images-multi-registry-release
+.PHONY: vegito-docker-images-multi-registry-release
 
-local-docker-images-gcr-release: local-docker-images-release
-.PHONY: local-docker-images-gcr-release
+vegito-docker-images-gcr-release: vegito-docker-images-release
+.PHONY: vegito-docker-images-gcr-release
 
 # Build all images (CI)
 # In this variant, images are built and pushed to the remote registry.
-local-docker-images-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
-.PHONY: local-docker-images-ci
+vegito-docker-images-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
+.PHONY: vegito-docker-images-ci
 
-$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci): local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
-.PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-images-ci)
+$(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci): vegito-docker-buildx-setup
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
+.PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
 
-local-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=local-docker-images-%-release-ci)
+vegito-docker-images-multi-registry-release-ci: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
 	@echo "✅ CI Built and pushed images to all registries successfully."
-.PHONY: local-docker-images-multi-registry-release-ci
+.PHONY: vegito-docker-images-multi-registry-release-ci
 
-local-docker-images-gcr-release-ci: local-docker-images-release-ci
-.PHONY: local-docker-gcr-images-ci
+vegito-docker-images-gcr-release-ci: vegito-docker-images-release-ci
+.PHONY: vegito-docker-gcr-images-ci
 
-local-docker-group-tags-list-ci: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
-.PHONY: local-docker-group-tags-list-ci
+vegito-docker-group-tags-list-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci)
+.PHONY: vegito-docker-group-tags-list-ci
 
-$(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-%-docker-group-tags-list-ci=local-%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
-.PHONY: $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS:%=local-%-docker-group-tags-list-ci)
+$(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci):
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-group-tags-list-ci=%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci)
 
-docker-build-tags-list-ci-md:
+vegito-docker-build-tags-list-ci-md:
 	@echo "### 🐳 Docker Images Built (excluding latest):"
-	@set -e; for group in $(LOCAL_DOCKER_BUILDX_BUILD_GROUPS); do \
+	@set -e; for group in $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS); do \
 	  echo "#### Group: '$$group'" ; \
-	 $(MAKE) local-$$group-docker-group-tags-list-ci \
+	 $(MAKE) $$group-docker-group-tags-list-ci \
 	 | grep -vE 'latest$$' \
 	 | grep -v 'make\[1\]\:' \
 	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
 	  echo "" ; \
 	done
-.PHONY: docker-build-tags-list-ci-md
+.PHONY: vegito-docker-build-tags-list-ci-md
 
-DOCKER_HUB_IMAGES = \
+VEGITO_DOCKER_IMAGES = \
   debian \
-  docker-dind-rootless \
+  vegito-debian-desktop-x \
+  vegito-debian-flutter \
+  vegito-debian-flutter-desktop-x \
+  vegito-docker-dind-rootless \
   golang-alpine \
+  python \
   rust 
 
-local-docker-hub-images-update:	
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-dockerhub-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-dockerhub-ci
-.PHONY: local-docker-hub-images-update
+vegito-docker-hub-images-update:	
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print dockerhub-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push dockerhub-ci
+.PHONY: vegito-docker-hub-images-update
 
-$(DOCKER_HUB_IMAGES:%=local-docker-%-image-update):
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:local-docker-%-image-update=local-%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:local-docker-%-image-update=local-%-ci)
-.PHONY: $(DOCKER_HUB_IMAGES:%=local-docker-%-image-update)
+$(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-image-update):
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:docker-%-image-update=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:docker-%-image-update=%-ci)
+.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-image-update)
 
-local-docker-images-release:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release
-.PHONY: local-docker-images-release
+vegito-docker-images-release:
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push release
+.PHONY: vegito-docker-images-release
 
-local-docker-images-release-ci:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-release-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-release-ci
-.PHONY: local-docker-images-release-ci
+vegito-docker-images-release-ci:
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push release-ci
+.PHONY: vegito-docker-images-release-ci
 
-LOCAL_DOCKER_BUILDX_NAME ?= vegito-project-builder
-LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
+VEGITO_DOCKER_BUILDX_NAME ?= vegito-project-builder
+VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
 
-LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
+VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
 
 # Ajout d'un context docker distant pour le Mac
-local-docker-context-arm:
-	@echo "🔨  Creating buildx context $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME)"
-	@docker context inspect $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
-	docker context create $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(LOCAL_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
-.PHONY: local-docker-context-arm
+vegito-docker-context-arm:
+	@echo "🔨  Creating buildx context $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME)"
+	@docker context inspect $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
+	docker context create $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
+.PHONY: vegito-docker-context-arm
 
-local-docker-context-arm-rm:
-	@echo "🔨  Removing buildx context $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME)"
-	@docker context rm $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) || true
-.PHONY: local-docker-context-arm-rm
+vegito-docker-context-arm-rm:
+	@echo "🔨  Removing buildx context $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME)"
+	@docker context rm $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) || true
+.PHONY: vegito-docker-context-arm-rm
 
-local-docker-clean-all:
+vegito-docker-clean-all:
 	@$(MAKE) -j \
-	  docker-clean \
-	  docker-buildx-clean \
-	  docker-local-buildx-cache-clean
-.PHONY: local-docker-clean-all
+	  vegito-docker-clean \
+	  vegito-docker-buildx-clean \
+	  vegito-docker-buildx-cache-clean
+.PHONY: vegito-docker-clean-all
 
-LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
+VEGITO_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
 
-ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_RAM_BUILDER),true)
-LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
+ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_RAM_BUILDER),true)
+VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
 endif
 
-LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
+VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
 
-local-docker-buildx-setup:
-	@echo "🔨  Creating buildx context $(LOCAL_DOCKER_BUILDX_NAME)"
-	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
+vegito-docker-buildx-setup:
+	@echo "🔨  Creating buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
-	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
-	  --driver docker-container \
+	  --name $(VEGITO_DOCKER_BUILDX_NAME) \
+	  --driver vegito-docker-container \
 	  --use \
-	  $(LOCAL_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	  $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	  --platform linux/arm64 \
 	  --platform linux/amd64; \
 	}
-ifeq ($(LOCAL_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
-	@$(MAKE) local-docker-context-arm
-	@docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) | grep $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
+ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
+	@$(MAKE) vegito-docker-context-arm
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) | grep $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
 	  docker buildx create \
 	    --append \
-	    --name $(LOCAL_DOCKER_BUILDX_NAME) \
-	    $(LOCAL_DOCKER_BUILDX_ARM_BUILDER_NAME) \
+	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
+	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) \
 	    --platform linux/arm64
 endif
 
 	@docker buildx inspect --bootstrap
-.PHONY: local-docker-buildx-setup
+.PHONY: vegito-docker-buildx-setup
 
-local-docker-buildx-rm:
-	@echo "🔨  Removing buildx context $(LOCAL_DOCKER_BUILDX_NAME)"
-	@-docker buildx rm $(LOCAL_DOCKER_BUILDX_NAME)
-.PHONY: local-docker-buildx-rm
+vegito-docker-buildx-rm:
+	@echo "🔨  Removing buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
+	@-docker buildx rm $(VEGITO_DOCKER_BUILDX_NAME)
+.PHONY: vegito-docker-buildx-rm
 
-local-docker-buildx-clean:
+vegito-docker-buildx-clean:
 	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@docker buildx prune --all --force
-.PHONY: local-docker-buildx-clean
+.PHONY: vegito-docker-buildx-clean
 
-local-docker-local-buildx-cache-clean: 
+vegito-docker-buildx-cache-clean: 
 	@echo "🧹 Cleaning up Docker Buildx cache..."
 	@bash -c '\
-	  for i in $$(find . -name "docker-buildx-cache" -type d) ; do \
+	  for i in $$(find . -name "vegito-docker-buildx-cache" -type d) ; do \
 	    echo $$i ; \
 	    echo Removing $$(du -sh $$i) ; \
 		rm -rf $$i ; \
 	  done \
 	'
-.PHONY: local-docker-local-buildx-cache-clean
+.PHONY: vegito-docker-buildx-cache-clean

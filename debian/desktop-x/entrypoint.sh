@@ -50,33 +50,36 @@ if [ "$ENABLE_AUDIO" = "1" ]; then
     pactl info
 fi
 
-if [ ${LOCAL_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
+if [ ${VEGITO_DEBIAN_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 
 # -------------------------------------------------------------------
 # GPU mode auto-detection
 # -------------------------------------------------------------------
 
-if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
-    echo "🔍 LOCAL_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
-
-    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
+if command -v nvidia-smi >/dev/null 2>&1 &&
+    nvidia-smi >/dev/null 2>&1; then
+    if [ -z "${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
         echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
-    else
-        export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
-        echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+        export VEGITO_DEBIAN_DESKTOP_X_GPU_MODE="wayland"
     fi
 fi
 
-case "${LOCAL_DESKTOP_X_GPU_MODE}" in
+if [ -z "${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
+    export VEGITO_DEBIAN_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+    echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+fi
+
+case "${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE}" in
     "host")
         echo "🖥️ Starting host Xorg display mode"
+        source /usr/local/bin/nvidia-gl-env.sh
         display-start-xorg-host.sh &
         bg_pids+=("$!")
         ;;
 
     "wayland")
         echo "🖥️ Starting Wayland GPU display mode"
+        source /usr/local/bin/nvidia-gl-env.sh
         display-start-wayland.sh &
         bg_pids+=("$!")
         ;;
@@ -88,12 +91,13 @@ case "${LOCAL_DESKTOP_X_GPU_MODE}" in
         ;;
 
     *)
-        echo "⚠️ Unknown LOCAL_DESKTOP_X_GPU_MODE='${LOCAL_DESKTOP_X_GPU_MODE}', falling back to SwiftShader"
+        echo "⚠️ Unknown VEGITO_DEBIAN_DESKTOP_X_GPU_MODE='${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE}', falling back to SwiftShader"
         display-start.sh &
         bg_pids+=("$!")
         ;;
 esac
 fi
+# -------------------------------------------------------------------
 
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
@@ -133,11 +137,4 @@ alias gb='git branch'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate'
 
-# echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
-
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, waiting.   to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
-fi
+exec "$@"

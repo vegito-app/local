@@ -2,12 +2,15 @@
 
 set -euo pipefail
 
+# Nettoyage du flag d'état à chaque arrêt
+rm -f /tmp/.xpra-ready
+
 # 📌 List of PIDs of background processes
 bg_pids=()
 
 # 🧹 Function called at the end of the script to kill background processes
 kill_jobs() {
-    rm -f /tmp/.xdisplay-ready
+    rm -f /tmp/.xpra-ready
     echo "🧼 Cleaning up background processes..."
     for pid in "${bg_pids[@]}"; do
         kill "$pid" || true
@@ -19,7 +22,8 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 display="${DISPLAY:?DISPLAY is required}"
-dpi="${DISPLAY_DPI:?DISPLAY_DPI is required}"
+default_dpi="96"
+dpi="${DISPLAY_DPI:-$default_dpi}"
 
 XPRA_ENCODING="${XPRA_ENCODING:-h264}"
 XPRA_QUALITY="${XPRA_QUALITY:-80}"
@@ -55,10 +59,10 @@ if command -v nvidia-smi >/dev/null 2>&1 &&
     XPRA_VIDEO_ENCODERS_FLAGS="--video-encoders=${XPRA_VIDEO_ENCODERS:-nvenc}"
 fi
 
-echo "🌀 Starting Xpra on ${DISPLAY}"
-
 XPRA_SOCKET_DIR="${XPRA_SOCKET_DIR:-$XDG_RUNTIME_DIR/xpra}"
 mkdir -p "${XPRA_SOCKET_DIR}"
+
+echo "🌀 Starting Xpra on ${DISPLAY}"
 
 xpra start "${DISPLAY}" \
     --bind-tcp=0.0.0.0:5901 \
@@ -78,7 +82,7 @@ xpra start "${DISPLAY}" \
     ${XPRA_VIDEO_ENCODERS_FLAGS} \
     ${XPRA_PROFILE_FLAGS} &
 
-bg_pids+=("$!")
+display_pid="$!"
 
 XPRA_SOCKET="$XPRA_SOCKET_DIR/$(hostname)-${display#:}"
 export XPRA_SERVER_SOCKET="$XPRA_SOCKET"
@@ -87,6 +91,7 @@ until [ -S "$XPRA_SOCKET" ]; do
     echo "⏳ Waiting for xpra socket..."
     sleep 1
 done
+
 echo "🌀 Xpra started successfully on ${display}."
 
 if [ "$ENABLE_AUDIO" = "1" ]; then
@@ -99,6 +104,17 @@ if [ "$ENABLE_AUDIO" = "1" ]; then
     done
 fi
 
-if [ "${#bg_pids[@]}" -gt 0 ]; then
-    wait "${bg_pids[@]}"
+xpra info "socket://$XPRA_SERVER_SOCKET" | grep -Ei "nvenc|device_count|gpu.encodings"
+
+# Création d'un flag indiquant que Xpra est prêt
+echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xrpa-ready
+
+echo "✅ Xpra started successfully."
+
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, waiting xpra to keep container alive"
+  wait $display_pid
+else
+  bg_pids+=("$display_pid")
+  exec "$@"
 fi

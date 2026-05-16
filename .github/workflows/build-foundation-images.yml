@@ -33,10 +33,6 @@ on:
         required: false
         type: string
         default: "dockerhub runners builders services applications"
-      dockerhub_replica_version:
-        required: false
-        type: string
-        default: "latest"
       docker_registry_mode:
         required: false
         type: string
@@ -65,7 +61,7 @@ jobs:
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     env:
-      VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref_name }}-${{ github.run_id }}
+      VEGITO_PROJECT_NAME: vegito-${{ inputs.environment }}-${{ github.ref_name }}-${{ github.run_id }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
@@ -134,12 +130,12 @@ jobs:
         run: |
           make gcloud-config-set-project
           make gcloud-auth-docker
-          make local-docker-buildx-setup
+          make vegito-docker-buildx-setup
 
       - name: Build Docker image
         env:
-          LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS: ${{ inputs.images_ci_build_groups }}
-          DOCKERHUB_REPLICA_VERSION: ${{ inputs.dockerhub_replica_version }}
+          VEGITO_DOCKER_BUILDX_CI_BUILD_GROUPS: ${{ inputs.images_ci_build_groups }}
+          VERSION: ${{ inputs.version }}
         run: |
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log
@@ -153,9 +149,9 @@ jobs:
       - name: Generate docker image tag list for ${{ inputs.environment }}
         id: docker_tags
         run: |
-          make docker-tags-md-ci > docker-tags.md
-          if ! gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md; then
-            echo "::warning::failed to upload docker-tags.md"
+          make vegito-docker-tags-md-ci > vegito-docker-tags.md
+          if ! gcloud storage cp vegito-docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md; then
+            echo "::warning::failed to upload vegito-docker-tags.md"
           fi
 
       - name: Generate metadata.json and QR code

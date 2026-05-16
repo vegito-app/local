@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-source enable-nvidia-gl.sh
-
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready
 # 📌 List of PIDs of background processes

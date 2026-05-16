@@ -5,8 +5,8 @@ USER root
 ARG TARGETPLATFORM
 
 # ⚙️ Install minimum dependencies
-RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     dbus-x11 \
     libegl1 \
@@ -27,8 +27,8 @@ RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var
     xvfb \
     xwayland 
 
-RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     wget -O /usr/share/keyrings/xpra.asc https://xpra.org/xpra.asc && \
     wget -O /etc/apt/sources.list.d/xpra.sources \
     https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
@@ -37,8 +37,8 @@ RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var
     xpra-codecs-nvidia
 
 # NVIDIA
-RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xserver-xorg-video-nvidia \
@@ -48,10 +48,10 @@ RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     libglx-mesa0
 
 ARG enable_audio=1
-ENV ENABLE_AUDIO=${enable_audio}
+ENV ENABLE_AUDIO ${enable_audio}
 
-RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "$ENABLE_AUDIO" = "1" ]; then \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     pulseaudio pulseaudio-utils \
@@ -66,8 +66,8 @@ RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     gir1.2-gst-plugins-base-1.0 ; \
     fi
 
-RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     ffmpeg \
     gstreamer1.0-libav \
@@ -77,8 +77,8 @@ RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     libx264-dev \
     x264
 
-RUN  --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "$ENABLE_AUDIO" = "1" ]; then \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     alsa-utils \
@@ -97,8 +97,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs 
 
 # Google Chrome ou Chromium selon arch
-RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     ARCH="$(dpkg --print-architecture)" && \
     if [ "$ARCH" = "amd64" ]; then \
     curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
@@ -109,8 +109,8 @@ RUN --mount=type=cache,id=local-desktopx-${TARGETPLATFORM}-apt-cache,target=/var
     fi
 
 # 👤 Rename non root user
-RUN usermod -l ${non_root_user} debian \
-    && groupmod -n ${non_root_user} debian \
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
     && \
     echo "${non_root_user}:${non_root_user}" | chpasswd && \
     adduser ${non_root_user} sudo && \
@@ -132,9 +132,10 @@ USER ${non_root_user}
 
 WORKDIR ${HOME}
 
-COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start.sh           /usr/local/bin/
+COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start-wayland.sh   /usr/local/bin/
+COPY --chown=desktopx:desktopx xpra-start.sh              /usr/local/bin/
 COPY --chown=desktopx:desktopx enable-nvidia-gl.sh        /usr/local/bin/
 COPY --chown=desktopx:desktopx nvidia-gl-env.sh           /usr/local/bin/
 
@@ -145,21 +146,22 @@ RUN chmod +x \
     /usr/local/bin/display-start-wayland.sh \
     /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
+    /usr/local/bin/xpra-start.sh \
     /usr/local/bin/enable-nvidia-gl.sh \
     /usr/local/bin/nvidia-gl-env.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
-ENV LOCAL_DESKTOP_X_DEBUG_APK_PATH=${default_apk_path}
+ENV VEGITO_DEBIAN_DESKTOP_X_DEBUG_APK_PATH=${default_apk_path}
 
 # 🖥️ Display Variables
 ARG default_display=99
-ENV DISPLAY=:${default_display}
+ENV DISPLAY :${default_display}
 
 # Enable AVD on start by default
-ENV LOCAL_DESKTOP_X_GPU_MODE=swiftshader_indirect
-ENV LOCAL_CONTAINER_DISPLAY_START=true
+ENV VEGITO_DEBIAN_DESKTOP_X_GPU_MODE=swiftshader_indirect
+ENV VEGITO_CONTAINER_DISPLAY_START=true
 
-ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "debian-desktop-x-entrypoint.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
 ENV USER ${non_root_user}

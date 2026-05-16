@@ -4,50 +4,52 @@ VEGITO_DOCKER_HUB_REGISTRY ?= docker.io/dbndev
 DOCKERHUB_USERNAME ?= $(VEGITO_DOCKERHUB_USERNAME)
 DOCKERHUB_PAT ?= $(VEGITO_DOCKERHUB_PAT)
 
-# LOCAL_DEBIAN_IMAGE_LATEST ?= debian:bookworm
-# LOCAL_DEBIAN_IMAGE_VERSION ?= debian:bookworm
-# LOCAL_GO_IMAGE_LATEST ?= golang:alpine
-# LOCAL_GO_IMAGE_VERSION ?= golang:alpine
-# LOCAL_RUST_IMAGE_LATEST ?=rust:1-alpine3.20
-# LOCAL_RUST_IMAGE_VERSION ?=rust:1-alpine3.20
-# LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
-# LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
+# VEGITO_DEBIAN_IMAGE_LATEST ?= debian:bookworm
+# VEGITO_DEBIAN_IMAGE_VERSION ?= debian:bookworm
+# VEGITO_GO_IMAGE_LATEST ?= golang:alpine
+# VEGITO_GO_IMAGE_VERSION ?= golang:alpine
+# VEGITO_RUST_IMAGE_LATEST ?=rust:1-alpine3.20
+# VEGITO_RUST_IMAGE_VERSION ?=rust:1-alpine3.20
+# VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
+# VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
 
-LOCAL_DEBIAN_IMAGE_LATEST ?= dbndev/vegito-local-private:debian-bookworm-latest
-LOCAL_DEBIAN_IMAGE_VERSION ?= dbndev/vegito-local-private:debian-bookworm-latest
-LOCAL_GO_IMAGE_LATEST ?= dbndev/vegito-local-private:golang-alpine-latest
-LOCAL_GO_IMAGE_VERSION ?= dbndev/vegito-local-private:golang-alpine-latest
-LOCAL_RUST_IMAGE_LATEST ?=dbndev/vegito-local-private:rust-1-alpine3.20-latest
-LOCAL_RUST_IMAGE_VERSION ?=dbndev/vegito-local-private:rust-1-alpine3.20-latest
-LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_LATEST ?= dbndev/vegito-local-private:docker-dind-rootless-latest
-LOCAL_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= dbndev/vegito-local-private:docker-dind-rootless-latest
+VEGITO_DEBIAN_IMAGE_LATEST ?= dbndev/vegito-private:debian-bookworm-latest
+VEGITO_DEBIAN_IMAGE_VERSION ?= dbndev/vegito-private:debian-bookworm-latest
+VEGITO_GO_IMAGE_LATEST ?= dbndev/vegito-private:golang-alpine-latest
+VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-private:golang-alpine-latest
+VEGITO_DEBIAN_PYTHON_IMAGE_LATEST ?=dbndev/vegito-private:debian-python-latest
+VEGITO_DEBIAN_PYTHON_IMAGE_VERSION ?=dbndev/vegito-private:debian-python-latest
+VEGITO_RUST_IMAGE_LATEST ?=dbndev/vegito-private:rust-1-alpine3.20-latest
+VEGITO_RUST_IMAGE_VERSION ?=dbndev/vegito-private:rust-1-alpine3.20-latest
+VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST ?= dbndev/vegito-private:docker-dind-rootless-latest
+VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= dbndev/vegito-private:docker-dind-rootless-latest
 
-local-docker-login-dockerhub:
+vegito-docker-login-dockerhub:
 	@echo "Logging into Docker Hub"
 	@printf '%s' "$$DOCKERHUB_PAT" | docker login \
 	  --username "$$DOCKERHUB_USERNAME" \
 	  --password-stdin
-.PHONY: local-docker-login-dockerhub
+.PHONY: vegito-docker-login-dockerhub
 
-LOCAL_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS ?= \
+VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS ?= \
   tools \
   runners \
   builders \
   services \
   applications
 
-local-docker-images-dockerhub-release:
-	echo "🚀 Building for $(@:local-docker-images-%=%)"
-	$(MAKE) local-docker-images-release \
-	  LOCAL_DOCKER_BUILDX_BUILD_GROUPS="$(LOCAL_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
-	  VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-public \
-	  VEGITO_LOCAL_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-private \
-.PHONY: local-docker-images-dockerhub-release
+vegito-docker-images-dockerhub-release:
+	echo "🚀 Building for $(@:vegito-docker-images-%=%)"
+	$(MAKE) vegito-docker-images-release \
+	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS="$(VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
+	  VEGITO_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-public \
+	  VEGITO_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private \
+.PHONY: vegito-docker-images-dockerhub-release
 
-local-docker-images-dockerhub-release-ci:
-	@echo "🚀 Building for $(@:local-docker-images-%-ci=%)"
-	@$(MAKE) local-docker-images-release-ci \
-	  LOCAL_DOCKER_BUILDX_BUILD_GROUPS="$(LOCAL_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
-	  VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-public \
-	  VEGITO_LOCAL_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_LOCAL_IMAGES_BASE)-private \
-.PHONY: local-docker-images-dockerhub-release-ci
+vegito-docker-images-dockerhub-release-ci:
+	@echo "🚀 Building for $(@:vegito-docker-images-%-ci=%)"
+	@$(MAKE) vegito-docker-images-release-ci \
+	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS="$(VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
+	  VEGITO_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-public \
+	  VEGITO_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private \
+.PHONY: vegito-docker-images-dockerhub-release-ci

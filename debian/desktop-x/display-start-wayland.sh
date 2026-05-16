@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-source enable-nvidia-gl.sh
-
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xdisplay-ready
 # 📌 List of PIDs of background processes
@@ -12,14 +10,12 @@ bg_pids=()
 # 🖥️ Default parameters
 default_depth="24"
 default_display_number=":1"
-default_dpi="96"
 default_framerate="60"
 default_resolution="1920x1080"
 default_wayland_socket="wayland-1"
 
 resolution="${DISPLAY_RESOLUTION:-$default_resolution}"
 depth="${DISPLAY_DEPTH:-$default_depth}"
-dpi="${DISPLAY_DPI:-$default_dpi}"
 display="${DISPLAY:-$default_display_number}"
 framerate="${DISPLAY_FRAMERATE:-$default_framerate}"
 wayland_socket="${WAYLAND_SOCKET:-$default_wayland_socket}"
@@ -45,7 +41,6 @@ trap kill_jobs EXIT
 
 WAYLAND_DISPLAY_NAME=${WAYLAND_DISPLAY_NAME:-$default_wayland_socket}
 DISPLAY_RESOLUTION=${DISPLAY_RESOLUTION:-$default_resolution}
-DISPLAY_DPI=${DISPLAY_DPI:-$default_dpi}
 
 # -------------------------------------------------------------------
 # Weston startup
@@ -141,13 +136,11 @@ until glxinfo -B >/dev/null 2>&1; do
     echo "⏳ Waiting for XWayland GLX..."
     sleep 1
 done
-
-echo "✅ Weston/XWayland started successfully"
-
 echo "🔍 OpenGL renderer"
 glxinfo -B | grep -E "OpenGL vendor|OpenGL renderer|OpenGL version" || echo "⚠️ OpenGL info not available"
 
-echo "✅ XWayland started successfully"
+echo "✅ Weston/XWayland started successfully on display ${display}."
+
 
 # -------------------------------------------------------------------
 # GPU validation
@@ -186,10 +179,10 @@ echo "ℹ️ Launch Wayland-native applications inside this session"
 
 ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
 if [ "$ENABLE_AUDIO" = "1" ]; then
-    echo "🔊 Audio enabled (xpra managed)"
+    echo "🔊 Audio on"
     XPRA_AUDIO_FLAGS="--speaker=on --microphone=off"
 else
-    echo "🔇 Audio disabled"
+    echo "🔇 Audio off"
     XPRA_AUDIO_FLAGS="--speaker=off --microphone=off"
 fi
 
@@ -198,15 +191,7 @@ DISPLAY_MODE="${DISPLAY_MODE:-xpra}"
 if [ "$DISPLAY_MODE" = "xpra" ]; then
 
     xpra-start.sh &
-    display_pid=$!
-
-    echo "$GBM_BACKEND"
-    echo "$__GLX_VENDOR_LIBRARY_NAME"
-    echo "$__EGL_VENDOR_LIBRARY_FILENAMES"
-
-    glxinfo -B | grep -Ei "vendor|renderer"
-
-    xpra info "socket://$XPRA_SERVER_SOCKET" | grep -Ei "nvenc|device_count|gpu.encodings"
+    display_pid="$!"
 
 elif [ "$DISPLAY_MODE" = "vnc" ]; then
 
@@ -217,6 +202,11 @@ else
     echo "⚠️ Invalid display mode. Please choose 'xpra' or 'vnc'."
 fi
 
+echo "$GBM_BACKEND"
+echo "$__GLX_VENDOR_LIBRARY_NAME"
+echo "$__EGL_VENDOR_LIBRARY_FILENAMES"
+
+glxinfo -B | grep -Ei "vendor|renderer"
 # Création d'un flag indiquant que tout le display est prêt
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xdisplay-ready
 

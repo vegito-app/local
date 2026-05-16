@@ -2,12 +2,12 @@ FROM debian:bookworm
 
 ARG TARGETPLATFORM
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 USER root
 
-RUN --mount=type=cache,id=local-debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     apt-transport-https \
     bash-completion \
@@ -46,16 +46,18 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 
 ARG locales="en_US.UTF-8 fr_FR.UTF-8"
 
-RUN set -eux; \
+RUN set eu; \
     rm -f /etc/locale.gen; \
     for locale in ${locales}; do \
     echo "${locale} UTF-8" >> /etc/locale.gen; \
     done; \
     locale-gen
 
-ARG default_lang=en_US.UTF-8
-ENV LANG=${default_lang}
-ENV LANGUAGE=en_US:en
+# Use Bash
+RUN ln -sf /usr/bin/bash /bin/sh
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 ARG non_root_user=debian
 ARG uid=1000
@@ -69,5 +71,5 @@ RUN groupadd -g ${gid} ${non_root_user} \
 
 USER ${non_root_user}
 
-ENV USER=${non_root_user}
-ENV HOME=/home/${non_root_user}
+ENV USER ${non_root_user}
+ENV HOME /home/${non_root_user}
