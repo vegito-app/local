@@ -74,8 +74,8 @@ git-subtree-docker-push-squash:
 	@echo "✅ Squashed docker subtree pushed successfully."
 .PHONY: git-subtree-docker-push-squash
 
-LOCAL_DOCKER_DIR ?= $(LOCAL_DIR)/docker
--include $(LOCAL_DOCKER_DIR)/docker.mk
+VEGITO_DOCKER_DIR ?= $(LOCAL_DIR)/docker
+-include $(VEGITO_DOCKER_DIR)/docker.mk
 # ------------------------------------------
 # Subtree ./google-cloud
 # ------------------------------------------
