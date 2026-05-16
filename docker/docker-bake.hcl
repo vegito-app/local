@@ -1,8 +1,8 @@
-variable "VEGITO_PUBLIC_IMAGES_BASE_NAME" {
+variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-docker"
 }
 
-variable "VEGITO_PRIVATE_IMAGES_BASE" {
+variable "VEGITO_DOCKER_PRIVATE_IMAGES_BASE" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-docker"
 }
 

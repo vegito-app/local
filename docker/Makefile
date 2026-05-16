@@ -19,7 +19,7 @@ export
 
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.
 # Remove after gcr is back in shape and can be used as the default registry for local public images.
-VEGITO_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
+VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
 VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE ?= false
 
 VEGITO_DOCKER_BUILDX_BAKE ?= \
