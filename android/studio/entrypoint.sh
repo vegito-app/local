@@ -65,7 +65,13 @@ if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
     bg_pids+=("$!")
 fi
 
-bg_pids+=("$!")
+export XPRA_ENV_ARGS=()
+
+XPRA_ENV_ARGS+=("--env=ANDROID_HOME=${ANDROID_HOME}")
+XPRA_ENV_ARGS+=("--env=ANDROID_HOST=${ANDROID_HOST}")
+XPRA_ENV_ARGS+=("--env=ANDROID_SDK=${ANDROID_SDK}")
+XPRA_ENV_ARGS+=("--env=FLUTTER_HOME=${FLUTTER_HOME}")
+XPRA_ENV_ARGS+=("--env=STUDIO_PATH=${STUDIO_PATH}")
 
 # Use Appium 
 android-appium-entrypoint.sh "$@"

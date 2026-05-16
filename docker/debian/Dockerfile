@@ -2,12 +2,12 @@ FROM debian:bookworm
 
 ARG TARGETPLATFORM
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 USER root
 
-RUN --mount=type=cache,id=debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     apt-transport-https \
     bash-completion \
@@ -53,8 +53,11 @@ RUN set eu; \
     done; \
     locale-gen
 
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
+# Use Bash
+RUN ln -sf /usr/bin/bash /bin/sh
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 ARG non_root_user=debian
 ARG uid=1000

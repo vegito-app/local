@@ -11,11 +11,11 @@ variable "LOCAL_ANDROID_EMULATOR_DIR" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-version"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-latest"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -57,7 +57,7 @@ group "local-android-emulator-ci" {
 target "local-android-emulator-version-ci" {
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    desktop_x = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    desktop_x = "docker-image://${VEGITO_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -121,7 +121,7 @@ target "local-android-emulator" {
 
   context = LOCAL_ANDROID_EMULATOR_DIR
   contexts = {
-    desktop_x = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    desktop_x = "docker-image://${VEGITO_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,

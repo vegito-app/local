@@ -76,7 +76,7 @@ cd /runner
 # Export the local Buildx builder name as an environment variable for GitHub Actions
 {
   echo LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME
-  echo LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache
+  echo VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache
   echo BUILDX_BAKE_ENTITLEMENTS_FS=0
 } > "$WORKSPACE/gha-env-vars"
 

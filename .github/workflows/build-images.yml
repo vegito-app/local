@@ -165,12 +165,12 @@ jobs:
         run: |
           make gcloud-config-set-project
           make gcloud-auth-docker
-          make docker-buildx-setup
+          make vegito-docker-buildx-setup
 
       - name: Build Docker image
         env:
           LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS: ${{ inputs.images_ci_build_groups }}
-          DOCKERHUB_REPLICA_VERSION: ${{ inputs.dockerhub_replica_version }}
+          # DOCKERHUB_REPLICA_VERSION: ${{ inputs.dockerhub_replica_version }}
         run: |
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log

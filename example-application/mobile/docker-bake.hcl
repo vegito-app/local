@@ -16,15 +16,15 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile-version"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-mobile-latest"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {

@@ -15,17 +15,17 @@ RUN usermod -l ${non_root_user} android-emulator \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
+ENV USER ${non_root_user}
+
 # NodeJS for Appium
 RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs 
 
-USER ${non_root_user}
-
-ENV USER ${non_root_user}
-
 ENV PATH ${HOME}/node_modules/.bin:${PATH}
+
+USER ${non_root_user}
 
 WORKDIR ${HOME}
 

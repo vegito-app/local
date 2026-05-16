@@ -2,11 +2,13 @@ FROM debian
 
 USER root
 
+ARG TARGETPLATFORM
+
 # Adding Android build tools
 # clang, cmake, ninja-build : for native build (NDK)
 # openjdk-17-jdk : for Android tools (sdkmanager, avdmanager, etc.)
-RUN --mount=type=cache,id=local-flutter-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-flutter-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     clang cmake ninja-build openjdk-17-jdk
 
@@ -27,8 +29,8 @@ USER ${non_root_user}
 
 # Flutter SDK
 ARG flutter_version
-ENV FLUTTER_HOME=${HOME}/flutter
-ENV PATH="${PATH}:${FLUTTER_HOME}/bin"
+ENV FLUTTER_HOME ${HOME}/flutter
+ENV PATH "${PATH}:${FLUTTER_HOME}/bin"
 # tar -xf ~/Downloads/flutter_linux_${flutter_version}-stable.tar.xz -C ~/home/${non_root_user}
 RUN git clone -b stable https://github.com/flutter/flutter.git $FLUTTER_HOME && \
     cd $FLUTTER_HOME && \

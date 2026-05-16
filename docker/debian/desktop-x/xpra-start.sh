@@ -67,9 +67,9 @@ echo "🌀 Starting Xpra on ${DISPLAY}"
 xpra start "${DISPLAY}" \
     --bind-tcp=0.0.0.0:5901 \
     --desktop-scaling=auto \
-    --dpi="$dpi" \
     --env=DISPLAY="${display}" \
-    --env=XPRA_NVENC_ENABLED=1 \
+    --env=PATH="${PATH}" \
+    --dpi="$dpi" \
     --html=on \
     --no-daemon \
     --no-mdns \
@@ -79,8 +79,10 @@ xpra start "${DISPLAY}" \
     --use-display \
     --webcam=no \
     ${XPRA_AUDIO_FLAGS} \
+    "${XPRA_ENV_ARGS[@]}" \
     ${XPRA_VIDEO_ENCODERS_FLAGS} \
-    ${XPRA_PROFILE_FLAGS} &
+    ${XPRA_PROFILE_FLAGS}
+    &
 
 display_pid="$!"
 

@@ -1,3 +1,11 @@
+variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local-public"
+}
+
+variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE_NAME" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local-private"
+}
+
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
 }
@@ -14,16 +22,20 @@ variable "LOCAL_BUILDER_X_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest"
 }
 
+variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/vegito-local"
+}
+
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/builder"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-version"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-latest"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -80,7 +92,7 @@ group "local-project-builder-x-ci" {
 
 target "local-project-builder-x-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   inherits = ["local-project-builder-version-ci"]
   tags = [
@@ -165,7 +177,7 @@ target "local-project-builder-latest-ci" {
 target "local-project-builder-x" {
   inherits = ["local-project-builder"]
   contexts = {
-    debian = "docker-image://${LOCAL_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_X_IMAGE_VERSION,

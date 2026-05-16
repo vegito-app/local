@@ -50,7 +50,7 @@ if [ "$ENABLE_AUDIO" = "1" ]; then
     pactl info
 fi
 
-if [ ${LOCAL_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
+if [ ${VEGITO_DEBIAN_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 
 # -------------------------------------------------------------------
 # GPU mode auto-detection
@@ -58,18 +58,18 @@ if [ ${LOCAL_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" ]; then
 
 if command -v nvidia-smi >/dev/null 2>&1 &&
     nvidia-smi >/dev/null 2>&1; then
-    if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
+    if [ -z "${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
         echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
-        export LOCAL_DESKTOP_X_GPU_MODE="wayland"
+        export VEGITO_DEBIAN_DESKTOP_X_GPU_MODE="wayland"
     fi
 fi
 
-if [ -z "${LOCAL_DESKTOP_X_GPU_MODE:-}" ]; then
-    export LOCAL_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+if [ -z "${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
+    export VEGITO_DEBIAN_DESKTOP_X_GPU_MODE="swiftshader_indirect"
     echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
 fi
 
-case "${LOCAL_DESKTOP_X_GPU_MODE}" in
+case "${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE}" in
     "host")
         echo "🖥️ Starting host Xorg display mode"
         source /usr/local/bin/nvidia-gl-env.sh
@@ -91,7 +91,7 @@ case "${LOCAL_DESKTOP_X_GPU_MODE}" in
         ;;
 
     *)
-        echo "⚠️ Unknown LOCAL_DESKTOP_X_GPU_MODE='${LOCAL_DESKTOP_X_GPU_MODE}', falling back to SwiftShader"
+        echo "⚠️ Unknown VEGITO_DEBIAN_DESKTOP_X_GPU_MODE='${VEGITO_DEBIAN_DESKTOP_X_GPU_MODE}', falling back to SwiftShader"
         display-start.sh &
         bg_pids+=("$!")
         ;;
