@@ -198,9 +198,9 @@ variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATE
 }
 
 target "local-android-appium-flutter-latest-ci" {
-  inherits = ["vegito-debian-flutter-base-ci"]
+  inherits = ["local-android-appium-latest-ci"]
   contexts = {
-    debian = "target:local-android-appium-latest-ci"
+    android_emulator = "target:local-android-emulator-flutter-latest-ci"
   }
   tags = [
     LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
@@ -230,9 +230,9 @@ target "local-android-appium-flutter-latest-ci" {
 }
 
 target "local-android-appium-flutter-version-ci" {
-  inherits = ["vegito-debian-flutter-base-ci"]
+  inherits = ["local-android-appium-version-ci"]
   contexts = {
-    debian = "target:local-android-appium-version-ci"
+    android_emulator = "target:local-android-emulator-flutter-version-ci"
   }
   tags = [
     LOCAL_ANDROID_APPIUM_FLUTTER_VERSION,
@@ -256,9 +256,9 @@ target "local-android-appium-flutter-version-ci" {
 }
 
 target "local-android-appium-flutter" {
-  inherits = ["vegito-debian-flutter-base-ci"]
+  inherits = ["local-android-appium"]
   contexts = {
-    debian = "target:local-android-appium"
+    android_emulator = "target:local-android-emulator-flutter"
   }
   tags = [
     LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,

@@ -9,8 +9,13 @@ ARG TARGETPLATFORM
 # openjdk-17-jdk : for Android tools (sdkmanager, avdmanager, etc.)
 RUN --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
+    JAVA_PACKAGE=default-jdk; \
+    else \
+    JAVA_PACKAGE=openjdk-17-jdk; \
+    fi; \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    clang cmake ninja-build openjdk-17-jdk
+    clang cmake ninja-build ${JAVA_PACKAGE}
 
 ARG non_root_user=flutter
 ARG uid=1000

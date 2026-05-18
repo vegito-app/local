@@ -5,10 +5,6 @@ USER root
 # Make /bin/sh point to bash (and not dash)
 RUN ln -sf /usr/bin/bash /bin/sh
 
-RUN --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,id=local-android-studio-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-  apt-get -o Acquire::Retries=3 update && apt-get install -y nvtop pipx
-
 ARG non_root_user=android-studio
 ARG uid=1000
 ARG gid=1000
@@ -35,10 +31,6 @@ RUN sdkmanager \
   "platforms;android-34" \
   "platforms;android-36" \
   "ndk;${android_ndk_version}"
-
-# Install nvidia tools for monitoring GPU usage in Android Studio
-RUN pipx ensurepath \
-  && pipx install nvitop
 
 ENV PATH=${HOME}/node_modules/.bin:${PATH}
 

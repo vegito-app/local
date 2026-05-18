@@ -181,7 +181,7 @@ variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_CACHE_IMAGES_BASE}/debian-flutter-desktop-x"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_VERSION" {
+variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION" {
   default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-flutter-desktop-x-${VERSION}"
 }
 
@@ -261,7 +261,7 @@ target "vegito-debian-flutter-desktop-x-version-ci" {
     user = "desktopx"
   }
   tags = [
-    VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_VERSION,
+    VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION,
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
@@ -290,7 +290,7 @@ target "vegito-debian-flutter-desktop-x" {
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
-    VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_VERSION,
+    VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION,
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [

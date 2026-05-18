@@ -15,6 +15,11 @@ USER root
 
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
+    JAVA_PACKAGE=default-jdk; \
+    else \
+    JAVA_PACKAGE=openjdk-17-jdk; \
+    fi; \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     build-essential \
     g++ \

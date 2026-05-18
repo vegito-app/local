@@ -59,8 +59,8 @@ ARG uid=1000
 ARG gid=1000
 
 # 👤 Rename non root user
-RUN usermod -l ${non_root_user} desktopx \
-    && groupmod -n ${non_root_user} desktopx \
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
     && \
     echo "${non_root_user}:${non_root_user}" | chpasswd && \
     adduser ${non_root_user} sudo && \

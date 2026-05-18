@@ -165,7 +165,7 @@ variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-emulator-flutter"
 }
 
-variable "LOCAL_ANDROID_EMULATOR_FLUTTER_VERSION" {
+variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-${VERSION}"
 }
 
@@ -201,10 +201,10 @@ variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LA
   default     = "type=local,src=${LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
-target "local-android-flutter-emulator-latest-ci" {
+target "local-android-emulator-flutter-latest-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "target:local-android-emulator-latest-ci"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,
@@ -234,13 +234,13 @@ target "local-android-flutter-emulator-latest-ci" {
   platforms = platforms
 }
 
-target "local-android-flutter-emulator-version-ci" {
+target "local-android-emulator-flutter-version-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "target:local-android-emulator-version-ci"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
-    LOCAL_ANDROID_EMULATOR_FLUTTER_VERSION,
+    LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_VERSION,
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
@@ -260,14 +260,14 @@ target "local-android-flutter-emulator-version-ci" {
   )
 }
 
-target "local-android-flutter-emulator" {
+target "local-android-emulator-flutter" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "target:debian"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,
-    LOCAL_ANDROID_EMULATOR_FLUTTER_VERSION,
+    LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_VERSION,
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [

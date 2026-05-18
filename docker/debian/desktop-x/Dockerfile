@@ -4,11 +4,11 @@ USER root
 
 ARG TARGETPLATFORM
 ARG debian_version=bookworm
-
+ENV DEBIAN_VERSION=${debian_version}
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    if [ "${debian_version}" = "trixie" ]; then \
+    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jre; \
     EGL_PACKAGE=libegl-mesa0; \
     else \
@@ -23,7 +23,9 @@ RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     libgtk-3-dev libvulkan1 fonts-liberation \
     libnvidia-egl-wayland1 \
     menu-xdg \
+    nvtop \
     openbox \
+    pipx \
     ${JAVA_PACKAGE} \
     wayland-protocols \
     wayland-utils \
@@ -34,6 +36,10 @@ RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     xorg \
     xvfb \
     xwayland 
+
+# Install nvidia tools for monitoring GPU usage in Android Studio
+RUN pipx ensurepath \
+    && pipx install nvitop
 
 RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
