@@ -1,13 +1,13 @@
-FROM go AS go-build
+FROM debian-golang AS go-build
 
 COPY proxy proxy
 
 RUN cd proxy \
-    && GOBIN=/usr/local/bin go install -v
+    && go install -v
 
-FROM debian
+FROM debian-golang
 
-COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
+COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
 ARG TARGETPLATFORM
 
@@ -32,8 +32,6 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
     libstdc++6 \
     lsb-release \
     openjdk-17-jdk
-
-ARG TARGETPLATFORM
 
 # GCP CLI
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
@@ -81,20 +79,7 @@ RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/s
     && chmod 700 get_helm.sh \
     && ./get_helm.sh
 
-ARG go_version
-RUN case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    archive="go${go_version}.linux-amd64.tar.gz" ; \
-    ;; \
-    "linux/arm64") \
-    archive="go${go_version}.linux-arm64.tar.gz" ; \
-    ;; \
-    esac \
-    && curl -o- https://dl.google.com/go/${archive} | tar xz -C /usr/local --
-
-ENV CGO_ENABLED=1
-ENV PATH=${PATH}:/usr/local/go/bin
-
+# Install Docker
 ARG docker_version
 ARG docker_compose_version
 ARG docker_buildx_version
@@ -197,8 +182,6 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     && rm -rf /tmp/gitleaks \
     && gitleaks version
 
-RUN ln -sf /usr/bin/bash /bin/sh
-
 ARG non_root_user=local
 ARG uid=1000
 ARG gid=1000
@@ -212,7 +195,7 @@ RUN usermod -l ${non_root_user} ${USER} \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
-USER ${non_root_user}
+USER ${non_root_user}    
 
 ENV USER=${non_root_user}
 
@@ -244,7 +227,7 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOM
     npm \
     @devcontainers/cli
 
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
+ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules    
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
 # Install magit
@@ -253,20 +236,6 @@ RUN emacs --batch --eval "(require 'package)" \
     --eval "(package-initialize)" \
     --eval "(unless package-archive-contents (package-refresh-contents))" \
     --eval "(package-install 'magit)"
-
-# Go tools
-RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
-    GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
-    go install -v golang.org/x/tools/gopls@latest \
-    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
-    && go install -v github.com/josharian/impl@v1.4.0 \
-    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
-    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
-    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
-    && go install -v github.com/jesseduffield/lazydocker@latest \
-    && go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest \
-    "
 
 ENV PATH=${HOME}/bin:$PATH
 

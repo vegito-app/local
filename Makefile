@@ -24,6 +24,7 @@ export
 # Remove after gcr is back in shape and can be used as the default registry for local public images.
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
 VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
+VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-private
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
@@ -37,7 +38,14 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/flutter/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/golang/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/golang/trixie.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/python/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/python/trixie.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/rust/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/rust/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/desktop-x/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/desktop-x/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \

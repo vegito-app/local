@@ -1,32 +1,40 @@
-FROM debian:bookworm
+ARG debian_version=bookworm
+FROM debian:${debian_version}
 
 ARG TARGETPLATFORM
 
 ENV DEBIAN_FRONTEND noninteractive
 
 USER root
-
-RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+ARG debian_version=bookworm
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     apt-transport-https \
     bash-completion \
     btop \
+    build-essential \
     ca-certificates \
+    clang \
     curl \
     dnsutils \
     file \
+    g++ \
+    gcc \
     git \
     gnupg \
     htop \
     iftop \
     iptables \
     jq \
+    libc6-dev \
+    lld \
     locales \
     lsof \
     make \
     net-tools \
     netcat-openbsd \
+    pkg-config \
     procps \
     rsync \
     socat \
@@ -52,9 +60,6 @@ RUN set eu; \
     echo "${locale} UTF-8" >> /etc/locale.gen; \
     done; \
     locale-gen
-
-# Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8

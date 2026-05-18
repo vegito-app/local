@@ -167,8 +167,6 @@ ENV NVM_DIR=${HOME}/nvm
 ARG nvm_version
 ARG node_version
 
-# USER ${non_root_user}
-
 RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
     set -e ; \

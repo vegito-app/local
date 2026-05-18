@@ -1,69 +1,97 @@
-variable "VEGITO_DEBIAN_VERSION" {
+variable "VEGITO_DOCKER_DEBIAN_VERSION" {
   default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-${VERSION}"
 }
 
-variable "VEGITO_DEBIAN_IMAGE_REGISTRY_CACHE" {
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_CACHE_IMAGES_BASE}/debian"
 }
 
-variable "VEGITO_DEBIAN_DIR" {
+variable "VEGITO_DOCKER_DEBIAN_DIR" {
   default = "${VEGITO_DOCKER_DIR}/debian"
 }
 
-variable "VEGITO_DEBIAN_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_IMAGES_BASE}/debian"
-}
-
-variable "VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
   default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian"
 }
 
-variable "VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
-  default = "type=local,mode=max,dest=${VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-variable "VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  default = "type=local,src=${VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-variable "VEGITO_DEBIAN_IMAGE_LATEST" {
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+}
+
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_LATEST" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:latest"
 }
 
-variable "VEGITO_DEBIAN_IMAGE_VERSION" {
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PRIVATE_REPOSITORY}/debian:${VERSION}"
 }
 
 group "vegito-debian-ci" {
+  targets = [
+    "vegito-bookworm-debian-ci",
+
+    "vegito-trixie-debian-ci",
+  ]
+}
+
+group "vegito-bookworm-debian-ci" {
   targets = [
     "vegito-debian-version-ci",
     "vegito-debian-latest-ci",
 
     "vegito-debian-desktop-x-ci",
     "vegito-debian-flutter-ci",
+    "vegito-debian-golang-ci",
+    "vegito-debian-rust-ci",
     "vegito-debian-python-ci",
+
   ]
 }
 
-target "vegito-debian-version-ci" {
-  tags = [
-    VEGITO_DEBIAN_IMAGE_VERSION,
+group "vegito-trixie-debian-ci" {
+  targets = [
+    "vegito-trixie-debian-version-ci",
+    "vegito-trixie-debian-latest-ci",
+
+    "vegito-trixie-debian-desktop-x-ci",
+    # "vegito-trixie-debian-flutter-ci",
+    "vegito-trixie-debian-rust-ci",
+    "vegito-trixie-debian-python-ci",
+    "vegito-trixie-debian-golang-ci",
   ]
-  context = VEGITO_DEBIAN_DIR
+}
+
+target "vegito-debian-base" {
+  context = VEGITO_DOCKER_DEBIAN_DIR
+}
+
+target "vegito-debian-version-ci" {
+  inherits = ["vegito-debian-base"]
+  tags = [
+    VEGITO_DOCKER_DEBIAN_IMAGE_VERSION,
+  ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+      VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+      VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
     ] : [],
   )
   platforms = platforms
@@ -71,22 +99,22 @@ target "vegito-debian-version-ci" {
 
 target "vegito-debian-latest-ci" {
   tags = [
-    VEGITO_DEBIAN_IMAGE_LATEST,
+    VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
-  context = VEGITO_DEBIAN_DIR
+  inherits = ["vegito-debian-base"]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+      VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "",
     "type=inline"
   ]
   platforms = platforms
@@ -94,133 +122,125 @@ target "vegito-debian-latest-ci" {
 
 target "vegito-debian" {
   tags = [
-    VEGITO_DEBIAN_IMAGE_LATEST,
+    VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
-  context = VEGITO_DEBIAN_DIR
+  inherits = ["vegito-debian-base"]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+      VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DEBIAN_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+      VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
     ] : []
   )
 }
 
-variable "VEGITO_DEBIAN_PYTHON_IMAGE_LATEST" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/python:latest"
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/trixie-debian:latest"
 }
 
-variable "VEGITO_DEBIAN_PYTHON_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/python:${VERSION}"
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_PRIVATE_REPOSITORY}/trixie-debian:${VERSION}"
 }
 
-variable "VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/python"
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_CACHE_IMAGES_BASE}/trixie-debian"
 }
 
-variable "VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
-  default = "type=local,mode=max,dest=${VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian"
 }
 
-variable "VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  default = "type=local,src=${VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
+  default = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-group "vegito-debian-python-ci" {
-  targets = [
-    "vegito-debian-python-version-ci",
-    "vegito-debian-python-latest-ci",
-  ]
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
+  default = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
 }
 
-target "vegito-debian-python-version-ci" {
-  tags = [
-    VEGITO_DEBIAN_PYTHON_IMAGE_VERSION,
-  ]
-  contexts = {
-    debian = "target:vegito-debian-version-ci"
+target "vegito-trixie-debian-base" {
+  inherits = ["vegito-debian-base"]
+  context  = VEGITO_DOCKER_DEBIAN_DIR
+  args = {
+    debian_version = "trixie"
   }
-  context    = VEGITO_DEBIAN_DIR
-  dockerfile = "python.Dockerfile"
+}
+
+target "vegito-trixie-debian-latest-ci" {
+  inherits = ["vegito-trixie-debian-base"]
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+  ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_LATEST}"
-    ]
-  )
-  cache-to = concat(
-    ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
-    ] : [],
-  )
-  platforms = platforms
-}
-
-target "vegito-debian-python-latest-ci" {
-  tags = [
-    VEGITO_DEBIAN_PYTHON_IMAGE_LATEST,
-  ]
-  contexts = {
-    debian = "target:vegito-debian-latest-ci"
-  }
-  context    = VEGITO_DEBIAN_DIR
-  dockerfile = "python.Dockerfile"
-  cache-from = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE}"
-    ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
-    ] : [],
-    [
-      "type=inline,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE},mode=max" : "",
+    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE},mode=max" : "",
     "type=inline"
   ]
   platforms = platforms
 }
 
-target "vegito-debian-python" {
+target "vegito-trixie-debian-version-ci" {
+  inherits = ["vegito-trixie-debian-base"]
   tags = [
-    VEGITO_DEBIAN_PYTHON_IMAGE_LATEST,
-    VEGITO_DEBIAN_PYTHON_IMAGE_VERSION,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION
   ]
-  contexts = {
-    debian = "target:debian"
-  }
-  context    = VEGITO_DEBIAN_DIR
-  dockerfile = "python.Dockerfile"
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DEBIAN_PYTHON_IMAGE_LATEST}"
+      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
     ]
   )
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
-      VEGITO_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
+    ] : [],
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian" {
+  inherits = ["vegito-trixie-debian-base"]
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
+    ] : [],
+    [
+      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE
     ] : []
   )
 }

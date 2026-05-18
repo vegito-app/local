@@ -1,5 +1,5 @@
 VEGITO_DOCKER_DIR ?= $(CURDIR)
-include $(VEGITO_DOCKER_DIR)/dockerhub.mk
+include $(VEGITO_DOCKER_DIR)/docker.io/docker.mk
 
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
@@ -13,6 +13,9 @@ VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BA
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
 VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
+
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
+VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
@@ -101,9 +104,12 @@ VEGITO_DOCKER_IMAGES = \
   debian-desktop-x \
   debian-flutter \
   debian-flutter-desktop-x \
+  debian-python \
+  debian-golang \
+  debian-rust \
+  alpine \
   docker-dind-rootless \
   golang-alpine \
-  python \
   rust 
 
 vegito-docker-hub-images-update:	

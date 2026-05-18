@@ -47,8 +47,6 @@ COPY --chown=${uid}:${gid} entrypoint.sh /usr/local/bin/android-emulator-entrypo
 RUN chmod +x \
     /usr/local/bin/android-emulator-avd-start.sh \
     /usr/local/bin/android-emulator-entrypoint.sh \
-    /usr/local/bin/display-start-xorg-host.sh \
-    /usr/local/bin/display-start.sh \
     /usr/local/bin/emulator-data-load.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
