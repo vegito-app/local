@@ -40,37 +40,6 @@ git-subtree-docker-push:
 	@echo "docker subtree pushed successfully."
 .PHONY: git-subtree-docker-push
 
-# Push the docker subtree as a single squashed commit without leaking
-# the parent repository history.
-# VEGITO_DOCKER_SUBTREE_SPLIT_BRANCH := docker-subtree-split-tmp
-# VEGITO_DOCKER_SUBTREE_WORKTREE := /tmp/vegito-local-docker-subtree
-# VEGITO_DOCKER_SUBTREE_SQUASH_BRANCH := docker-subtree-squash
-# git-subtree-docker-push-squash:
-# 	@echo "🧼 Preparing squashed docker subtree push..."
-# 	-git worktree remove $(VEGITO_DOCKER_SUBTREE_WORKTREE) --force 2>/dev/null || true
-# 	rm -rf $(VEGITO_DOCKER_SUBTREE_WORKTREE)
-# 	-git branch -D $(VEGITO_DOCKER_SUBTREE_SPLIT_BRANCH) 2>/dev/null || true
-
-# 	@echo "🌳 Creating subtree split branch..."
-# 	@git subtree split --prefix docker -b $(VEGITO_DOCKER_SUBTREE_SPLIT_BRANCH)
-
-# 	@echo "🧪 Creating temporary worktree..."
-# 	@git worktree add $(VEGITO_DOCKER_SUBTREE_WORKTREE) $(VEGITO_DOCKER_SUBTREE_SPLIT_BRANCH)
-
-# 	@echo "🧼 Rewriting subtree history as a single squashed commit..."
-# 	@cd $(VEGITO_DOCKER_SUBTREE_WORKTREE) && \
-# 	  git checkout --orphan $(VEGITO_DOCKER_SUBTREE_SQUASH_BRANCH) && \
-# 	  git add . && \
-# 	  git commit --allow-empty -m "squashed from vegito-local/docker"
-
-# 	@echo "⬆︎ Pushing squashed docker subtree..."
-# 	@cd $(VEGITO_DOCKER_SUBTREE_WORKTREE) && \
-# 	  git push --force git@github.com:vegito-app/docker.git \
-# 	  $(VEGITO_DOCKER_SUBTREE_SQUASH_BRANCH):$(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
-
-# 	@echo "🧹 Cleaning temporary worktree..."
-# 	-git worktree remove $(VEGITO_DOCKER_SUBTREE_WORKTREE) --force
-# 	-git branch -D $(VEGITO_DOCKER_SUBTREE_SPLIT_BRANCH) 2>/dev/null || true
 git-subtree-docker-push-squash:
 	@TMP=$$(mktemp -d) && \
 	echo "📦 Export docker subtree..." && \
