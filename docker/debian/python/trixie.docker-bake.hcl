@@ -7,11 +7,11 @@ variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_LATEST" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/trixie-debian-python:latest"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/trixie-debian-python:latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/trixie-debian-python:${VERSION}"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/trixie-debian-python:${VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {

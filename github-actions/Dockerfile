@@ -186,8 +186,8 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,targe
     conventional-changelog-angular \
     npm
 
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+ENV NODE_PATH=${NVM_DIR}/versions/node/v${node_version}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/v${node_version}/bin:$PATH
 
 COPY entrypoint.sh /gha-entrypoint.sh
 ENTRYPOINT ["/gha-entrypoint.sh"]

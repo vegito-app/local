@@ -37,8 +37,15 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/docker.io/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/docker.io/debian.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/docker.io/alpine-golang.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/docker.io/alpine-rust.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/docker.io/docker-dind-rootless.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/alpine/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/flutter/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/flutter/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/golang/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/golang/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/python/docker-bake.hcl \

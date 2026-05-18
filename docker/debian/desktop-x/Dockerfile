@@ -23,7 +23,6 @@ RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     libgtk-3-dev libvulkan1 fonts-liberation \
     libnvidia-egl-wayland1 \
     menu-xdg \
-    nvtop \
     openbox \
     pipx \
     ${JAVA_PACKAGE} \
@@ -57,12 +56,13 @@ RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/v
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xserver-xorg-video-nvidia \
     nvidia-driver \
+    nvtop \
     mesa-utils \
     libgl1-mesa-dri \
     libglx-mesa0
 
 ARG enable_audio=1
-ENV ENABLE_AUDIO ${enable_audio}
+ENV ENABLE_AUDIO=${enable_audio}
 
 RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -132,7 +132,7 @@ RUN usermod -l ${non_root_user} ${USER} \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
 # 📦 Prepare user runtime (useful for xpra / weston / pulseaudio sockets)
-ENV XDG_RUNTIME_DIR "/run/user/${uid}"
+ENV XDG_RUNTIME_DIR="/run/user/${uid}"
 
 RUN mkdir -p ${XDG_RUNTIME_DIR} && \
     chmod 700 ${XDG_RUNTIME_DIR} && \
@@ -170,7 +170,7 @@ ENV VEGITO_DOCKER_DEBIAN_DESKTOP_X_DEBUG_APK_PATH=${default_apk_path}
 
 # 🖥️ Display Variables
 ARG default_display=99
-ENV DISPLAY :${default_display}
+ENV DISPLAY=:${default_display}
 
 # Enable AVD on start by default
 ENV VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=swiftshader_indirect
@@ -178,4 +178,4 @@ ENV VEGITO_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
-ENV USER ${non_root_user}
+ENV USER=${non_root_user}

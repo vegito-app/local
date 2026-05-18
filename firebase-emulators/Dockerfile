@@ -76,8 +76,8 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,targe
     npm
 
 
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+ENV NODE_PATH=${NVM_DIR}/versions/node/v${node_version}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/v${node_version}/bin:$PATH
 
 RUN for svc in firestore database pubsub storage ui ; do \
     firebase --version && firebase setup:emulators:$svc ; \

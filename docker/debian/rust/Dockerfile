@@ -2,7 +2,7 @@ FROM debian
 
 ARG TARGETPLATFORM
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
 ARG debian_version=trixie

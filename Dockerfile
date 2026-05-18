@@ -232,7 +232,7 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOM
     npm \
     @devcontainers/cli
 
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules    
+ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
 # Install magit

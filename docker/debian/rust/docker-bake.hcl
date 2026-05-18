@@ -3,7 +3,7 @@ variable "VEGITO_DOCKER_DEBIAN_RUST_DIR" {
 }
 
 variable "VEGITO_PRIVATE_IMAGES_BASE_NAME" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local-private"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local-private"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_RUST_IMAGE_VERSION" {

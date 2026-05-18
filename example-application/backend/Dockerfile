@@ -88,9 +88,9 @@ COPY --from=build /home/${non_root_user}/src/frontend/build-ssr/ /frontend/build
 COPY --from=build /home/${non_root_user}/src/frontend/public/ /frontend/public
 COPY --from=build /home/${non_root_user}/go/bin/backend /backend
 
-ENV FRONTEND_BUILD_DIR=/frontend/build \
-    FRONTEND_PUBLIC_DIR=/frontend/public \
-    UI_JAVASCRIPT_SOURCE_FILE=/frontend/build-ssr/bundle.js
+ENV FRONTEND_BUILD_DIR=/frontend/build
+ENV FRONTEND_PUBLIC_DIR=/frontend/public
+ENV UI_JAVASCRIPT_SOURCE_FILE=/frontend/build-ssr/bundle.js
 
 ENTRYPOINT ["/backend"]
 EXPOSE 8080

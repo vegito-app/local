@@ -60,7 +60,7 @@ ENV DISPLAY=:${default_display}
 # Enable AVD on start by default
 ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_EMULATOR_AVD_NAME=Pixel_8_Intel
-ENV LOCAL_ANDROID_EMULATOR_DATA=tests/mobile_images
+ENV LOCAL_ANDROID_EMULATOR_DAT=tests/mobile_images
 
 ENTRYPOINT ["android-emulator-entrypoint.sh"]
 CMD [ "android-emulator-avd-start.sh" ]

@@ -31,11 +31,11 @@ variable "VEGITO_LINUX_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "VEGITO_LINUX_ALPINE_IMAGE_LATEST" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/alpine:latest"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/alpine:latest"
 }
 
 variable "VEGITO_LINUX_ALPINE_IMAGE_VERSION" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/alpine:${VERSION}"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/alpine:${VERSION}"
 }
 
 group "vegito-linux-alpine-ci" {

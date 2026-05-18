@@ -15,4 +15,4 @@ USER ${USER}
 
 RUN python3 -m venv ${HOME}/venv
 
-ENV PATH "${HOME}/venv/bin:$PATH"
+ENV PATH="${HOME}/venv/bin:$PATH"

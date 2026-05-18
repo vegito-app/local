@@ -3,7 +3,7 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
 }
 
 variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE_NAME" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local-private"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local-private"
 }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {

@@ -170,7 +170,7 @@ vegito-docker-buildx-setup:
 	  docker context use default && \
 	  docker buildx create \
 	  --name $(VEGITO_DOCKER_BUILDX_NAME) \
-	  --driver vegito-docker-container \
+	  --driver docker-container \
 	  --use \
 	  $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
 	  --platform linux/arm64 \

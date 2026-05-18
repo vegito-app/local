@@ -3,17 +3,16 @@ FROM debian
 USER root
 
 ARG go_version
-ARG BUILDPLATFORM
 ARG TARGETPLATFORM
 
 RUN set -eux; \
-    case "${BUILDPLATFORM}" in \
+    case "${TARGETPLATFORM}" in \
     "linux/amd64") archive="go${go_version}.linux-amd64.tar.gz" ;; \
     "linux/arm64") archive="go${go_version}.linux-arm64.tar.gz" ;; \
-    *) echo "Unsupported BUILDPLATFORM=${BUILDPLATFORM}" && exit 1 ;; \
+    *) echo "Unsupported TARGETPLATFORM=${TARGETPLATFORM}" && exit 1 ;; \
     esac; \
     url="https://dl.google.com/go/${archive}"; \
-    echo "Downloading ${url} for build platform ${BUILDPLATFORM}, target=${TARGETPLATFORM}"; \
+    echo "Downloading ${url}, target=${TARGETPLATFORM}"; \
     curl -fSL "${url}" -o /tmp/go.tgz; \
     tar xzf /tmp/go.tgz -C /usr/local; \
     rm -f /tmp/go.tgz
