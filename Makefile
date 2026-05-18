@@ -113,37 +113,37 @@ dotenv: local-dotenv
 
 # Local/dev: build all images without pushing them.
 # Tags are generated for all configured registries.
-images: local-docker-images-multi-registry-release
+images: vegito-docker-images-multi-registry-release
 .PHONY: images
 
 # Local/dev: build images in smaller groups without pushing them.
 # Useful when full parallel builds are too heavy for the workstation.
-images-groups-build: local-docker-images
+images-groups-build: vegito-docker-images
 .PHONY: images-groups-build
 
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
 images-ci:  \
 vegito-docker-login \
-local-docker-images-multi-registry-release-ci
+vegito-docker-images-multi-registry-release-ci
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.
 # Safer on constrained runners; slower than the full parallel path.
 images-groups-build-ci:  \
 vegito-docker-login \
-local-docker-images-ci
+vegito-docker-images-ci
 .PHONY: images-groups-build-ci
 
 images-pull: \
-local-docker-images-pull-parallel \
-local-android-docker-images-pull-parallel \
+vegito-docker-images-pull-parallel \
+vegito-android-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: \
 vegito-docker-login \
-local-docker-images-push \
+vegito-docker-images-push \
 local-application-docker-images-push
 .PHONY: images-push
 
