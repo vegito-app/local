@@ -25,6 +25,7 @@ VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE ?= false
 VEGITO_DOCKER_BUILDX_BAKE ?= \
   docker buildx bake \
   -f $(VEGITO_DOCKER_DIR)/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DIR)/docker.io/docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/alpine/docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/debian/docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/debian/flutter/docker-bake.hcl \

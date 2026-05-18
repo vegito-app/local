@@ -36,6 +36,7 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/docker.io/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/flutter/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/golang/docker-bake.hcl \
@@ -75,18 +76,20 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 #   clarinet-devnet \
 
 LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
-  dockerhub \
   tools \
   runners \
   builders \
   services \
   applications
+#   dockerhub \
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.
 # Remove after gcr is back in shape and can be used as the default registry for local public images.
 VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
+
+VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
 -include local.mk
 -include gcloud.mk
@@ -102,6 +105,7 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   robotframework \
   $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
 #   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
+
 
 -include .devcontainer/devcontainer.mk
 
