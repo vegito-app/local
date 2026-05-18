@@ -137,4 +137,4 @@ alias gb='git branch'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate'
 
-exec "$@"
+tini -g -- "$@" 

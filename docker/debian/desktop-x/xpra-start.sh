@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euxo pipefail
 
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xpra-ready
@@ -22,66 +22,21 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 display="${DISPLAY:?DISPLAY is required}"
-default_dpi="96"
-dpi="${DISPLAY_DPI:-$default_dpi}"
-
-XPRA_ENCODING="${XPRA_ENCODING:-h264}"
-XPRA_QUALITY="${XPRA_QUALITY:-80}"
-XPRA_SPEED="${XPRA_SPEED:-70}"
-
-XPRA_MIN_QUALITY="${XPRA_MIN_QUALITY:-30}"
-XPRA_MIN_SPEED="${XPRA_MIN_SPEED:-30}"
-
-XPRA_PROFILE_FLAGS="
-    --encoding=${XPRA_ENCODING}
-    --quality=${XPRA_QUALITY}
-    --speed=${XPRA_SPEED}
-    --min-quality=${XPRA_MIN_QUALITY}
-    --min-speed=${XPRA_MIN_SPEED}
-"
-
-ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
-
-if [ "$ENABLE_AUDIO" = "1" ]; then
-    XPRA_AUDIO_FLAGS="--speaker=on --microphone=off"
-else
-    XPRA_AUDIO_FLAGS="--speaker=off --microphone=off"
-fi
 
 unset XPRA_SERVER_SOCKET
 unset XPRA_SESSION_DIR
 
-XPRA_VIDEO_ENCODERS_FLAGS=""
-
-if command -v nvidia-smi >/dev/null 2>&1 &&
-    nvidia-smi >/dev/null 2>&1; then
-
-    XPRA_VIDEO_ENCODERS_FLAGS="--video-encoders=${XPRA_VIDEO_ENCODERS:-nvenc}"
-fi
-
 XPRA_SOCKET_DIR="${XPRA_SOCKET_DIR:-$XDG_RUNTIME_DIR/xpra}"
 mkdir -p "${XPRA_SOCKET_DIR}"
 
-echo "🌀 Starting Xpra on ${DISPLAY}"
+echo "🌀 Starting Xpra on ${display}"
 
-xpra start "${DISPLAY}" \
+xpra start "${display}" \
     --bind-tcp=0.0.0.0:5901 \
-    --desktop-scaling=auto \
     --env=DISPLAY="${display}" \
     --env=PATH="${PATH}" \
-    --dpi="$dpi" \
-    --html=on \
     --no-daemon \
-    --no-mdns \
-    --resize-display=no \
-    --socket-dir="$XPRA_SOCKET_DIR" \
-    --socket-dirs="$XPRA_SOCKET_DIR" \
-    --use-display \
-    --webcam=no \
-    ${XPRA_AUDIO_FLAGS} \
-    "${XPRA_ENV_ARGS[@]}" \
-    ${XPRA_VIDEO_ENCODERS_FLAGS} \
-    ${XPRA_PROFILE_FLAGS}
+    "${XPRA_ARGS[@]}" \
     &
 
 display_pid="$!"
@@ -109,7 +64,7 @@ fi
 xpra info "socket://$XPRA_SERVER_SOCKET" | grep -Ei "nvenc|device_count|gpu.encodings"
 
 # Création d'un flag indiquant que Xpra est prêt
-echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xrpa-ready
+echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xpra-ready
 
 echo "✅ Xpra started successfully."
 
