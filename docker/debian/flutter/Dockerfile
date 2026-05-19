@@ -4,11 +4,12 @@ USER root
 
 ARG TARGETPLATFORM
 
+ARG debian_version=bookworm
 # Adding Android build tools
 # clang, cmake, ninja-build : for native build (NDK)
 # openjdk-17-jdk : for Android tools (sdkmanager, avdmanager, etc.)
-RUN --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-debian-flutter-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jdk; \
     else \

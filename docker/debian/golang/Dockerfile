@@ -38,10 +38,10 @@ USER ${non_root_user}
 ENV USER=${non_root_user}
 
 WORKDIR ${HOME}
-
+ARG debian_version=bookworm
 # Go tools
-RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
+RUN  --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
     go install -v golang.org/x/tools/gopls@latest \
     && go install -v github.com/cweill/gotests/gotests@v1.6.0 \

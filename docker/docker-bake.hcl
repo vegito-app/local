@@ -133,29 +133,17 @@ variable "VEGITO_RELEASE_BUILD_MAX_PARALLELISM" {
 # - Applications: the end products that we want to run and test
 group "runners" {
   targets = [
-    "vegito-debian-desktop-x",
+    "vegito-debian",
   ]
 }
 
 group "runners-ci" {
   targets = [
-    "vegito-debian-desktop-x-ci",
+    "vegito-debian",
+    "vegito-debian-ci",
   ]
 }
 
-group "tools-ci" {
-  targets = [
-    "vegito-debian-flutter-ci",
-    "vegito-debian-flutter-desktop-x-ci",
-  ]
-}
-
-gtoup "tools" {
-  targets = [
-    "vegito-debian-flutter",
-    "vegito-debian-flutter-desktop-x",
-  ]
-}
 
 group "default" {
 
@@ -172,15 +160,12 @@ group "release" {
   targets = [
     "dockerhub",
     "runners",
-    "tools",
   ]
 }
 
 group "release-ci" {
   targets = [
     "dockerhub-ci",
-    "vegito-debian-ci",
     "runners-ci",
-    "tools-ci",
   ]
 }

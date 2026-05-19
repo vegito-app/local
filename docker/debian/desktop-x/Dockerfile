@@ -42,9 +42,10 @@ RUN pipx ensurepath \
 
 RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    wget -O /usr/share/keyrings/xpra.asc https://xpra.org/xpra.asc && \
-    wget -O /etc/apt/sources.list.d/xpra.sources \
-    https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/${debian_version}/xpra.sources && \
+    curl -o /usr/share/keyrings/xpra.asc \
+    -L https://xpra.org/xpra.asc && \
+    curl -o /etc/apt/sources.list.d/xpra.sources \
+    -L https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/${debian_version}/xpra.sources && \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xpra \
     xpra-codecs-nvidia

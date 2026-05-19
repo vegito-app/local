@@ -49,7 +49,7 @@ target "vegito-trixie-debian-latest-ci" {
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
   ]
   contexts = {
-    debian = "target:vegito-trixie-debian-latest-ci"
+    debian = "target:docker-debian-trixie-latest-ci"
   }
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
@@ -75,7 +75,7 @@ target "vegito-trixie-debian-version-ci" {
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION
   ]
   contexts = {
-    debian = "target:vegito-trixie-debian-version-ci"
+    debian = "target:docker-debian-trixie-version-ci"
   }
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
