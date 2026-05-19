@@ -1,4 +1,3 @@
-
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/trixie-debian:latest"
 }
@@ -28,11 +27,11 @@ group "vegito-trixie-debian-ci" {
     "vegito-trixie-debian-version-ci",
     "vegito-trixie-debian-latest-ci",
 
-    # "vegito-trixie-debian-desktop-x-ci",
-    # "vegito-trixie-debian-flutter-ci",
-    # "vegito-trixie-debian-rust-ci",
-    # "vegito-trixie-debian-python-ci",
-    # "vegito-trixie-debian-golang-ci",
+    "vegito-trixie-debian-desktop-x-ci",
+    "vegito-trixie-debian-flutter-ci",
+    "vegito-trixie-debian-rust-ci",
+    "vegito-trixie-debian-python-ci",
+    "vegito-trixie-debian-golang-ci",
   ]
 }
 
@@ -44,7 +43,7 @@ target "vegito-trixie-debian-base" {
 }
 
 target "vegito-trixie-debian-latest-ci" {
-  inherits = ["vegito-debian-base"]
+  inherits = ["vegito-trixie-debian-base"]
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
   ]
@@ -70,7 +69,7 @@ target "vegito-trixie-debian-latest-ci" {
 }
 
 target "vegito-trixie-debian-version-ci" {
-  inherits = ["vegito-debian-base"]
+  inherits = ["vegito-trixie-debian-base"]
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION
   ]
@@ -97,7 +96,7 @@ target "vegito-trixie-debian-version-ci" {
 }
 
 target "vegito-trixie-debian" {
-  inherits = ["vegito-debian-base"]
+  inherits = ["vegito-trixie-debian-base"]
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST,
   ]

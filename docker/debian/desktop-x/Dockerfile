@@ -6,8 +6,8 @@ ARG TARGETPLATFORM
 ARG debian_version=bookworm
 ENV DEBIAN_VERSION=${debian_version}
 # ⚙️ Install minimum dependencies
-RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jre; \
     EGL_PACKAGE=libegl-mesa0; \
@@ -40,8 +40,8 @@ RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
 RUN pipx ensurepath \
     && pipx install nvitop
 
-RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     curl -o /usr/share/keyrings/xpra.asc \
     -L https://xpra.org/xpra.asc && \
     curl -o /etc/apt/sources.list.d/xpra.sources \
@@ -51,8 +51,8 @@ RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/va
     xpra-codecs-nvidia
 
 # NVIDIA
-RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     xserver-xorg-video-nvidia \
@@ -65,8 +65,8 @@ RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/v
 ARG enable_audio=1
 ENV ENABLE_AUDIO=${enable_audio}
 
-RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "$ENABLE_AUDIO" = "1" ]; then \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     pulseaudio pulseaudio-utils \
@@ -81,8 +81,8 @@ RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/v
     gir1.2-gst-plugins-base-1.0 ; \
     fi
 
-RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     ffmpeg \
     gstreamer1.0-libav \
@@ -92,8 +92,8 @@ RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/v
     libx264-dev \
     x264
 
-RUN  --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN  --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "$ENABLE_AUDIO" = "1" ]; then \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     alsa-utils \
@@ -112,8 +112,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs 
 
 # Google Chrome ou Chromium selon arch
-RUN --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-desktopx-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     ARCH="$(dpkg --print-architecture)" && \
     if [ "$ARCH" = "amd64" ]; then \
     curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
