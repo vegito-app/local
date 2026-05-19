@@ -68,7 +68,7 @@ target "vegito-debian-bookworm-base" {
 target "vegito-debian-version-ci" {
   inherits = ["vegito-debian-base"]
   contexts = {
-    debian = "target:vegito-debian-bookworm-base"
+    debian = "target:docker-debian-bookworm-base"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_VERSION,
@@ -97,7 +97,7 @@ target "vegito-debian-latest-ci" {
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
   contexts = {
-    debian = "target:vegito-debian-bookworm-base"
+    debian = "target:docker-debian-bookworm-base"
   }
   inherits = ["vegito-debian-bookworm-base"]
   cache-from = concat(
@@ -123,7 +123,7 @@ target "vegito-debian" {
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
   contexts = {
-    debian = "target:vegito-debian-bookworm-base"
+    debian = "target:docker-debian-bookworm-base"
   }
   inherits = ["vegito-debian-bookworm-base"]
   cache-from = concat(
