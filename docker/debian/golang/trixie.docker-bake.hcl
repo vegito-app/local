@@ -3,11 +3,11 @@ variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DIR" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_REGISTRY_CACHE" {
@@ -156,11 +156,11 @@ target "vegito-trixie-debian-golang" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-desktop-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-desktop-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-desktop-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-desktop-x-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_REGISTRY_CACHE" {

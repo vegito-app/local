@@ -2,16 +2,12 @@ variable "VEGITO_DOCKER_DEBIAN_GOLANG_DIR" {
   default = "${VEGITO_DOCKER_DEBIAN_DIR}/golang"
 }
 
-variable "VEGITO_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local-public"
-}
-
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:debian-golang-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:debian-golang-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_REGISTRY_CACHE" {
@@ -158,11 +154,11 @@ target "vegito-debian-go" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:debian-golang-desktop-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-desktop-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:debian-golang-desktop-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-desktop-x-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_REGISTRY_CACHE" {

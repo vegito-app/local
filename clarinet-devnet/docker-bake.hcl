@@ -45,7 +45,7 @@ variable "CLARINET_VERSION" {
 group "local-clarinet-devnet-ci" {
   targets = [
     "local-clarinet-devnet-version-ci",
-    # "local-clarinet-devnet-latest-ci",
+    "local-clarinet-devnet-latest-ci",
   ]
 }
 

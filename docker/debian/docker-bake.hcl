@@ -36,7 +36,7 @@ variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
 
 group "vegito-debian-ci" {
   targets = [
-    # "vegito-bookworm-debian-ci",
+    "vegito-bookworm-debian-ci",
 
     "vegito-trixie-debian-ci",
   ]

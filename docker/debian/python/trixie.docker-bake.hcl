@@ -133,11 +133,11 @@ target "vegito-trixie-debian-python" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-python-desktop-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-python-desktop-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-python-desktop-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-python-desktop-x-latest"
 }
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
   default = "${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}-python"

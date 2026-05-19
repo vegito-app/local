@@ -3,12 +3,12 @@ variable "VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DIR" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-${VERSION}"
 }
 
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_REGISTRY_CACHE" {
@@ -157,11 +157,11 @@ target "vegito-trixie-debian-rust" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-desktop-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-desktop-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-desktop-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-rust-desktop-x-latest"
 }
 
 target "vegito-trixie-debian-rust-desktop-x-version-ci" {

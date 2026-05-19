@@ -53,7 +53,7 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
     zsh
 
 ARG oh_my_zsh_version=1.2.1
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
+RUN curl -fsSL https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh | sh
 
 ARG locales="en_US.UTF-8 fr_FR.UTF-8"
 
