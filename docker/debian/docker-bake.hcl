@@ -27,7 +27,7 @@ variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/debian:latest"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/debian:bookworm"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
@@ -51,25 +51,29 @@ group "vegito-bookworm-debian-ci" {
     "vegito-debian-flutter-ci",
     "vegito-debian-golang-ci",
     "vegito-debian-rust-ci",
-    "vegito-debian-python-ci",
-
   ]
 }
 
 target "vegito-debian-base" {
   context = VEGITO_DOCKER_DEBIAN_DIR
+  contexts = {
+    debian = "target:vegito-bookworm-debian-base"
+  }
 }
 
-target "vegito-debian-bookworm-base" {
-  inherits   = ["vegito-debian-base"]
-  dockerfile = "${VEGITO_DOCKER_DEBIAN_DIR}/bookworm.Dockerfile"
+target "vegito-bookworm-debian-base" {
+  inherits = ["vegito-debian-base"]
+  args = {
+    "debian_version" = "bookworm"
+  }
+  contexts = {
+    debian = "target:docker-debian-bookworm-base"
+  }
+  dockerfile = "bookworm.Dockerfile"
 }
 
 target "vegito-debian-version-ci" {
   inherits = ["vegito-debian-base"]
-  contexts = {
-    debian = "target:docker-debian-bookworm-base"
-  }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_VERSION,
   ]
@@ -81,7 +85,7 @@ target "vegito-debian-version-ci" {
       VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -93,13 +97,13 @@ target "vegito-debian-version-ci" {
 }
 
 target "vegito-debian-latest-ci" {
+  inherits = ["vegito-debian-base"]
+  # contexts = {
+  #   debian = "target:vegito-bookworm-debian-base"
+  # }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
-  contexts = {
-    debian = "target:docker-debian-bookworm-base"
-  }
-  inherits = ["vegito-debian-bookworm-base"]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
@@ -108,7 +112,7 @@ target "vegito-debian-latest-ci" {
       VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = [
@@ -119,13 +123,13 @@ target "vegito-debian-latest-ci" {
 }
 
 target "vegito-debian" {
+  inherits = ["vegito-debian-base"]
+  # contexts = {
+  #   debian = "target:vegito-bookworm-debian-base"
+  # }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
-  contexts = {
-    debian = "target:docker-debian-bookworm-base"
-  }
-  inherits = ["vegito-debian-bookworm-base"]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
@@ -134,7 +138,7 @@ target "vegito-debian" {
       VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(

@@ -75,8 +75,7 @@ target "docker-debian-trixie-latest-ci" {
 }
 
 target "docker-debian-trixie-version-ci" {
-  inherits   = ["docker-debian-trixie-base"]
-  dockerfile = "debian.Dockerfile"
+  inherits = ["docker-debian-trixie-base"]
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_VERSION
   ]

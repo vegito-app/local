@@ -4,7 +4,6 @@ USER root
 
 ARG TARGETPLATFORM
 ARG debian_version=bookworm
-ENV DEBIAN_VERSION=${debian_version}
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \

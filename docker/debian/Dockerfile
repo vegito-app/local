@@ -6,9 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
 
-ARG debian_version=bookworm
-
-ENV DEBIAN_VERSION=${debian_version}
+ARG debian_version
 
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
