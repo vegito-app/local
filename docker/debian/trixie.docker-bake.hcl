@@ -32,6 +32,8 @@ group "vegito-trixie-debian-ci" {
     "vegito-trixie-debian-rust-ci",
     "vegito-trixie-debian-python-ci",
     "vegito-trixie-debian-golang-ci",
+
+    "vegito-trixie-debian-docker-ci",
   ]
 }
 

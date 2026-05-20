@@ -31,6 +31,8 @@ VEGITO_DOCKER_BUILDX_BAKE ?= \
   -f $(VEGITO_DOCKER_DIR)/docker.io/alpine-rust.docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/docker.io/docker-dind-rootless.docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/alpine/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DIR)/debian/docker/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DIR)/debian/docker/trixie.docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/debian/docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/debian/trixie.docker-bake.hcl \
   -f $(VEGITO_DOCKER_DIR)/debian/flutter/docker-bake.hcl \

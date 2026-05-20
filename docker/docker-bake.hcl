@@ -139,7 +139,6 @@ group "runners" {
 
 group "runners-ci" {
   targets = [
-    "vegito-debian",
     "vegito-debian-ci",
   ]
 }

@@ -45,6 +45,8 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(LOCAL_DIR)/docker/debian/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/flutter/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/docker/docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/debian/docker/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/flutter/trixie.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/golang/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/debian/golang/trixie.docker-bake.hcl \
