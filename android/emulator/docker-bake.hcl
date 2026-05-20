@@ -79,7 +79,7 @@ target "local-android-emulator-version-ci" {
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -107,8 +107,8 @@ target "local-android-emulator-latest-ci" {
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -143,8 +143,8 @@ target "local-android-emulator" {
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}",
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -217,7 +217,7 @@ target "local-android-emulator-flutter-latest-ci" {
       LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST}",
+      LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -250,7 +250,7 @@ target "local-android-emulator-flutter-version-ci" {
       LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST}",
+      LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -277,7 +277,7 @@ target "local-android-emulator-flutter" {
       LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST}",
+      LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

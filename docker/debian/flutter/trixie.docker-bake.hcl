@@ -99,7 +99,7 @@ target "vegito-trixie-debian-flutter-latest-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -132,7 +132,7 @@ target "vegito-trixie-debian-flutter-version-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -159,7 +159,7 @@ target "vegito-trixie-debian-flutter-debian" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -236,7 +236,7 @@ target "vegito-trixie-debian-flutter-desktop-x-latest-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -271,7 +271,7 @@ target "vegito-trixie-debian-flutter-desktop-x-version-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -300,7 +300,7 @@ target "vegito-trixie-debian-flutter-desktop-x" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

@@ -70,7 +70,7 @@ target "vegito-debian-python-version-ci" {
       VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -97,7 +97,7 @@ target "vegito-debian-python-latest-ci" {
       VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST
     ]
   )
   cache-to = [
@@ -124,7 +124,7 @@ target "vegito-debian-python" {
       VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -173,7 +173,7 @@ target "vegito-debian-python-desktop-x-version-ci" {
       VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -200,7 +200,7 @@ target "vegito-debian-python-desktop-x-latest-ci" {
       VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = [
@@ -227,7 +227,7 @@ target "vegito-debian-python-desktop-x" {
       VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(

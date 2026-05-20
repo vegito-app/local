@@ -150,7 +150,7 @@ target "vegito-example-application-builder" {
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST,
-    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
   ]
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
@@ -181,7 +181,7 @@ target "vegito-example-application-builder-version-ci" {
     ] : [],
     [
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION,
-      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -209,7 +209,7 @@ target "vegito-example-application-builder-latest-ci" {
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

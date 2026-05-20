@@ -82,7 +82,7 @@ target "vegito-debian-golang-version-ci" {
       VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -109,7 +109,7 @@ target "vegito-debian-golang-latest-ci" {
       VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -143,7 +143,7 @@ target "vegito-debian-go" {
       VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -209,7 +209,7 @@ target "vegito-debian-golang-desktop-x-version-ci" {
       VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -236,7 +236,7 @@ target "vegito-debian-golang-desktop-x-latest-ci" {
       VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -270,7 +270,7 @@ target "vegito-debian-golang-desktop-x" {
       VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

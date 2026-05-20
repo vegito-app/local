@@ -81,7 +81,7 @@ target "local-github-actions-runner-version-ci" {
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -119,7 +119,7 @@ target "local-github-actions-runner-latest-ci" {
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -164,7 +164,7 @@ target "local-github-actions-runner" {
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST
     ]
   )
   cache-to = concat(

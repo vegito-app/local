@@ -61,7 +61,7 @@ target "local-trivy-version-ci" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -92,7 +92,7 @@ target "local-trivy-latest-ci" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -130,7 +130,7 @@ target "local-trivy" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(

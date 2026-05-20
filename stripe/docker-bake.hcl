@@ -58,7 +58,7 @@ target "local-stripe-version-ci" {
       LOCAL_STRIPE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_STRIPE_IMAGE_LATEST}"
+      LOCAL_STRIPE_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -86,7 +86,7 @@ target "local-stripe-latest-ci" {
       LOCAL_STRIPE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_STRIPE_IMAGE_LATEST}"
+      LOCAL_STRIPE_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -121,7 +121,7 @@ target "local-stripe" {
       LOCAL_STRIPE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_STRIPE_IMAGE_LATEST}"
+      LOCAL_STRIPE_IMAGE_LATEST
     ]
   )
   cache-to = concat(

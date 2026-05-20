@@ -80,7 +80,7 @@ target "local-android-studio-version-ci" {
       LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+      LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -111,7 +111,7 @@ target "local-android-studio-latest-ci" {
       LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+      LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -149,7 +149,7 @@ target "local-android-studio" {
       LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_STUDIO_IMAGE_LATEST}",
+      LOCAL_ANDROID_STUDIO_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

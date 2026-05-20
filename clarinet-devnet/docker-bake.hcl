@@ -73,7 +73,7 @@ target "local-clarinet-devnet-version-ci" {
       LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -109,7 +109,7 @@ target "local-clarinet-devnet-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST] : [],
     [
-      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -149,7 +149,7 @@ target "local-clarinet-devnet" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [LOCAL_CLARINET_DEVNET_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST] : [],
     [
-      "type=inline,ref=${LOCAL_CLARINET_DEVNET_IMAGE_LATEST}",
+      LOCAL_CLARINET_DEVNET_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

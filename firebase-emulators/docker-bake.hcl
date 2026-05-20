@@ -68,7 +68,7 @@ target "local-firebase-emulators-version-ci" {
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
+      LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -99,7 +99,7 @@ target "local-firebase-emulators-latest-ci" {
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
+      LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -137,7 +137,7 @@ target "local-firebase-emulators" {
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
-      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
+      LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

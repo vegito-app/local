@@ -5,8 +5,8 @@ variable "FLUTTER_VERSION" {
 
 group "vegito-debian-flutter-ci" {
   targets = [
-    "vegito-debian-flutter-version-ci",
-    "vegito-debian-flutter-latest-ci",
+    # "vegito-debian-flutter-version-ci",
+    # "vegito-debian-flutter-latest-ci",
 
     "vegito-debian-flutter-desktop-x-ci",
   ]
@@ -99,7 +99,7 @@ target "vegito-debian-flutter-latest-ci" {
       VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -132,7 +132,7 @@ target "vegito-debian-flutter-version-ci" {
       VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -159,7 +159,7 @@ target "vegito-debian-flutter-debian" {
       VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -222,9 +222,6 @@ target "vegito-debian-flutter-desktop-x-latest-ci" {
   contexts = {
     debian = "target:vegito-debian-desktop-x-latest-ci"
   }
-  args = {
-    user = "desktopx"
-  }
   tags = [
     VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
   ]
@@ -236,7 +233,7 @@ target "vegito-debian-flutter-desktop-x-latest-ci" {
       VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -257,9 +254,6 @@ target "vegito-debian-flutter-desktop-x-version-ci" {
   contexts = {
     debian = "target:vegito-debian-desktop-x-version-ci"
   }
-  args = {
-    user = "desktopx"
-  }
   tags = [
     VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION,
   ]
@@ -271,7 +265,7 @@ target "vegito-debian-flutter-desktop-x-version-ci" {
       VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -285,9 +279,6 @@ target "vegito-debian-flutter-desktop-x" {
   contexts = {
     debian = "target:vegito-debian-desktop-x"
   }
-  args = {
-    user = "desktopx"
-  }
   tags = [
     VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION,
@@ -300,7 +291,7 @@ target "vegito-debian-flutter-desktop-x" {
       VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

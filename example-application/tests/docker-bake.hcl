@@ -75,7 +75,7 @@ target "vegito-example-application-tests-version-ci" {
       VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}"
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -104,7 +104,7 @@ target "vegito-example-application-tests" {
       VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}"
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -134,7 +134,7 @@ target "vegito-example-application-tests-latest-ci" {
       VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST}"
+      VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(

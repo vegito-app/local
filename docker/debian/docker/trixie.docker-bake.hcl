@@ -75,7 +75,7 @@ target "vegito-trixie-debian-docker-version-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_LATEST}"
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -102,7 +102,7 @@ target "vegito-trixie-debian-docker-latest-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -136,7 +136,7 @@ target "vegito-trixie-debian-go" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -202,7 +202,7 @@ target "vegito-trixie-debian-docker-desktop-x-version-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST}"
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -229,7 +229,7 @@ target "vegito-trixie-debian-docker-desktop-x-latest-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -263,7 +263,7 @@ target "vegito-trixie-debian-docker-desktop-x" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST}",
+      VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

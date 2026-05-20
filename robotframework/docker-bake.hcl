@@ -69,7 +69,7 @@ target "local-robotframework-version-ci" {
       LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
+      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -97,7 +97,7 @@ target "local-robotframework-latest-ci" {
       LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
+      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -132,7 +132,7 @@ target "local-robotframework" {
       LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
+      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(

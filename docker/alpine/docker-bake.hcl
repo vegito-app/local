@@ -59,7 +59,7 @@ target "vegito-linux-alpine-version-ci" {
       VEGITO_LINUX_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_LINUX_ALPINE_IMAGE_LATEST}"
+      VEGITO_LINUX_ALPINE_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -83,7 +83,7 @@ target "vegito-linux-alpine-latest-ci" {
       VEGITO_LINUX_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_LINUX_ALPINE_IMAGE_LATEST}"
+      VEGITO_LINUX_ALPINE_IMAGE_LATEST
     ]
   )
   cache-to = [
@@ -106,7 +106,7 @@ target "vegito-linux-alpine" {
       VEGITO_LINUX_ALPINE_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_LINUX_ALPINE_IMAGE_LATEST}"
+      VEGITO_LINUX_ALPINE_IMAGE_LATEST
     ]
   )
   cache-to = concat(

@@ -93,7 +93,7 @@ group "local-project-builder-x-ci" {
 
 target "local-project-builder-x-version-ci" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   inherits = ["local-project-builder-version-ci"]
   tags = [
@@ -104,7 +104,7 @@ target "local-project-builder-x-version-ci" {
 target "local-project-builder-version-ci" {
   inherits = ["local-project-builder-base"]
   contexts = {
-    debian-golang = "docker-image://${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_IMAGE_VERSION,
@@ -117,7 +117,7 @@ target "local-project-builder-version-ci" {
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}"
+      LOCAL_BUILDER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -141,7 +141,7 @@ target "local-project-builder-x-latest-ci" {
 target "local-project-builder-latest-ci" {
   inherits = ["local-project-builder-base"]
   contexts = {
-    debian-golang = "docker-image://${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
@@ -155,8 +155,8 @@ target "local-project-builder-latest-ci" {
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      LOCAL_BUILDER_IMAGE_LATEST,
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -176,7 +176,7 @@ target "local-project-builder-latest-ci" {
 target "local-project-builder-x" {
   inherits = ["local-project-builder"]
   contexts = {
-    debian-golang = "docker-image://${VEGITO_DOCKER_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_X_IMAGE_VERSION,
@@ -187,7 +187,7 @@ target "local-project-builder-x" {
 target "local-project-builder" {
   inherits = ["local-project-builder-base"]
   contexts = {
-    debian-golang = "docker-image://${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
@@ -202,8 +202,8 @@ target "local-project-builder" {
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      LOCAL_BUILDER_IMAGE_LATEST,
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -215,6 +215,7 @@ target "local-project-builder" {
 
 target "local-project-builder-base" {
   args = {
+    debian_version         = "trixie"
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION

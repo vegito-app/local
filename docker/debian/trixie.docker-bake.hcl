@@ -42,6 +42,9 @@ target "vegito-trixie-debian-base" {
   args = {
     debian_version = "trixie"
   }
+  contexts = {
+    debian = "target:docker-debian-trixie-base"
+  }
 }
 
 target "vegito-trixie-debian-latest-ci" {
@@ -49,9 +52,6 @@ target "vegito-trixie-debian-latest-ci" {
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
   ]
-  contexts = {
-    debian = "target:docker-debian-trixie-latest-ci"
-  }
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
@@ -60,7 +60,7 @@ target "vegito-trixie-debian-latest-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = [
@@ -75,9 +75,6 @@ target "vegito-trixie-debian-version-ci" {
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION
   ]
-  contexts = {
-    debian = "target:docker-debian-trixie-version-ci"
-  }
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
@@ -86,7 +83,7 @@ target "vegito-trixie-debian-version-ci" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -102,9 +99,6 @@ target "vegito-trixie-debian" {
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST,
   ]
-  contexts = {
-    debian = "target:vegito-trixie-debian"
-  }
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
@@ -113,7 +107,7 @@ target "vegito-trixie-debian" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(

@@ -84,7 +84,7 @@ target "vegito-debian-rust-version-ci" {
       VEGITO_DOCKER_DEBIAN_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -112,8 +112,8 @@ target "vegito-debian-rust-latest-ci" {
       VEGITO_DOCKER_DEBIAN_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST}",
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST,
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -148,8 +148,8 @@ target "vegito-debian-rust" {
       VEGITO_DOCKER_DEBIAN_RUST_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST}",
-      "type=inline,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+      VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST,
+      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(

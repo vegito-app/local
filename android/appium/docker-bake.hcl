@@ -74,8 +74,8 @@ target "local-android-appium-version-ci" {
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+      LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -103,8 +103,8 @@ target "local-android-appium-latest-ci" {
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+      LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -139,8 +139,8 @@ target "local-android-appium" {
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+      LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -213,7 +213,7 @@ target "local-android-appium-flutter-latest-ci" {
       LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST}",
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -245,7 +245,7 @@ target "local-android-appium-flutter-version-ci" {
       LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST}",
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -272,7 +272,7 @@ target "local-android-appium-flutter" {
       LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST}",
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
