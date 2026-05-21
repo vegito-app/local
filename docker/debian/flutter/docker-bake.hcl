@@ -5,8 +5,8 @@ variable "FLUTTER_VERSION" {
 
 group "vegito-debian-flutter-ci" {
   targets = [
-    # "vegito-debian-flutter-version-ci",
-    # "vegito-debian-flutter-latest-ci",
+    "vegito-debian-flutter-version-ci",
+    "vegito-debian-flutter-latest-ci",
 
     "vegito-debian-flutter-desktop-x-ci",
   ]

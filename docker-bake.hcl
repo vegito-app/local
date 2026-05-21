@@ -93,7 +93,7 @@ group "local-project-builder-x-ci" {
 
 target "local-project-builder-x-version-ci" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
   }
   inherits = ["local-project-builder-version-ci"]
   tags = [
@@ -131,7 +131,7 @@ target "local-project-builder-version-ci" {
 target "local-project-builder-x-latest-ci" {
   inherits = ["local-project-builder-latest-ci"]
   contexts = {
-    debian-golang = "docker-image://${VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_BUILDER_X_IMAGE_LATEST,
@@ -149,14 +149,14 @@ target "local-project-builder-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTR_CACHE}",
-      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       LOCAL_BUILDER_IMAGE_LATEST,
-      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -176,7 +176,7 @@ target "local-project-builder-latest-ci" {
 target "local-project-builder-x" {
   inherits = ["local-project-builder"]
   contexts = {
-    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_BUILDER_X_IMAGE_VERSION,
@@ -196,14 +196,14 @@ target "local-project-builder" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
       LOCAL_BUILDER_IMAGE_LATEST,
-      VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(

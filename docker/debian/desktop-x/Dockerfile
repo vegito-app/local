@@ -35,10 +35,6 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
     xvfb \
     xwayland 
 
-# Install nvidia tools for monitoring GPU usage in Android Studio
-RUN pipx ensurepath \
-    && pipx install nvitop
-
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     curl -o /usr/share/keyrings/xpra.asc \
@@ -145,6 +141,11 @@ RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
 WORKDIR ${HOME}
+
+# Install nvidia tools for monitoring GPU usage
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-python-build,target=/home/debian/.cache,sharing=locked,uid=${uid},gid=${gid} \
+    pipx ensurepath \
+    && pipx install nvitop
 
 COPY --chown=desktopx:desktopx display-start.sh           /usr/local/bin/
 COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/

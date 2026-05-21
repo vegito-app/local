@@ -61,6 +61,12 @@ group "vegito-debian-golang-ci" {
     "vegito-debian-golang-version-ci",
     "vegito-debian-golang-latest-ci",
 
+    "vegito-debian-golang-desktop-x-ci",
+  ]
+}
+
+group "vegito-debian-golang-desktop-x-ci" {
+  targets = [
     "vegito-debian-golang-desktop-x-version-ci",
     "vegito-debian-golang-desktop-x-latest-ci",
   ]

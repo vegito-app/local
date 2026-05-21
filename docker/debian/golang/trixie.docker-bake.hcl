@@ -63,8 +63,22 @@ group "vegito-trixie-debian-golang-ci" {
     "vegito-trixie-debian-golang-version-ci",
     "vegito-trixie-debian-golang-latest-ci",
 
+    "vegito-trixie-debian-golang-desktop-x-ci",
+    "vegito-trixie-debian-golang-docker-desktop-x-ci",
+  ]
+}
+
+group "vegito-trixie-debian-golang-desktop-x-ci" {
+  targets = [
     "vegito-trixie-debian-golang-desktop-x-version-ci",
     "vegito-trixie-debian-golang-desktop-x-latest-ci",
+  ]
+}
+
+group "vegito-trixie-debian-golang-docker-desktop-x-ci" {
+  targets = [
+    "vegito-trixie-debian-golang-docker-desktop-x-version-ci",
+    "vegito-trixie-debian-golang-docker-desktop-x-latest-ci",
   ]
 }
 
@@ -280,4 +294,43 @@ target "vegito-trixie-debian-golang-desktop-x" {
       VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
     ] : []
   )
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-docker-golang-desktop-x-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-docker-golang-desktop-x-latest"
+}
+
+target "vegito-trixie-debian-golang-docker-desktop-x-version-ci" {
+  inherits = ["vegito-trixie-debian-golang-desktop-x-version-ci"]
+  contexts = {
+    debian = "target:vegito-trixie-debian-docker-desktop-x-version-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_VERSION,
+  ]
+}
+
+target "vegito-trixie-debian-golang-docker-desktop-x-latest-ci" {
+  inherits = ["vegito-trixie-debian-golang-desktop-x-latest-ci"]
+  contexts = {
+    debian = "target:vegito-trixie-debian-docker-desktop-x-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-golang-docker-desktop-x" {
+  inherits = ["vegito-trixie-debian-golang-desktop-x"]
+  contexts = {
+    debian = "target:vegito-trixie-debian-docker-desktop-x"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_LATEST,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_VERSION,
+  ]
 }

@@ -13,44 +13,58 @@ DOCKERHUB_PAT ?= $(VEGITO_DOCKERHUB_PAT)
 # VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
 # VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
 
-VEGITO_DOCKER_DEBIAN_IMAGE_LATEST 							?= dbndev/vegito-private:debian-bookworm-latest
-VEGITO_DOCKER_DEBIAN_IMAGE_VERSION 							?= dbndev/vegito-private:debian-bookworm-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST 					?= dbndev/vegito-private:trixie-debian-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION 					?= dbndev/vegito-private:trixie-debian-latest
-VEGITO_GO_IMAGE_LATEST 										?= dbndev/vegito-private:docker-alpine-golang-latest
-VEGITO_GO_IMAGE_VERSION 									?= dbndev/vegito-private:docker-alpine-golang-latest
-VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST 					?= dbndev/vegito-private:debian-python-latest
-VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_VERSION 					?= dbndev/vegito-private:debian-python-latest
-VEGITO_DOCKER_ALPINE_GOLANG_IMAGE_LATEST 					?= dbndev/vegito-private:golang-alpine-latest
-VEGITO_DOCKER_ALPINE_GOLANG_IMAGE_VERSION 					?= dbndev/vegito-private:golang-alpine-latest
-VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST 						?= dbndev/vegito-private:rust-alpine-latest
-VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION 					?= dbndev/vegito-private:rust-alpine-latest
-VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST 					?= dbndev/vegito-public:debian-golang-latest
-VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION 					?= dbndev/vegito-public:debian-golang-latest
-VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST 			?= dbndev/vegito-public:debian-golang-desktop-x-latest
-VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION 		?= dbndev/vegito-public:debian-golang-desktop-x-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_LATEST 			?= dbndev/vegito-public:trixie-debian-golang-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_VERSION 			?= dbndev/vegito-public:trixie-debian-golang-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST 	?= dbndev/vegito-public:trixie-debian-golang-desktop-x-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION 	?= dbndev/vegito-public:trixie-debian-golang-desktop-x-latest
-VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST 					?= dbndev/vegito-public:debian-python-latest
-VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_VERSION 					?= dbndev/vegito-public:debian-python-latest
-VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST 			?= dbndev/vegito-public:debian-python-desktop-x-latest
-VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_VERSION 		?= dbndev/vegito-public:debian-python-desktop-x-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_LATEST 		    ?= dbndev/vegito-public:debian-python-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_VERSION 		    ?= dbndev/vegito-public:debian-python-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-desktop-x-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-desktop-x-latest
-VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST 						?= dbndev/vegito-public:debian-rust-latest
-VEGITO_DOCKER_DEBIAN_RUST_IMAGE_VERSION 					?= dbndev/vegito-public:debian-rust-latest
-VEGITO_DOCKER_DEBIAN_RUST_DESKTOP_X_IMAGE_LATEST 			?= dbndev/vegito-public:debian-rust-desktop-x-latest
-VEGITO_DOCKER_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION 			?= dbndev/vegito-public:debian-rust-desktop-x-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_LATEST 				?= dbndev/vegito-public:debian-rust-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_VERSION 				?= dbndev/vegito-public:debian-rust-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_LATEST 	?= dbndev/vegito-public:debian-rust-desktop-x-latest
-VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION 	?= dbndev/vegito-public:debian-rust-desktop-x-latest
-VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST 					?= dbndev/vegito-private:docker-dind-rootless-latest
-VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION 					?= dbndev/vegito-private:docker-dind-rootless-latest
+export VEGITO_DOCKER_DEBIAN_IMAGE_LATEST          ?= dbndev/vegito-public:debian-bookworm-latest
+export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:debian-bookworm-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:trixie-debian-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:trixie-debian-latest
+
+export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-alpine-golang-latest
+export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-alpine-golang-latest
+
+export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-latest
+export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-latest
+
+export VEGITO_DOCKER_ALPINE_GOLANG_IMAGE_LATEST   ?= dbndev/vegito-public:golang-alpine-latest
+export VEGITO_DOCKER_ALPINE_GOLANG_IMAGE_VERSION  ?= dbndev/vegito-public:golang-alpine-latest
+
+export VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST    ?= dbndev/vegito-public:rust-alpine-latest
+export VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION   ?= dbndev/vegito-public:rust-alpine-latest
+
+export VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST   ?= dbndev/vegito-public:debian-golang-latest
+export VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION  ?= dbndev/vegito-public:debian-golang-latest
+export VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST  ?= dbndev/vegito-public:debian-golang-desktop-x-latest
+export VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION ?= dbndev/vegito-public:debian-golang-desktop-x-latest
+
+export VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_LATEST             ?= dbndev/vegito-public:trixie-debian-golang-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_VERSION            ?= dbndev/vegito-public:trixie-debian-golang-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST   ?= dbndev/vegito-public:trixie-debian-golang-desktop-x-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION  ?= dbndev/vegito-public:trixie-debian-golang-desktop-x-latest
+
+export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST             ?= dbndev/vegito-public:debian-python-latest
+export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_VERSION            ?= dbndev/vegito-public:debian-python-latest
+export VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-desktop-x-latest
+export VEGITO_DOCKER_DEBIAN_PYTHON_DESKTOP_X_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-desktop-x-latest
+
+export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_LATEST             ?= dbndev/vegito-public:debian-python-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_VERSION            ?= dbndev/vegito-public:debian-python-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-desktop-x-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-desktop-x-latest
+
+export VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST             ?= dbndev/vegito-public:debian-rust-latest
+export VEGITO_DOCKER_DEBIAN_RUST_IMAGE_VERSION            ?= dbndev/vegito-public:debian-rust-latest
+export VEGITO_DOCKER_DEBIAN_RUST_DESKTOP_X_IMAGE_LATEST   ?= dbndev/vegito-public:debian-rust-desktop-x-latest
+export VEGITO_DOCKER_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION  ?= dbndev/vegito-public:debian-rust-desktop-x-latest
+
+export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_LATEST            ?= dbndev/vegito-public:debian-rust-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_VERSION           ?= dbndev/vegito-public:debian-rust-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_LATEST  ?= dbndev/vegito-public:debian-rust-desktop-x-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION ?= dbndev/vegito-public:debian-rust-desktop-x-latest
+
+export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST  ?= dbndev/vegito-public:docker-dind-rootless-latest
+export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= dbndev/vegito-public:docker-dind-rootless-latest
+
+export LOCAL_BUILDER_X_IMAGE_LATEST  ?= dbndev/vegito-local-public:builder-x-latest
+export LOCAL_BUILDER_X_IMAGE_VERSION ?= dbndev/vegito-local-public:builder-x-latest
 
 vegito-docker-login-dockerhub:
 	@echo "Logging into Docker Hub"

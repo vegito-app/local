@@ -2,6 +2,14 @@ FROM debian
 
 USER root
 
+ARG TARGETPLATFORM
+
+ARG debian_version=bookworm
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
+    adb 
+
 ARG non_root_user=robot
 ARG uid=1000
 ARG gid=1000

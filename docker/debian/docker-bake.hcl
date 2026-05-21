@@ -98,9 +98,6 @@ target "vegito-debian-version-ci" {
 
 target "vegito-debian-latest-ci" {
   inherits = ["vegito-debian-base"]
-  # contexts = {
-  #   debian = "target:vegito-bookworm-debian-base"
-  # }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]
@@ -124,9 +121,6 @@ target "vegito-debian-latest-ci" {
 
 target "vegito-debian" {
   inherits = ["vegito-debian-base"]
-  # contexts = {
-  #   debian = "target:vegito-bookworm-debian-base"
-  # }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
   ]

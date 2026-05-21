@@ -52,3 +52,5 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-p
     && go install -v github.com/josharian/impl@v1.4.0 \
     && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
     "
+
+ENV PATH=${PATH}:${HOME}/go/bin

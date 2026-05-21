@@ -2,7 +2,17 @@ FROM debian-golang AS go-build
 
 COPY proxy proxy
 
-RUN cd proxy \
+# ARG non_root_user=go
+ARG uid=1000
+ARG gid=1000
+
+ARG TARGETPLATFORM
+
+ARG debian_version=bookworm
+
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-pkg,target=/home/debian/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-build,target=/home/debian/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
+    cd proxy \
     && go install -v
 
 FROM debian-golang
@@ -12,13 +22,16 @@ COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 ARG TARGETPLATFORM
 
 USER root
+ARG debian_version=bookworm
 
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jdk; \
+    LIBNCURSES_PACKAGE=libncurses6; \
     else \
     JAVA_PACKAGE=openjdk-17-jdk; \
+    LIBNCURSES_PACKAGE=libncurses5; \
     fi; \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
     build-essential \
@@ -31,12 +44,12 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
     libgif-dev \
     libglu1-mesa \
     libjpeg-dev \
-    libncurses5\
     libpango1.0-dev \
     librsvg2-dev \
     libstdc++6 \
     lsb-release \
-    openjdk-17-jdk
+    ${JAVA_PACKAGE} \
+    ${LIBNCURSES_PACKAGE}
 
 # GCP CLI
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
@@ -212,8 +225,8 @@ ENV NVM_DIR=${HOME}/nvm
 
 ARG nvm_version
 ARG node_version
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+RUN --mount=type=cache,id=local-builder-${debian_version}-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-builder-${debian_version}-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
     set -e ; \
     # 
     mkdir -p ${NVM_DIR} ; \
