@@ -32,10 +32,10 @@ variable "VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
 
 group "vegito-debian-python-ci" {
   targets = [
-    # "vegito-debian-python-version-ci",
-    # "vegito-debian-python-latest-ci",
-    # "vegito-debian-python-desktop-x-version-ci",
-    # "vegito-debian-python-desktop-x-latest-ci",
+    "vegito-debian-python-version-ci",
+    "vegito-debian-python-latest-ci",
+    "vegito-debian-python-desktop-x-version-ci",
+    "vegito-debian-python-desktop-x-latest-ci",
 
     "vegito-trixie-debian-python-ci",
   ]
@@ -44,10 +44,25 @@ group "vegito-debian-python-ci" {
 group "vegito-debian-python-ci" {
   targets = [
     "vegito-trixie-debian-python-ci",
+
     "vegito-debian-python-version-ci",
     "vegito-debian-python-latest-ci",
+
+    "vegito-debian-python-desktop-x-ci",
+
+    "vegito-debian-python-docker-desktop-x-ci",
+  ]
+}
+
+group "vegito-debian-python-desktop-x-ci" {
+  targets = [
     "vegito-debian-python-desktop-x-version-ci",
     "vegito-debian-python-desktop-x-latest-ci",
+  ]
+}
+
+group "vegito-debian-python-docker-desktop-x-ci" {
+  targets = [
     "vegito-debian-python-docker-desktop-x-version-ci",
     "vegito-debian-python-docker-desktop-x-latest-ci",
   ]

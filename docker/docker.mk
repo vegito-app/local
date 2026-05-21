@@ -1,4 +1,4 @@
-VEGITO_DOCKER_DIR ?= $(CURDIR)
+export VEGITO_DOCKER_DIR ?= $(CURDIR)
 include $(VEGITO_DOCKER_DIR)/docker.io/docker.mk
 
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
@@ -99,14 +99,22 @@ vegito-docker-build-tags-list-ci-md:
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
 
-VEGITO_DOCKER_IMAGES = \
+VEGITO_DOCKER_DEBIAN_SPECIFICS ?= docker golang python rust flutter terraform kubernetes nodejs
+
+VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
   debian-desktop-x \
-  debian-flutter \
-  debian-flutter-desktop-x \
-  debian-python \
-  debian-golang \
-  debian-rust \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
+
+
+VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
+  $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
+
+VEGITO_DOCKER_IMAGES = \
+  $(VEGITO_DOCKER_DEBIAN_IMAGES) \
+  $(VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES) \
   alpine \
   docker-dind-rootless \
   golang-alpine \
