@@ -1,6 +1,30 @@
+ARG TARGETPLATFORM
+FROM --platform=${TARGETPLATFORM} debian_golang AS go-build
+
+ARG debian_version=bookworm
+
+ARG go_pkg=/go/pkg
+ARG go_cache=/.cache/go-build
+
+ENV GOPATH=/go \
+    GOCACHE=${go_cache} \
+    GO111MODULE=auto
+
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
+    go install -v github.com/vegito-app/local/proxy@latest \
+    && go install -v github.com/jesseduffield/lazydocker@latest 
+
+FROM --platform=${TARGETPLATFORM} docker_dind_rootless AS docker-dind
+
 FROM debian
 
-ARG TARGETPLATFORM
+COPY --from=go-build /go/bin/proxy      /usr/local/bin/localproxy
+COPY --from=go-build /go/bin/lazydocker /usr/local/bin/lazydocker
+
+COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh  /usr/local/bin/
+COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh   /usr/local/bin/
+COPY --from=docker-dind /usr/local/bin/modprobe               /usr/local/bin/
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -70,3 +94,26 @@ RUN \
     \
     rootlesskit --version; \
     vpnkit --version;
+
+ARG non_root_user=docker
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+COPY dockerd-entrypoint.sh /usr/local/bin/debian-dockerd-entrypoint.sh
+RUN chmod +x /usr/local/bin/debian-dockerd-entrypoint.sh
+
+USER ${non_root_user}
+
+ENV USER=${non_root_user}
+
+ENTRYPOINT [ "debian-dockerd-entrypoint.sh" ]
+CMD ["lazydocker"]

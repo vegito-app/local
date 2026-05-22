@@ -44,7 +44,8 @@ variable "VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATES
 
 target "vegito-debian-golang-base" {
   args = {
-    go_version = GO_VERSION
+    go_version     = GO_VERSION
+    debian_version = "bookworm"
   }
   context = VEGITO_DOCKER_DEBIAN_GOLANG_DIR
 }
@@ -75,7 +76,8 @@ group "vegito-debian-golang-desktop-x-ci" {
 target "vegito-debian-golang-version-ci" {
   inherits = ["vegito-debian-golang-base"]
   contexts = {
-    debian = "target:vegito-debian-version-ci"
+    debian_golang = "target:vegito-debian-golang-version-ci"
+    debian        = "target:vegito-trixie-debian-version-ci"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION,
@@ -102,7 +104,8 @@ target "vegito-debian-golang-version-ci" {
 target "vegito-debian-golang-latest-ci" {
   inherits = ["vegito-debian-golang-base"]
   contexts = {
-    debian = "target:vegito-debian-version-ci"
+    debian_golang = "target:vegito-debian-golang-latest-ci"
+    debian        = "target:vegito-trixie-debian-latest-ci"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST,
@@ -135,7 +138,8 @@ target "vegito-debian-golang-latest-ci" {
 target "vegito-debian-go" {
   inherits = ["vegito-debian-golang-base"]
   contexts = {
-    debian = "target:vegito-debian-version-ci"
+    debian_golang = "target:vegito-debian-golang-version-ci"
+    debian        = "target:vegito-trixie-debian-version-ci"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST,
@@ -201,7 +205,8 @@ variable "VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_
 
 target "vegito-debian-golang-desktop-x-version-ci" {
   contexts = {
-    debian = "target:vegito-debian-desktop-x-version-ci"
+    debian_golang = "target:vegito-debian-golang-version-ci"
+    debian        = "target:vegito-debian-version-ci"
   }
   inherits = ["vegito-debian-golang-base"]
   tags = [
@@ -229,7 +234,7 @@ target "vegito-debian-golang-desktop-x-version-ci" {
 target "vegito-debian-golang-desktop-x-latest-ci" {
   inherits = ["vegito-debian-golang-base"]
   contexts = {
-    debian = "target:vegito-debian-desktop-x-latest-ci"
+    debian_golang = "target:vegito-debian-golang-desktop-x-latest-ci"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST,
@@ -262,7 +267,8 @@ target "vegito-debian-golang-desktop-x-latest-ci" {
 target "vegito-debian-golang-desktop-x" {
   inherits = ["vegito-debian-golang-base"]
   contexts = {
-    debian = "target:vegito-debian-desktop-x-version-ci"
+    debian_golang = "target:vegito-debian-golang-desktop-x-version-ci"
+    debian        = "target:vegito-debian"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_GOLANG_DESKTOP_X_IMAGE_VERSION,
