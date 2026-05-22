@@ -35,6 +35,7 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(LOCAL_DIR)/docker/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/docker.io/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/docker.io/debian.docker-bake.hcl \
+  -f $(LOCAL_DIR)/docker/docker.io/debian-golang.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/docker.io/alpine-golang.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/docker.io/alpine-rust.docker-bake.hcl \
   -f $(LOCAL_DIR)/docker/docker.io/docker-dind-rootless.docker-bake.hcl \

@@ -109,7 +109,7 @@ services:
   dev:
     command: |
       bash -c '
-        make docker-sock
+        make vegito-docker-sock
         if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
         fi
@@ -299,13 +299,17 @@ services:
   dev:
     environment:
       VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
     runtime: nvidia
     devices:
       - /dev/nvidia0
     shm_size: "8gb"
   android-studio:
     environment:
-      LOCAL_ANDROID_GPU_MODE: wayland
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
     runtime: nvidia
     devices:
       - /dev/nvidia0
@@ -313,9 +317,12 @@ services:
   example-application-mobile:
     environment:
       VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
     runtime: nvidia
     devices:
       - /dev/nvidia0
     shm_size: "8gb"
+
 EOF
 

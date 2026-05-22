@@ -33,9 +33,8 @@ ln -sf ${local_container_cache}/emacs $EMACS_DIR
 GOPATH=${HOME}/go
 sudo chown -R $USER:$USER $GOPATH
 sudo chmod -R +rw $GOPATH
-rm -rf $GOPATH
+rsync -a $GOPATH/ ${local_container_cache}/gopath/
 mkdir -p ${local_container_cache}/gopath
-ln -sf ${local_container_cache}/gopath $GOPATH
 cat <<'EOF' >> ~/.bashrc
 export GOARCH=$(dpkg --print-architecture)
 EOF
