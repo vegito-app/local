@@ -1,5 +1,4 @@
 FROM builder_image AS project-builder
-FROM docker_dind_rootless_image AS docker-dind
 FROM rust_image AS rust-build
 
 ARG TARGETPLATFORM
