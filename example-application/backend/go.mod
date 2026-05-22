@@ -1,6 +1,6 @@
 module github.com/vegito-app/vegito/backend
 
-go 1.26
+go 1.26.1
 
 require (
 	cloud.google.com/go/firestore v1.21.0
