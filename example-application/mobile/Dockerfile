@@ -1,4 +1,4 @@
-FROM  builder as build
+FROM  builder AS build
 
 USER root
 

@@ -21,6 +21,8 @@ ARG non_root_user=vegito
 ARG uid=1000
 ARG gid=1000
 
+ARG TARGETPLATFORM
+
 RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download

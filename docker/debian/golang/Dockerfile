@@ -38,6 +38,8 @@ COPY --from=go-build /usr/local/go/ /usr/local/go/
 
 USER ${non_root_user} 
 
+ENV USER=${non_root_user}
+
 COPY --chown=${uid}:${gid} --from=go-build /go/bin/ /home/debian/go/bin/
 
 ENV PATH=${PATH}:/usr/local/go/bin

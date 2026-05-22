@@ -7,8 +7,8 @@ ARG uid=1000
 ARG gid=1000
 
 # 👤 Rename non root user
-RUN usermod -l ${non_root_user} android-emulator \
-    && groupmod -n ${non_root_user} android-emulator \
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
     && \
     echo "${non_root_user}:${non_root_user}" | chpasswd && \
     adduser ${non_root_user} sudo && \
@@ -16,6 +16,8 @@ RUN usermod -l ${non_root_user} android-emulator \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
 ENV USER=${non_root_user}
+
+ARG TARGETPLATFORM
 
 # NodeJS for Appium
 RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \

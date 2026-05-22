@@ -1,14 +1,15 @@
-ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
-ARG debian=debian:latest
-ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:builder-latest
+# ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
+# ARG debian=debian:latest
+# ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:builder-latest
 
 FROM builder_image AS builder
 FROM debian
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
-# Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
+ARG TARGETPLATFORM
 
+# Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
 RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     set -eu; \

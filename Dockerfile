@@ -80,17 +80,23 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
 
 # k9s
 ARG k9s_version=0.50.9
-RUN case "$TARGETPLATFORM" in \
+
+RUN set -eux; \
+    case "$TARGETPLATFORM" in \
     "linux/amd64") \
-    url="https://github.com/derailed/k9s/releases/download/v${k9s_version}/k9s_linux_amd64.deb" ; \
-    ;; \
+    archive="k9s_Linux_amd64.tar.gz" ;; \
     "linux/arm64") \
-    url="https://github.com/derailed/k9s/releases/download/v${k9s_version}/k9s_linux_arm64.deb" ; \
-    ;; \
-    *) echo >&2 "error: unsupported 'k9s' architecture ($TARGETPLATFORM)"; exit 1 ;; \
+    archive="k9s_Linux_arm64.tar.gz" ;; \
+    *) \
+    echo >&2 "unsupported arch: $TARGETPLATFORM"; exit 1 ;; \
     esac; \
-    curl -Lo /tmp/k9s.deb $url && apt-get -o Acquire::Retries=3 update && apt-get install -y /tmp/k9s.deb && rm /tmp/k9s.deb; \
-    k9s version
+    curl -L \
+    -o /tmp/k9s.tar.gz \
+    "https://github.com/derailed/k9s/releases/download/v${k9s_version}/${archive}" \
+    && tar -xzf /tmp/k9s.tar.gz -C /tmp \
+    && install -m 0755 /tmp/k9s /usr/local/bin/k9s \
+    && rm -rf /tmp/k9s* \
+    && k9s version
 
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
@@ -262,3 +268,17 @@ COPY container-install.sh /usr/local/bin/local-container-install.sh
 COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
 ENTRYPOINT [ "dev-entrypoint.sh" ]
 CMD [ "sleep", "infinity" ]
+USER root
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+    | gpg --dearmor \
+    > /etc/apt/keyrings/packages.microsoft.gpg && \
+    chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+    > /etc/apt/sources.list.d/vscode.list && \
+    apt-get update && \
+    apt-get install -y code
+
+USER ${non_root_user}

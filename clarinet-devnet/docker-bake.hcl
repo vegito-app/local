@@ -51,10 +51,9 @@ group "local-clarinet-devnet-ci" {
 
 target "local-clarinet-devnet-version-ci" {
   contexts = {
-    builder_image              = "target:local-project-builder-version-ci"
-    debian                     = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-    docker_dind_rootless_image = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION}"
-    rust_image                 = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
+    builder_image = "target:local-project-builder-version-ci"
+    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION}"
+    rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
   }
   args = {
     clarinet_version = CLARINET_VERSION
@@ -86,10 +85,9 @@ target "local-clarinet-devnet-version-ci" {
 
 target "local-clarinet-devnet-latest-ci" {
   contexts = {
-    builder_image              = "target:local-project-builder-latest-ci"
-    debian                     = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
-    docker_dind_rootless_image = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
-    rust_image                 = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST}"
+    builder_image = "target:local-project-builder-latest-ci"
+    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_LATEST}"
+    rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST}"
   }
   args = {
     clarinet_version = CLARINET_VERSION
@@ -128,10 +126,9 @@ target "local-clarinet-devnet-latest-ci" {
 
 target "local-clarinet-devnet" {
   contexts = {
-    builder_image              = "target:local-project-builder"
-    debian                     = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-    docker_dind_rootless_image = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION}"
-    rust_image                 = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
+    builder_image = "target:local-project-builder"
+    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION}"
+    rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
   }
   args = {
     clarinet_version = CLARINET_VERSION

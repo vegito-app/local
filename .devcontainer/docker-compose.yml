@@ -5,7 +5,7 @@ services:
     #   MAKE_TESTS_ON_START: ${MAKE_TESTS_ON_START:-false}
     command: |
       bash -c '
-      make docker-sock
+      make vegito-docker-sock
       until docker info; do
         echo "Waiting for Docker to be ready..."
         sleep 1

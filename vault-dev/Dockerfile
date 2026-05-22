@@ -12,6 +12,8 @@ RUN groupadd -g ${gid} ${non_root_user} \
 
 ENV HOME=/home/${non_root_user}
 
+ARG TARGETPLATFORM
+
 RUN --mount=type=cache,id=local-vault-dev-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-vault-dev-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     wget -O - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
