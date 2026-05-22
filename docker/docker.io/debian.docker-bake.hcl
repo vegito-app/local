@@ -2,6 +2,7 @@ group "docker-debian-ci" {
   targets = [
     "docker-debian-bookworm-ci",
     "docker-debian-trixie-ci",
+    "docker-debian-trixie-golang-ci"
   ]
 }
 
@@ -9,6 +10,7 @@ group "docker-debian" {
   targets = [
     "docker-debian-bookworm",
     "docker-debian-trixie",
+    "docker-debian-trixie-golang"
   ]
 }
 
@@ -25,6 +27,7 @@ target "docker-debian-bookworm-base" {
   dockerfile = "debian.Dockerfile"
   args = {
     debian_version = "bookworm"
+    go_version     = GO_VERSION
   }
 }
 
@@ -63,6 +66,7 @@ target "docker-debian-trixie-base" {
   context    = VEGITO_DOCKER_IO_HUB_DIR
   dockerfile = "debian.Dockerfile"
   args = {
+    go_version     = GO_VERSION
     debian_version = "trixie"
   }
 }
