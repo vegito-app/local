@@ -31,7 +31,7 @@ variable "VERSION" {
 
 variable "GO_VERSION" {
   description = "current Go version"
-  default     = "1.26.1"
+  default     = "1.26.3"
 }
 
 variable "TRIVY_VERSION" {
