@@ -66,9 +66,18 @@ export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= dbndev/vegito-public:docker-
 export LOCAL_BUILDER_X_IMAGE_LATEST  ?= dbndev/vegito-local-public:builder-x-latest
 export LOCAL_BUILDER_X_IMAGE_VERSION ?= dbndev/vegito-local-public:builder-x-latest
 
+# Dockerhub replica
+export VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-golang-latest
+export VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:hub-debian-golang-latest
+export VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-golang-latest
+export VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST  ?= dbndev/vegito-public:hub-trixie-debian-golang-latest
+export VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION ?= dbndev/vegito-public:hub-trixie-debian-golang-latest
+export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST  ?= dbndev/vegito-public:hub-docker-dind-rootless-latest
+export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION  ?= dbndev/vegito-public:hub-docker-dind-rootless-latest
+
 vegito-docker-login-dockerhub:
 	@echo "Logging into Docker Hub"
-	printf '%s' "$$VEGITO_DOCKERHUB_PAT" | docker login \
+	@printf '%s' "$$VEGITO_DOCKERHUB_PAT" | docker login \
 	  --username "$$VEGITO_DOCKERHUB_USERNAME" \
 	  --password-stdin
 .PHONY: vegito-docker-login-dockerhub

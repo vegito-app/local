@@ -1,32 +1,24 @@
-ARG TARGETPLATFORM
-FROM --platform=${TARGETPLATFORM} debian_golang AS go-build
-
+FROM debian_golang AS go-build
 ARG debian_version=bookworm
+ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
 ARG go_pkg=/go/pkg
-ARG go_cache=/.cache/go-build
-
-ENV GOPATH=/go \
-    GOCACHE=${go_cache} \
-    GO111MODULE=auto
-
+ARG go_cache=/root/.cache/go-build
+ENV GOMODCACHE=${go_pkg}/mod
+ENV GOCACHE=${go_cache}
+ENV GOBIN=/go/bin
+ENV CGO_ENABLED=0
 RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
     --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
     go install -v github.com/vegito-app/local/proxy@latest \
     && go install -v github.com/jesseduffield/lazydocker@latest 
 
-FROM --platform=${TARGETPLATFORM} docker_dind_rootless AS docker-dind
+FROM docker_dind_rootless AS docker-dind
 
 FROM debian
-
-COPY --from=go-build /go/bin/proxy      /usr/local/bin/localproxy
-COPY --from=go-build /go/bin/lazydocker /usr/local/bin/lazydocker
-
-COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh  /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh   /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/modprobe               /usr/local/bin/
-
-ENV DEBIAN_FRONTEND=noninteractive
+ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
 USER root
 
@@ -123,6 +115,13 @@ RUN chmod +x /usr/local/bin/debian-docker-entrypoint.sh
 
 COPY dind-rootless-start.sh /usr/local/bin/debian-dind-rootless-start.sh
 RUN chmod +x /usr/local/bin/debian-dind-rootless-start.sh
+
+COPY --from=go-build /go/bin/proxy      /usr/local/bin/localproxy
+COPY --from=go-build /go/bin/lazydocker /usr/local/bin/lazydocker
+
+COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh  /usr/local/bin/
+COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh   /usr/local/bin/
+COPY --from=docker-dind /usr/local/bin/modprobe               /usr/local/bin/
 
 USER ${non_root_user}
 

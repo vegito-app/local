@@ -1,11 +1,9 @@
+FROM debian
+ARG debian_version=bookworm
 ARG TARGETPLATFORM
-FROM --platform=${TARGETPLATFORM} debian
 
 USER root
 
-ARG TARGETPLATFORM
-
-ARG debian_version=bookworm
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -149,20 +147,20 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-pyth
     pipx ensurepath \
     && pipx install nvitop
 
-COPY --chown=desktopx:desktopx xdisplay/xvfb-display-start.sh      /usr/local/bin/
-COPY --chown=desktopx:desktopx xdisplay/xorg-display-start.sh      /usr/local/bin/
-COPY --chown=desktopx:desktopx xdisplay/xwayland-display-start.sh  /usr/local/bin/
-COPY --chown=desktopx:desktopx xdisplay/xpra-start.sh              /usr/local/bin/
+COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xvfb-display-start.sh     /usr/local/bin/
+COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xorg-display-start.sh     /usr/local/bin/
+COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xwayland-display-start.sh /usr/local/bin/
+COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xpra-start.sh             /usr/local/bin/
 
-COPY --chown=desktopx:desktopx enable-nvidia-gl.sh          /usr/local/bin/
-COPY --chown=desktopx:desktopx nvidia-gl-env.sh             /usr/local/bin/
+COPY --chown=${non_root_user}}:${non_root_user}} enable-nvidia-gl.sh /usr/local/bin/
+COPY --chown=${non_root_user}}:${non_root_user}} nvidia-gl-env.sh    /usr/local/bin/
 
-COPY --chown=desktopx:desktopx entrypoint.sh              /usr/local/bin/desktop-x-entrypoint.sh
-COPY --chown=desktopx:desktopx display-start.sh              /usr/local/bin/desktop-x-display-start.sh
+COPY --chown=${non_root_user}}:${non_root_user}} entrypoint.sh    /usr/local/bin/desktop-x-entrypoint.sh
+COPY --chown=${non_root_user}}:${non_root_user}} display-start.sh /usr/local/bin/desktop-x-display-start.sh
 
 RUN chmod +x \
     /usr/local/bin/desktop-x-entrypoint.sh \
-    /usr/local/bin/display-start.sh \
+    /usr/local/bin/desktop-x-display-start.sh \
     /usr/local/bin/enable-nvidia-gl.sh \
     /usr/local/bin/nvidia-gl-env.sh \
     /usr/local/bin/xorg-display-start.sh \

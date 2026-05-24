@@ -100,7 +100,15 @@ vegito-docker-build-tags-list-ci-md:
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
 
-VEGITO_DOCKER_DEBIAN_SPECIFICS ?= docker golang python rust flutter terraform kubernetes nodejs
+VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
+ docker \
+ golang \
+ python \
+ rust \
+ flutter \
+ terraform \
+ kubernetes \
+ nodejs
 
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
@@ -109,17 +117,19 @@ VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
 
-
 VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
   $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
 
-VEGITO_DOCKER_IMAGES = \
-  $(VEGITO_DOCKER_DEBIAN_IMAGES) \
-  $(VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES) \
+VEGITO_DOCKER_IO_HUB_IMAGES = \
   alpine \
   docker-dind-rootless \
   golang-alpine \
   rust 
+
+VEGITO_DOCKER_IMAGES = \
+  $(VEGITO_DOCKER_DEBIAN_IMAGES) \
+  $(VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES) \
+  $(VEGITO_DOCKER_IO_HUB_IMAGES)
 
 vegito-docker-hub-images-update:	
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print dockerhub-ci
@@ -194,7 +204,6 @@ ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) \
 	    --platform linux/arm64
 endif
-
 	@docker buildx inspect --bootstrap
 .PHONY: vegito-docker-buildx-setup
 

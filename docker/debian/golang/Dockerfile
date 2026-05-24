@@ -1,11 +1,14 @@
-ARG TARGETPLATFORM
-FROM --platform=${TARGETPLATFORM} debian_golang AS go-build
+FROM dockerhub_golang AS go-build
 
 ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
-ARG go_pkg=/root/go/pkg
+ARG go_pkg=/go/pkg
 ARG go_cache=/root/.cache/go-build
-
+ENV GOMODCACHE=${go_pkg}/mod
+ENV GOCACHE=${go_cache}
+ENV GOBIN=/go/bin
+ENV CGO_ENABLED=0
 RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
     --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
     go install -v github.com/go-delve/delve/cmd/dlv@latest \
@@ -35,9 +38,12 @@ RUN usermod -l ${non_root_user} ${USER} \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
 COPY --from=go-build /usr/local/go/ /usr/local/go/
+ENV CGO_ENABLED=0
+
 USER ${non_root_user} 
 ENV USER=${non_root_user}
 COPY --chown=${uid}:${gid} --from=go-build /go/bin/ /home/debian/go/bin/
+
 ENV PATH=${PATH}:/usr/local/go/bin
 RUN mkdir -p /home/debian/go/bin
 ENV PATH=${PATH}:/home/debian/go/bin

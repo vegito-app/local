@@ -1,17 +1,8 @@
 FROM debian
-
-# ARG non_root_user=go
-ARG uid=1000
-ARG gid=1000
-
 ARG debian_version=bookworm
-
-COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
-
 ARG TARGETPLATFORM
 
 USER root
-ARG debian_version=bookworm
 
 ARG non_root_user=nodejs
 ARG uid=1000
