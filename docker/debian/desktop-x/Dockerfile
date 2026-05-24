@@ -149,23 +149,26 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-pyth
     pipx ensurepath \
     && pipx install nvitop
 
-COPY --chown=desktopx:desktopx display-start.sh           /usr/local/bin/
-COPY --chown=desktopx:desktopx display-start-xorg-host.sh /usr/local/bin/
-COPY --chown=desktopx:desktopx display-start-wayland.sh   /usr/local/bin/
-COPY --chown=desktopx:desktopx xpra-start.sh              /usr/local/bin/
-COPY --chown=desktopx:desktopx enable-nvidia-gl.sh        /usr/local/bin/
-COPY --chown=desktopx:desktopx nvidia-gl-env.sh           /usr/local/bin/
+COPY --chown=desktopx:desktopx xdisplay/xvfb-display-start.sh      /usr/local/bin/
+COPY --chown=desktopx:desktopx xdisplay/xorg-display-start.sh      /usr/local/bin/
+COPY --chown=desktopx:desktopx xdisplay/xwayland-display-start.sh  /usr/local/bin/
+COPY --chown=desktopx:desktopx xdisplay/xpra-start.sh              /usr/local/bin/
+
+COPY --chown=desktopx:desktopx enable-nvidia-gl.sh          /usr/local/bin/
+COPY --chown=desktopx:desktopx nvidia-gl-env.sh             /usr/local/bin/
 
 COPY --chown=desktopx:desktopx entrypoint.sh              /usr/local/bin/desktop-x-entrypoint.sh
+COPY --chown=desktopx:desktopx display-start.sh              /usr/local/bin/desktop-x-display-start.sh
 
 RUN chmod +x \
     /usr/local/bin/desktop-x-entrypoint.sh \
-    /usr/local/bin/display-start-wayland.sh \
-    /usr/local/bin/display-start-xorg-host.sh \
     /usr/local/bin/display-start.sh \
-    /usr/local/bin/xpra-start.sh \
     /usr/local/bin/enable-nvidia-gl.sh \
-    /usr/local/bin/nvidia-gl-env.sh
+    /usr/local/bin/nvidia-gl-env.sh \
+    /usr/local/bin/xorg-display-start.sh \
+    /usr/local/bin/xpra-start.sh \
+    /usr/local/bin/xvfb-display-start.sh \
+    /usr/local/bin/xwayland-display-start.sh
 
 # 📱 By default, we can pass an APK already mounted in /apk/app.apk
 ARG default_apk_path=/apk/app.apk
@@ -180,5 +183,6 @@ ENV VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=swiftshader_indirect
 ENV VEGITO_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
+CMD ["desktop-x-display-start.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
 ENV USER=${non_root_user}
