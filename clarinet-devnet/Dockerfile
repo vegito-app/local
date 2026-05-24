@@ -42,5 +42,5 @@ WORKDIR ${HOME}
 RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 COPY entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
-COPY caches-refresh.sh /usr/local/bin/clarinet-caches-refresh.sh
+COPY container-install.sh /usr/local/bin/clarinet-container-install.sh
 ENTRYPOINT [ "clarinet-entrypoint.sh" ]

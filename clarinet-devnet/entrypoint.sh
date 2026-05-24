@@ -18,10 +18,8 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-
-
-if [ "${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}" = "true" ]; then
-    clarinet-caches-refresh.sh
+if [ "${LOCAL_CLARINET_CONTAINER_INSTALL:-true}" = "true" ]; then
+    clarinet-container-install.sh
 fi
 
 debian-dockerd-entrypoint.sh "$@"
