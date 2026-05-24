@@ -26,12 +26,6 @@ COPY --from=rust-build /usr/local/cargo/bin/clarinet          /usr/local/bin/
 RUN clarinet completion bash && mv clarinet.bash /etc/bash_completion.d/clarinet.bash && \
     echo 'source /etc/bash_completion.d/clarinet.bash' >> ~/.bashrc
 
-RUN apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    iproute2 \
-    iptables \
-    procps \
-    uidmap 
-
 ARG non_root_user=clarinet
 ARG uid=1000
 ARG gid=1000

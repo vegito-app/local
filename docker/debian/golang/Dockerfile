@@ -35,15 +35,9 @@ RUN usermod -l ${non_root_user} ${USER} \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
 COPY --from=go-build /usr/local/go/ /usr/local/go/
-
 USER ${non_root_user} 
-
 ENV USER=${non_root_user}
-
 COPY --chown=${uid}:${gid} --from=go-build /go/bin/ /home/debian/go/bin/
-
 ENV PATH=${PATH}:/usr/local/go/bin
-
 RUN mkdir -p /home/debian/go/bin
-
 ENV PATH=${PATH}:/home/debian/go/bin

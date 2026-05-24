@@ -254,3 +254,42 @@ target "vegito-debian-python-desktop-x" {
     ] : []
   )
 }
+
+variable "VEGITO_DOCKER_DEBIAN_PYTHON_DOCKER_DESKTOP_X_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-docker-python-desktop-x-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_DEBIAN_PYTHON_DOCKER_DESKTOP_X_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-docker-python-desktop-x-latest"
+}
+
+target "vegito-debian-python-docker-desktop-x-version-ci" {
+  inherits = ["vegito-debian-python-desktop-x-version-ci"]
+  contexts = {
+    debian = "target:vegito-debian-docker-desktop-x-version-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_DEBIAN_PYTHON_DOCKER_DESKTOP_X_IMAGE_VERSION,
+  ]
+}
+
+target "vegito-debian-python-docker-desktop-x-latest-ci" {
+  inherits = ["vegito-debian-python-desktop-x-latest-ci"]
+  contexts = {
+    debian = "target:vegito-debian-docker-desktop-x-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_DEBIAN_PYTHON_DOCKER_DESKTOP_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-debian-python-docker-desktop-x" {
+  inherits = ["vegito-debian-python-desktop-x"]
+  contexts = {
+    debian = "target:vegito-debian-docker-desktop-x"
+  }
+  tags = [
+    VEGITO_DOCKER_DEBIAN_PYTHON_DOCKER_DESKTOP_X_IMAGE_LATEST,
+    VEGITO_DOCKER_DEBIAN_PYTHON_DOCKER_DESKTOP_X_IMAGE_VERSION,
+  ]
+}

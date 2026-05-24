@@ -68,8 +68,8 @@ export LOCAL_BUILDER_X_IMAGE_VERSION ?= dbndev/vegito-local-public:builder-x-lat
 
 vegito-docker-login-dockerhub:
 	@echo "Logging into Docker Hub"
-	@printf '%s' "$$DOCKERHUB_PAT" | docker login \
-	  --username "$$DOCKERHUB_USERNAME" \
+	printf '%s' "$$VEGITO_DOCKERHUB_PAT" | docker login \
+	  --username "$$VEGITO_DOCKERHUB_USERNAME" \
 	  --password-stdin
 .PHONY: vegito-docker-login-dockerhub
 

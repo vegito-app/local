@@ -135,14 +135,14 @@ services:
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
     working_dir: ${PWD}/example-application/mobile
 
   clarinet-devnet:
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
-      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
+      LOCAL_CLARINET_CONTAINER_INSTALL: ${LOCAL_CLARINET_CONTAINER_INSTALL:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
@@ -165,6 +165,8 @@ services:
       ./vault-init.sh
       sleep infinity
       '
+  nestor:
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
@@ -289,6 +291,20 @@ services:
     ports:
       # HTTP
       - 8080
+
+  nestor:
+    networks:
+      dev:
+        aliases:
+          - nestor
+    ports:
+      # Xpra
+      - "5901"
+      # Docker rootless DIND socket
+      - "2976"
+  dev:
+    driver: bridge
+
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
@@ -296,6 +312,7 @@ EOF
 dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
+
   dev:
     environment:
       VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
@@ -305,6 +322,7 @@ services:
     devices:
       - /dev/nvidia0
     shm_size: "8gb"
+
   android-studio:
     environment:
       VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
@@ -314,6 +332,7 @@ services:
     devices:
       - /dev/nvidia0
     shm_size: "8gb"
+
   example-application-mobile:
     environment:
       VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
@@ -323,6 +342,16 @@ services:
     devices:
       - /dev/nvidia0
     shm_size: "8gb"
+
+  nestor:    
+    environment:
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb
 
 EOF
 

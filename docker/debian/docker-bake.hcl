@@ -50,6 +50,7 @@ group "vegito-bookworm-debian-ci" {
     "vegito-debian-desktop-x-ci",
     "vegito-debian-flutter-ci",
     "vegito-debian-golang-ci",
+    "vegito-debian-python-ci",
     "vegito-debian-rust-ci",
   ]
 }
