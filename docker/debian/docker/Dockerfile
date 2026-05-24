@@ -30,6 +30,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
 
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get -o Acquire::Retries=3 update && apt-get install -y \
+    fuse-overlayfs \
+    iproute2 \
+    iptables \
+    procps \
+    slirp4netns \
+    uidmap
+
 ARG docker_version
 
 ARG TARGETPLATFORM
@@ -108,12 +118,16 @@ RUN usermod -l ${non_root_user} ${USER} \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
-COPY dockerd-entrypoint.sh /usr/local/bin/debian-dockerd-entrypoint.sh
-RUN chmod +x /usr/local/bin/debian-dockerd-entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/debian-docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/debian-docker-entrypoint.sh
+
+COPY dind-rootless-start.sh /usr/local/bin/debian-dind-rootless-start.sh
+RUN chmod +x /usr/local/bin/debian-dind-rootless-start.sh
 
 USER ${non_root_user}
 
 ENV USER=${non_root_user}
 
-ENTRYPOINT [ "debian-dockerd-entrypoint.sh" ]
-CMD ["lazydocker"]
+ENTRYPOINT ["tini", "--", "debian-docker-entrypoint.sh"]
+HEALTHCHECK CMD test -f /tmp/.dockerd-rootless-ready || exit 1
+CMD ["debian-dind-rootless-start.sh"]
