@@ -29,6 +29,7 @@ group "vegito-trixie-debian-ci" {
 
     "vegito-trixie-debian-desktop-x-ci",
     "vegito-trixie-debian-flutter-ci",
+    "vegito-trixie-debian-nodejs-ci",
     "vegito-trixie-debian-rust-ci",
     "vegito-trixie-debian-python-ci",
     "vegito-trixie-debian-golang-ci",

@@ -37,7 +37,6 @@ variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
 group "vegito-debian-ci" {
   targets = [
     "vegito-bookworm-debian-ci",
-
     "vegito-trixie-debian-ci",
   ]
 }
@@ -48,6 +47,7 @@ group "vegito-bookworm-debian-ci" {
     "vegito-debian-latest-ci",
 
     "vegito-debian-desktop-x-ci",
+    "vegito-debian-nodejs-ci",
     "vegito-debian-flutter-ci",
     "vegito-debian-golang-ci",
     "vegito-debian-python-ci",

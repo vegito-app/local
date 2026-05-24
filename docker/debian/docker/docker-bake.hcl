@@ -79,7 +79,7 @@ target "vegito-debian-docker-version-ci" {
   contexts = {
     debian               = "target:vegito-debian-version-ci"
     debian_golang        = "target:vegito-debian-golang-version-ci"
-    docker_dind_rootless = "target:docker-dind-rootless-version-ci"
+    docker_dind_rootless = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION,
@@ -108,7 +108,7 @@ target "vegito-debian-docker-latest-ci" {
   contexts = {
     debian               = "target:vegito-debian-latest-ci"
     debian_golang        = "target:vegito-debian-golang-latest-ci"
-    docker_dind_rootless = "target:docker-dind-rootless-latest-ci"
+    docker_dind_rootless = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_LATEST,
@@ -143,7 +143,7 @@ target "vegito-debian-docker" {
   contexts = {
     debian               = "target:vegito-debian"
     debian_golang        = "target:vegito-debian-golang"
-    docker_dind_rootless = "target:vegito-debian-docker"
+    docker_dind_rootless = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_LATEST,
@@ -211,7 +211,7 @@ target "vegito-debian-docker-desktop-x-version-ci" {
   contexts = {
     debian               = "target:vegito-debian-desktop-x-version-ci"
     debian_golang        = "target:vegito-debian-golang-version-ci"
-    docker_dind_rootless = "target:docker-dind-rootless-version-ci"
+    docker_dind_rootless = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
   }
   inherits = ["vegito-debian-docker-base"]
   tags = [
@@ -241,7 +241,7 @@ target "vegito-debian-docker-desktop-x-latest-ci" {
   contexts = {
     debian               = "target:vegito-debian-desktop-x-latest-ci"
     debian_golang        = "target:vegito-debian-golang-latest-ci"
-    docker_dind_rootless = "target:docker-dind-rootless-latest-ci"
+    docker_dind_rootless = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST,
@@ -276,7 +276,7 @@ target "vegito-debian-docker-desktop-x" {
   contexts = {
     debian               = "target:vegito-debian-desktop-x"
     debian_golang        = "target:vegito-debian-golang"
-    docker_dind_rootless = "target:vegito-debian-docker"
+    docker_dind_rootless = "docker-image://${VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST}"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_DOCKER_DESKTOP_X_IMAGE_VERSION,

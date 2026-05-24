@@ -2,7 +2,6 @@ group "docker-debian-ci" {
   targets = [
     "docker-debian-bookworm-ci",
     "docker-debian-trixie-ci",
-    "docker-debian-trixie-golang-ci"
   ]
 }
 
@@ -59,6 +58,8 @@ group "docker-debian-trixie-ci" {
   targets = [
     "docker-debian-trixie-version-ci",
     "docker-debian-trixie-latest-ci",
+
+    "docker-debian-trixie-golang-ci"
   ]
 }
 

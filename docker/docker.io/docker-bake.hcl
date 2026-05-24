@@ -11,6 +11,9 @@ variable "VEGITO_DOCKER_IO_HUB_DIR" {
 group "dockerhub" {
   targets = [
     "docker-debian",
+    "docker-debian-golang",
+    "docker-debian-trixie",
+    "docker-debian-trixie-golang",
     "docker-dind-rootless",
     "docker-alpine-golang",
     "docker-alpine-rust",
@@ -20,6 +23,9 @@ group "dockerhub" {
 group "dockerhub-ci" {
   targets = [
     "docker-debian-ci",
+    "docker-debian-golang-ci",
+    "docker-debian-trixie-ci",
+    "docker-debian-trixie-golang-ci",
     "docker-dind-rootless-ci",
     "docker-alpine-golang-ci",
     "docker-alpine-rust-ci",

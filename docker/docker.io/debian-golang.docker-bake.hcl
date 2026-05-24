@@ -1,9 +1,9 @@
-variable "VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/debian-golang:latest"
+variable "VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/golang-debian:latest"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/debian-golang:${VERSION}"
+variable "VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/golang-debian:${VERSION}"
 }
 
 target "docker-debian-golang-base" {
@@ -23,9 +23,8 @@ group "docker-debian-golang-ci" {
 }
 
 target "docker-debian-golang-version-ci" {
-
   tags = [
-    VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION,
+    VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_VERSION,
   ]
   inherits  = ["docker-debian-golang-base"]
   platforms = platforms
@@ -33,7 +32,7 @@ target "docker-debian-golang-version-ci" {
 
 target "docker-debian-golang-latest-ci" {
   tags = [
-    VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST,
+    VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST,
   ]
   inherits  = ["docker-debian-golang-base"]
   platforms = platforms
@@ -41,18 +40,18 @@ target "docker-debian-golang-latest-ci" {
 
 target "docker-debian-golang" {
   tags = [
-    VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_VERSION,
-    VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST,
+    VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_VERSION,
+    VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST,
   ]
   inherits = ["docker-debian-golang-base"]
 }
 
-variable "VEGITO_DOCKER_DEBIAN_TRIXIE_GOLANG_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/debian-trixie-golang:latest"
+variable "VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/golang-debian-trixie:latest"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_TRIXIE_GOLANG_IMAGE_VERSION" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/debian-trixie-golang:${VERSION}"
+variable "VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/golang-debian-trixie:${VERSION}"
 }
 
 target "docker-debian-trixie-golang-base" {
@@ -74,7 +73,7 @@ group "docker-debian-trixie-golang-ci" {
 target "docker-debian-trixie-golang-version-ci" {
 
   tags = [
-    VEGITO_DOCKER_DEBIAN_TRIXIE_GOLANG_IMAGE_VERSION,
+    VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION,
   ]
   inherits  = ["docker-debian-trixie-golang-base"]
   platforms = platforms
@@ -82,7 +81,7 @@ target "docker-debian-trixie-golang-version-ci" {
 
 target "docker-debian-trixie-golang-latest-ci" {
   tags = [
-    VEGITO_DOCKER_DEBIAN_TRIXIE_GOLANG_IMAGE_LATEST,
+    VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST,
   ]
   inherits  = ["docker-debian-trixie-golang-base"]
   platforms = platforms
@@ -90,8 +89,8 @@ target "docker-debian-trixie-golang-latest-ci" {
 
 target "docker-debian-trixie-golang" {
   tags = [
-    VEGITO_DOCKER_DEBIAN_TRIXIE_GOLANG_IMAGE_VERSION,
-    VEGITO_DOCKER_DEBIAN_TRIXIE_GOLANG_IMAGE_LATEST,
+    VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION,
+    VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST,
   ]
   inherits = ["docker-debian-trixie-golang-base"]
 }
