@@ -60,8 +60,8 @@ else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi
 
-if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
-    caches-refresh.sh &
+if [ "${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-true}" = "true" ]; then
+    android-studio-container-install.sh &
     bg_pids+=("$!")
 fi
 
