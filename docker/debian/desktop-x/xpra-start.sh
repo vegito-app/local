@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.xpra-ready
@@ -68,10 +68,4 @@ echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.xpra-ready
 
 echo "✅ Xpra started successfully."
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, waiting xpra to keep container alive"
-  wait $display_pid
-else
-  bg_pids+=("$display_pid")
-  exec "$@"
-fi
+wait $display_pid
