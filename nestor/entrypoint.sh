@@ -57,7 +57,6 @@ bg_pids+=("$!")
 #   fi
 # fi
 
-
 # Developer-friendly aliases
 alias gs='git status'
 alias gd='git diff'
@@ -71,6 +70,29 @@ alias dc='docker compose'
 
 alias nestor-logs='tail -f /tmp/nestor.log'
 
-# 🖥️ Use X Display
-desktop-x-entrypoint.sh "$@"
+if [ "${LOCAL_NESTOR_CACHES_REFRESH:-false}" = "true" ]; then
+    nestor-container-install.sh
+fi
 
+# 🚀 Setup background services
+
+# 🐳 Setup Docker-in-Docker (rootless)
+debian-docker-entrypoint.sh echo "✅ Docker-in-Docker setup complete."
+
+# 🖥️ Setup X Display
+desktop-x-entrypoint.sh echo "✅ Desktop X setup complete."
+
+# 🤖 Setup AI runtime
+ai-entrypoint.sh echo "✅ AI runtime setup complete."
+
+if [ $# -eq 0 ]; then
+  echo "[entrypoint] No command passed, starting background processes and waiting for them to exit..."
+  if [ "${#bg_pids[@]}" -gt 0 ]; then
+      wait "${bg_pids[@]}"
+  fi
+  echo "[entrypoint] All background processes have exited, container will stop now."
+else
+    "$@" &
+    main_pid=$!
+    wait "$main_pid"
+fi

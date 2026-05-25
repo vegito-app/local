@@ -24,6 +24,10 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       - vscode-store:/vscode
 
+  nestor:
+    volumes:
+      - vscode-store:/vscode
+
   example-application-backend:
     volumes:
       - vscode-store:/vscode
