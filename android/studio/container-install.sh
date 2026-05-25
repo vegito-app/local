@@ -19,28 +19,11 @@ trap check_success EXIT
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
 mkdir -p $local_container_cache
 
-link_persistent_dir() {
-    src="$1"
-    dst="$2"
-
-    mkdir -p "$(dirname "$dst")"
-    mkdir -p "$src"
-
-    if [ -L "$dst" ]; then
-        rm -f "$dst"
-    elif [ -d "$dst" ]; then
-        mv "$dst" "${dst}.bak.$(date +%s)"
-    fi
-
-    ln -sfn "$src" "$dst"
-}
-
 # Android Studio config
 ANDROID_STUDIO_CONFIG=${HOME}/.config/Google
-# mkdir -p ${local_container_cache}/Google ${HOME}/.config
-# rm -rf $ANDROID_STUDIO_CONFIG
-# ln -sf ${local_container_cache}/Google $ANDROID_STUDIO_CONFIG
-link_persistent_dir ${local_container_cache}/Google $ANDROID_STUDIO_CONFIG
+mkdir -p ${local_container_cache}/Google ${HOME}/.config
+rm -rf $ANDROID_STUDIO_CONFIG
+ln -sf ${local_container_cache}/Google $ANDROID_STUDIO_CONFIG
 
 # Drop lock eventually remaining after previous container run exit
 rm -f ${ANDROID_STUDIO_CONFIG}/AndroidStudio2024.1/.lock

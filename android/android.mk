@@ -1,4 +1,5 @@
-LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
+export LOCAL_ANDROID_DIR ?= $(CURDIR)
+
 LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-$(VERSION)
 
 -include $(LOCAL_ANDROID_DIR)/appium/appium.mk
@@ -130,6 +131,7 @@ local-android-app-sha1-fingerprint:
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 .PHONY: local-android-app-sha1-fingerprint
+
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
 ################################################################################
@@ -169,6 +171,7 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 	  base64 $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) > $(LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH); \
 	  printf "%s" "$$storepass" | base64 > $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) \
 	'
+
 ################################################################################
 # ANDROID MOBILE IMAGE EXTRACTION
 ################################################################################
