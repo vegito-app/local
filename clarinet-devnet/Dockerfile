@@ -46,3 +46,4 @@ COPY container-install.sh /usr/local/bin/clarinet-container-install.sh
 COPY devnet-start.sh /usr/local/bin/clarinet-devnet-start.sh
 ENTRYPOINT [ "clarinet-entrypoint.sh" ]
 CMD [ "clarinet-devnet-start.sh" ]
+HEALTHCHECK CMD test -f /tmp/.clarinet-devnet-runtime-ready || exit 1

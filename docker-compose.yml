@@ -4,7 +4,7 @@ volumes:
 services:
   dev:
     tty: true
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
     env_file:
       - .env
     environment:
@@ -60,12 +60,6 @@ services:
       - NET_ADMIN
       - SYS_ADMIN
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      set -eu
-      make local-clarinet-devnet-start
-      sleep infinity
-      '
 
   android-studio:
     tty: true
@@ -86,7 +80,7 @@ services:
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-false}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-true}
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
 
@@ -143,4 +137,34 @@ services:
       bash -c '
       set -eu
       sleep infinity
+      '
+
+  nestor:
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    environment:
+      LOCAL_WORKSPACE: ${PWD}
+      DOCKER_HOST: "unix:///run/user/1000/docker.sock"
+      ROOT_DOCKER_HOST: "unix:///var/run/docker.sock"
+      LOCAL_NESTOR_OLLAMA: ollama
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    working_dir: ${PWD}
+    privileged: true
+    user: nestor
+    volumes:
+      - /dev:/dev
+      - /lib/modules:/lib/modules
+      # - /dev:/dev
+      # - /lib/modules:/lib/modules
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+      # Shared volumes for Ollama models and cache
+      - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
+      # Docker socket for external Docker control
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: bash
+    command: |
+      -c '
+      set -eu
+      while true; do sleep 3600; done
       '
