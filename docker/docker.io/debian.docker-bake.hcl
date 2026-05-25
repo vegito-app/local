@@ -30,29 +30,47 @@ target "docker-debian-bookworm-base" {
   }
 }
 
+variable "VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/docker-debian:latest"
+}
+
+variable "VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/docker-debian:${VERSION}"
+}
+
 target "docker-debian-bookworm-latest-ci" {
   inherits = ["docker-debian-bookworm-base"]
   tags = [
-    VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
+    VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST
   ]
+  platforms = platforms
 }
 
 target "docker-debian-bookworm-version-ci" {
   inherits = ["docker-debian-bookworm-base"]
   tags = [
-    VEGITO_DOCKER_DEBIAN_IMAGE_VERSION
+    VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION
   ]
+  platforms = platforms
 }
 
 target "docker-debian-bookworm" {
   inherits = ["docker-debian-bookworm-base"]
   tags = [
-    VEGITO_DOCKER_DEBIAN_IMAGE_VERSION,
-    VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
+    VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION,
+    VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST,
   ]
 }
 
 # Trixie targets
+
+variable "VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/docker-trixie-debian:latest"
+}
+
+variable "VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/docker-trixie-debian:${VERSION}"
+}
 
 group "docker-debian-trixie-ci" {
   targets = [
@@ -75,21 +93,23 @@ target "docker-debian-trixie-base" {
 target "docker-debian-trixie-latest-ci" {
   inherits = ["docker-debian-trixie-base"]
   tags = [
-    VEGITO_DOCKER_DEBIAN_IMAGE_LATEST
+    VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST
   ]
+  platforms = platforms
 }
 
 target "docker-debian-trixie-version-ci" {
   inherits = ["docker-debian-trixie-base"]
   tags = [
-    VEGITO_DOCKER_DEBIAN_IMAGE_VERSION
+    VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_VERSION
   ]
+  platforms = platforms
 }
 
 target "docker-debian-trixie" {
   inherits = ["docker-debian-trixie-base"]
   tags = [
-    VEGITO_DOCKER_DEBIAN_IMAGE_VERSION,
-    VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
+    VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_VERSION,
+    VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST,
   ]
 }

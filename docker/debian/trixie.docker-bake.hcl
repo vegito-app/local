@@ -45,9 +45,6 @@ target "vegito-trixie-debian-base" {
   args = {
     debian_version = "trixie"
   }
-  contexts = {
-    debian = "target:docker-debian-trixie-base"
-  }
 }
 
 target "vegito-trixie-debian-latest-ci" {
@@ -55,6 +52,9 @@ target "vegito-trixie-debian-latest-ci" {
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
   ]
+  contexts = {
+    debian = "docker-image://${VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST}"
+  }
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
@@ -75,6 +75,9 @@ target "vegito-trixie-debian-latest-ci" {
 
 target "vegito-trixie-debian-version-ci" {
   inherits = ["vegito-trixie-debian-base"]
+  contexts = {
+    debian = "docker-image://${VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_VERSION}"
+  }
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION
   ]
@@ -99,6 +102,9 @@ target "vegito-trixie-debian-version-ci" {
 
 target "vegito-trixie-debian" {
   inherits = ["vegito-trixie-debian-base"]
+  contexts = {
+    debian = "docker-image://${VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST}"
+  }
   tags = [
     VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST,
   ]
