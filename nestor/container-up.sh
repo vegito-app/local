@@ -4,7 +4,7 @@ set -euxo pipefail
 
 CONTAINER_NAME="nestor"
 
-PORTS_TO_WAIT_FOR=${LOCAL_NESTOR_PORTS_TO_WAIT_FOR:-"2376 5901"}
+PORTS_TO_WAIT_FOR=${LOCAL_NESTOR_PORTS_TO_WAIT_FOR:-"2375 5901"}
 
 # Convert space-separated string to bash array
 read -ra PORTS <<< "$PORTS_TO_WAIT_FOR"
@@ -41,7 +41,7 @@ compose_pid=$!
 } &
 wait_pid=$!
 
-export DOCKER_HOST=tcp://nestor:2376
+export DOCKER_HOST=tcp://nestor:23755
 
 until docker info >/dev/null 2>&1; do echo waiting rootless dockerd startup ; sleep 1 ; done
 

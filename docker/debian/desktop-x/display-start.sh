@@ -32,7 +32,7 @@ if [ ${VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" 
         "wayland")
             echo "🖥️ Starting Wayland GPU display mode"
             source /usr/local/bin/nvidia-gl-env.sh
-            exec wayland-display-start.sh
+            exec xwayland-display-start.sh
             ;;
 
         "swiftshader_indirect" | "guest")

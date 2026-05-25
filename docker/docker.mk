@@ -122,10 +122,11 @@ VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
   $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
 
 VEGITO_DOCKER_IO_HUB_IMAGES = \
-  alpine \
-  docker-dind-rootless \
-  golang-alpine \
-  rust 
+  debian \
+  alpine-golang \
+  debian-golang \
+  alpine-rust \
+  docker-dind-rootless
 
 VEGITO_DOCKER_IMAGES = \
   $(VEGITO_DOCKER_DEBIAN_IMAGES) \
@@ -138,7 +139,7 @@ vegito-docker-hub-images-update:
 .PHONY: vegito-docker-hub-images-update
 
 $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
+	$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
 .PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
 

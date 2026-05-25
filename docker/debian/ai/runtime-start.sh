@@ -28,7 +28,7 @@ echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.ai-agent-ready
 
 echo "✅ Ai agent started successfully."
 
-if [ $# ! -eq 0 ]; then
+if [ ! $# -eq 0 ]; then
   "$@" &
   bg_pids+=("$!")
 else

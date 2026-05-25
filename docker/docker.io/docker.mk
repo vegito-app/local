@@ -10,13 +10,13 @@ DOCKERHUB_PAT ?= $(VEGITO_DOCKERHUB_PAT)
 # VEGITO_GO_IMAGE_VERSION ?= golang:alpine
 # VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST ?=rust:1-alpine3.20
 # VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION ?=rust:1-alpine3.20
-# VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
-# VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
+# VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
+# VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
 
 export VEGITO_DOCKER_DEBIAN_IMAGE_LATEST          ?= dbndev/vegito-public:debian-bookworm-latest
 export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:debian-bookworm-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:trixie-debian-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:trixie-debian-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:debian-trixie-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:debian-trixie-latest
 
 export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-alpine-golang-latest
 export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-alpine-golang-latest
@@ -60,20 +60,20 @@ export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_IMAGE_VERSION           ?= dbndev/vegito
 export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_LATEST  ?= dbndev/vegito-public:debian-rust-desktop-x-latest
 export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION ?= dbndev/vegito-public:debian-rust-desktop-x-latest
 
-export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST  ?= dbndev/vegito-public:docker-dind-rootless-latest
-export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION ?= dbndev/vegito-public:docker-dind-rootless-latest
-
 export LOCAL_BUILDER_X_IMAGE_LATEST  ?= dbndev/vegito-local-public:builder-x-latest
 export LOCAL_BUILDER_X_IMAGE_VERSION ?= dbndev/vegito-local-public:builder-x-latest
 
 # Dockerhub replica
-export VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-golang-latest
-export VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:hub-debian-golang-latest
-export VEGITO_DOCKER_GOLANG_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-golang-latest
-export VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST  ?= dbndev/vegito-public:hub-trixie-debian-golang-latest
-export VEGITO_DOCKER_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION ?= dbndev/vegito-public:hub-trixie-debian-golang-latest
-export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_LATEST  ?= dbndev/vegito-public:hub-docker-dind-rootless-latest
-export VEGITO_DOCKER_DIND_ROOTLESS_IMAGE_VERSION  ?= dbndev/vegito-public:hub-docker-dind-rootless-latest
+export VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-latest
+export VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:hub-debian-latest
+export VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-trixie-debian-latest
+export VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:hub-trixie-debian-latest
+export VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-golang-latest
+export VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:hub-debian-golang-latest
+export VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST  ?= dbndev/vegito-public:hub-trixie-debian-golang-latest
+export VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION ?= dbndev/vegito-public:hub-trixie-debian-golang-latest
+export VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_LATEST  ?= dbndev/vegito-public:hub-docker-dind-rootless-latest
+export VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_VERSION  ?= dbndev/vegito-public:hub-docker-dind-rootless-latest
 
 vegito-docker-login-dockerhub:
 	@echo "Logging into Docker Hub"

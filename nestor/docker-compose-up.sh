@@ -17,7 +17,7 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
-socat TCP-LISTEN:2377,fork,reuseaddr TCP:nestor:2376 > /tmp/socat-nestor-2376.log 2>&1 &
+socat TCP-LISTEN:2375,fork,reuseaddr TCP:nestor:23755 > /tmp/socat-nestor-23755.log 2>&1 &
 bg_pids+=("$!")
 
 socat TCP-LISTEN:5903,fork,reuseaddr TCP:nestor:5901 > /tmp/socat-nestor-5901.log 2>&1 &
