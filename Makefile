@@ -25,6 +25,10 @@ export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-private
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
+VEGITO_DOCKER_DIR ?= $(CURDIR)/docker
+VEGITO_DOCKER_IO_DIR ?= $(VEGITO_DOCKER_DIR)/docker.io
+VEGITO_DOCKER_ALPINE_DIR ?= $(VEGITO_DOCKER_DIR)/alpine
+VEGITO_DOCKER_DEBIAN_DIR ?= $(VEGITO_DOCKER_DIR)/debian
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
@@ -32,35 +36,23 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
-  -f $(LOCAL_DIR)/docker/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/docker.io/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/docker.io/debian.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/docker.io/debian-golang.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/docker.io/alpine-golang.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/docker.io/alpine-rust.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/docker.io/docker-dind-rootless.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/alpine/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/trixie.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/flutter/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/docker/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/docker/trixie.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/flutter/trixie.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/golang/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/golang/trixie.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/python/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/python/trixie.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/rust/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/rust/trixie.docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/desktop-x/docker-bake.hcl \
-  -f $(LOCAL_DIR)/docker/debian/desktop-x/trixie.docker-bake.hcl \
+  # Vegito docker
+  -f $(VEGITO_DOCKER_DIR)/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_IO_DIR)/docker-bake.hcl \
+  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=-f $(VEGITO_DOCKER_IO_DIR)/docker.io/%.docker-bake.hcl) \
+  -f $(VEGITO_DOCKER_ALPINE_DIR)/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DEBIAN_DIR)/docker-bake.hcl \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/docker-bake.hcl) \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/trixie.docker-bake.hcl) \
+  # Local docker
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
   $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl \
+  # Example application
   -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl)
   
 VEGITO_DOCKER_BUILDX_BAKE = $(LOCAL_DOCKER_BUILDX_BAKE)
 
@@ -68,6 +60,7 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
   	-f $(CURDIR)/trivy/docker-compose.yml \
+  	-f $(CURDIR)/nestor/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -78,8 +71,10 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
+  nestor \
   robotframework \
   trivy
+  
 #   clarinet-devnet \
 
 LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
@@ -108,6 +103,7 @@ VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   android-studio \
   firebase-emulators \
+  nestor \
   vault-dev \
   robotframework \
   $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)

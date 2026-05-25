@@ -1,9 +1,15 @@
 # Local Docker Compose configuration
 LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
 
-LOCAL_DIR ?= $(CURDIR)
+export LOCAL_DIR ?= $(CURDIR)
 
+LOCAL_ANDROID_DIR        ?= $(LOCAL_DIR)/android
 LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+LOCAL_NESTOR_DIR         ?= $(LOCAL_DIR)/nestor
+LOCAL_ROBOTFRAMEWORK_DIR ?= $(LOCAL_DIR)/robotframework
+LOCAL_STRIPE_DIR         ?= $(LOCAL_DIR)/stripe
+LOCAL_TRIVY_DIR          ?= $(LOCAL_DIR)/trivy
+LOCAL_VAULT_DEV_DIR      ?= $(LOCAL_DIR)/vault-dev
 
 LOCAL_DOTENV_FILE ?= .env
 
@@ -18,6 +24,7 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
   robotframework \
   firebase-emulators \
+  nestor \
   vault-dev \
   stripe \
   trivy 
@@ -28,16 +35,11 @@ local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
+	-f $(LOCAL_DIR)/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker-bake.hcl \
-	-f $(LOCAL_DIR)/debian/docker-bake.hcl \
-	-f $(LOCAL_DIR)/desktop-x/docker-bake.hcl \
-	-f $(LOCAL_DIR)/flutter/docker-bake.hcl \
 	-f $(LOCAL_DIR)/android/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/studio/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/emulator/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/appium/docker-bake.hcl \
+	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
@@ -108,6 +110,7 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
   -f $(LOCAL_DIR)/stripe/docker-compose.yml \
   -f $(LOCAL_DIR)/trivy/docker-compose.yml \
+  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
   -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
 
@@ -270,6 +273,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github-actions/github-actions.mk
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
+-include $(LOCAL_DIR)/nestor/nestor.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
 -include $(LOCAL_DIR)/stripe/stripe.mk

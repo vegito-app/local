@@ -1,23 +1,21 @@
-FROM debian-golang AS go-build
-
-COPY proxy proxy
-
-# ARG non_root_user=go
-ARG uid=1000
-ARG gid=1000
-
 ARG TARGETPLATFORM
+FROM debian-golang AS go-build
 
 ARG debian_version=bookworm
 
-RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-pkg,target=/home/debian/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-build,target=/home/debian/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
-    cd proxy \
-    && go install -v
+ARG go_pkg=/go/pkg
+ARG go_cache=/.cache/go-build
+
+ENV GOPATH=/go \
+    GOCACHE=${go_cache} \
+    GO111MODULE=auto
+
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
+    go install -v github.com/jesseduffield/lazydocker@latest \
+    && cd proxy && go install -v
 
 FROM debian-golang
-
-COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
 ARG TARGETPLATFORM
 
@@ -280,5 +278,7 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
     > /etc/apt/sources.list.d/vscode.list && \
     apt-get update && \
     apt-get install -y code
+
+COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
 USER ${non_root_user}
