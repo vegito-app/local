@@ -17,6 +17,8 @@ RUN usermod -l ${non_root_user} ${USER} \
 
 USER ${non_root_user}
 
+ENV USER=${non_root_user}
+
 RUN mkdir ${HOME}/src \
     ${HOME}/src/mobile \
     ${HOME}/src/mobile/android \

@@ -15,6 +15,8 @@ RUN usermod -l ${non_root_user} ${USER} \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
+ENV USER=${non_root_user}
+
 USER ${non_root_user}
 
 # 📦 Android SDK (without build-tools or NDK)
