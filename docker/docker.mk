@@ -101,6 +101,7 @@ vegito-docker-build-tags-list-ci-md:
 .PHONY: vegito-docker-build-tags-list-ci-md
 
 VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
+ ai \
  docker \
  golang \
  python \

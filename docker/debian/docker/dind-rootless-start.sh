@@ -41,7 +41,7 @@ until docker info >/dev/null 2>&1; do echo waiting dockerd startup ; sleep 1 ; d
 
 docker info
 
-TARGET_PORT=2375 LISTEN_PORT=2376 localproxy &
+TARGET_PORT=2375 LISTEN_PORT=23755 localproxy &
 bg_pids+=("$!")
 
 mkdir -p ${HOME}/.docker/run

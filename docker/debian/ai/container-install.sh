@@ -3,10 +3,10 @@
 set -euo pipefail
 
 
-container-install_success=false
+container_install_success=false
 # 🧹 Function called at the end of the script to check for success
 check_success() {
-    if [ $container-install_success = true ]; then
+    if [ $container_install_success = true ]; then
         echo "♻️ AI container installed successfully."
     else
         echo "❌ AI container installation failed."
@@ -35,4 +35,4 @@ ln -sfn ${AI_WORKSPACES}/torch            ${HOME}/.cache/torch
 ln -sfn ${AI_WORKSPACES}/torch_extensions ${HOME}/.cache/torch_extensions
 ln -sfn ${AI_WORKSPACES}/chromadb         ${HOME}/.cache/chromadb
 
-container-install_success=true
+container_install_success=true

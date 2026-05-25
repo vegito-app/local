@@ -43,7 +43,7 @@ RUN mkdir -p /etc/apt/keyrings && \
     apt-get install -y code
 
 # 👤 Create non root user
-ARG non_root_user=nestor
+ARG non_root_user=ai
 ARG uid=1000
 ARG gid=1000
 
@@ -58,6 +58,7 @@ RUN usermod -l ${non_root_user} ${USER} \
 
 # 👤 Switch to non root user
 USER ${non_root_user}
+ENV USER=${non_root_user}
 
 ARG uid=1000
 ARG gid=1000
@@ -98,9 +99,6 @@ RUN chmod +x /usr/local/bin/ai-runtime-start.sh
 COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/ai-container-install.sh
 RUN chmod +x /usr/local/bin/ai-container-install.sh
 
-COPY --chown=${uid}:${gid} ./container-healthcheck.sh /usr/local/bin/ai-container-healthcheck.sh
-RUN chmod +x /usr/local/bin/ai-container-healthcheck.sh
-
 ENTRYPOINT ["tini", "--", "ai-entrypoint.sh"]
 CMD ["ai-runtime-start.sh"]
 
@@ -116,3 +114,4 @@ RUN mkdir -p /home/debian/.ollama/models && \
     chmod -R 700 /home/debian/.cache/torch_extensions
 
 HEALTHCHECK CMD test -f /tmp/.ai-runtime-ready|| exit 1
+WORKDIR /workspaces/ai

@@ -127,6 +127,8 @@ RUN usermod -l ${non_root_user} ${USER} \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
+ENV USER=${non_root_user}
+
 # 📦 Prepare user runtime (useful for xpra / weston / pulseaudio sockets)
 ENV XDG_RUNTIME_DIR="/run/user/${uid}"
 
@@ -147,16 +149,16 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-pyth
     pipx ensurepath \
     && pipx install nvitop
 
-COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xvfb-display-start.sh     /usr/local/bin/
-COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xorg-display-start.sh     /usr/local/bin/
-COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xwayland-display-start.sh /usr/local/bin/
-COPY --chown=${non_root_user}}:${non_root_user}} xdisplay/xpra-start.sh             /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} xdisplay/xvfb-display-start.sh     /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} xdisplay/xorg-display-start.sh     /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} xdisplay/xwayland-display-start.sh /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} xdisplay/xpra-start.sh             /usr/local/bin/
 
-COPY --chown=${non_root_user}}:${non_root_user}} enable-nvidia-gl.sh /usr/local/bin/
-COPY --chown=${non_root_user}}:${non_root_user}} nvidia-gl-env.sh    /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} enable-nvidia-gl.sh /usr/local/bin/
+COPY --chown=${non_root_user}:${non_root_user} nvidia-gl-env.sh    /usr/local/bin/
 
-COPY --chown=${non_root_user}}:${non_root_user}} entrypoint.sh    /usr/local/bin/desktop-x-entrypoint.sh
-COPY --chown=${non_root_user}}:${non_root_user}} display-start.sh /usr/local/bin/desktop-x-display-start.sh
+COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh    /usr/local/bin/desktop-x-entrypoint.sh
+COPY --chown=${non_root_user}:${non_root_user} display-start.sh /usr/local/bin/desktop-x-display-start.sh
 
 RUN chmod +x \
     /usr/local/bin/desktop-x-entrypoint.sh \

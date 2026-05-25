@@ -26,23 +26,23 @@ if [ ${VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTAINER_DISPLAY_START:-"true"} = "true" 
         "host")
             echo "🖥️ Starting host Xorg display mode"
             source /usr/local/bin/nvidia-gl-env.sh
-            exec display-start-xorg-host.sh
+            exec xorg-display-start-host.sh
             ;;
 
         "wayland")
             echo "🖥️ Starting Wayland GPU display mode"
             source /usr/local/bin/nvidia-gl-env.sh
-            exec display-start-wayland.sh
+            exec wayland-display-start.sh
             ;;
 
         "swiftshader_indirect" | "guest")
             echo "🖥️ Starting SwiftShader software rendering mode"
-            exec display-start-xvfb.sh
+            exec xvfb-display-start.sh
             ;;
 
         *)
             echo "⚠️ Unknown VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE='${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE}', falling back to SwiftShader"
-            exec display-start-xvfb.sh
+            exec xvfb-display-start.sh
             ;;
     esac
 fi

@@ -52,6 +52,10 @@ group "vegito-bookworm-debian-ci" {
     "vegito-debian-golang-ci",
     "vegito-debian-python-ci",
     "vegito-debian-rust-ci",
+
+    "vegito-debian-ai-ci",
+
+    "vegito-debian-docker-ci",
   ]
 }
 
