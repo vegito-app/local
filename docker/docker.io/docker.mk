@@ -90,8 +90,8 @@ VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS ?= \
   applications
 
 vegito-docker-images-dockerhub-release:
-	echo "🚀 Building for $(@:vegito-docker-images-%=%)"
-	$(MAKE) vegito-docker-images-release \
+	@echo "🚀 Building for $(@:vegito-docker-images-%=%)"
+	@$(MAKE) vegito-docker-images-release \
 	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS="$(VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
 	  VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-public \
 	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private \

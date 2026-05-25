@@ -40,6 +40,9 @@ variable "VEGITO_DOCKER_TRIXIE_DEBIAN_NODEJS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
 
 target "vegito-trixie-debian-nodejs-base" {
   inherits = ["vegito-debian-nodejs-base"]
+  args = {
+    debian_version = "trixie"
+  }
 }
 
 group "vegito-trixie-debian-nodejslang" {

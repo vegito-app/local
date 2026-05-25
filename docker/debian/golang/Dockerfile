@@ -4,14 +4,15 @@ ARG debian_version=bookworm
 ARG TARGETPLATFORM
 
 ARG go_pkg=/go/pkg
-ARG go_cache=/root/.cache/go-build
+ARG go_cache=/.cache
 ENV GOMODCACHE=${go_pkg}/mod
 ENV GOCACHE=${go_cache}
 ENV GOBIN=/go/bin
 ENV CGO_ENABLED=0
 RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
     --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
-    go install -v github.com/go-delve/delve/cmd/dlv@latest \
+    go install -v github.com/vegito-app/local/proxy@latest \
+    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
     && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
     && go install -v github.com/jesseduffield/lazydocker@latest \
     && go install -v github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest \

@@ -3,5 +3,11 @@ variable "VEGITO_DOCKER_DEBIAN_NODEJS_DIR" {
 }
 
 target "vegito-debian-nodejs-base" {
-  context = VEGITO_DOCKER_DEBIAN_NODEJS_DIR
+  inherits = ["vegito-debian-nodejs-base"]
+  context  = VEGITO_DOCKER_DEBIAN_NODEJS_DIR
+  args = {
+    debian_version = "trixie"
+    node_version   = NODE_VERSION
+    nvm_version    = NVM_VERSION
+  }
 }

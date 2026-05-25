@@ -1,6 +1,5 @@
 FROM debian_golang AS go-build
 ARG debian_version=bookworm
-ARG debian_version=bookworm
 ARG TARGETPLATFORM
 
 ARG go_pkg=/go/pkg
@@ -109,6 +108,8 @@ RUN usermod -l ${non_root_user} ${USER} \
     adduser ${non_root_user} sudo && \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
+
+ENV USER=${non_root_user}
 
 COPY entrypoint.sh /usr/local/bin/debian-docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/debian-docker-entrypoint.sh
