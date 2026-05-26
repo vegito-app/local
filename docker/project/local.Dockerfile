@@ -80,7 +80,7 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
 # k9s
 ARG k9s_version=0.50.9
 
-RUN set -eux; \
+RUN set -eu; \
     case "$TARGETPLATFORM" in \
     "linux/amd64") \
     archive="k9s_Linux_amd64.tar.gz" ;; \
