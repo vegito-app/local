@@ -16,13 +16,12 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-p
     && go install -v
 
 FROM debian-golang
+ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
 COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
-ARG TARGETPLATFORM
-
 USER root
-ARG debian_version=bookworm
 
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -276,9 +275,13 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
     | gpg --dearmor \
     > /etc/apt/keyrings/packages.microsoft.gpg && \
     chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
+    if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
     echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
     > /etc/apt/sources.list.d/vscode.list && \
     apt-get update && \
-    apt-get install -y code
+    apt-get install -y code ; \
+    else \
+    echo "Skipping VSCode install on $TARGETPLATFORM" ; \
+    fi
 
 USER ${non_root_user}
