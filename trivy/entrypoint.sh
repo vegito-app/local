@@ -18,7 +18,7 @@ kill_jobs() {
 
 trap kill_jobs EXIT
 
-if [ "${LOCAL_TRIVY_CACHES_REFRESH:-false}" = "true" ]; then
+if [ "${LOCAL_TRIVY_CONTAINER_INSTALL:-true}" = "true" ]; then
     caches-refresh.sh
 fi
 
