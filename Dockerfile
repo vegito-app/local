@@ -1,17 +1,19 @@
-ARG TARGETPLATFORM
 FROM debian-golang AS go-build
-
 ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
-ARG go_pkg=/go/pkg
-ARG go_cache=/.cache/go-build
+COPY proxy proxy
 
-ENV GOPATH=/go \
-    GOCACHE=${go_cache} \
-    GO111MODULE=auto
-
-RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
-    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
+ARG uid=1000
+ARG gid=1000
+ARG go_pkg=/home/debian/go/pkg
+ARG go_cache=/home/debian/.cache/go-build
+ENV GOMODCACHE=${go_pkg}/mod
+ENV GOCACHE=${go_cache}
+ENV GOBIN=/home/debian/go/bin
+ENV CGO_ENABLED=0
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked,uid=${uid},gid=${gid} \
     go install -v github.com/jesseduffield/lazydocker@latest \
     && cd proxy && go install -v
 
@@ -274,10 +276,14 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
     | gpg --dearmor \
     > /etc/apt/keyrings/packages.microsoft.gpg && \
     chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
+    if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
     echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
     > /etc/apt/sources.list.d/vscode.list && \
     apt-get update && \
-    apt-get install -y code
+    apt-get install -y code ; \
+    else \
+    echo "Skipping VSCode install on $TARGETPLATFORM" ; \
+    fi
 
 COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 

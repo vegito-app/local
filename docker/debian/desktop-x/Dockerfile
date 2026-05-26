@@ -7,7 +7,7 @@ USER root
 # ⚙️ Install minimum dependencies
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
+    if [ "${debian_version}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jre; \
     EGL_PACKAGE=libegl-mesa0; \
     else \
@@ -48,14 +48,22 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
 # NVIDIA
 RUN  --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
+    # sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources && \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    xserver-xorg-video-nvidia \
-    nvidia-driver \
     nvtop \
     mesa-utils \
     libgl1-mesa-dri \
-    libglx-mesa0
+    libglx-mesa0 \
+    libglvnd0 \
+    libglx0 \
+    libegl1
+# Do not install the following packages, as they are not compatible with the current version of the NVIDIA driver
+# Those packages are injected into the container by the nvidia-container-runtime
+# xserver-xorg-video-nvidia \
+# nvidia-driver \
+# nvidia-driver-libs
+# nvidia-smi
+# nvidia-kernel-dkms
 
 ARG enable_audio=1
 ENV ENABLE_AUDIO=${enable_audio}
