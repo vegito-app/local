@@ -32,16 +32,6 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-
 # slurp \
 # wl-clipboard
 
-RUN mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor \
-    > /etc/apt/keyrings/packages.microsoft.gpg && \
-    chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    > /etc/apt/sources.list.d/vscode.list && \
-    apt-get update && \
-    apt-get install -y code
-
 # 👤 Create non root user
 ARG non_root_user=ai
 ARG uid=1000
