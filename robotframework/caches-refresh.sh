@@ -32,7 +32,9 @@ mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sfn ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
-cat <<EOF >> ~/.bashrc
+mkdir -p ~/.bashrc.d
+
+cat <<EOF > ~/.bashrc.d/.bashrc
 export HISTSIZE=50000
 export HISTFILESIZE=100000
 EOF

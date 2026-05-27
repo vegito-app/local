@@ -3,10 +3,10 @@
 set -euo pipefail
 
 
-caches_refresh_success=false
+container_nestor_install=false
 # 🧹 Function called at the end of the script to check for success
 check_success() {
-    if [ $caches_refresh_success = true ]; then
+    if [ $container_nestor_install = true ]; then
         echo "♻️ Nestor caches refreshed successfully."
     else
         echo "❌ Nestor caches refresh failed."
@@ -17,66 +17,70 @@ check_success() {
 trap check_success EXIT
 
 # Local Container Cache
-local_container_cache=${LOCAL_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
-mkdir -p $local_container_cache
+container_cache=${LOCAL_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
+mkdir -p $container_cache
 
 # local docker rootless cache 
-LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.share/docker
-mkdir -p $local_container_cache/dockerd
-mkdir -p ${HOME}/.share/
-ln -s $local_container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.local/share/docker
+mkdir -p $container_cache/dockerd
+mkdir -p ${HOME}/.local/share/
+ln -s $container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
 
 # Bash history
 BASH_HISTORY_PATH=${HOME}/.bash_history
-mkdir -p ${local_container_cache}
+mkdir -p ${container_cache}
 rm -f $BASH_HISTORY_PATH
-ln -sfn ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
+ln -sfn ${container_cache}/.bash_history $BASH_HISTORY_PATH
 
 # PIP persistence
 # This allows you to persist your pip configuration across container rebuilds.
 PIP_DIR=${HOME}/.cache/pip
 [ -d $PIP_DIR ] && mv $PIP_DIR ${PIP_DIR}_back
-mkdir -p ${local_container_cache}/pip
-ln -sf ${local_container_cache}/pip $PIP_DIR
+mkdir -p ${container_cache}/pip
+ln -sf ${container_cache}/pip $PIP_DIR
 
+NESTOR_LOGS_DIR=${NESTOR_LOGS_DIR:-${container_cache}}/logs
+mkdir -p ${NESTOR_LOGS_DIR}
 
-cat <<EOF >> ~/.bashrc
-export HISTSIZE=50000
-export HISTFILESIZE=100000
-export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
-export DOCKER_CONFIG=${local_container_cache}/.docker
-export DOCKER_BUILDKIT=1
-EOF
+export NESTOR_LOGS_PATH=${NESTOR_LOGS_DIR}/nestor.log
 
-# Git config (optional but useful)
-GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
-if [ -f "$GIT_CONFIG_GLOBAL" ]; then
-  mkdir -p ${local_container_cache}/git
-  rsync -av "$GIT_CONFIG_GLOBAL" ${local_container_cache}/git/
-  rm -f "$GIT_CONFIG_GLOBAL"
-  ln -s ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
+# Bashrc enhancements for better usability
+mkdir -p ~/.bashrc.d
+
+cat <<EOF > ~/.bashrc.d/90-nestor.sh
+# Load modular shell extensions
+if [ -d "${HOME}/.bashrc.d" ]; then
+for f in "${HOME}"/.bashrc.d/*; do
+    [ -r "$f" ] && source "$f"
+done
 fi
 
+# Environment variables
+export NESTOR_HOME=${LOCAL_NESTOR_DIR:-${PWD}}
+export NESTOR_CACHE=${LOCAL_NESTOR_CONTAINER_CACHE}
+export NESTOR_LOGS=${NESTOR_LOGS_PATH}
 
-AI_WORKSPACES=${AI_WORKSPACES:-/workspaces/ai}
+# Developer-friendly aliases
+alias py='python3'
+alias k='kubectl'
 
-mkdir -p ${AI_WORKSPACES}/ollama/models
-mkdir -p ${AI_WORKSPACES}/ollama/cache
-mkdir -p ${AI_WORKSPACES}/huggingface
-mkdir -p ${AI_WORKSPACES}/torch
-mkdir -p ${AI_WORKSPACES}/torch_extensions
-mkdir -p ${AI_WORKSPACES}/chromadb
-mkdir -p ${HOME}/.ollama
-mkdir -p ${HOME}/.cache
+alias nestor-logs='tail -f ${NESTOR_LOGS_PATH}'
 
-ln -sfn ${AI_WORKSPACES}/ollama/models ${HOME}/.ollama/models
-ln -sfn ${AI_WORKSPACES}/ollama/cache  ${HOME}/.ollama/cache
+alias tf='terraform'
+alias tfi='terraform init'
+alias tfp='terraform plan'
+alias tfa='terraform apply'
+alias tfd='terraform destroy'
 
-ln -sfn ${AI_WORKSPACES}/huggingface      ${HOME}/.cache/huggingface
-ln -sfn ${AI_WORKSPACES}/torch            ${HOME}/.cache/torch
-ln -sfn ${AI_WORKSPACES}/torch_extensions ${HOME}/.cache/torch_extensions
-ln -sfn ${AI_WORKSPACES}/chromadb         ${HOME}/.cache/chromadb
+alias k='kubectl'
 
-nestor_dir=${LOCAL_NESTOR_DIR:-${PWD}}
-# 🧹 Function called at the end of the script to check for success
-caches_refresh_success=true
+alias kgp='kubectl get pods'
+alias kgs='kubectl get svc'
+alias kgd='kubectl get deploy'
+alias kaf='kubectl apply -f'
+alias kl='kubectl logs -f'
+alias kctx='kubectl config current-context'
+EOF
+
+
+container_nestor_install=true

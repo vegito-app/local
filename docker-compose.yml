@@ -4,6 +4,7 @@ volumes:
 services:
   dev:
     tty: true
+    restart: unless-stopped
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
     env_file:
       - .env
@@ -141,6 +142,7 @@ services:
 
   nestor:
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    restart: unless-stopped
     environment:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"

@@ -102,18 +102,18 @@ vegito-docker-build-tags-list-ci-md:
 
 VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
  ai \
+ desktop-x \
  docker \
+ flutter \
  golang \
+ kubernetes \
+ nodejs \
  python \
  rust \
- flutter \
- terraform \
- kubernetes \
- nodejs
+ terraform
 
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
-  debian-desktop-x \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
@@ -122,10 +122,10 @@ VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
   $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
 
 VEGITO_DOCKER_IO_HUB_IMAGES = \
-  debian \
-  alpine-golang \
-  debian-golang \
-  alpine-rust \
+  docker-debian \
+  docker-alpine-golang \
+  docker-alpine-rust \
+  docker-debian-golang \
   docker-dind-rootless
 
 VEGITO_DOCKER_IMAGES = \

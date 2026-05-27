@@ -166,6 +166,7 @@ COPY --chown=${non_root_user}:${non_root_user} enable-nvidia-gl.sh /usr/local/bi
 COPY --chown=${non_root_user}:${non_root_user} nvidia-gl-env.sh    /usr/local/bin/
 
 COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh    /usr/local/bin/desktop-x-entrypoint.sh
+COPY --chown=${non_root_user}:${non_root_user} container-install.sh    /usr/local/bin/desktop-x-container-install.sh
 COPY --chown=${non_root_user}:${non_root_user} display-start.sh /usr/local/bin/desktop-x-display-start.sh
 
 RUN chmod +x \

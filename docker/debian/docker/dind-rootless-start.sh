@@ -21,16 +21,6 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-LOCAL_USER="$(id -un)"
-
-if ! grep -q "^${LOCAL_USER}:" /etc/subuid; then
-    echo "${LOCAL_USER}:100000:65536" | sudo tee -a /etc/subuid
-fi
-
-if ! grep -q "^${LOCAL_USER}:" /etc/subgid; then
-    echo "${LOCAL_USER}:100000:65536" | sudo tee -a /etc/subgid
-fi
-
 dockerd-entrypoint.sh --dns=8.8.8.8 --dns=8.8.4.4 &
 dockerd_pid="$!"
 
@@ -46,13 +36,6 @@ bg_pids+=("$!")
 
 mkdir -p ${HOME}/.docker/run
 ln -sf /run/user/$LOCAL_USER_ID/docker.sock ${HOME}/.docker/run/docker.sock
-
-
-# Set inotify watches limit
-echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
-# Set inotify watches limit for rootless dockerd
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /run/user/$LOCAL_USER_ID/sysctl.conf
-sudo sysctl -p /run/user/$LOCAL_USER_ID/sysctl.conf
 
 # Create a ready flag file for healthchecks and other services to know when the dockerd is ready to exit
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.dockerd-rootless-ready

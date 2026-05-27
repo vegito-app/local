@@ -10,24 +10,14 @@ set -euo pipefail
 #   fi
 # fi
 
-# Developer-friendly aliases
-alias gs='git status'
-alias gd='git diff'
-alias gl='git log --oneline --graph --decorate'
-
-alias ll='ls -lah'
-alias py='python3'
-alias k='kubectl'
-alias d='docker'
-alias dc='docker compose'
-
-alias nestor-logs='tail -f /tmp/nestor.log'
-
 if [ "${LOCAL_NESTOR_CONTAINER_INSTALL:-true}" = "true" ]; then
     nestor-container-install.sh
 fi
 
 # 🚀 Setup background services
+
+# 🐧 Setup Debian
+debian-entrypoint.sh echo "✅ Debian setup complete."
 
 # 🐳 Setup Docker-in-Docker (rootless)
 debian-docker-entrypoint.sh echo "✅ Docker-in-Docker setup complete."
@@ -38,4 +28,5 @@ desktop-x-entrypoint.sh echo "✅ Desktop X setup complete."
 # 🤖 Setup AI runtime
 ai-entrypoint.sh echo "✅ AI runtime setup complete."
 
-exec "$@"
+# 📊 Start logging
+exec "$@" | tee ${NESTOR_LOGS_PATH}

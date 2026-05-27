@@ -21,9 +21,9 @@ local_container_cache=${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${LOCAL_DIR:-${PW
 mkdir -p $local_container_cache
 
 # local docker rootless cache 
-LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.share/docker
+LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.local/share/docker
 mkdir -p $local_container_cache/dockerd
-mkdir -p ${HOME}/.share/
+mkdir -p ${HOME}/.local/share/
 ln -s $local_container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
 
 # Bash history
@@ -32,7 +32,9 @@ mkdir -p ${local_container_cache}
 rm -f $BASH_HISTORY_PATH
 ln -sfn ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
 
-cat <<EOF >> ~/.bashrc
+mkdir -p ~/.bashrc.d
+
+cat <<EOF > ~/.bashrc.d/.bashrc
 export HISTSIZE=50000
 export HISTFILESIZE=100000
 export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock

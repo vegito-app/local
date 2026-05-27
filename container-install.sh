@@ -101,12 +101,14 @@ expose-port() {
 }
 EOF
 
-cat <<EOF >> ~/.bashrc
+mkdir -p ~/.bashrc.d
+
+cat <<EOF > ~/.bashrc.d/.bashrc
 if [ -f ~/.config/shell ]; then
     . ~/.config/shell
 fi
-
 EOF
+
 cat <<EOF >> ~/.zshrc
 if [ -f ~/.config/shell ]; then
     . ~/.config/shell

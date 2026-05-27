@@ -114,6 +114,9 @@ ENV USER=${non_root_user}
 COPY entrypoint.sh /usr/local/bin/debian-docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/debian-docker-entrypoint.sh
 
+COPY container-install.sh /usr/local/bin/debian-docker-install.sh
+RUN chmod +x /usr/local/bin/debian-docker-install.sh
+
 COPY dind-rootless-start.sh /usr/local/bin/debian-dind-rootless-start.sh
 RUN chmod +x /usr/local/bin/debian-dind-rootless-start.sh
 

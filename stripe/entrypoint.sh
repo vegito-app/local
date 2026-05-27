@@ -53,7 +53,7 @@ export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
 EOF
 
 grep -qxF 'source ~/.stripe_env' ~/.bashrc || echo 'source ~/.stripe_env' >> ~/.bashrc
-grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'source ~/.stripe_env' >> ~/.profile
+grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'sokurce ~/.stripe_env' >> ~/.profile
 
   echo "[entrypoint] Webhook secret set: $STRIPE_WEBHOOK_SECRET"
   echo "[entrypoint] Env written to /tmp/stripe_env.sh"

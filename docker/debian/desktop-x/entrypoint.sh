@@ -50,4 +50,6 @@ if [ "$ENABLE_AUDIO" = "1" ]; then
     pactl info
 fi
 
+desktop-x-container-install.sh
+
 exec "$@"
