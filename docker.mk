@@ -1,5 +1,5 @@
-VEGITO_DOCKER_DIR ?= $(CURDIR)
-include $(VEGITO_DOCKER_DIR)/dockerhub.mk
+export VEGITO_DOCKER_DIR ?= $(CURDIR)
+include $(VEGITO_DOCKER_DIR)/docker.io/docker.mk
 
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
@@ -12,7 +12,10 @@ VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-reposi
 VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
-VEGITO_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
+VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
+
+VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
+VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
@@ -20,6 +23,8 @@ vegito-docker-login-gcr: gcloud-auth-docker
 	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
 .PHONY: vegito-docker-login-gcr
+
+DOCKER_REGISTRIES ?= gcr dockerhub
 
 vegito-docker-login: $(DOCKER_REGISTRIES:%=vegito-docker-login-%)
 	@echo "🔐 Logged into: $(DOCKER_REGISTRIES)"
@@ -51,7 +56,6 @@ $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images): vegito-docker-buildx-set
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images=%)
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
-DOCKER_REGISTRIES ?= gcr dockerhub
 
 vegito-docker-images-multi-registry-release: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
 	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
@@ -96,25 +100,48 @@ vegito-docker-build-tags-list-ci-md:
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
 
-VEGITO_DOCKER_IMAGES = \
+VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
+ ai \
+ desktop-x \
+ docker \
+ flutter \
+ golang \
+ kubernetes \
+ nodejs \
+ python \
+ rust \
+ terraform
+
+VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
-  vegito-debian-desktop-x \
-  vegito-debian-flutter \
-  vegito-debian-flutter-desktop-x \
-  vegito-docker-dind-rootless \
-  golang-alpine \
-  python \
-  rust 
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
+
+VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
+  $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
+
+VEGITO_DOCKER_IO_HUB_IMAGES = \
+  docker-debian \
+  docker-alpine-golang \
+  docker-alpine-rust \
+  docker-debian-golang \
+  docker-dind-rootless
+
+VEGITO_DOCKER_IMAGES = \
+  $(VEGITO_DOCKER_DEBIAN_IMAGES) \
+  $(VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES) \
+  $(VEGITO_DOCKER_IO_HUB_IMAGES)
 
 vegito-docker-hub-images-update:	
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print dockerhub-ci
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push dockerhub-ci
 .PHONY: vegito-docker-hub-images-update
 
-$(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-image-update):
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:docker-%-image-update=%-ci)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:docker-%-image-update=%-ci)
-.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-image-update)
+$(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
+	$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
+.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release
@@ -164,7 +191,7 @@ vegito-docker-buildx-setup:
 	  docker context use default && \
 	  docker buildx create \
 	  --name $(VEGITO_DOCKER_BUILDX_NAME) \
-	  --driver vegito-docker-container \
+	  --driver docker-container \
 	  --use \
 	  $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
 	  --platform linux/arm64 \
@@ -179,7 +206,6 @@ ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) \
 	    --platform linux/arm64
 endif
-
 	@docker buildx inspect --bootstrap
 .PHONY: vegito-docker-buildx-setup
 
