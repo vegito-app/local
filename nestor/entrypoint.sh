@@ -29,4 +29,4 @@ desktop-x-entrypoint.sh echo "✅ Desktop X setup complete."
 ai-entrypoint.sh echo "✅ AI runtime setup complete."
 
 # 📊 Start logging
-exec "$@" | tee ${NESTOR_LOGS_PATH}
+exec bash -c '$@ | tee ${NESTOR_LOGS_PATH}'

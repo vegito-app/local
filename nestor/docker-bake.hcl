@@ -57,7 +57,7 @@ group "local-nestor-ci" {
 target "local-nestor-base" {
   context = LOCAL_NESTOR_DIR
   args = {
-    debian_version = "trixie"
+    debian_version         = "trixie"
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
   }
@@ -66,7 +66,7 @@ target "local-nestor-base" {
 target "local-nestor-version-ci" {
   inherits = ["local-nestor-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_AI_DOCKER_DESKTOP_X_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_NESTOR_IMAGE_VERSION,
@@ -80,7 +80,7 @@ target "local-nestor-version-ci" {
       LOCAL_NESTOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      VEGITO_DOCKER_TRIXIE_DEBIAN_AI_DOCKER_DESKTOP_X_IMAGE_LATEST
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION
     ]
   )
   cache-to = concat(
@@ -94,7 +94,7 @@ target "local-nestor-version-ci" {
 target "local-nestor-latest-ci" {
   inherits = ["local-nestor-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_AI_DOCKER_DESKTOP_X_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_NESTOR_IMAGE_LATEST,
@@ -109,7 +109,7 @@ target "local-nestor-latest-ci" {
     ] : [],
     [
       LOCAL_NESTOR_IMAGE_LATEST,
-      VEGITO_DOCKER_TRIXIE_DEBIAN_AI_DOCKER_DESKTOP_X_IMAGE_LATEST
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION
     ]
   )
   cache-to = concat(
@@ -130,7 +130,7 @@ target "local-nestor" {
 
   inherits = ["local-nestor-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_AI_DOCKER_DESKTOP_X_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_NESTOR_IMAGE_LATEST,
@@ -146,7 +146,7 @@ target "local-nestor" {
     ] : [],
     [
       LOCAL_NESTOR_IMAGE_LATEST,
-      VEGITO_DOCKER_TRIXIE_DEBIAN_AI_DOCKER_DESKTOP_X_IMAGE_LATEST
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION
     ]
   )
   cache-to = concat(

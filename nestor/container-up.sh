@@ -26,7 +26,8 @@ trap kill_jobs EXIT
 docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_NESTOR_DIR}/docker-compose.yml}
 
 echo "📱 Launching nestor compose in background..."
-${LOCAL_NESTOR_DIR}/docker-compose-up.sh &
+
+${docker_compose} up nestor 2>&1 &
 compose_pid=$!
 
 # Start waiting for ports in a background subshell
@@ -43,7 +44,7 @@ wait_pid=$!
 
 export DOCKER_HOST=tcp://nestor:23755
 
-until docker info >/dev/null 2>&1; do echo waiting rootless dockerd startup ; sleep 1 ; done
+until docker info >/dev/null 2>&1; do echo waiting Nestor startup ; sleep 1 ; done
 
 docker info
 
