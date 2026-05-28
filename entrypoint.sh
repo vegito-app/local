@@ -1,8 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
 set -euo pipefail
 
-trap "echo Exited with code $?." EXIT
+# 📌 List of PIDs of background processes
+bg_pids=()
+
+# 🧹 Function called at the end of the script to kill background processes
+kill_jobs() {
+    echo "🧼 Cleaning up background processes..."
+    for pid in "${bg_pids[@]}"; do
+        kill "$pid" || true
+        wait "$pid" 2>/dev/null || true
+    done
+}
+
+# 🚨 Register cleanup function to run on script exit
+trap kill_jobs EXIT
 
 # Local container installation script to setup persistent configurations and caches.
 # If LOCAL_CONTAINER_INSTALL is set to "true", run the local-container-install.sh script
@@ -20,7 +33,7 @@ fi
 # Port forwarding is automatically done by vscode when a process is listening.
 # This is secure as the socket is only accessible from inside the container and you have an ssh or vscode remote session.
 socat TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock &
-bg_pids=($!)
+bg_pids+=("$!")
 
 # Pay attention to use a path that is mounted inside the container. Because you want to edit files from your host machine.
 # This is typically a workspace folder mounted inside the container.
@@ -68,13 +81,8 @@ socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devconta
 bg_pids+=("$!")
 
 if [ -f /usr/local/bin/desktop-x-entrypoint.sh ]; then
-  /usr/local/bin/desktop-x-entrypoint.sh "$@"
-elif [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  if [ "${#bg_pids[@]}" -gt 0 ]; then
-      wait "${bg_pids[@]}"
-  fi
-  echo "[entrypoint] All background processes have exited, container will stop now."
-else
-  exec "$@"
+    /usr/local/bin/desktop-x-entrypoint.sh echo "✅ X Desktop setup successful."
 fi
+
+# Run the command
+exec "$@"

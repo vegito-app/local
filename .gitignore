@@ -21,3 +21,4 @@ app-release-*.aab
 gitleaks-report.json
 *-screenshot.png
 *trivy*report.html
+*.make-logs

@@ -45,7 +45,7 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%) 2>&1 | tee $@.make-logs
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): vegito-docker-buildx-setup
@@ -55,7 +55,7 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): vegito-docker-buildx-setu
 
 local-project-builders-image: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builders
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builders 2>&1 | tee $@.make-logs
 .PHONY: local-project-builders-image
 
 local-project-builders-image-ci: vegito-docker-buildx-setup
@@ -65,7 +65,7 @@ local-project-builders-image-ci: vegito-docker-buildx-setup
 
 local-project-builder-image: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder 2>&1 | tee $@.make-logs
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: vegito-docker-buildx-setup
@@ -75,7 +75,7 @@ local-project-builder-image-ci: vegito-docker-buildx-setup
 
 local-project-builder-x-image: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee $@.make-logs
 .PHONY: local-project-builder-x-image
 
 local-project-builder-x-image-ci: vegito-docker-buildx-setup
@@ -85,7 +85,7 @@ local-project-builder-x-image-ci: vegito-docker-buildx-setup
 
 local-desktop-x-image: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x 2>&1 | tee $@.make-logs
 .PHONY: local-desktop-x-image
 
 local-desktop-x-image-ci: vegito-docker-buildx-setup
@@ -106,7 +106,7 @@ local-project-builder-image-trivy-scan: vegito-docker-buildx-setup
 	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=local-project-builder-$(VERSION)-trivy-report.html
 .PHONY: local-project-builder-image-trivy-scan
 
-LOCAL_DOCKER_COMPOSE ?= docker compose \
+export LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(LOCAL_DIR)/docker-compose.yml \
   -f $(LOCAL_DIR)/stripe/docker-compose.yml \
   -f $(LOCAL_DIR)/trivy/docker-compose.yml \
