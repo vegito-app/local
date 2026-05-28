@@ -78,6 +78,29 @@ VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
 # ------------------------------------------
 
 # ------------------------------------------
+# Subtree ./nestor
+# ------------------------------------------
+git-subtree-nestor-pull:
+	@echo "⬇︎ Pulling the nestor subtree..."
+	@git subtree pull --prefix nestor \
+	  git@github.com:vegito-app/ai-nestor.git main --squash
+	@echo "AI Nestor subtree pulled successfully."
+.PHONY: git-subtree-nestor-pull
+
+git-subtree-nestor-push:
+	@echo "⬆︎ Pushing changes from the nestor subtree..."
+	@git subtree push --prefix nestor \
+	  git@github.com:vegito-app/ai-nestor.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "AI Nestor subtree pushed successfully."
+.PHONY: git-subtree-nestor-push
+
+VEGITO_NESTOR_DIR := $(LOCAL_DIR)/nestor
+VEGITO_NESTOR_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(VERSION)
+VEGITO_NESTOR_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
+-include $(VEGITO_NESTOR_DIR)/nestor.mk.mk
+# ------------------------------------------
+
+# ------------------------------------------
 # Subtree ./example-application
 # ------------------------------------------
 git-subtree-example-application-pull:
