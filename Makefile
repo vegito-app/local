@@ -95,6 +95,8 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
   applications
 #   dockerhub \
 
+GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
+
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.

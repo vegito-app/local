@@ -27,7 +27,7 @@ docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_NESTOR_DIR}/doc
 
 echo "📱 Launching nestor compose in background..."
 
-${docker_compose} up nestor 2>&1 &
+${docker_compose} up nestor 2>&1 | tee ${NESTOR_LOGS_PATH} &
 compose_pid=$!
 
 # Start waiting for ports in a background subshell

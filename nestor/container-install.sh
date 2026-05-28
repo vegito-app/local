@@ -24,7 +24,7 @@ mkdir -p $container_cache
 LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.local/share/docker
 mkdir -p $container_cache/dockerd
 mkdir -p ${HOME}/.local/share/
-ln -s $container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+ln -sf $container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
 
 # Bash history
 BASH_HISTORY_PATH=${HOME}/.bash_history
@@ -47,14 +47,20 @@ export NESTOR_LOGS_PATH=${NESTOR_LOGS_DIR}/nestor.log
 # Bashrc enhancements for better usability
 mkdir -p ~/.bashrc.d
 
-cat <<EOF > ~/.bashrc.d/90-nestor.sh
-# Load modular shell extensions
+if ! grep -q "NESTOR_BASHRC_D" ~/.bashrc; then
+
+cat <<'EOF' >> ~/.bashrc
+# NESTOR_BASHRC_D
 if [ -d "${HOME}/.bashrc.d" ]; then
-for f in "${HOME}"/.bashrc.d/*; do
-    [ -r "$f" ] && source "$f"
-done
+    for f in "${HOME}"/.bashrc.d/*.sh; do
+        [ -r "$f" ] && source "$f"
+    done
 fi
 
+EOF
+fi
+
+cat <<'EOF' > ~/.bashrc.d/90-nestor.sh
 # Environment variables
 export NESTOR_HOME=${LOCAL_NESTOR_DIR:-${PWD}}
 export NESTOR_CACHE=${LOCAL_NESTOR_CONTAINER_CACHE}

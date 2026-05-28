@@ -27,17 +27,32 @@ mkdir -p ${AI_WORKSPACES}/chromadb
 mkdir -p ${HOME}/.ollama
 mkdir -p ${HOME}/.cache
 
-ln -sfn ${AI_WORKSPACES}/ollama/models ${HOME}/.ollama/models
-ln -sfn ${AI_WORKSPACES}/ollama/cache  ${HOME}/.ollama/cache
+AI_WORKSPACES_OLLAMA_CACHE_GLOBAL=${AI_WORKSPACES_OLLAMA_CACHE_GLOBAL:-${AI_WORKSPACES}/ollama/cache}
+AI_WORKSPACES_OLLAMA_CACHE=${HOME}/.ollama/cache
+if [ -f "$AI_WORKSPACES_OLLAMA_CACHE" ]; then
+  mkdir -p ${AI_WORKSPACES_OLLAMA_CACHE_GLOBAL}
+  rsync -av "$AI_WORKSPACES_OLLAMA_CACHE" "$AI_WORKSPACES_OLLAMA_CACHE"
+  rm -f "$AI_WORKSPACES_OLLAMA_CACHE"
+  ln -s  $AI_WORKSPACES_OLLAMA_CACHE_GLOBAL $AI_WORKSPACES_OLLAMA_CACHE
+fi
 
+AI_WORKSPACES_OLLAMA_CACHE_GLOBAL=${AI_WORKSPACES_OLLAMA_CACHE_GLOBAL:-${AI_WORKSPACES}/ollama/cache}
+AI_WORKSPACES_OLLAMA_CACHE=${HOME}/.ollama/cache
+if [ -f "$AI_WORKSPACES_OLLAMA_CACHE" ]; then
+  mkdir -p ${AI_WORKSPACES_OLLAMA_CACHE_GLOBAL}
+  rsync -av "$AI_WORKSPACES_OLLAMA_CACHE" "$AI_WORKSPACES_OLLAMA_CACHE"
+  rm -f "$AI_WORKSPACES_OLLAMA_CACHE"
+  ln -s  $AI_WORKSPACES_OLLAMA_CACHE_GLOBAL $AI_WORKSPACES_OLLAMA_CACHE
+fi
+
+ln -sfn ${AI_WORKSPACES}/chromadb         ${HOME}/.cache/chromadb
 ln -sfn ${AI_WORKSPACES}/huggingface      ${HOME}/.cache/huggingface
 ln -sfn ${AI_WORKSPACES}/torch            ${HOME}/.cache/torch
 ln -sfn ${AI_WORKSPACES}/torch_extensions ${HOME}/.cache/torch_extensions
-ln -sfn ${AI_WORKSPACES}/chromadb         ${HOME}/.cache/chromadb
 
 mkdir -p ~/.bashrc.d
 
-cat <<EOF > ~/.bashrc.d/40-ai.sh
+cat <<'EOF' > ~/.bashrc.d/40-ai.sh
 # Environment Variables
 
 export OLLAMA_MODELS=${AI_WORKSPACES}/ollama/models

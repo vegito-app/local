@@ -80,6 +80,11 @@ bg_pids+=("$!")
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
 
+# 🚀 Setup background services
+
+# 🐧 Setup Debian
+debian-entrypoint.sh echo "✅ Debian setup complete."
+
 if [ -f /usr/local/bin/desktop-x-entrypoint.sh ]; then
     /usr/local/bin/desktop-x-entrypoint.sh echo "✅ X Desktop setup successful."
 fi
