@@ -114,6 +114,7 @@ VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
 
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
+  debian-golang-ai-docker-desktop-x \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
@@ -122,11 +123,11 @@ VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
   $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
 
 VEGITO_DOCKER_IO_HUB_IMAGES = \
-  docker-debian \
-  docker-alpine-golang \
-  docker-alpine-rust \
-  docker-debian-golang \
-  docker-dind-rootless
+  debian \
+  debian-golang \
+  alpine-golang \
+  alpine-rust \
+  dind-rootless
 
 VEGITO_DOCKER_IMAGES = \
   $(VEGITO_DOCKER_DEBIAN_IMAGES) \
@@ -141,7 +142,7 @@ vegito-docker-hub-images-update:
 $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
 	$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
-.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
+.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-%-images-update)
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release

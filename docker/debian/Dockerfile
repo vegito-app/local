@@ -81,9 +81,6 @@ ENV USER=${non_root_user}
 ENV HOME=/home/${non_root_user}
 
 COPY --chown=${uid}:${gid} ./entrypoint.sh /usr/local/bin/debian-entrypoint.sh
-RUN chmod +x /usr/local/bin/debian-entrypoint.sh 
-
 COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/debian-container-install.sh
-RUN chmod +x /usr/local/bin/debian-container-install.sh
 
 ENTRYPOINT ["tini", "--", "debian-entrypoint.sh"]
