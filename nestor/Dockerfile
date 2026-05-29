@@ -5,22 +5,6 @@ ARG TARGETPLATFORM
 
 USER root
 
-RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor \
-    > /etc/apt/keyrings/packages.microsoft.gpg && \
-    chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
-    if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    > /etc/apt/sources.list.d/vscode.list && \
-    apt-get update && \
-    apt-get install -y code ; \
-    else \
-    echo "Skipping VSCode install on $TARGETPLATFORM" ; \
-    fi
-
 # 👤 Create non root user
 ARG non_root_user=nestor
 ARG uid=1000
