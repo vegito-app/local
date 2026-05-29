@@ -15,23 +15,6 @@ check_success() {
 # 🚨 Register cleanup function to run on script exit
 trap check_success EXIT
 
-LOCAL_USER="$(id -un)"
-
-if ! grep -q "^${LOCAL_USER}:" /etc/subuid; then
-    echo "${LOCAL_USER}:100000:65536" | sudo tee -a /etc/subuid
-fi
-
-if ! grep -q "^${LOCAL_USER}:" /etc/subgid; then
-    echo "${LOCAL_USER}:100000:65536" | sudo tee -a /etc/subgid
-fi
-
-export LOCAL_USER_ID=$(id -u)
-# Set inotify watches limit
-echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
-# Set inotify watches limit for rootless dockerd
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /run/user/$LOCAL_USER_ID/sysctl.conf
-sudo sysctl -p /run/user/$LOCAL_USER_ID/sysctl.conf
-
 container_cache=${LOCAL_DOCKER_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/docker}
 
 mkdir -p ${HOME}/.bashrc.d

@@ -10,8 +10,7 @@ ENV GOBIN=/go/bin
 ENV CGO_ENABLED=0
 RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked \
     --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked \
-    go install -v github.com/vegito-app/local/proxy@latest \
-    && go install -v github.com/jesseduffield/lazydocker@latest 
+    go install -v github.com/jesseduffield/lazydocker@latest 
 
 FROM docker_dind_rootless AS docker-dind
 
@@ -120,7 +119,6 @@ RUN chmod +x /usr/local/bin/debian-docker-install.sh
 COPY dind-rootless-start.sh /usr/local/bin/debian-dind-rootless-start.sh
 RUN chmod +x /usr/local/bin/debian-dind-rootless-start.sh
 
-COPY --from=go-build /go/bin/proxy      /usr/local/bin/localproxy
 COPY --from=go-build /go/bin/lazydocker /usr/local/bin/lazydocker
 
 COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh  /usr/local/bin/

@@ -138,7 +138,7 @@ target "vegito-debian-golang-latest-ci" {
 target "vegito-debian-go" {
   inherits = ["vegito-debian-golang-base"]
   contexts = {
-    debian           = "target:vegito-debian-version-ci"
+    debian           = "target:vegito-debian"
     dockerhub_golang = "docker-image://${VEGITO_DOCKER_DEBIAN_GOLANG_IMAGE_LATEST}"
   }
   tags = [

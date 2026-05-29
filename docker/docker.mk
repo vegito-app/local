@@ -24,10 +24,10 @@ vegito-docker-login-gcr: gcloud-auth-docker
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
 .PHONY: vegito-docker-login-gcr
 
-DOCKER_REGISTRIES ?= gcr dockerhub
+VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
 
-vegito-docker-login: $(DOCKER_REGISTRIES:%=vegito-docker-login-%)
-	@echo "🔐 Logged into: $(DOCKER_REGISTRIES)"
+vegito-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-login-%)
+	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
 .PHONY: vegito-docker-login
 
 vegito-docker-sock:
@@ -57,7 +57,7 @@ $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images): vegito-docker-buildx-set
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
 
-vegito-docker-images-multi-registry-release: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
+vegito-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
 	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
 .PHONY: vegito-docker-images-multi-registry-release
 
@@ -74,7 +74,7 @@ $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci): vegito-docker-buildx-
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
 
-vegito-docker-images-multi-registry-release-ci: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
+vegito-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
 	@echo "✅ CI Built and pushed images to all registries successfully."
 .PHONY: vegito-docker-images-multi-registry-release-ci
 
