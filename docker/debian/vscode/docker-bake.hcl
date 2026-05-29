@@ -54,8 +54,12 @@ group "vegito-debian-vscode-ci" {
   ]
 }
 
-target "vegito-debian-vscode-version-ci" {
+target "vegito-debian-vscode-base" {
   context = VEGITO_DOCKER_DEBIAN_VSCODE_DIR
+}
+
+target "vegito-debian-vscode-version-ci" {
+  inherits = ["vegito-debian-vscode-base"]
   contexts = {
     debian = "target:vegito-debian-desktop-x-version-ci"
   }
@@ -82,7 +86,7 @@ target "vegito-debian-vscode-version-ci" {
 }
 
 target "vegito-debian-vscode-latest-ci" {
-  context = VEGITO_DOCKER_DEBIAN_VSCODE_DIR
+  inherits = ["vegito-debian-vscode-base"]
   contexts = {
     debian = "target:vegito-debian-desktop-x-latest-ci"
   }
@@ -115,8 +119,7 @@ target "vegito-debian-vscode-latest-ci" {
 }
 
 target "vegito-debian-vscode" {
-
-  context = VEGITO_DOCKER_DEBIAN_VSCODE_DIR
+  inherits = ["vegito-debian-vscode-base"]
   contexts = {
     debian = "target:vegito-debian-desktop-x-version-ci"
   }

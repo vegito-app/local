@@ -40,7 +40,12 @@ VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
  flutter \
  terraform \
  kubernetes \
- nodejs
+ nodejs \
+ vscode
+
+VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
+ ai \
+ golang
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
@@ -56,6 +61,8 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(VEGITO_DOCKER_DEBIAN_DIR)/trixie.docker-bake.hcl \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/docker-bake.hcl) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/trixie.docker-bake.hcl) \
+  $(VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/vscode/%/docker-bake.hcl) \
+  $(VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/vscode/%/trixie.docker-bake.hcl) \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \

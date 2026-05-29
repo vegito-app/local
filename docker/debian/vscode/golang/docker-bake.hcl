@@ -55,7 +55,7 @@ group "vegito-debian-vscode-golang-ai-docker-desktop-x-ci" {
 }
 
 target "vegito-debian-vscode-golang-ai-docker-desktop-x-version-ci" {
-  context = VEGITO_DOCKER_DEBIAN_VSCODE_DIR
+  inherits = ["vegito-debian-vscode-base"]
   contexts = {
     debian = "target:vegito-debian-golang-ai-docker-desktop-x-version-ci"
   }
@@ -82,7 +82,7 @@ target "vegito-debian-vscode-golang-ai-docker-desktop-x-version-ci" {
 }
 
 target "vegito-debian-vscode-golang-ai-docker-desktop-x-latest-ci" {
-  context = VEGITO_DOCKER_DEBIAN_VSCODE_DIR
+  inherits = ["vegito-debian-vscode-base"]
   contexts = {
     debian = "target:vegito-debian-golang-ai-docker-desktop-x-latest-ci"
   }
@@ -116,7 +116,7 @@ target "vegito-debian-vscode-golang-ai-docker-desktop-x-latest-ci" {
 
 target "vegito-debian-vscode-golang-ai-docker-desktop-x" {
 
-  context = VEGITO_DOCKER_DEBIAN_VSCODE_DIR
+  inherits = ["vegito-debian-vscode-base"]
   contexts = {
     debian = "target:vegito-debian-golang-ai-docker-desktop-x-version-ci"
   }
