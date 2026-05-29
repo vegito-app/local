@@ -18,8 +18,8 @@ export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:debian
 export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:debian-trixie-latest
 export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:debian-trixie-latest
 
-export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-alpine-golang-latest
-export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-alpine-golang-latest
+export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-golang-alpine-latest
+export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-golang-alpine-latest
 
 export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-latest
 export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-latest

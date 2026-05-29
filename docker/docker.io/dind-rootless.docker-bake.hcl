@@ -16,7 +16,7 @@ group "docker-dind-rootless-ci" {
 
 target "docker-dind-rootless-base" {
   context    = VEGITO_DOCKER_IO_HUB_DIR
-  dockerfile = "docker-dind-rootless.Dockerfile"
+  dockerfile = "dind-rootless.Dockerfile"
 }
 
 target "docker-dind-rootless-version-ci" {
