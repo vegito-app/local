@@ -263,28 +263,12 @@ RUN emacs --batch --eval "(require 'package)" \
 
 ENV PATH=${HOME}/bin:$PATH
 
+COPY container-entrypoint.sh /usr/local/bin/local-container-entrypoint.sh
 COPY container-install.sh /usr/local/bin/local-container-install.sh
-
-COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
-ENTRYPOINT [ "dev-entrypoint.sh" ]
-CMD [ "sleep", "infinity" ]
-USER root
-RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor \
-    > /etc/apt/keyrings/packages.microsoft.gpg && \
-    chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
-    if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    > /etc/apt/sources.list.d/vscode.list && \
-    apt-get update && \
-    apt-get install -y code ; \
-    else \
-    echo "Skipping VSCode install on $TARGETPLATFORM" ; \
-    fi
+COPY container-start.sh /usr/local/bin/local-container-start.sh
 
 COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
-USER ${non_root_user}
+ENTRYPOINT [ "local-container-entrypoint.sh" ]
+CMD [ "local-container-start.sh" ]
+

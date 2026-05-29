@@ -109,6 +109,13 @@ services:
   dev:
     command: |
       bash -c '
+        if [ -f /usr/local/bin/desktop-x-display-start.sh ]; then
+            # echo "🖥️ X Desktop starting..."
+            /usr/local/bin/desktop-x-display-start.sh &
+            echo "🖥️ X Desktop started..."
+        else
+          echo "🖥️ X Desktop not started."
+        fi
         make vegito-docker-sock
         if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
