@@ -62,12 +62,12 @@ bg_pids+=("$!")
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
 
+ai-nestor &
+nestor_pid="$!"
+
 # Create a ready flag file for healthchecks and other services to know when the AI agent is ready
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.nestor-agent-ready
 
-echo "✅ Nestor agent started successfully."
+echo "✅ AI Nestor agent started successfully."
 
-# Exemple:
-# python3 /opt/nestor/agent.py &
-# bg_pids+=($!)
-sleep infinity
+wait $nestor_pid
