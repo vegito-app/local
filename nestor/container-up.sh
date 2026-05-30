@@ -42,7 +42,7 @@ compose_pid=$!
 } &
 wait_pid=$!
 
-export DOCKER_HOST=tcp://nestor:23755
+export DOCKER_HOST=tcp://nestor:2375
 
 until docker info >/dev/null 2>&1; do echo waiting Nestor startup ; sleep 1 ; done
 
