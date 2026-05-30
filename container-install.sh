@@ -17,44 +17,50 @@ check_success() {
 trap check_success EXIT
 
 # Local Container Cache
-container_cache=${LOCAL_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
-mkdir -p $container_cache
+local_container_cache=${LOCAL_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
+mkdir -p $local_container_cache
 
-# local docker rootless cache 
-LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.local/share/docker
-mkdir -p $container_cache/dockerd
-mkdir -p ${HOME}/.local/share/
-ln -s $container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
-
-# Bash history
-BASH_HISTORY_PATH=${HOME}/.bash_history
-mkdir -p ${container_cache}
-rm -f $BASH_HISTORY_PATH
-ln -sfn ${container_cache}/.bash_history $BASH_HISTORY_PATH
-
-# PIP persistence
-# This allows you to persist your pip configuration across container rebuilds.
-PIP_DIR=${HOME}/.cache/pip
-[ -d $PIP_DIR ] && mv $PIP_DIR ${PIP_DIR}_back
-mkdir -p ${container_cache}/pip
-ln -sf ${container_cache}/pip $PIP_DIR
-
-NESTOR_LOGS_DIR=${NESTOR_LOGS_DIR:-${container_cache}}/logs
+NESTOR_LOGS_DIR=${NESTOR_LOGS_DIR:-${local_container_cache}}/logs
 mkdir -p ${NESTOR_LOGS_DIR}
 
 export NESTOR_LOGS_PATH=${NESTOR_LOGS_DIR}/nestor.log
 
+# local docker rootless cache 
+LOCAL_DOCKERD_ROOTLESS_CACHE=${HOME}/.local/share/docker
+mkdir -p $local_container_cache/dockerd
+mkdir -p ${HOME}/.local/share/
+ln -sf $local_container_cache/dockerd $LOCAL_DOCKERD_ROOTLESS_CACHE
+
+# Bash history
+BASH_HISTORY_PATH=${HOME}/.bash_history
+mkdir -p ${local_container_cache}
+rm -f $BASH_HISTORY_PATH
+ln -sfn ${local_container_cache}/.bash_history $BASH_HISTORY_PATH
+
+# Python/pip cache
+# This allows you to persist your pip configuration across container rebuilds.
+PIP_CACHE_DIR=${HOME}/.cache/pip
+[ -d $PIP_CACHE_DIR ] && mv $PIP_CACHE_DIR ${PIP_CACHE_DIR}_back || true
+mkdir -p ${local_container_cache}/pip ${PIP_CACHE_DIR}
+ln -sf ${local_container_cache}/pip $PIP_CACHE_DIR
+
 # Bashrc enhancements for better usability
 mkdir -p ~/.bashrc.d
 
-cat <<EOF > ~/.bashrc.d/90-nestor.sh
-# Load modular shell extensions
+if ! grep -q "NESTOR_BASHRC_D" ~/.bashrc; then
+
+cat <<'EOF' >> ~/.bashrc
+# NESTOR_BASHRC_D
 if [ -d "${HOME}/.bashrc.d" ]; then
-for f in "${HOME}"/.bashrc.d/*; do
-    [ -r "$f" ] && source "$f"
-done
+    for f in "${HOME}"/.bashrc.d/*.sh; do
+        [ -r "$f" ] && source "$f"
+    done
 fi
 
+EOF
+fi
+
+cat <<'EOF' > ~/.bashrc.d/90-nestor.sh
 # Environment variables
 export NESTOR_HOME=${LOCAL_NESTOR_DIR:-${PWD}}
 export NESTOR_CACHE=${LOCAL_NESTOR_CONTAINER_CACHE}

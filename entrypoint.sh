@@ -10,6 +10,7 @@ set -euo pipefail
 #   fi
 # fi
 
+# 📱 Launch nestor compose
 if [ "${LOCAL_NESTOR_CONTAINER_INSTALL:-true}" = "true" ]; then
     nestor-container-install.sh
 fi
@@ -29,4 +30,4 @@ desktop-x-entrypoint.sh echo "✅ Desktop X setup complete."
 ai-entrypoint.sh echo "✅ AI runtime setup complete."
 
 # 📊 Start logging
-exec bash -c '$@ | tee ${NESTOR_LOGS_PATH}'
+exec "$@"

@@ -39,24 +39,23 @@ compose_pid=$!
     done
   done
   echo "✅ $CONTAINER_NAME is healthy on all ports!"
-} &
-wait_pid=$!
+}
 
-export DOCKER_HOST=tcp://nestor:23755
+# Start waiting for ports in a background subshell
+{
+  until ${docker_compose} exec nestor pgrep -f nestor-agent-start >/dev/null; do
+    echo "⏳ Waiting for $CONTAINER_NAME to start..."
+    sleep 1
+  done
+  echo "✅ $CONTAINER_NAME ai agent s "
+} 
+
+export DOCKER_HOST=tcp://nestor:2375
 
 until docker info >/dev/null 2>&1; do echo waiting Nestor startup ; sleep 1 ; done
 
 docker info
 
-# Start waiting for ports in a background subshell
-{
-  until ${docker_compose} exec nestor pgrep -f agent-start >/dev/null; do
-    echo "⏳ Waiting for $CONTAINER_NAME to start..."
-    sleep 1
-  done
-  echo "✅ $CONTAINER_NAME is healthy on all ports!"
-} &
-wait_pid=$!
 
 # 🏁 Wait for either compose or wait-loop to finish
 set +e
