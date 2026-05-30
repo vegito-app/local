@@ -13,10 +13,10 @@ DOCKERHUB_PAT ?= $(VEGITO_DOCKERHUB_PAT)
 # VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
 # VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
 
-export VEGITO_DOCKER_DEBIAN_IMAGE_LATEST          ?= dbndev/vegito-public:debian-bookworm-latest
-export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:debian-bookworm-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:debian-trixie-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:debian-trixie-latest
+export VEGITO_DOCKER_DEBIAN_IMAGE_LATEST          ?= dbndev/vegito-public:bookworm-debian-latest
+export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:bookworm-debian-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:trixie-debian-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:trixie-debian-latest
 
 export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-golang-alpine-latest
 export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-golang-alpine-latest

@@ -41,7 +41,10 @@ variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_REA
 target "vegito-trixie-debian-docker-base" {
   inherits = ["vegito-debian-docker-base"]
   args = {
-    debian_version = "trixie"
+    debian_version         = "trixie"
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
   }
 }
 
@@ -156,23 +159,23 @@ target "vegito-trixie-debian-docker" {
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-docker-desktop-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-docker-desktop-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-docker-desktop-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-docker-desktop-x-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_CACHE_IMAGES_BASE}/debian-docker-desktop-x"
+  default = "${VEGITO_CACHE_IMAGES_BASE}/trixie-debian-docker-desktop-x"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-docker-desktop-x-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-docker-desktop-x-version"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-docker-desktop-x-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-docker-desktop-x-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_DOCKER_DESKTOP_X_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {

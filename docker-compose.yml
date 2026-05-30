@@ -149,6 +149,7 @@ services:
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
       ROOT_DOCKER_HOST: "unix:///var/run/docker.sock"
       LOCAL_NESTOR_OLLAMA: ollama
+      AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -163,5 +164,5 @@ services:
       - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
       # Docker socket for external Docker control
       - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: bash
-    command: -c 'sleep infinity'
+    # entrypoint: bash
+    # command: -c 'sleep infinity'

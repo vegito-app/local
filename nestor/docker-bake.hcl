@@ -60,6 +60,7 @@ target "local-nestor-base" {
     debian_version         = "trixie"
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
   }
 }
 

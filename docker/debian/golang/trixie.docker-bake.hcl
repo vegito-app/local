@@ -458,7 +458,7 @@ target "vegito-trixie-debian-golang-ai-docker-desktop-x-latest-ci" {
 target "vegito-trixie-debian-golang-ai-docker-desktop-x" {
   inherits = ["vegito-trixie-debian-golang-base"]
   contexts = {
-    debian           = "target:vegito-trixie-ai-docker-desktop-x"
+    debian           = "target:vegito-trixie-debian-ai-docker-desktop-x"
     dockerhub_golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST}"
   }
   tags = [
