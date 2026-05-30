@@ -135,7 +135,7 @@ $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push release
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load release
 .PHONY: vegito-docker-images-release
 
 vegito-docker-images-release-ci:
@@ -146,7 +146,7 @@ vegito-docker-images-release-ci:
 VEGITO_DOCKER_BUILDX_NAME ?= vegito-project-builder
 VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
 
-VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
+VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT ?= tcp://10.5.5.2:23751
 
 # Ajout d'un context docker distant pour le Mac
 vegito-docker-context-arm:
@@ -180,12 +180,12 @@ vegito-docker-buildx-setup:
 	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
-	  --name $(VEGITO_DOCKER_BUILDX_NAME) \
-	  --driver docker-container \
-	  --use \
-	  $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
-	  --platform linux/arm64 \
-	  --platform linux/amd64; \
+	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
+	    --driver docker-container \
+	    --use \
+	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	    --platform linux/arm64 \
+	    --platform linux/amd64; \
 	}
 ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	@$(MAKE) vegito-docker-context-arm

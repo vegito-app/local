@@ -30,7 +30,7 @@ VEGITO_DOCKER_BUILDX_BAKE ?= \
   docker buildx bake \
   -f $(VEGITO_DOCKER_DIR)/docker-bake.hcl \
   -f $(VEGITO_DOCKER_IO_DIR)/docker-bake.hcl \
-  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=-f $(VEGITO_DOCKER_IO_DIR)/docker.io/%.docker-bake.hcl) \
+  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=-f $(VEGITO_DOCKER_IO_DIR)/%.docker-bake.hcl) \
   -f $(VEGITO_DOCKER_ALPINE_DIR)/docker-bake.hcl \
   -f $(VEGITO_DOCKER_DEBIAN_DIR)/docker-bake.hcl \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/docker-bake.hcl) \
