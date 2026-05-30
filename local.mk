@@ -44,8 +44,8 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%) 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%) 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%) 2>&1 | tee -a $@.make-logs
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): vegito-docker-buildx-setup
@@ -54,8 +54,8 @@ $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): vegito-docker-buildx-setu
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
 local-project-builders-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builders 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builders 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builders-image
 
 local-project-builders-image-ci: vegito-docker-buildx-setup
@@ -64,8 +64,8 @@ local-project-builders-image-ci: vegito-docker-buildx-setup
 .PHONY: local-project-builders-image-ci
 
 local-project-builder-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: vegito-docker-buildx-setup
@@ -74,8 +74,8 @@ local-project-builder-image-ci: vegito-docker-buildx-setup
 .PHONY: local-project-builder-image-ci
 
 local-project-builder-x-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builder-x-image
 
 local-project-builder-x-image-ci: vegito-docker-buildx-setup
@@ -84,8 +84,8 @@ local-project-builder-x-image-ci: vegito-docker-buildx-setup
 .PHONY: local-project-builder-x-image-ci
 
 local-desktop-x-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x 2>&1 | tee -a $@.make-logs
 .PHONY: local-desktop-x-image
 
 local-desktop-x-image-ci: vegito-docker-buildx-setup
@@ -273,7 +273,6 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github-actions/github-actions.mk
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
--include $(LOCAL_DIR)/nestor/nestor.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
 -include $(LOCAL_DIR)/stripe/stripe.mk
