@@ -1,19 +1,16 @@
 VEGITO_PROJECT_NAME := vegito-local
-GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+
+VERSION ?= $(GIT_HEAD_VERSION)
+
+ifeq ($(strip $(VERSION)),)
+VERSION := latest
+endif
+
+LOCAL_VERSION ?= $(VERSION)
 
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 # LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
-ifdef VERSION
-LOCAL_VERSION := $(VERSION)
-endif
-
-LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
-
-ifeq ($(LOCAL_VERSION),)
-LOCAL_VERSION := latest
-endif
-
-VERSION ?= $(LOCAL_VERSION)
 
 VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
@@ -105,10 +102,6 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
 GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
-
-# Use docker.io as the default registry for local public images, but allow overriding it if needed.
-# Remove after gcr is back in shape and can be used as the default registry for local public images.
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
 
 VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 

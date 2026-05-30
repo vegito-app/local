@@ -57,10 +57,7 @@ group "local-nestor-ci" {
 target "local-nestor-base" {
   context = LOCAL_NESTOR_DIR
   args = {
-    debian_version         = "trixie"
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
+    debian_version = "trixie"
   }
 }
 

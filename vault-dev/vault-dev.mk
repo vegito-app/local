@@ -1,6 +1,6 @@
-LOCAL_VAULT_DEV_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):vault-dev-$(VERSION)
+export LOCAL_VAULT_DEV_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):vault-dev-$(VERSION)
 
-LOCAL_VAULT_DEV_DIR ?= $(LOCAL_DIR)/vault-dev
+export LOCAL_VAULT_DEV_DIR ?= $(LOCAL_DIR)/vault-dev
 
 local-vault-dev-container-up: local-vault-dev-container-rm
 	@$(LOCAL_VAULT_DEV_DIR)/container-up.sh
