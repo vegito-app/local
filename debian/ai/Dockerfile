@@ -103,4 +103,4 @@ RUN mkdir -p /home/debian/.ollama/models && \
     mkdir -p /home/debian/.cache/torch_extensions && \
     chmod -R 700 /home/debian/.cache/torch_extensions
 
-HEALTHCHECK CMD test -f /tmp/.ai-runtime-ready|| exit 1
+HEALTHCHECK CMD test -f /tmp/.ai-runtime-ready || exit 1

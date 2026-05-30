@@ -157,6 +157,8 @@ RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-pyth
     pipx ensurepath \
     && pipx install nvitop
 
+ENV PATH=${PATH}:/home/debian/.local/bin
+
 COPY --chown=${non_root_user}:${non_root_user} xdisplay/xvfb-display-start.sh     /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} xdisplay/xorg-display-start.sh     /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} xdisplay/xwayland-display-start.sh /usr/local/bin/

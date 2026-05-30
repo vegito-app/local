@@ -6,16 +6,16 @@ GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE
 
 VEGITO_DOCKER_IMAGES_BASE ?= vegito
 
-VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
+export VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
 
-VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
-VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
+export VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
+export VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
-VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
-VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
+export VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
+export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
-VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
-VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
+export VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
+export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
@@ -24,10 +24,10 @@ vegito-docker-login-gcr: gcloud-auth-docker
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
 .PHONY: vegito-docker-login-gcr
 
-DOCKER_REGISTRIES ?= gcr dockerhub
+VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
 
-vegito-docker-login: $(DOCKER_REGISTRIES:%=vegito-docker-login-%)
-	@echo "🔐 Logged into: $(DOCKER_REGISTRIES)"
+vegito-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-login-%)
+	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
 .PHONY: vegito-docker-login
 
 vegito-docker-sock:
@@ -57,7 +57,7 @@ $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images): vegito-docker-buildx-set
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
 
-vegito-docker-images-multi-registry-release: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
+vegito-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
 	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
 .PHONY: vegito-docker-images-multi-registry-release
 
@@ -74,7 +74,7 @@ $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci): vegito-docker-buildx-
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
 
-vegito-docker-images-multi-registry-release-ci: $(DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
+vegito-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
 	@echo "✅ CI Built and pushed images to all registries successfully."
 .PHONY: vegito-docker-images-multi-registry-release-ci
 
@@ -100,20 +100,10 @@ vegito-docker-build-tags-list-ci-md:
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
 
-VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
- ai \
- desktop-x \
- docker \
- flutter \
- golang \
- kubernetes \
- nodejs \
- python \
- rust \
- terraform
-
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
+  debian-golang-ai-docker-desktop-x \
+  debian-vscode-golang-ai-docker-desktop-x \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
@@ -121,17 +111,17 @@ VEGITO_DOCKER_DEBIAN_IMAGES ?= \
 VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
   $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
 
-VEGITO_DOCKER_IO_HUB_IMAGES = \
-  docker-debian \
-  docker-alpine-golang \
-  docker-alpine-rust \
-  docker-debian-golang \
-  docker-dind-rootless
+VEGITO_DOCKER_IO_HUB_IMAGES ?= \
+  debian \
+  golang-debian \
+  golang-alpine \
+  rust-alpine \
+  dind-rootless
 
 VEGITO_DOCKER_IMAGES = \
   $(VEGITO_DOCKER_DEBIAN_IMAGES) \
   $(VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES) \
-  $(VEGITO_DOCKER_IO_HUB_IMAGES)
+  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=hub-%)
 
 vegito-docker-hub-images-update:	
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print dockerhub-ci
@@ -141,11 +131,11 @@ vegito-docker-hub-images-update:
 $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
 	$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
-.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
+.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-%-images-update)
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push release
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load release
 .PHONY: vegito-docker-images-release
 
 vegito-docker-images-release-ci:
@@ -156,7 +146,7 @@ vegito-docker-images-release-ci:
 VEGITO_DOCKER_BUILDX_NAME ?= vegito-project-builder
 VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
 
-VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT=tcp://10.5.5.2:23751
+VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT ?= tcp://10.5.5.2:23751
 
 # Ajout d'un context docker distant pour le Mac
 vegito-docker-context-arm:

@@ -13,13 +13,13 @@ DOCKERHUB_PAT ?= $(VEGITO_DOCKERHUB_PAT)
 # VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_LATEST ?= docker:dind-rootless
 # VEGITO_DOCKER_HUB_DIND_ROOTLESS_IMAGE_VERSION ?= docker:dind-rootless
 
-export VEGITO_DOCKER_DEBIAN_IMAGE_LATEST          ?= dbndev/vegito-public:debian-bookworm-latest
-export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:debian-bookworm-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:debian-trixie-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:debian-trixie-latest
+export VEGITO_DOCKER_DEBIAN_IMAGE_LATEST          ?= dbndev/vegito-public:bookworm-debian-latest
+export VEGITO_DOCKER_DEBIAN_IMAGE_VERSION         ?= dbndev/vegito-public:bookworm-debian-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST   ?= dbndev/vegito-public:trixie-debian-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:trixie-debian-latest
 
-export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-alpine-golang-latest
-export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-alpine-golang-latest
+export VEGITO_GO_IMAGE_LATEST  ?= dbndev/vegito-public:docker-golang-alpine-latest
+export VEGITO_GO_IMAGE_VERSION ?= dbndev/vegito-public:docker-golang-alpine-latest
 
 export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-latest
 export VEGITO_DOCKER_DEBIAN_PYTHON_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-latest
@@ -94,7 +94,7 @@ vegito-docker-images-dockerhub-release:
 	@$(MAKE) vegito-docker-images-release \
 	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS="$(VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
 	  VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-public \
-	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private \
+	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private
 .PHONY: vegito-docker-images-dockerhub-release
 
 vegito-docker-images-dockerhub-release-ci:
@@ -102,5 +102,5 @@ vegito-docker-images-dockerhub-release-ci:
 	@$(MAKE) vegito-docker-images-release-ci \
 	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS="$(VEGITO_DOCKERHUB_DOCKER_BUILDX_BUILD_GROUPS)" \
 	  VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-public \
-	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private \
+	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private
 .PHONY: vegito-docker-images-dockerhub-release-ci

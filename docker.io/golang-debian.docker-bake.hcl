@@ -6,44 +6,44 @@ variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/golang-debian:${VERSION}"
 }
 
-target "docker-debian-golang-base" {
+target "docker-golang-debian-base" {
   context    = VEGITO_DOCKER_IO_HUB_DIR
-  dockerfile = "debian-golang.Dockerfile"
+  dockerfile = "golang-debian.Dockerfile"
   args = {
     debian_version = "bookworm"
     go_version     = GO_VERSION
   }
 }
 
-group "docker-debian-golang-ci" {
+group "docker-golang-debian-ci" {
   targets = [
-    "docker-debian-golang-version-ci",
-    "docker-debian-golang-latest-ci",
+    "docker-golang-debian-version-ci",
+    "docker-golang-debian-latest-ci",
   ]
 }
 
-target "docker-debian-golang-version-ci" {
+target "docker-golang-debian-version-ci" {
   tags = [
     VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_VERSION,
   ]
-  inherits  = ["docker-debian-golang-base"]
+  inherits  = ["docker-golang-debian-base"]
   platforms = platforms
 }
 
-target "docker-debian-golang-latest-ci" {
+target "docker-golang-debian-latest-ci" {
   tags = [
     VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_LATEST,
   ]
-  inherits  = ["docker-debian-golang-base"]
+  inherits  = ["docker-golang-debian-base"]
   platforms = platforms
 }
 
-target "docker-debian-golang" {
+target "docker-golang-debian" {
   tags = [
     VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_VERSION,
     VEGITO_DOCKER_HUB_GOLANG_DEBIAN_IMAGE_LATEST,
   ]
-  inherits = ["docker-debian-golang-base"]
+  inherits = ["docker-golang-debian-base"]
 }
 
 variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_LATEST" {
@@ -56,7 +56,7 @@ variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION" {
 
 target "docker-debian-trixie-golang-base" {
   context    = VEGITO_DOCKER_IO_HUB_DIR
-  dockerfile = "debian-golang.Dockerfile"
+  dockerfile = "golang-debian.Dockerfile"
   args = {
     debian_version = "trixie"
     go_version     = GO_VERSION

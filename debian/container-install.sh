@@ -51,15 +51,6 @@ alias pci='lspci'
 alias usb='lsusb'
 EOF
 
-# Git config (optional but useful)
-GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
-if [ -f "$GIT_CONFIG_GLOBAL" ]; then
-  mkdir -p ${local_container_cache}/git
-  rsync -av "$GIT_CONFIG_GLOBAL" ${local_container_cache}/git/
-  rm -f "$GIT_CONFIG_GLOBAL"
-  ln -s ${local_container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
-fi
-
 cat <<EOF > ~/.bashrc.d/10-git.sh
 alias g='git'
 
@@ -84,6 +75,19 @@ alias gs='git status'
 alias gd='git diff'
 alias gl='git log --oneline --graph --decorate'
 EOF
+
+# Local Container Cache
+container_cache=${LOCAL_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
+mkdir -p $container_cache
+
+# Git config (optional but useful)
+GIT_CONFIG_GLOBAL=${HOME}/.gitconfig
+if [ -f "$GIT_CONFIG_GLOBAL" ]; then
+  mkdir -p ${container_cache}/git
+  rsync -av "$GIT_CONFIG_GLOBAL" ${container_cache}/git/
+  rm -f "$GIT_CONFIG_GLOBAL"
+  ln -s ${container_cache}/git/.gitconfig $GIT_CONFIG_GLOBAL
+fi
 
 mkcd() {
     mkdir -p "$1" && cd "$1"

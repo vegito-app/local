@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-
 container_ai_install_success=false
 # 🧹 Function called at the end of the script to check for success
 check_success() {
@@ -27,17 +26,28 @@ mkdir -p ${AI_WORKSPACES}/chromadb
 mkdir -p ${HOME}/.ollama
 mkdir -p ${HOME}/.cache
 
-ln -sfn ${AI_WORKSPACES}/ollama/models ${HOME}/.ollama/models
-ln -sfn ${AI_WORKSPACES}/ollama/cache  ${HOME}/.ollama/cache
+AI_WORKSPACES_OLLAMA_CACHE_GLOBAL=${AI_WORKSPACES_OLLAMA_CACHE_GLOBAL:-${AI_WORKSPACES}/ollama/cache}
+AI_WORKSPACES_OLLAMA_CACHE=${HOME}/.ollama/cache
+mkdir -p ${AI_WORKSPACES_OLLAMA_CACHE_GLOBAL}
+rsync -av "$AI_WORKSPACES_OLLAMA_CACHE" "$AI_WORKSPACES_OLLAMA_CACHE" || true
+rm -rf "$AI_WORKSPACES_OLLAMA_CACHE"
+ln -sfn  $AI_WORKSPACES_OLLAMA_CACHE_GLOBAL $AI_WORKSPACES_OLLAMA_CACHE
 
+AI_WORKSPACES_OLLAMA_MODELS_GLOBAL=${AI_WORKSPACES_OLLAMA_MODELS_GLOBAL:-${AI_WORKSPACES}/ollama/models}
+AI_WORKSPACES_OLLAMA_MODELS=${HOME}/.ollama/models
+mkdir -p ${AI_WORKSPACES_OLLAMA_MODELS_GLOBAL}
+rsync -av "$AI_WORKSPACES_OLLAMA_MODELS" "$AI_WORKSPACES_OLLAMA_MODELS" || true
+rm -rf "$AI_WORKSPACES_OLLAMA_MODELS"
+ln -sfn  $AI_WORKSPACES_OLLAMA_MODELS_GLOBAL $AI_WORKSPACES_OLLAMA_MODELS
+
+ln -sfn ${AI_WORKSPACES}/chromadb         ${HOME}/.cache/chromadb
 ln -sfn ${AI_WORKSPACES}/huggingface      ${HOME}/.cache/huggingface
 ln -sfn ${AI_WORKSPACES}/torch            ${HOME}/.cache/torch
 ln -sfn ${AI_WORKSPACES}/torch_extensions ${HOME}/.cache/torch_extensions
-ln -sfn ${AI_WORKSPACES}/chromadb         ${HOME}/.cache/chromadb
 
 mkdir -p ~/.bashrc.d
 
-cat <<EOF > ~/.bashrc.d/40-ai.sh
+cat <<'EOF' > ~/.bashrc.d/40-ai.sh
 # Environment Variables
 
 export OLLAMA_MODELS=${AI_WORKSPACES}/ollama/models

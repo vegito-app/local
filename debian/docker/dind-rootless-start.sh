@@ -21,6 +21,23 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
+LOCAL_USER="$(id -un)"
+
+if ! grep -q "^${LOCAL_USER}:" /etc/subuid; then
+    echo "${LOCAL_USER}:100000:65536" | sudo tee -a /etc/subuid
+fi
+
+if ! grep -q "^${LOCAL_USER}:" /etc/subgid; then
+    echo "${LOCAL_USER}:100000:65536" | sudo tee -a /etc/subgid
+fi
+
+export LOCAL_USER_ID=$(id -u)
+# Set inotify watches limit
+echo fs.inotify.max_user_watches=524288 |  sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+# Set inotify watches limit for rootless dockerd
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /run/user/$LOCAL_USER_ID/sysctl.conf
+sudo sysctl -p /run/user/$LOCAL_USER_ID/sysctl.conf
+
 dockerd-entrypoint.sh --dns=8.8.8.8 --dns=8.8.4.4 &
 dockerd_pid="$!"
 
@@ -30,9 +47,6 @@ export DOCKER_HOST=unix:///run/user/$LOCAL_USER_ID/docker.sock
 until docker info >/dev/null 2>&1; do echo waiting dockerd startup ; sleep 1 ; done
 
 docker info
-
-TARGET_PORT=2375 LISTEN_PORT=23755 localproxy &
-bg_pids+=("$!")
 
 mkdir -p ${HOME}/.docker/run
 ln -sf /run/user/$LOCAL_USER_ID/docker.sock ${HOME}/.docker/run/docker.sock

@@ -1,15 +1,6 @@
 variable "VEGITO_DOCKER_DEBIAN_DOCKER_DIR" {
   default = "${VEGITO_DOCKER_DEBIAN_DIR}/docker"
 }
-
-target "vegito-debian-docker-base" {
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-  }
-  context = VEGITO_DOCKER_DEBIAN_DOCKER_DIR
-}
 variable "VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION" {
   default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-docker-${VERSION}"
 }
@@ -51,10 +42,13 @@ variable "VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATES
 }
 
 target "vegito-debian-docker-base" {
-  inherits = ["vegito-debian-docker-base"]
   args = {
-    debian_version = "bookworm"
+    docker_buildx_version  = DOCKER_BUILDX_VERSION
+    docker_compose_version = DOCKER_COMPOSE_VERSION
+    docker_version         = DOCKER_VERSION
+    debian_version         = "bookworm"
   }
+  context = VEGITO_DOCKER_DEBIAN_DOCKER_DIR
 }
 
 group "vegito-debian-docker-ci" {
