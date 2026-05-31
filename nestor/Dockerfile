@@ -2,7 +2,9 @@ FROM debian-golang AS go-build
 ARG debian_version=bookworm
 ARG TARGETPLATFORM
 
-COPY proxy proxy
+COPY go.mod go.mod
+# COPY go.sum go.sum
+COPY main.go main.go
 
 ARG uid=1000
 ARG gid=1000
@@ -12,6 +14,7 @@ ENV GOMODCACHE=${go_pkg}/mod
 ENV GOCACHE=${go_cache}
 ENV GOBIN=/home/debian/go/bin
 ENV CGO_ENABLED=0
+
 RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked,uid=${uid},gid=${gid} \
     go install -v 

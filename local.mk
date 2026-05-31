@@ -3,13 +3,13 @@ LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
 
 export LOCAL_DIR ?= $(CURDIR)
 
-LOCAL_ANDROID_DIR        ?= $(LOCAL_DIR)/android
-LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
-LOCAL_NESTOR_DIR         ?= $(LOCAL_DIR)/nestor
-LOCAL_ROBOTFRAMEWORK_DIR ?= $(LOCAL_DIR)/robotframework
-LOCAL_STRIPE_DIR         ?= $(LOCAL_DIR)/stripe
-LOCAL_TRIVY_DIR          ?= $(LOCAL_DIR)/trivy
-LOCAL_VAULT_DEV_DIR      ?= $(LOCAL_DIR)/vault-dev
+export LOCAL_ANDROID_DIR        ?= $(LOCAL_DIR)/android
+export LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+export LOCAL_NESTOR_DIR         ?= $(LOCAL_DIR)/nestor
+export LOCAL_ROBOTFRAMEWORK_DIR ?= $(LOCAL_DIR)/robotframework
+export LOCAL_STRIPE_DIR         ?= $(LOCAL_DIR)/stripe
+export LOCAL_TRIVY_DIR          ?= $(LOCAL_DIR)/trivy
+export LOCAL_VAULT_DEV_DIR      ?= $(LOCAL_DIR)/vault-dev
 
 LOCAL_DOTENV_FILE ?= .env
 
