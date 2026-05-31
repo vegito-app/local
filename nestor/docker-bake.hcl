@@ -65,6 +65,8 @@ target "local-nestor-version-ci" {
   inherits = ["local-nestor-base"]
   contexts = {
     debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION}"
+        debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_VERSION}"
+
   }
   tags = [
     LOCAL_NESTOR_IMAGE_VERSION,
@@ -92,7 +94,8 @@ target "local-nestor-version-ci" {
 target "local-nestor-latest-ci" {
   inherits = ["local-nestor-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST}"
+        debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_LATEST}"
   }
   tags = [
     LOCAL_NESTOR_IMAGE_LATEST,
@@ -129,6 +132,7 @@ target "local-nestor" {
   inherits = ["local-nestor-base"]
   contexts = {
     debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION}"
+        debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_IMAGE_VERSION}"
   }
   tags = [
     LOCAL_NESTOR_IMAGE_LATEST,
