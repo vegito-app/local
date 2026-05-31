@@ -4,7 +4,7 @@ ARG TARGETPLATFORM
 
 COPY go.mod go.mod
 # COPY go.sum go.sum
-COPY main.go main.go
+COPY *.go ./
 
 ARG uid=1000
 ARG gid=1000
