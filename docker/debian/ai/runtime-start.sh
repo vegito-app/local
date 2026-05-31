@@ -21,8 +21,10 @@ trap kill_jobs EXIT
 
 echo "🤖 Starting Ai runtime..."
 
-if [ -z "${OLLAMA_HOST:-}" ]; then
-    echo "Starting local Ollama server"
+if [ -n "${OLLAMA_HOST}" ]; then
+    echo "Using remote Ollama ${OLLAMA_HOST}"
+else
+    echo "Starting local Ollama"
     ollama serve &
     ollama_pid=$!
     export OLLAMA_HOST=http://127.0.0.1:11434
