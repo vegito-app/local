@@ -142,20 +142,22 @@ services:
       '
 
   nestor:
+    tty: true
+    privileged: true
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
     environment:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
       ROOT_DOCKER_HOST: "unix:///var/run/docker.sock"
       LOCAL_NESTOR_OLLAMA: ollama
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
       AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     working_dir: ${PWD}
-    privileged: true
-    user: nestor
+    # user: nestor
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
@@ -164,5 +166,3 @@ services:
       - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
       # Docker socket for external Docker control
       - /var/run/docker.sock:/var/run/docker.sock
-    # entrypoint: bash
-    # command: -c 'sleep infinity'

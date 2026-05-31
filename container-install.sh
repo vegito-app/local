@@ -107,6 +107,26 @@ cat <<EOF > ~/.bashrc.d/.bashrc
 if [ -f ~/.config/shell ]; then
     . ~/.config/shell
 fi
+
+# Developer-friendly aliases
+alias k='kubectl'
+
+alias nestor-logs='tail -f ${NESTOR_LOGS_PATH}'
+
+alias tf='terraform'
+alias tfi='terraform init'
+alias tfp='terraform plan'
+alias tfa='terraform apply'
+alias tfd='terraform destroy'
+
+alias k='kubectl'
+
+alias kgp='kubectl get pods'
+alias kgs='kubectl get svc'
+alias kgd='kubectl get deploy'
+alias kaf='kubectl apply -f'
+alias kl='kubectl logs -f'
+alias kctx='kubectl config current-context'
 EOF
 
 cat <<EOF >> ~/.zshrc

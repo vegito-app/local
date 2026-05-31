@@ -6,6 +6,7 @@ set -euo pipefail
 rm -f /tmp/.ai-agent-ready
 
 bg_pids=()
+allama_pid=
 
 kill_jobs() {
     rm -f /tmp/.ai-agent-ready
@@ -20,8 +21,12 @@ trap kill_jobs EXIT
 
 echo "🤖 Starting Ai runtime..."
 
-ollama serve &
-ollama_pids=$!
+if [ -z "${OLLAMA_HOST:-}" ]; then
+    echo "Starting local Ollama server"
+    ollama serve &
+    ollama_pid=$!
+    export OLLAMA_HOST=http://127.0.0.1:11434
+fi
 
 # Create a ready flag file for healthchecks and other services to know when the AI agent is ready
 echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.ai-agent-ready
@@ -35,4 +40,4 @@ else
   echo "[entrypoint] No command passed, waiting ai agent to keep container alive"
 fi
 
-wait ${ollama_pids}
+wait "${ollama_pids}"

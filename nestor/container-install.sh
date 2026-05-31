@@ -68,24 +68,9 @@ export NESTOR_LOGS=${NESTOR_LOGS_PATH}
 
 # Developer-friendly aliases
 alias py='python3'
-alias k='kubectl'
 
 alias nestor-logs='tail -f ${NESTOR_LOGS_PATH}'
 
-alias tf='terraform'
-alias tfi='terraform init'
-alias tfp='terraform plan'
-alias tfa='terraform apply'
-alias tfd='terraform destroy'
-
-alias k='kubectl'
-
-alias kgp='kubectl get pods'
-alias kgs='kubectl get svc'
-alias kgd='kubectl get deploy'
-alias kaf='kubectl apply -f'
-alias kl='kubectl logs -f'
-alias kctx='kubectl config current-context'
 EOF
 
 
