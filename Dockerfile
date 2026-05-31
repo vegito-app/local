@@ -173,8 +173,8 @@ ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 RUN emacs --batch --eval "(require 'package)" \
     --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
     --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" \
-    --eval "(package-install 'magit)"
+    --eval "(unless package-archive-contents (package-refresh-contents))" 
+# --eval "(package-install 'magit)"
 
 ENV PATH=${HOME}/bin:$PATH
 
