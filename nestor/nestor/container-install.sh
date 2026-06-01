@@ -17,7 +17,7 @@ check_success() {
 trap check_success EXIT
 
 # Local Container Cache
-local_container_cache=${LOCAL_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
+local_container_cache=${VEGITO_NESTOR_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/nestor}
 mkdir -p $local_container_cache
 
 NESTOR_LOGS_DIR=${NESTOR_LOGS_DIR:-${local_container_cache}}/logs
@@ -62,8 +62,8 @@ fi
 
 cat <<'EOF' > ~/.bashrc.d/90-nestor.sh
 # Environment variables
-export NESTOR_HOME=${LOCAL_NESTOR_DIR:-${PWD}}
-export NESTOR_CACHE=${LOCAL_NESTOR_CONTAINER_CACHE}
+export NESTOR_HOME=${VEGITO_NESTOR_DIR:-${PWD}}
+export NESTOR_CACHE=${VEGITO_NESTOR_CONTAINER_CACHE}
 export NESTOR_LOGS=${NESTOR_LOGS_PATH}
 
 # Developer-friendly aliases

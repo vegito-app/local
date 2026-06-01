@@ -115,7 +115,6 @@ group "vegito-nestor-ci" {
 
 target "vegito-nestor-base" {
   context = VEGITO_NESTOR_DIR
-  dockerfile = "nestor/Dockerfile"
   args = {
     debian_version = "trixie"
   }

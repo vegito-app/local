@@ -62,7 +62,7 @@ bg_pids+=("$!")
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
 
-ai-nestor &
+ai-nestor serve &
 nestor_pid="$!"
 
 # Create a ready flag file for healthchecks and other services to know when the AI agent is ready

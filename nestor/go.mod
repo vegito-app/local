@@ -1,3 +1,3 @@
-module github.com/vegito-app/nestor
+module github.com/vegito-app/ai-nestor
 
 go 1.26.3

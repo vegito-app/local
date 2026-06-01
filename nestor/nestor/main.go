@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/vegito-app/ai-nestor/nestor/internal/http"
 )
 
-func main() {
+func runCLI() {
 	fmt.Println("Nestor v0.3")
 	fmt.Println(`{"tool":"run_cmd","args":{"cmd":"pwd"}}`)
 
@@ -17,12 +19,17 @@ func main() {
 	for name := range registry {
 		fmt.Println(" -", name)
 	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
 		fmt.Print("> ")
 
 		if !scanner.Scan() {
+			return
+		}
+		if err := scanner.Err(); err != nil {
+			fmt.Printf("error reading input: %v\n", err)
 			return
 		}
 
@@ -53,4 +60,18 @@ func main() {
 
 		fmt.Println(result)
 	}
+}
+
+func main() {
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "serve":
+			if err := http.StartAPI(); err != nil {
+				panic(err)
+			}
+			return
+		}
+	}
+
+	runCLI()
 }

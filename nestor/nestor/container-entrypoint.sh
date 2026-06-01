@@ -11,7 +11,7 @@ set -euo pipefail
 # fi
 
 # 📱 Launch nestor compose
-if [ "${LOCAL_NESTOR_CONTAINER_INSTALL:-true}" = "true" ]; then
+if [ "${VEGITO_NESTOR_CONTAINER_INSTALL:-true}" = "true" ]; then
     nestor-container-install.sh
 fi
 

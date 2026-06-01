@@ -4,7 +4,7 @@ ARG TARGETPLATFORM
 
 COPY go.mod go.mod
 # COPY go.sum go.sum
-COPY *.go ./
+COPY nestor nestor
 
 ARG uid=1000
 ARG gid=1000
@@ -17,7 +17,7 @@ ENV CGO_ENABLED=0
 
 RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked,uid=${uid},gid=${gid} \
-    go install -v 
+    cd nestor && go install -v 
 
 FROM debian
 ARG debian_version=bookworm
@@ -43,16 +43,16 @@ RUN usermod -l ${non_root_user} ${USER} \
 USER ${non_root_user}
 ENV USER=${non_root_user}
 
-COPY --chown=${uid}:${gid} ./entrypoint.sh /usr/local/bin/nestor-entrypoint.sh
+COPY --chown=${uid}:${gid} ./nestor/container-entrypoint.sh /usr/local/bin/nestor-entrypoint.sh
 RUN chmod +x /usr/local/bin/nestor-entrypoint.sh 
 
-COPY --chown=${uid}:${gid} ./agent-start.sh /usr/local/bin/nestor-agent-start.sh
+COPY --chown=${uid}:${gid} ./nestor/container-agent-start.sh /usr/local/bin/nestor-agent-start.sh
 RUN chmod +x /usr/local/bin/nestor-agent-start.sh
 
-COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/nestor-container-install.sh
+COPY --chown=${uid}:${gid} ./nestor/container-install.sh /usr/local/bin/nestor-container-install.sh
 RUN chmod +x /usr/local/bin/nestor-container-install.sh
 
-COPY --chown=${uid}:${gid} ./container-healthcheck.sh /usr/local/bin/nestor-container-healthcheck.sh
+COPY --chown=${uid}:${gid} ./nestor/container-healthcheck.sh /usr/local/bin/nestor-container-healthcheck.sh
 RUN chmod +x /usr/local/bin/nestor-container-healthcheck.sh
 
 COPY --from=go-build /home/debian/go/bin/nestor /usr/local/bin/ai-nestor

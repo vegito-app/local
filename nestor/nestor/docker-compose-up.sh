@@ -4,7 +4,7 @@ set -euo pipefail
 
 CONTAINER_NAME="nestor"
 
-PORTS_TO_WAIT_FOR=${LOCAL_NESTOR_PORTS_TO_WAIT_FOR:-"2375 5901"}
+PORTS_TO_WAIT_FOR=${VEGITO_NESTOR_PORTS_TO_WAIT_FOR:-"2375 5901"}
 
 # Convert space-separated string to bash array
 read -ra PORTS <<< "$PORTS_TO_WAIT_FOR"
@@ -23,7 +23,7 @@ kill_jobs() {
 }
 trap kill_jobs EXIT
 
-docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_NESTOR_DIR}/docker-compose.yml}
+docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${VEGITO_NESTOR_DIR}/docker-compose.yml}
 
 echo "📱 Launching nestor compose in background..."
 
