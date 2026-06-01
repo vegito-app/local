@@ -21,7 +21,7 @@ trap kill_jobs EXIT
 
 echo "🤖 Starting Ai runtime..."
 
-if [ -n "${OLLAMA_HOST}" ]; then
+if [ -n "${OLLAMA_HOST:-}" ]; then
     echo "Using remote Ollama ${OLLAMA_HOST}"
 else
     echo "Starting local Ollama"

@@ -65,6 +65,7 @@ group "vegito-trixie-debian-golang-ci" {
     "vegito-trixie-debian-golang-latest-ci",
 
     "vegito-trixie-debian-golang-docker-ci",
+    "vegito-trixie-debian-golang-docker-desktop-x-ci",
     "vegito-trixie-debian-golang-desktop-x-ci",
     "vegito-trixie-debian-golang-ai-docker-desktop-x-ci",
   ]
@@ -204,8 +205,6 @@ group "vegito-trixie-debian-golang-docker-ci" {
   targets = [
     "vegito-trixie-debian-golang-docker-version-ci",
     "vegito-trixie-debian-golang-docker-latest-ci",
-
-    "vegito-trixie-debian-golang-docker-desktop-x-ci",
   ]
 }
 
@@ -344,7 +343,6 @@ group "vegito-trixie-debian-golang-desktop-x-ci" {
   targets = [
     "vegito-trixie-debian-golang-desktop-x-version-ci",
     "vegito-trixie-debian-golang-desktop-x-latest-ci",
-
   ]
 }
 
