@@ -33,7 +33,7 @@ services:
     privileged: true
 
     networks:
-      ai:
+      ai-nestor:
         aliases:
           - ai-nestor-nestor
 networks:

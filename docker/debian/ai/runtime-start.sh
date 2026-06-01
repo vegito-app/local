@@ -6,7 +6,7 @@ set -euo pipefail
 rm -f /tmp/.ai-agent-ready
 
 bg_pids=()
-allama_pid=
+ollama_pid=
 
 kill_jobs() {
     rm -f /tmp/.ai-agent-ready
@@ -42,4 +42,8 @@ else
   echo "[entrypoint] No command passed, waiting ai agent to keep container alive"
 fi
 
-wait "${ollama_pids}"
+if [ ! -z "${ollama_pid}" ];then
+  wait "${ollama_pid}"
+elif [ "${#bg_pids[@]}" -gt 0 ]; then
+  wait "${bg_pids[@]}"
+fi
