@@ -1,0 +1,17 @@
+services:
+  dev:
+    volumes:
+      - vscode-store:/vscode
+      - ${PWD}:${PWD}:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  nestor:
+    volumes:
+      - vscode-store:/vscode
+      # Shared volumes for Ollama models and cache
+      - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
+
+volumes:
+  vscode-store:
+    external: true
+    name: vscode

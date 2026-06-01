@@ -1,6 +1,42 @@
 services:
+  dev:
+    tty: true
+    restart: unless-stopped
+    image: dbndev/vegito-public:trixie-debian-golang-docker-latest
+    environment:
+      VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
+      VEGITO_DOCKERHUB_USERNAME: ${VEGITO_DOCKERHUB_USERNAME}
+      LOCAL_WORKSPACE: ${PWD}
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-ai-nestor}
+      GCLOUD: gcloud
+      VEGITO_DOCKER_REGISTRY_MODE: ${VEGITO_DOCKER_REGISTRY_MODE}
+      VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
+    networks:
+      dev:
+        aliases:
+          - devcontainer
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:2375/_ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    command: |
+      socat TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock &
+      bg_pids+=("$!")
+      # Wait for the background process to be ready
+      while ! nc -z localhost 2375; do
+        echo "⏳ Waiting for Docker to be ready..."
+        sleep 1
+      done
+      sleep infinity
+
+    working_dir: ${PWD}
+    volumes:
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+      # Docker socket for external Docker control
+      - /var/run/docker.sock:/var/run/docker.sock
   nestor:
-    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    image: ${VEGITO_NESTOR_IMAGE_VERSION:-${VEGITO_NESTOR_IMAGES_BASE_NAME}:nestor-latest}
     environment:
       VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
       NVIDIA_DRIVER_CAPABILITIES: all
@@ -8,7 +44,8 @@ services:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
       ROOT_DOCKER_HOST: "unix:///var/run/docker.sock"
-      LOCAL_NESTOR_OLLAMA: ollama
+      VEGITO_NESTOR_OLLAMA: ollama
+      AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
     runtime: nvidia
     devices:
       - /dev/nvidia0
@@ -23,11 +60,22 @@ services:
       # Docker DIND as localhost:2976 using localproxy
       - "2976"
     volumes:
-      - /dev:/dev
-      - /lib/modules:/lib/modules
+      # - /dev:/dev
+      # - /lib/modules:/lib/modules
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       # Shared volumes for Ollama models and cache
       - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
-      # Docker socket for external Docker control
-      - /var/run/docker.sock:/var/run/docker.sock
     privileged: true
+
+    networks:
+      ai-nestor:
+        aliases:
+          - ai-nestor
+      dev:
+        aliases:
+          - nestor
+networks:
+  dev:
+    driver: bridge
+  ai-nestor:
+    name: ai-nestor
