@@ -4,6 +4,7 @@ set -euo pipefail
 
 # 📌 List of PIDs of background processes
 bg_pids=()
+stripe_pid=
 
 # 🧹 Function called at the end of the script to kill background processes
 kill_jobs() {
@@ -27,7 +28,7 @@ echo "[entrypoint] Starting Stripe listener..."
 stripe listen \
   --forward-to ${STRIPE_FORWARD_TO} \
   --api-key ${STRIPE_DEBUG_KEY} > /tmp/stripe.log 2>&1 &
-bg_pids+=($!)
+stripe_pid=$!
 
 # Wait for Stripe CLI to output the webhook secret
 echo "[entrypoint] Waiting for Stripe webhook secret..."
@@ -55,18 +56,8 @@ EOF
 grep -qxF 'source ~/.stripe_env' ~/.bashrc || echo 'source ~/.stripe_env' >> ~/.bashrc
 grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'sokurce ~/.stripe_env' >> ~/.profile
 
-  echo "[entrypoint] Webhook secret set: $STRIPE_WEBHOOK_SECRET"
-  echo "[entrypoint] Env written to /tmp/stripe_env.sh"
-  echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
-fi
+echo "[entrypoint] Webhook secret set: $STRIPE_WEBHOOK_SECRET"
+echo "[entrypoint] Env written to /tmp/stripe_env.sh"
+echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  if [ "${#bg_pids[@]}" -gt 0 ]; then
-      wait "${bg_pids[@]}"
-  fi
-  echo "[entrypoint] All background processes have exited, container will stop now."
-else
-  echo "[entrypoint] Executing passed command: $*"
-  exec "$@"
-fi
+wait $stripe_pid

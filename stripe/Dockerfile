@@ -22,11 +22,11 @@ RUN groupadd -g ${gid} ${non_root_user} \
     && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
     && chmod 0440 /etc/sudoers.d/${non_root_user}
 
-COPY ./entrypoint.sh /usr/local/bin/vegito-local-stripe-entrypoint.sh
-RUN chmod +x /usr/local/bin/vegito-local-stripe-entrypoint.sh
+COPY ./stripe-start.sh /usr/local/bin/local-stripe-start.sh
+RUN chmod +x /usr/local/bin/local-stripe-start.sh
 
 USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-ENTRYPOINT ["vegito-local-stripe-entrypoint.sh"]
+CMD ["local-stripe-start.sh"]
