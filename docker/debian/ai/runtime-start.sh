@@ -35,15 +35,10 @@ echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.ai-agent-ready
 
 echo "✅ Ai agent started successfully."
 
-if [ ! $# -eq 0 ]; then
-  "$@" &
-  bg_pids+=("$!")
-else
-  echo "[entrypoint] No command passed, waiting ai agent to keep container alive"
-fi
-
 if [ ! -z "${ollama_pid}" ];then
   wait "${ollama_pid}"
+  echo "Ollama process exited with code $?"
 elif [ "${#bg_pids[@]}" -gt 0 ]; then
+  echo "Waiting for background processes to finish..."
   wait "${bg_pids[@]}"
 fi
