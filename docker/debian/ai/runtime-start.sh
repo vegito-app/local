@@ -35,7 +35,7 @@ echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.ai-agent-ready
 
 echo "✅ Ai agent started successfully."
 
-if [ ! -z "${ollama_pid}" ];then
+if [ -n "${ollama_pid}" ];then
   wait "${ollama_pid}"
   echo "Ollama process exited with code $?"
 elif [ "${#bg_pids[@]}" -gt 0 ]; then
