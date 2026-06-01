@@ -180,12 +180,12 @@ vegito-docker-buildx-setup:
 	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
-	  --name $(VEGITO_DOCKER_BUILDX_NAME) \
-	  --driver docker-container \
-	  --use \
-	  $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
-	  --platform linux/arm64 \
-	  --platform linux/amd64; \
+	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
+	    --driver docker-container \
+	    --use \
+	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	    --platform linux/arm64 \
+	    --platform linux/amd64; \
 	}
 ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	@$(MAKE) vegito-docker-context-arm

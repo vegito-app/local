@@ -76,10 +76,7 @@ RUN groupadd -g ${gid} ${non_root_user} \
     && chmod 0440 /etc/sudoers.d/${non_root_user}
 
 COPY --chown=${uid}:${gid} ./entrypoint.sh /usr/local/bin/debian-entrypoint.sh
-RUN chmod +x /usr/local/bin/debian-entrypoint.sh 
-
 COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/debian-container-install.sh
-RUN chmod +x /usr/local/bin/debian-container-install.sh
 
 COPY --chown=${uid}:${gid} ./entrypoint.sh /usr/local/bin/debian-entrypoint.sh
 COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/debian-container-install.sh
