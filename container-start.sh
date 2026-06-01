@@ -57,9 +57,9 @@ bg_pids+=("$!")
 socat TCP-LISTEN:8888,fork,reuseaddr TCP:devcontainer:8888 > /tmp/socat-devcontainer-8888.log 2>&1 &
 bg_pids+=("$!")
 
-if [ -f /usr/local/bin/desktop-x-display-start.sh ]; then
+if [ -f /usr/local/bin/desktop-x-start.sh ]; then
     echo "🖥️ X Desktop starting..."
-    /usr/local/bin/desktop-x-display-start.sh
+    /usr/local/bin/desktop-x-start.sh
 else
     echo "🖥️ X Desktop not started."
     sleep infinity

@@ -109,9 +109,9 @@ services:
   dev:
     command: |
       bash -c '
-        if [ -f /usr/local/bin/desktop-x-display-start.sh ]; then
+        if [ -f /usr/local/bin/desktop-x-start.sh ]; then
             # echo "🖥️ X Desktop starting..."
-            /usr/local/bin/desktop-x-display-start.sh &
+            /usr/local/bin/desktop-x-start.sh &
             echo "🖥️ X Desktop started..."
         else
           echo "🖥️ X Desktop not started."

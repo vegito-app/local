@@ -20,7 +20,7 @@ trap kill_jobs EXIT
 
 echo "🤖 Starting Nestor runtime..."
 
-desktop-x-display-start.sh &
+desktop-x-start.sh &
 bg_pids+=("$!")
 
 debian-dind-rootless-start.sh &
