@@ -188,11 +188,6 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    emacs-nox
-
 ENV USER=${non_root_user}
 
 COPY entrypoint.sh /usr/local/bin/debian-docker-entrypoint.sh
@@ -215,5 +210,5 @@ USER ${non_root_user}
 ENV USER=${non_root_user}
 
 ENTRYPOINT ["tini", "--", "debian-docker-entrypoint.sh"]
-HEALTHCHECK CMD test -f /tmp/.dockerd-rootless-ready || exit 1
 CMD ["debian-dind-rootless-start.sh"]
+HEALTHCHECK CMD test -f /tmp/.dockerd-rootless-ready || exit 1

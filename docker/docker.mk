@@ -99,10 +99,11 @@ vegito-docker-build-tags-list-ci-md:
 	  echo "" ; \
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
+#   debian-golang-ai-docker-desktop-x \
 
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
-  debian-golang-ai-docker-desktop-x \
+  debian-golang-docker \
   debian-vscode-golang-ai-docker-desktop-x \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
@@ -129,7 +130,7 @@ vegito-docker-hub-images-update:
 .PHONY: vegito-docker-hub-images-update
 
 $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
-	$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
 .PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-%-images-update)
 

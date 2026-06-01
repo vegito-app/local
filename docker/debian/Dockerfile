@@ -78,9 +78,6 @@ RUN groupadd -g ${gid} ${non_root_user} \
 COPY --chown=${uid}:${gid} ./entrypoint.sh /usr/local/bin/debian-entrypoint.sh
 COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/debian-container-install.sh
 
-COPY --chown=${uid}:${gid} ./entrypoint.sh /usr/local/bin/debian-entrypoint.sh
-COPY --chown=${uid}:${gid} ./container-install.sh /usr/local/bin/debian-container-install.sh
-
 USER ${non_root_user}
 ENV USER=${non_root_user}
 ENV HOME=/home/${non_root_user}
