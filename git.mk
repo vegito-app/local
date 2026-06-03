@@ -97,7 +97,7 @@ git-subtree-nestor-push:
 VEGITO_NESTOR_DIR ?= $(LOCAL_DIR)/nestor
 VEGITO_NESTOR_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(VERSION)
 VEGITO_NESTOR_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
--include $(VEGITO_NESTOR_DIR)/nestor.mk
+-include $(VEGITO_NESTOR_DIR)/nestor/nestor.mk
 # ------------------------------------------
 
 # ------------------------------------------

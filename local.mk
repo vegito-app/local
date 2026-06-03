@@ -24,7 +24,6 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   clarinet-devnet \
   robotframework \
   firebase-emulators \
-  nestor \
   vault-dev \
   stripe \
   trivy 
