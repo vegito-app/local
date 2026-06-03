@@ -27,23 +27,6 @@ VEGITO_DOCKER_IO_DIR ?= $(VEGITO_DOCKER_DIR)/docker.io
 VEGITO_DOCKER_ALPINE_DIR ?= $(VEGITO_DOCKER_DIR)/alpine
 VEGITO_DOCKER_DEBIAN_DIR ?= $(VEGITO_DOCKER_DIR)/debian
 
-VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
- ai \
- desktop-x \
- docker \
- golang \
- python \
- rust \
- flutter \
- terraform \
- kubernetes \
- nodejs \
- vscode
-
-VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
- ai \
- golang
-
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \

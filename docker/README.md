@@ -6,6 +6,8 @@
 
 Standalone OCI foundation images extracted from `vegito-app/local`.
 
+<img width="1254" height="1254" alt="Image" src="https://github.com/user-attachments/assets/9e39416f-1228-4f48-a55e-95fe6016619e" />
+
 This repository contains reusable Docker and runtime foundations used by the Vegito platform:
 
 - Debian development base images
