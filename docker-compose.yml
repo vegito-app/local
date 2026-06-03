@@ -4,12 +4,14 @@ volumes:
 services:
   dev:
     tty: true
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
+    restart: unless-stopped
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
     env_file:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
+      GCLOUD: gcloud
       VEGITO_DOCKER_REGISTRY_MODE: ${VEGITO_DOCKER_REGISTRY_MODE}
       VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
       VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
@@ -19,13 +21,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
-    devices:
-      - /dev/kvm
     privileged: true
     cap_add:
       - SYS_ADMIN
       - NET_ADMIN
     working_dir: ${PWD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2375/_ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   firebase-emulators:
     tty: true
@@ -38,6 +43,7 @@ services:
       FIREBASE_PUBSUB_EMULATOR_HOST: http://localhost:8085
       FIRESTORE_EMULATOR_HOST: http://localhost:8090
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      LOCAL_FIREBASE_EMULATORS_SERVICES: ${LOCAL_FIREBASE_EMULATORS_SERVICES}
       CHOKIDAR_USEPOLLING: "true"
       INFRA_ENV: ${INFRA_ENV}
     volumes:
@@ -61,12 +67,6 @@ services:
       - NET_ADMIN
       - SYS_ADMIN
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      set -eu
-      make local-clarinet-devnet-start
-      sleep infinity
-      '
 
   android-studio:
     tty: true
@@ -76,7 +76,6 @@ services:
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
     env_file:
       - .env
-    entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
@@ -88,7 +87,7 @@ services:
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-true}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-true}
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
 
@@ -108,11 +107,8 @@ services:
       - /dev/kvm
       - /dev/dri
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
-    command: |
-      bash -c '
-      set -eu
-      sleep infinity
-      '
+    command: /workspaces/vegito-app/local/android/studio/android-studio.sh
+
   vault-dev:
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
     cap_add:
@@ -146,6 +142,36 @@ services:
     working_dir: ${PWD}/example-application/tests
     command: |
       bash -c '
+      set -eu
+      sleep infinity
+      '
+
+  nestor:
+    tty: true
+    privileged: true
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    environment:
+      LOCAL_WORKSPACE: ${PWD}
+      DOCKER_HOST: "unix:///run/user/1000/docker.sock"
+      ROOT_DOCKER_HOST: "unix:///var/run/docker.sock"
+      LOCAL_NESTOR_OLLAMA: ollama
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
+      AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
+    working_dir: ${PWD}
+    # user: nestor
+    volumes:
+      - /dev:/dev
+      - /lib/modules:/lib/modules
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+      # Shared volumes for Ollama models and cache
+      - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
+    entrypoint: /bin/bash
+    command: |
+      -c '
       set -eu
       sleep infinity
       '

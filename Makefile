@@ -1,25 +1,48 @@
 VEGITO_PROJECT_NAME := vegito-local
-GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+
+VERSION ?= $(GIT_HEAD_VERSION)
+
+ifeq ($(strip $(VERSION)),)
+VERSION := latest
+endif
+
+LOCAL_VERSION ?= $(VERSION)
 
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 # LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
-ifdef VERSION
-LOCAL_VERSION := $(VERSION)
-endif
-
-LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
-
-ifeq ($(LOCAL_VERSION),)
-LOCAL_VERSION := latest
-endif
-
-VERSION ?= $(LOCAL_VERSION)
 
 VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
-export
+# Use docker.io as the default registry for local public images, but allow overriding it if needed.
+# Remove after gcr is back in shape and can be used as the default registry for local public images.
+export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
+export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
+export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-private
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
+LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
+VEGITO_DOCKER_DIR ?= $(CURDIR)/docker
+VEGITO_DOCKER_IO_DIR ?= $(VEGITO_DOCKER_DIR)/docker.io
+VEGITO_DOCKER_ALPINE_DIR ?= $(VEGITO_DOCKER_DIR)/alpine
+VEGITO_DOCKER_DEBIAN_DIR ?= $(VEGITO_DOCKER_DIR)/debian
+
+VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
+ ai \
+ desktop-x \
+ docker \
+ golang \
+ python \
+ rust \
+ flutter \
+ terraform \
+ kubernetes \
+ nodejs \
+ vscode
+
+VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
+ ai \
+ golang
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
@@ -27,19 +50,33 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
-  -f $(LOCAL_DIR)/docker/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DIR)/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_IO_DIR)/docker-bake.hcl \
+  -f $(VEGITO_NESTOR_DIR)/docker-bake.hcl \
+  -f $(VEGITO_NESTOR_DIR)/nestor/docker-bake.hcl \
+  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=-f $(VEGITO_DOCKER_IO_DIR)/%.docker-bake.hcl) \
+  -f $(VEGITO_DOCKER_ALPINE_DIR)/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DEBIAN_DIR)/docker-bake.hcl \
+  -f $(VEGITO_DOCKER_DEBIAN_DIR)/trixie.docker-bake.hcl \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/docker-bake.hcl) \
+  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/trixie.docker-bake.hcl) \
+  $(VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/vscode/%/docker-bake.hcl) \
+  $(VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/vscode/%/trixie.docker-bake.hcl) \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
   $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl \
   -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl)
+  
+VEGITO_DOCKER_BUILDX_BAKE = $(LOCAL_DOCKER_BUILDX_BAKE)
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
   	-f $(CURDIR)/trivy/docker-compose.yml \
+  	-f $(CURDIR)/nestor/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -52,13 +89,22 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   robotframework \
   trivy
+  
 #   clarinet-devnet \
+
+LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
+  tools \
+  runners \
+  builders \
+  services \
+  applications
+#   dockerhub \
+
+GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
-# Use docker.io as the default registry for local public images, but allow overriding it if needed.
-# Remove after gcr is back in shape and can be used as the default registry for local public images.
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
+VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
 -include local.mk
 -include gcloud.mk
@@ -68,11 +114,14 @@ VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
 -include go.mk
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
+  android-studio \
   firebase-emulators \
+  nestor \
   vault-dev \
   robotframework \
-  $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
   $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+#   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
+
 
 -include .devcontainer/devcontainer.mk
 
@@ -84,37 +133,37 @@ dotenv: local-dotenv
 
 # Local/dev: build all images without pushing them.
 # Tags are generated for all configured registries.
-images: local-docker-images-multi-registry-release
+images: vegito-docker-images-multi-registry-release
 .PHONY: images
 
 # Local/dev: build images in smaller groups without pushing them.
 # Useful when full parallel builds are too heavy for the workstation.
-images-groups-build: local-docker-images
+images-groups-build: vegito-docker-images
 .PHONY: images-groups-build
 
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
 images-ci:  \
-local-docker-login \
-local-docker-images-multi-registry-release-ci
+vegito-docker-login \
+vegito-docker-images-multi-registry-release-ci
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.
 # Safer on constrained runners; slower than the full parallel path.
 images-groups-build-ci:  \
-local-docker-login \
-local-docker-images-ci
+vegito-docker-login \
+vegito-docker-images-ci
 .PHONY: images-groups-build-ci
 
 images-pull: \
-local-docker-images-pull-parallel \
-local-android-docker-images-pull-parallel \
+vegito-docker-images-pull-parallel \
+vegito-android-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: \
-local-docker-login \
-local-docker-images-push \
+vegito-docker-login \
+vegito-docker-images-push \
 local-application-docker-images-push
 .PHONY: images-push
 
@@ -192,5 +241,5 @@ test-local: example-application-tests-robot-all
 docker-tags-md-ci: docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
 
-docker-login: local-docker-login
+docker-login: vegito-docker-login
 .PHONY: docker-login

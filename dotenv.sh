@@ -17,10 +17,23 @@ GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 
+# Autodetect KVM GID
 if [ -e /dev/kvm ]; then
   KVM_GID=$(stat -c '%g' /dev/kvm)
 else
   KVM_GID=""
+fi
+# Autodetect GPU mode
+if [ -z "${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
+    echo "🔍 VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
+
+    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE="wayland"
+        echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
+    else
+        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE="swiftshader_indirect"
+        echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+    fi
 fi
 
 # Ensure the current working directory exists.
@@ -44,11 +57,15 @@ GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 # The following resources are used for the local development environment:
 LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE}
 # 
+LC_TIME=${LC_TIME:-}
+TZ=${TZ:-UTC}
+# 
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
 DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-client-id/versions/latest
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 KVM_GID=${KVM_GID}
+VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-swiftshader_indirect}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -90,14 +107,20 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
-        make docker-sock
-        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        if [ -f /usr/local/bin/desktop-x-start.sh ]; then
+            # echo "🖥️ X Desktop starting..."
+            /usr/local/bin/desktop-x-start.sh &
+            echo "🖥️ X Desktop started..."
+        else
+          echo "🖥️ X Desktop not started."
+        fi
+        make vegito-docker-sock
+        if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
         fi
-        if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
+        if [ "$${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests
         fi
@@ -119,14 +142,14 @@ services:
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
     working_dir: ${PWD}/example-application/mobile
 
   clarinet-devnet:
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
-      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
+      LOCAL_CLARINET_CONTAINER_INSTALL: ${LOCAL_CLARINET_CONTAINER_INSTALL:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
@@ -149,6 +172,8 @@ services:
       ./vault-init.sh
       sleep infinity
       '
+  nestor:
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}
@@ -167,6 +192,10 @@ services:
     ports:
       # Docker daemon
       - 2375
+      # Xpra
+      - 5901
+      # VNC
+      - 5900
 
   example-application-backend:
     networks:
@@ -184,7 +213,7 @@ services:
           - example-application-mobile
     ports:
       # VNC
-      # - 5900
+      - 5900
       # Xpra
       - 5901
       # ADB
@@ -269,6 +298,20 @@ services:
     ports:
       # HTTP
       - 8080
+
+  nestor:
+    networks:
+      dev:
+        aliases:
+          - nestor
+    ports:
+      # Xpra
+      - "5901"
+      # Docker rootless DIND socket
+      - "2976"
+  dev:
+    driver: bridge
+
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
@@ -276,20 +319,46 @@ EOF
 dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
+
+  dev:
+    environment:
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
+
   android-studio:
-    # environment:
-    #  LOCAL_ANDROID_GPU_MODE=host
-    # runtime: nvidia
-    # devices:
-    #   - /dev/nvidia0
+    environment:
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
+
   example-application-mobile:
-    # environment:
-    #  LOCAL_ANDROID_GPU_MODE: host
-    # runtime: nvidia
-    # devices:
-    #   - /dev/nvidia0
-    # shm_size: "8gb"
-    # group_add:
-    #   - sgx
+    environment:
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
+
+  nestor:    
+    environment:
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb
+
 EOF
 

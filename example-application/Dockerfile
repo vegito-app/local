@@ -17,6 +17,8 @@ COPY backend/go.mod backend/go.sum ./backend/
 RUN go work init \
     ./backend 
 
+ARG TARGETPLATFORM
+
 RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     go work sync && \

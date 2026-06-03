@@ -18,7 +18,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
 }
 
 variable "EXAMPLE_APPLICATION_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/example-application"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE" {
@@ -106,11 +106,11 @@ variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-version"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-latest"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -150,7 +150,7 @@ target "vegito-example-application-builder" {
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST,
-    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
   ]
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
@@ -181,7 +181,7 @@ target "vegito-example-application-builder-version-ci" {
     ] : [],
     [
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION,
-      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -209,7 +209,7 @@ target "vegito-example-application-builder-latest-ci" {
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

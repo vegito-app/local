@@ -1,29 +1,42 @@
 variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local"
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local-public"
 }
 
-variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/vegito-local"
+variable "VEGITO_LOCAL_PRIVATE_IMAGES_BASE_NAME" {
+  default = "${VEGITO_PUBLIC_REPOSITORY}/vegito-local-private"
 }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
 }
 
+variable "LOCAL_BUILDER_X_IMAGE_VERSION" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-${VERSION}"
+}
+
 variable "LOCAL_BUILDER_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
+}
+
+variable "LOCAL_BUILDER_X_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest"
+}
+
+variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/vegito-local"
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/builder"
 }
 
+
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-version"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/builder-latest"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -50,6 +63,20 @@ variable "LOCAL_DIR" {
   default = "."
 }
 
+group "local-project-builders" {
+  targets = [
+    "local-project-builder",
+    "local-project-builder-x",
+  ]
+}
+
+group "local-project-builders-ci" {
+  targets = [
+    "local-project-builder-ci",
+    "local-project-builder-x-ci",
+  ]
+}
+
 group "local-project-builder-ci" {
   targets = [
     "local-project-builder-version-ci",
@@ -57,26 +84,28 @@ group "local-project-builder-ci" {
   ]
 }
 
-target "local-project-builder-version-ci" {
+group "local-project-builder-x-ci" {
+  targets = [
+    "local-project-builder-x-version-ci",
+    "local-project-builder-x-latest-ci",
+  ]
+}
+
+target "local-project-builder-x-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
-    go     = "docker-image://${LOCAL_GO_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_IMAGE_LATEST}"
   }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    go_version             = GO_VERSION
-    k9s_version            = K9S_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    oh_my_zsh_version      = OH_MY_ZSH_VERSION
-    terraform_version      = TERRAFORM_VERSION
+  inherits = ["local-project-builder-version-ci"]
+  tags = [
+    LOCAL_BUILDER_X_IMAGE_VERSION,
+  ]
+}
+
+target "local-project-builder-version-ci" {
+  inherits = ["local-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_IMAGE_LATEST}"
   }
-  context    = LOCAL_DIR
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_VERSION,
   ]
@@ -88,7 +117,7 @@ target "local-project-builder-version-ci" {
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}"
+      LOCAL_BUILDER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -99,40 +128,35 @@ target "local-project-builder-version-ci" {
   platforms = platforms
 }
 
-target "local-project-builder-latest-ci" {
+target "local-project-builder-x-latest-ci" {
+  inherits = ["local-project-builder-latest-ci"]
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
-    go     = "docker-image://${LOCAL_GO_IMAGE_LATEST}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
   }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    go_version             = GO_VERSION
-    k9s_version            = K9S_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    oh_my_zsh_version      = OH_MY_ZSH_VERSION
-    terraform_version      = TERRAFORM_VERSION
+  tags = [
+    LOCAL_BUILDER_X_IMAGE_LATEST,
+  ]
+}
+
+target "local-project-builder-latest-ci" {
+  inherits = ["local-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_IMAGE_LATEST}"
   }
-  context    = LOCAL_DIR
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_BUILDER_IMAGE_LATEST,
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTR_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      LOCAL_BUILDER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -149,12 +173,49 @@ target "local-project-builder-latest-ci" {
   platforms = platforms
 }
 
-target "local-project-builder" {
+target "local-project-builder-x" {
+  inherits = ["local-project-builder"]
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
-    go     = "docker-image://${LOCAL_GO_IMAGE_VERSION}"
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_VERSION}"
   }
+  tags = [
+    LOCAL_BUILDER_X_IMAGE_VERSION,
+    LOCAL_BUILDER_X_IMAGE_LATEST,
+  ]
+}
+
+target "local-project-builder" {
+  inherits = ["local-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DOCKER_DESKTOP_X_IMAGE_VERSION}"
+  }
+  tags = [
+    LOCAL_BUILDER_IMAGE_LATEST,
+    LOCAL_BUILDER_IMAGE_VERSION
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      LOCAL_BUILDER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
+    ] : []
+  )
+}
+
+target "local-project-builder-base" {
   args = {
+    debian_version         = "trixie"
     docker_buildx_version  = DOCKER_BUILDX_VERSION
     docker_compose_version = DOCKER_COMPOSE_VERSION
     docker_version         = DOCKER_VERSION
@@ -169,26 +230,4 @@ target "local-project-builder" {
   }
   context    = LOCAL_DIR
   dockerfile = "Dockerfile"
-  tags = [
-    LOCAL_BUILDER_IMAGE_LATEST,
-    LOCAL_BUILDER_IMAGE_VERSION
-  ]
-  cache-from = concat(
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${LOCAL_DEBIAN_IMAGE_REGISTRY_CACHE}"
-    ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
-    ] : [],
-    [
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
-    ]
-  )
-  cache-to = concat(
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
-    ] : []
-  )
 }

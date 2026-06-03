@@ -1,69 +1,55 @@
-FROM go AS go-build
+FROM debian-golang AS go-build
+ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
 COPY proxy proxy
 
-RUN cd proxy \
-    && GOBIN=/usr/local/bin go install -v
+ARG uid=1000
+ARG gid=1000
+ARG go_pkg=/home/debian/go/pkg
+ARG go_cache=/home/debian/.cache/go-build
+ENV GOMODCACHE=${go_pkg}/mod
+ENV GOCACHE=${go_cache}
+ENV GOBIN=/home/debian/go/bin
+ENV CGO_ENABLED=0
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked,uid=${uid},gid=${gid} \
+    go install -v github.com/jesseduffield/lazydocker@latest \
+    && cd proxy && go install -v
 
-FROM debian
-
-COPY --from=go-build /usr/local/bin/proxy /usr/local/bin/localproxy
+FROM debian-golang
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+USER root
+ARG debian_version=bookworm
+
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
+    JAVA_PACKAGE=default-jdk; \
+    LIBNCURSES_PACKAGE=libncurses6; \
+    else \
+    JAVA_PACKAGE=openjdk-17-jdk; \
+    LIBNCURSES_PACKAGE=libncurses5; \
+    fi; \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    apt-transport-https \
-    bash-completion \
-    btop \
     build-essential \
-    ca-certificates \
-    curl \
-    dnsutils \
-    file \
     g++ \
     gcc \
     gcc \
-    git \
-    gnupg \
-    htop \
-    iftop \
-    iptables \
-    jq \
     libbz2-1.0 \
     libc6 \
     libcairo2-dev \
     libgif-dev \
     libglu1-mesa \
     libjpeg-dev \
-    libncurses5\
     libpango1.0-dev \
     librsvg2-dev \
     libstdc++6 \
     lsb-release \
-    lsof \
-    make \
-    net-tools \
-    netcat-openbsd \
-    openjdk-17-jdk \
-    procps \
-    rsync \
-    socat \
-    sudo \
-    tmux \
-    tree \
-    unzip \
-    vim \
-    wget \
-    xz-utils \
-    zip \
-    zsh
-
-ARG oh_my_zsh_version=1.2.1
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v${oh_my_zsh_version}/zsh-in-docker.sh)"
-
-ARG TARGETPLATFORM
+    ${JAVA_PACKAGE} \
+    ${LIBNCURSES_PACKAGE}
 
 # GCP CLI
 RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
@@ -94,120 +80,28 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/
 
 # k9s
 ARG k9s_version=0.50.9
-RUN case "$TARGETPLATFORM" in \
+
+RUN set -eu; \
+    case "$TARGETPLATFORM" in \
     "linux/amd64") \
-    url="https://github.com/derailed/k9s/releases/download/v${k9s_version}/k9s_linux_amd64.deb" ; \
-    ;; \
+    archive="k9s_Linux_amd64.tar.gz" ;; \
     "linux/arm64") \
-    url="https://github.com/derailed/k9s/releases/download/v${k9s_version}/k9s_linux_arm64.deb" ; \
-    ;; \
-    *) echo >&2 "error: unsupported 'k9s' architecture ($TARGETPLATFORM)"; exit 1 ;; \
+    archive="k9s_Linux_arm64.tar.gz" ;; \
+    *) \
+    echo >&2 "unsupported arch: $TARGETPLATFORM"; exit 1 ;; \
     esac; \
-    curl -Lo /tmp/k9s.deb $url && apt-get -o Acquire::Retries=3 update && apt-get install -y /tmp/k9s.deb && rm /tmp/k9s.deb; \
-    k9s version
+    curl -L \
+    -o /tmp/k9s.tar.gz \
+    "https://github.com/derailed/k9s/releases/download/v${k9s_version}/${archive}" \
+    && tar -xzf /tmp/k9s.tar.gz -C /tmp \
+    && install -m 0755 /tmp/k9s /usr/local/bin/k9s \
+    && rm -rf /tmp/k9s* \
+    && k9s version
 
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
     && chmod 700 get_helm.sh \
     && ./get_helm.sh
-
-ARG go_version
-RUN case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    archive="go${go_version}.linux-amd64.tar.gz" ; \
-    ;; \
-    "linux/arm64") \
-    archive="go${go_version}.linux-arm64.tar.gz" ; \
-    ;; \
-    esac \
-    && curl -o- https://dl.google.com/go/${archive} | tar xz -C /usr/local --
-
-ENV CGO_ENABLED=1
-ENV PATH=${PATH}:/usr/local/go/bin
-
-ARG docker_version
-ARG docker_compose_version
-ARG docker_buildx_version
-RUN \
-    set -eu; \
-    \
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://download.docker.com/linux/static/stable/x86_64/docker-${docker_version}.tgz"; \
-    ;; \
-    "linux/arm64") \
-    url="https://download.docker.com/linux/static/stable/aarch64/docker-${docker_version}.tgz"; \
-    ;; \
-    *) echo >&2 "error: unsupported 'docker.tgz' architecture ($TARGETPLATFORM)"; exit 1 ;; \
-    esac; \
-    wget -O 'docker.tgz' "$url";  \
-    \
-    tar --extract \
-    --file docker.tgz \
-    --strip-components 1 \
-    --directory /usr/local/bin/ \
-    --no-same-owner \
-    'docker/docker' \
-    ; \
-    rm docker.tgz; \
-    \
-    docker --version; \
-    # 
-    # Docker Buildx 
-    # 
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://github.com/docker/buildx/releases/download/v${docker_buildx_version}/buildx-v${docker_buildx_version}.linux-amd64"; \
-    sha256='805195386fba0cea5a1487cf0d47da82a145ea0a792bd3fb477583e2dbcdcc2f'; \
-    ;; \
-    "linux/arm64") \
-    url="https://github.com/docker/buildx/releases/download/v${docker_buildx_version}/buildx-v${docker_buildx_version}.linux-arm64"; \
-    sha256='6e9e455b5ec1c7ac708f2640a86c5cecce38c72e48acff6cb219dfdfa2dda781'; \
-    ;; \
-    *) echo >&2 "warning: unsupported 'docker-buildx' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
-    esac; \
-    \
-    wget -O 'docker-buildx' "$url"; \
-    echo "$sha256 *"'docker-buildx' | sha256sum -c -; \
-    \
-    plugin='/usr/local/libexec/docker/cli-plugins/docker-buildx'; \
-    mkdir -p "$(dirname "$plugin")"; \
-    mv -vT 'docker-buildx' "$plugin"; \
-    chmod +x "$plugin"; \
-    \
-    docker buildx version ; \
-    #
-    # Docker Compose
-    # 
-    \
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://github.com/docker/compose/releases/download/v${docker_compose_version}/docker-compose-linux-x86_64"; \
-    sha256='94a416c6f2836a0a1ba5eb3feb00f2e700a9d98311f062c4c61494ccbf3cd457'; \
-    ;; \
-    "linux/arm64") \
-    url="https://github.com/docker/compose/releases/download/v${docker_compose_version}/docker-compose-linux-aarch64"; \
-    sha256='cd1ef5eda1119edb9314c0224bac97cee14a9c31909a0f7aa0ddfe266e08adaa'; \
-    ;; \
-    *) echo >&2 "warning: unsupported 'docker-compose' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
-    esac; \
-    \
-    wget -O 'docker-compose' "$url"; \
-    echo "$sha256 *"'docker-compose' | sha256sum -c -; \
-    \
-    plugin='/usr/local/libexec/docker/cli-plugins/docker-compose'; \
-    mkdir -p "$(dirname "$plugin")"; \
-    mv -vT 'docker-compose' "$plugin"; \
-    chmod +x "$plugin"; \
-    \
-    ln -sv "$plugin" /usr/local/bin/; \
-    docker-compose --version; \
-    docker compose version
-
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    emacs-nox
 
 ARG gitleaks_version=8.28.0
 
@@ -227,19 +121,22 @@ RUN case "$TARGETPLATFORM" in "linux/amd64") \
     && rm -rf /tmp/gitleaks \
     && gitleaks version
 
-RUN ln -sf /usr/bin/bash /bin/sh
-
-ARG non_root_user=vegito
+ARG non_root_user=local
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
 
-ENV HOME=/home/${non_root_user}
+USER ${non_root_user}    
+
+ENV USER=${non_root_user}
 
 WORKDIR ${HOME}
 
@@ -247,12 +144,10 @@ ENV PATH=${PATH}:${HOME}/go/bin
 
 ENV NVM_DIR=${HOME}/nvm
 
-USER ${non_root_user}
-
 ARG nvm_version
 ARG node_version
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+RUN --mount=type=cache,id=local-builder-${debian_version}-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-builder-${debian_version}-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
     set -e ; \
     # 
     mkdir -p ${NVM_DIR} ; \
@@ -274,30 +169,14 @@ RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-npm-cache,target=${HOM
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-# Install magit
-RUN emacs --batch --eval "(require 'package)" \
-    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
-    --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" \
-    --eval "(package-install 'magit)"
-
-# Go tools
-RUN  --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-go-build,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
-    GOPATH=/tmp/go GOBIN=${HOME}/bin bash -c " \
-    go install -v golang.org/x/tools/gopls@latest \
-    && go install -v github.com/cweill/gotests/gotests@v1.6.0 \
-    && go install -v github.com/josharian/impl@v1.4.0 \
-    && go install -v github.com/haya14busa/goplay/cmd/goplay@v1.0.0 \
-    && go install -v github.com/go-delve/delve/cmd/dlv@latest \
-    && go install -v honnef.co/go/tools/cmd/staticcheck@latest \
-    && go install -v github.com/jesseduffield/lazydocker@latest \
-    && go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest \
-    "
-
 ENV PATH=${HOME}/bin:$PATH
 
+COPY container-entrypoint.sh /usr/local/bin/local-container-entrypoint.sh
 COPY container-install.sh /usr/local/bin/local-container-install.sh
+COPY container-start.sh /usr/local/bin/local-container-start.sh
 
-COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
-ENTRYPOINT [ "dev-entrypoint.sh" ]
+COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
+
+ENTRYPOINT [ "local-container-entrypoint.sh" ]
+CMD [ "local-container-start.sh" ]
+

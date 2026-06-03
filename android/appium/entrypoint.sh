@@ -29,8 +29,5 @@ else
     echo "[entrypoint] Existing ADB keypair detected, skipping generation."
 fi
 
-android-emulator-entrypoint.sh echo "✅ Android fully booted. Now launching Appium..."
+android-emulator-entrypoint.sh "$@"
 
-exec appium --address 0.0.0.0 --port 4723 \
-    --session-override --log-level info \
-    --allow-insecure uiautomator2:adb_shell

@@ -1,19 +1,5 @@
 FROM debian
 
-
-RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    curl \
-    git \
-    gpg \
-    jq \
-    make \
-    sudo \
-    unzip \
-    wget \
-    netcat-openbsd
-
 ARG TARGETPLATFORM
 
 # GCP CLI
@@ -181,8 +167,6 @@ ENV NVM_DIR=${HOME}/nvm
 ARG nvm_version
 ARG node_version
 
-# USER ${non_root_user}
-
 RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
     set -e ; \
@@ -202,8 +186,8 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,targe
     conventional-changelog-angular \
     npm
 
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+ENV NODE_PATH=${NVM_DIR}/versions/node/v${node_version}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/v${node_version}/bin:$PATH
 
 COPY entrypoint.sh /gha-entrypoint.sh
 ENTRYPOINT ["/gha-entrypoint.sh"]

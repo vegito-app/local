@@ -1,4 +1,4 @@
-GIT_SUBTREE_DIRS := gcloud example-application
+GIT_SUBTREE_DIRS := gcloud example-application docker nestor
 
 git-subtree-pull: $(GIT_SUBTREE_DIRS:%=git-subtree-%-pull)
 .PHONY: git-subtree-pull
@@ -13,7 +13,7 @@ git-subtree-status:
 
 VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
-VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud example-application
+VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud example-application docker nestor
 
 $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm):
 	@echo "🗑️ Removing the distribution branch..."
@@ -23,6 +23,39 @@ $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm):
 git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm)
 .PHONY: git-subtree-remote-branch-rm
 
+# ------------------------------------------
+# Subtree ./docker
+# ------------------------------------------
+git-subtree-docker-pull:
+	@echo "⬇︎ Pulling the docker subtree..."
+	@git subtree pull --prefix docker \
+	  git@github.com:vegito-app/docker.git main --squash
+	@echo "docker subtree pulled successfully."
+.PHONY: git-subtree-docker-pull
+
+git-subtree-docker-push:
+	@echo "⬆︎ Pushing changes from the docker subtree..."
+	git subtree push --prefix docker \
+	  git@github.com:vegito-app/docker.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "docker subtree pushed successfully."
+.PHONY: git-subtree-docker-push
+
+git-subtree-docker-push-squash:
+	@TMP=$$(mktemp -d) && \
+	echo "📦 Export docker subtree..." && \
+	git archive HEAD:docker | tar -x -C $$TMP && \
+	cd $$TMP && \
+	git init && \
+	git checkout -b main && \
+	git add . && \
+	git commit -m "docker subtree snapshot" && \
+	git remote add origin git@github.com:vegito-app/docker.git && \
+	git push -f origin main:$(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "✅ Squashed docker subtree pushed successfully."
+.PHONY: git-subtree-docker-push-squash
+
+VEGITO_DOCKER_DIR ?= $(LOCAL_DIR)/docker
+-include $(VEGITO_DOCKER_DIR)/docker.mk
 # ------------------------------------------
 # Subtree ./google-cloud
 # ------------------------------------------
@@ -42,6 +75,29 @@ git-subtree-gcloud-push:
 
 VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
 -include $(VEGITO_GCLOUD_DIR)/gcloud.mk
+# ------------------------------------------
+
+# ------------------------------------------
+# Subtree ./nestor
+# ------------------------------------------
+git-subtree-nestor-pull:
+	@echo "⬇︎ Pulling the nestor subtree..."
+	@git subtree pull --prefix nestor \
+	  git@github.com:vegito-app/ai-nestor.git main --squash
+	@echo "AI Nestor subtree pulled successfully."
+.PHONY: git-subtree-nestor-pull
+
+git-subtree-nestor-push:
+	@echo "⬆︎ Pushing changes from the nestor subtree..."
+	@git subtree push --prefix nestor \
+	  git@github.com:vegito-app/ai-nestor.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "AI Nestor subtree pushed successfully."
+.PHONY: git-subtree-nestor-push
+
+VEGITO_NESTOR_DIR ?= $(LOCAL_DIR)/nestor
+VEGITO_NESTOR_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(VERSION)
+VEGITO_NESTOR_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
+-include $(VEGITO_NESTOR_DIR)/nestor/nestor.mk
 # ------------------------------------------
 
 # ------------------------------------------

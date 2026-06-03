@@ -11,11 +11,11 @@ variable "LOCAL_TRIVY_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trivy-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trivy-version"
 }
 
 variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trivy-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trivy-latest"
 }
 
 variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -43,7 +43,7 @@ group "local-trivy-ci" {
 
 target "local-trivy-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -60,11 +60,8 @@ target "local-trivy-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
-    ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -77,7 +74,7 @@ target "local-trivy-version-ci" {
 
 target "local-trivy-latest-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -95,7 +92,7 @@ target "local-trivy-latest-ci" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -114,7 +111,7 @@ target "local-trivy-latest-ci" {
 
 target "local-trivy" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -133,7 +130,7 @@ target "local-trivy" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(

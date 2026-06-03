@@ -1,28 +1,11 @@
-ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
-ARG debian_image=debian:latest
-ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:builder-latest
-
 FROM builder_image AS builder
-FROM debian_image
+FROM debian
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
-
-RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    curl \
-    htop \
-    jq \
-    make \
-    netcat-openbsd \
-    sudo 
+ARG TARGETPLATFORM
 
 # Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
-
 RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     set -eu; \
@@ -90,8 +73,8 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,targe
     npm
 
 
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+ENV NODE_PATH=${NVM_DIR}/versions/node/v${node_version}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/v${node_version}/bin:$PATH
 
 RUN for svc in firestore database pubsub storage ui ; do \
     firebase --version && firebase setup:emulators:$svc ; \

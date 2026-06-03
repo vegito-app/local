@@ -15,12 +15,8 @@ kill_jobs() {
 }
 
 # 🚨 Register cleanup function to run on script exit
-
 trap kill_jobs EXIT
 
-if [ "${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}" = "true" ]; then
-    caches-refresh.sh
-fi
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
 mkdir -p $local_container_cache
 
@@ -64,23 +60,18 @@ else
     echo "[entrypoint] Existing release.keystore found, skipping generation."
 fi
 
-rm -f ~/.android/avd/*/*.lock
-rm -f ~/.android/avd/*.ini.lock
-
-(android-appium-entrypoint.sh) &
-bg_pids+=("$!")
-
-if [ "${LOCAL_ANDROID_STUDIO_ON_START}" = "true" ]; then
-    android-studio.sh &
-    # Don't track this PID as the script will exit after if Android Studio is restarted manually.
-    # bg_pids+=("$!") 
+if [ "${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-true}" = "true" ]; then
+    android-studio-container-install.sh &
+    bg_pids+=("$!")
 fi
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}"
-  echo "[entrypoint] All background processes have exited, container will stop now."
-else
-  echo "[entrypoint] Executing passed command: $*"
-  exec "$@"
-fi
+export XPRA_ENV_ARGS=()
+
+XPRA_ENV_ARGS+=("--env=ANDROID_HOME=${ANDROID_HOME}")
+XPRA_ENV_ARGS+=("--env=ANDROID_HOST=${ANDROID_HOST}")
+XPRA_ENV_ARGS+=("--env=ANDROID_SDK=${ANDROID_SDK}")
+XPRA_ENV_ARGS+=("--env=FLUTTER_HOME=${FLUTTER_HOME}")
+XPRA_ENV_ARGS+=("--env=STUDIO_PATH=${STUDIO_PATH}")
+
+# Use Appium 
+android-appium-entrypoint.sh "$@"

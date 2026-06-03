@@ -1,12 +1,12 @@
-LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):firebase-emulators-$(VERSION)
-LOCAL_FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
+export LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):firebase-emulators-$(LOCAL_VERSION)
+export LOCAL_FIREBASE_EMULATORS_DIR ?= $(LOCAL_DIR)/firebase-emulators
 FIREBASE_EMULATORS = cd $(LOCAL_FIREBASE_EMULATORS_DIR) && firebase
 # This is a comma separated list of emulator names.
 # Valid options are: ["auth","functions","firestore","database","hosting","pubsub","storage","eventarc","dataconnect"]
-LOCAL_FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub,database
-LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/auth_functions
-LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
-LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
+export LOCAL_FIREBASE_EMULATORS_SERVICES ?= auth,functions,firestore,storage,pubsub,database
+export LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emulators/auth_functions
+export LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
+export LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
 
 include $(LOCAL_FIREBASE_EMULATORS_DIR)/pubsub.mk
 
@@ -70,20 +70,3 @@ local-firebase-emulators-container-up: local-firebase-emulators-container-rm
 	@echo "🚀 Starting Firebase emulators container with image: $(LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION)"
 	@$(LOCAL_FIREBASE_EMULATORS_CONTAINER_UP_SCRIPT)
 .PHONY: local-firebase-emulators-container-up
-
-local-firebase-emulators-pubsub-wait:
-	@echo "⏳ Waiting for Pub/Sub emulator..."
-	@until nc -z localhost 8085; do \
-		echo "🕒 Waiting for port 8085..."; \
-		sleep 1; \
-	done
-	@echo "✅ Pub/Sub emulator is up!"
-.PHONY: local-firebase-emulators-pubsub-wait
-
-local-firebase-emulators-pubsub-check:
-	@echo "📋 Listing local Pub/Sub topics:"
-	@curl -s http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics | jq .
-	@echo
-	@echo "📋 Listing local Pub/Sub subscriptions:"
-	@curl -s http://localhost:8085/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions | jq .
-.PHONY: local-firebase-emulators-pubsub-check

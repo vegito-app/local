@@ -1,4 +1,4 @@
-GOOGLE_APPLICATION_CREDENTIALS ?= $(VEGITO_GCLOUD_DIR)/gcloud-credentials.json
+export GOOGLE_APPLICATION_CREDENTIALS ?= $(VEGITO_GCLOUD_DIR)/gcloud-credentials.json
 
 gcloud-application-credentials: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@echo "✅ Application credentials are ready at $<"

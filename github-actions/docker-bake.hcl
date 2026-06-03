@@ -15,11 +15,11 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-version"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-latest"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -56,7 +56,7 @@ group "local-github-actions-runner-ci" {
 
 target "local-github-actions-runner-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -81,7 +81,7 @@ target "local-github-actions-runner-version-ci" {
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -94,7 +94,7 @@ target "local-github-actions-runner-version-ci" {
 
 target "local-github-actions-runner-latest-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -119,7 +119,7 @@ target "local-github-actions-runner-latest-ci" {
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -138,7 +138,7 @@ target "local-github-actions-runner-latest-ci" {
 
 target "local-github-actions-runner" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   args = {
     docker_buildx_version  = DOCKER_BUILDX_VERSION
@@ -164,7 +164,7 @@ target "local-github-actions-runner" {
       LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST}"
+      LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST
     ]
   )
   cache-to = concat(

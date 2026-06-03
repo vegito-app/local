@@ -1,6 +1,23 @@
-FROM builder_image AS builder
+FROM android_emulator
 
 USER root
+
+ARG non_root_user=android-appium
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+ENV USER=${non_root_user}
+
+ARG TARGETPLATFORM
 
 # NodeJS for Appium
 RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
@@ -8,16 +25,11 @@ RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-apt-cache,target=/var/c
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs 
 
-ARG non_root_user=android
-ARG uid=1000
-ARG gid=1000
+ENV PATH=${HOME}/node_modules/.bin:${PATH}
 
 USER ${non_root_user}
 
-ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
-
-ENV PATH=${HOME}/node_modules/.bin:${PATH}
 
 RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=local-appium-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
@@ -25,8 +37,11 @@ RUN --mount=type=cache,id=local-appium-${TARGETPLATFORM}-npm-cache,target=${HOME
     appium driver install uiautomator2
 
 # 📥 Entrypoint to launch emulator + APK
-COPY --chown=android:android entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
+COPY --chown=${uid}:${gid} entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
+COPY --chown=${uid}:${gid} appium-start.sh /usr/local/bin/android-appium-start.sh
 
 RUN chmod +x /usr/local/bin/android-appium-entrypoint.sh
+RUN chmod +x /usr/local/bin/android-appium-start.sh
 
 ENTRYPOINT ["android-appium-entrypoint.sh"]
+CMD [ "android-appium-start.sh" ]

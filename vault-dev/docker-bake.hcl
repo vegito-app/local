@@ -11,11 +11,11 @@ variable "LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/vault-dev-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/vault-dev-version"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/vault-dev-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/vault-dev-latest"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -47,7 +47,7 @@ group "local-vault-dev-ci" {
 
 target "local-vault-dev-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
@@ -65,7 +65,7 @@ target "local-vault-dev-version-ci" {
       LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}"
+      LOCAL_VAULT_DEV_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -78,7 +78,7 @@ target "local-vault-dev-version-ci" {
 
 target "local-vault-dev-latest-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
@@ -93,7 +93,7 @@ target "local-vault-dev-latest-ci" {
       LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}"
+      LOCAL_VAULT_DEV_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -112,7 +112,7 @@ target "local-vault-dev-latest-ci" {
 
 target "local-vault-dev" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
@@ -128,7 +128,7 @@ target "local-vault-dev" {
       LOCAL_VAULT_DEV_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_VAULT_DEV_IMAGE_LATEST}"
+      LOCAL_VAULT_DEV_IMAGE_LATEST
     ]
   )
   cache-to = concat(

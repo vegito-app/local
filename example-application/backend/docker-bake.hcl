@@ -20,11 +20,11 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend-version"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend-latest"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
@@ -93,7 +93,7 @@ target "vegito-example-application-backend-version-ci" {
       VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}"
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -126,7 +126,7 @@ target "vegito-example-application-backend-latest-ci" {
       VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}"
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -166,7 +166,7 @@ target "vegito-example-application-backend" {
       VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}"
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST
     ]
   )
   cache-to = concat(

@@ -1,44 +1,32 @@
-FROM debian_image
+FROM debian
 
-RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+USER root
+
+ARG TARGETPLATFORM
+
+ARG debian_version=bookworm
+RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    adb \
-    curl \
-    htop \
-    iftop \
-    jq \
-    make \
-    netcat-openbsd \
-    sudo \
-    socat \
-    tree \
-    procps \
-    python3 python3-pip python3-venv
+    adb 
 
-ARG non_root_user=tests
+ARG non_root_user=robot
 ARG uid=1000
 ARG gid=1000
 
-ENV HOME=/home/${non_root_user}
-
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
-
-# Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
-
-# Prepare venv directory with proper permissions
-RUN mkdir -p /opt/venv && chown ${uid}:${gid} /opt/venv
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
 
 USER ${non_root_user}
+ENV USER=${non_root_user}
 
-RUN python3 -m venv ${HOME}/venv
-
-ENV PATH="${HOME}/venv/bin:$PATH"
+WORKDIR ${HOME}
 
 RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-pip-cache,target=/home/${non_root_user}/.cache/pip,sharing=locked,uid=${uid},gid=${gid} \
     pip install \
@@ -54,4 +42,7 @@ COPY caches-refresh.sh /usr/local/bin/robotframework-caches-refresh.sh
 
 ENV LOCAL_ROBOTFRAMEWORK_TESTS_DIR=${HOME}/robotframework
 
+WORKDIR ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR}
+
 ENTRYPOINT [ "tests-entrypoint.sh" ]
+CMD [ "robot" ]

@@ -94,10 +94,10 @@ services:
     command: |
       bash -c '
         make docker-sock
-        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
         fi
-        if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
+        if [ "$${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests
         fi
@@ -109,14 +109,14 @@ services:
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
     working_dir: ${PWD}/mobile
 
   clarinet-devnet:
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
-      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
+      LOCAL_CLARINET_CONTAINER_INSTALL: ${LOCAL_CLARINET_CONTAINER_INSTALL:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
@@ -125,7 +125,7 @@ services:
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
       LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE:-${PWD}/.containers/robotframework}
-      LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: ${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}
+      LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL:-false}
   
   firebase-emulators:
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest

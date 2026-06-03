@@ -1,3 +1,7 @@
+# -------------------------------------------------------------------
+# ###################################################################
+# LOCAL ANDROID APPIUM
+# ###################################################################
 variable "LOCAL_ANDROID_APPIUM_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-${VERSION}"
 }
@@ -15,11 +19,11 @@ variable "LOCAL_ANDROID_APPIUM_DIR" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium-version"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium-latest"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -55,7 +59,7 @@ group "local-android-appium-ci" {
 
 target "local-android-appium-version-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-latest-ci"
+    android_emulator = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -70,8 +74,8 @@ target "local-android-appium-version-ci" {
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+      LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -84,7 +88,7 @@ target "local-android-appium-version-ci" {
 
 target "local-android-appium-latest-ci" {
   contexts = {
-    builder_image = "target:local-android-emulator-latest-ci"
+    android_emulator = "target:local-android-emulator-latest-ci"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -99,8 +103,8 @@ target "local-android-appium-latest-ci" {
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+      LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -119,7 +123,7 @@ target "local-android-appium-latest-ci" {
 
 target "local-android-appium" {
   contexts = {
-    builder_image = "target:local-android-emulator"
+    android_emulator = "target:local-android-emulator"
   }
   context = LOCAL_ANDROID_APPIUM_DIR
   tags = [
@@ -135,13 +139,145 @@ target "local-android-appium" {
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ANDROID_APPIUM_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_LATEST}"
+      LOCAL_ANDROID_APPIUM_IMAGE_LATEST,
+      LOCAL_ANDROID_EMULATOR_IMAGE_LATEST
     ]
   )
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : []
+  )
+}
+# -------------------------------------------------------------------
+# ###################################################################
+# LOCAL ANDROID APPIUM FLUTTER
+# ###################################################################
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_REGISTRY_CACHE_IMAGE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-appium-flutter"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-appium-flutter"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_VERSION" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-flutter-${VERSION}"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-flutter-latest"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium-flutter-version"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-appium-flutter-latest"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
+  description = "local write cache (version) for local-flutter image build"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
+  description = "local write cache (latest) for local-flutter image build"
+  default     = "type=local,mode=max,dest=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION" {
+  description = "local read cache (version)"
+  default     = "type=local,src=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
+  description = "local read cache (latest)"
+  default     = "type=local,src=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+target "local-android-appium-flutter-latest-ci" {
+  inherits = ["local-android-appium-latest-ci"]
+  contexts = {
+    android_emulator = "target:local-android-emulator-flutter-latest-ci"
+  }
+  tags = [
+    LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE}",
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : [],
+    [
+      "type=inline"
+    ]
+  )
+}
+
+target "local-android-appium-flutter-version-ci" {
+  inherits = ["local-android-appium-version-ci"]
+  contexts = {
+    android_emulator = "target:local-android-emulator-flutter-version-ci"
+  }
+  tags = [
+    LOCAL_ANDROID_APPIUM_FLUTTER_VERSION,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE}",
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
+    [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
+    ] : []
+  )
+}
+
+target "local-android-appium-flutter" {
+  inherits = ["local-android-appium"]
+  contexts = {
+    android_emulator = "target:local-android-emulator-flutter"
+  }
+  tags = [
+    LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
+    LOCAL_ANDROID_APPIUM_FLUTTER_VERSION,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE}",
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST,
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
     ] : []
   )
 }

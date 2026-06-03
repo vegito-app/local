@@ -21,6 +21,8 @@ ARG non_root_user=vegito
 ARG uid=1000
 ARG gid=1000
 
+ARG TARGETPLATFORM
+
 RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
     --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download
@@ -88,9 +90,9 @@ COPY --from=build /home/${non_root_user}/src/frontend/build-ssr/ /frontend/build
 COPY --from=build /home/${non_root_user}/src/frontend/public/ /frontend/public
 COPY --from=build /home/${non_root_user}/go/bin/backend /backend
 
-ENV FRONTEND_BUILD_DIR=/frontend/build \
-    FRONTEND_PUBLIC_DIR=/frontend/public \
-    UI_JAVASCRIPT_SOURCE_FILE=/frontend/build-ssr/bundle.js
+ENV FRONTEND_BUILD_DIR=/frontend/build
+ENV FRONTEND_PUBLIC_DIR=/frontend/public
+ENV UI_JAVASCRIPT_SOURCE_FILE=/frontend/build-ssr/bundle.js
 
 ENTRYPOINT ["/backend"]
 EXPOSE 8080
