@@ -105,7 +105,7 @@ variable "VEGITO_PUBLIC_REPOSITORY" {
   default = "vegito-docker-repository-private"
 }
 
-variable "VEGITO_PUBLIC_REPOSITORY" {
+variable "VEGITO_PRIVATE_REPOSITORY" {
   default = "vegito-docker-repository-public"
 }
 

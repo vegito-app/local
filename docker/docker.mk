@@ -118,7 +118,7 @@ VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
 VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
  ai \
  golang
-
+ 
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
   debian-golang-docker \
