@@ -1,25 +1,25 @@
 package main
 
-func init() {
-	addTool(ToolFunc{
-		"docker_ps",
-		func(args map[string]string) (string, error) {
+import (
+	"github.com/vegito-app/ai-nestor/nestor/internal/task"
+)
+
+var dockerTools = []task.Tool{
+	ToolFunc{
+		name: "docker_ps",
+		run: func(args map[string]string) (string, error) {
 			return runCmd("docker ps")
 		},
-	})
-
-	addTool(ToolFunc{
-		"docker_logs",
-		func(args map[string]string) (string, error) {
-			return runCmd(
-				"docker logs --tail=200 " + args["container"],
-			)
+	},
+	ToolFunc{
+		name: "docker_logs",
+		run: func(args map[string]string) (string, error) {
+			return runCmd("docker logs --tail=200 " + args["container"])
 		},
-	})
-
-	addTool(ToolFunc{
-		"docker_exec",
-		func(args map[string]string) (string, error) {
+	},
+	ToolFunc{
+		name: "docker_exec",
+		run: func(args map[string]string) (string, error) {
 			return runCmd(
 				"docker exec " +
 					args["container"] +
@@ -28,5 +28,5 @@ func init() {
 					"\"",
 			)
 		},
-	})
+	},
 }

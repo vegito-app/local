@@ -6,79 +6,208 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/vegito-app/ai-nestor/nestor/internal/task"
 )
 
-func init() {
-	addTool(ToolFunc{"run_cmd", func(args map[string]string) (string, error) {
-		return runCmd(args["cmd"])
-	}})
+var osTools = []task.Tool{
+	ToolFunc{
+		name: "run_cmd",
+		run: func(args map[string]string) (string, error) {
+			return runCmd(args["cmd"])
+		},
+	},
+	ToolFunc{
+		name: "read_file",
+		run: func(args map[string]string) (string, error) {
+			if args["path"] == "" {
+				return "", fmt.Errorf("path is empty")
+			}
+			return readFile(args["path"])
+		},
+	},
+	ToolFunc{
+		name: "write_file",
+		run: func(args map[string]string) (string, error) {
+			return "ok", writeFile(args["path"], args["content"])
+		},
+	},
+	ToolFunc{
+		name: "append_file",
+		run: func(args map[string]string) (string, error) {
+			return "ok", appendFile(args["path"], args["content"])
+		},
+	},
+	ToolFunc{
+		name: "list_dir",
+		run: func(args map[string]string) (string, error) {
+			path := args["path"]
+			if path == "" {
+				path = os.Getenv("LOCAL_WORKSPACE")
+			}
 
-	addTool(ToolFunc{"read_file", func(args map[string]string) (string, error) {
-		return readFile(args["path"])
-	}})
+			if path == "" {
+				path = "."
+			}
+			return listDir(path)
+		},
+	},
+	ToolFunc{
+		name: "pwd",
+		run: func(args map[string]string) (string, error) {
+			return pwd()
+		},
+	},
+	ToolFunc{
+		name: "workspace_info",
+		run: func(args map[string]string) (string, error) {
+			pwd, _ := os.Getwd()
 
-	addTool(ToolFunc{"write_file", func(args map[string]string) (string, error) {
-		return "ok", writeFile(args["path"], args["content"])
-	}})
+			return fmt.Sprintf(
+				`{"local_workspace":"%s","nestor_home":"%s","pwd":"%s","docker_host":"%s","user":"%s"}`,
+				os.Getenv("LOCAL_WORKSPACE"),
+				os.Getenv("NESTOR_HOME"),
+				pwd,
+				os.Getenv("DOCKER_HOST"),
+				os.Getenv("USER"),
+			), nil
+		},
+	},
+	ToolFunc{
+		name: "project_root",
+		run: func(args map[string]string) (string, error) {
+			root := os.Getenv("LOCAL_WORKSPACE")
+			if root == "" {
+				root, _ = os.Getwd()
+			}
+			return root, nil
+		},
+	},
+	ToolFunc{
+		name: "file_info",
+		run: func(args map[string]string) (string, error) {
+			return fileInfo(args["path"])
+		},
+	},
+	ToolFunc{
+		name: "abs_path",
+		run: func(args map[string]string) (string, error) {
+			return absPath(args["path"])
+		},
+	},
+	ToolFunc{
+		name: "mkdir",
+		run: func(args map[string]string) (string, error) {
+			return "ok", os.MkdirAll(args["path"], 0755)
+		},
+	},
+	ToolFunc{
+		name: "rm",
+		run: func(args map[string]string) (string, error) {
+			return "ok", os.RemoveAll(args["path"])
+		},
+	},
+	ToolFunc{
+		name: "mv",
+		run: func(args map[string]string) (string, error) {
+			return "ok", os.Rename(args["src"], args["dst"])
+		},
+	},
+	ToolFunc{
+		name: "cp",
+		run: func(args map[string]string) (string, error) {
+			data, err := os.ReadFile(args["src"])
+			if err != nil {
+				return "", err
+			}
 
-	addTool(ToolFunc{"append_file", func(args map[string]string) (string, error) {
-		return "ok", appendFile(args["path"], args["content"])
-	}})
+			return "ok", os.WriteFile(
+				args["dst"],
+				data,
+				0644,
+			)
+		}},
+	ToolFunc{
+		name: "grep",
+		run: func(args map[string]string) (string, error) {
+			root := args["path"]
+			if root == "" {
+				root = os.Getenv("LOCAL_WORKSPACE")
+			}
 
-	addTool(ToolFunc{"list_dir", func(args map[string]string) (string, error) {
-		return listDir(args["path"])
-	}})
-
-	addTool(ToolFunc{"pwd", func(args map[string]string) (string, error) {
-		return pwd()
-	}})
-
-	addTool(ToolFunc{"file_info", func(args map[string]string) (string, error) {
-		return fileInfo(args["path"])
-	}})
-
-	addTool(ToolFunc{"abs_path", func(args map[string]string) (string, error) {
-		return absPath(args["path"])
-	}})
-	addTool(ToolFunc{"mkdir", func(args map[string]string) (string, error) {
-		return "ok", os.MkdirAll(args["path"], 0755)
-	}})
-	addTool(ToolFunc{"rm", func(args map[string]string) (string, error) {
-		return "ok", os.RemoveAll(args["path"])
-	}})
-	addTool(ToolFunc{"mv", func(args map[string]string) (string, error) {
-		return "ok", os.Rename(args["src"], args["dst"])
-	}})
-	addTool(ToolFunc{"cp", func(args map[string]string) (string, error) {
-		data, err := os.ReadFile(args["src"])
-		if err != nil {
-			return "", err
-		}
-
-		return "ok", os.WriteFile(
-			args["dst"],
-			data,
-			0644,
-		)
-	}})
-	addTool(ToolFunc{"grep", func(args map[string]string) (string, error) {
-		return runCmd(
-			fmt.Sprintf(
-				"grep -RIn %q %s",
-				args["pattern"],
+			return grepFiles(root, args["pattern"])
+		},
+	},
+	ToolFunc{
+		name: "find",
+		run: func(args map[string]string) (string, error) {
+			return findFiles(
 				args["path"],
-			),
-		)
-	}})
-	addTool(ToolFunc{"find", func(args map[string]string) (string, error) {
-		return findFiles(
-			args["path"],
-			args["pattern"],
-		)
-	}})
+				args["pattern"],
+			)
+		},
+	},
+}
+var ignoredDirs = []string{
+	".git",
+	".containers",
+	"node_modules",
+	".terraform",
+	".dart_tool",
+	".gradle",
+	".idea",
+	".vscode",
 }
 
 func findFiles(root, pattern string) (string, error) {
+	if root == "" {
+		root = os.Getenv("LOCAL_WORKSPACE")
+	}
+
+	if root == "" {
+		root, _ = os.Getwd()
+	}
+
+	var matches []string
+
+	err := filepath.Walk(
+		root,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+			if info.IsDir() {
+				for _, ignored := range ignoredDirs {
+					if info.Name() == ignored {
+						return filepath.SkipDir
+					}
+				}
+			}
+
+			if strings.Contains(path, pattern) {
+				matches = append(matches, path)
+			}
+
+			return nil
+		},
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Join(matches, "\n"), nil
+}
+
+func grepFiles(root, pattern string) (string, error) {
+	if root == "" {
+		root = os.Getenv("LOCAL_WORKSPACE")
+	}
+
+	if root == "" {
+		root, _ = os.Getwd()
+	}
+
 	var matches []string
 
 	err := filepath.Walk(
@@ -88,7 +217,22 @@ func findFiles(root, pattern string) (string, error) {
 				return nil
 			}
 
-			if strings.Contains(path, pattern) {
+			if info.IsDir() {
+				for _, ignored := range ignoredDirs {
+					if info.Name() == ignored {
+						return filepath.SkipDir
+					}
+				}
+				return nil
+			}
+
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return nil
+			}
+
+			content := string(data)
+			if strings.Contains(content, pattern) {
 				matches = append(matches, path)
 			}
 

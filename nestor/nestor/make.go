@@ -1,7 +1,9 @@
 package main
 
-func init() {
-	addTool(ToolFunc{
+import "github.com/vegito-app/ai-nestor/nestor/internal/task"
+
+var makeTools = []task.Tool{
+	ToolFunc{
 		name: "make",
 		run: func(args map[string]string) (string, error) {
 			target := args["target"]
@@ -10,5 +12,5 @@ func init() {
 			}
 			return runCmd("make " + target)
 		},
-	})
+	},
 }
