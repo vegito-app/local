@@ -2,23 +2,23 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/vegito-app/ai-nestor/nestor/internal/http"
+	"github.com/vegito-app/ai-nestor/nestor/internal/task"
+	"github.com/vegito-app/ai-nestor/nestor/internal/tool"
 )
 
-func runCLI() {
+func runCLI(tools *task.Tools) {
 	fmt.Println("Nestor v0.3")
 	fmt.Println(`{"tool":"run_cmd","args":{"cmd":"pwd"}}`)
 
 	fmt.Println("Available tools:")
-
-	for name := range registry {
-		fmt.Println(" -", name)
-	}
+	tools.Print()
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -39,20 +39,20 @@ func runCLI() {
 			return
 		}
 
-		var call ToolCall
+		var t tool.Tool
 
-		if err := json.Unmarshal([]byte(line), &call); err != nil {
+		if err := json.Unmarshal([]byte(line), &t); err != nil {
 			fmt.Printf("json error: %v\n", err)
 			continue
 		}
 
-		tool, ok := registry[call.Tool]
+		tool, ok := tools.Get(t.Name)
 		if !ok {
-			fmt.Printf("unknown tool: %s\n", call.Tool)
+			fmt.Printf("unknown tool: %s\n", t.Name)
 			continue
 		}
 
-		result, err := tool.Run(call.Args)
+		result, err := tool.Run(t.Args)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			continue
@@ -63,15 +63,34 @@ func runCLI() {
 }
 
 func main() {
-	if len(os.Args) > 1 {
-		switch os.Args[1] {
-		case "serve":
-			if err := http.StartAPI(); err != nil {
-				panic(err)
-			}
-			return
-		}
+	toolRegistry, err := task.NewToolRegistry(
+		osTools,
+		gitTools,
+		dockerTools,
+		makeTools,
+		ollamaTools,
+	)
+
+	if err != nil {
+		panic(err)
 	}
 
-	runCLI()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	taskLoop := task.NewLoop(ctx, toolRegistry)
+	defer taskLoop.Stop()
+
+	if len(os.Args) <= 1 {
+		runCLI(toolRegistry)
+	}
+
+	switch os.Args[1] {
+	case "serve":
+		if err := http.StartAPI(taskLoop); err != nil {
+			panic(err)
+		}
+		return
+	}
+
 }

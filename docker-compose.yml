@@ -59,6 +59,7 @@ services:
       - "5901"
       # Docker DIND as localhost:2976 using localproxy
       - "2976"
+      - "11434"
     volumes:
       # - /dev:/dev
       # - /lib/modules:/lib/modules
