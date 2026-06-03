@@ -52,6 +52,8 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   docker buildx bake \
   -f $(VEGITO_DOCKER_DIR)/docker-bake.hcl \
   -f $(VEGITO_DOCKER_IO_DIR)/docker-bake.hcl \
+  -f $(VEGITO_NESTOR_DIR)/docker-bake.hcl \
+  -f $(VEGITO_NESTOR_DIR)/nestor/docker-bake.hcl \
   $(VEGITO_DOCKER_IO_HUB_IMAGES:%=-f $(VEGITO_DOCKER_IO_DIR)/%.docker-bake.hcl) \
   -f $(VEGITO_DOCKER_ALPINE_DIR)/docker-bake.hcl \
   -f $(VEGITO_DOCKER_DEBIAN_DIR)/docker-bake.hcl \
@@ -85,7 +87,6 @@ LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   vault-dev \
-  nestor \
   robotframework \
   trivy
   
