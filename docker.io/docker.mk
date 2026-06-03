@@ -49,6 +49,8 @@ export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_LATEST             ?= dbndev/veg
 export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_IMAGE_VERSION            ?= dbndev/vegito-public:debian-python-latest
 export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_LATEST   ?= dbndev/vegito-public:debian-python-desktop-x-latest
 export VEGITO_DOCKER_TRIXIE_DEBIAN_PYTHON_DESKTOP_X_IMAGE_VERSION  ?= dbndev/vegito-public:debian-python-desktop-x-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_VERSION ?= dbndev/vegito-public:debian-vscode-golang-ai-docker-desktop-x-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST ?= dbndev/vegito-public:debian-vscode-golang-ai-docker-desktop-x-latest
 
 export VEGITO_DOCKER_DEBIAN_RUST_IMAGE_LATEST             ?= dbndev/vegito-public:debian-rust-latest
 export VEGITO_DOCKER_DEBIAN_RUST_IMAGE_VERSION            ?= dbndev/vegito-public:debian-rust-latest
@@ -62,7 +64,6 @@ export VEGITO_DOCKER_TRIXIE_DEBIAN_RUST_DESKTOP_X_IMAGE_VERSION ?= dbndev/vegito
 
 export LOCAL_BUILDER_X_IMAGE_LATEST  ?= dbndev/vegito-local-public:builder-x-latest
 export LOCAL_BUILDER_X_IMAGE_VERSION ?= dbndev/vegito-local-public:builder-x-latest
-
 # Dockerhub replica
 export VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST  ?= dbndev/vegito-public:hub-debian-latest
 export VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION  ?= dbndev/vegito-public:hub-debian-latest

@@ -6,7 +6,7 @@ set -euo pipefail
 rm -f /tmp/.ai-agent-ready
 
 bg_pids=()
-allama_pid=
+ollama_pid=
 
 kill_jobs() {
     rm -f /tmp/.ai-agent-ready
@@ -21,8 +21,10 @@ trap kill_jobs EXIT
 
 echo "🤖 Starting Ai runtime..."
 
-if [ -z "${OLLAMA_HOST:-}" ]; then
-    echo "Starting local Ollama server"
+if [ -n "${OLLAMA_HOST:-}" ]; then
+    echo "Using remote Ollama ${OLLAMA_HOST}"
+else
+    echo "Starting local Ollama"
     ollama serve &
     ollama_pid=$!
     export OLLAMA_HOST=http://127.0.0.1:11434
@@ -33,11 +35,10 @@ echo "{\"status\":\"ready\",\"ts\":$(date +%s)}" > /tmp/.ai-agent-ready
 
 echo "✅ Ai agent started successfully."
 
-if [ ! $# -eq 0 ]; then
-  "$@" &
-  bg_pids+=("$!")
-else
-  echo "[entrypoint] No command passed, waiting ai agent to keep container alive"
+if [ -n "${ollama_pid}" ];then
+  wait "${ollama_pid}"
+  echo "Ollama process exited with code $?"
+elif [ "${#bg_pids[@]}" -gt 0 ]; then
+  echo "Waiting for background processes to finish..."
+  wait "${bg_pids[@]}"
 fi
-
-wait "${ollama_pids}"

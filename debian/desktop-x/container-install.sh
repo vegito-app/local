@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-
 container_desktop_x_debian_install_success=false
 # 🧹 Function called at the end of the script to check for success
 check_success() {

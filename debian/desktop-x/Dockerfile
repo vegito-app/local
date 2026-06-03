@@ -167,13 +167,13 @@ COPY --chown=${non_root_user}:${non_root_user} xdisplay/xpra-start.sh           
 COPY --chown=${non_root_user}:${non_root_user} enable-nvidia-gl.sh /usr/local/bin/
 COPY --chown=${non_root_user}:${non_root_user} nvidia-gl-env.sh    /usr/local/bin/
 
-COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh    /usr/local/bin/desktop-x-entrypoint.sh
-COPY --chown=${non_root_user}:${non_root_user} container-install.sh    /usr/local/bin/desktop-x-container-install.sh
-COPY --chown=${non_root_user}:${non_root_user} display-start.sh /usr/local/bin/desktop-x-display-start.sh
+COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh         /usr/local/bin/desktop-x-entrypoint.sh
+COPY --chown=${non_root_user}:${non_root_user} container-install.sh  /usr/local/bin/desktop-x-install.sh
+COPY --chown=${non_root_user}:${non_root_user} container-start.sh    /usr/local/bin/desktop-x-start.sh
 
 RUN chmod +x \
     /usr/local/bin/desktop-x-entrypoint.sh \
-    /usr/local/bin/desktop-x-display-start.sh \
+    /usr/local/bin/desktop-x-start.sh \
     /usr/local/bin/enable-nvidia-gl.sh \
     /usr/local/bin/nvidia-gl-env.sh \
     /usr/local/bin/xorg-display-start.sh \
@@ -194,6 +194,6 @@ ENV VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=swiftshader_indirect
 ENV VEGITO_CONTAINER_DISPLAY_START=true
 
 ENTRYPOINT ["tini", "--", "desktop-x-entrypoint.sh"]
-CMD ["desktop-x-display-start.sh"]
+CMD ["desktop-x-start.sh"]
 HEALTHCHECK CMD test -f /tmp/.xdisplay-ready || exit 1
 ENV USER=${non_root_user}

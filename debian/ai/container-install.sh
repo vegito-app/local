@@ -56,7 +56,6 @@ export TORCH_HOME=${AI_WORKSPACES}/torch
 export CHROMA_DB_DIR=${AI_WORKSPACES}/chromadb
 export TRANSFORMERS_CACHE=${HF_HOME}
 export HF_HUB_DISABLE_TELEMETRY=1
-export OLLAMA_HOST=0.0.0.0:11434
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
 # Developer friendly aliases
