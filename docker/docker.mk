@@ -122,6 +122,7 @@ VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
 
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
+  debian-all \
   debian-golang-docker \
   debian-golang-project-builder-docker \
   debian-golang-project-builder-docker-x \

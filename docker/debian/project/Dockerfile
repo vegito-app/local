@@ -94,7 +94,7 @@ RUN set -eu; \
     && tar -xzf /tmp/k9s.tar.gz -C /tmp \
     && install -m 0755 /tmp/k9s /usr/local/bin/k9s \
     && rm -rf /tmp/k9s* \
-    &&HOME=/root k9s version
+    && k9s version
 
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
@@ -169,12 +169,12 @@ ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
 ENV PATH=${HOME}/bin:$PATH
 
-COPY container-entrypoint.sh /usr/local/bin/project-container-entrypoint.sh
-COPY container-install.sh /usr/local/bin/project-container-install.sh
-COPY container-start.sh /usr/local/bin/project-container-start.sh
+COPY container-entrypoint.sh /usr/local/bin/local-container-entrypoint.sh
+COPY container-install.sh /usr/local/bin/local-container-install.sh
+COPY container-start.sh /usr/local/bin/local-container-start.sh
 
-COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
+COPY --from=go-build /home/debian/go/bin/proxy /usr/local/bin/localproxy
 
-ENTRYPOINT [ "project-container-entrypoint.sh" ]
-CMD [ "project-container-start.sh" ]
+ENTRYPOINT [ "local-container-entrypoint.sh" ]
+CMD [ "local-container-start.sh" ]
 

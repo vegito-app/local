@@ -9,7 +9,7 @@ set -euo pipefail
 # You can set this variable in your devcontainer.json or in your environment before starting the container.
 # Example: export LOCAL_CONTAINER_INSTALL=true
 if [ "${LOCAL_CONTAINER_INSTALL:-}" = true ]; then
-    project-container-install.sh
+    local-container-install.sh
 fi
 
 # 🐧 Setup Debian

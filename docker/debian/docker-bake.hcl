@@ -34,17 +34,9 @@ variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_PUBLIC_REPOSITORY}/debian:${VERSION}"
 }
 
-group "vegito-debian-ci" {
+group "vegito-debian-all-ci" {
   targets = [
-    "vegito-bookworm-debian-ci",
-    "vegito-trixie-debian-ci",
-  ]
-}
-
-group "vegito-bookworm-debian-ci" {
-  targets = [
-    "vegito-debian-version-ci",
-    "vegito-debian-latest-ci",
+    "vegito-debian-ci",
 
     "vegito-debian-desktop-x-ci",
     "vegito-debian-nodejs-ci",
@@ -56,6 +48,13 @@ group "vegito-bookworm-debian-ci" {
     "vegito-debian-ai-ci",
 
     "vegito-debian-docker-ci",
+  ]
+}
+
+group "vegito-debian-ci" {
+  targets = [
+    "vegito-debian-version-ci",
+    "vegito-debian-latest-ci",
   ]
 }
 
@@ -75,7 +74,7 @@ target "vegito-bookworm-debian-base" {
 }
 
 target "vegito-debian-version-ci" {
-  inherits = ["vegito-debian-base"]
+  inherits = ["vegito-bookworm-debian-base"]
   contexts = {
     debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION}"
   }
@@ -102,7 +101,7 @@ target "vegito-debian-version-ci" {
 }
 
 target "vegito-debian-latest-ci" {
-  inherits = ["vegito-debian-base"]
+  inherits = ["vegito-bookworm-debian-base"]
   contexts = {
     debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST}"
   }
@@ -128,7 +127,7 @@ target "vegito-debian-latest-ci" {
 }
 
 target "vegito-debian" {
-  inherits = ["vegito-debian-base"]
+  inherits = ["vegito-bookworm-debian-base"]
   contexts = {
     debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST}"
   }

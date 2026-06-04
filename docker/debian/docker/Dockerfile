@@ -188,13 +188,6 @@ RUN \
     docker-compose --version; \
     docker compose version
 
-# 📦 Prepare user runtime (useful for dockerd sockets)
-ENV XDG_RUNTIME_DIR="/run/user/${uid}"
-
-RUN mkdir -p ${XDG_RUNTIME_DIR} && \
-    chmod 700 ${XDG_RUNTIME_DIR} && \
-    chown ${uid}:${gid} ${XDG_RUNTIME_DIR}
-
 ENV USER=${non_root_user}
 
 COPY entrypoint.sh /usr/local/bin/debian-docker-entrypoint.sh
