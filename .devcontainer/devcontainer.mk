@@ -1,6 +1,6 @@
 LOCAL_DOCKER_COMPOSE_VSCODE ?= $(LOCAL_DOCKER_COMPOSE) \
-	-f $(CURDIR)/.devcontainer/docker-compose.yml \
-	-f $(CURDIR)/.devcontainer/docker-compose-vscode.yml
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose.yml \
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose-vscode.yml
 
 devcontainer-vscode: \
 ensure-vscode-store-volume \
@@ -18,8 +18,8 @@ ensure-vscode-store-volume:
 .PHONY: ensure-vscode-store-volume
 
 LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES ?= $(LOCAL_DOCKER_COMPOSE) \
-	-f $(CURDIR)/.devcontainer/docker-compose.yml \
-	-f $(CURDIR)/.devcontainer/docker-compose-vscode-codespaces.yml
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose.yml \
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose-vscode-codespaces.yml
 
 devcontainer-vscode-github-codespaces: \
 gcloud-auth-serviceaccount-activate \
