@@ -84,7 +84,5 @@ COPY container-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-cache
 COPY entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
 COPY firebase-emulators-config-create-json.sh /usr/local/bin/firebase-emulators-config-create-json.sh
 
-ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
-
 COPY emulators-run.sh /usr/local/bin/firebase-emulators-run.sh
 CMD [ "firebase-emulators-run.sh" ]
