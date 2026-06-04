@@ -26,11 +26,39 @@ compose_pid=$!
 
 # Start waiting for ports in a background subshell
 {
-  until ${docker_compose} exec stripe pgrep -f stripe >/dev/null; do
-    echo "⏳ Waiting for $CONTAINER_NAME to start..."
-    sleep 1
-  done
-  echo "✅ $CONTAINER_NAME is healthy on all ports!"
+
+# Wait for Stripe CLI to output the webhook secret
+echo "[entrypoint] Waiting for Stripe webhook secret..."
+for i in $(seq 1 10); do
+  if grep -q 'whsec_' /tmp/stripe.log; then
+    break
+  fi
+  sleep 1
+done
+
+STRIPE_WEBHOOK_SECRET=$(grep -o 'whsec_[^ ]*' /tmp/stripe.log | head -n1 || true)
+if [ -z "${STRIPE_WEBHOOK_SECRET}" ]; then
+  echo "[entrypoint] WARNING: could not retrieve Stripe webhook secret"
+else
+  # Write env file for manual sourcing
+  cat <<EOF > /tmp/stripe_env.sh
+#!/bin/sh
+export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+EOF
+
+  cat <<EOF > ~/.stripe_env
+export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+EOF
+
+grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'source ~/.stripe_env' >> ~/.profile
+
+  echo "[entrypoint] Webhook secret set: $STRIPE_WEBHOOK_SECRET"
+  echo "[entrypoint] Env written to /tmp/stripe_env.sh"
+  echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
+  
+  # Write env file for manual sourcing
+  echo "STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}" > ${LOCAL_STRIPE_DIR}/.env
+fi
 } &
 wait_pid=$!
 
