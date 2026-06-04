@@ -26,11 +26,6 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     working_dir: ${PWD}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2375/_ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
 
   firebase-emulators:
     tty: true
