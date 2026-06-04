@@ -49,6 +49,7 @@ target "vegito-trixie-debian-base" {
   inherits = ["vegito-debian-base"]
   args = {
     debian_version = "trixie"
+    debian         = "docker-image://${VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST}"
   }
 }
 

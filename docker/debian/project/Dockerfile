@@ -24,7 +24,7 @@ ARG debian_version=bookworm
 
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
+    if [ "${debian_version}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jdk; \
     LIBNCURSES_PACKAGE=libncurses6; \
     else \

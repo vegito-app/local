@@ -9,19 +9,19 @@ target "docker-debian-project-builder" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_X_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_X_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-x-latest"
 }
 
 variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
@@ -29,16 +29,16 @@ variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trixie-debian-project-builder"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian-project-builder"
 }
 
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-project-builder-version"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-project-builder-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -250,19 +250,19 @@ target "vegito-debian-project-builder" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-docker-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-docker-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-project-builder-docker-x-latest"
 }
 
 variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
@@ -270,16 +270,16 @@ variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trixie-debian-project-builder-docker"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian-project-builder-docker"
 }
 
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-docker-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-project-builder-docker-version"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-docker-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-project-builder-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -445,19 +445,19 @@ target "vegito-debian-project-builder-docker" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-project-builder-docker-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-x-${VERSION}"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-project-builder-docker-x-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-project-builder-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-x-latest"
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-golang-project-builder-docker-x-latest"
 }
 
 variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
@@ -465,16 +465,16 @@ variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trixie-debian-golang-project-builder-docker"
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/debian-golang-project-builder-docker"
 }
 
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-golang-project-builder-docker-version"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-golang-project-builder-docker-version"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-golang-project-builder-docker-latest"
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/debian-golang-project-builder-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {

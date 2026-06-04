@@ -1,5 +1,9 @@
-variable "VEGITO_DOCKER_DEBIAN_VERSION" {
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
   default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_REGISTRY_CACHE" {
@@ -24,10 +28,6 @@ variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_WRITE" {
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
   default = "type=local,src=${VEGITO_DOCKER_DEBIAN_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
-}
-
-variable "VEGITO_DOCKER_DEBIAN_IMAGE_LATEST" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/debian:bookworm"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
@@ -60,6 +60,9 @@ group "vegito-debian-ci" {
 
 target "vegito-debian-base" {
   context = VEGITO_DOCKER_DEBIAN_DIR
+  contexts = {
+    debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST}"
+  }
 }
 
 target "vegito-bookworm-debian-base" {
@@ -68,7 +71,7 @@ target "vegito-bookworm-debian-base" {
     "debian_version" = "bookworm"
   }
   contexts = {
-    debian = "target:docker-debian-bookworm-base"
+    debian = "target:vegito-debian-base"
   }
   dockerfile = "bookworm.Dockerfile"
 }
@@ -76,7 +79,7 @@ target "vegito-bookworm-debian-base" {
 target "vegito-debian-version-ci" {
   inherits = ["vegito-bookworm-debian-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_VERSION}"
+    debian = "target:vegito-debian-base"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_VERSION,
@@ -103,7 +106,7 @@ target "vegito-debian-version-ci" {
 target "vegito-debian-latest-ci" {
   inherits = ["vegito-bookworm-debian-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST}"
+    debian = "target:vegito-debian-base"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
@@ -129,10 +132,11 @@ target "vegito-debian-latest-ci" {
 target "vegito-debian" {
   inherits = ["vegito-bookworm-debian-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_HUB_DEBIAN_IMAGE_LATEST}"
+    debian = "target:vegito-debian-base"
   }
   tags = [
     VEGITO_DOCKER_DEBIAN_IMAGE_LATEST,
+    VEGITO_DOCKER_DEBIAN_IMAGE_VERSION
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
