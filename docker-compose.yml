@@ -5,7 +5,7 @@ services:
   dev:
     tty: true
     restart: unless-stopped
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
     env_file:
       - .env
     environment:
@@ -34,7 +34,7 @@ services:
 
   firebase-emulators:
     tty: true
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -53,7 +53,7 @@ services:
   clarinet-devnet:
     tty: true
     privileged: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -73,7 +73,7 @@ services:
     cap_add:
       - SYS_ADMIN
       - SYS_NICE
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
     env_file:
       - .env
     environment:
@@ -110,7 +110,7 @@ services:
     command: /workspaces/vegito-app/local/android/studio/android-studio.sh
 
   vault-dev:
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
     environment:
@@ -128,7 +128,7 @@ services:
     tty: true
   robotframework:
     tty: true
-    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
+    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
@@ -149,7 +149,7 @@ services:
   nestor:
     tty: true
     privileged: true
-    image: ${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
     restart: unless-stopped
     cap_add:
       - NET_ADMIN

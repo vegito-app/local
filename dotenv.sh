@@ -138,7 +138,7 @@ services:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/example-application/tests
 
   android-studio:
-    image: ${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/example-application/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
@@ -147,7 +147,7 @@ services:
     working_dir: ${PWD}/example-application/mobile
 
   clarinet-devnet:
-    image: ${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
       LOCAL_CLARINET_CONTAINER_INSTALL: ${LOCAL_CLARINET_CONTAINER_INSTALL:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
@@ -161,10 +161,10 @@ services:
       VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME}
   
   firebase-emulators:
-    image: ${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest
   
   vault-dev:
-    image: ${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest
     working_dir: ${PWD}/example-application/
     command: |
       bash -c '
@@ -173,7 +173,7 @@ services:
       sleep infinity
       '
   nestor:
-    image: ${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
 EOF
 
 dockerNetworkName=${VEGITO_LOCAL_DOCKER_NETWORK_NAME:-dev}

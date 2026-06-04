@@ -64,9 +64,6 @@ target "local-firebase-emulators-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
-    ] : [],
     [
       LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
@@ -94,9 +91,6 @@ target "local-firebase-emulators-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
-    ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
       LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
@@ -132,9 +126,6 @@ target "local-firebase-emulators" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
-    ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
       LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
