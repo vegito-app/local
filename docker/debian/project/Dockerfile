@@ -1,27 +1,26 @@
 FROM debian-golang AS go-build
+ARG debian_version=bookworm
+ARG TARGETPLATFORM
 
-COPY proxy proxy
-
-# ARG non_root_user=go
 ARG uid=1000
 ARG gid=1000
+ARG go_pkg=/home/debian/go/pkg
+ARG go_cache=/home/debian/.cache/go-build
+ENV GOMODCACHE=${go_pkg}/mod
+ENV GOCACHE=${go_cache}
+ENV GOBIN=/home/debian/go/bin
+ENV CGO_ENABLED=0
+RUN --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-pkg,target=${go_pkg},sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-debian-${TARGETPLATFORM}-${debian_version}-root-go-build,target=${go_cache},sharing=locked,uid=${uid},gid=${gid} \
+    go install -v github.com/jesseduffield/lazydocker@latest \
+    && go install -v github.com/vegito-app/local/proxy@latest
+
+FROM debian
 
 ARG TARGETPLATFORM
-
-ARG debian_version=bookworm
-
-RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-pkg,target=/home/debian/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-go-build,target=/home/debian/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
-    cd proxy \
-    && go install -v
-
-FROM debian-golang
-ARG debian_version=bookworm
-ARG TARGETPLATFORM
-
-COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
 USER root
+ARG debian_version=bookworm
 
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
@@ -102,91 +101,6 @@ RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/s
     && chmod 700 get_helm.sh \
     && ./get_helm.sh
 
-# Install Docker
-ARG docker_version
-ARG docker_compose_version
-ARG docker_buildx_version
-RUN \
-    set -eu; \
-    \
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://download.docker.com/linux/static/stable/x86_64/docker-${docker_version}.tgz"; \
-    ;; \
-    "linux/arm64") \
-    url="https://download.docker.com/linux/static/stable/aarch64/docker-${docker_version}.tgz"; \
-    ;; \
-    *) echo >&2 "error: unsupported 'docker.tgz' architecture ($TARGETPLATFORM)"; exit 1 ;; \
-    esac; \
-    wget -O 'docker.tgz' "$url";  \
-    \
-    tar --extract \
-    --file docker.tgz \
-    --strip-components 1 \
-    --directory /usr/local/bin/ \
-    --no-same-owner \
-    'docker/docker' \
-    ; \
-    rm docker.tgz; \
-    \
-    docker --version; \
-    # 
-    # Docker Buildx 
-    # 
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://github.com/docker/buildx/releases/download/v${docker_buildx_version}/buildx-v${docker_buildx_version}.linux-amd64"; \
-    sha256='805195386fba0cea5a1487cf0d47da82a145ea0a792bd3fb477583e2dbcdcc2f'; \
-    ;; \
-    "linux/arm64") \
-    url="https://github.com/docker/buildx/releases/download/v${docker_buildx_version}/buildx-v${docker_buildx_version}.linux-arm64"; \
-    sha256='6e9e455b5ec1c7ac708f2640a86c5cecce38c72e48acff6cb219dfdfa2dda781'; \
-    ;; \
-    *) echo >&2 "warning: unsupported 'docker-buildx' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
-    esac; \
-    \
-    wget -O 'docker-buildx' "$url"; \
-    echo "$sha256 *"'docker-buildx' | sha256sum -c -; \
-    \
-    plugin='/usr/local/libexec/docker/cli-plugins/docker-buildx'; \
-    mkdir -p "$(dirname "$plugin")"; \
-    mv -vT 'docker-buildx' "$plugin"; \
-    chmod +x "$plugin"; \
-    \
-    docker buildx version ; \
-    #
-    # Docker Compose
-    # 
-    \
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://github.com/docker/compose/releases/download/v${docker_compose_version}/docker-compose-linux-x86_64"; \
-    sha256='94a416c6f2836a0a1ba5eb3feb00f2e700a9d98311f062c4c61494ccbf3cd457'; \
-    ;; \
-    "linux/arm64") \
-    url="https://github.com/docker/compose/releases/download/v${docker_compose_version}/docker-compose-linux-aarch64"; \
-    sha256='cd1ef5eda1119edb9314c0224bac97cee14a9c31909a0f7aa0ddfe266e08adaa'; \
-    ;; \
-    *) echo >&2 "warning: unsupported 'docker-compose' architecture ($TARGETPLATFORM); skipping"; exit 0 ;; \
-    esac; \
-    \
-    wget -O 'docker-compose' "$url"; \
-    echo "$sha256 *"'docker-compose' | sha256sum -c -; \
-    \
-    plugin='/usr/local/libexec/docker/cli-plugins/docker-compose'; \
-    mkdir -p "$(dirname "$plugin")"; \
-    mv -vT 'docker-compose' "$plugin"; \
-    chmod +x "$plugin"; \
-    \
-    ln -sv "$plugin" /usr/local/bin/; \
-    docker-compose --version; \
-    docker compose version
-
-RUN --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-builder-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    emacs-nox
-
 ARG gitleaks_version=8.28.0
 
 RUN case "$TARGETPLATFORM" in "linux/amd64") \
@@ -253,35 +167,14 @@ RUN --mount=type=cache,id=local-builder-${debian_version}-${TARGETPLATFORM}-npm-
 ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
-# Install magit
-RUN emacs --batch --eval "(require 'package)" \
-    --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\"))" \
-    --eval "(package-initialize)" \
-    --eval "(unless package-archive-contents (package-refresh-contents))" 
-# --eval "(package-install 'magit)"
-
 ENV PATH=${HOME}/bin:$PATH
 
+COPY container-entrypoint.sh /usr/local/bin/local-container-entrypoint.sh
 COPY container-install.sh /usr/local/bin/local-container-install.sh
+COPY container-start.sh /usr/local/bin/local-container-start.sh
 
-COPY entrypoint.sh /usr/local/bin/dev-entrypoint.sh
-ENTRYPOINT [ "dev-entrypoint.sh" ]
-CMD [ "sleep", "infinity" ]
-USER root
-RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor \
-    > /etc/apt/keyrings/packages.microsoft.gpg && \
-    chmod go+r /etc/apt/keyrings/packages.microsoft.gpg && \
-    if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    > /etc/apt/sources.list.d/vscode.list && \
-    apt-get update && \
-    apt-get install -y code ; \
-    else \
-    echo "Skipping VSCode install on $TARGETPLATFORM" ; \
-    fi
+COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
 
-USER ${non_root_user}
+ENTRYPOINT [ "local-container-entrypoint.sh" ]
+CMD [ "local-container-start.sh" ]
+
