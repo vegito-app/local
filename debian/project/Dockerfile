@@ -24,7 +24,7 @@ ARG debian_version=bookworm
 
 RUN --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=vegito-debian-${debian_version}-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    if [ "${DEBIAN_VERSION}" = "trixie" ]; then \
+    if [ "${debian_version}" = "trixie" ]; then \
     JAVA_PACKAGE=default-jdk; \
     LIBNCURSES_PACKAGE=libncurses6; \
     else \
@@ -173,7 +173,7 @@ COPY container-entrypoint.sh /usr/local/bin/local-container-entrypoint.sh
 COPY container-install.sh /usr/local/bin/local-container-install.sh
 COPY container-start.sh /usr/local/bin/local-container-start.sh
 
-COPY --from=go-build ${HOME}/go/bin/proxy /usr/local/bin/localproxy
+COPY --from=go-build /home/debian/go/bin/proxy /usr/local/bin/localproxy
 
 ENTRYPOINT [ "local-container-entrypoint.sh" ]
 CMD [ "local-container-start.sh" ]
