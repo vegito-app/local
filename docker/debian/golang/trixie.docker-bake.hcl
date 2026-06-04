@@ -47,7 +47,7 @@ target "vegito-trixie-debian-golang-base" {
     go_version     = GO_VERSION
     debian_version = "trixie"
   }
-  context    = VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DIR
+  context    = VEGITO_DOCKER_DEBIAN_GOLANG_DIR
   dockerfile = "Dockerfile"
 }
 

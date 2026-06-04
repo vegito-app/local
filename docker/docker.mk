@@ -106,13 +106,14 @@ VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
  ai \
  desktop-x \
  docker \
- golang \
- python \
- rust \
  flutter \
- terraform \
+ golang \
  kubernetes \
  nodejs \
+ project \
+ python \
+ rust \
+ terraform \
  vscode
 
 VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
@@ -122,6 +123,8 @@ VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
 VEGITO_DOCKER_DEBIAN_IMAGES ?= \
   debian \
   debian-golang-docker \
+  debian-golang-project-builder-docker \
+  debian-golang-project-builder-docker-x \
   debian-vscode-golang-ai-docker-desktop-x \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
   $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
@@ -150,7 +153,7 @@ vegito-docker-hub-images-update:
 $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
-.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-%-images-update)
+.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release

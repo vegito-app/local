@@ -1,5 +1,5 @@
 # Local Docker Compose configuration
-LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
+LOCAL_BUILDER_IMAGE ?= $(VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME):builder-latest
 
 export LOCAL_DIR ?= $(CURDIR)
 
