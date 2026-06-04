@@ -41,12 +41,20 @@ group "local-stripe-ci" {
   ]
 }
 
-target "local-stripe-version-ci" {
-  contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-  }
+
+target "local-stripe-base" {
   context    = "${LOCAL_DIR}/stripe"
   dockerfile = "Dockerfile"
+  args = {
+    debian_version = "trixie"
+  }
+}
+
+target "local-stripe-version-ci" {
+  inherits = ["local-stripe-base"]
+  contexts = {
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION}"
+  }
   tags = [
     LOCAL_STRIPE_IMAGE_VERSION,
   ]
@@ -70,11 +78,10 @@ target "local-stripe-version-ci" {
 }
 
 target "local-stripe-latest-ci" {
+  inherits = ["local-stripe-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
   }
-  context    = "${LOCAL_DIR}/stripe"
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_STRIPE_IMAGE_LATEST
   ]
@@ -104,11 +111,10 @@ target "local-stripe-latest-ci" {
 }
 
 target "local-stripe" {
+  inherits = ["local-stripe-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION}"
   }
-  context    = "${LOCAL_DIR}/stripe"
-  dockerfile = "Dockerfile"
   tags = [
     LOCAL_STRIPE_IMAGE_LATEST,
     LOCAL_STRIPE_IMAGE_VERSION,

@@ -15,7 +15,21 @@ check_success() {
 # 🚨 Register cleanup function to run on script exit
 trap check_success EXIT
 
+# Bashrc enhancements for better usability
 mkdir -p ~/.bashrc.d
+
+if ! grep -q "__BASHRC_D" ~/.bashrc; then
+
+cat <<'EOF' >> ~/.bashrc
+# __BASHRC_D
+if [ -d "${HOME}/.bashrc.d" ]; then
+    for f in "${HOME}"/.bashrc.d/*.sh; do
+        [ -r "$f" ] && source "$f"
+    done
+fi
+
+EOF
+fi
 
 cat <<EOF > ~/.bashrc.d/00-debian.sh
 export HISTSIZE=50000

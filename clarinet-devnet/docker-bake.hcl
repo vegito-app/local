@@ -51,7 +51,7 @@ group "local-clarinet-devnet-ci" {
 
 target "local-clarinet-devnet-version-ci" {
   contexts = {
-    builder_image = "target:local-project-builder-version-ci"
+    builder_image = "target:vegito-debian-project-builder-version-ci"
     debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION}"
     rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
   }
@@ -85,7 +85,7 @@ target "local-clarinet-devnet-version-ci" {
 
 target "local-clarinet-devnet-latest-ci" {
   contexts = {
-    builder_image = "target:local-project-builder-latest-ci"
+    builder_image = "target:vegito-debian-project-builder-latest-ci"
     debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_LATEST}"
     rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST}"
   }
@@ -126,7 +126,7 @@ target "local-clarinet-devnet-latest-ci" {
 
 target "local-clarinet-devnet" {
   contexts = {
-    builder_image = "target:local-project-builder"
+    builder_image = "target:vegito-debian-project-builder"
     debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION}"
     rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
   }

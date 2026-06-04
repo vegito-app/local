@@ -101,7 +101,7 @@ variable "VEGITO_CACHE_IMAGES_BASE" {
   default = "${VEGITO_CACHE_REPOSITORY}/vegito-docker"
 }
 
-variable "VEGITO_PUBLIC_REPOSITORY" {
+variable "VEGITO_PRIVATE_REPOSITORY" {
   default = "vegito-docker-repository-private"
 }
 

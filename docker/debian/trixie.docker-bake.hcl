@@ -26,7 +26,12 @@ group "vegito-trixie-debian-ci" {
   targets = [
     "vegito-trixie-debian-version-ci",
     "vegito-trixie-debian-latest-ci",
+  ]
+}
 
+group "vegito-trixie-debian-all-ci" {
+  targets = [
+    "vegito-trixie-debian-ci",
     "vegito-trixie-debian-desktop-x-ci",
     "vegito-trixie-debian-flutter-ci",
     "vegito-trixie-debian-golang-ci",
@@ -44,6 +49,7 @@ target "vegito-trixie-debian-base" {
   inherits = ["vegito-debian-base"]
   args = {
     debian_version = "trixie"
+    debian         = "docker-image://${VEGITO_DOCKER_HUB_TRIXIE_DEBIAN_IMAGE_LATEST}"
   }
 }
 

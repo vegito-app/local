@@ -47,7 +47,7 @@ group "local-firebase-emulators-ci" {
 
 target "local-firebase-emulators-version-ci" {
   contexts = {
-    builder_image = "target:local-project-builder-version-ci"
+    builder_image = "target:vegito-debian-project-builder-version-ci"
     debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
@@ -64,9 +64,6 @@ target "local-firebase-emulators-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
-    ] : [],
     [
       LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
@@ -81,7 +78,7 @@ target "local-firebase-emulators-version-ci" {
 
 target "local-firebase-emulators-latest-ci" {
   contexts = {
-    builder_image = "target:local-project-builder-latest-ci"
+    builder_image = "target:vegito-debian-project-builder-latest-ci"
     debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
@@ -94,9 +91,6 @@ target "local-firebase-emulators-latest-ci" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
-    ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
       LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
@@ -118,7 +112,7 @@ target "local-firebase-emulators-latest-ci" {
 
 target "local-firebase-emulators" {
   contexts = {
-    builder_image = "target:local-project-builder"
+    builder_image = "target:vegito-debian-project-builder"
     debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
@@ -132,9 +126,6 @@ target "local-firebase-emulators" {
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
-    ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     [
       LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,

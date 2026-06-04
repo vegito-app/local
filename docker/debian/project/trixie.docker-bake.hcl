@@ -1,0 +1,628 @@
+target "docker-trixie-debian-project-builder" {
+  contxexts = {
+    local = "target:docker-trixie-debian-project-local"
+  }
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-x-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-latest"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-x-latest"
+}
+
+variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/vegito-local"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trixie-debian-project-builder"
+}
+
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-version"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-latest"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
+  description = "local write cache (version)"
+  default     = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
+  description = "local write cache (latest)"
+  default     = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION" {
+  description = "local read cache (version)"
+  default     = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
+  description = "local read cache (latest)"
+  default     = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+group "vegito-trixie-debian-project-builders" {
+  targets = [
+    "vegito-trixie-debian-project-builder",
+    "vegito-trixie-debian-project-builder-x",
+  ]
+}
+
+group "vegito-trixie-debian-project-builders-ci" {
+  targets = [
+    "vegito-trixie-debian-project-builder-ci",
+    "vegito-trixie-debian-project-builder-x-ci",
+  ]
+}
+
+group "vegito-trixie-debian-project-builder-ci" {
+  targets = [
+    "vegito-trixie-debian-project-builder-version-ci",
+    "vegito-trixie-debian-project-builder-latest-ci",
+  ]
+}
+
+group "vegito-trixie-debian-project-builder-x-ci" {
+  targets = [
+    "vegito-trixie-debian-project-builder-x-version-ci",
+    "vegito-trixie-debian-project-builder-x-latest-ci",
+  ]
+}
+
+group "vegito-trixie-debian-golang-project-builder-ci" {
+  targets = [
+    "vegito-trixie-debian-golang-project-builder-version-ci",
+    "vegito-trixie-debian-golang-project-builder-latest-ci",
+  ]
+}
+
+group "vegito-trixie-debian-golang-project-builder-x-ci" {
+  targets = [
+    "vegito-trixie-debian-golang-project-builder-x-version-ci",
+    "vegito-trixie-debian-golang-project-builder-x-latest-ci",
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-base" {
+  inherits = ["vegito-debian-project-builder-base"]
+  args = {
+    debian_version = "trixie"
+  }
+}
+
+target "vegito-trixie-debian-project-builder-x-version-ci" {
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-desktop-x-version-ci"
+  }
+  inherits = ["vegito-trixie-debian-project-builder-version-ci"]
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_VERSION,
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-version-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_VERSION,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION,
+    ] : []
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian-project-builder-x-latest-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-latest-ci"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
+    debian        = "target:vegito-trixie-debian-desktop-x-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-latest-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_REGISTR_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : [],
+    [
+      "type=inline"
+    ]
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian-project-builder-x" {
+  inherits = ["vegito-trixie-debian-project-builder"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-desktop-x"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_VERSION,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-project-builder" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_VERSION
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
+    ] : []
+  )
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-x-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-latest"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-builder-docker-x-latest"
+}
+
+variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/vegito-local"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trixie-debian-project-builder-docker"
+}
+
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-docker-version"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-project-builder-docker-latest"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
+  description = "local write cache (version)"
+  default     = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
+  description = "local write cache (latest)"
+  default     = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION" {
+  description = "local read cache (version)"
+  default     = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
+  description = "local read cache (latest)"
+  default     = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+group "vegito-trixie-debian-project-builder-docker-ci" {
+  targets = [
+    "vegito-trixie-debian-project-builder-docker-version-ci",
+    "vegito-trixie-debian-project-builder-docker-latest-ci",
+  ]
+}
+
+group "vegito-trixie-debian-project-builder-docker-x-ci" {
+  targets = [
+    "vegito-trixie-debian-project-builder-docker-x-version-ci",
+    "vegito-trixie-debian-project-builder-docker-x-latest-ci",
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-docker-x-version-ci" {
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-docker-desktop-x-version-ci"
+  }
+  inherits = ["vegito-trixie-debian-project-builder-version-ci"]
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION,
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-docker-version-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-docker-version-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_VERSION,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION,
+    ] : []
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian-project-builder-docker-x-latest-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-latest-ci"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
+    debian        = "target:vegito-trixie-debian-docker-desktop-x-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-docker-latest-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-docker-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_REGISTR_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : [],
+    [
+      "type=inline"
+    ]
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian-project-builder-docker-x" {
+  inherits = ["vegito-trixie-debian-project-builder"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-docker-desktop-x"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-project-builder-docker" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-docker"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_VERSION
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
+    ] : []
+  )
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-x-${VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-latest"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-x-latest"
+}
+
+variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_CACHE_REPOSITORY}/vegito-local"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE" {
+  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trixie-debian-golang-project-builder-docker"
+}
+
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-golang-project-builder-docker-version"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/trixie-debian-golang-project-builder-docker-latest"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
+  description = "local write cache (version)"
+  default     = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
+  description = "local write cache (latest)"
+  default     = "type=local,mode=max,dest=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION" {
+  description = "local read cache (version)"
+  default     = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
+  description = "local read cache (latest)"
+  default     = "type=local,src=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+group "vegito-trixie-debian-golang-project-builder-docker-ci" {
+  targets = [
+    "vegito-trixie-debian-golang-project-builder-docker-version-ci",
+    "vegito-trixie-debian-golang-project-builder-docker-latest-ci",
+
+    "vegito-trixie-debian-golang-project-builder-docker-version-ci",
+    "vegito-trixie-debian-golang-project-builder-docker-latest-ci"
+  ]
+}
+
+group "vegito-trixie-debian-golang-project-builder-docker-x-ci" {
+  targets = [
+    "vegito-trixie-debian-golang-project-builder-docker-x-version-ci",
+    "vegito-trixie-debian-golang-project-builder-docker-x-latest-ci",
+  ]
+}
+
+target "vegito-trixie-debian-golang-project-builder-docker-x-version-ci" {
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-golang-docker-desktop-x-version-ci"
+  }
+  inherits = ["vegito-trixie-debian-project-builder-version-ci"]
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION,
+  ]
+}
+
+target "vegito-trixie-debian-golang-project-builder-docker-version-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-golang-docker-version-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_VERSION,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION,
+    ] : []
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian-golang-project-builder-docker-x-latest-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-latest-ci"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_DESKTOP_X_IMAGE_LATEST}"
+    debian        = "target:vegito-trixie-debian-golang-docker-desktop-x-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-golang-project-builder-docker-latest-ci" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-golang-docker-latest-ci"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_REGISTR_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : [],
+    [
+      "type=inline"
+    ]
+  )
+  platforms = platforms
+}
+
+target "vegito-trixie-debian-golang-project-builder-docker-x" {
+  inherits = ["vegito-trixie-debian-project-builder"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-golang-docker-desktop-x"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_VERSION,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_X_IMAGE_LATEST,
+  ]
+}
+
+target "vegito-trixie-debian-golang-project-builder-docker" {
+  inherits = ["vegito-trixie-debian-project-builder-base"]
+  contexts = {
+    debian-golang = "docker-image://${VEGITO_DOCKER_HUB_GOLANG_DEBIAN_TRIXIE_IMAGE_VERSION}"
+    debian        = "target:vegito-trixie-debian-golang-docker"
+  }
+  tags = [
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+    VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_VERSION
+  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_REGISTRY_CACHE}",
+      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST,
+      VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST,
+    ] : []
+  )
+}

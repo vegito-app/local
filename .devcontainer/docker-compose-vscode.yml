@@ -34,14 +34,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # - /dev:/dev
       # - /lib/modules:/lib/modules
-
-  example-application-backend:
-    volumes:
-      - vscode-store:/vscode
-
-  example-application-mobile:
-    volumes:
-      - vscode-store:/vscode
 volumes:
   vscode-store:
     external: true
