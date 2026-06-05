@@ -33,7 +33,7 @@ local-docker-compose-images-pull-parallel \
 local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
 
-LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
+VEGITO_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
@@ -43,53 +43,53 @@ LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%) 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%) 2>&1 | tee -a $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-image=%) 2>&1 | tee $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-image=%) 2>&1 | tee -a $@.make-logs
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
 $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
 local-project-builders-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builders 2>&1 | tee -a $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-project-builders 2>&1 | tee $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load local-project-builders 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builders-image
 
 local-project-builders-image-ci: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builders-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-project-builders-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push local-project-builders-ci
 .PHONY: local-project-builders-image-ci
 
 local-project-builder-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder 2>&1 | tee -a $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-project-builder 2>&1 | tee $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load local-project-builder 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builder-image
 
 local-project-builder-image-ci: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
 
 local-project-builder-x-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee -a $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-project-builder-x 2>&1 | tee $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builder-x-image
 
 local-project-builder-x-image-ci: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-x-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-project-builder-x-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push local-project-builder-x-ci
 .PHONY: local-project-builder-x-image-ci
 
 local-desktop-x-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x 2>&1 | tee -a $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-desktop-x 2>&1 | tee $@.make-logs
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load local-desktop-x 2>&1 | tee -a $@.make-logs
 .PHONY: local-desktop-x-image
 
 local-desktop-x-image-ci: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-desktop-x-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print local-desktop-x-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push local-desktop-x-ci
 .PHONY: local-desktop-x-image-ci
 
 local-gcloud-builder-image-delete:

@@ -17,9 +17,9 @@ local-android-docker-images:
 
 $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): vegito-docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake group $(@:%-group=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group=%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-group=%)
 	@echo Building and pushing the docker images for buildx bake group $(@:%-group=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-group=%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-group=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
 
 local-android-docker-images-ci: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci)
@@ -27,9 +27,9 @@ local-android-docker-images-ci: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-andro
 
 $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): vegito-docker-buildx-setup
 	@echo Showing CI docker images build configuration for buildx bake group $(@:%-group-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-group-ci=%-ci)
 	@echo Building and pushing the docker images for buildx bake group $(@:%-group-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-group-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-group-ci=%-ci)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci)
 
 LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
@@ -39,16 +39,16 @@ LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
 
 $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): vegito-docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake target $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@echo Building and loading the docker image for buildx bake target $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image)
 
 $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): vegito-docker-buildx-setup
 	@echo Showing CI build configuration for docker bake target $(@:%-image-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
 	@echo Building and pushing the docker image for buildx bake target $(@:%-image-ci=%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci)
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \

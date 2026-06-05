@@ -110,7 +110,7 @@ VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
  golang \
  kubernetes \
  nodejs \
- project \
+ project-builder \
  python \
  rust \
  terraform \

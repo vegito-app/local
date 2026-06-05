@@ -48,7 +48,16 @@ ENTRYPOINT [ "debian-golang-entrypoint.sh" ]
 
 USER ${non_root_user} 
 ENV USER=${non_root_user}
-COPY --chown=${uid}:${gid} --from=go-build /go/bin/ /home/debian/go/bin/
+
+COPY --from=go-build /go/bin/proxy         /usr/local/bin/
+COPY --from=go-build /go/bin/cmd           /usr/local/bin/
+COPY --from=go-build /go/bin/staticcheck   /usr/local/bin/
+COPY --from=go-build /go/bin/lazydocker    /usr/local/bin/
+COPY --from=go-build /go/bin/oapi-codegen  /usr/local/bin/
+COPY --from=go-build /go/bin/gopls         /usr/local/bin/
+COPY --from=go-build /go/bin/gotests       /usr/local/bin/
+COPY --from=go-build /go/bin/impl          /usr/local/bin/
+COPY --from=go-build /go/bin/goplay        /usr/local/bin/
 
 ENV PATH=${PATH}:/usr/local/go/bin
 RUN mkdir -p /home/debian/go/bin

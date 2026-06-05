@@ -26,8 +26,8 @@ example-application-docker-images-host-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX
 .PHONY: example-application-docker-images-host-arch
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $@
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $@
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $@
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $@
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%)
 
 EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
@@ -36,8 +36,8 @@ EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
   applications
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $@
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $@
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $@
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $@
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci)
 
 example-application-docker-images-multi-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI:%=vegito-example-application-%-ci)
@@ -52,28 +52,28 @@ example-application-docker-images: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAG
 .PHONY: example-application-docker-images
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=vegito-%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=vegito-%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-image=vegito-%)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-image=vegito-%)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image)
 
 example-application-docker-images-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 .PHONY: example-application-docker-images-ci
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci): vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=vegito-%-ci)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=vegito-%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=vegito-%-ci)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=vegito-%-ci)
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-image-ci)
 
 example-application-release-ci:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-release-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push vegito-example-application-release-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print vegito-example-application-release-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push vegito-example-application-release-ci
 .PHONY: example-application-release-ci
 
 example-application-docker-tags-list-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-list-ci)
 .PHONY: example-application-docker-tags-list-ci
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-tags-ci): vegito-docker-buildx-setup
-	@$($(LOCAL_DOCKER_BUILDX_BAKE)) --print $(@:vegito-%-docker-tags=%-ci) 2>/dev/null \
+	@$($(VEGITO_DOCKER_BUILDX_BAKE)) --print $(@:vegito-%-docker-tags=%-ci) 2>/dev/null \
 	| jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
 
@@ -201,5 +201,5 @@ example-application-docker-images-push-parallel:
 
 example-application-docker-group-tags-list-ci: 
 	@echo "Listing all tags for example-application docker images in CI..." >&2
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print vegito-example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print vegito-example-application-ci | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: example-application-docker-group-tags-list-ci
