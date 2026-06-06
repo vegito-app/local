@@ -169,12 +169,12 @@ ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
 
 ENV PATH=${HOME}/bin:$PATH
 
-COPY container-entrypoint.sh /usr/local/bin/local-container-entrypoint.sh
-COPY container-install.sh /usr/local/bin/local-container-install.sh
-COPY container-start.sh /usr/local/bin/local-container-start.sh
+COPY container-entrypoint.sh /usr/local/bin/project-container-entrypoint.sh
+COPY container-install.sh /usr/local/bin/project-container-install.sh
+COPY container-start.sh /usr/local/bin/project-container-start.sh
 
 COPY --from=go-build /home/debian/go/bin/proxy /usr/local/bin/localproxy
 
-ENTRYPOINT [ "local-container-entrypoint.sh" ]
-CMD [ "local-container-start.sh" ]
+ENTRYPOINT [ "project-container-entrypoint.sh" ]
+CMD [ "project-container-start.sh" ]
 
