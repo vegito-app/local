@@ -18,7 +18,7 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 # Start Appium runtime (critical service)
-/workspaces/vegito-app/local/android/appium/appium-start.sh &
+android-appium-start.sh &
 appium_pid="$!"
 
 if [ "${LOCAL_ANDROID_STUDIO_ON_START}" != "true" ]; then
