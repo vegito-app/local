@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -euxo pipefail
+set -euo pipefail
 
 CONTAINER_NAME="vault-dev"
 PORTS_TO_WAIT_FOR=(8200 8201)

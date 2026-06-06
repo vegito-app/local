@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -uxo pipefail
+set -uo pipefail
 
 
 caches_refresh_success=false
