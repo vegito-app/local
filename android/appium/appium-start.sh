@@ -15,7 +15,7 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-android-emulator-avd-start.sh &
+android-container-start.sh &
 bg_pids+=($!)
 
 appium --address 0.0.0.0 --port 4723 \
