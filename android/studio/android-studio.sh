@@ -28,7 +28,7 @@ fi
 
 export DISPLAY="${DISPLAY:-:20}"
 
-timeout=60
+timeout=300
 
 echo "⏳ Waiting for X display..."
 

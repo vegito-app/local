@@ -57,12 +57,6 @@ COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh /usr/local/bin/andr
 
 COPY android-studio.desktop /usr/share/applications/
 
-RUN chmod +x \
-  /usr/local/bin/android-appium-entrypoint.sh \
-  /usr/local/bin/container-install.sh \
-  /usr/local/bin/android-studio.sh \
-  /usr/local/bin/android-studio-entrypoint.sh
-
 ENTRYPOINT ["android-studio-entrypoint.sh"]
 CMD ["android-studio.sh"]
 

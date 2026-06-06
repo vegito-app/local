@@ -74,4 +74,6 @@ XPRA_ENV_ARGS+=("--env=FLUTTER_HOME=${FLUTTER_HOME}")
 XPRA_ENV_ARGS+=("--env=STUDIO_PATH=${STUDIO_PATH}")
 
 # Use Appium 
-android-appium-entrypoint.sh "$@"
+android-appium-entrypoint.sh echo " [entrypoint] Android Appium setup done"
+
+exec "$@"

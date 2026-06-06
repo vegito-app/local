@@ -43,6 +43,7 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     fi
 
 COPY --chown=${uid}:${gid} avd-start.sh /usr/local/bin/android-emulator-avd-start.sh
+COPY --chown=${uid}:${gid} container-start.sh /usr/local/bin/android-container-start.sh
 COPY --chown=${uid}:${gid} emulator-data-load.sh /usr/local/bin/
 COPY --chown=${uid}:${gid} entrypoint.sh /usr/local/bin/android-emulator-entrypoint.sh
 
@@ -65,4 +66,4 @@ ENV LOCAL_ANDROID_EMULATOR_AVD_NAME=Pixel_8_Intel
 ENV LOCAL_ANDROID_EMULATOR_DAT=tests/mobile_images
 
 ENTRYPOINT ["android-emulator-entrypoint.sh"]
-CMD [ "android-emulator-avd-start.sh" ]
+CMD [ "android-container-start.sh" ]
