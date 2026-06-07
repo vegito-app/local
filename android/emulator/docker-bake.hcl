@@ -15,11 +15,11 @@ variable "LOCAL_ANDROID_EMULATOR_DIR" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-version"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-version"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-latest"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-emulator-latest"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -101,7 +101,6 @@ target "local-android-emulator-latest-ci" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}",
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
@@ -137,7 +136,6 @@ target "local-android-emulator" {
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
       "type=registry,ref=${LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE}",
-      "type=registry,ref=${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
@@ -174,11 +172,11 @@ variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter-version"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter-version"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter-latest"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/android-flutter-latest"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {

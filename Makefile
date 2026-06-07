@@ -22,10 +22,6 @@ export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-private
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
-VEGITO_DOCKER_DIR ?= $(CURDIR)/docker
-VEGITO_DOCKER_IO_DIR ?= $(VEGITO_DOCKER_DIR)/docker.io
-VEGITO_DOCKER_ALPINE_DIR ?= $(VEGITO_DOCKER_DIR)/alpine
-VEGITO_DOCKER_DEBIAN_DIR ?= $(VEGITO_DOCKER_DIR)/debian
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:vegito-debian-project-builder-version-ci \
@@ -33,18 +29,6 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
-  -f $(VEGITO_DOCKER_DIR)/docker-bake.hcl \
-  -f $(VEGITO_DOCKER_IO_DIR)/docker-bake.hcl \
-  -f $(VEGITO_NESTOR_DIR)/docker-bake.hcl \
-  -f $(VEGITO_NESTOR_DIR)/nestor/docker-bake.hcl \
-  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=-f $(VEGITO_DOCKER_IO_DIR)/%.docker-bake.hcl) \
-  -f $(VEGITO_DOCKER_ALPINE_DIR)/docker-bake.hcl \
-  -f $(VEGITO_DOCKER_DEBIAN_DIR)/docker-bake.hcl \
-  -f $(VEGITO_DOCKER_DEBIAN_DIR)/trixie.docker-bake.hcl \
-  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/docker-bake.hcl) \
-  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/%/trixie.docker-bake.hcl) \
-  $(VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/vscode/%/docker-bake.hcl) \
-  $(VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS:%=-f $(VEGITO_DOCKER_DEBIAN_DIR)/vscode/%/trixie.docker-bake.hcl) \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
@@ -59,7 +43,6 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
     -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
   	-f $(CURDIR)/trivy/docker-compose.yml \
-  	-f $(CURDIR)/nestor/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
     -f $(CURDIR)/.docker-compose-gpu-override.yml
@@ -90,6 +73,7 @@ LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):ex
 VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
 -include local.mk
+-include docker.mk
 -include gcloud.mk
 -include android.mk
 -include git.mk

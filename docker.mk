@@ -1,21 +1,7 @@
-export VEGITO_DOCKER_DIR ?= $(CURDIR)
-include $(VEGITO_DOCKER_DIR)/docker.io/docker.mk
-
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
-VEGITO_DOCKER_IMAGES_BASE ?= vegito
-
-export VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
-
-export VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
-export VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
-
 export VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
-export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
-
-export VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
-export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
@@ -99,62 +85,6 @@ vegito-docker-build-tags-list-ci-md:
 	  echo "" ; \
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
-
-VEGITO_DOCKER_DEBIAN_DIR ?= $(VEGITO_DOCKER_DIR)/debian
-
-VEGITO_DOCKER_DEBIAN_SPECIFICS ?= \
- ai \
- desktop-x \
- docker \
- flutter \
- golang \
- kubernetes \
- nodejs \
- project \
- python \
- rust \
- terraform \
- vscode
-
-VEGITO_DOCKER_DEBIAN_VSCODE_SPECIFICS ?= \
- ai \
- golang
-
-VEGITO_DOCKER_DEBIAN_IMAGES ?= \
-  debian \
-  debian-all \
-  debian-golang-docker \
-  debian-golang-project-builder-docker \
-  debian-golang-project-builder-docker-x \
-  debian-vscode-golang-ai-docker-desktop-x \
-  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%) \
-  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-desktop-x) \
-  $(VEGITO_DOCKER_DEBIAN_SPECIFICS:%=debian-%-docker-desktop-x)
-
-VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES ?= \
-  $(VEGITO_DOCKER_DEBIAN_IMAGES:%=trixie-%)
-
-VEGITO_DOCKER_IO_HUB_IMAGES ?= \
-  debian \
-  golang-debian \
-  golang-alpine \
-  rust-alpine \
-  dind-rootless
-
-VEGITO_DOCKER_IMAGES = \
-  $(VEGITO_DOCKER_DEBIAN_IMAGES) \
-  $(VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGES) \
-  $(VEGITO_DOCKER_IO_HUB_IMAGES:%=hub-%)
-
-vegito-docker-hub-images-update:	
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print dockerhub-ci
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push dockerhub-ci
-.PHONY: vegito-docker-hub-images-update
-
-$(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update):
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-%-images-update=vegito-%-ci)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
-.PHONY: $(VEGITO_DOCKER_IMAGES:%=vegito-docker-%-images-update)
 
 vegito-docker-images-release:
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release

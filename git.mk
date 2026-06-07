@@ -24,39 +24,6 @@ git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-r
 .PHONY: git-subtree-remote-branch-rm
 
 # ------------------------------------------
-# Subtree ./docker
-# ------------------------------------------
-git-subtree-docker-pull:
-	@echo "⬇︎ Pulling the docker subtree..."
-	@git subtree pull --prefix docker \
-	  git@github.com:vegito-app/docker.git main --squash
-	@echo "docker subtree pulled successfully."
-.PHONY: git-subtree-docker-pull
-
-git-subtree-docker-push:
-	@echo "⬆︎ Pushing changes from the docker subtree..."
-	git subtree push --prefix docker \
-	  git@github.com:vegito-app/docker.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
-	@echo "docker subtree pushed successfully."
-.PHONY: git-subtree-docker-push
-
-git-subtree-docker-push-squash:
-	@TMP=$$(mktemp -d) && \
-	echo "📦 Export docker subtree..." && \
-	git archive HEAD:docker | tar -x -C $$TMP && \
-	cd $$TMP && \
-	git init && \
-	git checkout -b main && \
-	git add . && \
-	git commit -m "docker subtree snapshot" && \
-	git remote add origin git@github.com:vegito-app/docker.git && \
-	git push -f origin main:$(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
-	@echo "✅ Squashed docker subtree pushed successfully."
-.PHONY: git-subtree-docker-push-squash
-
-VEGITO_DOCKER_DIR ?= $(LOCAL_DIR)/docker
--include $(VEGITO_DOCKER_DIR)/docker.mk
-# ------------------------------------------
 # Subtree ./google-cloud
 # ------------------------------------------
 git-subtree-gcloud-pull:
