@@ -44,11 +44,14 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,targe
     set -e ; \
     # 
     npm install -g \
-    firebase-tools \
     standard-version \
     conventional-changelog \
-    conventional-changelog-angular \
-    npm
+    conventional-changelog-angular
+
+RUN firebase --version \
+    && standard-version --version \
+    && conventional-changelog --version \
+    && npm --version
 
 COPY entrypoint.sh /gha-entrypoint.sh
 ENTRYPOINT ["/gha-entrypoint.sh"]
