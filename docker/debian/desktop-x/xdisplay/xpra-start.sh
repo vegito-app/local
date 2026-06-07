@@ -29,14 +29,43 @@ unset XPRA_SESSION_DIR
 XPRA_SOCKET_DIR="${XPRA_SOCKET_DIR:-$XDG_RUNTIME_DIR/xpra}"
 mkdir -p "${XPRA_SOCKET_DIR}"
 
-echo "🌀 Starting Xpra on ${display}"
+XPRA_DEFAULT_ARGS_ARRAY=()
+read -ra XPRA_DEFAULT_ARGS_ARRAY <<< "${XPRA_DEFAULT_ARGS:-}"
 
+XPRA_ARGS_ARRAY=()
+read -ra XPRA_ARGS_ARRAY <<< "${XPRA_ARGS:-}"
+
+XPRA_ARGS_ARRAY=(
+    "${XPRA_DEFAULT_ARGS_ARRAY[@]}"
+    "${XPRA_ARGS_ARRAY[@]}"
+)
+
+# 🔊 Audio
+ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
+if [ "$ENABLE_AUDIO" = "1" ]; then
+    echo "🔊 Audio on"
+    XPRA_ARGS_ARRAY+=(
+        --speaker=on
+        --microphone=off 
+    )
+else
+    echo "🔇 Audio off"
+    XPRA_ARGS_ARRAY+=(
+        --speaker=off
+        --microphone=off
+    )
+fi
+
+echo "🌀 XPRA arguments:"
+printf '  %s\n' "${XPRA_ARGS_ARRAY[@]}"
+
+echo "🌀 Starting Xpra on ${display}"
 xpra start "${display}" \
     --bind-tcp=0.0.0.0:5901 \
     --env=DISPLAY="${display}" \
     --env=PATH="${PATH}" \
     --no-daemon \
-    "${XPRA_ARGS[@]}" \
+    "${XPRA_ARGS_ARRAY[@]}" \
     &
 
 display_pid="$!"
