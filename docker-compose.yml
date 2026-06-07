@@ -25,6 +25,11 @@ services:
     cap_add:
       - SYS_ADMIN
       - NET_ADMIN
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     working_dir: ${PWD}
 
   firebase-emulators:
