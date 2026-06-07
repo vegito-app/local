@@ -43,7 +43,6 @@ git-subtree-gcloud-push:
 VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
 -include $(VEGITO_GCLOUD_DIR)/gcloud.mk
 # ------------------------------------------
-
 # ------------------------------------------
 # Subtree ./nestor
 # ------------------------------------------
@@ -66,7 +65,6 @@ VEGITO_NESTOR_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(
 VEGITO_NESTOR_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
 -include $(VEGITO_NESTOR_DIR)/nestor.mk
 # ------------------------------------------
-
 # ------------------------------------------
 # Subtree ./example-application
 # ------------------------------------------
