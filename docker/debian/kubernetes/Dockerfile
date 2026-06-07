@@ -62,7 +62,7 @@ RUN set -eu; \
     && tar -xzf /tmp/k9s.tar.gz -C /tmp \
     && install -m 0755 /tmp/k9s /usr/local/bin/k9s \
     && rm -rf /tmp/k9s* \
-    && k9s version
+    && HOME=/root k9s version
 
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \

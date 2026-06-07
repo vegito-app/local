@@ -220,6 +220,7 @@ ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	    --platform linux/arm64
 endif
 	@docker buildx inspect --bootstrap
+	@docker run --privileged --rm tonistiigi/binfmt --install all
 .PHONY: vegito-docker-buildx-setup
 
 vegito-docker-buildx-rm:

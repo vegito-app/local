@@ -12,7 +12,7 @@ LOCAL_VERSION ?= $(VERSION)
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 # LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
 
-VEGITO_DOCKER_REGISTRIES ?= dockerhub
+export VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.
 # Remove after gcr is back in shape and can be used as the default registry for local public images.

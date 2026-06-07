@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -euo pipefail
 
 # 📌 List of PIDs of background processes
@@ -15,9 +17,16 @@ kill_jobs() {
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
 
-android-container-start.sh &
+desktop-x-start.sh &
+display_pid=$!
+
+if [ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START}" != "true" ]; then
+    echo "ℹ️ Skipping AVD start as LOCAL_ANDROID_EMULATOR_AVD_ON_START is not set to true."
+    exit 0
+fi
+
+android-emulator-avd-start.sh &
 bg_pids+=($!)
 
-appium --address 0.0.0.0 --port 4723 \
-  --session-override --log-level info \
-  --allow-insecure uiautomator2:adb_shell
+# Wait for emulator to exit
+wait $display_pid

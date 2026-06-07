@@ -66,5 +66,8 @@ alias flutter-clean='flutter clean && rm -rf .dart_tool .packages pubspec.lock b
 alias run-android='flutter run -d android'
 
 # 🖥️ Use X Display
-desktop-x-entrypoint.sh "$@"
+desktop-x-entrypoint.sh echo "✅ Desktop X setup complete."
+
+# Run the command inside the container
+exec "$@"
 

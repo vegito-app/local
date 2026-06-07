@@ -64,7 +64,9 @@ settingsFile=${PWD}/.vscode/settings.json
         "**/.devcontainer": false,
         "**/.containers": true,
         "**/.next": true,
-        "**/.cache": true
+        "**/.cache": true,
+        "**/.terraform": true,
+        "**/.dart_tool": true
     },
     // 💤 Désactive la surveillance en temps réel sur ces dossiers
     "files.watcherExclude": {
@@ -72,7 +74,12 @@ settingsFile=${PWD}/.vscode/settings.json
         "**/dist/**": true,
         "**/build/**": true,
         "**/.git/**": true,
-        "**/.cache/**": true
+        "**/.cache/**": true,
+        "**/.terraform/**": true,
+        "**/.dart_tool/**": true,
+        "**/.flutter/**": true,
+        "**/.gradle/**": true,
+        "**/.containers/**": true
     },
     // 💨 (optionnel) Réduit la charge sur la recherche globale
     "search.followSymlinks": false,
@@ -85,11 +92,9 @@ settingsFile=${PWD}/.vscode/settings.json
     "editor.inlineSuggest.enabled": true,
     "explorer.confirmDelete": false,
     "genieai.enableConversationHistory": true,
-    "genieai.openai.model": "gpt-4",
     "genieai.promptPrefix.addComments-enabled": false,
     "git.enabled": true,
     "go.toolsManagement.autoUpdate": true,
-    "remote.autoForwardPortsSource": "process",
     "search.showLineNumbers": true,
     "terminal.integrated.profiles.linux": {
         "bash": {
@@ -104,10 +109,13 @@ settingsFile=${PWD}/.vscode/settings.json
     "window.commandCenter": false,
     // "workbench.colorTheme": "Dark Theme - JetBrains IDE",
     // "workbench.colorTheme": "Best Themes - Monokai Pirokai Beach Sunset",
-    "workbench.colorTheme": "Low Eye Strain Neon",
+    "workbench.colorTheme": "Hacker Red",
     // "workbench.colorTheme": "Dark Yellow",
     // "workbench.colorTheme": "Low Eye Strain Light Contrast",
-    // "workbench.colorTheme": "Low Eye Strain Light Contrast",
+    "robotcode.disableExtension": true,
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/application-dev-latest.yml"
+    ],
     "workbench.iconTheme": "material-icon-theme",
     "material-icon-theme.folders.theme": "specific",
     "workbench.layoutControl.enabled": false,
