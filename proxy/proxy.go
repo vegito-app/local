@@ -40,6 +40,14 @@ func main() {
 
 	proxy := httputil.NewSingleHostReverseProxy(targetUrl)
 
+	director := proxy.Director
+
+	// This will rewrite the Host header
+	proxy.Director = func(req *http.Request) {
+		director(req)
+		req.Host = targetUrl.Host // this overwrites the host
+	}
+
 	http.Handle("/", proxy)
 
 	listenPort := config.GetString(listenPortConfig)
