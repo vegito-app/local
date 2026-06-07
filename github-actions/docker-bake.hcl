@@ -15,11 +15,11 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-version"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-version"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
-  default = "${VEGITO_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-latest"
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/github-actions-runner-latest"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
@@ -54,22 +54,18 @@ group "local-github-actions-runner-ci" {
   ]
 }
 
-target "local-github-actions-runner-version-ci" {
+target "local-github-actions-runner-base" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian_project_builder = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST}"
   }
   args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    terraform_version      = TERRAFORM_VERSION
+    github_runner_version = GITHUB_ACTION_RUNNER_VERSION
   }
   context = "${LOCAL_DIR}/github-actions"
+}
+
+target "local-github-actions-runner-version-ci" {
+  inherits = ["local-github-actions-runner-base"]
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
   ]
@@ -93,21 +89,7 @@ target "local-github-actions-runner-version-ci" {
 }
 
 target "local-github-actions-runner-latest-ci" {
-  contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-  }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    terraform_version      = TERRAFORM_VERSION
-  }
-  context = "${LOCAL_DIR}/github-actions"
+  inherits = ["local-github-actions-runner-base"]
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
   ]
@@ -137,21 +119,7 @@ target "local-github-actions-runner-latest-ci" {
 }
 
 target "local-github-actions-runner" {
-  contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-  }
-  args = {
-    docker_buildx_version  = DOCKER_BUILDX_VERSION
-    docker_compose_version = DOCKER_COMPOSE_VERSION
-    docker_version         = DOCKER_VERSION
-    github_runner_version  = GITHUB_ACTION_RUNNER_VERSION
-    gitleaks_version       = GITLEAKS_VERSION
-    kubectl_version        = KUBECTL_VERSION
-    node_version           = NODE_VERSION
-    nvm_version            = NVM_VERSION
-    terraform_version      = TERRAFORM_VERSION
-  }
-  context = "${LOCAL_DIR}/github-actions"
+  inherits = ["local-github-actions-runner-base"]
   tags = [
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST,
     LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION,
