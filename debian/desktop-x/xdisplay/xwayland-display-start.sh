@@ -177,19 +177,11 @@ echo "📺 XWayland display available on DISPLAY=:0"
 echo "✅ GPU compositor active"
 echo "ℹ️ Launch Wayland-native applications inside this session"
 
-ENABLE_AUDIO="${ENABLE_AUDIO:-0}"
-if [ "$ENABLE_AUDIO" = "1" ]; then
-    echo "🔊 Audio on"
-    XPRA_AUDIO_FLAGS="--speaker=on --microphone=off"
-else
-    echo "🔇 Audio off"
-    XPRA_AUDIO_FLAGS="--speaker=off --microphone=off"
-fi
-
 DISPLAY_MODE="${DISPLAY_MODE:-xpra}"
 
 if [ "$DISPLAY_MODE" = "xpra" ]; then
 
+    echo "🌀 Starting Xpra on ${display}"
     xpra-start.sh &
     display_pid="$!"
 

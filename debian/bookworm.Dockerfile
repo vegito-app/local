@@ -1,3 +1,3 @@
 FROM debian
 
-ENV XPRA_ARGS="--resize-display=no"
+ENV XPRA_DEFAULT_ARGS="--resize-display=no"
