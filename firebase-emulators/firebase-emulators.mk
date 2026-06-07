@@ -33,7 +33,7 @@ local-firebase-emulators-init: local-firebase-emulators-data
 	@$(FIREBASE_EMULATORS) init emulators 
 .PHONY: local-firebase-emulators-init
 
-FIREBASE_EMULATORS_SERVICES_LIST = $(shell echo $(FIREBASE_EMULATORS_SERVICES) | sed "s/,/ /g")
+FIREBASE_EMULATORS_SERVICES_LIST := $(shell echo $(FIREBASE_EMULATORS_SERVICES) | sed "s/,/ /g")
 
 LOCAL_FIREBASE_EMULATORS_DATA_DIRECTORIES = $(FIREBASE_EMULATORS_SERVICES_LIST:%=$(LOCAL_FIREBASE_EMULATORS_DATA)/%_export)
 
