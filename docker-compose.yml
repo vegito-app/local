@@ -152,21 +152,14 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       DOCKER_HOST: "unix:///run/user/1000/docker.sock"
-      ROOT_DOCKER_HOST: "unix:///var/run/docker.sock"
+      ROOT_DOCKER_HOST: "tcp://dev:2375"
       LOCAL_NESTOR_OLLAMA: ollama
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
       AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
     working_dir: ${PWD}
-    # user: nestor
     volumes:
       - /dev:/dev
       - /lib/modules:/lib/modules
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       # Shared volumes for Ollama models and cache
       - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
-    # entrypoint: /bin/bash
-    # command: |
-    #   -c '
-    #   set -eu
-    #   sleep infinity
-    #   '
