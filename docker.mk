@@ -39,8 +39,8 @@ vegito-docker-images: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
 .PHONY: vegito-docker-images
 
 $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images): vegito-docker-buildx-setup
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images=%)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
 
 vegito-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
@@ -56,8 +56,8 @@ vegito-docker-images-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-c
 .PHONY: vegito-docker-images-ci
 
 $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci): vegito-docker-buildx-setup
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
 
 vegito-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
@@ -71,7 +71,7 @@ vegito-docker-group-tags-list-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker
 .PHONY: vegito-docker-group-tags-list-ci
 
 $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci):
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-group-tags-list-ci=%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-group-tags-list-ci=%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci)
 
 vegito-docker-build-tags-list-ci-md:
@@ -87,13 +87,13 @@ vegito-docker-build-tags-list-ci-md:
 .PHONY: vegito-docker-build-tags-list-ci-md
 
 vegito-docker-images-release:
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --load release
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load release
 .PHONY: vegito-docker-images-release
 
 vegito-docker-images-release-ci:
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release-ci
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push release-ci
 .PHONY: vegito-docker-images-release-ci
 
 VEGITO_DOCKER_BUILDX_NAME ?= vegito-project-builder
