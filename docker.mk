@@ -1,18 +1,7 @@
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
 
-VEGITO_DOCKER_IMAGES_BASE ?= vegito
-
-export VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
-
-export VEGITO_CACHE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-cache
-export VEGITO_CACHE_IMAGES_BASE ?= $(VEGITO_CACHE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
-
 export VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
-export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_PUBLIC_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
-
-export VEGITO_PRIVATE_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-private
-export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_PRIVATE_REPOSITORY)/$(VEGITO_DOCKER_IMAGES_BASE)
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
@@ -50,8 +39,8 @@ vegito-docker-images: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
 .PHONY: vegito-docker-images
 
 $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images): vegito-docker-buildx-setup
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images=%)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-docker-images=%)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images)
 
 vegito-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
@@ -67,8 +56,8 @@ vegito-docker-images-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-c
 .PHONY: vegito-docker-images-ci
 
 $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci): vegito-docker-buildx-setup
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-images-ci=%-ci)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-docker-images-ci=%-ci)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
 
 vegito-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
@@ -82,7 +71,7 @@ vegito-docker-group-tags-list-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker
 .PHONY: vegito-docker-group-tags-list-ci
 
 $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci):
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(@:%-docker-group-tags-list-ci=%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-group-tags-list-ci=%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
 .PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci)
 
 vegito-docker-build-tags-list-ci-md:
@@ -96,6 +85,16 @@ vegito-docker-build-tags-list-ci-md:
 	  echo "" ; \
 	done
 .PHONY: vegito-docker-build-tags-list-ci-md
+
+vegito-docker-images-release:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load release
+.PHONY: vegito-docker-images-release
+
+vegito-docker-images-release-ci:
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push release-ci
+.PHONY: vegito-docker-images-release-ci
 
 VEGITO_DOCKER_BUILDX_NAME ?= vegito-project-builder
 VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME ?= mac-arm
@@ -151,6 +150,7 @@ ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
 	    --platform linux/arm64
 endif
 	@docker buildx inspect --bootstrap
+	@docker run --privileged --rm tonistiigi/binfmt --install all
 .PHONY: vegito-docker-buildx-setup
 
 vegito-docker-buildx-rm:
