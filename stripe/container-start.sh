@@ -58,9 +58,6 @@ grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'source ~/.stripe_env' >> ~/
   echo "[entrypoint] Webhook secret set: $LOCAL_STRIPE_WEBHOOK_SECRET"
   echo "[entrypoint] Env written to /tmp/stripe_env.sh"
   echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
-  
-  # Write env file for manual sourcing
-  echo "LOCAL_STRIPE_WEBHOOK_SECRET=${LOCAL_STRIPE_WEBHOOK_SECRET}" > ${LOCAL_STRIPE_DIR}/.env
 fi
 
 # Wait for Stripe CLI to exit
