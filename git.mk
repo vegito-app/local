@@ -1,4 +1,8 @@
-GIT_SUBTREE_DIRS := gcloud example-application docker nestor
+GIT_SUBTREE_DIRS := \
+docker \
+example-application \
+gcloud \
+nestor
 
 git-subtree-pull: $(GIT_SUBTREE_DIRS:%=git-subtree-%-pull)
 .PHONY: git-subtree-pull
@@ -13,7 +17,11 @@ git-subtree-status:
 
 VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
-VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud example-application docker nestor
+VEGITO_APP_GIT_SUBTREE_REMOTES := \
+docker \
+example-application \
+gcloud \
+nestor
 
 $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm):
 	@echo "🗑️ Removing the distribution branch..."
