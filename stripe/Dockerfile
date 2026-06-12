@@ -36,8 +36,6 @@ COPY ./container-install.sh /usr/local/bin/local-stripe-install.sh
 COPY ./container-start.sh /usr/local/bin/local-stripe-start.sh
 
 USER ${non_root_user}
-ENV HOME=/home/${non_root_user}
-WORKDIR ${HOME}
 
 ENTRYPOINT ["tini", "--", "local-stripe-entrypoint.sh"]
 CMD ["local-stripe-start.sh"]

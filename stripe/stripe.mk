@@ -28,9 +28,9 @@ local-stripe-listen: local-stripe-version
       --api-key ${LOCAL_STRIPE_DEBUG_KEY}
 .PHONY: local-stripe-forward-to
 
-LOCAL_STRIPE_WEBHOOK_SECRET_CMD = $(LOCAL_DOCKER_COMPOSE) exec stripe bash -c '. ~/.stripe_env && echo $$STRIPE_WEBHOOK_SECRET'
+LOCAL_STRIPE_WEBHOOK_SECRET_CMD = $(LOCAL_DOCKER_COMPOSE) exec stripe bash -c '. ~/.stripe_env && echo $$LOCAL_STRIPE_WEBHOOK_SECRET'
 
 local-stripe-webhook-secret:
-	$(eval STRIPE_WEBHOOK_SECRET := $(shell $(LOCAL_STRIPE_WEBHOOK_SECRET_CMD)))
-	@echo "Stripe webhook secret: ${STRIPE_WEBHOOK_SECRET}"
+	$(eval LOCAL_STRIPE_WEBHOOK_SECRET := $(shell $(LOCAL_STRIPE_WEBHOOK_SECRET_CMD)))
+	@echo "Stripe webhook secret: ${LOCAL_STRIPE_WEBHOOK_SECRET}"
 .PHONY: local-stripe-webhook-secret

@@ -39,25 +39,25 @@ for i in $(seq 1 10); do
   sleep 1
 done
 
-STRIPE_WEBHOOK_SECRET=$(grep -o 'whsec_[^ ]*' /tmp/stripe.log | head -n1 || true)
-if [ -z "${STRIPE_WEBHOOK_SECRET}" ]; then
+LOCAL_STRIPE_WEBHOOK_SECRET=$(grep -o 'whsec_[^ ]*' /tmp/stripe.log | head -n1 || true)
+if [ -z "${LOCAL_STRIPE_WEBHOOK_SECRET}" ]; then
   echo "[entrypoint] WARNING: could not retrieve Stripe webhook secret"
 else
   # Write env file for manual sourcing
   cat <<EOF > /tmp/stripe_env.sh
 #!/bin/sh
-export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+export LOCAL_STRIPE_WEBHOOK_SECRET=$LOCAL_STRIPE_WEBHOOK_SECRET
 EOF
 
   cat <<EOF > ~/.stripe_env
-export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+export LOCAL_STRIPE_WEBHOOK_SECRET=$LOCAL_STRIPE_WEBHOOK_SECRET
 EOF
 fi
 
 grep -qxF 'source ~/.stripe_env' ~/.bashrc || echo 'source ~/.stripe_env' >> ~/.bashrc
 grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'sokurce ~/.stripe_env' >> ~/.profile
 
-echo "[entrypoint] Webhook secret set: $STRIPE_WEBHOOK_SECRET"
+echo "[entrypoint] Webhook secret set: $LOCAL_STRIPE_WEBHOOK_SECRET"
 echo "[entrypoint] Env written to /tmp/stripe_env.sh"
 echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
 
