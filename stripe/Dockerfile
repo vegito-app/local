@@ -4,6 +4,8 @@ USER root
 
 ARG TARGETPLATFORM
 
+ARG debian_version=bookworm
+
 # Install Stripe CLI
 USER root
 ARG TARGETPLATFORM
@@ -30,11 +32,8 @@ USER ${non_root_user}
 ENV USER=${non_root_user}
 
 COPY ./container-entrypoint.sh /usr/local/bin/local-stripe-entrypoint.sh
-RUN chmod +x /usr/local/bin/local-stripe-start.sh
 COPY ./container-install.sh /usr/local/bin/local-stripe-install.sh
-RUN chmod +x /usr/local/bin/local-stripe-start.sh
 COPY ./container-start.sh /usr/local/bin/local-stripe-start.sh
-RUN chmod +x /usr/local/bin/local-stripe-start.sh
 
 USER ${non_root_user}
 ENV HOME=/home/${non_root_user}

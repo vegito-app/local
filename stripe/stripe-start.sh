@@ -52,6 +52,7 @@ EOF
   cat <<EOF > ~/.stripe_env
 export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
 EOF
+fi
 
 grep -qxF 'source ~/.stripe_env' ~/.bashrc || echo 'source ~/.stripe_env' >> ~/.bashrc
 grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'sokurce ~/.stripe_env' >> ~/.profile
