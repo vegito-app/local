@@ -1,14 +1,13 @@
-
 LOCAL_STRIPE_DIR ?= $(LOCAL_DIR)/stripe
 
 LOCAL_STRIPE_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):stripe-$(VERSION)
 LOCAL_STRIPE_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):stripe-latest
 
 local-stripe-container-up: local-stripe-container-rm
-	@${LOCAL_STRIPE_DIR}/docker-composes-up.sh
+	@${LOCAL_STRIPE_DIR}/docker-compose-up.sh
 	@$(LOCAL_DOCKER_COMPOSE) logs stripe
 	@echo
-	@echo Started Androïd studio display: 
+	@echo Started Stripe CLI.
 	@echo Run "'make $(@:%-up=%-logs)'" to retrieve more logs
 .PHONY: local-stripe-container-up
 

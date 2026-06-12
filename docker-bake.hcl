@@ -120,8 +120,8 @@ variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST
   default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-latest"
 }
 
-variable "VEGITO_DOCKER_TRIXIE_DEBIAN_PROJECT_BUILDER_X_IMAGE_LATEST" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-x-latest"
+variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_X_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-golang-project-builder-docker-latest"
 }
 
 variable "platforms" {
