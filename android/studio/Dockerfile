@@ -47,16 +47,13 @@ RUN curl -o /tmp/android-studio.tar.gz -L https://edgedl.me.gvt1.com/android/stu
 
 RUN flutter doctor --android-licenses && flutter doctor
 
-# # 📥 Use Appium entrypoint to launch emulator + APK
-# COPY --from=appium --chown=${non_root_user}:${non_root_user}  entrypoint.sh /usr/local/bin/android-appium-entrypoint.sh
-
 # Entrypoints & scripts
 COPY --chown=${non_root_user}:${non_root_user} container-install.sh /usr/local/bin/android-studio-container-install.sh
-COPY --chown=${non_root_user}:${non_root_user} android-studio.sh /usr/local/bin/
-COPY --chown=${non_root_user}:${non_root_user} entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
+COPY --chown=${non_root_user}:${non_root_user} container-start.sh /usr/local/bin/android-studio-container-start.sh
+COPY --chown=${non_root_user}:${non_root_user} container-entrypoint.sh /usr/local/bin/android-studio-entrypoint.sh
 
 COPY android-studio.desktop /usr/share/applications/
 
 ENTRYPOINT ["android-studio-entrypoint.sh"]
-CMD ["android-studio.sh"]
+CMD ["android-studio-container-start.sh"]
 

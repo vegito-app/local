@@ -19,7 +19,7 @@ android_adb_pubkey=${LOCAL_ANDROID_ADB_KEY_PUB_PATH:-~/.android/adbkey.pub}
 [ -d ~/.android ] || mkdir -p ~/.android
 if [ ! -f $android_adb_key ] || [ ! -f $android_adb_pubkey ]; then
     echo "[entrypoint] Generating ADB keypair at $android_adb_key and $android_adb_pubkey..."
-    adb keygen -a -n $android_adb_key
+    adb keygen $android_adb_key
 else
     echo "[entrypoint] Existing ADB keypair detected, skipping generation."
 fi
@@ -58,7 +58,7 @@ XPRA_ENV_ARGS+=("--env=ANDROID_SDK=${ANDROID_SDK}")
 XPRA_ENV_ARGS+=("--env=FLUTTER_HOME=${FLUTTER_HOME}")
 XPRA_ENV_ARGS+=("--env=STUDIO_PATH=${STUDIO_PATH}")
 
-# Use Appium 
+# 📥 Use Appium entrypoint to setup underlying Android emulator with Appium
 android-appium-entrypoint.sh echo " [entrypoint] Android Appium setup done"
 
 exec "$@"
