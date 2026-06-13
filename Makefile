@@ -21,6 +21,7 @@ export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
 export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-private
 export VEGITO_DOCKER_TRIXIE_DEBIAN_OBS_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST ?= docker.io/dbndev/vegito-public:trixie-debian-obs-vscode-golang-ai-docker-latest
 export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION ?= docker.io/dbndev/vegito-public:trixie-debian-latest
+export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION ?= docker.io/dbndev/vegito-example-application-public:backend-latest
 export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
@@ -72,6 +73,8 @@ GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
 VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
+
+export VEGITO_EXAMPLE_APPLICATION_DIR ?= $(LOCAL_DIR)/example-application
 
 -include local.mk
 -include docker.mk

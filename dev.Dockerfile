@@ -29,7 +29,7 @@ COPY example-application/backend/go.mod example-application/backend/go.sum examp
 COPY proxy/go.mod proxy/go.sum proxy/
 
 RUN go work init \
-    ./example-application//backend \
+    ./example-application/backend \
     ./proxy
 
 ARG TARGETPLATFORM

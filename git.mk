@@ -90,8 +90,6 @@ git-subtree-example-application-push:
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
 
-VEGITO_EXAMPLE_APPLICATION_DIR = $(LOCAL_DIR)/example-application
-
 VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-backend
 VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-mobile
 VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-tests
