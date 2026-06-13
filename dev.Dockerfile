@@ -43,6 +43,8 @@ RUN --mount=type=cache,id=vegito-app-${TARGETPLATFORM}-${debian_version}-go-pkg,
     ./example-application/backend/... \
     ./proxy/...
 
+COPY dev-container-entrypoint.sh /usr/local/bin/local-builder-entrypoint.sh
 COPY dev-container-start.sh /usr/local/bin/local-builder-start.sh
 
+ENTRYPOINT ["tini","--","local-builder-entrypoint.sh"]
 CMD  ["local-builder-start.sh"]
