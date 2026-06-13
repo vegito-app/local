@@ -4,7 +4,6 @@ volumes:
 services:
   dev:
     tty: true
-    restart: unless-stopped
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
     env_file:
       - .env
@@ -150,7 +149,6 @@ services:
     tty: true
     privileged: true
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
-    restart: unless-stopped
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN

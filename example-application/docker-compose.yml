@@ -3,7 +3,6 @@ services:
     build:
       context: ${PWD}
       dockerfile: backend/Dockerfile
-    restart: unless-stopped
     image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/example-application:backend-latest}
     env_file:
       - .env
@@ -50,6 +49,7 @@ services:
 
   example-application-tests:
     tty: true
+    restart: never
     image: ${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE:-${VEGITO_PUBLIC_REPOSITORY}/example-application:tests-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://application-backend:8888
