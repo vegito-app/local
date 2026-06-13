@@ -1,6 +1,9 @@
 FROM gobuilder AS build
 
-RUN mkdir ${HOME}/src ${HOME}/src/local
+ARG builder_home=/home/debian
+ENV HOME=${builder_home}
+
+RUN mkdir -p ${HOME}/src ${HOME}/src/local
 WORKDIR ${HOME}/src
 
 COPY --from=local local.mk local/
@@ -23,8 +26,8 @@ ARG gid=1000
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=/home/${non_root_user}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
+RUN --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=${builder_home}/go/pkg,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=vegito-local-example-application-${TARGETPLATFORM}-go-mod,target=${builder_home}/.cache/go-build,sharing=locked,uid=${uid},gid=${gid} \
     make VEGITO_EXAMPLE_APPLICATION_DIR=. example-application-go-backend-mod-download
 
 COPY --from=approot example-application.mk .
@@ -81,14 +84,14 @@ RUN make example-application-backend-install
 
 FROM scratch
 ARG non_root_user=vegito
-ARG builder_home=/home/${non_root_user}
+ARG builder_home=/home/debian
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /home/${non_root_user}/src/frontend/build/ /frontend/build
-COPY --from=build /home/${non_root_user}/src/frontend/build-ssr/ /frontend/build-ssr
-COPY --from=build /home/${non_root_user}/src/frontend/public/ /frontend/public
-COPY --from=build /home/${non_root_user}/go/bin/backend /backend
+COPY --from=build ${builder_home}/src/frontend/build/ /frontend/build
+COPY --from=build ${builder_home}/src/frontend/build-ssr/ /frontend/build-ssr
+COPY --from=build ${builder_home}/src/frontend/public/ /frontend/public
+COPY --from=build ${builder_home}/go/bin/backend /backend
 
 ENV FRONTEND_BUILD_DIR=/frontend/build
 ENV FRONTEND_PUBLIC_DIR=/frontend/public
