@@ -15,6 +15,18 @@ check_success() {
 
 # 🚨 Register cleanup function to run on script exit
 trap check_success EXIT
+# 🚨 Register cleanup function to run on script exit
+trap check_success EXIT
+
+local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
+mkdir -p $local_container_cache
+
+# Android Studio config
+ANDROID_STUDIO_CONFIG=${HOME}/.config/Google
+mkdir -p ${local_container_cache}/Google ${HOME}/.config
+rm -rf $ANDROID_STUDIO_CONFIG
+ln -sf ${local_container_cache}/Google $ANDROID_STUDIO_CONFIG
+
 
 local_container_cache=${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_DIR:-${PWD}}/.containers/android-studio}
 mkdir -p $local_container_cache

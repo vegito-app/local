@@ -7,9 +7,6 @@ set -euo pipefail
 # 🐧 Setup Debian
 debian-entrypoint.sh echo "✅ Debian setup complete."
 
-# 🐳 Setup Docker-in-Docker (rootless)
-debian-docker-entrypoint.sh echo "✅ Docker-in-Docker setup complete."
-
 # 🖥️ Setup X Display
 desktop-x-entrypoint.sh echo "✅ Desktop X setup complete."
 
