@@ -4,10 +4,6 @@ set -euo pipefail
 
 # 🚀 Setup background services
 
-# Forwarding host docker socket
-socat TCP-LISTEN:23755,fork UNIX-CONNECT:/var/run/docker.sock > /tmp/socat-docker-23755.log 2>&1 &
-bg_pids+=("$!")
-
 # Pay attention to use a path that is mounted inside the container. Because you want to edit files from your host machine.
 # This is typically a workspace folder mounted inside the container.
 # By default, we are using the current working directory (PWD) as the workspace folder.
@@ -62,20 +58,6 @@ if [ -f /usr/local/bin/desktop-x-start.sh ]; then
 
 else
     echo "🖥️ X Desktop not started."
-fi
-
-if [ -f /usr/local/bin/debian-dind-rootless-start.sh ]; then
-
-    echo "🐳 Starting Docker DIND Rootless"
-    /usr/local/bin/debian-dind-rootless-start.sh &
-    bg_pids+=("$!")
-
-    # Forward Docker DIND Rootless socket
-    socat TCP-LISTEN:23766,fork UNIX-CONNECT:/run/user/1000/docker/docker.sock > /tmp/socat-docker-23766.log 2>&1 &
-    bg_pids+=("$!")
-
-else
-    echo "🐳 Docker DIND Rootless not started."
 fi
 
 echo " 🚀 Starting local runtime"

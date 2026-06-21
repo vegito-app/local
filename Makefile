@@ -26,6 +26,7 @@ export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/
 export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
+  LOCAL_BUILDER_CONTEXT=docker-image://docker.io/dbndev/vegito-public:trixie-debian-golang-project-builder-docker-x-latest \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:vegito-debian-project-builder-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \

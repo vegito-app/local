@@ -339,7 +339,7 @@ target "local-project-builder-version-ci" {
 target "local-project-builder-latest-ci" {
   inherits = ["local-project-builder-base"]
   tags = [
-    VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME
+  LOCAL_BUILDER_IMAGE_LATEST
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [

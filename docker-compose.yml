@@ -4,14 +4,14 @@ volumes:
 services:
   dev:
     tty: true
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-x-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
     env_file:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
       GCLOUD: gcloud
-      VEGITO_DOCKER_REGISTRY_MODE: ${VEGITO_DOCKER_REGISTRY_MODE}
+      VEGITO_DOCKER_REGISTRIES: ${VEGITO_DOCKER_REGISTRIES}
       VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
       VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
       VEGITO_DOCKERHUB_USERNAME: ${VEGITO_DOCKERHUB_USERNAME}
@@ -25,7 +25,7 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     healthcheck:
-      test: ["CMD", "docker", "info"]
+      test: [ "CMD", "docker", "info" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -159,6 +159,11 @@ services:
       LOCAL_NESTOR_OLLAMA: ollama
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
       AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
+      JITSI_PUBLIC_URL: ${JITSI_PUBLIC_URL:-https://meet.vegito.app}
+    extra_hosts:
+      - "meet.vegito.app:10.5.5.7"
+    # dns:
+    #   - ${VEGITO_DNS_SERVER:-10.5.5.7}
     working_dir: ${PWD}
     volumes:
       - /dev:/dev

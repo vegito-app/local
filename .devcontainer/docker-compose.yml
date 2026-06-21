@@ -8,6 +8,8 @@ services:
       set -euo pipefail
       make vegito-docker-sock
 
+      local-builder-start.sh
+
       until docker info; do
         echo "Waiting for Docker to be ready..."
         sleep 1
@@ -23,8 +25,6 @@ services:
         make application-mobile-wait-for-boot
         make functional-tests
       fi
-
-      project-container-start.sh
 
       sleep infinity
       '
