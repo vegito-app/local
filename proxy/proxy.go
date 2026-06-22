@@ -15,6 +15,7 @@ const (
 	targetHostConfig = "target_host"
 	targetPortConfig = "target_port"
 	listenPortConfig = "listen_port"
+	listenHostConfig = "proxy_host"
 )
 
 func init() {
@@ -25,6 +26,7 @@ func init() {
 	config.SetDefault(listenPortConfig, "8081")
 	config.BindEnv(targetHostConfig, "TARGET_HOST")
 	config.BindEnv(targetPortConfig, "TARGET_PORT")
+	config.BindEnv(listenHostConfig, "LISTEN_HOST")
 	config.BindEnv(listenPortConfig, "LISTEN_PORT")
 }
 
@@ -32,6 +34,7 @@ func main() {
 
 	targetHost := config.GetString(targetHostConfig)
 	targetPort := config.GetString(targetPortConfig)
+	listenHost := config.GetString(listenHostConfig)
 	// Redirect using same port that listen
 	targetUrl, err := url.Parse("http://" + net.JoinHostPort(targetHost, targetPort))
 	if err != nil {
@@ -51,12 +54,26 @@ func main() {
 
 	// This will rewrite the Host header
 	proxy.Director = func(req *http.Request) {
+		if listenHost != "" &&
+			req.Host != "" &&
+			req.Host != listenHost {
+			return
+		}
 		director(req)
 		req.Host = targetUrl.Host // this overwrites the host
 	}
 
-	http.Handle("/", proxy)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if listenHost != "" &&
+			r.Host != "" &&
+			r.Host != listenHost {
 
+			http.Error(w, "invalid host", http.StatusForbidden)
+			return
+		}
+
+		proxy.ServeHTTP(w, r)
+	})
 	listenPort := config.GetString(listenPortConfig)
 	http.ListenAndServe(":"+listenPort, nil)
 }
