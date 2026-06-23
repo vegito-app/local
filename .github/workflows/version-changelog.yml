@@ -77,6 +77,8 @@ jobs:
 
       - run: echo "📦 Version = ${{ steps.define_version.outputs.VERSION }}"
       - name: Show New Changes log
+        env:
+          CHANGELOG_NEW: ${{ steps.define_version.outputs.CHANGELOG_NEW }}
         run: |
           echo "📝 Changelog:"
-          printf "%s\n" "${{ steps.define_version.outputs.CHANGELOG_NEW }}"
+          printf '%s\n' "$CHANGELOG_NEW"
