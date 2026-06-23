@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -54,20 +55,18 @@ func main() {
 
 	// This will rewrite the Host header
 	proxy.Director = func(req *http.Request) {
-		if listenHost != "" &&
-			req.Host != "" &&
-			req.Host != listenHost {
-			return
-		}
 		director(req)
 		req.Host = targetUrl.Host // this overwrites the host
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		h, _, err := net.SplitHostPort(r.Host)
+		if err != nil {
+			fmt.Printf("proxy handle split host/port: %s", err)
+		}
 		if listenHost != "" &&
-			r.Host != "" &&
-			r.Host != listenHost {
-
+			h != "" &&
+			h != listenHost {
 			http.Error(w, "invalid host", http.StatusForbidden)
 			return
 		}
