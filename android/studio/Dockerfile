@@ -54,6 +54,6 @@ COPY --chown=${non_root_user}:${non_root_user} container-entrypoint.sh /usr/loca
 
 COPY android-studio.desktop /usr/share/applications/
 
-ENTRYPOINT ["android-studio-entrypoint.sh"]
+ENTRYPOINT ["tini", "--","android-studio-entrypoint.sh"]
 CMD ["android-studio-container-start.sh"]
 
