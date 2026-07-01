@@ -21,11 +21,6 @@ trap kill_jobs EXIT
 android-appium-start.sh &
 appium_pid="$!"
 
-if [ "${LOCAL_ANDROID_STUDIO_ON_START}" != "true" ]; then
-    echo "ℹ️ Skipping Android Studio start as LOCAL_ANDROID_STUDIO_ON_START is not set to true, exit"
-    exit 0
-fi
-
 export DISPLAY="${DISPLAY:-:20}"
 
 timeout=300
@@ -47,8 +42,12 @@ rm -f ~/.android/avd/*.ini.lock
 
 xset r on || true
 
-# Start Android Studio GUI (non critical)
-studio >/tmp/android-studio.log 2>&1 &
+
+if [ "${LOCAL_ANDROID_STUDIO_ON_START:-true}" = "true" ]; then
+    # Start Android Studio GUI (non critical)
+    echo "⏳ Starting Android Studio..."
+    studio >/tmp/android-studio.log 2>&1 &
+fi
 
 echo "ℹ️ Android Studio is started as a detached GUI application."
 echo "ℹ️ Container lifecycle is tied to Appium runtime, not Studio."
