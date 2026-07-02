@@ -21,8 +21,6 @@ trap kill_jobs EXIT
 android-appium-start.sh &
 appium_pid="$!"
 
-export DISPLAY="${DISPLAY:-:20}"
-
 timeout=300
 
 echo "⏳ Waiting for X display..."

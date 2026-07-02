@@ -56,10 +56,6 @@ RUN chmod +x \
 ARG default_apk_path=/apk/app.apk
 ENV LOCAL_ANDROID_DEBUG_APK_PATH=${default_apk_path}
 
-# 🖥️ Display Variables
-ARG default_display=20
-ENV DISPLAY=:${default_display}
-
 # Enable AVD on start by default
 ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_EMULATOR_AVD_NAME=Pixel_8_Intel
