@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -61,10 +61,10 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		host := r.Host
-		if strings.Contains(host, ":") {
-			if h, _, err := net.SplitHostPort(host); err == nil {
-				host = h
-			}
+		fmt.Println("h", host)
+		fmt.Println("l", listenHost)
+		if h, _, err := net.SplitHostPort(host); err == nil {
+			host = h
 		}
 		if listenHost != "" &&
 			host != "" &&
