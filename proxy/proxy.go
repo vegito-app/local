@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -60,13 +60,15 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		h, _, err := net.SplitHostPort(r.Host)
-		if err != nil {
-			fmt.Printf("proxy handle split host/port: %s", err)
+		host := r.Host
+		if strings.Contains(host, ":") {
+			if h, _, err := net.SplitHostPort(host); err == nil {
+				host = h
+			}
 		}
 		if listenHost != "" &&
-			h != "" &&
-			h != listenHost {
+			host != "" &&
+			host != listenHost {
 			http.Error(w, "invalid host", http.StatusForbidden)
 			return
 		}
