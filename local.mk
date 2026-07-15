@@ -81,16 +81,6 @@ local-project-builder-image-ci: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
 
-local-project-builder-x-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee -a $@.make-logs
-.PHONY: local-project-builder-x-image
-
-local-project-builder-x-image-ci: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-x-ci
-.PHONY: local-project-builder-x-image-ci
-
 local-gcloud-builder-image-delete:
 	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."
 	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
