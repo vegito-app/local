@@ -68,7 +68,6 @@ local-android-emulator-avd-restart:
 	  rm -rf ~/.android/avd/*/*.lock ; \
 	  rm -f ~/.android/*.lock ; \
 	  rm -f ~/.android/adb*.ini.lock ; \
-	  adb start-server ; \
 	  android-emulator-avd-start.sh ; \
 	'
 .PHONY: local-android-emulator-avd-restart

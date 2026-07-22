@@ -61,5 +61,5 @@ ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_EMULATOR_AVD_NAME=Pixel_8_Intel
 ENV LOCAL_ANDROID_EMULATOR_DAT=tests/mobile_images
 
-ENTRYPOINT ["android-emulator-entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "android-emulator-entrypoint.sh"]
 CMD [ "android-container-start.sh" ]
