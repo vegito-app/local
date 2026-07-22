@@ -6,14 +6,12 @@
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
     "../.docker-compose-gpu-override.yml",
-    "./docker-compose.yml",
     "./docker-compose-vscode.yml"
   ],
   "runServices": [
     "dev"
   ],
   "containerEnv": {
-    // "MAKE_DEV_ON_START": "true",
     "MAKE_TESTS_ON_START": "false",
     "FLUTTER_ROOT": "${localWorkspaceFolder}/.containers/android-studio/flutter",
     "DEV_GOOGLE_CLOUD_PROJECT_ID": "moov-dev-439608",

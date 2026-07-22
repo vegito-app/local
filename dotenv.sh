@@ -116,9 +116,6 @@ services:
           echo "🖥️ X Desktop not started."
         fi
         make vegito-docker-sock
-        if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
-          make dev
-        fi
         if [ "$${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests

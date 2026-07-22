@@ -92,7 +92,7 @@ services:
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
-        make docker-sock
+        make vegito-docker-sock
         if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
         fi
