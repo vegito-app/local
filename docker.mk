@@ -1,7 +1,6 @@
+# Google Cloud Registry (GCR) configuration
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
 GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_DOCKER_REGISTRY)/$(GOOGLE_CLOUD_PROJECT_ID)
-
-export VEGITO_PUBLIC_REPOSITORY ?= $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)/docker-repository-public
 
 ENABLE_LOCAL_CACHE ?= $(VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE)
 
@@ -9,6 +8,8 @@ vegito-docker-login-gcr: gcloud-auth-docker
 	@echo "Logging into $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)"
 	@docker login $(GOOGLE_CLOUD_PROJECT_DOCKER_REGISTRY)
 .PHONY: vegito-docker-login-gcr
+
+-include docker-io.mk
 
 VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
 

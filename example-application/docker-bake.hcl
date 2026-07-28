@@ -14,11 +14,11 @@ variable "INFRA_ENV" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "EXAMPLE_APPLICATION_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE" {
@@ -86,7 +86,7 @@ group "vegito-example-application-release-ci" {
 }
 
 variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {

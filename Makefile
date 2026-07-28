@@ -14,20 +14,20 @@ COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 
 export VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
+export VEGITO_DOCKER_PUBLIC_REPOSITORY ?= docker.io/dbndev
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.
 # Remove after gcr is back in shape and can be used as the default registry for local public images.
-export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
-export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-public
-export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-private
-export VEGITO_DOCKER_TRIXIE_DEBIAN_OBS_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST ?= docker.io/dbndev/vegito-public:trixie-debian-obs-vscode-golang-ai-docker-latest
-export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION ?= docker.io/dbndev/vegito-public:trixie-debian-latest
-export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION ?= docker.io/dbndev/vegito-example-application-public:backend-latest
+export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local-public
+export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public
+export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-private
+export VEGITO_DOCKER_TRIXIE_DEBIAN_OBS_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public:trixie-debian-obs-vscode-golang-ai-docker-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public:trixie-debian-latest
+export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-example-application-public:backend-latest
 export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
-  LOCAL_BUILDER_CONTEXT=docker-image://docker.io/dbndev/vegito-public:trixie-debian-golang-project-builder-docker-x-latest \
-  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:vegito-debian-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:vegito-debian-project-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \

@@ -45,12 +45,21 @@ group "local-vault-dev-ci" {
   ]
 }
 
-target "local-vault-dev-version-ci" {
+target "local-vault-dev-base" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
+  }
+  args = {
+    debian_version = DEBIAN_VERSION_CODENAME
   }
   context    = "${LOCAL_DIR}/vault-dev"
   dockerfile = "Dockerfile"
+}
+
+target "local-vault-dev-version-ci" {
+  inherits = [
+    "local-vault-dev-base"
+  ]
   tags = [
     LOCAL_VAULT_DEV_IMAGE_VERSION,
   ]
@@ -77,11 +86,9 @@ target "local-vault-dev-version-ci" {
 }
 
 target "local-vault-dev-latest-ci" {
-  contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-  }
-  context    = "${LOCAL_DIR}/vault-dev"
-  dockerfile = "Dockerfile"
+  inherits = [
+    "local-vault-dev-base"
+  ]
   tags = [
     LOCAL_VAULT_DEV_IMAGE_LATEST,
   ]
@@ -111,11 +118,9 @@ target "local-vault-dev-latest-ci" {
 }
 
 target "local-vault-dev" {
-  contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
-  }
-  context    = "${LOCAL_DIR}/vault-dev"
-  dockerfile = "Dockerfile"
+  inherits = [
+    "local-vault-dev-base"
+  ]
   tags = [
     LOCAL_VAULT_DEV_IMAGE_LATEST,
     LOCAL_VAULT_DEV_IMAGE_VERSION,

@@ -51,13 +51,12 @@ group "local-clarinet-devnet-ci" {
 
 target "local-clarinet-devnet-version-ci" {
   contexts = {
-    builder_image = "target:vegito-debian-project-builder-version-ci"
-    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION}"
-    rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
+    local_dev = "target:local-project-builder-latest-ci"
+    debian    = VEGITO_DOCKER_DEBIAN_DOCKERD_CONTEXT
+    rust      = VEGITO_DOCKER_ALPINE_RUST_CONTEXT
   }
   args = {
     clarinet_version = CLARINET_VERSION
-    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -85,13 +84,12 @@ target "local-clarinet-devnet-version-ci" {
 
 target "local-clarinet-devnet-latest-ci" {
   contexts = {
-    builder_image = "target:vegito-debian-project-builder-latest-ci"
-    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_LATEST}"
-    rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_LATEST}"
+    local_dev = "target:local-project-builder-latest-ci"
+    debian    = VEGITO_DOCKER_DEBIAN_DOCKERD_CONTEXT
+    rust      = VEGITO_DOCKER_ALPINE_RUST_CONTEXT
   }
   args = {
     clarinet_version = CLARINET_VERSION
-    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"
@@ -126,13 +124,12 @@ target "local-clarinet-devnet-latest-ci" {
 
 target "local-clarinet-devnet" {
   contexts = {
-    builder_image = "target:vegito-debian-project-builder"
-    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_DOCKER_IMAGE_VERSION}"
-    rust_image    = "docker-image://${VEGITO_DOCKER_ALPINE_RUST_IMAGE_VERSION}"
+    local_dev = "target:local-project-builder"
+    debian    = VEGITO_DOCKER_DEBIAN_DOCKERD_CONTEXT
+    rust      = VEGITO_DOCKER_ALPINE_RUST_CONTEXT
   }
   args = {
     clarinet_version = CLARINET_VERSION
-    docker_version   = DOCKER_VERSION
   }
   context    = "${LOCAL_DIR}/clarinet-devnet"
   dockerfile = "Dockerfile"

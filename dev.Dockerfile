@@ -1,4 +1,4 @@
-FROM debian_project_builder
+FROM debian
 
 USER root
 

@@ -1,5 +1,5 @@
-FROM builder_image AS project-builder
-FROM rust_image AS rust-build
+FROM local_dev AS project-builder
+FROM rust AS rust-build
 
 ARG TARGETPLATFORM
 
@@ -16,11 +16,8 @@ RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry
     cargo clarinet-install
 
 FROM debian
-
+USER root
 COPY --from=project-builder /usr/local/bin/localproxy         /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh  /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh   /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/modprobe               /usr/local/bin/
 COPY --from=rust-build /usr/local/cargo/bin/clarinet          /usr/local/bin/
 
 RUN clarinet completion bash && mv clarinet.bash /etc/bash_completion.d/clarinet.bash && \
@@ -30,20 +27,25 @@ ARG non_root_user=clarinet
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
-ENV HOME=/home/${non_root_user}
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+
+ENV USER=${non_root_user}
+
 WORKDIR ${HOME}
 
-# Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
-COPY entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
+COPY container-entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
 COPY container-install.sh /usr/local/bin/clarinet-container-install.sh
-COPY devnet-start.sh /usr/local/bin/clarinet-devnet-start.sh
+COPY container-start.sh /usr/local/bin/clarinet-devnet-container-start.sh
 ENTRYPOINT [ "tini", "--", "clarinet-entrypoint.sh" ]
-CMD [ "clarinet-devnet-start.sh" ]
+CMD [ "clarinet-devnet-container-start.sh" ]
 HEALTHCHECK CMD test -f /tmp/.clarinet-devnet-runtime-ready || exit 1

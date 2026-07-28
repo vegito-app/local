@@ -51,7 +51,7 @@ group "local-robotframework-ci" {
 
 target "local-robotframework-version-ci" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -82,7 +82,7 @@ target "local-robotframework-version-ci" {
 
 target "local-robotframework-latest-ci" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -118,7 +118,7 @@ target "local-robotframework" {
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT
   }
   tags = [
     LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,

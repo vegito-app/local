@@ -1,4 +1,4 @@
-FROM builder_image AS builder
+FROM local_dev AS builder
 FROM debian
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy

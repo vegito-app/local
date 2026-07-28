@@ -119,7 +119,7 @@ services:
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
-    image: ${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:robotframework-${LOCAL_VERSION}
+    image: ${VEGITO_DOCKER_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:robotframework-${LOCAL_VERSION}
     working_dir: ${PWD}/tests
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
