@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.24.0](https://github.com/vegito-app/local/compare/v1.23.0...v1.24.0) (2026-07-28)
+
+
+### Features
+
+* **nestor:** drop local git subtree ([6da2985](https://github.com/vegito-app/local/commit/6da29858ede6006848a0f116a7e326f34b4af95a))
+
 ## [1.22.0](https://github.com/vegito-app/local/compare/v1.21.0...v1.22.0) (2026-04-14)
 
 
