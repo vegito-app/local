@@ -94,6 +94,7 @@ group "local-services" {
     "local-firebase-emulators",
     "local-github-actions-runner",
     "local-vault-dev",
+    "local-stripe",
   ]
 }
 
@@ -104,6 +105,7 @@ group "local-services-ci" {
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
     "local-vault-dev-ci",
+    "local-stripe-ci",
   ]
 }
 
