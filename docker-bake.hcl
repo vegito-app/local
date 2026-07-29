@@ -48,8 +48,8 @@ variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-latest"
+variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-latest"
 }
 
 variable "VEGITO_DOCKER_ALPINE_RUST_CONTEXT" {
@@ -197,7 +197,7 @@ target "local-project-builder-base" {
   dockerfile = "dev.Dockerfile"
   context    = LOCAL_DIR
   contexts = {
-    debian = VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT
+    debian = VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT
   }
   args = {
     debian_version = "trixie"

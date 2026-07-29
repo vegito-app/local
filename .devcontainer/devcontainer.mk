@@ -1,5 +1,4 @@
 LOCAL_DOCKER_COMPOSE_VSCODE ?= $(LOCAL_DOCKER_COMPOSE) \
-	-f $(LOCAL_DIR)/.devcontainer/docker-compose.yml \
 	-f $(LOCAL_DIR)/.devcontainer/docker-compose-vscode.yml
 
 devcontainer-vscode: \
