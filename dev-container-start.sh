@@ -60,6 +60,17 @@ else
     echo "🖥️ X Desktop not started."
 fi
 
+if [ -f /usr/local/bin/debian-dind-start.sh ]; then
+
+    echo "🐳 Starting Docker DIND"
+    /usr/local/bin/debian-dind-start.sh &
+    bg_pids+=("$!")
+
+    # Forward Docker DIND Rootless socket
+    socat TCP-LISTEN:23766,fork UNIX-CONNECT:/run/user/1000/docker/docker.sock > /tmp/socat-docker-23766.log 2>&1 &
+    bg_pids+=("$!")
+fi
+
 echo " 🚀 Starting local runtime"
 project-container-start.sh &
 bg_pids+=("$!")

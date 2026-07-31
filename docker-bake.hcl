@@ -24,6 +24,10 @@ variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
   default = "${VEGITO_LOCAL_CACHE_REPOSITORY}/vegito-local"
 }
 
+variable "VEGITO_DOCKER_PRIVATE_REPOSITORY" {
+  default = "vegito-docker-repository-private"
+}
+
 variable "VEGITO_DOCKER_PUBLIC_REPOSITORY" {
   default = "vegito-docker-repository-public"
 }
@@ -48,8 +52,16 @@ variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
+variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-latest"
+}
+
+variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-latest"
+}
+
+variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
+  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-${VERSION}"
 }
 
 variable "VEGITO_DOCKER_ALPINE_RUST_CONTEXT" {
@@ -94,7 +106,6 @@ group "local-services" {
     "local-firebase-emulators",
     "local-github-actions-runner",
     "local-vault-dev",
-    "local-stripe",
   ]
 }
 
@@ -105,7 +116,6 @@ group "local-services-ci" {
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
     "local-vault-dev-ci",
-    "local-stripe-ci",
   ]
 }
 
@@ -197,7 +207,7 @@ target "local-project-builder-base" {
   dockerfile = "dev.Dockerfile"
   context    = LOCAL_DIR
   contexts = {
-    debian = VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT
+    debian = VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT
   }
   args = {
     debian_version = "trixie"
@@ -265,7 +275,7 @@ target "local-project-builder-version-ci" {
 target "local-project-builder-latest-ci" {
   inherits = ["local-project-builder-base"]
   tags = [
-  LOCAL_BUILDER_IMAGE_LATEST
+    VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
