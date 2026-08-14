@@ -3,6 +3,7 @@ volumes:
   clarinet_var_lib_docker:
 services:
   dev:
+    restart: unless-stopped
     tty: true
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
     env_file:
@@ -25,13 +26,19 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     healthcheck:
-      test: [ "CMD", "docker", "info" ]
+      test: ["CMD", "docker", "info"]
       interval: 30s
       timeout: 5s
       retries: 3
     working_dir: ${PWD}
+    command: |
+      bash -c '
+      sudo chmod o+rw /var/run/docker.sock
+      local-builder-start.sh
+      '
 
   firebase-emulators:
+    restart: unless-stopped
     tty: true
     image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
     env_file:
@@ -50,6 +57,7 @@ services:
     working_dir: ${PWD}
 
   clarinet-devnet:
+    restart: unless-stopped
     tty: true
     privileged: true
     image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
@@ -68,6 +76,7 @@ services:
     working_dir: ${PWD}
 
   android-studio:
+    restart: unless-stopped
     tty: true
     cap_add:
       - SYS_ADMIN
@@ -108,6 +117,7 @@ services:
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
 
   vault-dev:
+    restart: unless-stopped
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
@@ -125,6 +135,7 @@ services:
     working_dir: ${PWD}/application
     tty: true
   robotframework:
+    restart: unless-stopped
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
     environment:
@@ -145,6 +156,7 @@ services:
       '
 
   nestor:
+    restart: unless-stopped
     tty: true
     privileged: true
     image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
