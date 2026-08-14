@@ -38,8 +38,8 @@ local-firebase-emulators-pubsub-wait:
 
 local-firebase-emulators-pubsub-check:
 	@echo "📋 Listing local Pub/Sub topics:"
-	@curl -s http://$(LOCAL_FIREBASE_PUBSUB_EMULATOR_HOST)/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics | jq .
+	curl -s http://$(LOCAL_FIREBASE_PUBSUB_EMULATOR_HOST)/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics | jq .
 	@echo
 	@echo "📋 Listing local Pub/Sub subscriptions:"
-	@curl -s http://$(LOCAL_FIREBASE_PUBSUB_EMULATOR_HOST)/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions | jq .
+	curl -s http://$(LOCAL_FIREBASE_PUBSUB_EMULATOR_HOST)/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/subscriptions | jq .
 .PHONY: local-firebase-emulators-pubsub-check

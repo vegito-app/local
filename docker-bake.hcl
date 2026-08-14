@@ -53,11 +53,7 @@ variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-latest"
-}
-
-variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-desktop-x-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
