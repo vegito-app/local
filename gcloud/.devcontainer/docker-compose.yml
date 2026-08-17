@@ -22,7 +22,7 @@ services:
       - /lib/modules:/lib/modules:ro
     command: |
       bash -c '
-      make docker-sock
+      make vegito-docker-sock
       until docker info; do
         echo "Waiting for Docker to be ready..."
         sleep 1

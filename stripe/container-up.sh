@@ -20,6 +20,9 @@ trap kill_jobs EXIT
 
 docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_STRIPE_DIR}/docker-compose.yml}
 
+$docker_compose rm --force --stop stripe
+rm -f /tmp/stripe.log
+
 echo "📱 Launching stripe-emulators compose in background..."
 ${LOCAL_STRIPE_DIR}/docker-compose-up.sh &
 compose_pid=$!
@@ -36,28 +39,28 @@ for i in $(seq 1 10); do
   sleep 1
 done
 
-STRIPE_WEBHOOK_SECRET=$(grep -o 'whsec_[^ ]*' /tmp/stripe.log | head -n1 || true)
-if [ -z "${STRIPE_WEBHOOK_SECRET}" ]; then
+LOCAL_STRIPE_WEBHOOK_SECRET=$(grep -o 'whsec_[^ ]*' /tmp/stripe.log | head -n1 || true)
+if [ -z "${LOCAL_STRIPE_WEBHOOK_SECRET}" ]; then
   echo "[entrypoint] WARNING: could not retrieve Stripe webhook secret"
 else
   # Write env file for manual sourcing
   cat <<EOF > /tmp/stripe_env.sh
 #!/bin/sh
-export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+export LOCAL_STRIPE_WEBHOOK_SECRET=$LOCAL_STRIPE_WEBHOOK_SECRET
 EOF
 
   cat <<EOF > ~/.stripe_env
-export STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET
+export LOCAL_STRIPE_WEBHOOK_SECRET=$LOCAL_STRIPE_WEBHOOK_SECRET
 EOF
 
 grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'source ~/.stripe_env' >> ~/.profile
 
-  echo "[entrypoint] Webhook secret set: $STRIPE_WEBHOOK_SECRET"
+  echo "[entrypoint] Webhook secret set: $LOCAL_STRIPE_WEBHOOK_SECRET"
   echo "[entrypoint] Env written to /tmp/stripe_env.sh"
   echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
   
   # Write env file for manual sourcing
-  echo "STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}" > ${LOCAL_STRIPE_DIR}/.env
+  echo "LOCAL_STRIPE_WEBHOOK_SECRET=${LOCAL_STRIPE_WEBHOOK_SECRET}" > ${LOCAL_STRIPE_DIR}/.env
 fi
 } &
 wait_pid=$!

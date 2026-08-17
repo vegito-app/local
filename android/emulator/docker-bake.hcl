@@ -65,7 +65,7 @@ target "local-android-emulator-base" {
 target "local-android-emulator-version-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -79,7 +79,7 @@ target "local-android-emulator-version-ci" {
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
     ]
   )
   cache-to = concat(
@@ -93,7 +93,7 @@ target "local-android-emulator-version-ci" {
 target "local-android-emulator-latest-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -107,7 +107,7 @@ target "local-android-emulator-latest-ci" {
     ] : [],
     [
       LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
-      VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
     ]
   )
   cache-to = concat(
@@ -127,7 +127,7 @@ target "local-android-emulator-latest-ci" {
 target "local-android-emulator" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -142,7 +142,7 @@ target "local-android-emulator" {
     ] : [],
     [
       LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
-      VEGITO_DOCKER_TRIXIE_DEBIAN_DESKTOP_X_IMAGE_LATEST
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
     ]
   )
   cache-to = concat(
@@ -202,7 +202,7 @@ variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LA
 target "local-android-emulator-flutter-latest-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,
@@ -235,7 +235,7 @@ target "local-android-emulator-flutter-latest-ci" {
 target "local-android-emulator-flutter-version-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_VERSION,
@@ -261,7 +261,7 @@ target "local-android-emulator-flutter-version-ci" {
 target "local-android-emulator-flutter" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_FLUTTER_DESKTOP_X_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST,

@@ -1,4 +1,8 @@
-GIT_SUBTREE_DIRS := gcloud example-application docker nestor
+GIT_SUBTREE_DIRS := \
+docker \
+example-application \
+gcloud \
+nestor
 
 git-subtree-pull: $(GIT_SUBTREE_DIRS:%=git-subtree-%-pull)
 .PHONY: git-subtree-pull
@@ -13,7 +17,11 @@ git-subtree-status:
 
 VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
-VEGITO_APP_GIT_SUBTREE_REMOTES := gcloud example-application docker nestor
+VEGITO_APP_GIT_SUBTREE_REMOTES := \
+docker \
+example-application \
+gcloud \
+nestor
 
 $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm):
 	@echo "🗑️ Removing the distribution branch..."
@@ -43,8 +51,28 @@ git-subtree-gcloud-push:
 VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
 -include $(VEGITO_GCLOUD_DIR)/gcloud.mk
 # ------------------------------------------
+# ------------------------------------------
+# Subtree ./nestor
+# ------------------------------------------
+git-subtree-nestor-pull:
+	@echo "⬇︎ Pulling the nestor subtree..."
+	@git subtree pull --prefix nestor \
+	  git@github.com:vegito-app/ai-nestor.git main --squash
+	@echo "AI Nestor subtree pulled successfully."
+.PHONY: git-subtree-nestor-pull
 
+git-subtree-nestor-push:
+	@echo "⬆︎ Pushing changes from the nestor subtree..."
+	@git subtree push --prefix nestor \
+	  git@github.com:vegito-app/ai-nestor.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "AI Nestor subtree pushed successfully."
+.PHONY: git-subtree-nestor-push
 
+VEGITO_NESTOR_DIR ?= $(LOCAL_DIR)/nestor
+VEGITO_NESTOR_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(VERSION)
+VEGITO_NESTOR_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
+-include $(VEGITO_NESTOR_DIR)/nestor.mk
+# ------------------------------------------
 # ------------------------------------------
 # Subtree ./example-application
 # ------------------------------------------
@@ -61,8 +89,6 @@ git-subtree-example-application-push:
 	  git@github.com:vegito-app/example-application.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
-
-VEGITO_EXAMPLE_APPLICATION_DIR = $(LOCAL_DIR)/example-application
 
 VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-backend
 VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-mobile

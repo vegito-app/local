@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-
 # Nettoyage du flag d'état à chaque arrêt
 rm -f /tmp/.clarinet-devnet-runtime-ready
 
@@ -20,10 +19,10 @@ trap kill_jobs EXIT
 
 echo "🤖 Starting Clarinet Devnet runtime..."
 
-debian-dind-rootless-start.sh &
+debian-dind-start.sh &
 bg_pids+=("$!")
 
-echo "✅ Clarinet Devnet dockerd rootless started successfully."
+echo "✅ Clarinet Devnet dockerd started successfully."
 
 docker rm -f `docker ps -aq --filter name=devnet` 2>/dev/null
 docker network rm -f `docker network ls -q --filter name=devnet` 2>/dev/null || true

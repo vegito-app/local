@@ -47,8 +47,8 @@ group "local-firebase-emulators-ci" {
 
 target "local-firebase-emulators-version-ci" {
   contexts = {
-    builder_image = "target:vegito-debian-project-builder-version-ci"
-    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian    = VEGITO_DOCKER_DEBIAN_CONTEXT
+    local_dev = "target:local-project-builder-latest-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -78,8 +78,8 @@ target "local-firebase-emulators-version-ci" {
 
 target "local-firebase-emulators-latest-ci" {
   contexts = {
-    builder_image = "target:vegito-debian-project-builder-latest-ci"
-    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+    debian    = VEGITO_DOCKER_DEBIAN_CONTEXT
+    local_dev = "target:local-project-builder-latest-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -112,8 +112,8 @@ target "local-firebase-emulators-latest-ci" {
 
 target "local-firebase-emulators" {
   contexts = {
-    builder_image = "target:vegito-debian-project-builder"
-    debian        = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian    = VEGITO_DOCKER_DEBIAN_CONTEXT
+    local_dev = "target:local-project-builder"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [

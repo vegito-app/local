@@ -1,5 +1,5 @@
 # Local Docker Compose configuration
-export LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-x-latest
+export LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
 
 export LOCAL_DIR ?= $(CURDIR)
 
@@ -80,16 +80,6 @@ local-project-builder-image-ci: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
-
-local-project-builder-x-image: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x 2>&1 | tee $@.make-logs
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder-x 2>&1 | tee -a $@.make-logs
-.PHONY: local-project-builder-x-image
-
-local-project-builder-x-image-ci: vegito-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-x-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-x-ci
-.PHONY: local-project-builder-x-image-ci
 
 local-gcloud-builder-image-delete:
 	@echo "🗑️  Deleting builder image $(LOCAL_BUILDER_IMAGE)..."
@@ -251,7 +241,6 @@ LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 # Use this to run commands in the dev container	in CI
 LOCAL_DEV_CONTAINER_RUN_CI = \
   LOCAL_CONTAINER_INSTALL=false \
-  MAKE_DEV_ON_START=false \
   $(LOCAL_DOCKER_COMPOSE) run --rm \
   $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 

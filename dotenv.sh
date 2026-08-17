@@ -85,7 +85,6 @@ GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 # The following variables are used for propagating the containers|
 # configurations between them each others selves.
 #                                                                
-ANDROID_HOST=android-studio
 VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
 VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
 CLARINET_RPC=http://clarinet-devnet:20443
@@ -117,9 +116,6 @@ services:
           echo "🖥️ X Desktop not started."
         fi
         make vegito-docker-sock
-        if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
-          make dev
-        fi
         if [ "$${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests

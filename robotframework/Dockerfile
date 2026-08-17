@@ -26,23 +26,6 @@ RUN usermod -l ${non_root_user} ${USER} \
 USER ${non_root_user}
 ENV USER=${non_root_user}
 
-WORKDIR ${HOME}
-
 RUN --mount=type=cache,id=local-robotframework-${TARGETPLATFORM}-pip-cache,target=/home/${non_root_user}/.cache/pip,sharing=locked,uid=${uid},gid=${gid} \
     pip install \
-    firebase-admin \
-    robotframework \
-    robotframework-appiumlibrary \
-    robotframework-requests \
-    robotframework-seleniumlibrary \
-    robotframework-faker
-
-COPY entrypoint.sh /usr/local/bin/tests-entrypoint.sh
-COPY caches-refresh.sh /usr/local/bin/robotframework-caches-refresh.sh
-
-ENV LOCAL_ROBOTFRAMEWORK_TESTS_DIR=${HOME}/robotframework
-
-WORKDIR ${LOCAL_ROBOTFRAMEWORK_TESTS_DIR}
-
-ENTRYPOINT [ "tests-entrypoint.sh" ]
-CMD [ "robot" ]
+    firebase-admin

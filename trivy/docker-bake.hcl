@@ -47,7 +47,7 @@ group "local-trivy-ci" {
 
 target "local-trivy-version-ci" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -78,7 +78,7 @@ target "local-trivy-version-ci" {
 
 target "local-trivy-latest-ci" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -115,7 +115,7 @@ target "local-trivy-latest-ci" {
 
 target "local-trivy" {
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   args = {
     trivy_version = TRIVY_VERSION

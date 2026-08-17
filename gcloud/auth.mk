@@ -68,7 +68,7 @@ gcloud-auth-config-set-account-user-email:
 
 gcloud-auth-serviceaccount-activate: $(GOOGLE_APPLICATION_CREDENTIALS)
 	@echo "🔧 Activating local service account: $< ..."
-	@$(GCLOUD) auth activate-service-account --key-file="$<"
+# 	@$(GCLOUD) auth activate-service-account --key-file="$<"
 .PHONY: gcloud-auth-serviceaccount-activate
 
 # ADC (Application Default Credentials: https://cloud.google.com/docs/authentication/provide-credentials-adc?hl=en)

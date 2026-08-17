@@ -68,7 +68,6 @@ GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 # The following variables are used for propagating the containers|
 # configurations between them each others selves.
 #                                                                
-ANDROID_HOST=android-studio
 VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
 VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
 CLARINET_RPC=http://clarinet-devnet:20443
@@ -93,7 +92,7 @@ services:
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
-        make docker-sock
+        make vegito-docker-sock
         if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
         fi
@@ -120,7 +119,7 @@ services:
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
-    image: ${VEGITO_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:robotframework-${LOCAL_VERSION}
+    image: ${VEGITO_DOCKER_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:robotframework-${LOCAL_VERSION}
     working_dir: ${PWD}/tests
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests

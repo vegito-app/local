@@ -53,7 +53,7 @@ target "local-stripe-base" {
 target "local-stripe-version-ci" {
   inherits = ["local-stripe-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   tags = [
     LOCAL_STRIPE_IMAGE_VERSION,
@@ -80,7 +80,7 @@ target "local-stripe-version-ci" {
 target "local-stripe-latest-ci" {
   inherits = ["local-stripe-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   tags = [
     LOCAL_STRIPE_IMAGE_LATEST
@@ -113,7 +113,7 @@ target "local-stripe-latest-ci" {
 target "local-stripe" {
   inherits = ["local-stripe-base"]
   contexts = {
-    debian = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   tags = [
     LOCAL_STRIPE_IMAGE_LATEST,

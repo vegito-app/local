@@ -56,7 +56,7 @@ group "local-github-actions-runner-ci" {
 
 target "local-github-actions-runner-base" {
   contexts = {
-    debian_project_builder = "docker-image://${VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_DOCKER_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT
   }
   args = {
     github_runner_version = GITHUB_ACTION_RUNNER_VERSION
