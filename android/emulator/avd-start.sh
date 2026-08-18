@@ -2,6 +2,16 @@
 
 set -euo pipefail
 
+echo "[*] Killing emulator & adb..."
+pkill -x emulator || true
+pkill -x qemu-system || true
+adb kill-server || true
+pkill -x adb || true
+
+rm -rf ~/.android/avd/*/*.lock
+rm -f ~/.android/*.lock
+rm -f ~/.android/adb*.ini.lock
+
 # 📌 List of PIDs of background processes
 bg_pids=()
 
@@ -60,6 +70,8 @@ if [ ! -e /dev/kvm ]; then
   echo "⚠️ /dev/kvm not present, falling back to software accel"
   accel_args="-accel off"
 fi
+
+export DISPLAY=${DISPLAY:-:1} 
 
 headless_args="-no-window"
 if xdpyinfo >/dev/null 2>&1; then

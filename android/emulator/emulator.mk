@@ -53,21 +53,7 @@ local-android-emulator-avd-start:
 
 local-android-emulator-avd-restart:
 	@echo "Restarting android-studio emulator..."
-	@echo LOCAL_ANDROID_CONTAINER_NAME=$(LOCAL_ANDROID_CONTAINER_NAME)
-	@echo LOCAL_ANDROID_CONTAINER_EXEC=$(LOCAL_ANDROID_CONTAINER_EXEC)
-	@echo LOCAL_ANDROID_STUDIO_DIR=$(LOCAL_ANDROID_STUDIO_DIR)
-	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
-	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
-	@echo LOCAL_ANDROID_EMULATOR_DATA_DIR=$(LOCAL_ANDROID_EMULATOR_DATA_DIR)
-	$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
-	  echo "[*] Killing emulator & adb..." ; \
-	  pkill -x emulator ; \
-	  pkill -x qemu-system ; \
-	  pkill -x adb ; \
-	  adb kill-server ; \
-	  rm -rf ~/.android/avd/*/*.lock ; \
-	  rm -f ~/.android/*.lock ; \
-	  rm -f ~/.android/adb*.ini.lock ; \
+	@$(LOCAL_ANDROID_CONTAINER_EXEC) bash -c ' \
 	  android-emulator-avd-start.sh ; \
 	'
 .PHONY: local-android-emulator-avd-restart
