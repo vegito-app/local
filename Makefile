@@ -26,6 +26,14 @@ export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION ?= $(VEGITO_DOCKER_PUBLI
 export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
+LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
+  clarinet-devnet \
+  robotframework \
+  firebase-emulators \
+  vault-dev \
+  stripe \
+  trivy 
+
 LOCAL_DOCKER_BUILDX_BAKE ?= \
   VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:vegito-debian-project-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
@@ -58,7 +66,6 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   robotframework \
   trivy
-  
 #   clarinet-devnet \
 
 LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
@@ -67,7 +74,6 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
   builders \
   services \
   applications
-#   dockerhub \
 
 GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
@@ -77,13 +83,15 @@ VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
 export VEGITO_EXAMPLE_APPLICATION_DIR ?= $(LOCAL_DIR)/example-application
 
+export LOCAL_DOCKER_COMPOSE ?= docker compose \
+  -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/stripe/docker-compose.yml \
+  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
+  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
+
 -include local.mk
--include docker.mk
--include gcloud.mk
--include android.mk
--include git.mk
--include nodejs.mk
--include go.mk
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   android-studio \
@@ -91,9 +99,16 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   nestor \
   vault-dev \
   robotframework \
+
+-include docker.mk
+-include gcloud.mk
+-include android.mk
+-include git.mk
+-include nodejs.mk
+-include go.mk
+
   $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
 #   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
-
 
 -include .devcontainer/devcontainer.mk
 
