@@ -70,13 +70,6 @@ bg_pids+=("$!")
 forward_loopback_port 9499 9599 &
 bg_pids+=("$!")
 
-
-if [ $# -eq 0 ]; then
-    echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-
-    if [ "${#bg_pids[@]}" -gt 0 ]; then
-        wait "${bg_pids[@]}"
-    fi
-else
-    exec "$@"
+if [ "${#bg_pids[@]}" -gt 0 ]; then
+    wait "${bg_pids[@]}"
 fi
