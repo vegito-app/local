@@ -50,6 +50,8 @@ RUN usermod -l ${non_root_user} ${USER} \
 USER ${non_root_user}
 ENV USER=${non_root_user}
 
+WORKDIR /home/debian
+
 ENV NVM_DIR=/home/debian/nvm
 
 ARG nvm_version=0.40.1
