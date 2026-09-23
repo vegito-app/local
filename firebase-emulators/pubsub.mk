@@ -43,7 +43,7 @@ $(VEGITO_APP_FIREBASE_PUBSUB_ORDER_PAYMENT_SUBSCRIPTIONS:%=local-firebase-emulat
 
 local-firebase-emulators-pubsub-wait:
 	@echo "⏳ Waiting for Pub/Sub emulator..."
-	@until nc -z localhost 8085; do \
+	@until nc -z firebase-emulators 8085; do \
 		echo "🕒 Waiting for port 8085..."; \
 		sleep 1; \
 	done

@@ -44,6 +44,8 @@ fi
 # Forward firebase-emulators to container as localhost
 socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
 bg_pids+=("$!")
+socat TCP-LISTEN:9499,fork,reuseaddr TCP:firebase-emulators:9599 > /tmp/socat-firebase-emulators-9599.log 2>&1 &
+bg_pids+=("$!")
 socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4501.log 2>&1 &
 bg_pids+=("$!")
 socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4401.log 2>&1 &

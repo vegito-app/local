@@ -29,17 +29,11 @@ socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-fi
 bg_pids+=("$!")
 socat TCP-LISTEN:9099,fork,reuseaddr TCP:firebase-emulators:9099 > /tmp/socat-firebase-emulators-9099.log 2>&1 &
 bg_pids+=("$!")
-socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4400.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4500.log 2>&1 &
-bg_pids+=("$!")
 socat TCP-LISTEN:9005,fork,reuseaddr TCP:firebase-emulators:9005 > /tmp/socat-firebase-emulators-9005.log 2>&1 &
 bg_pids+=("$!")
-socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:39150 > /tmp/socat-firebase-emulators-9150.log 2>&1 &
+socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:9150 > /tmp/socat-firebase-emulators-9150.log 2>&1 &
 bg_pids+=("$!")
-socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:39199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9299.log 2>&1 &
+socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:9199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
 bg_pids+=("$!")
 
 docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${LOCAL_DIR}/docker-compose.yml}
