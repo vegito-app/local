@@ -40,32 +40,36 @@ else
     echo "ℹ️ Skipping AVD start as LOCAL_ANDROID_EMULATOR_AVD_ON_START is not set to true."
 fi
 
+forward_port() {
+    local local_port="$1"
+    local remote_host="$2"
+    local remote_port="${3:-$local_port}"
 
-# Forward firebase-emulators to container as localhost
-socat TCP-LISTEN:9299,fork,reuseaddr TCP:firebase-emulators:9399 > /tmp/socat-firebase-emulators-9399.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9499,fork,reuseaddr TCP:firebase-emulators:9599 > /tmp/socat-firebase-emulators-9599.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4500,fork,reuseaddr TCP:firebase-emulators:4501 > /tmp/socat-firebase-emulators-4501.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4400,fork,reuseaddr TCP:firebase-emulators:4401 > /tmp/socat-firebase-emulators-4401.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9000,fork,reuseaddr TCP:firebase-emulators:9000 > /tmp/socat-firebase-emulators-9000.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9099,fork,reuseaddr TCP:firebase-emulators:9099 > /tmp/socat-firebase-emulators-9099.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9150,fork,reuseaddr TCP:firebase-emulators:9150 > /tmp/socat-firebase-emulators-9150.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:9199,fork,reuseaddr TCP:firebase-emulators:9199 > /tmp/socat-firebase-emulators-9199.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:8085,fork,reuseaddr TCP:firebase-emulators:8085 > /tmp/socat-firebase-emulators-8085.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:8090,fork,reuseaddr TCP:firebase-emulators:8090 > /tmp/socat-firebase-emulators-8090.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:5001,fork,reuseaddr TCP:firebase-emulators:5001 > /tmp/socat-firebase-emulators-5001.log 2>&1 &
-bg_pids+=("$!")
-socat TCP-LISTEN:4000,fork,reuseaddr TCP:firebase-emulators:4000 > /tmp/socat-firebase-emulators-4000.log 2>&1 &
-bg_pids+=("$!")
+    echo "🔀 127.0.0.1:${local_port} -> ${remote_host}:${remote_port}"
+
+    socat \
+        "TCP-LISTEN:${local_port},bind=127.0.0.1,fork,reuseaddr" \
+        "TCP:${remote_host}:${remote_port}" \
+        > "/tmp/socat-${remote_host}-${remote_port}.log" 2>&1 &
+
+    bg_pids+=("$!")
+}
+
+# Firebase emulators
+forward_port 4000 firebase-emulators
+forward_port 5001 firebase-emulators
+forward_port 8085 firebase-emulators
+forward_port 8090 firebase-emulators
+forward_port 9000 firebase-emulators
+forward_port 9099 firebase-emulators
+forward_port 9150 firebase-emulators
+forward_port 9199 firebase-emulators
+
+# Firebase CLI internal ports re-exposed by firebase-emulators
+forward_port 4400 firebase-emulators 4401
+forward_port 4500 firebase-emulators 4501
+forward_port 9299 firebase-emulators 9399
+forward_port 9499 firebase-emulators 9599
 
 # access to backend using localhost (position retrieval unauthorized using insecure http frontend with google-chrome)
 socat TCP-LISTEN:8080,fork,reuseaddr TCP:application-backend:8080 > /tmp/socat-backend-8080.log 2>&1 &

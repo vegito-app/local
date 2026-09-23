@@ -68,10 +68,6 @@ variable "VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-robotframework-latest"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-desktop-x-latest"
-}
-
 variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-flutter-desktop-x-latest"
 }

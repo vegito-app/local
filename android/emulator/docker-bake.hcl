@@ -50,6 +50,10 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_VERSION" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-${VERSION}"
 }
 
+variable "LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT" {
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-desktop-x-latest"
+}
+
 group "local-android-emulator-ci" {
   description = "Build and push Android Emmulator images"
   targets = [
@@ -65,7 +69,7 @@ target "local-android-emulator-base" {
 target "local-android-emulator-version-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
+    debian = LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_VERSION,
@@ -79,7 +83,7 @@ target "local-android-emulator-version-ci" {
       LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
+      LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT
     ]
   )
   cache-to = concat(
@@ -93,7 +97,7 @@ target "local-android-emulator-version-ci" {
 target "local-android-emulator-latest-ci" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
+    debian = LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -107,7 +111,7 @@ target "local-android-emulator-latest-ci" {
     ] : [],
     [
       LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
+      LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT
     ]
   )
   cache-to = concat(
@@ -127,7 +131,7 @@ target "local-android-emulator-latest-ci" {
 target "local-android-emulator" {
   inherits = ["local-android-emulator-base"]
   contexts = {
-    debian = VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
+    debian = LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT
   }
   tags = [
     LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
@@ -142,7 +146,7 @@ target "local-android-emulator" {
     ] : [],
     [
       LOCAL_ANDROID_EMULATOR_IMAGE_LATEST,
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_CONTEXT
+      LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT
     ]
   )
   cache-to = concat(
