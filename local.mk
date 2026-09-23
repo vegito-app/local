@@ -20,14 +20,6 @@ $(LOCAL_DOTENV_FILE):
 	@echo "📝 Generating .env file for local development..."
 	@$(LOCAL_DIR)/dotenv.sh
 
-LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
-  clarinet-devnet \
-  robotframework \
-  firebase-emulators \
-  vault-dev \
-  stripe \
-  trivy 
-
 local-docker-images-pull-parallel: \
 local-docker-compose-images-pull-parallel \
 local-android-docker-images-pull-parallel
@@ -93,14 +85,6 @@ local-project-builder-image-trivy-scan: vegito-docker-buildx-setup
 	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_BUILDER_IMAGE) \
 	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=local-project-builder-$(VERSION)-trivy-report.html
 .PHONY: local-project-builder-image-trivy-scan
-
-export LOCAL_DOCKER_COMPOSE ?= docker compose \
-  -f $(LOCAL_DIR)/docker-compose.yml \
-  -f $(LOCAL_DIR)/stripe/docker-compose.yml \
-  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
-  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
 
 ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),wayland)
 	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
