@@ -8,15 +8,15 @@ local-firebase-emulators-pubsub-check
 	@echo "✅ Pub/Sub emulator is ready!"
 .PHONY: local-firebase-emulators-pubsub-init
 
-local-firebase-emulators-pubsub-topics-create: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-firebase-emulators-pubsub-topics-create-%)
+local-firebase-emulators-pubsub-topics-create: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-%-firebase-emulators-pubsub-topic)
 .PHONY: local-firebase-emulators-pubsub-topics-create
 
-$(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-firebase-emulators-pubsub-topics-create-%):
+$(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-%-firebase-emulators-pubsub-topic):
 	@echo "📣 Creating local Pub/Sub topic: $@"
-	@curl -X PUT http://$(LOCAL_FIREBASE_PUBSUB_EMULATOR_HOST)/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics/$(@:local-firebase-emulators-pubsub-topics-create-%=%)|echo
-.PHONY: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-firebase-emulators-pubsub-topics-create-%)
+	@curl -X PUT http://$(LOCAL_FIREBASE_PUBSUB_EMULATOR_HOST)/v1/projects/$(GOOGLE_CLOUD_PROJECT_ID)/topics/$(@:local-%-firebase-emulators-pubsub-topic=%)|echo
+.PHONY: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-%-firebase-emulators-pubsub-topic)
 
-local-firebase-emulators-pubsub-subscriptions: $(LOCAL_FIREBASE_PUBSUB_SUBSCRIPTIONS:%=local-firebase-emulators-pubsub-subscriptions-create-%)
+local-firebase-emulators-pubsub-subscriptions: $(LOCAL_FIREBASE_EMULATORS_PUBSUB_TOPICS:%=local-%-firebase-emulators-pubsub-subscriptions)
 .PHONY: local-firebase-emulators-pubsub-subscriptions
 
 local-firebase-emulators-pubsub-wait:

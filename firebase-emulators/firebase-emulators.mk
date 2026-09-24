@@ -8,7 +8,7 @@ export LOCAL_FIREBASE_EMULATORS_AUTH_FUNCTIONS_DIR ?= $(LOCAL_DIR)/firebase-emul
 export LOCAL_FIREBASE_EMULATORS_DATA ?= $(LOCAL_DIR)/firebase-emulators/data
 export LOCAL_FIREBASE_EMULATORS_CONFIG_JSON ?= $(LOCAL_DIR)/firebase-emulators/firebase.json
 
-include $(LOCAL_FIREBASE_EMULATORS_DIR)/pubsub.mk
+include $(LOCAL_DIR)/firebase-emulators/pubsub.mk
 
 local-firebase-emulators-config-json: $(LOCAL_FIREBASE_EMULATORS_CONFIG_JSON)
 .PHONY: local-firebase-emulators-config-json	
