@@ -22,3 +22,5 @@ gitleaks-report.json
 *-screenshot.png
 *trivy*report.html
 *.make-logs
+
+firebase-export-*
