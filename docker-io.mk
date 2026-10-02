@@ -8,8 +8,8 @@ export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME  ?= $(VEGITO_DOCKER_PUBLIC_REPOSITO
 
 vegito-docker-login-dockerhub:
 	@echo "Logging into Docker Hub"
-	@printf '%s' "$$VEGITO_DOCKERHUB_PAT" | docker login \
-	  --username "$$VEGITO_DOCKERHUB_USERNAME" \
+	@printf '%s' "$(DOCKERHUB_PAT)" | docker login \
+	  --username "$(DOCKERHUB_USERNAME)" \
 	  --password-stdin
 .PHONY: vegito-docker-login-dockerhub
 
