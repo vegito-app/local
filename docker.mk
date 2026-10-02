@@ -11,7 +11,8 @@ vegito-docker-login-gcr: gcloud-auth-docker
 
 -include docker-io.mk
 
-VEGITO_DOCKER_REGISTRIES ?= gcr dockerhub
+# Available values: gcr, dockerhub, gcr dockerhub, etc. (space-separated)
+VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
 vegito-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-login-%)
 	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
