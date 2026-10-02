@@ -2,6 +2,16 @@
 
 set -euo pipefail
 
+echo "[*] Killing emulator & adb..."
+pkill -x emulator || true
+pkill -x qemu-system || true
+adb kill-server || true
+pkill -x adb || true
+
+rm -rf ~/.android/avd/*/*.lock
+rm -f ~/.android/*.lock
+rm -f ~/.android/adb*.ini.lock
+
 # 📌 List of PIDs of background processes
 bg_pids=()
 
@@ -16,13 +26,6 @@ kill_jobs() {
 
 # 🚨 Register cleanup function to run on script exit
 trap kill_jobs EXIT
-
-echo "Starting adb server if not running..."
-if ! pgrep -x "adb" >/dev/null; then
-  adb start-server &
-  bg_pids+=($!)
-  echo "ADB server started."
-fi
 
 echo "List of available AVDs:"
 
@@ -68,11 +71,18 @@ if [ ! -e /dev/kvm ]; then
   accel_args="-accel off"
 fi
 
+export DISPLAY=${DISPLAY:-:1} 
+
 headless_args="-no-window"
 if xdpyinfo >/dev/null 2>&1; then
   headless_args=${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-""}
 fi
 
+echo "Starting adb server if not running..."
+adb start-server
+# adb start-server &
+# bg_pids+=($!)
+echo "ADB server started."
 
 echo "Starting AVD named: ${avd_name} (gpu=${gpu_mode})"
 emulator -avd "${avd_name}" \
@@ -90,6 +100,19 @@ bg_pids+=($emulator_pid)
 
 echo "⏳ Waiting for adb device..."
 
+adb wait-for-device
+
+while [[ "$(adb shell getprop init.svc.bootanim 2>/dev/null)" != *"stopped"* ]]; do
+echo "🎞️ Boot animation still running..."
+sleep 2
+done
+
+# Optionnel : check de réactivité ADB shell
+until adb shell "echo ok" | grep -q "ok"; do
+echo "🔁 Waiting for ADB shell..."
+sleep 2
+done
+
 # 1. Device visible + online
 until adb get-state 2>/dev/null | grep -q "device"; do
   echo "⏳ adb not ready..."
@@ -98,11 +121,16 @@ done
 
 # 2. Boot terminé
 echo "⏳ Waiting for Android boot..."
-timeout 300 bash -c '
+
+deadline=$((SECONDS + 300))
+
 until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do
-  sleep 2
+    if (( SECONDS >= deadline )); then
+        echo "Boot timeout"
+        exit 1
+    fi
+    sleep 2
 done
-'
 
 # 3. Shell réellement OK
 echo "⏳ Waiting for adb shell..."

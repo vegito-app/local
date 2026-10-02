@@ -12,30 +12,69 @@
 This repository offers a **GPU-accelerated, containerized development environment** tailored for the Vegito project.
 It includes ready-to-use setups for Android Studio, Firebase emulators, smart contracts with Clarinet, Vault (in dev mode), and GPU tools — all optimized for use inside DevContainers (VS Code, Codespaces, etc.).
 
-> 🔧 **Currently supports NVIDIA GPUs**.  
-> 💡 **PRs for AMD GPU support are welcome!**  
+> 🔧 **Currently supports NVIDIA GPUs**.
+> 💡 **PRs for AMD GPU support are welcome!**
 > 🧠 Built for reproducibility, portability, and extensibility.
-
-## 🚀 Quick Links
-
-- [Usage](#usage)
-- [Subtree Integration](#subtree-integration)
-- [Setup Steps](#setup)
-- [GPU Rendering Verification](#gpu-acceleration-success-example)
-- [Docker Stack Layers](#devlocal-docker-gpu-stack)
-- [Quick Start](#quick-start)
-- [Local Services](#local-services-available-commands)
-- [CI/CD Structure](#cicd-structure--application-modularity)
-- [Vision](#vision--philosophy)
-- [Best Practices](#best-practices)
-- [License](#license)
-
----
 
 ## Usage
 
-Clone this repo and launch the devcontainer in VSCode.  
-Run `make help` for available targets.
+Clone this repo and launch the devcontainer in VSCode.
+
+## 🧪 Example Workflows
+
+This project exposes a **large Makefile surface (~500 targets)** allowing:
+
+- fine-grained control (build one image)
+- grouped builds (logical subsets)
+- full DAG execution (CI-style massive builds)
+
+### Minimal local build
+
+make example-application-backend-image
+
+### Full CI DAG (heavy)
+
+make images-ci
+
+### ⚠️ Temporary note (GCP billing)
+
+Some CI-related targets may currently fail with `403` errors when accessing:
+
+- GCR (Google Container Registry)
+- GCS (artifacts)
+
+A temporary fallback is already enabled:
+
+- Docker Hub is used instead of GCR when possible
+
+If you hit issues, prefer:
+
+```bash
+make images
+make local-docker-images
+```
+
+instead of full CI pipelines.
+
+### 💡 Recommended usage strategy
+
+On a local machine:
+
+- avoid full DAG:
+
+```bash
+make example-application-backend-image
+```
+
+- or small groups:
+
+```bash
+make local-services-docker-images
+```
+
+- reserve full DAG for:
+  - CI
+  - or high-end build machines
 
 ---
 
@@ -72,6 +111,26 @@ include local/local.mk
 ---
 
 ## ✨ Features
+
+```
+              ┌───────────────────┐
+              │ container root    │
+              │                   │
+              │ Xorg              │
+              │ Openbox           │
+              │ NVIDIA            │
+              └─────────┬─────────┘
+                        │ DISPLAY=:20
+────────────────────────┼────────────────────────
+                        │
+         ┌──────────────┴──────────────┐
+         │                             │
+┌────────▼────────┐         ┌──────────▼───────┐
+│ container B     │         │ container C      │
+│ Android Studio  │         │ Chrome           │
+│ xpra server     │         │ xpra server      │
+└─────────────────┘         └──────────────────┘
+```
 
 - ⚡ **GPU-accelerated Android Emulator** (e.g. Google Maps, camera, media)
 - 🧠 **AI/ML-compatible GPU runtime** (CUDA, OpenGL, Vulkan-ready)
@@ -293,6 +352,37 @@ graph TD
 
 ---
 
+## ⚙️ Build Philosophy (Why this is "big")
+
+This repository intentionally embraces a **DAG-based build system** powered by:
+
+- `docker buildx bake`
+- modular `Makefile`
+- composable contexts
+
+### Trade-offs
+
+✔ Maximum reuse of layers  
+✔ Parallel build optimization (CI-ready)  
+✔ Multi-platform support (amd64 / arm64)
+
+✖ Can saturate disk I/O on local machines  
+✖ Requires tuning (parallelism, cache strategy)
+
+### Key idea
+
+You are not forced to use the full DAG.
+
+You can:
+
+- run individual targets
+- compose your own build groups
+- or go full CI mode
+
+Same codebase — multiple execution strategies.
+
+---
+
 ## 📘 Conclusion
 
 This modular CI / Makefile / Docker system ensures:
@@ -325,7 +415,7 @@ This project serves as the foundation for a powerful dev experience:
 - 🧪 CI pipelines with rendering tests
 - ☁️ Remote dev with full graphical support
 
---- 
+---
 
 ## 💡 Best Practices
 

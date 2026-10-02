@@ -1,8 +1,8 @@
 variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-${VERSION}"
 }
 variable "LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-latest"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-latest"
 }
 
 variable "LOCAL_ANDROID_DIR" {
@@ -26,7 +26,6 @@ group "local-android-runners-ci" {
 group "local-android-builders" {
   description = "Build and push Android Studio images"
   targets = [
-    "local-android-flutter",
     "local-android-appium",
   ]
 }
@@ -34,7 +33,6 @@ group "local-android-builders" {
 group "local-android-builders-ci" {
   description = "Build and push Android Studio images"
   targets = [
-    "local-android-flutter-ci",
     "local-android-appium-ci",
   ]
 }
@@ -57,7 +55,6 @@ group "local-android" {
   targets = [
     "local-android-appium",
     "local-android-emulator",
-    "local-android-flutter",
     "local-android-studio"
   ]
 }
@@ -66,7 +63,6 @@ group "local-android-ci" {
   targets = [
     "local-android-appium-ci",
     "local-android-emulator-ci",
-    "local-android-flutter-ci",
     "local-android-studio-ci"
   ]
 }

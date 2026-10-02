@@ -1,35 +1,38 @@
 FROM debian
 
-RUN apt-get update && apt-get install -y \
-    curl \
-    gpg \
-    htop \
-    jq \
-    lsb-release \
-    make \
-    netcat-openbsd \
-    sudo \
-    wget
+ARG TARGETPLATFORM
 
-ARG non_root_user=vault
+ARG debian_version=bookworm
 
-RUN useradd -m ${non_root_user} -u 1000 && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user} \
-    \
-    && chown -R ${non_root_user}:${non_root_user} ${HOME}
+USER root
 
-ENV HOME=/home/${non_root_user}
-
-RUN wget -O - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+RUN --mount=type=cache,id=local-vault-dev-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-vault-dev-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com ${debian_version} main" \
     | tee /etc/apt/sources.list.d/hashicorp.list \
-    && apt update && apt install -y vault \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get -o Acquire::Retries=3 update && apt-get install -y vault
+
+ARG non_root_user=vault-dev
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+
+ENV USER=${non_root_user}
+
 
 WORKDIR ${HOME}
 
-RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
 
 COPY entrypoint.sh /usr/local/bin/vault-local-entrypoint.sh

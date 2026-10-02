@@ -1,13 +1,13 @@
 services:
   trivy:
     tty: true
-    image: ${LOCAL_TRIVY_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:trivy-latest}
+    image: ${LOCAL_TRIVY_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-latest}
     env_file:
       - .env
     environment:
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
       LOCAL_WORKSPACE: ${PWD}
-      LOCAL_TRIVY_CACHES_REFRESH: ${LOCAL_TRIVY_CACHES_REFRESH:-false}
+      LOCAL_TRIVY_CONTAINER_INSTALL: ${LOCAL_TRIVY_CONTAINER_INSTALL:-true}
       LOCAL_TRIVY_CONTAINER_CACHE: ${LOCAL_TRIVY_CONTAINER_CACHE:-${PWD}/.containers/trivy}
     volumes:
       - ${PWD}:${PWD}:cached

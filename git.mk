@@ -22,3 +22,5 @@ $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm):
 
 git-subtree-remote-branch-rm: $(VEGITO_APP_GIT_SUBTREE_REMOTES:%=git-subtree-%-remote-branch-rm)
 .PHONY: git-subtree-remote-branch-rm
+
+-include local.mk

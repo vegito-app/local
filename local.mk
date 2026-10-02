@@ -68,8 +68,9 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 #   clarinet-devnet \
 
 -include $(LOCAL_DIR)/local.mk
-# Android High-Level targets
 -include $(LOCAL_DIR)/android.mk
+-include $(LOCAL_DIR)/docker.mk
+-include $(LOCAL_DIR)/docker-io.mk
 
 VEGITO_GCLOUD_DIR ?= $(LOCAL_DIR)/gcloud
 -include $(VEGITO_GCLOUD_DIR)/gcloud.mk

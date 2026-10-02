@@ -24,13 +24,16 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
       - vscode-store:/vscode
 
-  example-application-backend:
+  nestor:
     volumes:
       - vscode-store:/vscode
-
-  example-application-mobile:
-    volumes:
-      - vscode-store:/vscode
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+      # Shared volumes for Ollama models and cache
+      - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw
+      # Docker socket for external Docker control
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - /dev:/dev
+      # - /lib/modules:/lib/modules
 volumes:
   vscode-store:
     external: true

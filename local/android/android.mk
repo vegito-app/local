@@ -1,9 +1,9 @@
-LOCAL_ANDROID_DIR ?= $(LOCAL_DIR)/android
-LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:android-emulator-$(VERSION)
+export LOCAL_ANDROID_DIR ?= $(CURDIR)
+
+LOCAL_ANDROID_APK_RUNNER_EMULATOR_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-$(VERSION)
 
 -include $(LOCAL_ANDROID_DIR)/appium/appium.mk
 -include $(LOCAL_ANDROID_DIR)/emulator/emulator.mk
--include $(LOCAL_ANDROID_DIR)/flutter/flutter.mk
 -include $(LOCAL_ANDROID_DIR)/studio/studio.mk
 
 LOCAL_ANDROID_DOCKER_BAKE_GROUPS ?= \
@@ -15,7 +15,7 @@ local-android-docker-images:
 	@$(MAKE) -j $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group)
 .PHONY: local-android-docker-images
 
-$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): local-docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): vegito-docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake group $(@:%-group=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group=%)
 	@echo Building and pushing the docker images for buildx bake group $(@:%-group=%)
@@ -25,7 +25,7 @@ $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group): local-docker-buildx
 local-android-docker-images-ci: $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci)
 .PHONY: local-android-docker-images-ci
 
-$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): local-docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): vegito-docker-buildx-setup
 	@echo Showing CI docker images build configuration for buildx bake group $(@:%-group-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-group-ci=%-ci)
 	@echo Building and pushing the docker images for buildx bake group $(@:%-group-ci=%-ci)
@@ -35,17 +35,16 @@ $(LOCAL_ANDROID_DOCKER_BAKE_GROUPS:%=local-android-%-group-ci): local-docker-bui
 LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES ?= \
   appium \
   emulator \
-  flutter \
   studio
 
-$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): local-docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image): vegito-docker-buildx-setup
 	@echo Showing docker images build configuration for buildx bake target $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
 	@echo Building and loading the docker image for buildx bake target $(@:%-image=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
 .PHONY: $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image)
 
-$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): local-docker-buildx-setup
+$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=local-android-%-image-ci): vegito-docker-buildx-setup
 	@echo Showing CI build configuration for docker bake target $(@:%-image-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
 	@echo Building and pushing the docker image for buildx bake target $(@:%-image-ci=%-ci)
@@ -132,6 +131,7 @@ local-android-app-sha1-fingerprint:
 	@$(LOCAL_ANDROID_CONTAINER_EXEC) \
 	  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 .PHONY: local-android-app-sha1-fingerprint
+
 ################################################################################
 ## 🔐 ANDROID RELEASE KEYSTORE
 ################################################################################
@@ -171,12 +171,13 @@ $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH):
 	  base64 $(LOCAL_ANDROID_RELEASE_KEYSTORE_PATH) > $(LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH); \
 	  printf "%s" "$$storepass" | base64 > $(LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH) \
 	'
+
 ################################################################################
 # ANDROID MOBILE IMAGE EXTRACTION
 ################################################################################
 LOCAL_ANDROID_MOBILE_DIR ?= $(LOCAL_ANDROID_DIR)
 LOCAL_ANDROID_MOBILE_IMAGE_APK_RELEASE_EXTRACT_PATH ?= ${LOCAL_ANDROID_MOBILE_DIR}/app-release-$(VERSION)-extract.apk
-LOCAL_ANDROID_MOBILE_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:application-mobile-${VERSION}
+LOCAL_ANDROID_MOBILE_IMAGE ?= ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:application-mobile-${VERSION}
 
 local-android-mobile-image-tag-apk-extract:
 	@echo "Creating temp container from image $(LOCAL_ANDROID_MOBILE_IMAGE)"

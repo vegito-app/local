@@ -1,9 +1,9 @@
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:robotframework-${VERSION}"
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-${VERSION}"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST" {
@@ -51,7 +51,7 @@ group "local-robotframework-ci" {
 
 target "local-robotframework-version-ci" {
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -69,7 +69,7 @@ target "local-robotframework-version-ci" {
       LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
+      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -82,7 +82,7 @@ target "local-robotframework-version-ci" {
 
 target "local-robotframework-latest-ci" {
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT
   }
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
@@ -97,7 +97,7 @@ target "local-robotframework-latest-ci" {
       LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
+      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -118,7 +118,7 @@ target "local-robotframework" {
   context    = "${LOCAL_DIR}/robotframework"
   dockerfile = "Dockerfile"
   contexts = {
-    debian_image = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT
   }
   tags = [
     LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION,
@@ -132,7 +132,7 @@ target "local-robotframework" {
       LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST}"
+      LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST
     ]
   )
   cache-to = concat(

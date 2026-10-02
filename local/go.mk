@@ -1,4 +1,4 @@
-GO_VERSION = 1.26.2
+GO_VERSION ?= 1.26.3
 
 UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_M), x86_64)

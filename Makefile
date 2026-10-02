@@ -1,5 +1,4 @@
 VEGITO_PROJECT_NAME := example-application
-LOCAL_DIR := $(CURDIR)/local
 GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
 VEGITO_EXAMPLE_APPLICATION_VERSION ?= $(GIT_HEAD_VERSION)
@@ -9,10 +8,7 @@ endif
 
 VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_VERSION)
 
-export
-
 -include example-application.mk
--include local.mk
 -include gcloud.mk
 -include git.mk
 -include nodejs.mk
@@ -114,3 +110,9 @@ application-mobile-dump: example-application-mobile-dump
 
 docker-tags-md-ci: docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
+
+docker-login: vegito-docker-login
+.PHONY: docker-login
+
+docker-buildx-setup: vegito-docker-buildx-setup
+.PHONY: docker-buildx-setup

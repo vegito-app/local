@@ -9,8 +9,8 @@ bg_pids=()
 kill_jobs() {
     echo "Killing background jobs"
     for pid in "${bg_pids[@]}"; do
-        kill "$pid"
-        wait "$pid" 2>/dev/null
+        kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
     done
 }
 
@@ -24,50 +24,52 @@ echo "fs.inotify.max_user_watches=524288" | sudo tee /etc/sysctl.d/99-inotify.co
 make local-firebase-emulators-install local-firebase-emulators-start &
 bg_pids+=("$!")
 
-# Need localproxy to forward some required port that could not be 
-# configured to listen on 0.0.0.0 from firebase.json file.
-until nc -z localhost 4400; do
-    echo Waiting Firebase Emulator Reserved port at http://localhost:4400/ ;
-    sleep 1 ;
-done
-TARGET_PORT=4400 LISTEN_PORT=4401 localproxy &
-bg_pids+=("$!") 
+# Firebase Emulator UI utilise certains services auxiliaires uniquement
+# exposés sur localhost. On les réexpose sur le réseau Docker avec un
+# port différent afin qu'un autre container puisse les ramener sur son
+# propre localhost.
+forward_loopback_port() {
+    local source_port="$1"
+    local bridge_port="$2"
+    local timeout_seconds="${3:-60}"
+    local elapsed=0
 
-until nc -z localhost 4500; do
-    echo Waiting Firebase Emulator Reserved port at http://localhost:4500/ ;
-    sleep 1 ;
-done
-TARGET_PORT=4500 LISTEN_PORT=4501 localproxy &
-bg_pids+=("$!") 
+    echo "[firebase-emulators] Waiting for 127.0.0.1:${source_port}..."
 
-until nc -z localhost 9199; do
-    echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9199/ ;
-    sleep 1 ;
-done
-TARGET_PORT=9199 LISTEN_PORT=39199 localproxy &
+    while ! nc -z 127.0.0.1 "${source_port}" 2>/dev/null; do
+        if (( elapsed >= timeout_seconds )); then
+            echo "[firebase-emulators] WARNING: 127.0.0.1:${source_port} unavailable after ${timeout_seconds}s; skipping bridge ${bridge_port}"
+            return 0
+        fi
 
-until nc -z localhost 9299; do
-    echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9299/ ;
-    sleep 1 ;
-done
-TARGET_PORT=9299 LISTEN_PORT=9399 localproxy &
+        sleep 1
+        ((elapsed += 1))
+    done
 
-bg_pids+=("$!") 
-until nc -z localhost 9150; do
-    echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9150/ ;
-    sleep 1 ;
-done
-TARGET_PORT=9150 LISTEN_PORT=39150 localproxy &
-bg_pids+=("$!") 
+    echo "[firebase-emulators] Port 127.0.0.1:${source_port} is ready"
+    echo "[firebase-emulators] Forwarding 0.0.0.0:${bridge_port} -> 127.0.0.1:${source_port}"
 
-until nc -z localhost 8085; do
-    echo Waiting Firebase Emulator Reserved port 3 at http://localhost:9150/ ;
-    sleep 1 ;
-done
+    exec socat \
+        "TCP-LISTEN:${bridge_port},bind=0.0.0.0,fork,reuseaddr" \
+        "TCP:127.0.0.1:${source_port}"
+}
 
-if [ $# -eq 0 ]; then
-  echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
-  wait "${bg_pids[@]}"
-else
-  exec "$@"
+# Emulator Hub
+forward_loopback_port 4400 4401 &
+bg_pids+=("$!")
+
+# Logging
+forward_loopback_port 4500 4501 &
+bg_pids+=("$!")
+
+# FireAlerts / trigger discovery
+forward_loopback_port 9299 9399 &
+bg_pids+=("$!")
+
+# Auxiliary Firebase CLI
+forward_loopback_port 9499 9599 &
+bg_pids+=("$!")
+
+if [ "${#bg_pids[@]}" -gt 0 ]; then
+    wait "${bg_pids[@]}"
 fi
