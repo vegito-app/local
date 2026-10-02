@@ -44,6 +44,11 @@ on:
           staging: vegito-app-staging-github-actions-ci-artifacts-private
           prod: vegito-app-prod-github-actions-ci-artifacts-private
 
+      docker_registry_mode:
+        required: false
+        type: string
+        default: "gcr"
+
       environment:
         required: false
         type: string
@@ -120,7 +125,7 @@ jobs:
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
       android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
       use_registry_cache: ${{ inputs.use_registry_cache }}
-
+      docker_registry_mode: ${{ inputs.docker_registry_mode }}
     secrets: inherit
 
   tests:

@@ -31,6 +31,8 @@ jobs:
       android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
       images_ci_build_groups: "runners builders services applications"
       dockerhub_replica_version: 1.9.0
+      docker_registry_mode: dockerhub
+
     secrets:
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
       GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}

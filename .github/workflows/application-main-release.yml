@@ -25,6 +25,7 @@ jobs:
       use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
+      docker_registry_mode: dockerhub
 
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
@@ -56,6 +57,8 @@ jobs:
       env_bucket_map: |
         staging: vegito-app-staging-github-actions-ci-artifacts
         prod: vegito-app-prod-github-actions-ci-artifacts
+
+      docker_registry_mode: dockerhub
 
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
