@@ -53,12 +53,12 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE" {
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
-  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-${LOCAL_VERSION}"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-${LOCAL_VERSION}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST" {
   description = "Android Studio image to use for mobile application builds"
-  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-latest"
+  default     = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE" {

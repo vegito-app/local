@@ -129,6 +129,7 @@ group "release" {
 group "release-ci" {
   targets = [
     "local-services-ci",
+    "vegito-example-application-ci"
   ]
 }
 
