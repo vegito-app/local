@@ -97,13 +97,10 @@ jobs:
 
   version-metadata:
     needs: version-changelog
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
     uses: ./.github/workflows/version-metadata.yml
 
     with:
-      environment: ${{ matrix.environment }}
+      environment: ${{ inputs.environment }}
       version: ${{ needs.version-changelog.outputs.version }}
       changelog: ${{ needs.version-changelog.outputs.changelog }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
