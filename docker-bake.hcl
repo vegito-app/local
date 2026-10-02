@@ -195,11 +195,16 @@ variable "LOCAL_BUILDER_IMAGE_LATEST" {
   default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
 }
 
-target "local-project-builder-base" {
+variable "VEGITO_EXAMPLE_APPLICATION_CONTEXT" {
+  default = VEGITO_EXAMPLE_APPLICATION_DIR
+}
+
+target "VEGITO-project-builder-base" {
   dockerfile = "dev.Dockerfile"
   context    = LOCAL_DIR
   contexts = {
     debian = VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT
+    example_app = LOCAL_EXAMPLE_APPLICATION_CONTEXT
   }
   args = {
     debian_version = "trixie"
