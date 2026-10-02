@@ -88,6 +88,11 @@ on:
       FACEBOOK_CLIENT_TOKEN:
         required: false
 
+      VEGITO_DOCKERHUB_PAT:
+        required: false
+      VEGITO_DOCKERHUB_USERNAME:
+        required: false
+  
 permissions:
   id-token: write
   contents: write
