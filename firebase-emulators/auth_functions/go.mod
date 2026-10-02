@@ -1,6 +1,6 @@
 module github.com/vegito-app/vegito/infra/google-cloud/auth_functions
 
-go 1.26
+go 1.26.1
 
 replace firebase.google.com/go/v4 => github.com/7d4b9/firebase-admin-go/v4 v4.0.0-20240812132131-5bae0559240c
 

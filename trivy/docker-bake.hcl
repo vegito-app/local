@@ -34,6 +34,10 @@ variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
   default = "type=local,src=${LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
+variable "TRIVY_VERSION" {
+  default = "0.70.0"
+}
+
 group "local-trivy-ci" {
   targets = [
     "local-trivy-version-ci",
@@ -43,7 +47,7 @@ group "local-trivy-ci" {
 
 target "local-trivy-version-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -60,11 +64,8 @@ target "local-trivy-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
-    ENABLE_LOCAL_CACHE ? [
-      LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
-    ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -77,7 +78,7 @@ target "local-trivy-version-ci" {
 
 target "local-trivy-latest-ci" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -95,7 +96,7 @@ target "local-trivy-latest-ci" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(
@@ -114,7 +115,7 @@ target "local-trivy-latest-ci" {
 
 target "local-trivy" {
   contexts = {
-    debian = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian = VEGITO_DOCKER_DEBIAN_CONTEXT
   }
   args = {
     trivy_version = TRIVY_VERSION
@@ -133,7 +134,7 @@ target "local-trivy" {
       LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${LOCAL_TRIVY_IMAGE_LATEST}"
+      LOCAL_TRIVY_IMAGE_LATEST
     ]
   )
   cache-to = concat(

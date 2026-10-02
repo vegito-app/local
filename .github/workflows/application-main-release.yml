@@ -12,8 +12,11 @@ jobs:
   pipeline:
     uses: ./.github/workflows/application-pipeline.yml
 
+    strategy:
+      matrix:
+        environment: [dev]
     with:
-      environment: dev
+      environment: ${{ matrix.environment }}
       functional_tests_dir: example-application/tests/output
       has_mobile: true
       images_to_scan: '["example-application-backend"]'
@@ -22,12 +25,14 @@ jobs:
       use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
-        staging: vegito-app-staging-github-actions-ci-artifacts
-        prod: vegito-app-prod-github-actions-ci-artifacts
+      docker_registry_mode: dockerhub
 
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
+      # Dockerhub Credentials
+      VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
+      VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
       # Main Service Account
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
@@ -38,23 +43,24 @@ jobs:
       RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GCP_RELEASE_READER_PROJECT_ID }}
       RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.RELEASE_READER_GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
 
-  build-staging-prod:
+  build-prod:
     name: Build Images
     needs: pipeline
     uses: ./.github/workflows/build-images.yml
 
     strategy:
       matrix:
-        environment: [staging, prod]
+        environment: [ prod]
 
     with:
       version: ${{ needs.pipeline.outputs.version }}
       environment: ${{ matrix.environment }}
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
-      use_registry_cache: true
+      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
       env_bucket_map: |
-        staging: vegito-app-staging-github-actions-ci-artifacts
         prod: vegito-app-prod-github-actions-ci-artifacts
+
+      docker_registry_mode: dockerhub
 
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}

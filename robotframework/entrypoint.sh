@@ -4,7 +4,7 @@ set -euo pipefail
 
 trap "echo Exited with code $?." EXIT
 
-if [ "${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}" = "true" ]; then
+if [ "${LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL:-true}" = "true" ]; then
     robotframework-caches-refresh.sh
 fi
 

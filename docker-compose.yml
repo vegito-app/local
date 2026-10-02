@@ -3,6 +3,7 @@ volumes:
   clarinet_var_lib_docker:
 services:
   dev:
+    restart: unless-stopped
     tty: true
     image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
     env_file:
@@ -10,7 +11,8 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
-      VEGITO_DOCKER_REGISTRY_MODE: ${VEGITO_DOCKER_REGISTRY_MODE}
+      GCLOUD: gcloud
+      VEGITO_DOCKER_REGISTRIES: ${VEGITO_DOCKER_REGISTRIES}
       VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
       VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
       VEGITO_DOCKERHUB_USERNAME: ${VEGITO_DOCKERHUB_USERNAME}
@@ -19,15 +21,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev:/dev
       - /lib/modules:/lib/modules:ro
-    devices:
-      - /dev/kvm
     privileged: true
     cap_add:
       - SYS_ADMIN
       - NET_ADMIN
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     working_dir: ${PWD}
 
   firebase-emulators:
+    restart: unless-stopped
     tty: true
     image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
     env_file:
@@ -38,6 +44,7 @@ services:
       FIREBASE_PUBSUB_EMULATOR_HOST: http://localhost:8085
       FIRESTORE_EMULATOR_HOST: http://localhost:8090
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      LOCAL_FIREBASE_EMULATORS_SERVICES: ${LOCAL_FIREBASE_EMULATORS_SERVICES}
       CHOKIDAR_USEPOLLING: "true"
       INFRA_ENV: ${INFRA_ENV}
     volumes:
@@ -45,6 +52,7 @@ services:
     working_dir: ${PWD}
 
   clarinet-devnet:
+    restart: unless-stopped
     tty: true
     privileged: true
     image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
@@ -61,14 +69,9 @@ services:
       - NET_ADMIN
       - SYS_ADMIN
     working_dir: ${PWD}
-    command: |
-      bash -c '
-      set -eu
-      make local-clarinet-devnet-start
-      sleep infinity
-      '
 
   android-studio:
+    restart: unless-stopped
     tty: true
     cap_add:
       - SYS_ADMIN
@@ -76,19 +79,18 @@ services:
     image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
     env_file:
       - .env
-    entrypoint: ${LOCAL_DIR}/android/studio/entrypoint.sh
     environment:
       LOCAL_WORKSPACE: ${PWD}
       LOCAL_ANDROID_DEBUG_APK_PATH: ${LOCAL_ANDROID_DEBUG_APK_PATH:-mobile/build/app/outputs/flutter-apk/app-debug.apk}
       DISPLAY_RESOLUTION: "${DISPLAY_RESOLUTION:-1920x1080}"
-      DISPLAY: "${DISPLAY:-:20}"
+      XPRA_ARGS: ${XPRA_ARGS:-}
       CHROME_LOG_FILE: /tmp/chrome_debug.log
       LOCAL_ANDROID_EMULATOR_AVD_ON_START: ${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}
       # LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS: ${LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS:-"-no-window"}
       LOCAL_ANDROID_EMULATOR_DATA: ${LOCAL_ANDROID_EMULATOR_DATA:-${PWD}/example-application/tests/mobile_images}
       LOCAL_ANDROID_STUDIO_LOG_LEVEL: DEBUG
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}/.containers/android-studio}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-true}
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-true}
       LOCAL_ANDROID_STUDIO_DIR: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
 
@@ -97,6 +99,9 @@ services:
 
       LOCAL_ANDROID_CONTAINER_NAME: ${LOCAL_ANDROID_CONTAINER_NAME:-android-studio}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
+
+      DISPLAY: ${LOCAL_ANDROID_STUDIO_XPRA_DISPLAY:-:1}
+      WAYLAND_DISPLAY_NAME: $LOCAL_ANDROID_STUDIO_XPRA_WAYLAND_DISPLAY_NAME:-wayland-1}
 
     privileged: true
     volumes:
@@ -108,12 +113,14 @@ services:
       - /dev/kvm
       - /dev/dri
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
-    command: |
-      bash -c '
-      set -eu
-      sleep infinity
-      '
+
+    # command: |
+    #   bash -c '
+    #   set -euxo pipefail
+    #   android-studio-container-start.sh
+    #   '
   vault-dev:
+    restart: unless-stopped
     image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
@@ -131,6 +138,7 @@ services:
     working_dir: ${PWD}/application
     tty: true
   robotframework:
+    restart: unless-stopped
     tty: true
     image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
     environment:
@@ -149,3 +157,31 @@ services:
       set -eu
       sleep infinity
       '
+
+  nestor:
+    restart: unless-stopped
+    tty: true
+    privileged: true
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    environment:
+      LOCAL_WORKSPACE: ${PWD}
+      DOCKER_HOST: "unix:///run/user/1000/docker.sock"
+      ROOT_DOCKER_HOST: "tcp://dev:2375"
+      LOCAL_NESTOR_OLLAMA: ollama
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
+      AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
+      JITSI_PUBLIC_URL: ${JITSI_PUBLIC_URL:-https://meet.vegito.app}
+    extra_hosts:
+      - "meet.vegito.app:10.5.5.7"
+    # dns:
+    #   - ${VEGITO_DNS_SERVER:-10.5.5.7}
+    working_dir: ${PWD}
+    volumes:
+      - /dev:/dev
+      - /lib/modules:/lib/modules
+      - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
+      # Shared volumes for Ollama models and cache
+      - ${AI_WORKSPACES:-/workspaces/ai}:/workspaces/ai:rw

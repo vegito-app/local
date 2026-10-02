@@ -44,6 +44,11 @@ on:
           staging: vegito-app-staging-github-actions-ci-artifacts-private
           prod: vegito-app-prod-github-actions-ci-artifacts-private
 
+      docker_registry_mode:
+        required: false
+        type: string
+        default: "gcr"
+
       environment:
         required: false
         type: string
@@ -83,6 +88,11 @@ on:
       FACEBOOK_CLIENT_TOKEN:
         required: false
 
+      VEGITO_DOCKERHUB_PAT:
+        required: false
+      VEGITO_DOCKERHUB_USERNAME:
+        required: false
+  
 permissions:
   id-token: write
   contents: write
@@ -97,13 +107,10 @@ jobs:
 
   version-metadata:
     needs: version-changelog
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
     uses: ./.github/workflows/version-metadata.yml
 
     with:
-      environment: ${{ matrix.environment }}
+      environment: ${{ inputs.environment }}
       version: ${{ needs.version-changelog.outputs.version }}
       changelog: ${{ needs.version-changelog.outputs.changelog }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
@@ -123,7 +130,7 @@ jobs:
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
       android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
       use_registry_cache: ${{ inputs.use_registry_cache }}
-
+      docker_registry_mode: ${{ inputs.docker_registry_mode }}
     secrets: inherit
 
   tests:

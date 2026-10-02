@@ -1,12 +1,11 @@
-FROM builder_image AS project-builder
-FROM docker_dind_rootless_image AS docker-dind
-FROM rust_image AS rust-build
+FROM local_dev AS project-builder
+FROM rust AS rust-build
 
 ARG TARGETPLATFORM
 
 ARG clarinet_version
 RUN apk add --no-cache \
-    wget musl-dev build-base \
+    musl-dev build-base \
     linux-headers 
 
 RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
@@ -16,114 +15,37 @@ RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-cargo-registry
     cd clarinet-${clarinet_version}  && \
     cargo clarinet-install
 
-FROM debian_image
-
-COPY --from=project-builder /usr/local/bin/localproxy /usr/local/bin/localproxy
-COPY --from=docker-dind /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/docker-entrypoint.sh /usr/local/bin/
-COPY --from=docker-dind /usr/local/bin/modprobe /usr/local/bin/
-COPY --from=rust-build /usr/local/cargo/bin/clarinet /usr/local/bin
-
-RUN --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-clarinet-devnet-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    bash-completion \
-    curl \
-    git \
-    htop \
-    make \
-    sudo \
-    wget 
+FROM debian
+USER root
+COPY --from=project-builder /usr/local/bin/localproxy         /usr/local/bin/
+COPY --from=rust-build /usr/local/cargo/bin/clarinet          /usr/local/bin/
 
 RUN clarinet completion bash && mv clarinet.bash /etc/bash_completion.d/clarinet.bash && \
     echo 'source /etc/bash_completion.d/clarinet.bash' >> ~/.bashrc
-
-ARG docker_version
-
-ARG TARGETPLATFORM
-RUN \
-    set -eu; \
-    \
-    mkdir -p /run/user && chmod 1777 /run/user; \
-    \ 
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://download.docker.com/linux/static/stable/x86_64/docker-${docker_version}.tgz"; \
-    ;; \
-    "linux/arm64") \
-    url="https://download.docker.com/linux/static/stable/aarch64/docker-${docker_version}.tgz"; \
-    ;; \
-    *) echo >&2 "error: unsupported 'docker.tgz' architecture ($TARGETPLATFORM)"; exit 1 ;; \
-    esac; \
-    wget -O 'docker.tgz' "$url";  \
-    \
-    tar --extract \
-    --file docker.tgz \
-    --strip-components 1 \
-    --directory /usr/local/bin/ \
-    --no-same-owner \
-    'docker/docker' \
-    'docker/containerd' \
-    'docker/dockerd' \
-    'docker/runc' \
-    'docker/containerd-shim-runc-v2' \
-    'docker/ctr' \
-    'docker/docker-proxy' \
-    'docker/docker-init' \
-    ; \
-    rm docker.tgz; \
-    \
-    docker --version; \
-    \
-    #
-    # DOCKER_ROOTLESS
-    # 
-    \
-    case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    url="https://download.docker.com/linux/static/test/x86_64/docker-rootless-extras-${docker_version}.tgz"; \
-    ;; \
-    "linux/arm64") \
-    url="https://download.docker.com/linux/static/test/aarch64/docker-rootless-extras-${docker_version}.tgz"; \
-    ;; \
-    *) echo >&2 "error: unsupported 'rootless.tgz' architecture ($TARGETPLATFORM)"; exit 1 ;; \
-    esac; \
-    \
-    wget -O 'rootless.tgz' "${url}"; \
-    \
-    tar --extract \
-    --file rootless.tgz \
-    --strip-components 1 \
-    --directory /usr/local/bin/ \
-    'docker-rootless-extras/rootlesskit' \
-    'docker-rootless-extras/vpnkit' \
-    ; \
-    rm rootless.tgz; \
-    \
-    rootlesskit --version; \
-    vpnkit --version;
-
-RUN apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    iproute2 \
-    iptables \
-    procps \
-    uidmap 
 
 ARG non_root_user=clarinet
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
-ENV HOME=/home/${non_root_user}
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+
+ENV USER=${non_root_user}
+
 WORKDIR ${HOME}
 
-# Use Bash
-RUN ln -sf /usr/bin/bash /bin/sh
 USER ${non_root_user}
-COPY entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
-COPY caches-refresh.sh /usr/local/bin/clarinet-caches-refresh.sh
-ENTRYPOINT [ "clarinet-entrypoint.sh" ]
+COPY container-entrypoint.sh /usr/local/bin/clarinet-entrypoint.sh
+COPY container-install.sh /usr/local/bin/clarinet-container-install.sh
+COPY container-start.sh /usr/local/bin/clarinet-devnet-container-start.sh
+ENTRYPOINT [ "tini", "--", "clarinet-entrypoint.sh" ]
+CMD [ "clarinet-devnet-container-start.sh" ]
+HEALTHCHECK CMD test -f /tmp/.clarinet-devnet-runtime-ready || exit 1

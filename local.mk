@@ -1,8 +1,15 @@
 # Local Docker Compose configuration
-LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
-LOCAL_DIR ?= $(CURDIR)
+export LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
 
-LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+export LOCAL_DIR ?= $(CURDIR)
+
+export LOCAL_ANDROID_DIR        ?= $(LOCAL_DIR)/android
+export LOCAL_GITHUB_ACTIONS_DIR ?= $(LOCAL_DIR)/github-actions
+export LOCAL_NESTOR_DIR         ?= $(LOCAL_DIR)/nestor
+export LOCAL_ROBOTFRAMEWORK_DIR ?= $(LOCAL_DIR)/robotframework
+export LOCAL_STRIPE_DIR         ?= $(LOCAL_DIR)/stripe
+export LOCAL_TRIVY_DIR          ?= $(LOCAL_DIR)/trivy
+export LOCAL_VAULT_DEV_DIR      ?= $(LOCAL_DIR)/vault-dev
 
 LOCAL_DOTENV_FILE ?= .env
 
@@ -13,45 +20,55 @@ $(LOCAL_DOTENV_FILE):
 	@echo "📝 Generating .env file for local development..."
 	@$(LOCAL_DIR)/dotenv.sh
 
-LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
-  clarinet-devnet \
-  robotframework \
-  firebase-emulators \
-  vault-dev \
-  trivy
-
 local-docker-images-pull-parallel: \
 local-docker-compose-images-pull-parallel \
 local-android-docker-images-pull-parallel
 .PHONY: local-docker-images-pull-parallel
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
-	-f $(LOCAL_DIR)/docker/docker-bake.hcl \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
+	-f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
 	-f $(LOCAL_DIR)/android/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/studio/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/emulator/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/flutter/docker-bake.hcl \
-	-f $(LOCAL_DIR)/android/appium/docker-bake.hcl \
+	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
 	-f $(LOCAL_DIR)/github-actions/docker-bake.hcl
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%)
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%)
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image): vegito-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image=%) 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:%-image=%) 2>&1 | tee -a $@.make-logs
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image)
 
-$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): local-docker-buildx-setup
+$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci): vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-image-ci=%-ci)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:%-image-ci=%-ci)
 .PHONY: $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=local-%-image-ci)
 
-local-project-builder-image: local-docker-buildx-setup
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder
+local-desktop-x-image: vegito-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-desktop-x 2>&1 | tee -a $@.make-logs
+.PHONY: local-desktop-x-image
+
+local-desktop-x-image-ci: vegito-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-desktop-x-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-desktop-x-ci
+.PHONY: local-desktop-x-image-ci
+
+local-project-builders-image: vegito-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builders 2>&1 | tee -a $@.make-logs
+.PHONY: local-project-builders-image
+
+local-project-builders-image-ci: vegito-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builders-ci
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builders-ci
+.PHONY: local-project-builders-image-ci
+
+local-project-builder-image: vegito-docker-buildx-setup
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder 2>&1 | tee $@.make-logs
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load local-project-builder 2>&1 | tee -a $@.make-logs
 .PHONY: local-project-builder-image
 
-local-project-builder-image-ci: local-docker-buildx-setup
+local-project-builder-image-ci: vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print local-project-builder-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push local-project-builder-ci
 .PHONY: local-project-builder-image-ci
@@ -61,7 +78,7 @@ local-gcloud-builder-image-delete:
 	@$(GCLOUD) container images delete --force-delete-tags $(LOCAL_BUILDER_IMAGE)
 .PHONY: local-gcloud-builder-image-delete
 
-local-project-builder-image-trivy-scan: local-docker-buildx-setup
+local-project-builder-image-trivy-scan: vegito-docker-buildx-setup
 	@echo "Running Trivy scan for image: $(LOCAL_BUILDER_IMAGE)""
 	@echo "	🗒️ Report: local-project-builder-$(VERSION)-trivy-report.html"
 	@$(MAKE) local-trivy-image-scan \
@@ -69,19 +86,20 @@ local-project-builder-image-trivy-scan: local-docker-buildx-setup
 	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=local-project-builder-$(VERSION)-trivy-report.html
 .PHONY: local-project-builder-image-trivy-scan
 
-LOCAL_DOCKER_COMPOSE ?= docker compose \
-  -f $(LOCAL_DIR)/docker-compose.yml \
-  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
-  -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
+ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),wayland)
+	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
+endif
+ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),host)
+	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
+endif
 
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   firebase-emulators \
   vault-dev \
   robotframework \
-  trivy
+  trivy \
+  stripe
 
 local-docker-images-pull: $(LOCAL_DOCKER_COMPOSE_SERVICES:%=local-%-image-pull) local-dev-container-image-pull
 .PHONY: local-docker-images-pull
@@ -177,13 +195,14 @@ local-container-config-show:
 .PHONY: local-container-config-show
 
 local-dev-container-image-pull:
-	@echo "⬇︎ Pulling builder image $(LOCAL_BUILDER_IMAGE)..."
+	@echo "⬇︎ Pulling builder image..."
+	@$(LOCAL_DOCKER_COMPOSE) config dev | grep 'image:'
 	@$(LOCAL_DOCKER_COMPOSE) pull dev
 .PHONY: local-dev-container-image-pull
 
 local-dev-container-image-push:
-	@echo "⬆︎ Pushing builder image $(LOCAL_BUILDER_IMAGE)..."
-	@docker push $(LOCAL_BUILDER_IMAGE)
+	@echo "⬆︎ Pushing builder image..."
+	@$(LOCAL_DOCKER_COMPOSE) push dev
 .PHONY: local-dev-container-image-push
 
 local-dev-container-logs:
@@ -206,7 +225,6 @@ LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME = dev
 # Use this to run commands in the dev container	in CI
 LOCAL_DEV_CONTAINER_RUN_CI = \
   LOCAL_CONTAINER_INSTALL=false \
-  MAKE_DEV_ON_START=false \
   $(LOCAL_DOCKER_COMPOSE) run --rm \
   $(LOCAL_DEV_CONTAINER_DOCKER_COMPOSE_NAME)
 
@@ -223,11 +241,11 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	      VERSION=$(LOCAL_VERSION)
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
--include $(LOCAL_DIR)/docker/docker.mk
 -include $(LOCAL_DIR)/android/android.mk
 -include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github-actions/github-actions.mk
 -include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
+-include $(LOCAL_DIR)/stripe/stripe.mk
 -include $(LOCAL_DIR)/trivy/trivy.mk

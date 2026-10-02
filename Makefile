@@ -1,40 +1,54 @@
 VEGITO_PROJECT_NAME := vegito-local
-GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+
+VERSION ?= $(GIT_HEAD_VERSION)
+
+ifeq ($(strip $(VERSION)),)
+VERSION := latest
+endif
+
+LOCAL_VERSION ?= $(VERSION)
 
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 # LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
-ifdef VERSION
-LOCAL_VERSION := $(VERSION)
-endif
 
-LOCAL_VERSION ?= $(GIT_HEAD_VERSION)
+export VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
-ifeq ($(LOCAL_VERSION),)
-LOCAL_VERSION := latest
-endif
+export VEGITO_DOCKER_PUBLIC_REPOSITORY ?= docker.io/dbndev
+# Use docker.io as the default registry for local public images, but allow overriding it if needed.
+# Remove after gcr is back in shape and can be used as the default registry for local public images.
+export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local-public
+export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public
+export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-private
+export VEGITO_DOCKER_TRIXIE_DEBIAN_OBS_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public:trixie-debian-obs-vscode-golang-ai-docker-latest
+export VEGITO_DOCKER_TRIXIE_DEBIAN_IMAGE_VERSION ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public:trixie-debian-latest
+export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-example-application-public:backend-latest
+export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
+export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
-VERSION ?= $(LOCAL_VERSION)
-
-VEGITO_DOCKER_REGISTRIES ?= dockerhub
-
-export
-
-LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
+LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
+  clarinet-devnet \
+  robotframework \
+  firebase-emulators \
+  vault-dev \
+  stripe \
+  trivy 
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
-  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI=target:vegito-debian-project-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-flutter-version-ci \
   VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
   VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
   docker buildx bake \
-  -f $(LOCAL_DIR)/docker/docker-bake.hcl \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
   -f $(LOCAL_ANDROID_DIR)/docker-bake.hcl \
   $(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
+  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl \
   -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
-  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl) \
-  -f $(LOCAL_DIR)/github-actions/docker-bake.hcl
+  $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl)
+  
+VEGITO_DOCKER_BUILDX_BAKE = $(LOCAL_DOCKER_BUILDX_BAKE)
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(CURDIR)/docker-compose.yml \
@@ -54,25 +68,47 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   trivy
 #   clarinet-devnet \
 
+LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
+  tools \
+  runners \
+  builders \
+  services \
+  applications
+
+GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
+
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
-# Use docker.io as the default registry for local public images, but allow overriding it if needed.
-# Remove after gcr is back in shape and can be used as the default registry for local public images.
-VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= docker.io/dbndev/vegito-local-public
+VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
+
+export VEGITO_EXAMPLE_APPLICATION_DIR ?= $(LOCAL_DIR)/example-application
+
+export LOCAL_DOCKER_COMPOSE ?= docker compose \
+  -f $(LOCAL_DIR)/docker-compose.yml \
+  -f $(LOCAL_DIR)/stripe/docker-compose.yml \
+  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
+  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
+  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
 
 -include local.mk
+
+LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
+  android-studio \
+  firebase-emulators \
+  nestor \
+  vault-dev \
+  robotframework \
+
+-include docker.mk
 -include gcloud.mk
 -include android.mk
 -include git.mk
 -include nodejs.mk
 -include go.mk
 
-LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
-  firebase-emulators \
-  vault-dev \
-  robotframework \
-  $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
   $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
+#   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
 
 -include .devcontainer/devcontainer.mk
 
@@ -84,31 +120,38 @@ dotenv: local-dotenv
 
 # Local/dev: build all images without pushing them.
 # Tags are generated for all configured registries.
-images: local-docker-images-multi-registry-release
+images: vegito-docker-images-multi-registry-release
 .PHONY: images
 
 # Local/dev: build images in smaller groups without pushing them.
 # Useful when full parallel builds are too heavy for the workstation.
-images-groups-build: local-docker-images
+images-groups-build: vegito-docker-images
 .PHONY: images-groups-build
 
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
-images-ci: local-docker-images-multi-registry-release-ci
+images-ci:  \
+docker-login \
+vegito-docker-images-multi-registry-release-ci
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.
 # Safer on constrained runners; slower than the full parallel path.
-images-groups-build-ci: local-docker-images-ci
+images-groups-build-ci:  \
+docker-login \
+vegito-docker-images-ci
 .PHONY: images-groups-build-ci
 
 images-pull: \
-local-docker-images-pull-parallel \
-local-android-docker-images-pull-parallel \
+vegito-docker-images-pull-parallel \
+vegito-android-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
-images-push: local-docker-images-push local-application-docker-images-push
+images-push: \
+docker-login \
+vegito-docker-images-push \
+local-application-docker-images-push
 .PHONY: images-push
 
 devcontainer: devcontainer-vscode
@@ -185,5 +228,8 @@ test-local: example-application-tests-robot-all
 docker-tags-md-ci: docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
 
-docker-login: local-docker-login
+docker-login: vegito-docker-login
 .PHONY: docker-login
+
+docker-buildx-setup: vegito-docker-buildx-setup
+.PHONY: docker-buildx-setup

@@ -1,14 +1,13 @@
 LOCAL_DOCKER_COMPOSE_VSCODE ?= $(LOCAL_DOCKER_COMPOSE) \
-	-f $(CURDIR)/.devcontainer/docker-compose.yml \
-	-f $(CURDIR)/.devcontainer/docker-compose-vscode.yml
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose-vscode.yml
 
 devcontainer-vscode: \
 ensure-vscode-store-volume \
 gcloud-auth-serviceaccount-activate \
-docker-login
+vegito-docker-login
 	@echo "🟢 Starting Devcontainer VSCode..."
-	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
-	  $(MAKE) dev
+	LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
+	  $(MAKE) local-container-config-show dev
 	@echo "🟢 Devcontainer VSCode is up and running."
 .PHONY: devcontainer-vscode
 
@@ -18,19 +17,19 @@ ensure-vscode-store-volume:
 .PHONY: ensure-vscode-store-volume
 
 LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES ?= $(LOCAL_DOCKER_COMPOSE) \
-	-f $(CURDIR)/.devcontainer/docker-compose.yml \
-	-f $(CURDIR)/.devcontainer/docker-compose-vscode-codespaces.yml
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose.yml \
+	-f $(LOCAL_DIR)/.devcontainer/docker-compose-vscode-codespaces.yml
 
 devcontainer-vscode-github-codespaces: \
 gcloud-auth-serviceaccount-activate \
-docker-login
+vegito-docker-login
 	@echo "🟢 Starting Github Codespaces VSCode environment..."
 	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE_CODESPACES)" \
 	  $(MAKE) dev
 	@echo "🟢 Github Codespaces VSCode environment is up and running."
 .PHONY: devcontainer-vscode-github-codespaces
 
-docker-buildx-setup-github-codespaces:
+vegito-docker-buildx-setup-github-codespaces:
 	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
 	-docker buildx create \
 	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
@@ -40,13 +39,13 @@ docker-buildx-setup-github-codespaces:
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=1048576 \
 	  --use
 	@-docker buildx inspect --bootstrap
-.PHONY: local-docker-buildx-setup-github-codespaces
+.PHONY: vegito-docker-buildx-setup-github-codespaces
 
 LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= $(LOCAL_DOCKER_COMPOSE_SERVICES)
 
 $(LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES:%=devcontainer-vscode-%): \
 gcloud-auth-serviceaccount-activate \
-docker-login
+vegito-docker-login
 	@echo "🟢 Starting $(@:devcontainer-vscode-%=%) for vscode-server ..."
 	@LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE_VSCODE)" \
 	  $(MAKE) local-container-config-show $(@:devcontainer-vscode-%=%)

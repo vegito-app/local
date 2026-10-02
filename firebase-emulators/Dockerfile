@@ -1,28 +1,13 @@
-ARG local_dev_docker_registry=europe-west1-docker.pkg.dev/moov-dev-439608
-ARG debian_image=debian:latest
-ARG builder_image=${local_dev_docker_registry}/docker-repository-public/vegito-local:builder-latest
-
-FROM builder_image AS builder
-FROM debian_image
+FROM local_dev AS builder
+FROM debian
 
 COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
 
+ARG TARGETPLATFORM
 
-RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
-    apt-get -o Acquire::Retries=3 update && apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    curl \
-    htop \
-    jq \
-    make \
-    netcat-openbsd \
-    sudo 
+USER root
 
 # Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
-
 RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
     set -eu; \
@@ -53,25 +38,26 @@ ARG non_root_user=firebase
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
-
-ENV HOME=/home/${non_root_user}
-WORKDIR ${HOME}
-
-RUN ln -sf /usr/bin/bash /bin/sh
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
 
 USER ${non_root_user}
+ENV USER=${non_root_user}
 
-ENV NVM_DIR=${HOME}/nvm
+WORKDIR /home/debian
+
+ENV NVM_DIR=/home/debian/nvm
 
 ARG nvm_version=0.40.1
 ARG node_version=22.14.0
-RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=${HOME}/.npm,sharing=locked,uid=${uid},gid=${gid} \
-    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=${HOME}/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=/home/debian/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=/home/debian/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
     set -e ; \
     # 
     mkdir -p ${NVM_DIR} ; \
@@ -89,9 +75,8 @@ RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,targe
     npm-check \
     npm
 
-
-ENV NODE_PATH=$NVM_DIR/versions/node/v${node_version}/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v${node_version}/bin:$PATH
+ENV NODE_PATH=${NVM_DIR}/versions/node/v${node_version}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/v${node_version}/bin:$PATH
 
 RUN for svc in firestore database pubsub storage ui ; do \
     firebase --version && firebase setup:emulators:$svc ; \

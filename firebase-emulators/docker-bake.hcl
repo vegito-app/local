@@ -47,8 +47,8 @@ group "local-firebase-emulators-ci" {
 
 target "local-firebase-emulators-version-ci" {
   contexts = {
-    builder_image = "target:local-project-builder-version-ci"
-    debian_image  = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian    = VEGITO_DOCKER_DEBIAN_CONTEXT
+    local_dev = "target:local-project-builder-latest-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -64,13 +64,8 @@ target "local-firebase-emulators-version-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
     ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
-    ] : [],
     [
-      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -83,8 +78,8 @@ target "local-firebase-emulators-version-ci" {
 
 target "local-firebase-emulators-latest-ci" {
   contexts = {
-    builder_image = "target:local-project-builder-latest-ci"
-    debian_image  = "docker-image://${LOCAL_DEBIAN_IMAGE_LATEST}"
+    debian    = VEGITO_DOCKER_DEBIAN_CONTEXT
+    local_dev = "target:local-project-builder-latest-ci"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -97,13 +92,8 @@ target "local-firebase-emulators-latest-ci" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
-    ] : [],
     [
-      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -122,8 +112,8 @@ target "local-firebase-emulators-latest-ci" {
 
 target "local-firebase-emulators" {
   contexts = {
-    builder_image = "target:local-project-builder"
-    debian_image  = "docker-image://${LOCAL_DEBIAN_IMAGE_VERSION}"
+    debian    = VEGITO_DOCKER_DEBIAN_CONTEXT
+    local_dev = "target:local-project-builder"
   }
   context = "${LOCAL_DIR}/firebase-emulators"
   tags = [
@@ -137,13 +127,8 @@ target "local-firebase-emulators" {
     ENABLE_LOCAL_CACHE ? [
       LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
-    USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
-    ] : [],
     [
-      "type=inline,ref=${LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_BUILDER_IMAGE_LATEST}",
-      "type=inline,ref=${LOCAL_DEBIAN_IMAGE_LATEST}"
+      LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

@@ -6,6 +6,7 @@ services:
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR:-/runner/_work}:/runner/_work:cached
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-/runner/_work/.containers}:/runner/_work/.containers:cached
       - /var/run/docker.sock:/var/run/docker.sock
+      - vscode-store:/vscode
     environment:
       - LOCAL_DOCKER_BUILDX_NAME=${LOCAL_DOCKER_BUILDX_NAME:-vegito}
       # Activate this line to share the containers build cache between runners
@@ -14,6 +15,9 @@ services:
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
       - VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE=${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
+      - GCLOUD=gcloud
+      - VEGITO_DOCKERHUB_PAT
+      - VEGITO_DOCKERHUB_USERNAME
     deploy:
       replicas: ${LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS:-3}
       update_config:
@@ -23,5 +27,14 @@ services:
       - /dev/kvm
     networks:
       - github-actions
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 networks:
   github-actions:
+volumes:
+  vscode-store:
+    external: true
+    name: vscode
