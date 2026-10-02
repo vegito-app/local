@@ -87,7 +87,7 @@ variable "VEGITO_DOCKER_DEBIAN_DOCKERD_CONTEXT" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    "linux/arm64",
+    # "linux/arm64",
   ]
 }
 
