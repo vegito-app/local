@@ -6,6 +6,7 @@ services:
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR:-/runner/_work}:/runner/_work:cached
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-/runner/_work/.containers}:/runner/_work/.containers:cached
       - /var/run/docker.sock:/var/run/docker.sock
+      - vscode-store:/vscode
     environment:
       - LOCAL_DOCKER_BUILDX_NAME=${LOCAL_DOCKER_BUILDX_NAME:-vegito}
       # Activate this line to share the containers build cache between runners
@@ -33,3 +34,7 @@ services:
       retries: 3
 networks:
   github-actions:
+volumes:
+  vscode-store:
+    external: true
+    name: vscode
