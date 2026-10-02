@@ -43,22 +43,21 @@ jobs:
       RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GCP_RELEASE_READER_PROJECT_ID }}
       RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.RELEASE_READER_GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
 
-  build-staging-prod:
+  build-prod:
     name: Build Images
     needs: pipeline
     uses: ./.github/workflows/build-images.yml
 
     strategy:
       matrix:
-        environment: [staging, prod]
+        environment: [ prod]
 
     with:
       version: ${{ needs.pipeline.outputs.version }}
       environment: ${{ matrix.environment }}
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
-      use_registry_cache: true
+      use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
       env_bucket_map: |
-        staging: vegito-app-staging-github-actions-ci-artifacts
         prod: vegito-app-prod-github-actions-ci-artifacts
 
       docker_registry_mode: dockerhub
