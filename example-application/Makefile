@@ -112,5 +112,5 @@ application-mobile-dump: example-application-mobile-dump
 	@echo "✅ Dumped mobile application successfully."
 .PHONY: application-mobile-dum
 
-docker-tags-md-ci: docker-build-tags-list-ci-md
+docker-tags-md-ci: vegito-docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci

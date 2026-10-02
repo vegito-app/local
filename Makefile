@@ -225,7 +225,7 @@ test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
 .PHONY: test-local
 
-docker-tags-md-ci: docker-build-tags-list-ci-md
+docker-tags-md-ci: vegito-docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
 
 docker-login: vegito-docker-login
