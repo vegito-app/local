@@ -12,8 +12,11 @@ jobs:
   pipeline:
     uses: ./.github/workflows/application-pipeline.yml
 
+    strategy:
+      matrix:
+        environment: [dev]
     with:
-      environment: dev
+      environment: ${{ matrix.environment }}
       functional_tests_dir: example-application/tests/output
       has_mobile: true
       images_to_scan: '["example-application-backend"]'
@@ -22,8 +25,6 @@ jobs:
       use_registry_cache: ${{ vars.USE_REGISTRY_CACHE == 'true' }}
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
-        staging: vegito-app-staging-github-actions-ci-artifacts
-        prod: vegito-app-prod-github-actions-ci-artifacts
 
     secrets:
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
