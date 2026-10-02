@@ -164,8 +164,8 @@ jobs:
       - name: Configure Cloud SDK and Docker
         run: |
           make gcloud-config-set-project
-          make vegito-docker-login
-          make vegito-docker-buildx-setup
+          make docker-login
+          make docker-buildx-setup
 
       - name: Build Docker image
         env:

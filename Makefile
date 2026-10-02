@@ -131,14 +131,14 @@ images-groups-build: vegito-docker-images
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
 images-ci:  \
-vegito-docker-login \
+docker-login \
 vegito-docker-images-multi-registry-release-ci
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.
 # Safer on constrained runners; slower than the full parallel path.
 images-groups-build-ci:  \
-vegito-docker-login \
+docker-login \
 vegito-docker-images-ci
 .PHONY: images-groups-build-ci
 
@@ -149,7 +149,7 @@ example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
 images-push: \
-vegito-docker-login \
+docker-login \
 vegito-docker-images-push \
 local-application-docker-images-push
 .PHONY: images-push
@@ -230,3 +230,6 @@ docker-tags-md-ci: docker-build-tags-list-ci-md
 
 docker-login: vegito-docker-login
 .PHONY: docker-login
+
+docker-buildx-setup: vegito-docker-buildx-setup
+.PHONY: docker-buildx-setup

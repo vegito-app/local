@@ -85,7 +85,7 @@ jobs:
       - name: Configure Cloud SDK and Docker
         run: |
           make gcloud-config-set-project
-          make gcloud-auth-docker
+          make docker-login
 
       - name: Resolve release bucket from env_bucket_map
         id: resolve_bucket
