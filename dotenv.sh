@@ -305,9 +305,6 @@ services:
       - "5901"
       # Docker rootless DIND socket
       - "2976"
-  dev:
-    driver: bridge
-
 EOF
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
@@ -354,7 +351,6 @@ services:
     runtime: nvidia
     devices:
       - /dev/nvidia0
-    shm_size: "8gb
-
+    shm_size: "8gb"
 EOF
 
