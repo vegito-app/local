@@ -143,8 +143,8 @@ vegito-docker-images-ci
 .PHONY: images-groups-build-ci
 
 images-pull: \
-vegito-docker-images-pull-parallel \
-vegito-android-docker-images-pull-parallel \
+local-docker-images-pull-parallel \
+local-android-docker-images-pull-parallel \
 example-application-docker-images-pull-parallel
 .PHONY: images-pull
 
