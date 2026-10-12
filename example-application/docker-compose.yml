@@ -49,7 +49,6 @@ services:
 
   example-application-tests:
     tty: true
-    restart: never
     image: ${VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGE:-${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application:tests-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://application-backend:8888
