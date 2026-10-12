@@ -21,7 +21,8 @@ ENV USER=${non_root_user}
 ARG builder_home=/home/debian
 ENV HOME=${builder_home}
 
-WORKDIR /src
+RUN mkdir -p ${HOME}/src ${HOME}/src/local
+WORKDIR ${HOME}/src
 
 ENV GOMODCACHE=${HOME}/go/pkg/mod
 ENV GOCACHE=${HOME}/.cache/go-build
