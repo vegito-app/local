@@ -27,7 +27,6 @@ local-android-docker-images-pull-parallel
 
 LOCAL_DOCKER_BUILDX_BAKE ?= docker buildx bake --progress=plain \
 	-f $(LOCAL_DIR)/docker-bake.hcl \
-	-f $(LOCAL_DIR)/docker/desktop-x/docker-bake.hcl \
 	-f $(LOCAL_DIR)/android/docker-bake.hcl \
 	$(LOCAL_ANDROID_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_ANDROID_DIR)/%/docker-bake.hcl) \
 	$(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \

@@ -37,7 +37,7 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
 }
 
 variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-public"
 }
 
 variable "DEBIAN_VERSION_CODENAME" {
@@ -49,7 +49,7 @@ variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
@@ -73,7 +73,7 @@ variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT" {
 }
 
 variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-${VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_X_CONTEXT" {
@@ -186,14 +186,6 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ_LATEST" {
   default = "type=local,src=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
-}
-
-variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
-}
-
-variable "LOCAL_BUILDER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
 }
 
 target "local-project-builder-base" {

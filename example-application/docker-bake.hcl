@@ -133,13 +133,17 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATES
   default     = "type=local,src=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT" {
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-latest"
+}
+
 variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI" {
-  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+  default = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
 }
 
 target "vegito-example-application-builder" {
   contexts = {
-    builder = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   dockerfile = "Dockerfile"
