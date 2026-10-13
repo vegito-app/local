@@ -23,7 +23,7 @@ local-trivy-version:
 	@-$(LOCAL_TRIVY) version 2>/dev/null
 .PHONY:  local-trivy-version
 
-LOCAL_TRIVY_TEMPLATE ?= $(LOCAL_DIR)/.github/templates/trivy-html.tpl.html
+LOCAL_TRIVY_TEMPLATE ?= $(LOCAL_DIR)/.github/templates/trivy-html.tpl
 
 local-trivy-image-scan: local-trivy-version local-trivy-pull-scan-input-image
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT) using Trivy:"
