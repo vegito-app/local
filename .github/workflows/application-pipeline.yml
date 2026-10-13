@@ -156,10 +156,13 @@ jobs:
       matrix:
         image: ${{ fromJson(inputs.images_to_scan) }}
     uses: ./.github/workflows/trivy-scan-image-ref.yml
-
+    
     with:
       environment: ${{ inputs.environment }}
-      image-ref: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
+      docker_registry_mode: ${{ inputs.docker_registry_mode }}
+      project: ${{ inputs.project }}
+      project_docker_repository: ${{ inputs.project_docker_repository }}
+      image_name: ${{ matrix.image }}
       severity: CRITICAL,HIGH
       exit-code: "1"
       env_bucket_map: ${{ inputs.env_bucket_map }}
