@@ -3,7 +3,7 @@ services:
     build:
       context: ${PWD}
       dockerfile: backend/Dockerfile
-    image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION:-europe-west1-docker.pkg.dev/moov-dev-439608/docker-repository-public/example-application:backend-latest}
+    image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION:-${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE:-example-application:backend}-${VERSION:-latest}}
     env_file:
       - .env
     environment:
@@ -25,7 +25,7 @@ services:
   example-application-mobile:
     cap_add:
       - SYS_ADMIN
-    image: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE:-${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application:mobile-latest}
+    image: ${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION:-${VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE:-example-application:mobile}-${VERSION:-latest}}
     env_file:
       - .env
     environment:
