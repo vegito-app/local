@@ -36,5 +36,5 @@ ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
 COPY entrypoint.sh /usr/local/bin/trivy-entrypoint.sh
-ENTRYPOINT ["trivy-entrypoint.sh"]¨
-CMD ["trivy"]¨
+ENTRYPOINT ["trivy-entrypoint.sh"]
+CMD ["trivy"]
