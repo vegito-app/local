@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [ "${LOCAL_TRIVY_CONTAINER_INSTALL:-true}" = "true" ]; then
-    caches-refresh.sh
+    trivy-container-install.sh
 fi
 
-exec "$@"
+exec trivy "$@"

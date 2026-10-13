@@ -35,6 +35,6 @@ USER ${non_root_user}
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
+COPY container-install.sh /usr/local/bin/trivy-container-install.sh
 COPY entrypoint.sh /usr/local/bin/trivy-entrypoint.sh
 ENTRYPOINT ["trivy-entrypoint.sh"]
-CMD ["trivy"]
