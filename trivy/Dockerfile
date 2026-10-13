@@ -1,14 +1,6 @@
 FROM debian
 
-ARG non_root_user=trivy
-ARG uid=1000
-ARG gid=1000
-
-RUN groupadd -g ${gid} ${non_root_user} \
-    && useradd -m -u ${uid} -g ${gid} ${non_root_user} \
-    && echo "${non_root_user}:${non_root_user}" | chpasswd && adduser ${non_root_user} sudo \
-    && echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} \
-    && chmod 0440 /etc/sudoers.d/${non_root_user}
+USER root
 
 # Install Trivy
 ARG trivy_version=0.70.0
@@ -20,12 +12,29 @@ RUN wget https://github.com/aquasecurity/trivy/releases/download/v${trivy_versio
     && mv trivy /usr/local/bin/ \
     && rm -f *.tar.gz *.txt
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+ARG non_root_user=trivy
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+ENV USER=${non_root_user}
+USER ${non_root_user}
+WORKDIR ${HOME}
+
 
 USER ${non_root_user}
 
 ENV HOME=/home/${non_root_user}
 WORKDIR ${HOME}
 
-ENTRYPOINT ["trivy"]¨
+COPY entrypoint.sh /usr/local/bin/trivy-entrypoint.sh
+ENTRYPOINT ["trivy-entrypoint.sh"]¨
+CMD ["trivy"]¨
