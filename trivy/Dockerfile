@@ -3,7 +3,7 @@ FROM debian
 USER root
 
 # Install Trivy
-ARG trivy_version=0.70.0
+ARG trivy_version
 
 RUN wget https://github.com/aquasecurity/trivy/releases/download/v${trivy_version}/trivy_${trivy_version}_Linux-64bit.tar.gz \
     && wget https://github.com/aquasecurity/trivy/releases/download/v${trivy_version}/trivy_${trivy_version}_checksums.txt \
