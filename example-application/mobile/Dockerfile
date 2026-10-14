@@ -88,3 +88,4 @@ ENV LOCAL_ANDROID_EMULATOR_AVD_ON_START=true
 ENV LOCAL_ANDROID_PACKAGE_NAME=${android_package_name}
 
 ENTRYPOINT [ "android-appium-entrypoint.sh" ]
+CMD [ "android-appium-start.sh" ]
