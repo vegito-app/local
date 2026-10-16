@@ -38,6 +38,15 @@ compose_pid=$!
 } &
 wait_pid=$!
 
+if docker exec "$CONTAINER_NAME" sh -c \
+    '[ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}" = "true" ]'; then
+    echo "⏳ Waiting for Android emulator and APK readiness..."
+    until docker exec "$CONTAINER_NAME" \
+        test -f /tmp/.android-avd-ready; do
+        sleep 1
+    done
+fi
+
 # 🏁 Wait for either compose or wait-loop to finish
 set +e
 exit_code=0

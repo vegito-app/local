@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Nettoyage du flag d'état à chaque arrêt
+rm -f /tmp/.android-avd-ready
+
 # 📌 List of PIDs of background processes
 bg_pids=()
 
