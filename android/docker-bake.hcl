@@ -41,14 +41,14 @@ group "local-android-builders-ci" {
 
 group "local-android" {
   targets = [
-    "local-builders",
-    "local-runners",
+    "local-android-builders",
+    "local-android-runners",
   ]
 }
 
 group "local-android-ci" {
   targets = [
-    "local-builders-ci",
-    "local-runners-ci",
+    "local-android-builders-ci",
+    "local-android-runners-ci",
   ]
 }
