@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.24.0](https://github.com/vegito-app/local/compare/v1.23.0...v1.24.0) (2026-10-16)
+
+
+### Features
+
+* **android:** add emulator readiness checks and cleanup for APK full start ([54fbc17](https://github.com/vegito-app/local/commit/54fbc17e68fc0e49c143161de5e4f171ab86d7d8))
+* **docker-compose:** add vscode-store volume configuration for GitHub Actions runner ([2673d6f](https://github.com/vegito-app/local/commit/2673d6f423f7778711bd44d02795d141d3e84692))
+* **firebase-emulators:** enhance port forwarding and subscription handling ([6485a01](https://github.com/vegito-app/local/commit/6485a01b3305066211f8c23cb3d34bc243513730))
+* **github-actions:** add GCLOUD environment variable to GitHub Actions runner configuration ([867560c](https://github.com/vegito-app/local/commit/867560cf59a0946e3cc2222f5759af0eec85e15d))
+* **github-actions:** update Docker login command and add Docker Hub credentials to compose ([c099d97](https://github.com/vegito-app/local/commit/c099d97fb9c8527f5f3b30e129365b567cb89a6c))
+* **local-services:** add Stripe service to local services group ([c0bb2d0](https://github.com/vegito-app/local/commit/c0bb2d0935b41d3789316a8b52a8247773609aa7))
+* **nestor:** drop local git subtree ([6da2985](https://github.com/vegito-app/local/commit/6da29858ede6006848a0f116a7e326f34b4af95a))
+* **stripe:** refactor Stripe container scripts and update webhook secret handling ([91ac194](https://github.com/vegito-app/local/commit/91ac1948e3c71fa72d81fa5d401e2baa052cce36))
+* **trivy:** add Trivy HTML report template and update Makefile reference ([bbbd489](https://github.com/vegito-app/local/commit/bbbd4891bb1f475da84b05e40e318fa59908498a))
+* **workflows:** add Docker Hub credentials as optional inputs in pipeline ([0809ada](https://github.com/vegito-app/local/commit/0809ada0e864185776c38cf01d118b5305392725))
+* **workflows:** add docker_registry_mode input to pipeline and update workflows to use Docker Hub ([104fb1a](https://github.com/vegito-app/local/commit/104fb1a557847afd3f5dc5d601ecd301b6addd03))
+
+
+### Bug Fixes
+
+* **devcontainer:** correct script names in entrypoint and update Docker Compose for service restarts ([dcfb3ed](https://github.com/vegito-app/local/commit/dcfb3ed1459c7862de357aea9813bbd78369419c))
+* **devcontainer:** update Docker Compose file for VSCode setup and correct Golang context reference ([df118d0](https://github.com/vegito-app/local/commit/df118d08f209eee9224002180753dc15cc324a25))
+* **docker-bake.hcl:** add local-trivy to local services groups ([fcff847](https://github.com/vegito-app/local/commit/fcff84738b37d6476cebb14eb406d5f9ba9ddc74))
+* **docker-bake.hcl:** update Golang project context image tag without desktop-x ([b8e472a](https://github.com/vegito-app/local/commit/b8e472aa8d37cddf5f7fe34c6e007344340d5ed5))
+* **docker-bake:** comment out linux/arm64 platform in platforms variable ([7f66e6f](https://github.com/vegito-app/local/commit/7f66e6ffb573fb02ebf7e66dc401ad81ca5f69f1))
+* **docker-bake:** remove unused registry cache reference for Trixie Debian image ([981ca41](https://github.com/vegito-app/local/commit/981ca410d429b083929b74cd413dca1689bebe3e))
+* **docker-bake:** update context targets and image tags for local project builds ([b826596](https://github.com/vegito-app/local/commit/b8265968a40624e5b3e85b6c4d02c2291db22e6b))
+* **docker-compose.yml, container-up.sh:** update Android emulator headless args and remove unused port ([150f9ac](https://github.com/vegito-app/local/commit/150f9ac7e0365746eb547e25b8498ec444785071))
+* **docker-compose.yml, tests.mk:** standardize image versioning and export test directory variables ([393e129](https://github.com/vegito-app/local/commit/393e129e82159511b1ff90db2f4c589589a49872))
+* **docker-compose.yml:** remove restart policy from example-application-tests service ([23de93d](https://github.com/vegito-app/local/commit/23de93d7e19b6331270ceaec86313423b67a0a2f))
+* **docker-io.mk:** update Docker Hub login to use local variables for credentials ([69ce374](https://github.com/vegito-app/local/commit/69ce374f883876cecd93f07c25f2528f569c9088))
+* **docker.mk:** update VEGITO_DOCKER_REGISTRIES default value to remove gcr ([8f369ee](https://github.com/vegito-app/local/commit/8f369ee4e62f5bdc0217cda3badca2e4bb923bae))
+* **Dockerfile, docker-bake.hcl:** update NodeJS dependencies and increment runner version ([4ed7d9b](https://github.com/vegito-app/local/commit/4ed7d9be5088497b5ddcab750bffa474888513db))
+* **Dockerfile, entrypoint.sh:** refactor user setup and simplify entrypoint script ([022d504](https://github.com/vegito-app/local/commit/022d504fbf410be6a8a552d1e89571cce85fc6f1))
+* **Dockerfile:** add CMD instruction for starting Android Appium ([287f384](https://github.com/vegito-app/local/commit/287f384f5dad0e0abedfe74c739e8b95cdf29043))
+* **Dockerfile:** remove non-root user argument and home environment variable ([d1394e3](https://github.com/vegito-app/local/commit/d1394e306ce8a632897665bfddfa24607375543a))
+* **docker:** update Docker Compose commands and permissions for local builder startup ([56e5ff7](https://github.com/vegito-app/local/commit/56e5ff7bb495997bfb13506d4ff8b8b8b77a24a2))
+* **dotenv:** remove unused dev service configuration and fix shm_size syntax ([a2d3f69](https://github.com/vegito-app/local/commit/a2d3f69b824a07974728df192a6d197a1ecb85d3))
+* **emulators:** improve background job handling and enhance port forwarding logic ([6223287](https://github.com/vegito-app/local/commit/62232875571ad1a06d156437291a4da5ddb58daa))
+* **emulators:** remove redundant Pub/Sub subscription creation rules and streamline initialization ([a6960de](https://github.com/vegito-app/local/commit/a6960dee3eca864894f291b2af2eb3d5465abd29))
+* **emulators:** simplify entrypoint command handling and ensure proper waiting for background jobs ([5b6e484](https://github.com/vegito-app/local/commit/5b6e484b1311a8d41f6c7197744f69d00be4dc28))
+* **emulator:** streamline emulator restart process and enhance cleanup commands ([4ef00c5](https://github.com/vegito-app/local/commit/4ef00c526481de37bb3adcf4b6c7cb10938dc04d))
+* **go.mod:** update Go version to 1.27.2 and upgrade dependencies across multiple modules ([bb83ab6](https://github.com/vegito-app/local/commit/bb83ab669e575252d3e9963a42ef1e744c474831))
+* **Makefile, Dockerfile:** export LOCAL_VERSION and update WORKDIR path ([0b07c0e](https://github.com/vegito-app/local/commit/0b07c0ec0483b6f973b41c2e6e872636727d5113))
+* **Makefile:** remove unused image version variables for clarity ([6618d26](https://github.com/vegito-app/local/commit/6618d2662ff4b1bc2b4ea7b4dd7265465969c1a6))
+* **makefiles:** update docker-tags-md-ci target to use vegito-docker-build-tags-list-ci-md ([917a411](https://github.com/vegito-app/local/commit/917a411275b022c478cb96d847d11b3254094a92))
+* **Makefile:** update image pull targets to use local naming conventions ([af53e0c](https://github.com/vegito-app/local/commit/af53e0c8bc7471b1457b714c4be76d8c9785facb))
+* **trivy:** add container installation script and update entrypoint to call it ([3365f6b](https://github.com/vegito-app/local/commit/3365f6b2135c5d3fc161fe1f5caee3cd296f3c6f))
+* **trivy:** update image versioning in docker-compose and makefile ([cd35724](https://github.com/vegito-app/local/commit/cd35724c0c7ae66921277265d48e9dbc73d87670))
+* **trivy:** update Trivy version to 0.75.0 in Dockerfile and docker-bake.hcl ([90790cf](https://github.com/vegito-app/local/commit/90790cf5a467ee0dc9b190320ffea224ab582d9c))
+* update image names and export variables in build configurations ([a40b0b8](https://github.com/vegito-app/local/commit/a40b0b8acb53fbb0217a2d74a2d195fbc8f1cec4))
+* **workflows:** refactor Trivy scan workflow to include project and registry inputs ([b8d6f47](https://github.com/vegito-app/local/commit/b8d6f47e39464ff469e5c25c3b07a9854e35e421))
+* **workflows:** remove unused build-prod job from application-main-release.yml ([5581f76](https://github.com/vegito-app/local/commit/5581f762f354c4e15710f4c2d035f291b878a495))
+* **workflows:** rename Docker login and buildx setup targets in Makefile and workflows ([6d50a6b](https://github.com/vegito-app/local/commit/6d50a6bf6f353ed813c838f65628e3d554881869))
+* **workflows:** update build job to use environment variable for registry cache and adjust environments ([3f119ca](https://github.com/vegito-app/local/commit/3f119ca0d792a509ffe97f5776842b5c61147b6a))
+* **workflows:** update version-metadata job to use input environment instead of matrix ([a5b2a78](https://github.com/vegito-app/local/commit/a5b2a7847b90e73b518a180d34f373332fbfae6b))
+
 ## [1.22.0](https://github.com/vegito-app/local/compare/v1.21.0...v1.22.0) (2026-04-14)
 
 
