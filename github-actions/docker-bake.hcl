@@ -44,7 +44,7 @@ variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATES
 
 variable "GITHUB_ACTION_RUNNER_VERSION" {
   description = "current Github Actions Runner version"
-  default     = "2.330.0"
+  default     = "2.338.0"
 }
 
 group "local-github-actions-runner-ci" {

@@ -29,6 +29,15 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v$RUNNER_VERS
     && ./bin/installdependencies.sh \
     && chown -R ${non_root_user}:${non_root_user} .
 
+ENV USER=${non_root_user}
+
+ARG TARGETPLATFORM
+
+# NodeJS for Appium
+RUN --mount=type=cache,id=local-gha-runner-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-gha-runner-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y qrencode 
+
 USER ${non_root_user}
 
 ENV USER=${non_root_user}

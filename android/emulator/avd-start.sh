@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+AVD_READY_FILE=/tmp/.android-avd-ready
+rm -f "$AVD_READY_FILE"
+
 echo "[*] Killing emulator & adb..."
 pkill -x emulator || true
 pkill -x qemu-system || true
@@ -17,6 +20,7 @@ bg_pids=()
 
 # 🧹 Function called at the end of the script to kill background processes
 kill_jobs() {
+    rm -f "$AVD_READY_FILE"
     echo "🧼 Cleaning up background processes..."
     for pid in "${bg_pids[@]}"; do
         kill "$pid" || true
@@ -151,25 +155,36 @@ if [[ "$apk_path" == *"release.apk" && -n "${FIREBASE_APP_CHECK_DEBUG_TOKEN:-}" 
   echo "FIREBASE_APP_CHECK_DEBUG_TOKEN=${FIREBASE_APP_CHECK_DEBUG_TOKEN:-}" > /data/local/tmp/app_check.env
 fi
 
-echo "Checking if an APK is present and installing..."
-if [ -f "${apk_path}" ]; then
-  echo "APK found ${package_name} ${apk_path}, attempting installation..."
-  if adb install -r "${apk_path}"; then
-    echo "✅ APK installed ${package_name}."
-    echo "🚀 Attempting to launch the app..."
-    adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
-    sleep 2
-    if adb shell pidof "${package_name}" >/dev/null; then
-      echo "✅ App is running."
-    else
-      echo "⚠️ App did not launch. Trying again..."
-      adb shell monkey -p "${package_name}" -c android.intent.category.LAUNCHER 1
-    fi
-  else
-    echo "❌ APK installation failed."
-  fi
-else
-  echo "⚠️ No APK found at ${apk_path}; skipping installation."
+echo "Checking APK and installing..."
+
+if [[ ! -f "$apk_path" ]]; then
+    echo "❌ APK missing: $apk_path"
+    exit 1
 fi
 
-wait $emulator_pid
+if ! adb install -r "$apk_path"; then
+    echo "❌ APK installation failed"
+    exit 1
+fi
+
+echo "✅ APK installed: $package_name"
+
+if ! adb shell monkey \
+    -p "$package_name" \
+    -c android.intent.category.LAUNCHER 1; then
+    echo "❌ Application launch failed"
+    exit 1
+fi
+
+sleep 2
+
+if ! adb shell pidof "$package_name" >/dev/null 2>&1; then
+    echo "❌ Application is not running"
+    exit 1
+fi
+
+touch "$AVD_READY_FILE"
+
+echo "✅ Android emulator and APK ready"
+
+wait "$emulator_pid"

@@ -35,7 +35,7 @@ variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
 }
 
 variable "TRIVY_VERSION" {
-  default = "0.70.0"
+  default = "0.75.0"
 }
 
 group "local-trivy-ci" {

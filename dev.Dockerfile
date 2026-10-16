@@ -25,8 +25,7 @@ ENV GOMODCACHE=/home/debian/go/pkg/mod
 ENV GOCACHE=/home/debian/.cache/go-build
 ENV GOFLAGS="-mod=readonly"
 
-COPY --from=example_app backend/go.mod example-application/backend/
-COPY --from=example_app backend/go.sum example-application/backend/
+COPY example-application/backend/go.mod example-application/backend/go.sum example-application/backend/
 COPY proxy/go.mod proxy/go.sum proxy/
 
 RUN go work init \

@@ -37,7 +37,7 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
 }
 
 variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-public"
 }
 
 variable "DEBIAN_VERSION_CODENAME" {
@@ -49,11 +49,11 @@ variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-desktop-x-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
@@ -73,7 +73,7 @@ variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT" {
 }
 
 variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-${VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_X_CONTEXT" {
@@ -87,7 +87,7 @@ variable "VEGITO_DOCKER_DEBIAN_DOCKERD_CONTEXT" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    "linux/arm64",
+    # "linux/arm64",
   ]
 }
 
@@ -98,6 +98,7 @@ group "local-services" {
     "local-firebase-emulators",
     "local-github-actions-runner",
     "local-vault-dev",
+    "local-trivy",
   ]
 }
 
@@ -108,6 +109,7 @@ group "local-services-ci" {
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
     "local-vault-dev-ci",
+    "local-trivy-ci",
   ]
 }
 
@@ -129,6 +131,7 @@ group "release" {
 group "release-ci" {
   targets = [
     "local-services-ci",
+    "vegito-example-application-ci"
   ]
 }
 
@@ -187,24 +190,11 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ_LATEST" {
   default = "type=local,src=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
-variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
-}
-
-variable "LOCAL_BUILDER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
-}
-
-variable "VEGITO_EXAMPLE_APPLICATION_CONTEXT" {
-  default = VEGITO_EXAMPLE_APPLICATION_DIR
-}
-
-target "VEGITO-project-builder-base" {
+target "local-project-builder-base" {
   dockerfile = "dev.Dockerfile"
   context    = LOCAL_DIR
   contexts = {
     debian = VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT
-    example_app = LOCAL_EXAMPLE_APPLICATION_CONTEXT
   }
   args = {
     debian_version = "trixie"

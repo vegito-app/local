@@ -5,8 +5,19 @@ permissions:
 on:
   workflow_call:
     inputs:
-      image-ref:
-        description: "Full Docker image reference to scan"
+      docker_registry_mode:
+        required: true
+        type: string
+
+      project:
+        required: true
+        type: string
+
+      project_docker_repository:
+        required: true
+        type: string
+
+      image_name:
         required: true
         type: string
 
@@ -48,13 +59,16 @@ on:
         type: string
 
     secrets:
+      VEGITO_DOCKERHUB_USERNAME:
+        required: false
+      VEGITO_DOCKERHUB_PAT:
+        required: false
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
       GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
         required: true
       GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
         required: true
-
 jobs:
   trivy-scan:
     runs-on: self-hosted
@@ -119,9 +133,38 @@ jobs:
           rm -f .env
           make dotenv
 
+      - name: Resolve image reference
+        id: resolve_image
+        env:
+          REGISTRY_MODE: ${{ inputs.docker_registry_mode }}
+          PROJECT: ${{ inputs.project }}
+          REPOSITORY: ${{ inputs.project_docker_repository }}
+          IMAGE_NAME: ${{ inputs.image_name }}
+          VERSION: ${{ inputs.version }}
+          GCP_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
+        run: |
+          set -euo pipefail
+
+          case "$REGISTRY_MODE" in
+            gcr)
+              IMAGE_REF="europe-west1-docker.pkg.dev/${GCP_PROJECT_ID}/${REPOSITORY}/${PROJECT}:${IMAGE_NAME}-${VERSION}"
+              ;;
+            dockerhub)
+              IMAGE_REF="docker.io/${DOCKERHUB_USERNAME}/${REPOSITORY}:${IMAGE_NAME}-${VERSION}"
+              ;;
+            *)
+              echo "Unsupported registry mode: $REGISTRY_MODE" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "image_ref=$IMAGE_REF" >> "$GITHUB_OUTPUT"
+          echo "Resolved image: $IMAGE_REF"
+
       - name: Run Trivy scan (HTML report)
         env:
-          IMAGE_REF: europe-west1-docker.pkg.dev/${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}/${{ inputs.image-ref }}
+          IMAGE_REF: ${{ steps.resolve_image.outputs.image_ref }}
         run: |
           echo "🔎 Running Trivy scan on ${LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE}"
           make local-trivy-image-scan \
