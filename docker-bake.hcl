@@ -105,6 +105,7 @@ group "local-services" {
 group "local-services-ci" {
   targets = [
     "local-android-services-ci",
+    "local-android-runners-ci",
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
