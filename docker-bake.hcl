@@ -93,7 +93,7 @@ variable "platforms" {
 
 group "local-services" {
   targets = [
-    "local-android-services",
+    "local-android-ci",
     "local-clarinet-devnet",
     "local-firebase-emulators",
     "local-github-actions-runner",
@@ -104,8 +104,7 @@ group "local-services" {
 
 group "local-services-ci" {
   targets = [
-    "local-android-services-ci",
-    "local-android-runners-ci",
+    "local-android-ci",
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",

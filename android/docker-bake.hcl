@@ -13,6 +13,7 @@ group "local-android-runners" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator",
+    "local-android-appium",
   ]
 }
 
@@ -20,19 +21,6 @@ group "local-android-runners-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator-ci",
-  ]
-}
-
-group "local-android-builders" {
-  description = "Build and push Android Studio images"
-  targets = [
-    "local-android-appium",
-  ]
-}
-
-group "local-android-builders-ci" {
-  description = "Build and push Android Studio images"
-  targets = [
     "local-android-appium-ci",
   ]
 }
