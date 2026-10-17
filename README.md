@@ -36,46 +36,6 @@ make example-application-backend-image
 
 make images-ci
 
-### ⚠️ Temporary note (GCP billing)
-
-Some CI-related targets may currently fail with `403` errors when accessing:
-
-- GCR (Google Container Registry)
-- GCS (artifacts)
-
-A temporary fallback is already enabled:
-
-- Docker Hub is used instead of GCR when possible
-
-If you hit issues, prefer:
-
-```bash
-make images
-make local-docker-images
-```
-
-instead of full CI pipelines.
-
-### 💡 Recommended usage strategy
-
-On a local machine:
-
-- avoid full DAG:
-
-```bash
-make example-application-backend-image
-```
-
-- or small groups:
-
-```bash
-make local-services-docker-images
-```
-
-- reserve full DAG for:
-  - CI
-  - or high-end build machines
-
 ---
 
 ## Subtree Integration

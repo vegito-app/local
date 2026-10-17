@@ -50,7 +50,7 @@ variable "VEGITO_DOCKER_PUBLIC_IMAGES_VERSION" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_REPOSITORY}/docker-trixie-debian:${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
@@ -92,9 +92,9 @@ variable "platforms" {
   ]
 }
 
-group "local-services" {
+group "local-dev" {
   targets = [
-    "local-android-services",
+    "local-android",
     "local-clarinet-devnet",
     "local-firebase-emulators",
     "local-github-actions-runner",
@@ -103,9 +103,9 @@ group "local-services" {
   ]
 }
 
-group "local-services-ci" {
+group "local-dev-ci" {
   targets = [
-    "local-android-services-ci",
+    "local-android-ci",
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
@@ -125,13 +125,13 @@ group "default" {
 
 group "release" {
   targets = [
-    "local-services",
+    "local-dev",
   ]
 }
 
 group "release-ci" {
   targets = [
-    "local-services-ci",
+    "local-dev-ci",
     "vegito-example-application-ci"
   ]
 }
