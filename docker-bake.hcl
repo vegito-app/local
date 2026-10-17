@@ -44,36 +44,37 @@ variable "DEBIAN_VERSION_CODENAME" {
   default = "trixie"
 }
 
+variable "VEGITO_DOCKER_PUBLIC_IMAGES_VERSION" {
+  description = "git@github.com:vegito-app/docker repository based images default version"
+  default     = "v0.0.3"
+}
+
 variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-latest"
-}
-
-variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-${VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_ALPINE_RUST_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:rust-alpine-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:rust-alpine-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-robotframework-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-robotframework-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-flutter-desktop-x-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-flutter-desktop-x-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_X_CONTEXT" {
@@ -87,7 +88,7 @@ variable "VEGITO_DOCKER_DEBIAN_DOCKERD_CONTEXT" {
 variable "platforms" {
   default = [
     "linux/amd64",
-    # "linux/arm64",
+    "linux/arm64",
   ]
 }
 
