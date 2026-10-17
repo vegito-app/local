@@ -42,6 +42,10 @@ variable "LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
   default     = "type=local,src=${LOCAL_ROBOTFRAMEWORK_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
+variable "VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT" {
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-robotframework-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
+}
+
 group "local-robotframework-ci" {
   targets = [
     "local-robotframework-version-ci",
