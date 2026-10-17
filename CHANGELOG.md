@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.25.0](https://github.com/vegito-app/local/compare/v1.24.0...v1.25.0) (2026-10-16)
+
+
+### Features
+
+* **ci:** add local-android-runners-ci to local-services-ci group ([cbd2fb0](https://github.com/vegito-app/local/commit/cbd2fb0ee5c5da6fd1ec8a5de74b5a91bf730569))
+
 ## [1.24.0](https://github.com/vegito-app/local/compare/v1.23.0...v1.24.0) (2026-10-16)
 
 

@@ -13,6 +13,7 @@ group "local-android-runners" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator",
+    "local-android-appium",
   ]
 }
 
@@ -20,31 +21,18 @@ group "local-android-runners-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-emulator-ci",
+    "local-android-appium-ci",
   ]
 }
 
 group "local-android-builders" {
   description = "Build and push Android Studio images"
   targets = [
-    "local-android-appium",
-  ]
-}
-
-group "local-android-builders-ci" {
-  description = "Build and push Android Studio images"
-  targets = [
-    "local-android-appium-ci",
-  ]
-}
-
-group "local-android-services" {
-  description = "Build and push Android Studio images"
-  targets = [
     "local-android-studio",
   ]
 }
 
-group "local-android-services-ci" {
+group "local-android-builders-ci" {
   description = "Build and push Android Studio images"
   targets = [
     "local-android-studio-ci",
@@ -53,16 +41,14 @@ group "local-android-services-ci" {
 
 group "local-android" {
   targets = [
-    "local-android-appium",
-    "local-android-emulator",
-    "local-android-studio"
+    "local-android-builders",
+    "local-android-runners",
   ]
 }
 
 group "local-android-ci" {
   targets = [
-    "local-android-appium-ci",
-    "local-android-emulator-ci",
-    "local-android-studio-ci"
+    "local-android-builders-ci",
+    "local-android-runners-ci",
   ]
 }
