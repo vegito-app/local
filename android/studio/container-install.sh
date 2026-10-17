@@ -40,6 +40,12 @@ rsync -av $ANDROID_STUDIO_HOME ${local_container_cache}
 rm -rf $ANDROID_STUDIO_HOME
 ln -sf ${local_container_cache}/Android $ANDROID_STUDIO_HOME
 
+# Flutter root directory for Flutter SDK
+FLUTTER_ROOT=${HOME}/flutter
+rsync -av $FLUTTER_ROOT ${local_container_cache}
+rm -rf $FLUTTER_ROOT
+ln -sf ${local_container_cache}/flutter $FLUTTER_ROOT
+
 # Android Studio Cache
 ANDROID_STUDIO_CACHE=${HOME}/.android
 rsync -av $ANDROID_STUDIO_CACHE ${local_container_cache}
