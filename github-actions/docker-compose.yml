@@ -8,7 +8,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - vscode-store:/vscode
     environment:
-      - LOCAL_DOCKER_BUILDX_NAME=${LOCAL_DOCKER_BUILDX_NAME:-vegito}
+      - VEGITO_DOCKER_BUILDX_NAME=${VEGITO_DOCKER_BUILDX_NAME:-vegito}
       # Activate this line to share the containers build cache between runners
       # - LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-/runner/_work/.containers}
       - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
@@ -18,6 +18,9 @@ services:
       - GCLOUD=gcloud
       - VEGITO_DOCKERHUB_PAT
       - VEGITO_DOCKERHUB_USERNAME
+      - VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER
+      - VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME
+      - VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT
     deploy:
       replicas: ${LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS:-3}
       update_config:

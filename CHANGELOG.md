@@ -2,13 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [1.26.1](https://github.com/vegito-app/local/compare/v1.26.0...v1.26.1) (2026-10-18)
-
-
-### Bug Fixes
-
-* **makefile:** supprimer la variable VEGITO_DOCKER_PUBLIC_REPOSITORY pour éviter les conflits ([420e974](https://github.com/vegito-app/local/commit/420e974e7ab1fb3661242f80a09e03ade6b67eee))
-
 ## [1.26.0](https://github.com/vegito-app/local/compare/v1.25.0...v1.26.0) (2026-10-17)
 
 

@@ -5,12 +5,12 @@ set -euo pipefail
 # Detect if running in Codespaces
 if [[ -n "${CODESPACES:-}" ]]; then
   echo "🚀 Running inside Codespaces environment"
-  export LOCAL_DOCKER_BUILDX_NAME="${LOCAL_DOCKER_BUILDX_NAME:-vegito-codespaces-builder}"
+  export VEGITO_DOCKER_BUILDX_NAME="${VEGITO_DOCKER_BUILDX_NAME:-vegito-codespaces-builder}"
   # Use a fixed builder name in Codespaces, no per-hostname builder
 else
   # Define a unique name for the local Buildx builder
   export HOSTNAME=$(hostname)
-  export LOCAL_DOCKER_BUILDX_NAME="${LOCAL_DOCKER_BUILDX_NAME:-vegito-local-gha-builder-${HOSTNAME}}"
+  export VEGITO_DOCKER_BUILDX_NAME="${VEGITO_DOCKER_BUILDX_NAME:-vegito-local-gha-builder-${HOSTNAME}}"
 fi
 
 export RUNNER_ALLOW_RUNASROOT=false
@@ -26,9 +26,9 @@ cleanup() {
   echo "🧹 Cleaning up BuildKit cache"
   docker buildx prune -af --keep-storage 10GB || true
   
-  if docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-    echo "🧹 Removing Docker Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
-    docker buildx rm "$LOCAL_DOCKER_BUILDX_NAME" || true
+  if docker buildx inspect "$VEGITO_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
+    echo "🧹 Removing Docker Buildx builder: $VEGITO_DOCKER_BUILDX_NAME"
+    docker buildx rm "$VEGITO_DOCKER_BUILDX_NAME" || true
   fi
   
   echo "🧹 Removing runner work directory"
@@ -41,15 +41,15 @@ cleanup() {
 trap cleanup SIGHUP SIGINT SIGTERM
 
 # Create a dedicated Buildx builder if it doesn't exist
-if ! docker buildx inspect "$LOCAL_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-  echo "🔧 Using existing Buildx builder: $LOCAL_DOCKER_BUILDX_NAME"
-  docker buildx use "$LOCAL_DOCKER_BUILDX_NAME" || {
+if ! docker buildx inspect "$VEGITO_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
+  echo "🔧 Using existing Buildx builder: $VEGITO_DOCKER_BUILDX_NAME"
+  docker buildx use "$VEGITO_DOCKER_BUILDX_NAME" || {
     echo "⚠️ Builder not found, creating fallback"
-    docker buildx create --name "$LOCAL_DOCKER_BUILDX_NAME" --driver docker-container --use || true
+    docker buildx create --name "$VEGITO_DOCKER_BUILDX_NAME" --driver docker-container --use || true
   }
 fi
 
-docker buildx use "$LOCAL_DOCKER_BUILDX_NAME"
+docker buildx use "$VEGITO_DOCKER_BUILDX_NAME"
 
 WORKSPACE=/runner/_work/${HOSTNAME:-default}
 sudo mkdir -p "$WORKSPACE"
@@ -75,7 +75,7 @@ cd /runner
 
 # Export the local Buildx builder name as an environment variable for GitHub Actions
 {
-  echo LOCAL_DOCKER_BUILDX_NAME=$LOCAL_DOCKER_BUILDX_NAME
+  echo VEGITO_DOCKER_BUILDX_NAME=$VEGITO_DOCKER_BUILDX_NAME
   echo LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR=$WORKSPACE/.containers/docker-buildx-cache
   echo BUILDX_BAKE_ENTITLEMENTS_FS=0
 } > "$WORKSPACE/gha-env-vars"
