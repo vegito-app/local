@@ -14,7 +14,6 @@ COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 
 export VEGITO_DOCKER_REGISTRIES ?= dockerhub
 
-export VEGITO_DOCKER_PUBLIC_REPOSITORY ?= docker.io/dbndev
 # Use docker.io as the default registry for local public images, but allow overriding it if needed.
 # Remove after gcr is back in shape and can be used as the default registry for local public images.
 export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local-public
