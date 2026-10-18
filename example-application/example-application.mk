@@ -27,7 +27,7 @@ example-application-docker-images-host-arch: $(EXAMPLE_APPLICATION_DOCKER_BUILDX
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%): vegito-docker-buildx-setup
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $@
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $@
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $@
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS:%=vegito-example-application-%)
 
 EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES_GROUPS_CI ?= \
