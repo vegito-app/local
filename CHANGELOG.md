@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.26.0](https://github.com/vegito-app/local/compare/v1.25.0...v1.26.0) (2026-10-18)
+
+
+### Features
+
+* **android:** add local-android-appium to local-android-runners group ([39d4604](https://github.com/vegito-app/local/commit/39d460427d9952251bc1aa62eba3dc7ef5a106ee))
+* **android:** ajouter la synchronisation du répertoire racine Flutter dans container-install.sh ([eaaa681](https://github.com/vegito-app/local/commit/eaaa6811cf85f32ca7dfdbe609a1f697afa59e25))
+* **docker:** ajouter des variables d'environnement pour le support ARM dans le runner GitHub Actions ([590d05b](https://github.com/vegito-app/local/commit/590d05be0a81656bc9e6bc6c6d5fbaabbe38d32b))
+* **docker:** enable support for linux/arm64 platform in docker-bake.hcl ([2ae0fa2](https://github.com/vegito-app/local/commit/2ae0fa2f79449575e0cf4c8fa1ca8687ab2baa8c))
+* **docker:** mettre à jour les versions des images Docker et ajuster les cibles des groupes de services ([d2934ca](https://github.com/vegito-app/local/commit/d2934ca5bf396b951e9726bedd5fcbcda02bda03))
+* **robotframework:** ajouter le contexte Docker pour l'image Debian Robot Framework ([2173a18](https://github.com/vegito-app/local/commit/2173a18d5ee1c2da7f84b2111934a818e2bd5ef1))
+
+
+### Bug Fixes
+
+* **docker:** corriger le chemin de l'image Docker pour le contexte Alpine Rust ([0ae2d19](https://github.com/vegito-app/local/commit/0ae2d198d01ed5f0182a6b9c503f2b56b446392a))
+* **docker:** corriger les cibles des groupes local-android et local-android-ci dans docker-bake.hcl ([ca957c4](https://github.com/vegito-app/local/commit/ca957c4076cc6e83159313c4ce375422cbee9b39))
+* **docker:** renommer LOCAL_DOCKER_BUILDX_NAME en VEGITO_DOCKER_BUILDX_NAME pour la cohérence ([09b73c1](https://github.com/vegito-app/local/commit/09b73c1dca045723a9093c5d1e08feb51e356979))
+* **makefile:** supprimer la variable VEGITO_DOCKER_PUBLIC_REPOSITORY pour éviter les conflits ([420e974](https://github.com/vegito-app/local/commit/420e974e7ab1fb3661242f80a09e03ade6b67eee))
+
 ## [1.26.0](https://github.com/vegito-app/local/compare/v1.25.0...v1.26.0) (2026-10-17)
 
 
