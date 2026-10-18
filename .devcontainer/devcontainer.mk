@@ -30,9 +30,9 @@ vegito-docker-login
 .PHONY: devcontainer-vscode-github-codespaces
 
 vegito-docker-buildx-setup-github-codespaces:
-	@-docker buildx inspect $(LOCAL_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
+	@-docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || \
 	-docker buildx create \
-	  --name $(LOCAL_DOCKER_BUILDX_NAME) \
+	  --name $(VEGITO_DOCKER_BUILDX_NAME) \
 	  --driver docker-container \
 	  --platform linux/amd64 \
 	  --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760 \
