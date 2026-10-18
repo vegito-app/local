@@ -1,8 +1,7 @@
 
 LOCAL_TRIVY_DIR ?= $(LOCAL_DIR)/trivy
 
-LOCAL_TRIVY_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):trivy-$(VERSION)
-LOCAL_TRIVY_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):trivy-latest
+export LOCAL_TRIVY_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):trivy-$(VERSION)
 
 local-trivy-container-up: local-trivy-container-rm
 	@$(LOCAL_TRIVY_DIR)/container-up.sh
@@ -24,7 +23,7 @@ local-trivy-version:
 	@-$(LOCAL_TRIVY) version 2>/dev/null
 .PHONY:  local-trivy-version
 
-LOCAL_TRIVY_TEMPLATE ?= $(LOCAL_DIR)/.github/templates/trivy-html.tpl.html
+LOCAL_TRIVY_TEMPLATE ?= $(LOCAL_DIR)/.github/templates/trivy-html.tpl
 
 local-trivy-image-scan: local-trivy-version local-trivy-pull-scan-input-image
 	@echo "🔎 Scanning image: $(LOCAL_TRIVY_IMAGE_SCAN_INPUT) using Trivy:"

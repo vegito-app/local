@@ -1,5 +1,5 @@
 VEGITO_PROJECT_NAME := example-application
-GIT_HEAD_VERSION ?= $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
 VEGITO_EXAMPLE_APPLICATION_VERSION ?= $(GIT_HEAD_VERSION)
 ifeq ($(VEGITO_EXAMPLE_APPLICATION_VERSION),)
@@ -108,7 +108,7 @@ application-mobile-dump: example-application-mobile-dump
 	@echo "✅ Dumped mobile application successfully."
 .PHONY: application-mobile-dum
 
-docker-tags-md-ci: docker-build-tags-list-ci-md
+docker-tags-md-ci: vegito-docker-build-tags-list-ci-md
 .PHONY: docker-tags-md-ci
 
 docker-login: vegito-docker-login

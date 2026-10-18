@@ -37,43 +37,44 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
 }
 
 variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-public"
 }
 
 variable "DEBIAN_VERSION_CODENAME" {
   default = "trixie"
 }
 
+variable "VEGITO_DOCKER_PUBLIC_IMAGES_VERSION" {
+  description = "git@github.com:vegito-app/docker repository based images default version"
+  default     = "latest"
+}
+
 variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-desktop-x-latest"
-}
-
-variable "VEGITO_DOCKER_DEBIAN_IMAGE_VERSION" {
-  default = "${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-${VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_ALPINE_RUST_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:rust-alpine-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:rust-alpine-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-robotframework-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:debian-robotframework-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-flutter-desktop-x-latest"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-flutter-desktop-x-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_HUB_GOLANG_DEBIAN_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-${VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_TRIXIE_DEBIAN_GOLANG_PROJECT_BUILDER_X_CONTEXT" {
@@ -91,23 +92,25 @@ variable "platforms" {
   ]
 }
 
-group "local-services" {
+group "local-dev" {
   targets = [
-    "local-android-services",
+    "local-android",
     "local-clarinet-devnet",
     "local-firebase-emulators",
     "local-github-actions-runner",
     "local-vault-dev",
+    "local-trivy",
   ]
 }
 
-group "local-services-ci" {
+group "local-dev-ci" {
   targets = [
-    "local-android-services-ci",
+    "local-android-ci",
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
     "local-vault-dev-ci",
+    "local-trivy-ci",
   ]
 }
 
@@ -122,13 +125,14 @@ group "default" {
 
 group "release" {
   targets = [
-    "local-services",
+    "local-dev",
   ]
 }
 
 group "release-ci" {
   targets = [
-    "local-services-ci",
+    "local-dev-ci",
+    "vegito-example-application-ci"
   ]
 }
 
@@ -185,14 +189,6 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ_LATEST" {
   default = "type=local,src=${LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
-}
-
-variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
-}
-
-variable "LOCAL_BUILDER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
 }
 
 target "local-project-builder-base" {

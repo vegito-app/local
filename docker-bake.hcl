@@ -2,6 +2,7 @@ variable "VERSION" {
   description = "current git tag or commit version"
   default     = "local"
 }
+
 variable "LOCAL_VERSION" {
   description = "version of vegito-app/local repository"
 }
@@ -14,15 +15,19 @@ variable "INFRA_ENV" {
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "EXAMPLE_APPLICATION_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_PRIVATE_REPOSITORY}/example-application"
+  default = "${VEGITO_DOCKER_PRIVATE_REPOSITORY}/example-application"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_CACHE_REPOSITORY" {
+  default = "vegito-example-application-repository-cache"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE" {
-  default = "${VEGITO_CACHE_REPOSITORY}/example-application"
+  default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_REPOSITORY}/example-application"
 }
 
 group "vegito-example-application-ci" {
@@ -71,6 +76,13 @@ group "vegito-example-application-applications-ci" {
   ]
 }
 
+group "vegito-example-application-release" {
+  targets = [
+    "vegito-example-application-services",
+    "vegito-example-application-applications"
+  ]
+}
+
 group "vegito-example-application-release-ci" {
   targets = [
     "vegito-example-application-services-ci",
@@ -79,15 +91,11 @@ group "vegito-example-application-release-ci" {
 }
 
 variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
-  default = "${VEGITO_PUBLIC_REPOSITORY}/example-application"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
   default = "${EXAMPLE_APPLICATION_IMAGES_BASE}:builder-${VERSION}"
-}
-
-variable "EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT" {
-  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST" {
@@ -126,24 +134,28 @@ variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATES
   default     = "type=local,src=${EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
 }
 
+variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT" {
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
+}
+
 variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI" {
-  default = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+  default = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
 }
 
 target "vegito-example-application-builder" {
   contexts = {
-    builder = "docker-image://${LOCAL_BUILDER_IMAGE_VERSION}"
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
   }
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   dockerfile = "Dockerfile"
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
-    notequal("", VERSION) ? EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION : "",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
   ]
   cache-from = [
     USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGE_REGISTRY_CACHE}" : "",
     EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST,
-    "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+    EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
   ]
   cache-to = concat(
     ENABLE_LOCAL_CACHE ? [
@@ -174,7 +186,7 @@ target "vegito-example-application-builder-version-ci" {
     ] : [],
     [
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION,
-      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(
@@ -202,7 +214,7 @@ target "vegito-example-application-builder-latest-ci" {
       EXAMPLE_APPLICATION_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
     ] : [],
     [
-      "type=inline,ref=${EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST}",
+      EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST,
     ]
   )
   cache-to = concat(

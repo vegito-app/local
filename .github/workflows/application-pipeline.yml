@@ -6,6 +6,7 @@ on:
       project:
         required: true
         type: string
+
       project_docker_repository:
         required: false
         type: string
@@ -25,6 +26,7 @@ on:
         required: false
         type: string
         default: ${{ github.repository }}
+
       use_registry_cache:
         required: false
         type: boolean
@@ -44,18 +46,26 @@ on:
           staging: vegito-app-staging-github-actions-ci-artifacts-private
           prod: vegito-app-prod-github-actions-ci-artifacts-private
 
+      docker_registry_mode:
+        required: false
+        type: string
+        default: "gcr"
+
       environment:
         required: false
         type: string
         default: prod
+
       android_release_keystore_path:
         required: false
         type: string
         default: .android.release-key.keystore
+
     outputs:
       version:
         description: "The version generated for this release"
         value: ${{ jobs.version-changelog.outputs.version }}
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -83,6 +93,12 @@ on:
       FACEBOOK_CLIENT_TOKEN:
         required: false
 
+      VEGITO_DOCKERHUB_PAT:
+        required: false
+      VEGITO_DOCKERHUB_USERNAME:
+        required: false
+  
+
 permissions:
   id-token: write
   contents: write
@@ -92,18 +108,15 @@ env:
 
 jobs:
   version-changelog:
-    uses: vegito-app/local/.github/workflows/version-changelog.yml@main
+    uses: vegito-app/local/.github/workflows/version-changelog.yml@v1.26.0
     secrets: inherit
 
   version-metadata:
     needs: version-changelog
-    strategy:
-      matrix:
-        environment: [dev, staging, prod]
-    uses: vegito-app/local/.github/workflows/version-metadata.yml@main
+    uses: vegito-app/local/.github/workflows/version-metadata.yml@v1.26.0
 
     with:
-      environment: ${{ matrix.environment }}
+      environment: ${{ inputs.environment }}
       version: ${{ needs.version-changelog.outputs.version }}
       changelog: ${{ needs.version-changelog.outputs.changelog }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
@@ -114,7 +127,7 @@ jobs:
   build:
     name: Build Images
     needs: version-changelog
-    uses: vegito-app/local/.github/workflows/build-images.yml@main
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.26.0
 
     with:
       version: ${{ needs.version-changelog.outputs.version }}
@@ -123,17 +136,21 @@ jobs:
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
       android_release_keystore_path: ${{ inputs.android_release_keystore_path }}
       use_registry_cache: ${{ inputs.use_registry_cache }}
-      docker_registry_mode: dockerhub
+      docker_registry_mode: ${{ inputs.docker_registry_mode }}
+
     secrets: inherit
 
   tests:
     name: Run Functional Tests
     needs: [build, version-changelog]
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@main
+    strategy:
+      matrix:
+        environment: ${{ inputs.environment }}
+    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.26.0
 
     with:
       version: ${{ needs.version-changelog.outputs.version }}
-      environment: ${{ inputs.environment }}
+      environment: ${{ matrix.environment }}
       functional-tests-output-dir: ${{ inputs.functional_tests_dir }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
       release_bucket_prefix: ${{ inputs.release_bucket_prefix }}
@@ -148,11 +165,15 @@ jobs:
     strategy:
       matrix:
         image: ${{ fromJson(inputs.images_to_scan) }}
-    uses: vegito-app/local/.github/workflows/trivy-scan-image-ref.yml@main
+    uses: vegito-app/local/.github/workflows/trivy-scan-image-ref.yml@v1.26.0
 
     with:
       environment: ${{ inputs.environment }}
-      image-ref: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
+      docker_registry_mode: ${{ inputs.docker_registry_mode }}
+      # docker_registry_mode: ${{ inputs.project_docker_repository }}/${{ inputs.project }}:${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
+      project: ${{ inputs.project }}
+      project_docker_repository: ${{ inputs.project_docker_repository }}
+      image_name: ${{ matrix.image }}
       severity: CRITICAL,HIGH
       exit-code: "1"
       env_bucket_map: ${{ inputs.env_bucket_map }}
@@ -164,7 +185,7 @@ jobs:
   release:
     name: Create Consolidated Release Notes
     needs: [tests, trivy, version-changelog]
-    uses: vegito-app/local/.github/workflows/application-release-metadata.yml@main
+    uses: vegito-app/local/.github/workflows/application-release-metadata.yml@v1.26.0
 
     with:
       environment: ${{ inputs.environment }}
@@ -178,7 +199,7 @@ jobs:
   finalize:
     name: Finalize Release
     needs: [release, version-changelog]
-    uses: vegito-app/local/.github/workflows/version-finalize.yml@main
+    uses: vegito-app/local/.github/workflows/version-finalize.yml@v1.26.0
 
     with:
       environment: ${{ inputs.environment }}
@@ -188,7 +209,4 @@ jobs:
       changelog: ${{ needs.version-changelog.outputs.changelog }}
       commit_sha: ${{ needs.version-changelog.outputs.commit_sha }}
 
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: ${{ secrets.RELEASE_READER_GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
+    secrets: inherit

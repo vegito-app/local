@@ -4,7 +4,6 @@ set -uo pipefail
 
 CONTAINER_NAME="example-application-mobile"
 PORTS_TO_WAIT_FOR=(\
-  5900 \
   5901 \
   # 5037 \ This port is not exposed outside the container
   4723 \
@@ -38,6 +37,15 @@ compose_pid=$!
   echo "✅ $CONTAINER_NAME is healthy on all ports!"
 } &
 wait_pid=$!
+
+if docker exec "$CONTAINER_NAME" sh -c \
+    '[ "${LOCAL_ANDROID_EMULATOR_AVD_ON_START:-false}" = "true" ]'; then
+    echo "⏳ Waiting for Android emulator and APK readiness..."
+    until docker exec "$CONTAINER_NAME" \
+        test -f /tmp/.android-avd-ready; do
+        sleep 1
+    done
+fi
 
 # 🏁 Wait for either compose or wait-loop to finish
 set +e

@@ -41,7 +41,7 @@ VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 # 
-LOCAL_BUILDER_IMAGE=${VEGITO_LOCAL_PUBLIC_IMAGES_BASE}:builder-${LOCAL_VERSION:-latest}
+LOCAL_BUILDER_IMAGE=${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${LOCAL_VERSION:-latest}
 # 
 GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
@@ -68,7 +68,6 @@ GITHUB_ACTIONS_RUNNER_URL=https://github.com/vegito-app
 # The following variables are used for propagating the containers|
 # configurations between them each others selves.
 #                                                                
-ANDROID_HOST=android-studio
 VEGITO_EXAMPLE_APPLICATION_BACKEND_DEBUG_URL=http://example-application-backend:8888
 VEGITO_EXAMPLE_APPLICATION_BACKEND_URL=http://example-application-backend:8080
 CLARINET_RPC=http://clarinet-devnet:20443
@@ -90,14 +89,14 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/example-application:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
-        make docker-sock
-        if [ "$${MAKE_DEV_ON_START}" = "true" ] ; then
+        make vegito-docker-sock
+        if [ "$${MAKE_DEV_ON_START:-false}" = "true" ] ; then
           make dev
         fi
-        if [ "$${MAKE_TESTS_ON_START}" = "true" ] ; then
+        if [ "$${MAKE_TESTS_ON_START:-false}" = "true" ] ; then
           make application-mobile-wait-for-boot
           make functional-tests
         fi
@@ -105,34 +104,34 @@ services:
       '
 
   android-studio:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:android-studio-${LOCAL_VERSION}
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
-      LOCAL_ANDROID_STUDIO_CACHES_REFRESH: ${LOCAL_ANDROID_STUDIO_CACHES_REFRESH:-false}
+      LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL: ${LOCAL_ANDROID_STUDIO_CONTAINER_INSTALL:-false}
       LOCAL_ANDROID_STUDIO_CONTAINER_CACHE: ${LOCAL_ANDROID_STUDIO_CONTAINER_CACHE:-${PWD}/.containers/android-studio}
     working_dir: ${PWD}/mobile
 
   clarinet-devnet:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:clarinet-${LOCAL_VERSION}
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
-      LOCAL_CLARINET_DEVNET_CACHES_REFRESH: ${LOCAL_CLARINET_DEVNET_CACHES_REFRESH:-false}
+      LOCAL_CLARINET_CONTAINER_INSTALL: ${LOCAL_CLARINET_CONTAINER_INSTALL:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
 
   robotframework:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:robotframework-${LOCAL_VERSION}
+    image: ${VEGITO_DOCKER_PUBLIC_REPOSITORY:-europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public}/vegito-local:robotframework-${LOCAL_VERSION}
     working_dir: ${PWD}/tests
     environment:
       LOCAL_ROBOTFRAMEWORK_TESTS_DIR: ${PWD}/tests
       LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_CACHE:-${PWD}/.containers/robotframework}
-      LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH: ${LOCAL_ROBOTFRAMEWORK_CACHES_REFRESH:-false}
+      LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL:-false}
   
   firebase-emulators:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:firebase-emulators-${LOCAL_VERSION}
-
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest
+  
   vault-dev:
-    image: europe-west1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT_ID}/docker-repository-public/vegito-local:vault-dev-${LOCAL_VERSION}
-    working_dir: ${PWD}/
+    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest
+    working_dir: ${PWD}/example-application/
     command: |
       bash -c '
       set -euo pipefail
@@ -292,19 +291,21 @@ dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
 [ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
 services:
   android-studio:
-    # environment:
-    #  LOCAL_ANDROID_GPU_MODE=host
-    # runtime: nvidia
-    # devices:
-    #   - /dev/nvidia0
+    environment:
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
   example-application-mobile:
-    # environment:
-    #  LOCAL_ANDROID_GPU_MODE: host
-    # runtime: nvidia
-    # devices:
-    #   - /dev/nvidia0
-    # shm_size: "8gb"
-    # group_add:
-    #   - sgx
+    environment:
+     LOCAL_ANDROID_GPU_MODE: host
+    runtime: nvidia
+    devices:
+      - /dev/nvidia0
+    shm_size: "8gb"
+
 EOF
 

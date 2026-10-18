@@ -3,16 +3,11 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DIR" {
   default     = "${VEGITO_EXAMPLE_APPLICATION_DIR}/backend"
 }
 
-variable "VERSION" {
-  description = "current git tag or commit version"
-  default     = "dev"
-}
-
 variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE" {
   default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}:backend"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE" {
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION" {
   default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE}-${VERSION}"
 }
 
@@ -24,26 +19,52 @@ variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE}/backend"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_DIR}/backend/.containers/buildx-cache"
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend-version"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_DIR}/backend"
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR}/example-application-backend-latest"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
-  description = "local write cache for example-application-backend image build"
-  default     = "type=local,mode=max,dest=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_VERSION}/backend"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ" {
-  description = "local read cache for example-application-backend image build (cannot be used before first write)"
-  default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE}"
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_BACKEND_DOCKER_BUILDX_LOCAL_CACHE_LATEST}/backend"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI" {
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION" {
+  description = "local write cache (version) for example-application-backend image build"
+  default     = "type=local,mode=max,dest=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST" {
+  description = "local write cache (latest) for example-application-backend image build"
+  default     = "type=local,mode=max,dest=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION" {
+  description = "local read cache (version) for example-application-backend image build (cannot be used before first write)"
+  default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
+  description = "local read cache (latest) for example-application-backend image build (cannot be used before first write)"
+  default     = "type=local,src=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_VERSION_CONTEXT_CI" {
   default = "target:vegito-example-application-builder-version-ci"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_LATEST_CONTEXT_CI" {
+  default = "target:vegito-example-application-builder-latest-ci"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT" {
+  default = "target:vegito-example-application-builder"
 }
 
 group "vegito-example-application-backend-ci" {
@@ -59,18 +80,29 @@ target "vegito-example-application-backend-version-ci" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_VERSION_CONTEXT_CI
   }
   tags = [
-    VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
+    VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}",
-  ]
-  cache-to = []
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_VERSION
+    ] : [],
+    [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
+    ] : []
+  )
   platforms = [
-    "linux/amd64",
+    "linux/amd64"
   ]
   push = true
 }
@@ -81,18 +113,33 @@ target "vegito-example-application-backend-latest-ci" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_LATEST_CONTEXT_CI
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : "type=inline"
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : [],
+    [
+      "type=inline"
+    ]
+  )
   platforms = [
     "linux/amd64",
   ]
@@ -105,18 +152,26 @@ target "vegito-example-application-backend" {
     approot     = VEGITO_EXAMPLE_APPLICATION_DIR
     appfrontend = "${VEGITO_EXAMPLE_APPLICATION_DIR}/frontend"
     local       = LOCAL_DIR
-    gobuilder   = "docker-image://${EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION}"
+    gobuilder   = VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT
   }
   tags = [
-    VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE,
+    VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION,
     VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST,
   ]
-  cache-from = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}" : "",
-    VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ,
-    "type=inline,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST}",
-  ]
-  cache-to = [
-    USE_REGISTRY_CACHE ? "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE},mode=max" : VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE,
-  ]
+  cache-from = concat(
+    USE_REGISTRY_CACHE ? [
+      "type=registry,ref=${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_REGISTRY_CACHE}"
+    ] : [],
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST
+    ] : [],
+    [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_LATEST
+    ]
+  )
+  cache-to = concat(
+    ENABLE_LOCAL_CACHE ? [
+      VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
+    ] : []
+  )
 }
