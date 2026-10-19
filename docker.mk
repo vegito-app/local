@@ -13,6 +13,7 @@ vegito-docker-login-gcr: gcloud-auth-docker
 
 # Available values: gcr, dockerhub, gcr dockerhub, etc. (space-separated)
 VEGITO_DOCKER_REGISTRIES ?= dockerhub
+VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.5
 
 vegito-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-login-%)
 	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
@@ -122,16 +123,32 @@ vegito-docker-clean-all:
 	  vegito-docker-buildx-cache-clean
 .PHONY: vegito-docker-clean-all
 
-VEGITO_DOCKER_BUILDX_ENABLE_RAM_BUILDER ?= false
+VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER ?= false
 
-ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_RAM_BUILDER),true)
+ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER),true)
 VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
 endif
 
-VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER ?= false
-
 vegito-docker-buildx-setup:
 	@echo "🔨  Creating buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
+ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER),true)
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
+	  docker context use default && \
+	  docker buildx create \
+	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
+	    --driver docker-container \
+	    --use \
+	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
+	    --platform linux/amd64; \
+	}
+	@$(MAKE) vegito-docker-context-arm
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) | grep $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
+	  docker buildx create \
+	    --append \
+	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
+	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) \
+	    --platform linux/arm64
+else
 	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
 	  docker context use default && \
 	  docker buildx create \
@@ -142,14 +159,6 @@ vegito-docker-buildx-setup:
 	    --platform linux/arm64 \
 	    --platform linux/amd64; \
 	}
-ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_MAC_BUILDER),true)
-	@$(MAKE) vegito-docker-context-arm
-	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) | grep $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
-	  docker buildx create \
-	    --append \
-	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
-	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) \
-	    --platform linux/arm64
 endif
 	@docker buildx inspect --bootstrap
 	@docker run --privileged --rm tonistiigi/binfmt --install all

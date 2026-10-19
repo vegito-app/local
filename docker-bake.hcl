@@ -46,7 +46,7 @@ variable "DEBIAN_VERSION_CODENAME" {
 
 variable "VEGITO_DOCKER_PUBLIC_IMAGES_VERSION" {
   description = "git@github.com:vegito-app/docker repository based images default version"
-  default     = "v0.0.3"
+  default     = "latest"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
