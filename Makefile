@@ -71,11 +71,11 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
   builders \
   services \
   applications
-
 GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
 LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
+VEGITO_DOCKER_REGISTRIES ?= dockerhub
 VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
 export VEGITO_EXAMPLE_APPLICATION_DIR ?= $(LOCAL_DIR)/example-application

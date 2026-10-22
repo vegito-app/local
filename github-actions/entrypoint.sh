@@ -22,15 +22,6 @@ cleanup() {
 
   echo "🧹 Removing GitHub Actions Runner configuration"
   ./config.sh remove --token "$GITHUB_ACTIONS_RUNNER_TOKEN" || true
-
-  echo "🧹 Cleaning up BuildKit cache"
-  docker buildx prune -af --keep-storage 10GB || true
-  
-  if docker buildx inspect "$VEGITO_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-    echo "🧹 Removing Docker Buildx builder: $VEGITO_DOCKER_BUILDX_NAME"
-    docker buildx rm "$VEGITO_DOCKER_BUILDX_NAME" || true
-  fi
-  
   echo "🧹 Removing runner work directory"
   rm -rf /runner/_work/${HOSTNAME:-default}
   
@@ -40,29 +31,12 @@ cleanup() {
 # Trap signals for cleanup
 trap cleanup SIGHUP SIGINT SIGTERM
 
-# Create a dedicated Buildx builder if it doesn't exist
-if ! docker buildx inspect "$VEGITO_DOCKER_BUILDX_NAME" >/dev/null 2>&1; then
-  echo "🔧 Using existing Buildx builder: $VEGITO_DOCKER_BUILDX_NAME"
-  docker buildx use "$VEGITO_DOCKER_BUILDX_NAME" || {
-    echo "⚠️ Builder not found, creating fallback"
-    docker buildx create --name "$VEGITO_DOCKER_BUILDX_NAME" --driver docker-container --use || true
-  }
-fi
-
-docker buildx use "$VEGITO_DOCKER_BUILDX_NAME"
-
 WORKSPACE=/runner/_work/${HOSTNAME:-default}
 sudo mkdir -p "$WORKSPACE"
 
 # Fix permissions on the working directory
 echo 🔧 Fixing ownership of /runner/_work
 sudo chown -R github:github /runner/_work || true
-
-# Optionally apply BuildKit environment limits if set
-if [[ -n "${BUILDKIT_MAX_PARALLELISM:-}" ]]; then
-  export BUILDKIT_MAX_PARALLELISM
-  echo "⚙️ Applying BuildKit max parallelism limit: $BUILDKIT_MAX_PARALLELISM"
-fi
 
 # Configure GitHub Actions Runner
 cd /runner
