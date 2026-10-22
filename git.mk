@@ -93,6 +93,7 @@ git-subtree-example-application-push:
 VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-backend
 VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-mobile
 VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-tests
+VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-builder
 
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------

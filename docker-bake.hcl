@@ -2,6 +2,11 @@ variable "LOCAL_DIR" {
   default = "."
 }
 
+variable "VERSION" {
+  description = "current git tag or commit version"
+  default     = "local"
+}
+
 variable "USE_REGISTRY_CACHE" {
   default = false
   type    = bool
@@ -132,12 +137,16 @@ group "release-ci" {
   ]
 }
 
+variable "LOCAL_BUILDER_IMAGES_BASE_NAME" {
+  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder"
+}
+
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION}"
+  default = "${LOCAL_BUILDER_IMAGES_BASE_NAME}-${VERSION}"
 }
 
 variable "LOCAL_BUILDER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest"
+  default = "${LOCAL_BUILDER_IMAGES_BASE_NAME}-latest"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE" {
@@ -259,7 +268,7 @@ target "local-project-builder-version-ci" {
 target "local-project-builder-latest-ci" {
   inherits = ["local-project-builder-base"]
   tags = [
-    VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME
+    LOCAL_BUILDER_IMAGE_LATEST
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [

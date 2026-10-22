@@ -1,6 +1,5 @@
 services:
   github-actions-runner:
-    # restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR:-/runner/_work}:/runner/_work:cached
@@ -35,6 +34,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    dns:
+      - ${VEGITO_DNS_SERVER:-10.5.5.7}
 networks:
   github-actions:
 volumes:
