@@ -1,10 +1,10 @@
 VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
-VERSION ?= $(GIT_HEAD_VERSION)
+export VERSION ?= $(GIT_HEAD_VERSION)
 
 ifeq ($(strip $(VERSION)),)
-VERSION := latest
+export VERSION ?= latest
 endif
 
 export LOCAL_VERSION ?= $(VERSION)
@@ -44,16 +44,16 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(LOCAL_DIR)/github-actions/docker-bake.hcl \
   -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
   $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl)
-  
+
 VEGITO_DOCKER_BUILDX_BAKE = $(LOCAL_DOCKER_BUILDX_BAKE)
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
-    -f $(CURDIR)/docker-compose.yml \
-    -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
-  	-f $(CURDIR)/trivy/docker-compose.yml \
-    -f $(CURDIR)/.docker-compose-services-override.yml \
-    -f $(CURDIR)/.docker-compose-networks-override.yml \
-    -f $(CURDIR)/.docker-compose-gpu-override.yml
+  -f $(CURDIR)/docker-compose.yml \
+  -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+  -f $(CURDIR)/trivy/docker-compose.yml \
+  -f $(CURDIR)/.docker-compose-services-override.yml \
+  -f $(CURDIR)/.docker-compose-networks-override.yml \
+  -f $(CURDIR)/.docker-compose-gpu-override.yml
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio
@@ -95,7 +95,7 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   nestor \
   vault-dev \
-  robotframework \
+  robotframework
 
 -include docker.mk
 -include gcloud.mk
@@ -103,9 +103,6 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
 -include git.mk
 -include nodejs.mk
 -include go.mk
-
-  $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
-#   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
 
 -include .devcontainer/devcontainer.mk
 
@@ -222,7 +219,11 @@ test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
 .PHONY: test-local
 
-docker-tags-md-ci: vegito-docker-build-tags-list-ci-md
+docker-tags-md-ci: 
+	@$(MAKE) \
+	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS=release \
+	  vegito-docker-build-tags-list-ci-md \
+    2>/dev/null
 .PHONY: docker-tags-md-ci
 
 docker-login: vegito-docker-login

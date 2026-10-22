@@ -29,7 +29,6 @@ vegito-docker-clean:
 	@docker system prune --all --force
 .PHONY: vegito-docker-clean
 
-
 vegito-docker-images-multi-registry-release: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release)
 	@echo "✅ DevBuilt local images tagged for all registries successfully. No push performed."
 .PHONY: vegito-docker-images-multi-registry-release
@@ -42,14 +41,12 @@ vegito-docker-images-gcr-release: vegito-docker-images-release
 vegito-docker-images-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-images-ci)
 .PHONY: vegito-docker-images-ci
 
-
 vegito-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-images-%-release-ci)
 	@echo "✅ CI Built and pushed images to all registries successfully."
 .PHONY: vegito-docker-images-multi-registry-release-ci
 
 vegito-docker-images-gcr-release-ci: vegito-docker-images-release-ci
 .PHONY: vegito-docker-gcr-images-ci
-
 
 vegito-docker-images-release:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release
@@ -60,6 +57,51 @@ vegito-docker-images-release-ci:
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release-ci
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push release-ci
 .PHONY: vegito-docker-images-release-ci
+
+VEGITO_DOCKER_BUILDX_BUILD_GROUPS ?= \
+	release \
+	local-project-builder \
+	local-android \
+	local-android-runners \
+	local-android-builders \
+	local-android-emulator \
+	local-android-appium \
+	local-android-studio \
+	local-clarinet-devnet \
+	local-firebase-emulators \
+	local-github-actions-runner \
+	local-robotframework \
+	local-stripe \
+	local-trivy \
+	local-vault-dev \
+	vegito-example-application \
+	vegito-example-application-builders \
+	vegito-example-application-services \
+	vegito-example-application-applications \
+	vegito-example-application-release \
+	vegito-example-application-builder \
+	vegito-example-application-backend \
+	vegito-example-application-mobile \
+	vegito-example-application-tests 
+
+vegito-docker-group-tags-list-ci: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci)
+.PHONY: vegito-docker-group-tags-list-ci
+
+$(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:%-docker-group-tags-list-ci=%-ci) | jq -r '.target | to_entries[] | .value.tags[]'
+.PHONY: $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS:%=%-docker-group-tags-list-ci)
+
+vegito-docker-build-tags-list-ci-md:
+	@echo "### 🐳 Docker Images Built (excluding latest):"
+	@set -e; for group in $(VEGITO_DOCKER_BUILDX_BUILD_GROUPS); do \
+	  echo "#### Group: '$$group'" ; \
+	 $(MAKE) $$group-docker-group-tags-list-ci \
+	 | grep -vE 'latest$$' \
+	 | grep -v 'make\[1\]\:' \
+	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
+	  echo "" ; \
+	done
+.PHONY: vegito-docker-build-tags-list-ci-md
 
 DOCKER ?= docker
 
@@ -72,7 +114,7 @@ export VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT ?= tcp://10.6.6.3:23751
 vegito-docker-context-arm:
 	@echo "🔨  Creating buildx context $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME)"
 	@$(DOCKER) context inspect $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
-	@$(DOCKER) context create $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
+	  $(DOCKER) context create $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) --docker "host=$(VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT)"
 .PHONY: vegito-docker-context-arm
 
 vegito-docker-context-arm-rm:
