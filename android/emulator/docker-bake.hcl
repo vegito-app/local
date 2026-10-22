@@ -259,6 +259,7 @@ target "local-android-emulator-flutter-version-ci" {
       LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
     ] : []
   )
+  platforms = platforms
 }
 
 target "local-android-emulator-flutter" {
