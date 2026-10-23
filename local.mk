@@ -1,5 +1,6 @@
-# Local Docker Compose configuration
 export VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder
+
+export VEGITO_LOCAL_CACHE_REPOSITORY ?= registry.vegito.app:5000
 
 export LOCAL_BUILDER_IMAGE ?= $(VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE)-latest
 
@@ -190,6 +191,7 @@ local-dev-container-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec dev bash
 .PHONY: local-dev-container-sh
 
+# Local Docker Compose configuration
 local-container-config-show:
 	@echo "📦 Showing container configuration..."
 	@$(LOCAL_DOCKER_COMPOSE) config
