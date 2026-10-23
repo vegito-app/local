@@ -158,10 +158,6 @@ target "local-android-emulator" {
 # ###################################################################
 # LOCAL ANDROID EMULATOR FLUTTER
 # ###################################################################
-variable "LOCAL_ANDROID_EMULATOR_FLUTTER_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-emulator-flutter"
-}
-
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_REGISTRY_CACHE" {
   default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-emulator-flutter"
 }
