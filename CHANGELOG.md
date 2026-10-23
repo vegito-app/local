@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.27.0](https://github.com/vegito-app/local/compare/v1.26.0...v1.27.0) (2026-10-23)
+
+
+### Features
+
+* **docker:** ajouter des groupes de construction pour la gestion des tags d'images Docker ([a4558d1](https://github.com/vegito-app/local/commit/a4558d16124c8e2cfe1ce6fdc5f9574e788725d1))
+* **docker:** ajouter des variables pour la gestion des images de construction et mettre à jour les références d'image ([ea3e78c](https://github.com/vegito-app/local/commit/ea3e78cc84008ab1730256be7b65df7caffa99e4))
+* **docker:** ajouter la configuration locale pour Docker Compose ([1f640e0](https://github.com/vegito-app/local/commit/1f640e0c3f0fa73fc391f42bc23fb0dacab82354))
+
+
+### Bug Fixes
+
+* **docker:** ajouter la variable platforms au target local-android-emulator-flutter-version-ci ([de5a54f](https://github.com/vegito-app/local/commit/de5a54fba257b6f00f67bf291fe6aa4371941d80))
+* **docker:** corriger la référence de la variable d'image pour trivy ([9d89f2d](https://github.com/vegito-app/local/commit/9d89f2d3340ee0237dfeca06f68fc2bc2d5d7d0e))
+* **docker:** corriger les références d'image pour le builder et exporter la variable d'images publiques ([6b759b9](https://github.com/vegito-app/local/commit/6b759b9a49f85d3561c17d1f34b8de478b14bea4))
+* **docker:** mettre à jour la version par défaut des images publiques à "latest" et ajuster les variables pour le support ARM ([b6d7e49](https://github.com/vegito-app/local/commit/b6d7e49855160de9ec396478ba1ba382a4e774b6))
+* **emulator:** supprimer la variable obsolète pour le cache d'image Flutter ([2ea0a24](https://github.com/vegito-app/local/commit/2ea0a24e65c7c44100c58bfab67b373649699696))
+* **trivy:** mettre à jour les variables d'image pour utiliser la base d'image locale ([06a92f1](https://github.com/vegito-app/local/commit/06a92f11663a6dbe0d9408ccf818fac7cc022af3))
+
 ## [1.26.0](https://github.com/vegito-app/local/compare/v1.25.0...v1.26.0) (2026-10-18)
 
 
