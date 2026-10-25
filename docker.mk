@@ -167,10 +167,10 @@ else
 	    --platform linux/amd64; \
 	}
 endif
-	@$(DOCKER) buildx inspect --bootstrap
-	@$(DOCKER) run --privileged --rm tonistiigi/binfmt --install all
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) --bootstrap
+	@$(MAKE) vegito-docker-buildx-configure-dns
+	@docker run --privileged --rm tonistiigi/binfmt --install all
 .PHONY: vegito-docker-buildx-setup
-
 vegito-docker-buildx-rm:
 	@echo "🔨  Removing buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
 	@-$(DOCKER) buildx rm $(VEGITO_DOCKER_BUILDX_NAME)
@@ -191,3 +191,14 @@ vegito-docker-buildx-cache-clean:
 	  done \
 	'
 .PHONY: vegito-docker-buildx-cache-clean
+
+# Force the local Docker gateway DNS for the native BuildKit daemon.
+# This avoids inheriting the LAN DHCP DNS, which cannot resolve Vegito registries.
+VEGITO_DOCKER_BUILDX_NATIVE_DNS ?= 172.16.0.1
+
+vegito-docker-buildx-configure-dns:
+	@echo "🔧 Configuring native BuildKit DNS: $(VEGITO_DOCKER_BUILDX_NATIVE_DNS)"
+	@docker --context default exec \
+		buildx_buildkit_$(VEGITO_DOCKER_BUILDX_NAME)0 \
+		sh -c 'printf "nameserver %s\n" "$(VEGITO_DOCKER_BUILDX_NATIVE_DNS)" > /etc/resolv.conf'
+.PHONY: vegito-docker-buildx-configure-dns
