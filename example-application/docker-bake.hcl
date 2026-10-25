@@ -143,10 +143,6 @@ variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-golang-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI" {
-  default = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
-}
-
 target "vegito-example-application-builder" {
   contexts = {
     builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
@@ -180,7 +176,7 @@ target "vegito-example-application-builder-version-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   contexts = {
-    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
   }
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION,
@@ -206,7 +202,7 @@ target "vegito-example-application-builder-latest-ci" {
   dockerfile = "Dockerfile"
   context    = VEGITO_EXAMPLE_APPLICATION_DIR
   contexts = {
-    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT_CI
+    builder = VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT
   }
   tags = [
     EXAMPLE_APPLICATION_BUILDER_IMAGE_LATEST
