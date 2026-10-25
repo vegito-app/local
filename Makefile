@@ -35,10 +35,11 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   trivy 
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
-  VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI=target:local-project-builder-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-studio-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_BUILDER_BASE_CONTEXT=target:local-project-builder-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT=target:local-android-studio-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT=target:local-android-appium-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT=target:local-robotframework-version-ci \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \

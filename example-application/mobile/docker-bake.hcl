@@ -96,14 +96,24 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_PACKAGE_NAME" {
   default     = "${INFRA_ENV}.vegito.app.android"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI" {
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT" {
   description = "Builder context (target:... or docker-image://...)"
   default     = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE}"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI" {
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI" {
+  description = "Builder context (target:... or docker-image://...)"
+  default     = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT" {
   description = "Runner context (target:... or docker-image://...)"
   default     = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE}"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI" {
+  description = "Runner context (target:... or docker-image://...)"
+  default     = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT
 }
 
 target "vegito-example-application-mobile" {
@@ -129,8 +139,8 @@ target "vegito-example-application-mobile" {
     android = LOCAL_ANDROID_DIR
     approot = VEGITO_EXAMPLE_APPLICATION_DIR
     local   = LOCAL_DIR
-    builder = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE}"
-    runner  = "docker-image://${VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE}"
+    builder = VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT
+    runner  = VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT
   }
   tags = [
     VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_LATEST,
