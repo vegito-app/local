@@ -12,17 +12,16 @@ export LOCAL_VERSION ?= $(VERSION)
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
 
 export VEGITO_DOCKER_REGISTRIES ?= dockerhub
+
 export VEGITO_DOCKER_PUBLIC_REGISTRY ?= registry-public.vegito.app
-export VEGITO_DOCKER_PUBLIC_REPOSITORY ?= $(VEGITO_DOCKER_PUBLIC_REGISTRY)/vegito-docker
-export VEGITO_DOCKER_PRIVATE_REGISTRY ?= registry-private.vegito
-export VEGITO_DOCKER_PRIVATE_REPOSITORY ?= $(VEGITO_DOCKER_PRIVATE_REGISTRY)/vegito-docker
+export VEGITO_DOCKER_PUBLIC_REPOSITORY ?= $(VEGITO_DOCKER_PUBLIC_REGISTRY)/public
 
-# Use docker.io as the default registry for local public images, but allow overriding it if needed.
-# Remove after gcr is back in shape and can be used as the default registry for local public images.
+export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-app/public/docker
+# 
+export LOCAL_CACHE_REGISTRY ?= registry-cache.vegito.app
+export LOCAL_CACHE_REPOSITORY ?= $(LOCAL_CACHE_REGISTRY)/vegito-docker
+
 export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-app/local
-export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-app/public
-export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PRIVATE_REPOSITORY)/vegito-app/private
-
 export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 

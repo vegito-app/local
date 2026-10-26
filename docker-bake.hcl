@@ -21,12 +21,12 @@ variable "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
   default = "${LOCAL_DIR}/.containers/buildx-cache"
 }
 
-variable "VEGITO_LOCAL_CACHE_REPOSITORY" {
+variable "LOCAL_CACHE_REPOSITORY" {
   default = "vegito-local-repository-cache"
 }
 
 variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
-  default = "${VEGITO_LOCAL_CACHE_REPOSITORY}/vegito-local"
+  default = "${LOCAL_CACHE_REPOSITORY}/vegito-local"
 }
 
 variable "VEGITO_DOCKER_PRIVATE_REPOSITORY" {
