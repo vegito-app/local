@@ -1,9 +1,9 @@
 variable "LOCAL_STRIPE_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-${VERSION}"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-${VERSION}"
 }
 
 variable "LOCAL_STRIPE_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-latest"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-latest"
 }
 
 variable "LOCAL_STRIPE_IMAGE_REGISTRY_CACHE" {

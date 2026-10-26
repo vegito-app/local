@@ -37,7 +37,7 @@ variable "VEGITO_DOCKER_PUBLIC_REPOSITORY" {
   default = "vegito-docker-repository-public"
 }
 
-variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
+variable "LOCAL_PUBLIC_IMAGES_BASE_NAME" {
   default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-local"
 }
 
@@ -138,7 +138,7 @@ group "release-ci" {
 }
 
 variable "LOCAL_BUILDER_IMAGES_BASE_NAME" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder"
 }
 
 variable "LOCAL_BUILDER_IMAGE_VERSION" {
@@ -162,11 +162,11 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}/cache/builder"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}/cache/builder"
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}/cache/builder/ci"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}/cache/builder/ci"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {

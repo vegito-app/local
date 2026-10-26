@@ -69,8 +69,8 @@ git-subtree-nestor-push:
 .PHONY: git-subtree-nestor-push
 
 VEGITO_NESTOR_DIR ?= $(LOCAL_DIR)/nestor
-VEGITO_NESTOR_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(VERSION)
-VEGITO_NESTOR_IMAGE_LATEST ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
+VEGITO_NESTOR_IMAGE_VERSION ?= $(LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-$(VERSION)
+VEGITO_NESTOR_IMAGE_LATEST ?= $(LOCAL_PUBLIC_IMAGES_BASE_NAME):nestor-latest
 -include $(VEGITO_NESTOR_DIR)/nestor.mk
 # ------------------------------------------
 # ------------------------------------------
@@ -90,10 +90,10 @@ git-subtree-example-application-push:
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
 
-VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-backend
-VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-mobile
-VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-tests
-VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE := $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-builder
+VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE := $(LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-backend
+VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE := $(LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-mobile
+VEGITO_EXAMPLE_APPLICATION_TESTS_IMAGES_BASE := $(LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-tests
+VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE := $(LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-builder
 
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------

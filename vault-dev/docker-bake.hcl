@@ -1,9 +1,9 @@
 variable "LOCAL_VAULT_DEV_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-${VERSION}"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-${VERSION}"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE" {

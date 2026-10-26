@@ -3,11 +3,11 @@
 # LOCAL ANDROID APPIUM
 # ###################################################################
 variable "LOCAL_ANDROID_APPIUM_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-${VERSION}"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE" {
@@ -47,7 +47,7 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
 }
 
 group "local-android-appium-ci" {
@@ -162,11 +162,11 @@ variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_FLUTTER_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-flutter-${VERSION}"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-flutter-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-flutter-latest"
+  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-flutter-latest"
 }
 
 variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
