@@ -42,7 +42,7 @@ variable "VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME" {
 }
 
 variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-public"
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
 }
 
 variable "DEBIAN_VERSION_CODENAME" {
