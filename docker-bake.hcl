@@ -21,28 +21,44 @@ variable "LOCAL_DOCKER_BUILDX_LOCAL_CACHE_DIR" {
   default = "${LOCAL_DIR}/.containers/buildx-cache"
 }
 
-variable "LOCAL_CACHE_REPOSITORY" {
-  default = "vegito-local-repository-cache"
+variable "VEGITO_DOCKER_CACHE_IMAGES_BASE" {
+  default = "${VEGITO_DOCKER_CACHE_REPOSITORY}/vegito-docker"
+}
+
+variable "LOCAL_DOCKER_CACHE_REGISTRY" {
+  default = "registry-cache.vegito.app"
+}
+
+variable "LOCAL_DOCKER_CACHE_REPOSITORY" {
+  default = "${LOCAL_DOCKER_CACHE_REGISTRY}/vegito-app"
 }
 
 variable "VEGITO_LOCAL_CACHE_IMAGES_BASE" {
-  default = "${LOCAL_CACHE_REPOSITORY}/vegito-local"
+  default = "${LOCAL_DOCKER_CACHE_REPOSITORY}/vegito-local"
+}
+
+variable "VEGITO_DOCKER_PRIVATE_REGISTRY" {
+  default = "registry-private.vegito.app"
 }
 
 variable "VEGITO_DOCKER_PRIVATE_REPOSITORY" {
-  default = "vegito-docker-repository-private"
+  default = "${VEGITO_DOCKER_PRIVATE_REGISTRY}/vegito-app"
+}
+
+variable "VEGITO_DOCKER_PUBLIC_REGISTRY" {
+  default = "registry-public.vegito.app"
 }
 
 variable "VEGITO_DOCKER_PUBLIC_REPOSITORY" {
-  default = "vegito-docker-repository-public"
+  default = "${VEGITO_DOCKER_PUBLIC_REGISTRY}/vegito-app"
 }
 
 variable "LOCAL_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-local"
+  default = "${LOCAL_DOCKER_PUBLIC_REPOSITORY}/vegito-local"
 }
 
 variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
+  default = "${LOCAL_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
 }
 
 variable "DEBIAN_VERSION_CODENAME" {
