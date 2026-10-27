@@ -1,9 +1,9 @@
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGES_BASE" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:robotframework"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:robotframework-${VERSION}"
 }
 
 variable "LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE_LATEST" {

@@ -1,9 +1,9 @@
 variable "LOCAL_VAULT_DEV_IMAGE_VERSION" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:vault-dev-${VERSION}"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_LATEST" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest"
 }
 
 variable "LOCAL_VAULT_DEV_IMAGE_REGISTRY_CACHE" {

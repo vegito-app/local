@@ -41,7 +41,7 @@ VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-${USER:-vegito-developer-id}}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 # 
-LOCAL_BUILDER_IMAGE=${LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${LOCAL_VERSION:-latest}
+LOCAL_BUILDER_IMAGE=${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:builder-${LOCAL_VERSION:-latest}
 # 
 GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_GOOGLE_IDP_OAUTH_KEY_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/google-idp-oauth-key/versions/latest
@@ -89,7 +89,7 @@ dockerComposeOverride=${WORKING_DIR:-${PWD}}/.docker-compose-services-override.y
 [ -f $dockerComposeOverride ] || cat <<'EOF' > $dockerComposeOverride
 services:
   dev:
-    image: ${LOCAL_BUILDER_IMAGE:-${LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
+    image: ${LOCAL_BUILDER_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:builder-${VERSION:-latest}}
     command: |
       bash -c '
         make vegito-docker-sock
@@ -104,7 +104,7 @@ services:
       '
 
   android-studio:
-    image: ${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest
+    image: ${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest
     environment:
       LOCAL_ANDROID_EMULATOR_DATA: ${PWD}/tests/mobile_images
       LOCAL_ANDROID_STUDIO_ON_START: ${LOCAL_ANDROID_STUDIO_ON_START:-false}
@@ -113,7 +113,7 @@ services:
     working_dir: ${PWD}/mobile
 
   clarinet-devnet:
-    image: ${LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
+    image: ${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest
     environment:
       LOCAL_CLARINET_CONTAINER_INSTALL: ${LOCAL_CLARINET_CONTAINER_INSTALL:-false}
       LOCAL_CLARINET_DEVNET_CONTAINER_CACHE: ${LOCAL_CLARINET_DEVNET_CONTAINER_CACHE:-${PWD}/.containers/clarinet-devnet}
@@ -127,10 +127,10 @@ services:
       LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL: ${LOCAL_ROBOTFRAMEWORK_CONTAINER_INSTALL:-false}
   
   firebase-emulators:
-    image: ${LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest
+    image: ${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest
   
   vault-dev:
-    image: ${LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest
+    image: ${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest
     working_dir: ${PWD}/example-application/
     command: |
       bash -c '

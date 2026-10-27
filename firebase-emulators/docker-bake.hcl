@@ -1,9 +1,9 @@
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-${VERSION}"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE" {

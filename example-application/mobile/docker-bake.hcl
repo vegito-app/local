@@ -53,22 +53,22 @@ variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_REGISTRY_CACHE" {
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
-  default     = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-${LOCAL_VERSION}"
+  default     = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-${LOCAL_VERSION}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_BUILDER_IMAGE_LATEST" {
   description = "Android Studio image to use for mobile application builds"
-  default     = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
+  default     = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE" {
   description = "Android Studio image to use for mobile application builds"
-  default     = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-${LOCAL_VERSION}"
+  default     = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-appium-${LOCAL_VERSION}"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_APK_RUNNER_IMAGE_LATEST" {
   description = "Android Studio image to use for mobile application builds"
-  default     = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
+  default     = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-appium-latest"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_PATH" {

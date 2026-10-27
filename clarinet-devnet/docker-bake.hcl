@@ -1,9 +1,9 @@
 variable "LOCAL_CLARINET_DEVNET_IMAGE_VERSION" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:clarinet-${VERSION}"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_LATEST" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest"
 }
 
 variable "LOCAL_CLARINET_DEVNET_IMAGE_REGISTRY_CACHE" {

@@ -1,9 +1,9 @@
 variable "LOCAL_STRIPE_IMAGE_VERSION" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:stripe-${VERSION}"
 }
 
 variable "LOCAL_STRIPE_IMAGE_LATEST" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:stripe-latest"
 }
 
 variable "LOCAL_STRIPE_IMAGE_REGISTRY_CACHE" {

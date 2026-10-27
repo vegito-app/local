@@ -1,5 +1,5 @@
 variable "LOCAL_TRIVY_IMAGE_BASE" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trivy"
 }
 
 variable "LOCAL_TRIVY_IMAGE_VERSION" {

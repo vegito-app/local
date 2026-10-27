@@ -3,11 +3,11 @@ variable "LOCAL_ANDROID_STUDIO_DIR" {
 }
 
 variable "LOCAL_ANDROID_STUDIO_VERSION" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {
-  default = "${LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE" {

@@ -81,10 +81,10 @@ example-application-docker-scan-tags-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAK
 .PHONY: example-application-docker-scan-tags-ci
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci): vegito-docker-buildx-setup
-	@echo "Running Trivy scan for image: $(LOCAL_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION)"
+	@echo "Running Trivy scan for image: $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION)"
 	@echo "Report: $(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html"
 	@$(MAKE) local-trivy-image-scan \
-	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION) \
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION) \
 	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=$(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
 
