@@ -86,5 +86,7 @@ git-subtree-example-application-push:
 	@echo "Example application subtree pushed successfully."
 .PHONY: git-subtree-example-application-push
 
+export VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):builder
+
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------
