@@ -14,20 +14,44 @@ variable "INFRA_ENV" {
   default     = "dev"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
+variable "VEGITO_DOCKER_PUBLIC_REGISTRY" {
+  default = "registry-public.vegito.app"
 }
 
-variable "EXAMPLE_APPLICATION_PRIVATE_IMAGES_BASE" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
+variable "VEGITO_DOCKER_PUBLIC_REPOSITORY" {
+  default = "${VEGITO_DOCKER_PUBLIC_REGISTRY}/vegito-app"
+}
+
+variable "VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
+  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/vegito-docker"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REGISTRY" {
+  default = "registry-public.vegito.app"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REGISTRY}/vegito-app"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY}/example-application"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_CACHE_REGISTRY" {
+  default = "registry-cache.vegito.app"
+}
+
+variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_CACHE_REPOSITORY" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_CACHE_REGISTRY}/vegito-app"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_CACHE_REPOSITORY" {
-  default = "vegito-example-application-repository-cache"
+  default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_CACHE_REPOSITORY}/vegito-example"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_CACHE_IMAGES_BASE" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_REPOSITORY}/example-application"
+  default = "${VEGITO_EXAMPLE_APPLICATION_CACHE_REPOSITORY}/application"
 }
 
 group "vegito-example-application-ci" {
@@ -90,10 +114,9 @@ group "vegito-example-application-release-ci" {
   ]
 }
 
-variable "EXAMPLE_APPLICATION_IMAGES_BASE" {
-  default = "${VEGITO_DOCKER_PUBLIC_REPOSITORY}/example-application"
+variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
+  default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
-
 
 variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE" {
   default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}:builder"
