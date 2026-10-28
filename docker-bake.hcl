@@ -41,7 +41,7 @@ variable "LOCAL_DOCKER_CACHE_REPOSITORY" {
   default = "${LOCAL_DOCKER_CACHE_REGISTRY}/vegito-app"
 }
 
-variable "LOCAL_DOCKER_CACHE_IMAGES_BASE" {
+variable "LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME" {
   default = "${LOCAL_DOCKER_CACHE_REPOSITORY}/vegito-local"
 }
 
