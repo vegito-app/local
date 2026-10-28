@@ -137,7 +137,7 @@ services:
   robotframework:
     restart: unless-stopped
     tty: true
-    image: ${LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-robotframework-latest}
+    image: ${LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}

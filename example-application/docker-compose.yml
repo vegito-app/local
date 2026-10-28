@@ -3,7 +3,7 @@ services:
     build:
       context: ${PWD}
       dockerfile: backend/Dockerfile
-    image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION:-${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE:-${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE:-docker.io/dbndev/example-application:backend}-${VERSION:-latest}}}
+    image: ${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE_VERSION:-${VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE:-${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE:-docker.io/dbndev/example-application:backend}}-${VERSION:-latest}}
     env_file:
       - .env
     environment:
