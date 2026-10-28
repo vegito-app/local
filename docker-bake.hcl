@@ -119,6 +119,7 @@ variable "platforms" {
 
 group "local-dev" {
   targets = [
+    "local-project-builder-latest",
     "local-android",
     "local-clarinet-devnet",
     "local-firebase-emulators",
@@ -131,6 +132,7 @@ group "local-dev" {
 
 group "local-dev-ci" {
   targets = [
+    "local-project-builder-latest-ci",
     "local-android-ci",
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
@@ -153,6 +155,7 @@ group "default" {
 group "release" {
   targets = [
     "local-dev",
+    "vegito-example-application"
   ]
 }
 
