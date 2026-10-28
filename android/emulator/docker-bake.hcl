@@ -7,7 +7,7 @@ variable "LOCAL_ANDROID_EMULATOR_VERSION" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE" {
-  default = "${LOCAL_CACHE_IMAGES_BASE}/local-android-emulator"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE}/local-android-emulator"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_DIR" {
@@ -159,7 +159,7 @@ target "local-android-emulator" {
 # LOCAL ANDROID EMULATOR FLUTTER
 # ###################################################################
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_REGISTRY_CACHE" {
-  default = "${LOCAL_CACHE_IMAGES_BASE}/android-emulator-flutter"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE}/android-emulator-flutter"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_VERSION" {

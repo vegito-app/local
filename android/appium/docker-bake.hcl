@@ -11,7 +11,7 @@ variable "LOCAL_ANDROID_APPIUM_IMAGE_LATEST" {
 }
 
 variable "LOCAL_ANDROID_APPIUM_IMAGE_REGISTRY_CACHE" {
-  default = "${LOCAL_CACHE_IMAGES_BASE}/android-appium"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE}/android-appium"
 }
 
 variable "LOCAL_ANDROID_APPIUM_DIR" {
@@ -154,11 +154,11 @@ target "local-android-appium" {
 # LOCAL ANDROID APPIUM FLUTTER
 # ###################################################################
 variable "LOCAL_ANDROID_APPIUM_FLUTTER_REGISTRY_CACHE_IMAGE" {
-  default = "${LOCAL_CACHE_IMAGES_BASE}/android-appium-flutter"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE}/android-appium-flutter"
 }
 
 variable "LOCAL_ANDROID_APPIUM_FLUTTER_IMAGE_REGISTRY_CACHE" {
-  default = "${LOCAL_CACHE_IMAGES_BASE}/android-appium-flutter"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE}/android-appium-flutter"
 }
 
 variable "LOCAL_ANDROID_APPIUM_FLUTTER_VERSION" {
