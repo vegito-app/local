@@ -18,8 +18,8 @@ jobs:
     with:
       environment: ${{ matrix.environment }}
       project: vegito-local
-      project_docker_repository: vegito-local-public
       docker_registry_mode: dockerhub
+      project_docker_repository: vegito-local
       images_to_scan: '["example-application-backend"]'
       functional_tests_dir: example-application/tests/output
       has_mobile: true
