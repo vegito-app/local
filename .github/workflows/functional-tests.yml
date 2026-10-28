@@ -64,6 +64,7 @@ jobs:
       LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: android-mobile-${{ inputs.environment }}-${{ inputs.version }}-screenshot.png
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
