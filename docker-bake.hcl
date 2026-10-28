@@ -41,7 +41,7 @@ variable "LOCAL_DOCKER_CACHE_REPOSITORY" {
   default = "${LOCAL_DOCKER_CACHE_REGISTRY}/vegito-app"
 }
 
-variable "LOCAL_CACHE_IMAGES_BASE" {
+variable "LOCAL_DOCKER_CACHE_IMAGES_BASE" {
   default = "${LOCAL_DOCKER_CACHE_REPOSITORY}/vegito-local"
 }
 
@@ -186,11 +186,7 @@ variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_LATEST" {
 }
 
 variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE" {
-  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}/cache/builder"
-}
-
-variable "LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI" {
-  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}/cache/builder/ci"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/builder"
 }
 
 variable "LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE" {
@@ -239,7 +235,7 @@ target "local-project-builder" {
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}"
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ_LATEST
@@ -250,7 +246,7 @@ target "local-project-builder" {
   )
   cache-to = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max"
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST
@@ -272,7 +268,7 @@ target "local-project-builder-version-ci" {
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}"
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ_VERSION
@@ -296,7 +292,7 @@ target "local-project-builder-latest-ci" {
   ]
   cache-from = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI}"
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE}"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_READ_LATEST
@@ -307,7 +303,7 @@ target "local-project-builder-latest-ci" {
   )
   cache-to = concat(
     USE_REGISTRY_CACHE ? [
-      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE_CI},mode=max"
+      "type=registry,ref=${LOCAL_BUILDER_IMAGE_REGISTRY_CACHE},mode=max"
     ] : [],
     ENABLE_LOCAL_CACHE ? [
       LOCAL_BUILDER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_LATEST

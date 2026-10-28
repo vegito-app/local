@@ -34,7 +34,7 @@ services:
       timeout: 5s
       retries: 3
     dns:
-      - ${VEGITO_DNS_SERVER:-10.5.5.7}
+      - ${VEGITO_DNS_SERVER:-172.16.0.1/16}
 networks:
   github-actions:
 volumes:
