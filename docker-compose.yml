@@ -10,12 +10,7 @@ services:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
       GCLOUD: gcloud
-      VEGITO_DOCKER_REGISTRIES: ${VEGITO_DOCKER_REGISTRIES}
-      VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
-      VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
-      VEGITO_DOCKERHUB_USERNAME: ${VEGITO_DOCKERHUB_USERNAME}
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -31,6 +26,8 @@ services:
       timeout: 5s
       retries: 3
     working_dir: ${PWD}
+    dns:
+      - 172.16.1.1
 
   firebase-emulators:
     restart: unless-stopped
