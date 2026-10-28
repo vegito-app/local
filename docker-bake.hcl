@@ -123,6 +123,7 @@ group "local-dev" {
     "local-clarinet-devnet",
     "local-firebase-emulators",
     "local-github-actions-runner",
+    "local-robotframework",
     "local-vault-dev",
     "local-trivy",
   ]
@@ -134,6 +135,7 @@ group "local-dev-ci" {
     "local-clarinet-devnet-ci",
     "local-firebase-emulators-ci",
     "local-github-actions-runner-ci",
+    "local-robotframework-ci",
     "local-vault-dev-ci",
     "local-trivy-ci",
   ]
