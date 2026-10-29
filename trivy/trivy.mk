@@ -1,8 +1,6 @@
 
 LOCAL_TRIVY_DIR ?= $(LOCAL_DIR)/trivy
 
-export LOCAL_TRIVY_IMAGE_VERSION ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):trivy-$(VERSION)
-
 local-trivy-container-up: local-trivy-container-rm
 	@$(LOCAL_TRIVY_DIR)/container-up.sh
 	@$(LOCAL_DOCKER_COMPOSE) logs trivy

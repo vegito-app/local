@@ -1,5 +1,6 @@
-# Local Docker Compose configuration
-export LOCAL_BUILDER_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):builder-latest
+export LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local
+
+export LOCAL_BUILDER_IMAGE ?= $(VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE)-latest
 
 export LOCAL_DIR ?= $(CURDIR)
 
@@ -188,6 +189,7 @@ local-dev-container-sh:
 	@$(LOCAL_DOCKER_COMPOSE) exec dev bash
 .PHONY: local-dev-container-sh
 
+# Local Docker Compose configuration
 local-container-config-show:
 	@echo "📦 Showing container configuration..."
 	@$(LOCAL_DOCKER_COMPOSE) config
@@ -236,8 +238,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
 	      INFRA_ENV=$(INFRA_ENV) \
-	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" \
-	      VERSION=$(LOCAL_VERSION)
+	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" 
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
 -include $(LOCAL_DIR)/android/android.mk

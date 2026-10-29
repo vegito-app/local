@@ -1,6 +1,5 @@
 services:
   github-actions-runner:
-    # restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR:-/runner/_work}:/runner/_work:cached
@@ -14,7 +13,6 @@ services:
       - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
-      - VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE=${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
       - GCLOUD=gcloud
       - VEGITO_DOCKERHUB_PAT
       - VEGITO_DOCKERHUB_USERNAME
@@ -35,6 +33,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    dns:
+      - ${VEGITO_DNS_SERVER:-172.16.0.1/16}
 networks:
   github-actions:
 volumes:

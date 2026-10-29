@@ -3,11 +3,11 @@
 # LOCAL ANDROID EMULATOR
 # ###################################################################
 variable "LOCAL_ANDROID_EMULATOR_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-emulator-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/local-android-emulator"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/local-android-emulator"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_DIR" {
@@ -43,11 +43,11 @@ variable "LOCAL_ANDROID_EMULATOR_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_READ_LATEST" {
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-emulator-latest"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-emulator-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-emulator-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_BUILDER_CONTEXT" {
@@ -158,20 +158,16 @@ target "local-android-emulator" {
 # ###################################################################
 # LOCAL ANDROID EMULATOR FLUTTER
 # ###################################################################
-variable "LOCAL_ANDROID_EMULATOR_FLUTTER_REGISTRY_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-emulator-flutter"
-}
-
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-emulator-flutter"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/android-emulator-flutter"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-flutter-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-flutter-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-flutter-latest"
 }
 
 variable "LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {
@@ -259,6 +255,7 @@ target "local-android-emulator-flutter-version-ci" {
       LOCAL_ANDROID_EMULATOR_FLUTTER_IMAGE_DOCKER_BUILDX_CACHE_WRITE_VERSION
     ] : []
   )
+  platforms = platforms
 }
 
 target "local-android-emulator-flutter" {

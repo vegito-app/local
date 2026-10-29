@@ -5,17 +5,12 @@ services:
   dev:
     restart: unless-stopped
     tty: true
-    image: ${LOCAL_BUILDER_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
+    image: ${LOCAL_BUILDER_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:builder-latest}
     env_file:
       - .env
     environment:
       LOCAL_WORKSPACE: ${PWD}
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-vegito-local}
       GCLOUD: gcloud
-      VEGITO_DOCKER_REGISTRIES: ${VEGITO_DOCKER_REGISTRIES}
-      VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE: ${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
-      VEGITO_DOCKERHUB_PAT: ${VEGITO_DOCKERHUB_PAT}
-      VEGITO_DOCKERHUB_USERNAME: ${VEGITO_DOCKERHUB_USERNAME}
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -31,11 +26,13 @@ services:
       timeout: 5s
       retries: 3
     working_dir: ${PWD}
+    dns:
+      - 172.16.1.1
 
   firebase-emulators:
     restart: unless-stopped
     tty: true
-    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
+    image: ${LOCAL_FIREBASE_EMULATORS_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest}
     env_file:
       - .env
     environment:
@@ -55,7 +52,7 @@ services:
     restart: unless-stopped
     tty: true
     privileged: true
-    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
+    image: ${LOCAL_CLARINET_DEVNET_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:clarinet-latest}
     env_file:
       - .env
     environment:
@@ -76,7 +73,7 @@ services:
     cap_add:
       - SYS_ADMIN
       - SYS_NICE
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest}
     env_file:
       - .env
     environment:
@@ -121,7 +118,7 @@ services:
     #   '
   vault-dev:
     restart: unless-stopped
-    image: ${LOCAL_VAULT_DEV_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
+    image: ${LOCAL_VAULT_DEV_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:vault-dev-latest}
     cap_add:
       - IPC_LOCK
     environment:
@@ -140,7 +137,7 @@ services:
   robotframework:
     restart: unless-stopped
     tty: true
-    image: ${LOCAL_ROBOTFRAMEWORK_TESTS_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
+    image: ${LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:robotframework-latest}
     environment:
       VEGITO_EXAMPLE_APPLICATION_BACKEND_URL_DEBUG: http://devcontainer:8888
       LOCAL_WORKSPACE: ${PWD}
@@ -162,7 +159,7 @@ services:
     restart: unless-stopped
     tty: true
     privileged: true
-    image: ${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
+    image: ${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:nestor-latest
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN

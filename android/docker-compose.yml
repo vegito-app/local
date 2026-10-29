@@ -5,7 +5,7 @@ services:
     cap_add:
       - SYS_ADMIN
       - SYS_NICE
-    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME:-dbndev/vegito-android}:android-studio-latest}
+    image: ${LOCAL_ANDROID_STUDIO_IMAGE:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME:-dbndev/vegito-android}:android-studio-latest}
     env_file:
       - .env
     environment:

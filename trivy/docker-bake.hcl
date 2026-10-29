@@ -1,13 +1,17 @@
+variable "LOCAL_TRIVY_IMAGE_BASE" {
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trivy"
+}
+
 variable "LOCAL_TRIVY_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-${VERSION}"
+  default = "${LOCAL_TRIVY_IMAGE_BASE}-${VERSION}"
 }
 
 variable "LOCAL_TRIVY_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:trivy-latest"
+  default = "${LOCAL_TRIVY_IMAGE_BASE}-latest"
 }
 
 variable "LOCAL_TRIVY_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/trivy"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/trivy"
 }
 
 variable "LOCAL_TRIVY_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {

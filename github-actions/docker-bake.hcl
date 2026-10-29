@@ -1,17 +1,17 @@
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:github-actions-runner-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:github-actions-runner-${VERSION}"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:github-actions-runner-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:github-actions-runner-latest"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/github-actions-runner"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_CACHE_IMAGE_CI" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/github-actions-runner/ci"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/github-actions-runner/ci"
 }
 
 variable "LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {

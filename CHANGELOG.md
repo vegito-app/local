@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.27.0](https://github.com/vegito-app/local/compare/v1.26.0...v1.27.0) (2026-10-28)
+
+
+### Features
+
+* **docker-bake:** ajouter des groupes pour l'application vegito et mettre à jour les variables d'image du robotframework ([2419c10](https://github.com/vegito-app/local/commit/2419c103edc2e1fcdf03f88ae6a9ad2f6ec1634c))
+* **docker:** ajouter des groupes de construction pour la gestion des tags d'images Docker ([a4558d1](https://github.com/vegito-app/local/commit/a4558d16124c8e2cfe1ce6fdc5f9574e788725d1))
+* **docker:** ajouter des variables pour la gestion des images de construction et mettre à jour les références d'image ([ea3e78c](https://github.com/vegito-app/local/commit/ea3e78cc84008ab1730256be7b65df7caffa99e4))
+* **docker:** ajouter des variables pour la gestion des images Docker Hub et corriger la duplication de contexte ([f861aee](https://github.com/vegito-app/local/commit/f861aeed2c3e3143b7c166407fedbc978eabe9a9))
+* **docker:** ajouter la configuration locale pour Docker Compose ([1f640e0](https://github.com/vegito-app/local/commit/1f640e0c3f0fa73fc391f42bc23fb0dacab82354))
+* **docker:** configurer le DNS natif pour le démon BuildKit et ajuster la commande de bootstrap ([c82bebe](https://github.com/vegito-app/local/commit/c82bebe89abb470f8af48e05e580653011d3243b))
+* **docker:** mettre à jour la configuration des images publiques et corriger le chemin de l'image locale ([7add3a3](https://github.com/vegito-app/local/commit/7add3a32fac6647942baace0b37c01981b96cd72))
+* **docker:** mettre à jour les configurations des dépôts Docker et des images ([ff3c5c9](https://github.com/vegito-app/local/commit/ff3c5c9649103888fdd2f2187511f6ecb7ec4625))
+* **docker:** mettre à jour les configurations des dépôts et des images pour le cache local ([8bcb9a6](https://github.com/vegito-app/local/commit/8bcb9a6736738029fd49e00e27cf8c65771aae9b))
+* **docker:** refactor les contextes de construction et d'exécution pour les applications et les tests ([607a4f1](https://github.com/vegito-app/local/commit/607a4f11c9af013c1265a6a9e57cd35bea16c908))
+* **functional-tests:** ajouter la variable VEGITO_DOCKER_PUBLIC_REPOSITORY pour la configuration Docker ([11e42dd](https://github.com/vegito-app/local/commit/11e42ddde3505c9a5ed2c2801f89689185d3d7d4))
+
+
+### Bug Fixes
+
+* **docker-compose:** corriger la version de l'image du robotframework et ajuster la configuration de l'application exemple ([b21e601](https://github.com/vegito-app/local/commit/b21e6011d2486681381566d709ac1ea1007272c5))
+* **docker:** ajouter la variable platforms au target local-android-emulator-flutter-version-ci ([de5a54f](https://github.com/vegito-app/local/commit/de5a54fba257b6f00f67bf291fe6aa4371941d80))
+* **docker:** corriger l'adresse DNS par défaut pour le service GitHub Actions ([0934d2e](https://github.com/vegito-app/local/commit/0934d2ee2da6ee227955cffa8fb9a0ac89c73291))
+* **docker:** corriger la référence de la variable d'image pour trivy ([9d89f2d](https://github.com/vegito-app/local/commit/9d89f2d3340ee0237dfeca06f68fc2bc2d5d7d0e))
+* **docker:** corriger les références d'image pour le builder et exporter la variable d'images publiques ([6b759b9](https://github.com/vegito-app/local/commit/6b759b9a49f85d3561c17d1f34b8de478b14bea4))
+* **docker:** mettre à jour la version par défaut des images publiques à "latest" et ajuster les variables pour le support ARM ([b6d7e49](https://github.com/vegito-app/local/commit/b6d7e49855160de9ec396478ba1ba382a4e774b6))
+* **emulator:** supprimer la variable obsolète pour le cache d'image Flutter ([2ea0a24](https://github.com/vegito-app/local/commit/2ea0a24e65c7c44100c58bfab67b373649699696))
+* **trivy:** mettre à jour les variables d'image pour utiliser la base d'image locale ([06a92f1](https://github.com/vegito-app/local/commit/06a92f11663a6dbe0d9408ccf818fac7cc022af3))
+
+## [1.26.0](https://github.com/vegito-app/local/compare/v1.25.0...v1.26.0) (2026-10-18)
+
+
+### Features
+
+* **android:** add local-android-appium to local-android-runners group ([39d4604](https://github.com/vegito-app/local/commit/39d460427d9952251bc1aa62eba3dc7ef5a106ee))
+* **android:** ajouter la synchronisation du répertoire racine Flutter dans container-install.sh ([eaaa681](https://github.com/vegito-app/local/commit/eaaa6811cf85f32ca7dfdbe609a1f697afa59e25))
+* **docker:** ajouter des variables d'environnement pour le support ARM dans le runner GitHub Actions ([590d05b](https://github.com/vegito-app/local/commit/590d05be0a81656bc9e6bc6c6d5fbaabbe38d32b))
+* **docker:** enable support for linux/arm64 platform in docker-bake.hcl ([2ae0fa2](https://github.com/vegito-app/local/commit/2ae0fa2f79449575e0cf4c8fa1ca8687ab2baa8c))
+* **docker:** mettre à jour les versions des images Docker et ajuster les cibles des groupes de services ([d2934ca](https://github.com/vegito-app/local/commit/d2934ca5bf396b951e9726bedd5fcbcda02bda03))
+* **robotframework:** ajouter le contexte Docker pour l'image Debian Robot Framework ([2173a18](https://github.com/vegito-app/local/commit/2173a18d5ee1c2da7f84b2111934a818e2bd5ef1))
+
+
+### Bug Fixes
+
+* **docker:** corriger le chemin de l'image Docker pour le contexte Alpine Rust ([0ae2d19](https://github.com/vegito-app/local/commit/0ae2d198d01ed5f0182a6b9c503f2b56b446392a))
+* **docker:** corriger les cibles des groupes local-android et local-android-ci dans docker-bake.hcl ([ca957c4](https://github.com/vegito-app/local/commit/ca957c4076cc6e83159313c4ce375422cbee9b39))
+* **docker:** renommer LOCAL_DOCKER_BUILDX_NAME en VEGITO_DOCKER_BUILDX_NAME pour la cohérence ([09b73c1](https://github.com/vegito-app/local/commit/09b73c1dca045723a9093c5d1e08feb51e356979))
+* **makefile:** supprimer la variable VEGITO_DOCKER_PUBLIC_REPOSITORY pour éviter les conflits ([420e974](https://github.com/vegito-app/local/commit/420e974e7ab1fb3661242f80a09e03ade6b67eee))
+
 ## [1.26.0](https://github.com/vegito-app/local/compare/v1.25.0...v1.26.0) (2026-10-17)
 
 

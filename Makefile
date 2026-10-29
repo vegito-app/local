@@ -1,25 +1,14 @@
 VEGITO_PROJECT_NAME := vegito-local
 GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 
-VERSION ?= $(GIT_HEAD_VERSION)
+export VERSION ?= $(GIT_HEAD_VERSION)
 
 ifeq ($(strip $(VERSION)),)
-VERSION := latest
+export VERSION ?= latest
 endif
 
-export LOCAL_VERSION ?= $(VERSION)
-
 COMPOSE_PROJECT_NAME ?= $(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)
-# LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS := # applications
 
-export VEGITO_DOCKER_REGISTRIES ?= dockerhub
-
-# Use docker.io as the default registry for local public images, but allow overriding it if needed.
-# Remove after gcr is back in shape and can be used as the default registry for local public images.
-export VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local-public
-export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public
-export VEGITO_DOCKER_PRIVATE_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-private
-export VEGITO_DOCKER_TRIXIE_DEBIAN_OBS_VSCODE_GOLANG_AI_DOCKER_DESKTOP_X_IMAGE_LATEST ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-public:trixie-debian-obs-vscode-golang-ai-docker-latest
 export LOCAL_ROBOTFRAMEWORK_TESTS_DIR = $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/robot
 export LOCAL_ROBOTFRAMEWORK_TESTS_OUTPUT_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)/output
 
@@ -32,10 +21,9 @@ LOCAL_DOCKER_BUILDX_BAKE_IMAGES ?= \
   trivy 
 
 LOCAL_DOCKER_BUILDX_BAKE ?= \
-  VEGITO_EXAMPLE_APPLICATION_BACKEND_BUILDER_CONTEXT_CI=target:local-project-builder-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT_CI=target:local-android-studio-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT_CI=target:local-android-appium-version-ci \
-  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT_CI=target:local-robotframework-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_BUILDER_CONTEXT=target:local-android-studio-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_MOBILE_RUNNER_CONTEXT=target:local-android-appium-version-ci \
+  VEGITO_EXAMPLE_APPLICATION_TESTS_ROBOTFRAMEWORK_CONTEXT=target:local-robotframework-version-ci \
   docker buildx bake \
   -f $(LOCAL_DIR)/docker-bake.hcl \
   $(LOCAL_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(LOCAL_DIR)/%/docker-bake.hcl) \
@@ -44,16 +32,16 @@ LOCAL_DOCKER_BUILDX_BAKE ?= \
   -f $(LOCAL_DIR)/github-actions/docker-bake.hcl \
   -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-bake.hcl \
   $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=-f $(VEGITO_EXAMPLE_APPLICATION_DIR)/%/docker-bake.hcl)
-  
+
 VEGITO_DOCKER_BUILDX_BAKE = $(LOCAL_DOCKER_BUILDX_BAKE)
 
 LOCAL_DOCKER_COMPOSE ?= docker compose \
-    -f $(CURDIR)/docker-compose.yml \
-    -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
-  	-f $(CURDIR)/trivy/docker-compose.yml \
-    -f $(CURDIR)/.docker-compose-services-override.yml \
-    -f $(CURDIR)/.docker-compose-networks-override.yml \
-    -f $(CURDIR)/.docker-compose-gpu-override.yml
+  -f $(CURDIR)/docker-compose.yml \
+  -f $(VEGITO_EXAMPLE_APPLICATION_DIR)/docker-compose.yml \
+  -f $(CURDIR)/trivy/docker-compose.yml \
+  -f $(CURDIR)/.docker-compose-services-override.yml \
+  -f $(CURDIR)/.docker-compose-networks-override.yml \
+  -f $(CURDIR)/.docker-compose-gpu-override.yml
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio
@@ -71,10 +59,9 @@ LOCAL_DOCKER_BUILDX_BUILD_GROUPS ?= \
   builders \
   services \
   applications
-
 GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project=$(GOOGLE_CLOUD_PROJECT_ID)
 
-LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
+LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):example-application-$(VERSION)
 
 VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
@@ -95,7 +82,7 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   firebase-emulators \
   nestor \
   vault-dev \
-  robotframework \
+  robotframework
 
 -include docker.mk
 -include gcloud.mk
@@ -103,9 +90,6 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
 -include git.mk
 -include nodejs.mk
 -include go.mk
-
-  $(VEGITO_DOCKER_COMPOSE_SERVICES:%=vegito-%)
-#   $(LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES:%=android-%) \
 
 -include .devcontainer/devcontainer.mk
 
@@ -222,7 +206,11 @@ test-local: example-application-tests-robot-all
 	@echo "End-to-end tests completed successfully."
 .PHONY: test-local
 
-docker-tags-md-ci: vegito-docker-build-tags-list-ci-md
+docker-tags-md-ci: 
+	@$(MAKE) \
+	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS=release \
+	  vegito-docker-build-tags-list-ci-md \
+    2>/dev/null
 .PHONY: docker-tags-md-ci
 
 docker-login: vegito-docker-login
