@@ -1,4 +1,3 @@
-
 LOCAL_TRIVY_DIR ?= $(LOCAL_DIR)/trivy
 
 local-trivy-container-up: local-trivy-container-rm
