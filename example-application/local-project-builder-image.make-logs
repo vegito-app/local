@@ -1,0 +1,108 @@
+#1 [internal] load local bake definitions
+#1 reading /workspaces/vegito-app/example-application/local/docker-bake.hcl 7.92kB / 7.92kB done
+#1 reading /workspaces/vegito-app/example-application/local/robotframework/docker-bake.hcl 4.56kB / 4.56kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/docker-bake.hcl 1.18kB / 1.18kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/appium/docker-bake.hcl 9.37kB / 9.37kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/emulator/docker-bake.hcl 9.57kB / 9.57kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/studio/docker-bake.hcl 4.83kB / 4.83kB done
+#1 reading /workspaces/vegito-app/example-application/docker-bake.hcl 7.03kB / 7.03kB done
+#1 reading /workspaces/vegito-app/example-application/backend/docker-bake.hcl 6.29kB / 6.29kB done
+#1 reading /workspaces/vegito-app/example-application/mobile/docker-bake.hcl 9.59kB / 9.59kB done
+#1 reading /workspaces/vegito-app/example-application/tests/docker-bake.hcl 4.86kB / 4.86kB done
+#1 reading /workspaces/vegito-app/example-application/local/github-actions/docker-bake.hcl 4.71kB / 4.71kB done
+#1 DONE 0.0s
+{
+  "group": {
+    "default": {
+      "targets": [
+        "local-project-builder"
+      ]
+    }
+  },
+  "target": {
+    "local-project-builder": {
+      "context": "/workspaces/vegito-app/example-application/local",
+      "contexts": {
+        "debian": "docker-image://docker.io/dbndev/vegito-public:trixie-debian-project-golang-docker-v0.0.4"
+      },
+      "dockerfile": "dev.Dockerfile",
+      "args": {
+        "debian_version": "trixie"
+      },
+      "tags": [
+        "docker.io/dbndev/vegito-public:trixie-debian-project-golang-docker-v0.0.4",
+        "docker.io/dbndev/vegito-local-public:builder-latest"
+      ],
+      "cache-from": [
+        {
+          "ref": "docker.io/dbndev/vegito-local-public:builder-latest",
+          "type": "inline"
+        }
+      ]
+    }
+  }
+}
+#0 building with "vegito-project-builder" instance using docker-container driver
+
+#1 [internal] load local bake definitions
+#1 reading /workspaces/vegito-app/example-application/local/docker-bake.hcl 7.92kB / 7.92kB done
+#1 reading /workspaces/vegito-app/example-application/local/robotframework/docker-bake.hcl 4.56kB / 4.56kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/docker-bake.hcl 1.18kB / 1.18kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/appium/docker-bake.hcl 9.37kB / 9.37kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/emulator/docker-bake.hcl 9.57kB / 9.57kB done
+#1 reading /workspaces/vegito-app/example-application/local/android/studio/docker-bake.hcl 4.83kB / 4.83kB done
+#1 reading /workspaces/vegito-app/example-application/docker-bake.hcl 7.03kB / 7.03kB done
+#1 reading /workspaces/vegito-app/example-application/backend/docker-bake.hcl 6.29kB / 6.29kB done
+#1 reading /workspaces/vegito-app/example-application/mobile/docker-bake.hcl 9.59kB / 9.59kB done
+#1 reading /workspaces/vegito-app/example-application/tests/docker-bake.hcl 4.86kB / 4.86kB done
+#1 reading /workspaces/vegito-app/example-application/local/github-actions/docker-bake.hcl 4.71kB / 4.71kB done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from dev.Dockerfile
+#2 transferring dockerfile: 1.60kB done
+#2 DONE 0.0s
+
+#3 [context debian] load metadata for docker.io/dbndev/vegito-public:trixie-debian-project-golang-docker-v0.0.4
+#3 DONE 0.8s
+
+#4 [internal] setting cache mount permissions
+#4 CACHED
+
+#5 [internal] load .dockerignore
+#5 transferring context: 86B done
+#5 DONE 0.0s
+
+#6 importing cache manifest from inline:12650407062857865650
+#6 ERROR: unknown cache importer: inline
+
+#7 [internal] load build context
+#7 transferring context: 5.03kB done
+#7 DONE 0.0s
+
+#8 [context debian] docker.io/dbndev/vegito-public:trixie-debian-project-golang-docker-v0.0.4
+#8 resolve docker.io/dbndev/vegito-public:trixie-debian-project-golang-docker-v0.0.4 0.2s done
+#8 CACHED
+
+#9 [stage-0 2/9] WORKDIR /home/debian/src
+#9 CACHED
+
+#10 [stage-0 1/9] RUN usermod -l local project     && groupmod -n local project     &&     echo "local:local" | chpasswd &&     adduser local sudo &&     echo "local ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/local &&     chmod 0440 /etc/sudoers.d/local
+#10 CACHED
+
+#11 [stage-0 3/9] COPY example-application/backend/go.mod example-application/backend/go.sum example-application/backend/
+#11 ERROR: failed to calculate checksum of ref 1hxq3exd9v94bmso4zeb7994w::2zv4qfakhadafrio07xnonded: "/example-application/backend/go.sum": not found
+------
+ > importing cache manifest from inline:12650407062857865650:
+------
+------
+ > [stage-0 3/9] COPY example-application/backend/go.mod example-application/backend/go.sum example-application/backend/:
+------
+dev.Dockerfile:28
+--------------------
+  26 |     ENV GOFLAGS="-mod=readonly"
+  27 |     
+  28 | >>> COPY example-application/backend/go.mod example-application/backend/go.sum example-application/backend/
+  29 |     COPY proxy/go.mod proxy/go.sum proxy/
+  30 |     
+--------------------
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref 1hxq3exd9v94bmso4zeb7994w::2zv4qfakhadafrio07xnonded: "/example-application/backend/go.sum": not found

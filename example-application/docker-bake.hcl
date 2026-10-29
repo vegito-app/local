@@ -34,7 +34,7 @@ variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY" {
   default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REGISTRY}/vegito-app"
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE" {
+variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME" {
   default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
@@ -110,6 +110,7 @@ group "vegito-example-application-applications-ci" {
 
 group "vegito-example-application-release" {
   targets = [
+    "vegito-example-application-builder",
     "vegito-example-application-services",
     "vegito-example-application-applications"
   ]
@@ -117,17 +118,18 @@ group "vegito-example-application-release" {
 
 group "vegito-example-application-release-ci" {
   targets = [
+    "vegito-example-application-builder-ci",
     "vegito-example-application-services-ci",
     "vegito-example-application-applications-ci"
   ]
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_IMAGES_BASE_NAME" {
+variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME" {
   default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY}/example-application"
 }
 
 variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE}:builder"
+  default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME}:builder"
 }
 
 variable "EXAMPLE_APPLICATION_BUILDER_IMAGE_VERSION" {
