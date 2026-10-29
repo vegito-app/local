@@ -1,13 +1,13 @@
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-${VERSION}"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:firebase-emulators-latest"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/cache/firebase-emulators"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/cache/firebase-emulators"
 }
 
 variable "LOCAL_FIREBASE_EMULATORS_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {

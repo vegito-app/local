@@ -3,15 +3,15 @@ variable "LOCAL_ANDROID_STUDIO_DIR" {
 }
 
 variable "LOCAL_ANDROID_STUDIO_VERSION" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-${VERSION}"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-${VERSION}"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_LATEST" {
-  default = "${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
+  default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:android-studio-latest"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_REGISTRY_CACHE" {
-  default = "${VEGITO_LOCAL_CACHE_IMAGES_BASE}/android-studio"
+  default = "${LOCAL_DOCKER_CACHE_IMAGES_BASE_NAME}/android-studio"
 }
 
 variable "LOCAL_ANDROID_STUDIO_IMAGE_DOCKER_BUILDX_LOCAL_CACHE_VERSION" {

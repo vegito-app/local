@@ -25,3 +25,4 @@ vendor/
 vscode.*
 firebase-emulators/firebase.json
 *trivy*report.html
+*-logs

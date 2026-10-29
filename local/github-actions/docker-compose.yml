@@ -1,6 +1,5 @@
 services:
   github-actions-runner:
-    # restart: unless-stopped
     image: ${LOCAL_GITHUB_ACTIONS_RUNNER_IMAGE}
     volumes:
       - ${LOCAL_GITHUB_ACTIONS_RUNNER_WORKDIR:-/runner/_work}:/runner/_work:cached
@@ -8,16 +7,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - vscode-store:/vscode
     environment:
-      - LOCAL_DOCKER_BUILDX_NAME=${LOCAL_DOCKER_BUILDX_NAME:-vegito}
+      - VEGITO_DOCKER_BUILDX_NAME=${VEGITO_DOCKER_BUILDX_NAME:-vegito}
       # Activate this line to share the containers build cache between runners
       # - LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE=${LOCAL_GITHUB_ACTIONS_RUNNER_BUILD_CACHE:-/runner/_work/.containers}
       - GITHUB_ACTIONS_RUNNER_URL=${GITHUB_ACTIONS_RUNNER_URL:-https://github.com/vegito-app}
       - GITHUB_ACTIONS_RUNNER_TOKEN=${GITHUB_ACTIONS_RUNNER_TOKEN}
       - GITHUB_ACTIONS_RUNNER_STACK=${GITHUB_ACTIONS_RUNNER_STACK:-github-actions-stack}
-      - VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE=${VEGITO_DOCKER_BUILD_ENABLE_LOCAL_CACHE:-false}
       - GCLOUD=gcloud
       - VEGITO_DOCKERHUB_PAT
       - VEGITO_DOCKERHUB_USERNAME
+      - VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER
+      - VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME
+      - VEGITO_DOCKER_BUILDX_ARM_BUILDER_ENDPOINT
     deploy:
       replicas: ${LOCAL_GITHUB_ACTIONS_DOCKER_COMPOSE_REPLICAS:-3}
       update_config:
@@ -32,6 +33,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    dns:
+      - ${VEGITO_DNS_SERVER:-172.16.0.1/16}
 networks:
   github-actions:
 volumes:

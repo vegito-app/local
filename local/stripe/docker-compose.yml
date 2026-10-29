@@ -2,7 +2,7 @@ services:
   stripe:
     restart: unless-stopped
     tty: true
-    image: ${LOCAL_STRIPE_IMAGE_LATEST:-${VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME}:stripe-latest}
+    image: ${LOCAL_STRIPE_IMAGE_LATEST:-${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:stripe-latest}
     env_file:
       - .env
     environment:

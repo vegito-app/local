@@ -1,6 +1,10 @@
 export VEGITO_EXAMPLE_APPLICATION_DIR ?= $(CURDIR)
 
-VEGITO_EXAMPLE_APPLICATION_PUBLIC_IMAGES_BASE ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/example-application
+export VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/example-application
+
+export VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):builder
+export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):backend
+export VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):mobile
 
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/frontend/frontend.mk
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/backend/backend.mk
@@ -81,10 +85,10 @@ example-application-docker-scan-tags-ci: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAK
 .PHONY: example-application-docker-scan-tags-ci
 
 $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-scan-tags-ci): vegito-docker-buildx-setup
-	@echo "Running Trivy scan for image: $(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION)"
+	@echo "Running Trivy scan for image: $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION)"
 	@echo "Report: $(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html"
 	@$(MAKE) local-trivy-image-scan \
-	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(VEGITO_LOCAL_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION) \
+	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):$(@:%-docker-scan-tags-ci=%)-$(VERSION) \
 	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=$(@:%-docker-scan-tags-ci=%)-$(VERSION)-trivy-report.html
 .PHONY: $(EXAMPLE_APPLICATION_DOCKER_BUILDX_BAKE_IMAGES:%=example-application-%-docker-group-tags-ci)
 

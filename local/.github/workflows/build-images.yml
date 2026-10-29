@@ -100,6 +100,7 @@ jobs:
       VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
       VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
       VEGITO_DOCKER_REGISTRIES: ${{ inputs.docker_registry_mode }}
+      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
 
     steps:
       - name: Checkout repository

@@ -1,4 +1,4 @@
-VEGITO_GO_VERSION = 1.27.2
+VEGITO_GO_VERSION = 1.27.3
 
 UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_M), x86_64)
