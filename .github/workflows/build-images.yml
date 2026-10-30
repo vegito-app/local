@@ -101,6 +101,7 @@ jobs:
       VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
       VEGITO_DOCKER_REGISTRIES: ${{ inputs.docker_registry_mode }}
       VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
+      VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER: ${{ vars.VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER }}
 
     steps:
       - name: Checkout repository
@@ -171,7 +172,6 @@ jobs:
       - name: Build Docker image
         env:
           LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS: ${{ inputs.images_ci_build_groups }}
-          # DOCKERHUB_REPLICA_VERSION: ${{ inputs.dockerhub_replica_version }}
         run: |
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log
