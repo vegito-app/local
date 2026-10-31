@@ -1,6 +1,10 @@
 VEGITO_PROJECT_NAME := vegito-local
-GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
+VEGITO_DOCKER_PUBLIC_REGISTRY ?= registry-public.vegito.app
 
+VEGITO_DOCKER_PUBLIC_REPOSITORY := $(or $(VEGITO_DOCKER_PUBLIC_REPOSITORY), $(VEGITO_DOCKER_PUBLIC_REGISTRY)/vegito-app)
+LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME := $(or $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME), $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local)
+
+GIT_HEAD_VERSION := $(shell git describe --tags --abbrev=7 --match "v*" 2>/dev/null)
 export VERSION ?= $(GIT_HEAD_VERSION)
 
 ifeq ($(strip $(VERSION)),)
@@ -84,10 +88,10 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
   vault-dev \
   robotframework
 
+-include git.mk
 -include docker.mk
 -include gcloud.mk
 -include android.mk
--include git.mk
 -include nodejs.mk
 -include go.mk
 

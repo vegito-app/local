@@ -67,7 +67,7 @@ variable "VEGITO_DOCKER_HUB_IMAGES_BASE_NAME" {
 }
 
 variable "VEGITO_DOCKER_PUBLIC_REGISTRY" {
-  default = "registry-public.vegito.app"
+  default = LOCAL_DOCKER_PUBLIC_REGISTRY
 }
 
 variable "VEGITO_DOCKER_PUBLIC_REPOSITORY" {
