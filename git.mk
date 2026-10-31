@@ -89,5 +89,6 @@ git-subtree-example-application-push:
 export VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):example-application-builder
 export VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGES_BASE ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):example-application-backend
 export VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):example-application-mobile
+
 -include $(VEGITO_EXAMPLE_APPLICATION_DIR)/example-application.mk
 # ------------------------------------------
