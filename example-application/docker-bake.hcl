@@ -124,10 +124,6 @@ group "vegito-example-application-release-ci" {
   ]
 }
 
-variable "VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME" {
-  default = "${VEGITO_EXAMPLE_APPLICATION_DOCKER_PUBLIC_REPOSITORY}/example-application"
-}
-
 variable "VEGITO_EXAMPLE_APPLICATION_BUILDER_IMAGES_BASE" {
   default = "${VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME}:builder"
 }
