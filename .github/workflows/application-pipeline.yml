@@ -3,9 +3,16 @@ name: Vegito Application Pipeline
 on:
   workflow_call:
     inputs:
+
+      docker_public_repository:
+        required: true
+        type: string
+        default: docker.io/vegitoapp
+        
       project:
         required: true
         type: string
+
       project_docker_repository:
         required: false
         type: string
@@ -124,6 +131,7 @@ jobs:
     uses: ./.github/workflows/build-images.yml
 
     with:
+      docker_public_repository: ${{ inputs.docker_public_repository }}
       version: ${{ needs.version-changelog.outputs.version }}
       environment: ${{ inputs.environment }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
