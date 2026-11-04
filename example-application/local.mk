@@ -21,7 +21,7 @@ git-subtree-local-push:
 .PHONY: git-subtree-local-push
 # ------------------------------------------
 # Version of the vegito-app/local development environment images to use:
-export LOCAL_VERSION ?= v1.27.0
+export LOCAL_VERSION ?= v1.27.4
 
 LOCAL_ROBOTFRAMEWORK_IMAGE_VERSION ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):robotframework-$(LOCAL_VERSION)
 LOCAL_TRIVY_IMAGE_VERSION ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):trivy-$(LOCAL_VERSION)
@@ -36,7 +36,7 @@ LOCAL_GO_MODULES = \
 
 LOCAL_ROBOTFRAMEWORK_TESTS_DIR ?= $(VEGITO_EXAMPLE_APPLICATION_TESTS_DIR)
 
-export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.11
+export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.12
 export LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-local
 
 export LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME ?= $(VEGITO_DOCKER_PUBLIC_REGISTRY)/vegito-local
@@ -75,7 +75,6 @@ LOCAL_DOCKER_COMPOSE_SERVICES ?= \
 -include $(LOCAL_DIR)/local.mk
 -include $(LOCAL_DIR)/android.mk
 -include $(LOCAL_DIR)/docker.mk
--include $(LOCAL_DIR)/docker-io.mk
 
 VEGITO_GCLOUD_DIR ?= $(LOCAL_DIR)/gcloud
 -include $(VEGITO_GCLOUD_DIR)/gcloud.mk
