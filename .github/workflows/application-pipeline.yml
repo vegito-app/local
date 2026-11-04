@@ -5,7 +5,7 @@ on:
     inputs:
 
       docker_public_repository:
-        required: true
+        required: false
         type: string
         default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
         
@@ -32,6 +32,7 @@ on:
         required: false
         type: string
         default: ${{ github.repository }}
+
       use_registry_cache:
         required: false
         type: boolean
@@ -60,14 +61,17 @@ on:
         required: false
         type: string
         default: prod
+
       android_release_keystore_path:
         required: false
         type: string
         default: .android.release-key.keystore
+
     outputs:
       version:
         description: "The version generated for this release"
         value: ${{ jobs.version-changelog.outputs.version }}
+        
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
