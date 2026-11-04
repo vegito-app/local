@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.1](https://github.com/vegito-app/example-application/compare/v1.9.0...v1.9.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* **pipeline:** mettre à jour les versions des workflows et la version locale à 1.27.4 ([d427c9b](https://github.com/vegito-app/example-application/commit/d427c9b5ac01d458a2effa5de175d4082fb13512))
+
+## [1.9.0](https://github.com/vegito-app/example-application/compare/v1.8.0...v1.9.0) (2026-11-04)
+
+
+### Features
+
+* **pipeline:** ajouter le support du dépôt Docker public dans le pipeline ([36fc7a8](https://github.com/vegito-app/example-application/commit/36fc7a852cd3f60b92fba63425a2524a0f2e98a6))
+
+
+### Bug Fixes
+
+* **local.mk:** mettre à jour la version des images Docker publiques à v0.0.12 ([1cfc666](https://github.com/vegito-app/example-application/commit/1cfc666dc3e8fd5ed27b24c2b0be777482fb028f))
+* **local.mk:** supprimer l'inclusion de docker-io.mk ([200303c](https://github.com/vegito-app/example-application/commit/200303c2aa9006fc810a69bb53048f02e1704cc3))
+* **Makefile:** corriger le nom de l'image Docker locale pour correspondre au projet ([2be10e5](https://github.com/vegito-app/example-application/commit/2be10e5b295639a982b5771e04335a2eb1ee8e97))
+* **pipeline:** mettre à jour les versions des workflows et de l'environnement à v1.27.1 ([7c05d69](https://github.com/vegito-app/example-application/commit/7c05d69501d82dc04798b4d97536d3bba1379329))
+* **pipeline:** mettre à jour les versions des workflows et de l'environnement local à v1.27.2 ([2569c4d](https://github.com/vegito-app/example-application/commit/2569c4d8d78e1a2d7717963ca59d69d024495b45))
+* **workflow:** corriger le chemin de l'image à scanner dans le pipeline de publication ([a5023bc](https://github.com/vegito-app/example-application/commit/a5023bc52c097d3210e304a1109b1dece519b2f4))
+* **workflow:** mettre à jour le chemin de l'image à scanner dans le pipeline de publication ([776dd0b](https://github.com/vegito-app/example-application/commit/776dd0b784f52d09db4c3388fef94d28e65e23e6))
+
 ## [1.8.0](https://github.com/vegito-app/example-application/compare/v1.7.2...v1.8.0) (2026-10-29)
 
 

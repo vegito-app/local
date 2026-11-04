@@ -65,6 +65,9 @@ jobs:
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
+      VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
+      VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

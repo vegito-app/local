@@ -3,9 +3,16 @@ name: Vegito Application Pipeline
 on:
   workflow_call:
     inputs:
+
+      docker_public_repository:
+        required: false
+        type: string
+        default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
+        
       project:
         required: true
         type: string
+
       project_docker_repository:
         required: false
         type: string
@@ -19,12 +26,13 @@ on:
       images_to_scan:
         required: false
         type: string
-        default: '["application-backend"]'
+        default: '["${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}/vegito-local:example-application-backend"]'
 
       release_bucket_prefix:
         required: false
         type: string
         default: ${{ github.repository }}
+
       use_registry_cache:
         required: false
         type: boolean
@@ -53,14 +61,17 @@ on:
         required: false
         type: string
         default: prod
+
       android_release_keystore_path:
         required: false
         type: string
         default: .android.release-key.keystore
+
     outputs:
       version:
         description: "The version generated for this release"
         value: ${{ jobs.version-changelog.outputs.version }}
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
@@ -124,6 +135,7 @@ jobs:
     uses: ./.github/workflows/build-images.yml
 
     with:
+      docker_public_repository: ${{ inputs.docker_public_repository }}
       version: ${{ needs.version-changelog.outputs.version }}
       environment: ${{ inputs.environment }}
       env_bucket_map: ${{ inputs.env_bucket_map }}
@@ -161,8 +173,7 @@ jobs:
       environment: ${{ inputs.environment }}
       docker_registry_mode: ${{ inputs.docker_registry_mode }}
       project: ${{ inputs.project }}
-      project_docker_repository: ${{ inputs.project_docker_repository }}
-      image_name: ${{ matrix.image }}
+      image_name: ${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
       severity: CRITICAL,HIGH
       exit-code: "1"
       env_bucket_map: ${{ inputs.env_bucket_map }}
