@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.27.2](https://github.com/vegito-app/local/compare/v1.27.1...v1.27.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* **trivy:** ajuster la référence d'image pour inclure la version et simplifier le scan ([491b24e](https://github.com/vegito-app/local/commit/491b24ecf9130c80fd64e141c4aca49893a585c9))
+
 ### [1.27.1](https://github.com/vegito-app/local/compare/v1.27.0...v1.27.1) (2026-11-03)
 
 
