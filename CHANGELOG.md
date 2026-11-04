@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.27.4](https://github.com/vegito-app/local/compare/v1.27.3...v1.27.4) (2026-11-04)
+
+
+### Bug Fixes
+
+* **workflow:** supprimer la variable docker_public_repository de la configuration de release ([0dea848](https://github.com/vegito-app/local/commit/0dea8480b42af1869761ed927ad53a0ff91cb02f))
+
 ### [1.27.3](https://github.com/vegito-app/local/compare/v1.27.2...v1.27.3) (2026-11-04)
 
 
