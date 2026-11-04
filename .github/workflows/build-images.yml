@@ -11,7 +11,7 @@ on:
       docker_public_repository:
         required: true
         type: string
-        default: docker.io/vegitoapp
+        default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
       has_mobile:
         required: false
         type: boolean

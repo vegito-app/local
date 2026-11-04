@@ -21,7 +21,7 @@ jobs:
       docker_registry_mode: dockerhub
       project_docker_repository: vegito-local
       docker_public_repository: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
-      images_to_scan: '["example-application-backend"]'
+      images_to_scan: '["${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}/vegito-local:example-application-backend"]'
       functional_tests_dir: example-application/tests/output
       has_mobile: true
       android_release_keystore_path: example-application/mobile/android/release-key.keystore

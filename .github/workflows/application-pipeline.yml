@@ -7,7 +7,7 @@ on:
       docker_public_repository:
         required: true
         type: string
-        default: docker.io/vegitoapp
+        default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
         
       project:
         required: true
@@ -26,7 +26,7 @@ on:
       images_to_scan:
         required: false
         type: string
-        default: '["application-backend"]'
+        default: '["${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}/vegito-local:example-application-backend"]'
 
       release_bucket_prefix:
         required: false
@@ -169,8 +169,7 @@ jobs:
       environment: ${{ inputs.environment }}
       docker_registry_mode: ${{ inputs.docker_registry_mode }}
       project: ${{ inputs.project }}
-      project_docker_repository: ${{ inputs.project_docker_repository }}
-      image_name: ${{ matrix.image }}
+      image_name: ${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
       severity: CRITICAL,HIGH
       exit-code: "1"
       env_bucket_map: ${{ inputs.env_bucket_map }}
