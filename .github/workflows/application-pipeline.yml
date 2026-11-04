@@ -71,7 +71,7 @@ on:
       version:
         description: "The version generated for this release"
         value: ${{ jobs.version-changelog.outputs.version }}
-        
+
     secrets:
       GOOGLE_CLOUD_PROJECT_ID:
         required: true
