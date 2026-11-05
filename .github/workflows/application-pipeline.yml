@@ -145,6 +145,19 @@ jobs:
       docker_registry_mode: ${{ inputs.docker_registry_mode }}
     secrets: inherit
 
+  upload-android-artifacts:
+    needs:
+      - build
+    name: Upload Android artifacts
+    uses: ./.github/workflows/upload-android-artifacts.yml
+    strategy:
+      matrix:
+        environment: [dev]
+    with:
+      version: dev-latest
+      environment: dev
+    secrets: inherit
+
   tests:
     name: Run Functional Tests
     needs: [build, version-changelog]
