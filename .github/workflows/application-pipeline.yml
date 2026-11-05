@@ -148,13 +148,14 @@ jobs:
   upload-android-artifacts:
     needs:
       - build
+      - version-changelog
     name: Upload Android artifacts
     uses: ./.github/workflows/upload-android-artifacts.yml
     strategy:
       matrix:
         environment: [dev]
     with:
-      version: dev-latest
+      version: ${{ needs.version-changelog.outputs.version }}
       environment: dev
     secrets: inherit
 
