@@ -10,16 +10,15 @@ on:
 jobs:
   build:
     name: Build and Push Images
-    uses: vegito-app/local/.github/workflows/build-images.yml@main
+    uses: vegito-app/local/.github/workflows/build-images.yml@v1.27.5
     strategy:
       matrix:
         environment: [dev]
     with:
       version: dev-latest
       environment: ${{ matrix.environment }}
+      docker_public_repository: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
       android_release_keystore_path: mobile/android/release-key.keystore
-      android_release_keystore_base64_path: mobile/android/release-key.keystore.base64
-      android_release_keystore_store_pass_base64_path: mobile/android/release-key.keystore.storepass.base64
       env_bucket_map: |
         dev: vegito-app-dev-github-actions-ci-artifacts
     secrets:
@@ -34,7 +33,7 @@ jobs:
     needs:
       - build
     name: Run Tests
-    uses: vegito-app/local/.github/workflows/functional-tests.yml@main
+    uses: vegito-app/local/.github/workflows/functional-tests.yml@v1.27.5
     strategy:
       matrix:
         environment: [dev]
