@@ -28,6 +28,7 @@ jobs:
       environment: dev
       android_release_keystore_path: example-application/mobile/android/release-key.keystore
       android_release_keystore_base64_path: example-application/mobile/android/release-key.keystore.base64
+      has_mobile: true
       android_release_keystore_store_pass_base64_path: example-application/mobile/android/release-key.keystore.storepass.base64
       images_ci_build_groups: "runners builders services applications"
       dockerhub_replica_version: 1.9.0
@@ -53,6 +54,7 @@ jobs:
     with:
       version: dev-latest
       environment: dev
+      has_mobile: true
     secrets: inherit
 
   test:
@@ -63,6 +65,7 @@ jobs:
     with:
       version: dev-latest
       environment: dev
+      has_mobile: true
       functional-tests-output-dir: example-application/tests/output
       local-android-container-name: example-application-mobile
     secrets:
