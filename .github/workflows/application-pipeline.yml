@@ -185,7 +185,6 @@ jobs:
     
     with:
       environment: ${{ inputs.environment }}
-      docker_registry_mode: ${{ inputs.docker_registry_mode }}
       project: ${{ inputs.project }}
       image_name: ${{ matrix.image }}-${{ needs.version-changelog.outputs.version }}
       severity: CRITICAL,HIGH
