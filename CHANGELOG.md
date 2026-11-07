@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.29.0](https://github.com/vegito-app/local/compare/v1.28.1...v1.29.0) (2026-11-07)
+
+
+### Features
+
+* **workflows:** ajouter le support de has_mobile dans les workflows d'application ([a41a10d](https://github.com/vegito-app/local/commit/a41a10d3dbe3206216d15238bc7fad608076866a))
+
+
+### Bug Fixes
+
+* **local.mk:** mettre à jour la version des images Docker publiques à v0.0.16 ([db61a3e](https://github.com/vegito-app/local/commit/db61a3e729395be94c3b6c692dda4d1e1e75be5f))
+
 ### [1.28.1](https://github.com/vegito-app/local/compare/v1.28.0...v1.28.1) (2026-11-06)
 
 ## [1.28.0](https://github.com/vegito-app/local/compare/v1.27.5...v1.28.0) (2026-11-06)
