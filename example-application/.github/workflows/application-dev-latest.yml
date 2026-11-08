@@ -29,6 +29,19 @@ jobs:
       ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
 
+  upload-android-artifacts:
+    needs:
+      - checkout
+    name: Build and Push Images
+    uses: ./.github/workflows/upload-android-artifacts.yml
+    strategy:
+      matrix:
+        environment: [dev]
+    with:
+      version: dev-latest
+      environment: dev
+    secrets: inherit
+
   test:
     needs:
       - build
