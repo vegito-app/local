@@ -5,14 +5,10 @@ permissions:
 on:
   workflow_call:
     inputs:
-      docker_registry_mode:
-        required: true
-        type: string
 
       project:
         required: true
         type: string
-
 
       image_name:
         required: true
@@ -134,7 +130,6 @@ jobs:
 
       - name: Run Trivy scan (HTML report)
         env:
-          REGISTRY_MODE: ${{ inputs.docker_registry_mode }}
           PROJECT: ${{ inputs.project }}
           GCP_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
           DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}

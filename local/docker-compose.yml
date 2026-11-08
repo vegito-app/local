@@ -98,7 +98,6 @@ services:
       LOCAL_ANDROID_CONTAINER_EXEC: ""
 
       DISPLAY: ${LOCAL_ANDROID_STUDIO_XPRA_DISPLAY:-:1}
-      WAYLAND_DISPLAY_NAME: $LOCAL_ANDROID_STUDIO_XPRA_WAYLAND_DISPLAY_NAME:-wayland-1}
 
     privileged: true
     volumes:

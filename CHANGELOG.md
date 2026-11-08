@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/vegito-app/example-application/compare/v1.9.2...v1.10.0) (2026-11-08)
+
+
+### Features
+
+* **pipeline:** mettre à jour les versions des workflows et ajouter le job d'upload des artefacts Android ([0412146](https://github.com/vegito-app/example-application/commit/0412146804b662736f52c1014408d5fab6d13c14))
+* **pipeline:** mettre à jour les workflows vers la version 1.29.0 ([ee2fe6b](https://github.com/vegito-app/example-application/commit/ee2fe6b8752420f2ce15e202dca7cb2d234a2368))
+
+
+### Bug Fixes
+
+* **Makefile:** corriger une faute de frappe dans la déclaration de la cible .PHONY pour application-mobile-dump ([82ee41a](https://github.com/vegito-app/example-application/commit/82ee41ae5e3a7a4ef8eec0d7add8abab559cd5f6))
+
+### [1.9.2](https://github.com/vegito-app/example-application/compare/v1.9.1...v1.9.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **pipeline:** mettre à jour la version des images Docker publiques à v0.0.13 ([a71f161](https://github.com/vegito-app/example-application/commit/a71f16119d33991ea12e0f04cc35c4e39797a030))
+* **pipeline:** mettre à jour les versions des workflows et de l'environnement local à 1.27.5 ([74e8e3a](https://github.com/vegito-app/example-application/commit/74e8e3af766497a88057be3dfe9eb7d95d489321))
+
 ### [1.9.1](https://github.com/vegito-app/example-application/compare/v1.9.0...v1.9.1) (2026-11-04)
 
 
