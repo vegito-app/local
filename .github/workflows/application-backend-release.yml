@@ -4,11 +4,6 @@ on:
   workflow_call:
     inputs:
 
-      docker_public_repository:
-        required: false
-        type: string
-        default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
-        
       project:
         required: true
         type: string
@@ -135,7 +130,6 @@ jobs:
     uses: ./.github/workflows/build-images.yml
 
     with:
-      docker_public_repository: ${{ inputs.docker_public_repository }}
       version: ${{ needs.version-changelog.outputs.version }}
       environment: ${{ inputs.environment }}
       env_bucket_map: ${{ inputs.env_bucket_map }}

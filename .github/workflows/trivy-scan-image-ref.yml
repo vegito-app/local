@@ -70,7 +70,7 @@ jobs:
     env:
       GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
       GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       VERSION: ${{ inputs.version }}
       INFRA_ENV: ${{ inputs.environment }}
       VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
@@ -131,7 +131,7 @@ jobs:
       - name: Run Trivy scan (HTML report)
         env:
           PROJECT: ${{ inputs.project }}
-          GCP_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          GCP_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
           LOCAL_TRIVY_IMAGE_SCAN_INPUT: ${{ inputs.image_name }}
           LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY: ${{ inputs.severity }}

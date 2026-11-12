@@ -8,10 +8,6 @@ on:
       environment:
         required: true
         type: string
-      docker_public_repository:
-        required: true
-        type: string
-        default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
       has_mobile:
         required: false
         type: boolean
@@ -57,27 +53,6 @@ on:
         required: false
         type: string
         default: "gcr"
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
-        required: true
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
-        required: true
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-      ANDROID_RELEASE_KEYSTORE:
-        required: false
-      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
-        required: false
-      FACEBOOK_APP_ID:
-        required: false
-      FACEBOOK_CLIENT_TOKEN:
-        required: false
-      VEGITO_DOCKERHUB_PAT:
-        required: false
-      VEGITO_DOCKERHUB_USERNAME:
-        required: false
 
 permissions:
   id-token: write
@@ -92,7 +67,7 @@ jobs:
       VEGITO_PROJECT_NAME: local-${{ inputs.environment }}-${{ github.ref_name }}-${{ github.run_id }}
       VEGITO_PROJECT_USER: gha-${{ github.run_id }}-${{ inputs.environment }}
       VERSION: ${{ inputs.version }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
       USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
       LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
@@ -104,7 +79,7 @@ jobs:
       VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
       VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
       VEGITO_DOCKER_REGISTRIES: ${{ inputs.docker_registry_mode }}
-      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ inputs.docker_public_repository }}
+      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
       VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER: ${{ vars.VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER }}
 
     steps:
@@ -130,9 +105,9 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
-          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
 
@@ -182,7 +157,7 @@ jobs:
 
       - name: Upload images-build.log to GCS
         run: |
-          if ! gcloud storage cp images-build.log gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/images-build.log; then
+          if ! gcloud storage cp images-build.log gs://${VEGITO_RELEASE_BUCKET}/${{ inputs.version }}/images-build.log; then
             echo "::warning::failed to upload images-build.log"
           fi
 
@@ -190,7 +165,7 @@ jobs:
         id: docker_tags
         run: |
           make docker-tags-md-ci > docker-tags.md
-          if ! gcloud storage cp docker-tags.md gs://${{ env.VEGITO_RELEASE_BUCKET }}/${{ inputs.version }}/docker-tags.md; then
+          if ! gcloud storage cp docker-tags.md gs://${VEGITO_RELEASE_BUCKET}/${{ inputs.version }}/docker-tags.md; then
             echo "::warning::failed to upload docker-tags.md"
           fi
 
