@@ -1,3 +1,7 @@
+variable "LOCAL_TRIVY_DIR" {
+  default = "."
+}
+
 variable "LOCAL_TRIVY_IMAGE_BASE" {
   default = "${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trivy"
 }
@@ -56,7 +60,7 @@ target "local-trivy-version-ci" {
   args = {
     trivy_version = TRIVY_VERSION
   }
-  context    = "${LOCAL_DIR}/trivy"
+  context    = LOCAL_TRIVY_DIR
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_TRIVY_IMAGE_VERSION,
@@ -87,7 +91,7 @@ target "local-trivy-latest-ci" {
   args = {
     trivy_version = TRIVY_VERSION
   }
-  context    = "${LOCAL_DIR}/trivy"
+  context    = LOCAL_TRIVY_DIR
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_TRIVY_IMAGE_LATEST
@@ -124,7 +128,7 @@ target "local-trivy" {
   args = {
     trivy_version = TRIVY_VERSION
   }
-  context    = "${LOCAL_DIR}/trivy"
+  context    = LOCAL_TRIVY_DIR
   dockerfile = "Dockerfile"
   tags = [
     LOCAL_TRIVY_IMAGE_LATEST,
