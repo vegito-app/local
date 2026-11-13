@@ -61,7 +61,7 @@ jobs:
       VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
       VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
       VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -78,6 +78,8 @@ jobs:
           export_environment_variables: true
 
       - name: Configure Cloud SDK and Docker
+        env:
+          GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
         run: |
           make gcloud-config-set-project
           make docker-login
