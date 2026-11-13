@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.29.2](https://github.com/vegito-app/local/compare/v1.29.1...v1.29.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* ajouter la variable d'environnement VEGITO_DOCKER_PUBLIC_REPOSITORY pour le scan Trivy ([8f8fb97](https://github.com/vegito-app/local/commit/8f8fb9761339027deb604399ba40579ad8b9a43a))
+* corriger le nom de l'image Docker pour le projet Debian ([836e2eb](https://github.com/vegito-app/local/commit/836e2eb489f566b2efa1867715398d1ba80e722d))
+* mettre à jour la version de Trivy à 0.76.2 ([38fa6fb](https://github.com/vegito-app/local/commit/38fa6fb10b64e0f7069f2ea93e240223e9a8c01e))
+* mettre à jour le dépôt Docker public pour l'application exemple ([9d5889a](https://github.com/vegito-app/local/commit/9d5889acaeaab49417452f58d2e02c64d1148652))
+* supprimer les secrets Google Cloud non nécessaires dans les workflows ([944277d](https://github.com/vegito-app/local/commit/944277da32767fc1ff870defc402a8ca506c534a))
+
 ### [1.29.1](https://github.com/vegito-app/local/compare/v1.29.0...v1.29.1) (2026-11-08)
 
 ## [1.29.0](https://github.com/vegito-app/local/compare/v1.28.1...v1.29.0) (2026-11-07)
