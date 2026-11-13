@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.29.4](https://github.com/vegito-app/local/compare/v1.29.3...v1.29.4) (2026-11-13)
+
+
+### Bug Fixes
+
+* ajouter la variable d'environnement GOOGLE_CLOUD_PROJECT_ID dans le workflow de scan Trivy ([7512523](https://github.com/vegito-app/local/commit/751252398cb0f4cb1d5cae985dfe34fa74871811))
+
 ### [1.29.3](https://github.com/vegito-app/local/compare/v1.29.2...v1.29.3) (2026-11-13)
 
 
