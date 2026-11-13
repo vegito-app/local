@@ -39,14 +39,6 @@ on:
           staging: vegito-app-staging-github-actions-ci-artifacts-private
           prod: vegito-app-prod-github-actions-ci-artifacts-private
 
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
-        required: true
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-
 permissions:
   id-token: write
   contents: write
