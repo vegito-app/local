@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.29.3](https://github.com/vegito-app/local/compare/v1.29.2...v1.29.3) (2026-11-13)
+
+
+### Bug Fixes
+
+* supprimer les secrets Google Cloud non nécessaires dans le workflow de déploiement ([3a68f1c](https://github.com/vegito-app/local/commit/3a68f1c909192590d7a1bf30da04d53fcf9b718b))
+
 ### [1.29.2](https://github.com/vegito-app/local/compare/v1.29.1...v1.29.2) (2026-11-13)
 
 
