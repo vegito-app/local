@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.29.6](https://github.com/vegito-app/local/compare/v1.29.5...v1.29.6) (2026-11-14)
+
 ### [1.29.5](https://github.com/vegito-app/local/compare/v1.29.4...v1.29.5) (2026-11-14)
 
 
