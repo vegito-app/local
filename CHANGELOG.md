@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.31.2](https://github.com/vegito-app/local/compare/v1.31.1...v1.31.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* **ci, trivy:** corriger la condition d'exécution pour le téléchargement des artefacts Android et supprimer une variable d'image Trivy inutile ([b60a35d](https://github.com/vegito-app/local/commit/b60a35d6d9bbebcceec492c34fe46da59a92edc3))
+
 ### [1.31.1](https://github.com/vegito-app/local/compare/v1.31.0...v1.31.1) (2026-11-14)
 
 ## [1.31.0](https://github.com/vegito-app/local/compare/v1.30.0...v1.31.0) (2026-11-14)
