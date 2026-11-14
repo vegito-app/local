@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.31.0](https://github.com/vegito-app/local/compare/v1.30.0...v1.31.0) (2026-11-14)
+
+
+### Features
+
+* exporter les variables LOCAL_STRIPE_DIR, LOCAL_STRIPE_IMAGE_VERSION et LOCAL_STRIPE_IMAGE_LATEST ([99f66d2](https://github.com/vegito-app/local/commit/99f66d20bf1ecf1b6ab82bcd129e370367b25aa0))
+
 ## [1.30.0](https://github.com/vegito-app/local/compare/v1.29.5...v1.30.0) (2026-11-14)
 
 
