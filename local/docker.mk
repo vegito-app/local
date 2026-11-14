@@ -95,7 +95,7 @@ vegito-docker-build-tags-list-ci-md:
 	  echo "#### Group: '$$group'" ; \
 	 $(MAKE) $$group-docker-group-tags-list-ci \
 	 | grep -vE 'latest$$' \
-	 | grep -v 'make\[1\]\:' \
+	 | grep -v 'make\[2\]' \
 	 | sed 's/^/- /' || echo "_no tags for group '$$group'_" ; \
 	  echo "" ; \
 	done

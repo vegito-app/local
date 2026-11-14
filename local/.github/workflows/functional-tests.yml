@@ -39,14 +39,6 @@ on:
         type: string
         default: ${{ github.repository }}
 
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
-        required: true
-
 permissions:
   id-token: write
   contents: read
@@ -63,7 +55,7 @@ jobs:
       LOCAL_ANDROID_EMULATOR_AVD_HEADLESS_ARGS: ${{ vars.ANDROID_EMULATOR_HEADLESS == 'true' && '-no-window' || '' }}
       LOCAL_ANDROID_EMULATOR_SCREENSHOT_PATH: android-mobile-${{ inputs.environment }}-${{ inputs.version }}-screenshot.png
       VERSION: ${{ inputs.version }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+      GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
       VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
       VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
@@ -77,9 +69,9 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
-          project_id: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           token_format: "access_token"
           export_environment_variables: true
 

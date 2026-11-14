@@ -4,11 +4,6 @@ on:
   workflow_call:
     inputs:
 
-      docker_public_repository:
-        required: false
-        type: string
-        default: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
-        
       project:
         required: true
         type: string
@@ -72,38 +67,6 @@ on:
         description: "The version generated for this release"
         value: ${{ jobs.version-changelog.outputs.version }}
 
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_PROJECT_NUMBER:
-        required: true
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
-        required: true
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-
-      RELEASE_READER_GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      RELEASE_READER_GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
-        required: true
-      RELEASE_READER_GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
-        required: true
-
-      ANDROID_RELEASE_KEYSTORE:
-        required: false
-      ANDROID_RELEASE_KEYSTORE_STORE_PASS:
-        required: false
-
-      FACEBOOK_APP_ID:
-        required: false
-      FACEBOOK_CLIENT_TOKEN:
-        required: false
-
-      VEGITO_DOCKERHUB_PAT:
-        required: false
-      VEGITO_DOCKERHUB_USERNAME:
-        required: false
-  
 permissions:
   id-token: write
   contents: write
@@ -135,7 +98,6 @@ jobs:
     uses: ./.github/workflows/build-images.yml
 
     with:
-      docker_public_repository: ${{ inputs.docker_public_repository }}
       version: ${{ needs.version-changelog.outputs.version }}
       environment: ${{ inputs.environment }}
       env_bucket_map: ${{ inputs.env_bucket_map }}

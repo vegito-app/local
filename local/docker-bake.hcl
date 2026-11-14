@@ -83,7 +83,7 @@ variable "VEGITO_DOCKER_DEBIAN_CONTEXT" {
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_CONTEXT" {
-  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
+  default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-project-docker-terraform-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
 variable "VEGITO_DOCKER_DEBIAN_PROJECT_GOLANG_CONTEXT" {

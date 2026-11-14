@@ -1,6 +1,6 @@
 export LOCAL_VAULT_DEV_IMAGE_VERSION ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):vault-dev-$(VERSION)
 
-export LOCAL_VAULT_DEV_DIR ?= $(LOCAL_DIR)/vault-dev
+export LOCAL_VAULT_DEV_DIR ?= $(CURDIR)
 
 local-vault-dev-container-up: local-vault-dev-container-rm
 	@$(LOCAL_VAULT_DEV_DIR)/container-up.sh

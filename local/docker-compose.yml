@@ -11,6 +11,7 @@ services:
     environment:
       LOCAL_WORKSPACE: ${PWD}
       GCLOUD: gcloud
+      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${VEGITO_DOCKER_PUBLIC_REPOSITORY:-docker.io/vegitoapp}
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock

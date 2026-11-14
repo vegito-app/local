@@ -6,7 +6,7 @@ export VEGITO_EXAMPLE_APPLICATION_MOBILE_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BAS
 
 export VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):mobile
 
-export VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE       ?= $(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE)-$(VERSION)
+export VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION       ?= $(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGES_BASE)-$(VERSION)
 
 example-application-mobile-container-up: example-application-mobile-container-rm
 	@echo "Starting mobile application container..."
@@ -239,6 +239,6 @@ example-application-mobile-dump:
 
 example-application-mobile-extract-android-artifacts:
 	@echo "Extracting Android release artifacts from mobile application image..."
-	@LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE) \
+	@LOCAL_ANDROID_MOBILE_IMAGE=$(VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION) \
 	  $(MAKE) local-android-mobile-image-tag-release-extract
 .PHONY: example-application-mobile-extract-android-artifacts

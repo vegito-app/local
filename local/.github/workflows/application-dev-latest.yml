@@ -33,15 +33,8 @@ jobs:
       images_ci_build_groups: "runners builders services applications"
       dockerhub_replica_version: 1.9.0
       docker_registry_mode: dockerhub
-      docker_public_repository: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
 
-    secrets:
-      GOOGLE_CLOUD_PROJECT_NUMBER: ${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
-      ANDROID_RELEASE_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_STORE_PASS }}
+    secrets: inherit
 
   upload-android-artifacts:
     needs:
@@ -68,7 +61,4 @@ jobs:
       has_mobile: true
       functional-tests-output-dir: example-application/tests/output
       local-android-container-name: example-application-mobile
-    secrets:
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: github-actions-main@${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+    secrets: inherit

@@ -26,3 +26,8 @@ vscode.*
 firebase-emulators/firebase.json
 *trivy*report.html
 *-logs
+*.aab
+*.Apk
+*.android-release-key.*
+*.apk
+*.keystore.sha1

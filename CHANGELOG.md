@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.11.2](https://github.com/vegito-app/example-application/compare/v1.11.1...v1.11.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* mettre à jour les versions des workflows et des images Docker à v1.29.5 ([6f240bf](https://github.com/vegito-app/example-application/commit/6f240bf67d255e222c4969940c2ce1a35026aff8))
+
+### [1.11.1](https://github.com/vegito-app/example-application/compare/v1.11.0...v1.11.1) (2026-11-13)
+
+
+### Bug Fixes
+
+* ajuster le filtrage des messages d'erreur dans la génération des balises Docker markdown pour CI ([3d5cc12](https://github.com/vegito-app/example-application/commit/3d5cc124d92db73a267dcc98824b2d45a8c4d11b))
+* corriger l'espacement dans le filtre grep pour la génération de la liste des tags Docker ([1b0ccef](https://github.com/vegito-app/example-application/commit/1b0ccefe011d3aa7c412de90f4eba7fac7cf7eb2))
+* renommer les variables d'image mobile pour inclure la version ([83dd317](https://github.com/vegito-app/example-application/commit/83dd31788e47ddd6419b5cd7ec04f031fe7771e4))
+
+## [1.11.0](https://github.com/vegito-app/example-application/compare/v1.10.3...v1.11.0) (2026-11-13)
+
+
+### Features
+
+* ajouter une cible pour générer des balises Docker markdown pour CI ([0484a91](https://github.com/vegito-app/example-application/commit/0484a91838ba5f4ae44b1cb66d888da0af034fc5))
+
+### [1.10.3](https://github.com/vegito-app/example-application/compare/v1.10.2...v1.10.3) (2026-11-13)
+
+
+### Bug Fixes
+
+* réorganiser les paramètres d'entrée pour les workflows de version et de construction ([4f19db2](https://github.com/vegito-app/example-application/commit/4f19db2b51804f05d6095578c9e85e242d728e1b))
+
+### [1.10.2](https://github.com/vegito-app/example-application/compare/v1.10.1...v1.10.2) (2026-11-13)
+
+### [1.10.1](https://github.com/vegito-app/example-application/compare/v1.10.0...v1.10.1) (2026-11-11)
+
 ## [1.10.0](https://github.com/vegito-app/example-application/compare/v1.9.2...v1.10.0) (2026-11-08)
 
 

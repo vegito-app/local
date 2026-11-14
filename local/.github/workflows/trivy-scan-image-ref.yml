@@ -50,32 +50,18 @@ on:
         description: "Release version (used as GCS path)"
         required: true
         type: string
-
-    secrets:
-      VEGITO_DOCKERHUB_USERNAME:
-        required: false
-      VEGITO_DOCKERHUB_PAT:
-        required: false
-      GOOGLE_CLOUD_PROJECT_ID:
-        required: true
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL:
-        required: true
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER:
-        required: true
 jobs:
   trivy-scan:
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     name: Trivy Scan (${{ inputs.environment }})
     env:
-      GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
-      GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
-      GOOGLE_CLOUD_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
       VERSION: ${{ inputs.version }}
       INFRA_ENV: ${{ inputs.environment }}
       VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
       VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
-      
+      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -85,13 +71,15 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ env.GOOGLE_CLOUD_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.GOOGLE_CLOUD_SERVICE_ACCOUNT_EMAIL }}
-          project_id: ${{ env.GOOGLE_CLOUD_PROJECT_ID }}
-          token_format: access_token
+          workload_identity_provider: projects/${{ vars.GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ vars.WORKLOAD_IDENTITY_POOL_ID }}/providers/${{ vars.WORKLOAD_IDENTITY_PROVIDER_ID }}
+          service_account: github-actions-main@${{ vars.GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+          project_id: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
+          token_format: "access_token"
           export_environment_variables: true
 
       - name: Configure Cloud SDK and Docker
+        env:
+          GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
         run: |
           make gcloud-config-set-project
           make docker-login
@@ -131,12 +119,13 @@ jobs:
       - name: Run Trivy scan (HTML report)
         env:
           PROJECT: ${{ inputs.project }}
-          GCP_PROJECT_ID: ${{ secrets.GOOGLE_CLOUD_PROJECT_ID }}
+          GCP_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
           DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
           LOCAL_TRIVY_IMAGE_SCAN_INPUT: ${{ inputs.image_name }}
           LOCAL_TRIVY_IMAGE_SCAN_INPUT_SEVERITY: ${{ inputs.severity }}
           LOCAL_TRIVY_IMAGE_SCAN_INPUT_EXIT_CODE: ${{ inputs.exit-code }}
           LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML: trivy-report.html
+
         run: |
           echo "🔎 Running Trivy scan on ${LOCAL_TRIVY_IMAGE_SCAN_INPUT_IMAGE}"
           make local-trivy-image-scan
