@@ -109,7 +109,7 @@ jobs:
     secrets: inherit
 
   upload-android-artifacts:
-    if: inputs.has_mobile == true
+    if: ${{ inputs.has_mobile }}
     needs:
       - build
       - version-changelog
