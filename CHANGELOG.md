@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.29.5](https://github.com/vegito-app/local/compare/v1.29.4...v1.29.5) (2026-11-14)
+
+
+### Bug Fixes
+
+* restaurer le keystore de release Android si l'application mobile est présente ([8ddd1e1](https://github.com/vegito-app/local/commit/8ddd1e11e9fba63a3f35b6c2f237f242e9041673))
+
 ### [1.29.4](https://github.com/vegito-app/local/compare/v1.29.3...v1.29.4) (2026-11-13)
 
 
