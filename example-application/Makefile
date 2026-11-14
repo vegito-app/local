@@ -12,7 +12,7 @@ VEGITO_DOCKER_PUBLIC_REPOSITORY ?= docker.io/vegitoapp
 
 VEGITO_DOCKER_PUBLIC_REPOSITORY := $(or $(VEGITO_DOCKER_PUBLIC_REPOSITORY), $(VEGITO_DOCKER_PUBLIC_REGISTRY)/vegito-app)
 VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME := $(or $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME), $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/$(VEGITO_PROJECT_NAME))
-VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):mobile-$(VERSION)
+VEGITO_EXAMPLE_APPLICATION_MOBILE_IMAGE_VERSION ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):mobile-$(VERSION)
 VEGITO_EXAMPLE_APPLICATION_BACKEND_IMAGE ?= $(VEGITO_EXAMPLE_APPLICATION_PUBLIC_DOCKER_IMAGES_BASE_NAME):backend-$(VERSION)
 
 -include example-application.mk
@@ -115,7 +115,11 @@ application-mobile-dump: example-application-mobile-dump
 	@echo "✅ Dumped mobile application successfully."
 .PHONY: application-mobile-dump
 
-docker-tags-md-ci: vegito-docker-build-tags-list-ci-md
+docker-tags-md-ci: 
+	@echo "Generating Docker tags markdown for CI..."	
+	@$(MAKE) VEGITO_DOCKER_BUILDX_BUILD_GROUPS=vegito-example-application \
+	   vegito-docker-build-tags-list-ci-md 2>/dev/null \
+	| grep -v 'make\[1\]'
 .PHONY: docker-tags-md-ci
 
 docker-login: vegito-docker-login
