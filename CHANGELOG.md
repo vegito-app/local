@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.30.0](https://github.com/vegito-app/local/compare/v1.29.5...v1.30.0) (2026-11-14)
+
+
+### Features
+
+* ajouter le groupe local-stripe aux configurations de développement ([2c99cc2](https://github.com/vegito-app/local/commit/2c99cc26cad93b037091caff8d70a40a3e3c1f16))
+
 ### [1.29.5](https://github.com/vegito-app/local/compare/v1.29.4...v1.29.5) (2026-11-14)
 
 
