@@ -126,6 +126,7 @@ group "local-dev" {
     "local-github-actions-runner",
     "local-robotframework",
     "local-vault-dev",
+    "local-stripe",
     "local-trivy",
   ]
 }
@@ -139,6 +140,7 @@ group "local-dev-ci" {
     "local-github-actions-runner-ci",
     "local-robotframework-ci",
     "local-vault-dev-ci",
+    "local-stripe-ci",
     "local-trivy-ci",
   ]
 }
