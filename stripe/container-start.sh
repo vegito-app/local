@@ -26,8 +26,9 @@ echo "[entrypoint] Starting Stripe listener..."
 : "STRIPE_DEBUG_KEY is set to '$STRIPE_DEBUG_KEY'"
 
 stripe listen \
-  --forward-to ${STRIPE_FORWARD_TO} \
-  --api-key ${STRIPE_DEBUG_KEY} > /tmp/stripe.log 2>&1 &
+  --all-snapshot \
+  --forward-to "${STRIPE_FORWARD_TO:-http://localhost:8888/webhooks/stripe}" \
+  --api-key "${STRIPE_DEBUG_KEY}" > /tmp/stripe.log 2>&1 &
 stripe_pid=$!
 
 # Wait for Stripe CLI to output the webhook secret
