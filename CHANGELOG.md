@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.32.0](https://github.com/vegito-app/local/compare/v1.31.2...v1.32.0) (2026-11-15)
+
+
+### Features
+
+* **ci:** ajouter l'option --all-snapshot lors du démarrage de l'écouteur Stripe ([42b5d3e](https://github.com/vegito-app/local/commit/42b5d3e2c1926f31ed61130c21d7045a9258c3bf))
+
 ### [1.31.2](https://github.com/vegito-app/local/compare/v1.31.1...v1.31.2) (2026-11-14)
 
 
