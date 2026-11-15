@@ -1,64 +1,93 @@
 #!/bin/bash
-
 set -euo pipefail
 
-# 📌 List of PIDs of background processes
-bg_pids=()
-stripe_pid=
+STRIPE_LOG="/tmp/stripe.log"
 
-# 🧹 Function called at the end of the script to kill background processes
-kill_jobs() {
-    echo "🧼 Cleaning up background processes..."
-    for pid in "${bg_pids[@]}"; do
-        kill "$pid" || true
-        wait "$pid" 2>/dev/null || true
-    done
+bg_pids=()
+
+cleanup() {
+  trap - EXIT INT TERM
+
+  echo "[entrypoint] Cleaning up background processes..."
+
+  for pid in "${bg_pids[@]}"; do
+    kill "$pid" 2>/dev/null || true
+  done
+
+  for pid in "${bg_pids[@]}"; do
+    wait "$pid" 2>/dev/null || true
+  done
 }
 
-# 🚨 Register cleanup function to run on script exit
-
-trap kill_jobs EXIT
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 echo "[entrypoint] Starting Stripe listener..."
 
-# 🚨 Check that STRIPE_FORWARD_TO is set
-: "STRIPE_FORWARD_TO is set to '$STRIPE_FORWARD_TO'"
-: "STRIPE_DEBUG_KEY is set to '$STRIPE_DEBUG_KEY'"
+: "${STRIPE_DEBUG_KEY:?STRIPE_DEBUG_KEY is required}"
 
 stripe listen \
-  --forward-to ${STRIPE_FORWARD_TO} \
-  --api-key ${STRIPE_DEBUG_KEY} > /tmp/stripe.log 2>&1 &
-stripe_pid=$!
+  --all-snapshot \
+  --forward-to "${STRIPE_FORWARD_TO:-http://localhost:8888/webhooks/stripe}" \
+  --api-key "${STRIPE_DEBUG_KEY}" \
+  > "$STRIPE_LOG" 2>&1 &
 
-# Wait for Stripe CLI to output the webhook secret
+stripe_pid=$!
+bg_pids+=("$stripe_pid")
+
 echo "[entrypoint] Waiting for Stripe webhook secret..."
-for i in $(seq 1 10); do
-  if grep -q 'whsec_' /tmp/stripe.log; then
+
+LOCAL_STRIPE_WEBHOOK_SECRET=""
+
+for i in $(seq 1 15); do
+
+  if ! kill -0 "$stripe_pid" 2>/dev/null; then
+    echo "[entrypoint] ERROR: Stripe CLI stopped unexpectedly"
+    cat "$STRIPE_LOG"
+    exit 1
+  fi
+
+  LOCAL_STRIPE_WEBHOOK_SECRET=$(
+    grep -oE 'whsec_[A-Za-z0-9]+' "$STRIPE_LOG" | head -n1 || true
+  )
+
+  if [ -n "$LOCAL_STRIPE_WEBHOOK_SECRET" ]; then
     break
   fi
+
   sleep 1
 done
 
-LOCAL_STRIPE_WEBHOOK_SECRET=$(grep -o 'whsec_[^ ]*' /tmp/stripe.log | head -n1 || true)
-if [ -z "${LOCAL_STRIPE_WEBHOOK_SECRET}" ]; then
-  echo "[entrypoint] WARNING: could not retrieve Stripe webhook secret"
-else
-  # Write env file for manual sourcing
-  cat <<EOF > /tmp/stripe_env.sh
-#!/bin/sh
-export LOCAL_STRIPE_WEBHOOK_SECRET=$LOCAL_STRIPE_WEBHOOK_SECRET
-EOF
-
-  cat <<EOF > ~/.stripe_env
-export LOCAL_STRIPE_WEBHOOK_SECRET=$LOCAL_STRIPE_WEBHOOK_SECRET
-EOF
-
-  grep -qxF 'source ~/.stripe_env' ~/.profile || echo 'source ~/.stripe_env' >> ~/.profile
-
-  echo "[entrypoint] Webhook secret set: $LOCAL_STRIPE_WEBHOOK_SECRET"
-  echo "[entrypoint] Env written to /tmp/stripe_env.sh"
-  echo "[entrypoint] Env also propagated globally via /etc/profile.d/stripe.sh"
+if [ -z "$LOCAL_STRIPE_WEBHOOK_SECRET" ]; then
+  echo "[entrypoint] ERROR: Stripe webhook secret timeout"
+  cat "$STRIPE_LOG"
+  exit 1
 fi
 
-# Wait for Stripe CLI to exit
-wait $stripe_pid
+echo "[entrypoint] Stripe webhook secret retrieved"
+
+# Write environment files
+umask 077
+
+cat > /tmp/stripe_env.sh <<EOF
+#!/bin/sh
+export LOCAL_STRIPE_WEBHOOK_SECRET='$LOCAL_STRIPE_WEBHOOK_SECRET'
+EOF
+
+cat > ~/.stripe_env <<EOF
+export LOCAL_STRIPE_WEBHOOK_SECRET='$LOCAL_STRIPE_WEBHOOK_SECRET'
+EOF
+
+touch ~/.profile
+
+grep -qxF 'source ~/.stripe_env' ~/.profile \
+  || echo 'source ~/.stripe_env' >> ~/.profile
+
+echo "[entrypoint] Stripe environment configured"
+echo "[entrypoint] Stripe listener ready"
+
+# Keep the container alive while Stripe runs
+wait "$stripe_pid"
+
+echo "[entrypoint] Stripe listener stopped"

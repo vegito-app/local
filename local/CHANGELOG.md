@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.32.1](https://github.com/vegito-app/local/compare/v1.32.0...v1.32.1) (2026-11-15)
+
+## [1.32.0](https://github.com/vegito-app/local/compare/v1.31.2...v1.32.0) (2026-11-15)
+
+
+### Features
+
+* **ci:** ajouter l'option --all-snapshot lors du démarrage de l'écouteur Stripe ([42b5d3e](https://github.com/vegito-app/local/commit/42b5d3e2c1926f31ed61130c21d7045a9258c3bf))
+
+### [1.31.2](https://github.com/vegito-app/local/compare/v1.31.1...v1.31.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* **ci, trivy:** corriger la condition d'exécution pour le téléchargement des artefacts Android et supprimer une variable d'image Trivy inutile ([b60a35d](https://github.com/vegito-app/local/commit/b60a35d6d9bbebcceec492c34fe46da59a92edc3))
+
+### [1.31.1](https://github.com/vegito-app/local/compare/v1.31.0...v1.31.1) (2026-11-14)
+
+## [1.31.0](https://github.com/vegito-app/local/compare/v1.30.0...v1.31.0) (2026-11-14)
+
+
+### Features
+
+* exporter les variables LOCAL_STRIPE_DIR, LOCAL_STRIPE_IMAGE_VERSION et LOCAL_STRIPE_IMAGE_LATEST ([99f66d2](https://github.com/vegito-app/local/commit/99f66d20bf1ecf1b6ab82bcd129e370367b25aa0))
+
+## [1.30.0](https://github.com/vegito-app/local/compare/v1.29.5...v1.30.0) (2026-11-14)
+
+
+### Features
+
+* ajouter le groupe local-stripe aux configurations de développement ([2c99cc2](https://github.com/vegito-app/local/commit/2c99cc26cad93b037091caff8d70a40a3e3c1f16))
+
+### [1.29.5](https://github.com/vegito-app/local/compare/v1.29.4...v1.29.5) (2026-11-14)
+
+
+### Bug Fixes
+
+* restaurer le keystore de release Android si l'application mobile est présente ([8ddd1e1](https://github.com/vegito-app/local/commit/8ddd1e11e9fba63a3f35b6c2f237f242e9041673))
+
 ### [1.29.4](https://github.com/vegito-app/local/compare/v1.29.3...v1.29.4) (2026-11-13)
 
 

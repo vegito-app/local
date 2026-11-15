@@ -94,10 +94,6 @@ variable "VEGITO_DOCKER_ALPINE_RUST_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_HUB_IMAGES_BASE_NAME}/rust-alpine:${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
 
-variable "VEGITO_DOCKER_DEBIAN_ROBOTFRAMEWORK_CONTEXT" {
-  default = "docker-image://${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}:robotframework-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
-}
-
 variable "VEGITO_DOCKER_DEBIAN_FLUTTER_DESKTOP_X_CONTEXT" {
   default = "docker-image://${VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME}:trixie-debian-flutter-desktop-x-${VEGITO_DOCKER_PUBLIC_IMAGES_VERSION}"
 }
@@ -130,6 +126,7 @@ group "local-dev" {
     "local-github-actions-runner",
     "local-robotframework",
     "local-vault-dev",
+    "local-stripe",
     "local-trivy",
   ]
 }
@@ -143,6 +140,7 @@ group "local-dev-ci" {
     "local-github-actions-runner-ci",
     "local-robotframework-ci",
     "local-vault-dev-ci",
+    "local-stripe-ci",
     "local-trivy-ci",
   ]
 }

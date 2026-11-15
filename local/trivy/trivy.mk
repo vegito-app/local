@@ -2,9 +2,6 @@ export LOCAL_TRIVY_DIR ?= $(CURDIR)
 
 export LOCAL_TRIVY_IMAGE_VERSION ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):trivy-$(VERSION)
 
-export LOCAL_TRIVY_IMAGE_VERSION ?= $(LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME):trivy-$(VERSION)
-
-
 local-trivy-container-up: local-trivy-container-rm
 	@$(LOCAL_TRIVY_DIR)/container-up.sh
 	@$(LOCAL_DOCKER_COMPOSE) logs trivy
