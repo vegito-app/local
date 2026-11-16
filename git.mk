@@ -1,5 +1,7 @@
 GIT_SUBTREE_DIRS := \
 android \
+clarinet-devnet \
+firebase-emulators \
 example-application \
 gcloud \
 nestor
@@ -19,6 +21,8 @@ VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_
 
 VEGITO_APP_GIT_SUBTREE_REMOTES := \
 android \
+clarinet-devnet \
+firebase-emulators \
 example-application \
 gcloud \
 nestor
