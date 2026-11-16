@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.33.0](https://github.com/vegito-app/local/compare/v1.32.3...v1.33.0) (2026-11-16)
+
+
+### Features
+
+* **docker:** ajouter la variable LOCAL_DOCKER_COMPOSE aux opérations CI des conteneurs locaux ([5ef9b29](https://github.com/vegito-app/local/commit/5ef9b29cabfaa0e65d51470b7b93da79b614258e))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques à v0.0.16 ([ffee892](https://github.com/vegito-app/local/commit/ffee892a926680358428eba11f84cf923a2f4b96))
+
 ### [1.32.3](https://github.com/vegito-app/local/compare/v1.32.2...v1.32.3) (2026-11-16)
 
 
