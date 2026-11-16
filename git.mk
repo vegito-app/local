@@ -108,6 +108,26 @@ git-subtree-firebase-emulators-push:
 	@echo "Android subtree pushed successfully."
 .PHONY: git-subtree-firebase-emulators-push
 
+LOCAL_CLARINET_DEVNET_DIR := $(LOCAL_DIR)/clarinet-devnet
+-include $(LOCAL_CLARINET_DEVNET_DIR)/clarinet-devnet.mk
+# ------------------------------------------
+# ------------------------------------------
+# Subtree ./clarinet-devnet
+# ------------------------------------------
+git-subtree-clarinet-devnet-pull:
+	@echo "⬇︎ Pulling the clarinet-devnet subtree..."
+	@git subtree pull --prefix clarinet-devnet \
+	  git@github.com:vegito-app/clarinet-devnet.git main --squash
+	@echo "AI clarinet-devnet subtree pulled successfully."
+.PHONY: git-subtree-clarinet-devnet-pull
+
+git-subtree-clarinet-devnet-push:
+	@echo "⬆︎ Pushing changes from the clarinet-devnet subtree..."
+	@git subtree push --prefix clarinet-devnet \
+	  git@github.com:vegito-app/clarinet-devnet.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "Android subtree pushed successfully."
+.PHONY: git-subtree-clarinet-devnet-push
+
 # ------------------------------------------
 # ------------------------------------------
 # Subtree ./example-application
