@@ -82,8 +82,8 @@ RUN for svc in firestore database pubsub storage ui ; do \
     firebase --version && firebase setup:emulators:$svc ; \
     done
 
-COPY container-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-caches.sh
-COPY entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
+COPY container-install.sh /usr/local/bin/firebase-emulators-install.sh
+COPY container-entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
 COPY firebase-emulators-config-create-json.sh /usr/local/bin/firebase-emulators-config-create-json.sh
 
 ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
