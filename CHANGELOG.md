@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.36.0](https://github.com/vegito-app/local/compare/v1.35.0...v1.36.0) (2026-11-16)
+
+
+### Features
+
+* ajouter clarinet-devnet et firebase-emulators aux répertoires de sous-arbre ([460158b](https://github.com/vegito-app/local/commit/460158b58a28616c49802adba734002b33ea4320))
+
 ## [1.35.0](https://github.com/vegito-app/local/compare/v1.34.0...v1.35.0) (2026-11-16)
 
 
