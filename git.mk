@@ -1,5 +1,5 @@
 GIT_SUBTREE_DIRS := \
-docker \
+android \
 example-application \
 gcloud \
 nestor
@@ -18,7 +18,7 @@ git-subtree-status:
 VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH := subtree/$(VEGITO_PROJECT_NAME)-$(VEGITO_PROJECT_USER)-$(VERSION)
 
 VEGITO_APP_GIT_SUBTREE_REMOTES := \
-docker \
+android \
 example-application \
 gcloud \
 nestor
@@ -67,6 +67,26 @@ git-subtree-nestor-push:
 	  git@github.com:vegito-app/ai-nestor.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "AI Nestor subtree pushed successfully."
 .PHONY: git-subtree-nestor-push
+
+VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
+-include $(VEGITO_GCLOUD_DIR)/gcloud.mk
+# ------------------------------------------
+# ------------------------------------------
+# Subtree ./android
+# ------------------------------------------
+git-subtree-android-pull:
+	@echo "⬇︎ Pulling the android subtree..."
+	@git subtree pull --prefix android \
+	  git@github.com:vegito-app/android.git main --squash
+	@echo "AI android subtree pulled successfully."
+.PHONY: git-subtree-android-pull
+
+git-subtree-android-push:
+	@echo "⬆︎ Pushing changes from the android subtree..."
+	@git subtree push --prefix android \
+	  git@github.com:vegito-app/android.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "Android subtree pushed successfully."
+.PHONY: git-subtree-android-push
 
 # ------------------------------------------
 # ------------------------------------------
