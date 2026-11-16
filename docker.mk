@@ -50,23 +50,23 @@ vegito-docker-images-gcr-release-ci: vegito-docker-images-release-ci
 # This is used to build a specific group of Docker Bake targets.
 # The value can be set to any of the groups named with '*-release' suffix, defined in the docker-bake.hcl file.
 # For example, if you have a group called "vegito-app-release", you can set this variable to "vegito-app".
-LOCAL_RELEASE_GROUPS ?= vegito-app
+LOCAL_RELEASE_IMAGES_GROUPS ?= vegito-app
 
-vegito-docker-images-release: $(LOCAL_RELEASE_GROUPS:%=vegito-docker-images-%-release)
+vegito-docker-images-release: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release)
 .PHONY: vegito-docker-images-release
 
-$(LOCAL_RELEASE_GROUPS:%=vegito-docker-images-%-release):
+$(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release):
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-images-%=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:vegito-docker-images-%=%)
-.PHONY: $(LOCAL_RELEASE_GROUPS:%=vegito-docker-images-%-release)
+.PHONY: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release)
 
-vegito-docker-images-release-ci: $(LOCAL_RELEASE_GROUPS:%=vegito-docker-images-%-release-ci)
+vegito-docker-images-release-ci: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release-ci)
 .PHONY: vegito-docker-images-release-ci
 
-$(LOCAL_RELEASE_GROUPS:%=vegito-docker-images-%-release-ci):
+$(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release-ci):
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-images-%=%)
 	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-images-%=%)
-.PHONY: $(LOCAL_RELEASE_GROUPS:%=vegito-docker-images-%-release-ci)
+.PHONY: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release-ci)
 
 VEGITO_DOCKER_BUILDX_BUILD_GROUPS ?= \
 	release \
