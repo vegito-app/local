@@ -113,11 +113,12 @@ images: vegito-docker-images-multi-registry-release
 images-groups-build: vegito-docker-images
 .PHONY: images-groups-build
 
+# Allow a CI environment variable to override this value if a shorten build is more suitable.
+LOCAL_IMAGES_CI_RELEASE_TARGET ?= vegito-docker-images-multi-registry-release-ci
+
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
-images-ci:  \
-docker-login \
-vegito-docker-images-multi-registry-release-ci
+images-ci: docker-login $(LOCAL_IMAGES_CI_RELEASE_TARGET)
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.

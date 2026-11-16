@@ -41,10 +41,10 @@ on:
         required: false
         type: string
         default: vegito-local-release
-      images_ci_build_groups:
+      images_release_groups:
         required: false
         type: string
-        default: "dockerhub runners builders services applications"
+        default: "${{ vars.LOCAL_RELEASE_GROUPS }}"
       dockerhub_replica_version:
         required: false
         type: string
@@ -151,7 +151,7 @@ jobs:
 
       - name: Build Docker image
         env:
-          LOCAL_DOCKER_BUILDX_CI_BUILD_GROUPS: ${{ inputs.images_ci_build_groups }}
+          LOCAL_RELEASE_GROUPS: ${{ inputs.images_release_groups }}
         run: |
           set -o pipefail
           make images-ci 2>&1 | tee images-build.log

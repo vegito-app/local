@@ -117,9 +117,9 @@ variable "platforms" {
   ]
 }
 
-group "local-dev" {
+group "vegito-app-local-dev" {
   targets = [
-    "local-project-builder-latest",
+    "local-project-builder",
     "local-android",
     "local-clarinet-devnet",
     "local-firebase-emulators",
@@ -131,7 +131,7 @@ group "local-dev" {
   ]
 }
 
-group "local-dev-ci" {
+group "vegito-app-local-dev-ci" {
   targets = [
     "local-project-builder-latest-ci",
     "local-android-ci",
@@ -147,23 +147,59 @@ group "local-dev-ci" {
 
 group "default" {
   targets = [
-    "release",
-    "release-ci",
+    "vegito-app-release",
+    "vegito-app-release-ci",
   ]
   pull            = true
   max_parallelism = VEGITO_RELEASE_BUILD_MAX_PARALLELISM
 }
 
-group "release" {
+group "vegito-app-release" {
   targets = [
-    "local-dev",
+    "vegito-app-local-dev",
     "vegito-example-application"
   ]
 }
 
-group "release-ci" {
+group "vegito-app-release-ci" {
   targets = [
-    "local-dev-ci",
+    "vegito-app-local-dev-ci",
+    "vegito-example-application-ci"
+  ]
+}
+
+group "local-dev" {
+  targets = [
+    "local-project-builder-latest",
+    "local-github-actions-runner",
+    "local-robotframework",
+    "local-vault-dev",
+    "local-stripe",
+    "local-trivy",
+  ]
+}
+
+group "local-dev-ci" {
+  targets = [
+    "local-project-builder-latest-ci",
+    "local-github-actions-runner-ci",
+    "local-robotframework-ci",
+    "local-vault-dev-ci",
+    "local-stripe-ci",
+    "local-trivy-ci",
+  ]
+}
+
+group "local-release" {
+  targets = [
+    "local-local-dev",
+    "vegito-example-application"
+  ]
+}
+
+group "local-release-ci" {
+  targets = [
+    "local-local-dev-ci",
     "vegito-example-application-ci"
   ]
 }
