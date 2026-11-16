@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.35.0](https://github.com/vegito-app/local/compare/v1.34.0...v1.35.0) (2026-11-16)
+
+
+### Features
+
+* update image release targets and groups in CI configuration ([d56e785](https://github.com/vegito-app/local/commit/d56e7857a675b3f1939f0560a965f1ef75554049))
+
 ## [1.34.0](https://github.com/vegito-app/local/compare/v1.33.0...v1.34.0) (2026-11-16)
 
 
