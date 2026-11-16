@@ -68,8 +68,8 @@ git-subtree-nestor-push:
 	@echo "AI Nestor subtree pushed successfully."
 .PHONY: git-subtree-nestor-push
 
-VEGITO_GCLOUD_DIR := $(LOCAL_DIR)/gcloud
--include $(VEGITO_GCLOUD_DIR)/gcloud.mk
+LOCAL_ANDROID_DIR := $(LOCAL_DIR)/android
+-include $(LOCAL_ANDROID_DIR)/android.mk
 # ------------------------------------------
 # ------------------------------------------
 # Subtree ./android
@@ -87,6 +87,26 @@ git-subtree-android-push:
 	  git@github.com:vegito-app/android.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
 	@echo "Android subtree pushed successfully."
 .PHONY: git-subtree-android-push
+
+LOCAL_FIREBASE_EMULATORS_DIR := $(LOCAL_DIR)/firebase-emulators
+-include $(LOCAL_FIREBASE_EMULATORS_DIR)/firebase-emulators.mk
+# ------------------------------------------
+# ------------------------------------------
+# Subtree ./firebase-emulators
+# ------------------------------------------
+git-subtree-firebase-emulators-pull:
+	@echo "⬇︎ Pulling the firebase-emulators subtree..."
+	@git subtree pull --prefix firebase-emulators \
+	  git@github.com:vegito-app/firebase-emulators.git main --squash
+	@echo "AI firebase-emulators subtree pulled successfully."
+.PHONY: git-subtree-firebase-emulators-pull
+
+git-subtree-firebase-emulators-push:
+	@echo "⬆︎ Pushing changes from the firebase-emulators subtree..."
+	@git subtree push --prefix firebase-emulators \
+	  git@github.com:vegito-app/firebase-emulators.git $(VEGITO_APP_GIT_SUBTREE_REMOTE_BRANCH)
+	@echo "Android subtree pushed successfully."
+.PHONY: git-subtree-firebase-emulators-push
 
 # ------------------------------------------
 # ------------------------------------------
