@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.32.3](https://github.com/vegito-app/local/compare/v1.32.2...v1.32.3) (2026-11-16)
+
+
+### Bug Fixes
+
+* **release:** ajouter la dépendance upload-android-artifacts pour la création des notes de version consolidées ([020820b](https://github.com/vegito-app/local/commit/020820b68b917ce979934ca3712441a427700eba))
+
 ### [1.32.2](https://github.com/vegito-app/local/compare/v1.32.1...v1.32.2) (2026-11-15)
 
 ### [1.32.1](https://github.com/vegito-app/local/compare/v1.32.0...v1.32.1) (2026-11-15)
