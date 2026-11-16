@@ -237,6 +237,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
 	      INFRA_ENV=$(INFRA_ENV) \
+	      LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE)" \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" 
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
