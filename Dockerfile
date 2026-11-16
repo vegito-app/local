@@ -1,0 +1,92 @@
+FROM local_dev AS builder
+FROM debian
+
+COPY --from=builder /usr/local/bin/localproxy /usr/local/bin/localproxy
+
+ARG TARGETPLATFORM
+
+USER root
+
+# Install Temurin 21 (Adoptium) - reliable way to get Java 21 on Debian
+RUN --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=local-firebase-emulators-${TARGETPLATFORM}-apt-lib,target=/var/lib/apt,sharing=locked \
+    set -eu; \
+    # Try to use Adoptium apt repo for this distro; fallback to tarball install if repo not available
+    DIST_CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"; \
+    ADOPTIUM_OK=0; \
+    for codename in "$DIST_CODENAME" stable bookworm bullseye; do \
+    if curl -fsS "https://packages.adoptium.net/artifactory/deb/dists/${codename}/Release" >/dev/null 2>&1; then \
+    curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /usr/share/keyrings/adoptium-archive-keyring.gpg; \
+    echo "deb [signed-by=/usr/share/keyrings/adoptium-archive-keyring.gpg] https://packages.adoptium.net/artifactory/deb ${codename} main" > /etc/apt/sources.list.d/adoptium.list; \
+    apt-get update; apt-get install -y temurin-21-jdk && ADOPTIUM_OK=1 && break; \
+    fi; \
+    done; \
+    if [ "$ADOPTIUM_OK" -ne 1 ]; then \
+    echo "Adoptium apt repo not available for this distro, downloading Temurin 21 tarball..."; \
+    TMPDIR="/tmp/temurin21"; mkdir -p "$TMPDIR"; \
+    curl -fsSL -o /tmp/temurin21.tar.gz "https://github.com/adoptium/temurin21-binaries/releases/latest/download/OpenJDK21U-jdk_x64_linux_hotspot.tar.gz"; \
+    tar -xzf /tmp/temurin21.tar.gz -C /tmp; \
+    JB_DIR=$(find /tmp -maxdepth 1 -type d -name 'jdk*' -print -quit); \
+    mkdir -p /usr/lib/jvm; \
+    mv "$JB_DIR" /usr/lib/jvm/temurin-21; \
+    update-alternatives --install /usr/bin/java java /usr/lib/jvm/temurin-21/bin/java 1; \
+    update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/temurin-21/bin/javac 1; \
+    fi; \
+    rm -rf /tmp/* /var/tmp/*
+
+ARG non_root_user=firebase
+ARG uid=1000
+ARG gid=1000
+
+# 👤 Rename non root user
+RUN usermod -l ${non_root_user} ${USER} \
+    && groupmod -n ${non_root_user} ${USER} \
+    && \
+    echo "${non_root_user}:${non_root_user}" | chpasswd && \
+    adduser ${non_root_user} sudo && \
+    echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
+    chmod 0440 /etc/sudoers.d/${non_root_user}
+
+USER ${non_root_user}
+ENV USER=${non_root_user}
+
+WORKDIR /home/debian
+
+ENV NVM_DIR=/home/debian/nvm
+
+ARG nvm_version=0.40.1
+ARG node_version=22.14.0
+RUN --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-npm-cache,target=/home/debian/.npm,sharing=locked,uid=${uid},gid=${gid} \
+    --mount=type=cache,id=local-github-actions-${TARGETPLATFORM}-node-gyp,target=/home/debian/.cache/node-gyp,sharing=locked,uid=${uid},gid=${gid} \
+    set -e ; \
+    # 
+    mkdir -p ${NVM_DIR} ; \
+    #
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash - ; \
+    . ${NVM_DIR}/nvm.sh ; \
+    nvm install ${node_version} ; \
+    nvm alias default ${node_version} ; \
+    nvm use default ;  \
+    # 
+    npm install -g \
+    firebase-tools \
+    depcheck \
+    npm-check-updates \
+    npm-check \
+    npm
+
+ENV NODE_PATH=${NVM_DIR}/versions/node/v${node_version}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/v${node_version}/bin:$PATH
+
+RUN for svc in firestore database pubsub storage ui ; do \
+    firebase --version && firebase setup:emulators:$svc ; \
+    done
+
+COPY container-refresh-caches.sh /usr/local/bin/firebase-emulators-refresh-caches.sh
+COPY entrypoint.sh /usr/local/bin/firebase-emulators-entrypoint.sh
+COPY firebase-emulators-config-create-json.sh /usr/local/bin/firebase-emulators-config-create-json.sh
+
+ENTRYPOINT [ "firebase-emulators-entrypoint.sh" ]
+
+COPY emulators-run.sh /usr/local/bin/firebase-emulators-run.sh
+CMD [ "firebase-emulators-run.sh" ]
