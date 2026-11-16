@@ -241,10 +241,7 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" 
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
--include $(LOCAL_DIR)/android/android.mk
--include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github-actions/github-actions.mk
--include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
 -include $(LOCAL_DIR)/stripe/stripe.mk

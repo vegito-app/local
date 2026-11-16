@@ -213,7 +213,7 @@ test-local: example-application-tests-robot-all
 
 docker-tags-md-ci: 
 	@$(MAKE) \
-	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS=release \
+	  VEGITO_DOCKER_BUILDX_BUILD_GROUPS=$(LOCAL_RELEASE_IMAGES_GROUPS)-release \
 	  vegito-docker-build-tags-list-ci-md \
     2>/dev/null
 .PHONY: docker-tags-md-ci
