@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.34.0](https://github.com/vegito-app/local/compare/v1.33.0...v1.34.0) (2026-11-16)
+
+
+### Features
+
+* **docker:** ajouter les variables VEGITO_DOCKERHUB_PAT et VEGITO_DOCKERHUB_USERNAME dans le fichier docker-compose ([e67dfa3](https://github.com/vegito-app/local/commit/e67dfa398d384fb30c1d193519e0de9f248a5afd))
+* **git-subtree, clarinet-devnet:** prepare extracted subtree repository import ([aaf927f](https://github.com/vegito-app/local/commit/aaf927f4e3cbf7fcfd2a5f1388ca198bd3861ebe))
+* **git-subtree, firebase-emulators:** prepare extracted subtree repository import ([f89d8b4](https://github.com/vegito-app/local/commit/f89d8b430b1bd861a85f00f905308b5e1ab7c559))
+* **git-subtree:** prepare extracted subtree repository import ([546fc82](https://github.com/vegito-app/local/commit/546fc82aa005487febd4bb69ad4c8ab0598b3233))
+* **git:** ajouter les opérations de pull et push pour le sous-arbre android ([2dc7b4c](https://github.com/vegito-app/local/commit/2dc7b4c25eaa2b9cacb3b8511e369432d0254f22))
+
+
+### Bug Fixes
+
+* **emulators:** corriger l'utilisation de socat pour le transfert de port ([847429b](https://github.com/vegito-app/local/commit/847429b75267391265143efc5c4cffc67d5457e8))
+
 ## [1.33.0](https://github.com/vegito-app/local/compare/v1.32.3...v1.33.0) (2026-11-16)
 
 
