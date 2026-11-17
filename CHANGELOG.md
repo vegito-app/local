@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.37.0](https://github.com/vegito-app/local/compare/v1.36.0...v1.37.0) (2026-11-17)
+
+
+### Features
+
+* **build, groups:** ajuster les groupes de construction pour les tags Docker dans le Makefile ([61c7598](https://github.com/vegito-app/local/commit/61c75987e4fe8b8378b61bed0cef3aae381a1209))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques à v0.0.18 ([b7932a9](https://github.com/vegito-app/local/commit/b7932a9487aebb6eaa4aefe710cc02d0edb3d8b6))
+* **firebase-emulators:** corriger l'échappement de EOF dans le script d'installation ([c8106b2](https://github.com/vegito-app/local/commit/c8106b2c561bfabf63a559d2ce221bec6ef593dc))
+
 ## [1.36.0](https://github.com/vegito-app/local/compare/v1.35.0...v1.36.0) (2026-11-16)
 
 
