@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.38.1](https://github.com/vegito-app/local/compare/v1.38.0...v1.38.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **tests:** ajouter la clé de débogage Stripe aux variables d'environnement ([23a0780](https://github.com/vegito-app/local/commit/23a07801787febb504f3ef7f89c848eb4088395b))
+
 ## [1.38.0](https://github.com/vegito-app/local/compare/v1.37.0...v1.38.0) (2026-11-17)
 
 
