@@ -92,6 +92,8 @@ ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),host)
 	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 endif
 
+export LOCAL_DOCKER_COMPOSE
+
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   firebase-emulators \
