@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.38.0](https://github.com/vegito-app/local/compare/v1.37.0...v1.38.0) (2026-11-17)
+
+
+### Features
+
+* **firebase-emulators:** ajouter la possibilité de spécifier un fichier de configuration pour le démarrage des émulateurs ([4c1a4bd](https://github.com/vegito-app/local/commit/4c1a4bd737d66e440bf037e9bc6eab335c241ea8))
+
+
+### Bug Fixes
+
+* **docker:** exporter la variable LOCAL_DOCKER_COMPOSE pour l'utilisation dans les services ([7328e40](https://github.com/vegito-app/local/commit/7328e403aef9a283ed3f2b3ff1ba2046e5ccbc9c))
+* **docker:** mettre à jour la version des images publiques à v0.0.19 ([a541b05](https://github.com/vegito-app/local/commit/a541b05d519fc0b2704a5a7b60a1b637ce1c6cb4))
+* **docker:** mettre à jour la version des images publiques à v0.0.20 ([4a57b3a](https://github.com/vegito-app/local/commit/4a57b3a9915dd858e0a572d5d9b3b863fad0392f))
+* **tests:** ajouter les variables d'environnement pour Docker Hub dans le job de tests ([219854a](https://github.com/vegito-app/local/commit/219854a01c9dbe16108bbb74c1e323c9510e4983))
+
 ## [1.37.0](https://github.com/vegito-app/local/compare/v1.36.0...v1.37.0) (2026-11-17)
 
 
