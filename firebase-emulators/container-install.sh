@@ -31,7 +31,7 @@ fi
 EOF
 fi
 
-cat <<EOF > ~/.bashrc.d/100-firebase-emulators.sh
+cat <<'EOF' > ~/.bashrc.d/100-firebase-emulators.sh
 
 # Firebase Emulator UI utilise certains services auxiliaires uniquement
 # exposés sur localhost. On les réexpose sur le réseau Docker avec un
