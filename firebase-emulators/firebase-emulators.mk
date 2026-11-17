@@ -54,9 +54,12 @@ local-firebase-emulators-functions-serve:
 	npm run serve
 .PHONY: local-firebase-emulators-functions-serve
 
+LOCAL_FIREBASE_EMULATORS_CONFIG ?= $(LOCAL_FIREBASE_EMULATORS_DIR)/firebase.json
+
 local-firebase-emulators-start: local-firebase-emulators-install
 	@echo "🚀 Starting Firebase emulators with services: $(FIREBASE_EMULATORS_SERVICES)"
 	@$(FIREBASE_EMULATORS) emulators:start \
+	  --config=$(LOCAL_FIREBASE_EMULATORS_CONFIG) \
 	  --project=$(GOOGLE_CLOUD_PROJECT_ID) \
 	  --import=$(LOCAL_FIREBASE_EMULATORS_DATA) \
 	  --export-on-exit $(LOCAL_FIREBASE_EMULATORS_DATA) \
