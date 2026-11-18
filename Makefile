@@ -118,7 +118,7 @@ LOCAL_RELEASE_IMAGES_CI_TARGETS ?= vegito-docker-images-multi-registry-release-c
 
 # CI: build and push all images in parallel.
 # Fastest path; requires runners with enough CPU, RAM and disk I/O.
-images-ci: docker-login $(LOCAL_RELEASE_IMAGES_CI_TARGETS)
+images-ci: $(LOCAL_RELEASE_IMAGES_CI_TARGETS)
 .PHONY: images-ci
 
 # CI: build and push images in smaller groups.
