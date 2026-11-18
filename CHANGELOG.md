@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.38.4](https://github.com/vegito-app/local/compare/v1.38.3...v1.38.4) (2026-11-18)
+
+
+### Bug Fixes
+
+* **makefile:** supprimer la dépendance à docker-login pour la cible images-ci ([e85662d](https://github.com/vegito-app/local/commit/e85662d43d301e715bcb7447c95f83c3ccc15ead))
+* **workflows:** réorganiser les variables d'environnement pour les tests et la construction d'images ([e1e772e](https://github.com/vegito-app/local/commit/e1e772efa906613bcfc51bf7997ec7abecf349f8))
+
 ### [1.38.3](https://github.com/vegito-app/local/compare/v1.38.2...v1.38.3) (2026-11-18)
 
 
