@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.38.2](https://github.com/vegito-app/local/compare/v1.38.1...v1.38.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* **docker:** corriger l'ordre d'installation de binfmt dans la configuration buildx ([50515c9](https://github.com/vegito-app/local/commit/50515c9841c7b9cd4e1690fdf87c6b71828a8970))
+
 ### [1.38.1](https://github.com/vegito-app/local/compare/v1.38.0...v1.38.1) (2026-11-17)
 
 
