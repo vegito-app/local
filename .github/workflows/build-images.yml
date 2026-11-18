@@ -73,19 +73,6 @@ jobs:
       VERSION: ${{ inputs.version }}
       GOOGLE_CLOUD_PROJECT_ID: ${{ vars.GOOGLE_CLOUD_PROJECT_ID }}
       INFRA_ENV: ${{ inputs.environment }}
-      USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
-      LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.base64
-      LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.storepass.base64
-      LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
-      LOCAL_ANDROID_FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
-      LOCAL_ANDROID_FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
-      VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
-      VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
-      VEGITO_DOCKER_REGISTRIES: ${{ inputs.docker_registry_mode }}
-      VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
-      VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER: ${{ vars.VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -102,6 +89,9 @@ jobs:
           fi
 
       - name: Restore ADB keys and debug.keystore
+        env:
+          LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.base64
+          LOCAL_ANDROID_RELEASE_KEYSTORE_STORE_PASS_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.storepass.base64
         if: ${{ inputs.has_mobile }}
         run: |
           printf "%s" "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ env.LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH }}
@@ -148,6 +138,11 @@ jobs:
           echo "VEGITO_RELEASE_BUCKET=${{ steps.resolve_bucket.outputs.bucket }}/${{ inputs.release_bucket_prefix }}" >> $GITHUB_ENV
 
       - name: Configure Cloud SDK and Docker
+        env: 
+          VEGITO_DOCKERHUB_PAT: ${{ secrets.VEGITO_DOCKERHUB_PAT }}
+          VEGITO_DOCKERHUB_USERNAME: ${{ secrets.VEGITO_DOCKERHUB_USERNAME }}
+          VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER: ${{ vars.VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER }}
+          VEGITO_DOCKER_REGISTRIES: ${{ inputs.docker_registry_mode }}
         run: |
           make gcloud-config-set-project
           make docker-login
@@ -155,7 +150,11 @@ jobs:
 
       - name: Build Docker image
         env:
-          LOCAL_RELEASE_IMAGES_TARGETS: $${{ inputs.images_release_targets }}
+          VEGITO_DOCKER_PUBLIC_REPOSITORY: ${{ vars.VEGITO_DOCKER_PUBLIC_REPOSITORY }}
+          USE_REGISTRY_CACHE: ${{ inputs.use_registry_cache }}
+          LOCAL_ANDROID_RELEASE_KEYSTORE_PATH: ${{ inputs.android_release_keystore_path }}
+          LOCAL_ANDROID_RELEASE_KEYSTORE_ALIAS_NAME: ${{ inputs.android_release_keystore_alias_name }}
+          LOCAL_RELEASE_IMAGES_TARGETS: ${{ inputs.images_release_targets }}
           LOCAL_RELEASE_IMAGES_GROUPS: ${{ inputs.images_release_groups }}
         run: |
           set -o pipefail
@@ -176,6 +175,8 @@ jobs:
           fi
 
       - name: Cleanup Sensitive Files
+        env:          
+          LOCAL_ANDROID_RELEASE_KEYSTORE_BASE64_PATH: ${{ inputs.android_release_keystore_path }}.base64
         if: always()
         run: |
           # Suppression sécurisée des fichiers sensibles
