@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.38.3](https://github.com/vegito-app/local/compare/v1.38.2...v1.38.3) (2026-11-18)
+
+
+### Bug Fixes
+
+* **stripe:** ajouter la surveillance des journaux Stripe en arrière-plan ([3934217](https://github.com/vegito-app/local/commit/39342177567f00a11f8b484efd74eb0c8bbd476a))
+
 ### [1.38.2](https://github.com/vegito-app/local/compare/v1.38.1...v1.38.2) (2026-11-18)
 
 
