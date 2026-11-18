@@ -176,10 +176,10 @@ else
 	    --platform linux/arm64 \
 	    --platform linux/amd64; \
 	}
+	@docker run --privileged --rm tonistiigi/binfmt --install all
 endif
 	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) --bootstrap
 	@$(MAKE) vegito-docker-buildx-configure-dns
-	@docker run --privileged --rm tonistiigi/binfmt --install all
 .PHONY: vegito-docker-buildx-setup
 vegito-docker-buildx-rm:
 	@echo "🔨  Removing buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
