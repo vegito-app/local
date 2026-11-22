@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.40.0](https://github.com/vegito-app/local/compare/v1.39.0...v1.40.0) (2026-11-22)
+
+
+### Features
+
+* **pipeline:** réorganiser les jobs et ajouter des dépendances pour le traitement des artefacts Android ([0fd52a5](https://github.com/vegito-app/local/commit/0fd52a50ae116f854c8bb315878fff36e5c151dc))
+
 ## [1.39.0](https://github.com/vegito-app/local/compare/v1.38.7...v1.39.0) (2026-11-22)
 
 
