@@ -8,25 +8,25 @@ DOCKERHUB_PAT ?= $(VEGITO_DOCKERHUB_PAT)
 
 export VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME  ?= $(VEGITO_DOCKER_PUBLIC_REPOSITORY)/vegito-docker
 
-vegito-docker-login-dockerhub:
+vegito-docker-dockerhub-login:
 	@echo "Logging into Docker Hub"
 	@printf '%s' "$(DOCKERHUB_PAT)" | docker login \
 	  --username "$(DOCKERHUB_USERNAME)" \
 	  --password-stdin
-.PHONY: vegito-docker-login-dockerhub
+.PHONY: vegito-docker-dockerhub-login
 
-vegito-docker-images-dockerhub-release:
+vegito-docker-dockerhub-images-release:
 	@echo "🚀 Building for $(@:vegito-docker-images-%=%)"
 	@$(MAKE) vegito-docker-images-release \
 	  VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME) \
 	  VEGITO_DOCKER_PUBLIC_REPOSITORY=$(VEGITO_DOCKER_PUBLIC_REPOSITORY)
-.PHONY: vegito-docker-images-dockerhub-release
+.PHONY: vegito-docker-dockerhub-images-release
 # 	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private
 
-vegito-docker-images-dockerhub-release-ci:
+vegito-docker-dockerhub-images-release-ci:
 	@echo "🚀 Building for $(@:vegito-docker-images-%-ci=%)"
 	@$(MAKE) vegito-docker-images-release-ci \
 	  VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME=$(VEGITO_DOCKER_PUBLIC_IMAGES_BASE_NAME) \
 	  VEGITO_DOCKER_PUBLIC_REPOSITORY=$(VEGITO_DOCKER_PUBLIC_REPOSITORY)
-.PHONY: vegito-docker-images-dockerhub-release-ci
+.PHONY: vegito-docker-dockerhub-images-release-ci
 # 	  VEGITO_DOCKER_PRIVATE_IMAGES_BASE=$(VEGITO_DOCKER_HUB_REGISTRY)/$(VEGITO_DOCKER_IMAGES_BASE)-private

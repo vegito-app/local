@@ -94,6 +94,7 @@ LOCAL_DEVCONTAINERS_DOCKER_COMPOSE_SERVICES ?= \
 -include android.mk
 -include nodejs.mk
 -include go.mk
+-include lab.mk
 
 -include .devcontainer/devcontainer.mk
 

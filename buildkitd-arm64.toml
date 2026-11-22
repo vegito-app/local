@@ -1,0 +1,18 @@
+[worker.oci]
+  max-parallelism = 2
+
+  gc = true
+
+  [[worker.oci.gcpolicy]]
+    filters = [
+      "type==source.local",
+      "type==exec.cachemount",
+      "type==source.git.checkout"
+    ]
+    keepDuration = "1h"
+    maxUsedSpace = "1GB"
+
+  [[worker.oci.gcpolicy]]
+    maxUsedSpace = "20GB"
+    reservedSpace = "2GB"
+    minFreeSpace = "25GB"
