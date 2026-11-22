@@ -49,7 +49,7 @@ forward_loopback_port() {
     echo "[firebase-emulators] Port 127.0.0.1:${source_port} is ready"
     echo "[firebase-emulators] Forwarding 0.0.0.0:${bridge_port} -> 127.0.0.1:${source_port}"
 
-    exec socat \
+    socat \
         "TCP-LISTEN:${bridge_port},bind=0.0.0.0,fork,reuseaddr" \
         "TCP:127.0.0.1:${source_port}"
 }

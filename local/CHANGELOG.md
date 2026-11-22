@@ -2,6 +2,106 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.38.3](https://github.com/vegito-app/local/compare/v1.38.2...v1.38.3) (2026-11-18)
+
+
+### Bug Fixes
+
+* **stripe:** ajouter la surveillance des journaux Stripe en arrière-plan ([3934217](https://github.com/vegito-app/local/commit/39342177567f00a11f8b484efd74eb0c8bbd476a))
+
+### [1.38.2](https://github.com/vegito-app/local/compare/v1.38.1...v1.38.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* **docker:** corriger l'ordre d'installation de binfmt dans la configuration buildx ([50515c9](https://github.com/vegito-app/local/commit/50515c9841c7b9cd4e1690fdf87c6b71828a8970))
+
+### [1.38.1](https://github.com/vegito-app/local/compare/v1.38.0...v1.38.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **tests:** ajouter la clé de débogage Stripe aux variables d'environnement ([23a0780](https://github.com/vegito-app/local/commit/23a07801787febb504f3ef7f89c848eb4088395b))
+
+## [1.38.0](https://github.com/vegito-app/local/compare/v1.37.0...v1.38.0) (2026-11-17)
+
+
+### Features
+
+* **firebase-emulators:** ajouter la possibilité de spécifier un fichier de configuration pour le démarrage des émulateurs ([4c1a4bd](https://github.com/vegito-app/local/commit/4c1a4bd737d66e440bf037e9bc6eab335c241ea8))
+
+
+### Bug Fixes
+
+* **docker:** exporter la variable LOCAL_DOCKER_COMPOSE pour l'utilisation dans les services ([7328e40](https://github.com/vegito-app/local/commit/7328e403aef9a283ed3f2b3ff1ba2046e5ccbc9c))
+* **docker:** mettre à jour la version des images publiques à v0.0.19 ([a541b05](https://github.com/vegito-app/local/commit/a541b05d519fc0b2704a5a7b60a1b637ce1c6cb4))
+* **docker:** mettre à jour la version des images publiques à v0.0.20 ([4a57b3a](https://github.com/vegito-app/local/commit/4a57b3a9915dd858e0a572d5d9b3b863fad0392f))
+* **tests:** ajouter les variables d'environnement pour Docker Hub dans le job de tests ([219854a](https://github.com/vegito-app/local/commit/219854a01c9dbe16108bbb74c1e323c9510e4983))
+
+## [1.37.0](https://github.com/vegito-app/local/compare/v1.36.0...v1.37.0) (2026-11-17)
+
+
+### Features
+
+* **build, groups:** ajuster les groupes de construction pour les tags Docker dans le Makefile ([61c7598](https://github.com/vegito-app/local/commit/61c75987e4fe8b8378b61bed0cef3aae381a1209))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques à v0.0.18 ([b7932a9](https://github.com/vegito-app/local/commit/b7932a9487aebb6eaa4aefe710cc02d0edb3d8b6))
+* **firebase-emulators:** corriger l'échappement de EOF dans le script d'installation ([c8106b2](https://github.com/vegito-app/local/commit/c8106b2c561bfabf63a559d2ce221bec6ef593dc))
+
+## [1.36.0](https://github.com/vegito-app/local/compare/v1.35.0...v1.36.0) (2026-11-16)
+
+
+### Features
+
+* ajouter clarinet-devnet et firebase-emulators aux répertoires de sous-arbre ([460158b](https://github.com/vegito-app/local/commit/460158b58a28616c49802adba734002b33ea4320))
+
+## [1.35.0](https://github.com/vegito-app/local/compare/v1.34.0...v1.35.0) (2026-11-16)
+
+
+### Features
+
+* update image release targets and groups in CI configuration ([d56e785](https://github.com/vegito-app/local/commit/d56e7857a675b3f1939f0560a965f1ef75554049))
+
+## [1.34.0](https://github.com/vegito-app/local/compare/v1.33.0...v1.34.0) (2026-11-16)
+
+
+### Features
+
+* **docker:** ajouter les variables VEGITO_DOCKERHUB_PAT et VEGITO_DOCKERHUB_USERNAME dans le fichier docker-compose ([e67dfa3](https://github.com/vegito-app/local/commit/e67dfa398d384fb30c1d193519e0de9f248a5afd))
+* **git-subtree, clarinet-devnet:** prepare extracted subtree repository import ([aaf927f](https://github.com/vegito-app/local/commit/aaf927f4e3cbf7fcfd2a5f1388ca198bd3861ebe))
+* **git-subtree, firebase-emulators:** prepare extracted subtree repository import ([f89d8b4](https://github.com/vegito-app/local/commit/f89d8b430b1bd861a85f00f905308b5e1ab7c559))
+* **git-subtree:** prepare extracted subtree repository import ([546fc82](https://github.com/vegito-app/local/commit/546fc82aa005487febd4bb69ad4c8ab0598b3233))
+* **git:** ajouter les opérations de pull et push pour le sous-arbre android ([2dc7b4c](https://github.com/vegito-app/local/commit/2dc7b4c25eaa2b9cacb3b8511e369432d0254f22))
+
+
+### Bug Fixes
+
+* **emulators:** corriger l'utilisation de socat pour le transfert de port ([847429b](https://github.com/vegito-app/local/commit/847429b75267391265143efc5c4cffc67d5457e8))
+
+## [1.33.0](https://github.com/vegito-app/local/compare/v1.32.3...v1.33.0) (2026-11-16)
+
+
+### Features
+
+* **docker:** ajouter la variable LOCAL_DOCKER_COMPOSE aux opérations CI des conteneurs locaux ([5ef9b29](https://github.com/vegito-app/local/commit/5ef9b29cabfaa0e65d51470b7b93da79b614258e))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques à v0.0.16 ([ffee892](https://github.com/vegito-app/local/commit/ffee892a926680358428eba11f84cf923a2f4b96))
+
+### [1.32.3](https://github.com/vegito-app/local/compare/v1.32.2...v1.32.3) (2026-11-16)
+
+
+### Bug Fixes
+
+* **release:** ajouter la dépendance upload-android-artifacts pour la création des notes de version consolidées ([020820b](https://github.com/vegito-app/local/commit/020820b68b917ce979934ca3712441a427700eba))
+
+### [1.32.2](https://github.com/vegito-app/local/compare/v1.32.1...v1.32.2) (2026-11-15)
+
 ### [1.32.1](https://github.com/vegito-app/local/compare/v1.32.0...v1.32.1) (2026-11-15)
 
 ## [1.32.0](https://github.com/vegito-app/local/compare/v1.31.2...v1.32.0) (2026-11-15)

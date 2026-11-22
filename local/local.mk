@@ -92,6 +92,8 @@ ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),host)
 	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
 endif
 
+export LOCAL_DOCKER_COMPOSE
+
 LOCAL_DOCKER_COMPOSE_SERVICES ?= \
   clarinet-devnet \
   firebase-emulators \
@@ -237,13 +239,11 @@ $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci): local-dev-container-i
 	    make local-containers-$(@:local-containers-%-ci=%) \
 	      GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) \
 	      INFRA_ENV=$(INFRA_ENV) \
+	      LOCAL_DOCKER_COMPOSE="$(LOCAL_DOCKER_COMPOSE)" \
 	      LOCAL_DOCKER_COMPOSE_SERVICES="$(LOCAL_DOCKER_COMPOSE_SERVICES_CI)" 
 .PHONY: $(LOCAL_CONTAINERS_OPERATIONS_CI:%=local-containers-%-ci)
 
--include $(LOCAL_DIR)/android/android.mk
--include $(LOCAL_DIR)/clarinet-devnet/clarinet-devnet.mk
 -include $(LOCAL_DIR)/github-actions/github-actions.mk
--include $(LOCAL_DIR)/firebase-emulators/firebase-emulators.mk
 -include $(LOCAL_DIR)/vault-dev/vault-dev.mk
 -include $(LOCAL_DIR)/robotframework/robotframework.mk
 -include $(LOCAL_DIR)/stripe/stripe.mk

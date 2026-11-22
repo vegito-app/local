@@ -162,7 +162,7 @@ jobs:
 
   release:
     name: Create Consolidated Release Notes
-    needs: [tests, trivy, version-changelog]
+    needs: [tests, trivy, version-changelog, upload-android-artifacts]
     uses: ./.github/workflows/application-release-metadata.yml
 
     with:

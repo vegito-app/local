@@ -17,6 +17,8 @@ kill_jobs() {
 # Trap to call kill_jobs on script exit
 trap kill_jobs EXIT
 
+firebase-emulators-install.sh
+
 if [ $# -eq 0 ]; then
   echo "[entrypoint] No command passed, entering sleep infinity to keep container alive"
   if [ "${#bg_pids[@]}" -gt 0 ]; then

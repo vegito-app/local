@@ -87,6 +87,9 @@ grep -qxF 'source ~/.stripe_env' ~/.profile \
 echo "[entrypoint] Stripe environment configured"
 echo "[entrypoint] Stripe listener ready"
 
+tail -f "$STRIPE_LOG" &
+bg_pids+=("$!")
+
 # Keep the container alive while Stripe runs
 wait "$stripe_pid"
 

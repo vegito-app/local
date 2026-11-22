@@ -11,7 +11,8 @@ vegito-docker-login-gcr: gcloud-auth-docker
 
 # Available values: gcr, dockerhub, gcr dockerhub, etc. (space-separated)
 VEGITO_DOCKER_REGISTRIES ?= dockerhub
-VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.11
+
+export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.22
 
 vegito-docker-login: $(VEGITO_DOCKER_REGISTRIES:%=vegito-docker-login-%)
 	@echo "🔐 Logged into: $(VEGITO_DOCKER_REGISTRIES)"
@@ -46,15 +47,26 @@ vegito-docker-images-multi-registry-release-ci: $(VEGITO_DOCKER_REGISTRIES:%=veg
 vegito-docker-images-gcr-release-ci: vegito-docker-images-release-ci
 .PHONY: vegito-docker-gcr-images-ci
 
-vegito-docker-images-release:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --load release
+# This is used to build a specific group of Docker Bake targets.
+# The value can be set to any of the groups named with '*-release' suffix, defined in the docker-bake.hcl file.
+# For example, if you have a group called "vegito-app-release", you can set this variable to "vegito-app".
+LOCAL_RELEASE_IMAGES_GROUPS ?= vegito-app
+
+vegito-docker-images-release: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release)
 .PHONY: vegito-docker-images-release
 
-vegito-docker-images-release-ci:
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --print release-ci
-	@$(LOCAL_DOCKER_BUILDX_BAKE) --push release-ci
+$(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-images-%=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --load $(@:vegito-docker-images-%=%)
+.PHONY: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release)
+
+vegito-docker-images-release-ci: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release-ci)
 .PHONY: vegito-docker-images-release-ci
+
+$(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release-ci):
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --print $(@:vegito-docker-images-%=%)
+	@$(LOCAL_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-images-%=%)
+.PHONY: $(LOCAL_RELEASE_IMAGES_GROUPS:%=vegito-docker-images-%-release-ci)
 
 VEGITO_DOCKER_BUILDX_BUILD_GROUPS ?= \
 	release \
@@ -164,10 +176,10 @@ else
 	    --platform linux/arm64 \
 	    --platform linux/amd64; \
 	}
+	@docker run --privileged --rm tonistiigi/binfmt --install all
 endif
 	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) --bootstrap
 	@$(MAKE) vegito-docker-buildx-configure-dns
-	@docker run --privileged --rm tonistiigi/binfmt --install all
 .PHONY: vegito-docker-buildx-setup
 vegito-docker-buildx-rm:
 	@echo "🔨  Removing buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
