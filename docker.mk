@@ -147,14 +147,16 @@ $(VEGITO_DOCKER_BUILDX_BAKE_TARGETS:%=vegito-docker-%-images-update):
 	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(@:vegito-docker-%-images-update=vegito-%-ci)
 .PHONY: $(VEGITO_DOCKER_BUILDX_BAKE_TARGETS:%=vegito-docker-%-images-update)
 
+VEGITO_DOCKER_IMAGES_RELEASE_TARGET ?= local-release
+
 vegito-docker-images-release:
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --load release
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(VEGITO_DOCKER_IMAGES_RELEASE_TARGET)
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --load $(VEGITO_DOCKER_IMAGES_RELEASE_TARGET)
 .PHONY: vegito-docker-images-release
 
 vegito-docker-images-release-ci:
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --print release-ci
-	@$(VEGITO_DOCKER_BUILDX_BAKE) --push release-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --print $(VEGITO_DOCKER_IMAGES_RELEASE_TARGET)-ci
+	@$(VEGITO_DOCKER_BUILDX_BAKE) --push $(VEGITO_DOCKER_IMAGES_RELEASE_TARGET)-ci
 .PHONY: vegito-docker-images-release-ci
 
 export VEGITO_DOCKER_BUILDX_NAME                 ?= vegito-project-builder
