@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.39.0](https://github.com/vegito-app/local/compare/v1.38.7...v1.39.0) (2026-11-22)
+
+
+### Features
+
+* **docker:** ajouter des cibles pour la gestion des connexions aux registres Docker du laboratoire ([76020a7](https://github.com/vegito-app/local/commit/76020a740f26e29e13feb9d85acd1213a748c0c9))
+* **docker:** ajouter une cible de version pour les images Docker lors des releases ([dcc127e](https://github.com/vegito-app/local/commit/dcc127e5486aeeb432c646bf0b00e20db5d623c7))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.24 ([662b7fd](https://github.com/vegito-app/local/commit/662b7fd82090c392bd6ea94aa2a2d4c2839df6ff))
+
 ### [1.38.7](https://github.com/vegito-app/local/compare/v1.38.6...v1.38.7) (2026-11-22)
 
 ### [1.38.6](https://github.com/vegito-app/local/compare/v1.38.5...v1.38.6) (2026-11-22)
