@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.38.6](https://github.com/vegito-app/local/compare/v1.38.5...v1.38.6) (2026-11-22)
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.22 ([17e7eba](https://github.com/vegito-app/local/commit/17e7ebafb1bcf4cbfb57d467a5332b27c8929e2b))
+
 ### [1.38.5](https://github.com/vegito-app/local/compare/v1.38.4...v1.38.5) (2026-11-18)
 
 
