@@ -18,11 +18,12 @@ GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 
 # Autodetect KVM GID
-if [ -e /dev/kvm ]; then
-  KVM_GID=$(stat -c '%g' /dev/kvm)
-else
-  KVM_GID=""
+if [ -z "${KVM_GID:-}" ] && [ -e /dev/kvm ]; then
+    KVM_GID="$(stat -c '%g' /dev/kvm)"
 fi
+
+KVM_GID="${KVM_GID:-}"
+
 # Autodetect GPU mode
 if [ -z "${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
     echo "🔍 VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
@@ -56,6 +57,7 @@ GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE}
+LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME=${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}
 # 
 LC_TIME=${LC_TIME:-}
 TZ=${TZ:-UTC}

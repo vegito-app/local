@@ -1,4 +1,4 @@
-export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.24
+export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.27
 
 # Google Cloud Registry (GCR) configuration
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
