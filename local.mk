@@ -11,14 +11,10 @@ LOCAL_STRIPE_DIR         ?= $(LOCAL_DIR)/stripe
 LOCAL_TRIVY_DIR          ?= $(LOCAL_DIR)/trivy
 LOCAL_VAULT_DEV_DIR      ?= $(LOCAL_DIR)/vault-dev
 
-LOCAL_DOTENV_FILE ?= .env
-
-local-dotenv: $(LOCAL_DOTENV_FILE)
-.PHONY: local-dotenv
-
-$(LOCAL_DOTENV_FILE):
+local-dotenv: 
 	@echo "📝 Generating .env file for local development..."
 	@$(LOCAL_DIR)/dotenv.sh
+.PHONY: local-dotenv
 
 local-docker-images-pull-parallel: \
 local-docker-compose-images-pull-parallel \
@@ -78,19 +74,12 @@ local-gcloud-builder-image-delete:
 .PHONY: local-gcloud-builder-image-delete
 
 local-project-builder-image-trivy-scan: vegito-docker-buildx-setup
-	@echo "Running Trivy scan for image: $(LOCAL_BUILDER_IMAGE)""
+	@echo "Running Trivy scan for image: $(LOCAL_BUILDER_IMAGE)"
 	@echo "	🗒️ Report: local-project-builder-$(VERSION)-trivy-report.html"
 	@$(MAKE) local-trivy-image-scan \
 	  LOCAL_TRIVY_IMAGE_SCAN_INPUT=$(LOCAL_BUILDER_IMAGE) \
 	  LOCAL_TRIVY_IMAGE_SCAN_OUTPUT_REPORT_HTML=local-project-builder-$(VERSION)-trivy-report.html
 .PHONY: local-project-builder-image-trivy-scan
-
-ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),wayland)
-	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
-endif
-ifeq ($(VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE),host)
-	LOCAL_DOCKER_COMPOSE += -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml
-endif
 
 export LOCAL_DOCKER_COMPOSE
 

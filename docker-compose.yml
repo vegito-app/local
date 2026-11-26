@@ -24,7 +24,7 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     healthcheck:
-      test: ["CMD", "docker", "info"]
+      test: [ "CMD", "docker", "info" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -99,6 +99,10 @@ services:
 
       LOCAL_ANDROID_CONTAINER_NAME: ${LOCAL_ANDROID_CONTAINER_NAME:-android-studio}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:
+      NVIDIA_DRIVER_CAPABILITIES:
+      NVIDIA_VISIBLE_DEVICES:
+      LOCAL_ANDROID_GPU_MODE:
 
       DISPLAY: ${LOCAL_ANDROID_STUDIO_XPRA_DISPLAY:-:1}
 
@@ -107,12 +111,7 @@ services:
       - ${LOCAL_WORKSPACE:-${PWD}}:${PWD}:cached
     group_add:
       - render
-      - ${KVM_GID}
-    devices:
-      - /dev/kvm
-      - /dev/dri
     working_dir: ${LOCAL_ANDROID_STUDIO_DIR:-${PWD}/android/studio}
-
     # command: |
     #   bash -c '
     #   set -euxo pipefail
@@ -173,6 +172,10 @@ services:
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
       AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
       JITSI_PUBLIC_URL: ${JITSI_PUBLIC_URL:-https://meet.vegito.app}
+      VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:
+      NVIDIA_DRIVER_CAPABILITIES:
+      NVIDIA_VISIBLE_DEVICES:
+      LOCAL_ANDROID_GPU_MODE:
     extra_hosts:
       - "meet.vegito.app:10.5.5.7"
     # dns:

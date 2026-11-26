@@ -1,0 +1,12 @@
+services:
+  android-studio:
+    group_add:
+      - ${KVM_GID}
+    devices:
+      - /dev/kvm:/dev/kvm
+
+  example-application-mobile:
+    group_add:
+      - ${KVM_GID}
+    devices:
+      - /dev/kvm:/dev/kvm

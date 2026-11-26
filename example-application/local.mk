@@ -61,7 +61,7 @@ export LOCAL_DOCKER_COMPOSE ?= docker compose \
     -f $(LOCAL_DIR)/trivy/docker-compose.yml \
     -f $(CURDIR)/.docker-compose-services-override.yml \
     -f $(CURDIR)/.docker-compose-networks-override.yml \
-    -f $(CURDIR)/.docker-compose-gpu-override.yml
+    -f $(CURDIR)/.docker-compose-hardware-override.yml
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES = \
   studio

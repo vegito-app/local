@@ -47,7 +47,7 @@ LOCAL_DOCKER_COMPOSE ?= docker compose \
   -f $(CURDIR)/trivy/docker-compose.yml \
   -f $(CURDIR)/.docker-compose-services-override.yml \
   -f $(CURDIR)/.docker-compose-networks-override.yml \
-  -f $(CURDIR)/.docker-compose-gpu-override.yml
+  -f $(CURDIR)/.docker-compose-hardware-override.yml
 
 LOCAL_ANDROID_DOCKER_COMPOSE_SERVICES ?= \
   studio
@@ -70,14 +70,6 @@ GCLOUD ?= $(LOCAL_DOCKER_COMPOSE) run -it --rm --entrypoint=gcloud dev --project
 VEGITO_DOCKER_BUILDX_BAKE ?= $(LOCAL_DOCKER_BUILDX_BAKE)
 
 export VEGITO_EXAMPLE_APPLICATION_DIR ?= $(LOCAL_DIR)/example-application
-
-export LOCAL_DOCKER_COMPOSE ?= docker compose \
-  -f $(LOCAL_DIR)/docker-compose.yml \
-  -f $(LOCAL_DIR)/stripe/docker-compose.yml \
-  -f $(LOCAL_DIR)/trivy/docker-compose.yml \
-  -f $(LOCAL_DIR)/.docker-compose-gpu-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-services-override.yml \
-  -f $(LOCAL_DIR)/.docker-compose-networks-override.yml
 
 -include local.mk
 

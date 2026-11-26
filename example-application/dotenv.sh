@@ -17,11 +17,14 @@ GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID
 
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 
-if [ -e /dev/kvm ]; then
-  KVM_GID=$(stat -c '%g' /dev/kvm)
-else
-  KVM_GID=""
+${PWD}}
+
+# Autodetect KVM GID
+if [ -z "${KVM_GID:-}" ] && [ -e /dev/kvm ]; then
+    KVM_GID="$(stat -c '%g' /dev/kvm)"
 fi
+
+KVM_GID="${KVM_GID:-}"
 
 # Ensure the current working directory exists.
 # Create default .env file with minimum required values to start.
@@ -285,27 +288,9 @@ services:
       - 8080
 EOF
 
-# Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
-# The file is created in the current working directory or the specified WORKING_DIR environment variable.
-dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
-[ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
-services:
-  android-studio:
-    environment:
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
-    runtime: nvidia
-    devices:
-      - /dev/nvidia0
-    shm_size: "8gb"
-  example-application-mobile:
-    environment:
-     LOCAL_ANDROID_GPU_MODE: host
-    runtime: nvidia
-    devices:
-      - /dev/nvidia0
-    shm_size: "8gb"
 
-EOF
+# ------------------------------------------------------------
+# Hardware profile selection
+# ------------------------------------------------------------
 
+./local/hardware/select-profile.sh
