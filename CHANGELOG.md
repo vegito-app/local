@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.42.0](https://github.com/vegito-app/local/compare/v1.41.0...v1.42.0) (2026-11-26)
+
+
+### Features
+
+* **docker:** ajouter la configuration pour buildkitd ARM64 et mettre à jour les options de buildx ([b2c8a4e](https://github.com/vegito-app/local/commit/b2c8a4ec4beb5c2ec2b76d1901f08aedbede35e3))
+
 ## [1.41.0](https://github.com/vegito-app/local/compare/v1.40.0...v1.41.0) (2026-11-26)
 
 
