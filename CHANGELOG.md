@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.41.0](https://github.com/vegito-app/local/compare/v1.40.0...v1.41.0) (2026-11-26)
+
+
+### Features
+
+* **hardware:** ajouter des fichiers de configuration pour les services KVM et GPU ([31d3415](https://github.com/vegito-app/local/commit/31d34152e612e9b047648cd8dec9f04388fa6221))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.27 ([a368159](https://github.com/vegito-app/local/commit/a36815900a9e187ce99b4c42795347efe8153654))
+* **docker:** mettre à jour les variables d'environnement pour le constructeur ARM ([81e851d](https://github.com/vegito-app/local/commit/81e851dd6cc8f3cf479ac14f83661f4ae7de9521))
+* **docker:** supprimer les variables d'environnement inutilisées dans le fichier docker-compose ([1400191](https://github.com/vegito-app/local/commit/1400191b45c9b94c84a9928a0bed579016abdb23))
+* **emulator:** corriger le mode GPU par défaut à swiftshader ([85b5460](https://github.com/vegito-app/local/commit/85b54601a4e5c53af253bb93c55c816c20211e80))
+
 ## [1.40.0](https://github.com/vegito-app/local/compare/v1.39.0...v1.40.0) (2026-11-22)
 
 
