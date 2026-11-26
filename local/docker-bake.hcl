@@ -192,14 +192,14 @@ group "local-dev-ci" {
 
 group "local-release" {
   targets = [
-    "local-local-dev",
+    "local-dev",
     "vegito-example-application"
   ]
 }
 
 group "local-release-ci" {
   targets = [
-    "local-local-dev-ci",
+    "local-dev-ci",
     "vegito-example-application-ci"
   ]
 }

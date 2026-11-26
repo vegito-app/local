@@ -1,0 +1,41 @@
+services:
+  android-studio:
+    group_add:
+      - ${KVM_GID}
+    devices:
+      - /dev/kvm:/dev/kvm
+      - /dev/dri:/dev/dri
+    shm_size: "8gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  example-application-mobile:
+    group_add:
+      - ${KVM_GID}
+    devices:
+      - /dev/kvm:/dev/kvm
+      - /dev/dri:/dev/dri
+    shm_size: "8gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  nestor:
+    devices:
+      - /dev/dri:/dev/dri
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

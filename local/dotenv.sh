@@ -18,21 +18,22 @@ GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID:-${DEV_GOOGLE_CLOUD_PROJECT_ID
 currentWorkingDir=${WORKING_DIR:-${PWD}}
 
 # Autodetect KVM GID
-if [ -e /dev/kvm ]; then
-  KVM_GID=$(stat -c '%g' /dev/kvm)
-else
-  KVM_GID=""
+if [ -z "${KVM_GID:-}" ] && [ -e /dev/kvm ]; then
+    KVM_GID="$(stat -c '%g' /dev/kvm)"
 fi
+
+KVM_GID="${KVM_GID:-}"
+
 # Autodetect GPU mode
-if [ -z "${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-}" ]; then
-    echo "🔍 VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE not specified, detecting GPU acceleration..."
+if [ -z "${VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:-}" ]; then
+    echo "🔍 VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE not specified, detecting GPU acceleration..."
 
     if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE="wayland"
+        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE="wayland"
         echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
     else
-        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE="swiftshader_indirect"
-        echo "ℹ️ No GPU acceleration detected -> using SwiftShader fallback"
+      export VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE="xvfb"
+      echo "ℹ️ No GPU acceleration detected -> using Xvfb fallback"
     fi
 fi
 
@@ -56,6 +57,7 @@ GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID}
 #------------------------------------------------------- 
 # The following resources are used for the local development environment:
 LOCAL_BUILDER_IMAGE=${LOCAL_BUILDER_IMAGE}
+LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME=${LOCAL_DOCKER_PUBLIC_IMAGES_BASE_NAME}
 # 
 LC_TIME=${LC_TIME:-}
 TZ=${TZ:-UTC}
@@ -65,7 +67,7 @@ DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 KVM_GID=${KVM_GID}
-VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE:-swiftshader_indirect}
+VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:-xvfb}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
@@ -307,50 +309,8 @@ services:
       - "2976"
 EOF
 
-# Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
-# The file is created in the current working directory or the specified WORKING_DIR environment variable.
-dockerComposeGpuOverride=${WORKING_DIR:-${PWD}}/.docker-compose-gpu-override.yml
-[ -f $dockerComposeGpuOverride ] || cat <<'EOF' > $dockerComposeGpuOverride
-services:
+# ------------------------------------------------------------
+# Hardware profile selection
+# ------------------------------------------------------------
 
-  dev:
-    environment:
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
-    runtime: nvidia
-    devices:
-      - /dev/nvidia0
-    shm_size: "8gb"
-
-  android-studio:
-    environment:
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
-    runtime: nvidia
-    devices:
-      - /dev/nvidia0
-    shm_size: "8gb"
-
-  example-application-mobile:
-    environment:
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
-    runtime: nvidia
-    devices:
-      - /dev/nvidia0
-    shm_size: "8gb"
-
-  nestor:    
-    environment:
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_GPU_MODE: wayland
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
-    runtime: nvidia
-    devices:
-      - /dev/nvidia0
-    shm_size: "8gb"
-EOF
-
+./hardware/select-profile.sh

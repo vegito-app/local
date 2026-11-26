@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.41.0](https://github.com/vegito-app/local/compare/v1.40.0...v1.41.0) (2026-11-26)
+
+
+### Features
+
+* **hardware:** ajouter des fichiers de configuration pour les services KVM et GPU ([31d3415](https://github.com/vegito-app/local/commit/31d34152e612e9b047648cd8dec9f04388fa6221))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.27 ([a368159](https://github.com/vegito-app/local/commit/a36815900a9e187ce99b4c42795347efe8153654))
+* **docker:** mettre à jour les variables d'environnement pour le constructeur ARM ([81e851d](https://github.com/vegito-app/local/commit/81e851dd6cc8f3cf479ac14f83661f4ae7de9521))
+* **docker:** supprimer les variables d'environnement inutilisées dans le fichier docker-compose ([1400191](https://github.com/vegito-app/local/commit/1400191b45c9b94c84a9928a0bed579016abdb23))
+* **emulator:** corriger le mode GPU par défaut à swiftshader ([85b5460](https://github.com/vegito-app/local/commit/85b54601a4e5c53af253bb93c55c816c20211e80))
+
+## [1.40.0](https://github.com/vegito-app/local/compare/v1.39.0...v1.40.0) (2026-11-22)
+
+
+### Features
+
+* **pipeline:** réorganiser les jobs et ajouter des dépendances pour le traitement des artefacts Android ([0fd52a5](https://github.com/vegito-app/local/commit/0fd52a50ae116f854c8bb315878fff36e5c151dc))
+
+## [1.39.0](https://github.com/vegito-app/local/compare/v1.38.7...v1.39.0) (2026-11-22)
+
+
+### Features
+
+* **docker:** ajouter des cibles pour la gestion des connexions aux registres Docker du laboratoire ([76020a7](https://github.com/vegito-app/local/commit/76020a740f26e29e13feb9d85acd1213a748c0c9))
+* **docker:** ajouter une cible de version pour les images Docker lors des releases ([dcc127e](https://github.com/vegito-app/local/commit/dcc127e5486aeeb432c646bf0b00e20db5d623c7))
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.24 ([662b7fd](https://github.com/vegito-app/local/commit/662b7fd82090c392bd6ea94aa2a2d4c2839df6ff))
+
+### [1.38.7](https://github.com/vegito-app/local/compare/v1.38.6...v1.38.7) (2026-11-22)
+
+### [1.38.6](https://github.com/vegito-app/local/compare/v1.38.5...v1.38.6) (2026-11-22)
+
+
+### Bug Fixes
+
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.22 ([17e7eba](https://github.com/vegito-app/local/commit/17e7ebafb1bcf4cbfb57d467a5332b27c8929e2b))
+
+### [1.38.5](https://github.com/vegito-app/local/compare/v1.38.4...v1.38.5) (2026-11-18)
+
+
+### Bug Fixes
+
+* **functional-tests:** ajouter la clé de débogage Stripe aux tests d'application ([eda0b13](https://github.com/vegito-app/local/commit/eda0b139d2120bc9999689b7cf21a751a72f56ea))
+
+### [1.38.4](https://github.com/vegito-app/local/compare/v1.38.3...v1.38.4) (2026-11-18)
+
+
+### Bug Fixes
+
+* **makefile:** supprimer la dépendance à docker-login pour la cible images-ci ([e85662d](https://github.com/vegito-app/local/commit/e85662d43d301e715bcb7447c95f83c3ccc15ead))
+* **workflows:** réorganiser les variables d'environnement pour les tests et la construction d'images ([e1e772e](https://github.com/vegito-app/local/commit/e1e772efa906613bcfc51bf7997ec7abecf349f8))
+
 ### [1.38.3](https://github.com/vegito-app/local/compare/v1.38.2...v1.38.3) (2026-11-18)
 
 

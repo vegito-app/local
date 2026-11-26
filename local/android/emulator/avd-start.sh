@@ -48,7 +48,7 @@ if [[ -z "$apk_path" ]]; then
   fi
 fi
 avd_name="${LOCAL_ANDROID_EMULATOR_AVD_NAME:-Pixel_8_Pro}"
-gpu_mode="${LOCAL_ANDROID_GPU_MODE:-swiftshader_indirect}"
+gpu_mode="${LOCAL_ANDROID_GPU_MODE:-swiftshader}"
 
 # 📛 Détection du nom du package si non fourni
 if [[ -z "${LOCAL_ANDROID_PACKAGE_NAME:-}" ]]; then

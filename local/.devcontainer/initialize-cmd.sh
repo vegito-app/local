@@ -40,6 +40,7 @@ cat <<'EOF' > ${envrcFile}
 #
 export DEV_GOOGLE_CLOUD_PROJECT_ID=${DEV_GOOGLE_CLOUD_PROJECT_ID:-moov-dev-439608}
 export VEGITO_PROJECT_USER=${VEGITO_PROJECT_USER:-john-doe}
+export VEGITO_DOCKER_HARDWARE_PROFILE=${VEGITO_DOCKER_HARDWARE_PROFILE:-auto}
 # export LC_TIME=fr_FR.UTF-8
 # export TZ=Indian/Reunion
 # export TZ=Europe/Paris

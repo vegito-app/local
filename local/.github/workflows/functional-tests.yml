@@ -120,6 +120,8 @@ jobs:
           ) 2>&1 | tee setup.log
 
       - name: Run Application Tests
+        env:
+          VEGITO_STRIPE_DEBUG_KEY: ${{ secrets.VEGITO_STRIPE_DEBUG_KEY }}
         run: |
           set -euo pipefail
           make functional-tests-ci 2>&1 | tee tests.log

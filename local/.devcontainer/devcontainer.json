@@ -5,7 +5,7 @@
     "../example-application/docker-compose.yml",
     "../.docker-compose-services-override.yml",
     "../.docker-compose-networks-override.yml",
-    "../.docker-compose-gpu-override.yml",
+    "../.docker-compose-hardware-override.yml",
     "./docker-compose-vscode.yml"
   ],
   "runServices": [
