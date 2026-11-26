@@ -1,4 +1,11 @@
+#!/bin/bash
 
+# This script is used to generate a Docker Compose 
+# override file for hardware-specific configurations
+
+set -euo pipefail
+
+currentWorkingDir=${1:-${PWD}}
 hardwareDir="${currentWorkingDir}/hardware"
 
 # Set this file according to the local development environment. The file is gitignored due to the local nature of the configuration.
