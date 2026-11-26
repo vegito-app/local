@@ -1,7 +1,6 @@
 VEGITO_DOCKER_LAB_REGISTRIES ?= public private cache 
 
 vegito-docker-lab-login: $(VEGITO_DOCKER_LAB_REGISTRIES:%=vegito-lab-%-docker-login)
-	@echo "Logged into Vegito lab Docker registry internally not required"
 .PHONY: vegito-docker-lab-login
 
 $(VEGITO_DOCKER_LAB_REGISTRIES:%=vegito-lab-%-docker-login):

@@ -188,6 +188,8 @@ ifeq ($(VEGITO_DOCKER_BUILDX_ARM_ENABLE_BUILDER),true)
 VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS += memory=20g
 endif
 
+VEGITO_DOCKER_BUILDKITD_ARM64_CONFIG ?= $(LOCAL_DIR)/buildkitd-arm64.toml
+
 vegito-docker-buildx-setup:
 	@echo "🔨  Creating buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
 ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER),true)
@@ -196,7 +198,7 @@ ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER),true)
 	  $(DOCKER) context use default && \
 	  $(DOCKER) buildx create \
 	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
-		--buildkitd-config buildkitd-arm64.toml \
+		--buildkitd-config $(VEGITO_DOCKER_BUILDKITD_ARM64_CONFIG) \
 	    --driver docker-container \
 	    --use \
 	    --platform linux/amd64 \
@@ -216,7 +218,7 @@ else
 	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
 	    --driver docker-container \
 		--driver-opt memory=8g \
-		--buildkitd-config buildkitd-arm64.toml \
+		--buildkitd-config $(VEGITO_DOCKER_BUILDKITD_ARM64_CONFIG) \
 	    --use \
 	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
 	    --platform linux/arm64 \
