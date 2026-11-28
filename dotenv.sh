@@ -24,19 +24,6 @@ fi
 
 KVM_GID="${KVM_GID:-}"
 
-# Autodetect GPU mode
-if [ -z "${VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:-}" ]; then
-    echo "🔍 VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE not specified, detecting GPU acceleration..."
-
-    if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
-        export VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE="wayland"
-        echo "✅ NVIDIA GPU acceleration detected -> using Wayland GPU mode"
-    else
-      export VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE="xvfb"
-      echo "ℹ️ No GPU acceleration detected -> using Xvfb fallback"
-    fi
-fi
-
 # Ensure the current working directory exists.
 # Create default .env file with minimum required values to start.
 localDotenvFile=${currentWorkingDir}/.env
@@ -67,7 +54,7 @@ DEV_GOOGLE_IDP_OAUTH_CLIENT_ID_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}
 DEV_STRIPE_KEY_SECRET_SECRET_ID=projects/${DEV_GOOGLE_CLOUD_PROJECT_ID}/secrets/stripe-key/versions/latest
 # 
 KVM_GID=${KVM_GID}
-VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:-xvfb}
+VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE=${VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:-auto}
 #
 FIREBASE_ADMINSDK_SERVICEACCOUNT_ID=projects/${GOOGLE_CLOUD_PROJECT_ID}/secrets/firebase-adminsdk-service-account-key/versions/latest
 FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}

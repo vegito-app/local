@@ -14,16 +14,7 @@ services:
       # Forward configuration from host environment.
       VEGITO_DOCKER_PUBLIC_REPOSITORY: ${VEGITO_DOCKER_PUBLIC_REPOSITORY:-docker.io/vegitoapp}
       VEGITO_DOCKERHUB_PAT:
-      VEGITO_DOCKERHUB_USERNAME:
-      # GPU Host configuration forwarding:
-      # wayland|xvfb|host
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:
-      # all|compute|display|nvidia|swiftshader|host
-      NVIDIA_DRIVER_CAPABILITIES:
-      # all|compute|display|nvidia|swiftshader
-      NVIDIA_VISIBLE_DEVICES:
-      # swiftshader|host
-      LOCAL_ANDROID_GPU_MODE:
+      VEGITO_DOCKERHUB_USERNAME: 
     volumes:
       - ${PWD}:${PWD}:cached
       - /var/run/docker.sock:/var/run/docker.sock
@@ -34,7 +25,7 @@ services:
       - SYS_ADMIN
       - NET_ADMIN
     healthcheck:
-      test: ["CMD", "docker", "info"]
+      test: [ "CMD", "docker", "info" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -110,11 +101,6 @@ services:
       LOCAL_ANDROID_CONTAINER_NAME: ${LOCAL_ANDROID_CONTAINER_NAME:-android-studio}
       LOCAL_ANDROID_CONTAINER_EXEC: ""
 
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:
-      NVIDIA_DRIVER_CAPABILITIES:
-      NVIDIA_VISIBLE_DEVICES:
-      LOCAL_ANDROID_GPU_MODE:
-
       DISPLAY: ${LOCAL_ANDROID_STUDIO_XPRA_DISPLAY:-:1}
 
     privileged: true
@@ -183,10 +169,7 @@ services:
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ai-nestor:11434}
       AI_WORKSPACES: ${AI_WORKSPACES:-/workspaces/ai}
       JITSI_PUBLIC_URL: ${JITSI_PUBLIC_URL:-https://meet.vegito.app}
-      VEGITO_DOCKER_DEBIAN_DESKTOP_X_DISPLAY_MODE:
-      NVIDIA_DRIVER_CAPABILITIES:
-      NVIDIA_VISIBLE_DEVICES:
-      LOCAL_ANDROID_GPU_MODE:
+
     extra_hosts:
       - "meet.vegito.app:10.5.5.7"
     # dns:
