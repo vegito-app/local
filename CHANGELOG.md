@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.42.1](https://github.com/vegito-app/local/compare/v1.42.0...v1.42.1) (2026-11-28)
+
+
+### Bug Fixes
+
+* **docker:** corriger le nom de la variable d'environnement VEGITO_DOCKER_BUILDX_ARM_ENABLE_BUILDER ([5e11c70](https://github.com/vegito-app/local/commit/5e11c70f59421ee247a671245ade8097eceba91f))
+* **docker:** mettre à jour la version des images publiques Docker à v0.0.29 ([a44a5df](https://github.com/vegito-app/local/commit/a44a5dfc5fdb906dee4ef27f6d71c41fb17390d8))
+
 ## [1.42.0](https://github.com/vegito-app/local/compare/v1.41.0...v1.42.0) (2026-11-26)
 
 
