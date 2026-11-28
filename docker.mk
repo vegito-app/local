@@ -1,4 +1,4 @@
-export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.27
+export VEGITO_DOCKER_PUBLIC_IMAGES_VERSION ?= v0.0.29
 
 # Google Cloud Registry (GCR) configuration
 GOOGLE_CLOUD_DOCKER_REGISTRY ?= $(GOOGLE_CLOUD_REGION)-docker.pkg.devs
@@ -192,37 +192,36 @@ VEGITO_DOCKER_BUILDKITD_ARM64_CONFIG ?= $(LOCAL_DIR)/buildkitd-arm64.toml
 
 vegito-docker-buildx-setup:
 	@echo "🔨  Creating buildx context $(VEGITO_DOCKER_BUILDX_NAME)"
-ifeq ($(VEGITO_DOCKER_BUILDX_ENABLE_ARM_BUILDER),true)
-	@echo "🔨  Enabling ARM builder"
-	  $(DOCKER) buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
-	  $(DOCKER) context use default && \
-	  $(DOCKER) buildx create \
+ifeq ($(VEGITO_DOCKER_BUILDX_ARM_ENABLE_BUILDER),true)
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
+	  docker context use default && \
+	  docker buildx create \
 	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
-		--buildkitd-config $(VEGITO_DOCKER_BUILDKITD_ARM64_CONFIG) \
+		--buildkitd-config buildkitd-arm64.toml \
 	    --driver docker-container \
 	    --use \
 	    --platform linux/amd64 \
 	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%"); \
 	}
-	$(MAKE) vegito-docker-context-arm
-	$(DOCKER) buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) | grep $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
-	  $(DOCKER) buildx create \
+	@$(MAKE) vegito-docker-context-arm
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) | grep $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) >/dev/null 2>&1 || \
+	  docker buildx create \
 	    --append \
 	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
-	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME) \
-	    --platform linux/arm64
+	    --platform linux/arm64 \
+	    $(VEGITO_DOCKER_BUILDX_ARM_BUILDER_NAME)
 else
-	@$(DOCKER) buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
-	  $(DOCKER) context use default && \
-	  $(DOCKER) buildx create \
+	@docker buildx inspect $(VEGITO_DOCKER_BUILDX_NAME) >/dev/null 2>&1 || { \
+	  docker context use default && \
+	  docker buildx create \
 	    --name $(VEGITO_DOCKER_BUILDX_NAME) \
 	    --driver docker-container \
 		--driver-opt memory=8g \
-		--buildkitd-config $(VEGITO_DOCKER_BUILDKITD_ARM64_CONFIG) \
+		--buildkitd-config buildkitd-arm64.toml \
 	    --use \
-	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%") \
 	    --platform linux/arm64 \
-	    --platform linux/amd64; \
+	    --platform linux/amd64 \
+	    $(VEGITO_DOCKER_BUILDX_CREATE_DRIVER_OPTS:%=--driver-opt "%"); \
 	}
 	@docker run --privileged --rm tonistiigi/binfmt --install all
 endif
